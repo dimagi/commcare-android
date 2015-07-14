@@ -70,8 +70,6 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    private static final String TAG = DataPullTask.class.getSimpleName();
-
     String server;
     String keyProvider;
     String username;
@@ -116,7 +114,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
     private InputStream mDebugStream;
 
-    
     public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
         this.server = server;
         this.keyProvider = keyProvider;
@@ -124,6 +121,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         this.password = password;
         this.c = c;
         this.taskId = DATA_PULL_TASK_ID;
+
+        TAG = DataPullTask.class.getSimpleName();
     }
 
     /* (non-Javadoc)

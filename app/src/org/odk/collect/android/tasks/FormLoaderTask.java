@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.tasks;
 
 import java.io.BufferedInputStream;
@@ -67,70 +53,59 @@ import android.util.Log;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWrapper> {
-    
     public static InstanceInitializationFactory iif;
-    private final static String t = "FormLoaderTask";
-
+    private final static String TAG = FormLoaderTask.class.getSimpleName();
 
     private FormLoaderListener mStateListener;
     private String mErrorMsg;
-    private SecretKeySpec mSymetricKey;
-    private boolean mReadOnly;
-    
-    private Context context;
-    
+    private final SecretKeySpec mSymetricKey;
+    private final boolean mReadOnly;
+
+    private final Context context;
+
     public FormLoaderTask(Context context) {
         this(context, null, false);
     }
-    
+
     public FormLoaderTask(Context context, SecretKeySpec symetricKey, boolean readOnly) {
         this.context = context;
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
     }
 
-    protected class FECWrapper {
-        FormController controller;
-
-
-        protected FECWrapper(FormController controller) {
-            this.controller = controller;
-        }
-
-
-        protected FormController getController() {
-            return controller;
-        }
-
-
-        protected void free() {
-            controller = null;
-        }
-    }
-
-    FECWrapper data;
-
+    private FECWrapper data;
 
     /**
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     * 
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
     protected FECWrapper doInBackground(Uri... form) {
-        FormEntryController fec = null;
+        FormEntryController fec;
         FormDef fd = null;
-        FileInputStream fis = null;
+        FileInputStream fis;
         mErrorMsg = null;
 
         Uri theForm = form[0];
-        
-        //TODO: Selection=? helper
-        Cursor c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
-        if(!c.moveToFirst()) {throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); }
-        String formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+
+        Cursor c = null;
+        String formPath = "";
+        String formMediaPath = null;
+        try {
+            //TODO: Selection=? helper
+            c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+
+            if (!c.moveToFirst()) {
+                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); 
+            }
+
+            formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+            formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
@@ -138,25 +113,23 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         if (formBin.exists()) {
             // if we have binary, deserialize binary
-            Log.i(
-                t,
-                "Attempting to load " + formXml.getName() + " from cached file: "
-                        + formBin.getAbsolutePath());
+            Log.i(TAG, "Attempting to load " + formXml.getName() +
+                    " from cached file: " + formBin.getAbsolutePath());
             fd = deserializeFormDef(formBin);
             if (fd == null) {
                 // some error occured with deserialization. Remove the file, and make a new .formdef
                 // from xml
-                Log.w(t,
-                    "Deserialization FAILED!  Deleting cache file: " + formBin.getAbsolutePath());
+                Log.w(TAG, "Deserialization FAILED!  Deleting cache file: " +
+                        formBin.getAbsolutePath());
                 formBin.delete();
             }
         }
-        
+
         // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
             // no binary, read from xml
             try {
-                Log.i(t, "Attempting to load from: " + formXml.getAbsolutePath());
+                Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
                 fis = new FileInputStream(formXml);
                 XFormParser.registerHandler("intent", new IntentExtensionParser());
                 XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
@@ -164,10 +137,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 if (fd == null) {
                     mErrorMsg = "Error reading XForm file";
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                mErrorMsg = e.getMessage();
-            } catch (XFormParseException e) {
+            } catch (XFormParseException | FileNotFoundException e) {
                 mErrorMsg = e.getMessage();
                 e.printStackTrace();
             } catch (Exception e) {
@@ -198,7 +168,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         //TODO: Get a reasonable IIF object
         //iif = something
-        
         try {
             // import existing data into formdef
             if (FormEntryActivity.mInstancePath != null) {
@@ -216,17 +185,14 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             mErrorMsg = e.getMessage();
             return null;
         }
-        
 
         // set paths to /sdcard/odk/forms/formfilename-media/
         String formFileName = formXml.getName().substring(0, formXml.getName().lastIndexOf("."));
 
         // Remove previous forms
         ReferenceManager._().clearSession();
-        
-        String formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
-        
-        if(formMediaPath != null) {
+
+        if (formMediaPath != null) {
             ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
                 ReferenceManager._().addSessionRootTranslator(
@@ -241,7 +207,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 ReferenceManager._().addReferenceFactory(
                     new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }
-    
+
             // Set jr://... to point to /sdcard/odk/forms/filename-media/
             ReferenceManager._().addSessionRootTranslator(
                 new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
@@ -249,25 +215,15 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
             ReferenceManager._().addSessionRootTranslator(
                 new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
-        
         }
 
-        // clean up vars
-        fis = null;
-        fd = null;
-        formBin = null;
-        formXml = null;
-        formPath = null;
-
         FormController fc = new FormController(fec, mReadOnly);
-        
+
         data = new FECWrapper(fc);
         return data;
-
     }
 
-
-    public boolean importData(String filePath, FormEntryController fec) {
+    private boolean importData(String filePath, FormEntryController fec) {
         // convert files into a byte array
         byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath), mSymetricKey);
 
@@ -277,7 +233,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         // weak check for matching forms
         if (!savedRoot.getName().equals(templateRoot.getName()) || savedRoot.getMult() != 0) {
-            Log.e(t, "Saved form instance does not match template form definition");
+            Log.e(TAG, "Saved form instance does not match template form definition");
             return false;
         } else {
             // populate the data model
@@ -296,9 +252,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                         .localeChanged(fec.getModel().getLanguage(),
                             fec.getModel().getForm().getLocalizer());
             }
-
             return true;
-
         }
     }
 
@@ -310,12 +264,11 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * @return {@link FormDef} object
      */
     public FormDef deserializeFormDef(File formDef) {
-
         // TODO: any way to remove reliance on jrsp?
 
         // need a list of classes that formdef uses
-        FileInputStream fis = null;
-        FormDef fd = null;
+        FileInputStream fis;
+        FormDef fd;
         try {
             // create new form def
             fd = new FormDef();
@@ -326,13 +279,10 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             fd.readExternal(dis, ApkUtils.getPrototypeFactory(context));
             dis.close();
 
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | DeserializationException e) {
             e.printStackTrace();
             fd = null;
         } catch (IOException e) {
-            e.printStackTrace();
-            fd = null;
-        } catch (DeserializationException e) {
             e.printStackTrace();
             fd = null;
         } catch (Throwable e) {
@@ -342,7 +292,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         return fd;
     }
-
 
     /**
      * Write the FormDef to the file system as a binary blob.
@@ -381,11 +330,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(FECWrapper wrapper) {
         synchronized (this) {
@@ -399,13 +343,11 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         }
     }
 
-
     public void setFormLoaderListener(FormLoaderListener sl) {
         synchronized (this) {
             mStateListener = sl;
         }
     }
-
 
     public void destroy() {
         if (data != null) {
@@ -414,4 +356,19 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         }
     }
 
+    protected static class FECWrapper {
+        FormController controller;
+
+        protected FECWrapper(FormController controller) {
+            this.controller = controller;
+        }
+
+        protected FormController getController() {
+            return controller;
+        }
+
+        protected void free() {
+            controller = null;
+        }
+    }
 }
