@@ -37,6 +37,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
     }
 
+    @Override
     public void onResume() {
         super.onResume();
         refreshView();
