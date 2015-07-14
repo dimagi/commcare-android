@@ -226,10 +226,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
-     */
     @Override
     public void onURLChosen(String url) {
         if(BuildConfig.DEBUG) {
