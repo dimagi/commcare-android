@@ -13,6 +13,8 @@ apply plugin: 'android'
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     compile fileTree(dir: 'app/libs', include: '*.jar')
+    // compile project(':libraries:mapballoons')
+    compile project(':libraries:mapballoons')
 }
 
 android {
@@ -20,6 +22,13 @@ android {
     // buildToolsVersion "21.1.2"
     compileSdkVersion "Google Inc.:Google APIs:22"
     buildToolsVersion "22.0.1"
+
+    packagingOptions {
+	    exclude 'META-INF/LICENSE'
+	    exclude 'META-INF/LICENSE.txt'
+      exclude 'META-INF/DEPENDENCIES'
+      exclude 'META-INF/NOTICE'
+	  }
 
     defaultConfig {
         minSdkVersion 7
@@ -38,7 +47,7 @@ android {
                             , '../commcare/cases/src', '../commcare/backend/src'
                             , '../javarosa/core/src'
                             , 'libraries/achartengine/achartengine/src'
-                            , 'libraries/mapballoons/android-mapviewballoons/src'
+                            // , 'libraries/mapballoons/android-mapviewballoons/src'
                            ]
             resources.srcDirs = ['app/src']
             aidl.srcDirs = ['app/src']
