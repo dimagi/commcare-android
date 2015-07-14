@@ -11,7 +11,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -40,7 +39,6 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         ((ListView) this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
     }
 
-
     // Refresh the list of installed apps
     private void refreshView() {
         ListView lv = (ListView) findViewById(R.id.apps_list_view);
@@ -53,6 +51,11 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         refreshView();
     }
 
+    /**
+     * Method called when the install app button is clicked (declared in app_manager.xml)
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
     public void installAppClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
@@ -66,7 +69,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         }
     }
 
-    public void installApp() {
+    private void installApp() {
         try {
             CommCareApplication._().getSession().closeSession(false);
         } catch (SessionUnavailableException e) {
@@ -81,7 +84,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
         case CommCareHomeActivity.INIT_APP:
-            boolean installFailed = intent == null ? false : intent.getBooleanExtra(
+            boolean installFailed = intent != null && intent.getBooleanExtra(
                     CommCareSetupActivity.KEY_INSTALL_FAILED, false);
             if (resultCode == RESULT_OK && !installFailed) {
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
@@ -133,7 +136,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
      * Warns a user that the action they are trying to conduct will result in the current
      * session being logged out
      */
-    public void triggerLogoutWarning() {
+    private void triggerLogoutWarning() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out your app");
         builder.setMessage(R.string.logout_warning)

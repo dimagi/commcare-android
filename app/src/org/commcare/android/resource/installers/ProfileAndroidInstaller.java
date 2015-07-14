@@ -35,7 +35,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
 /**
  * @author ctsims

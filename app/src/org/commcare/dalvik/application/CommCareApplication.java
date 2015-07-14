@@ -380,7 +380,7 @@ public class CommCareApplication extends Application {
      * @return all installed ApplicationRecords, in alphabetical order
      */
     public ArrayList<ApplicationRecord> getInstalledAppRecords() {
-        ArrayList<ApplicationRecord> records = new ArrayList<ApplicationRecord>();
+        ArrayList<ApplicationRecord> records = new ArrayList<>();
         for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
             records.add(r);
         }
@@ -400,7 +400,7 @@ public class CommCareApplication extends Application {
      * @return all ApplicationRecords that are installed and NOT archived
      */
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
-        ArrayList<ApplicationRecord> visible = new ArrayList<ApplicationRecord>();
+        ArrayList<ApplicationRecord> visible = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
             if (!r.isArchived()) {
                 visible.add(r);
@@ -414,7 +414,7 @@ public class CommCareApplication extends Application {
      * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
     public ArrayList<ApplicationRecord> getReadyAppRecords() {
-        ArrayList<ApplicationRecord> ready = new ArrayList<ApplicationRecord>();
+        ArrayList<ApplicationRecord> ready = new ArrayList<>();
         for (ApplicationRecord r : getVisibleAppRecords()) {
             if (r.resourcesValidated()) {
                 ready.add(r);

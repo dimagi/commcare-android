@@ -69,7 +69,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String ALREADY_LOGGED_IN = "la_loggedin";
-    public final static String KEY_LAST_APP = "id_of_last_selected";
+    private final static String KEY_LAST_APP = "id_of_last_selected";
     
 
     @UiElement(value=R.id.login_button, locale="login.button")
@@ -96,7 +96,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    private Map<String,ApplicationRecord> namesToRecords = new HashMap<String, ApplicationRecord>();
+    private Map<String,ApplicationRecord> namesToRecords = new HashMap<>();
 
     private int editTextColor;
     private View.OnKeyListener l;
@@ -472,7 +472,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     
     private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
         if(storage == null) {
-            storage=  CommCareApplication._().getAppStorage(UserKeyRecord.class);
+            storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
         return storage;
     }
@@ -596,15 +596,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             return;
         }
         message.setText(R.string.login_welcome_multiple);
-        ArrayList<String> appNames = new ArrayList<String>();
-        ArrayList<String> appIds = new ArrayList<String>();
+        ArrayList<String> appNames = new ArrayList<>();
+        ArrayList<String> appIds = new ArrayList<>();
         for (ApplicationRecord r : readyApps) {
             String name = r.getDisplayName();
             appNames.add(name);
             appIds.add(r.getUniqueId());
             namesToRecords.put(name, r);
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_text_view, appNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);

@@ -24,7 +24,6 @@ public class ManagerShortcut extends Activity {
         
         setResult(RESULT_OK, intent);
         finish();
-        return;
     }
     
 }

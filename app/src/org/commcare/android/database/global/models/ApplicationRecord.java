@@ -24,11 +24,11 @@ import android.content.Context;
  * @author amstone
  *
  */
+
 @Table("app_record")
 public class ApplicationRecord extends Persisted {
     public static final String STORAGE_KEY = "app_record";
-
-    public static final String META_STATUS = "status";
+    private static final String META_STATUS = "status";
     
     public static final int STATUS_UNINITIALIZED = 0;
     public static final int STATUS_INSTALLED = 1;
@@ -39,22 +39,22 @@ public class ApplicationRecord extends Persisted {
     public static final int STATUS_SPECIAL_LEGACY = 2;
 
     @Persisting(1)
-    String applicationId;
+    private String applicationId;
     @Persisting(2)
     @MetaField(META_STATUS)
-    int status;
+    private int status;
     @Persisting(3)
-    String uniqueId;
+    private String uniqueId;
     @Persisting(4)
-    String displayName;
+    private String displayName;
     @Persisting(5)
-    boolean resourcesValidated;
+    private boolean resourcesValidated;
     @Persisting(6)
-    boolean isArchived;
+    private boolean isArchived;
     @Persisting(7)
-    boolean convertedViaDbUpgrader;
+    private boolean convertedViaDbUpgrader;
     @Persisting(8)
-    boolean preMultipleAppsProfile;
+    private boolean preMultipleAppsProfile;
     
     /*
      * Deserialization only
@@ -142,25 +142,28 @@ public class ApplicationRecord extends Persisted {
     public void setConvertedByDbUpgrader(boolean b) {
         this.convertedViaDbUpgrader = b;
     }
-    
+
+    /** Completes a full uninstall of the CommCare app that this ApplicationRecord represents **/
     public void uninstall(Context c) {
         CommCareApplication._().initializeAppResources(new CommCareApp(this));
         CommCareApp app = CommCareApplication._().getCurrentApp();
         
-        //1) Set states to delete requested so we know if we have left the app in a bad state
+        //1) Set states to delete requested so we know if we have left the app in a bad state later
         CommCareApplication._().setAppResourceState(CommCareApplication.STATE_DELETE_REQUESTED);
         this.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(this);
         //2) Teardown the sandbox for this app
         app.teardownSandbox();   
         //3) Delete all the user databases associated with this app
-        SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().getAppStorage(UserKeyRecord.class);
+        SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().
+                getAppStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
             c.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
         }
         //4) Delete the app database
-        c.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
-        //5) Delete the app record
+        c.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().
+                getApplicationId())).delete();
+        //5) Delete the ApplicationRecord
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(this.getID());
         //6) Reset the appResourceState in CCApplication
         CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);

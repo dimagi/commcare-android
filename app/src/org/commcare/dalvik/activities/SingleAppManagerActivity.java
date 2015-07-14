@@ -33,8 +33,8 @@ public class SingleAppManagerActivity extends Activity {
     
     private ApplicationRecord appRecord;
     private AlertDialog dialog;
-    public static final int LOGOUT_FOR_UPDATE = 0;
-    public static final int LOGOUT_FOR_VERIFY_MM = 1;
+    private static final int LOGOUT_FOR_UPDATE = 0;
+    private static final int LOGOUT_FOR_VERIFY_MM = 1;
     
     @Override
     public void onCreate(Bundle savedInstanceState) { 
@@ -62,7 +62,10 @@ public class SingleAppManagerActivity extends Activity {
         super.onResume();
         refresh();
     }
-    
+
+    /**
+     * Refresh all button appearances based on the current state of the app
+     */
     private void refresh() {    
         // Warns the user that this app came from an old version of the profile file, if necessary
         TextView warning = (TextView) findViewById(R.id.profile_warning);
@@ -138,9 +141,11 @@ public class SingleAppManagerActivity extends Activity {
             startActivity(i);
         }
     }
-    
-    // Uninstalls the selected app
-    public void uninstall() {
+
+    /**
+     * Uninstalls the selected app
+     */
+    private void uninstall() {
         try {
             CommCareApplication._().getSession().closeSession(false);
         } catch (SessionUnavailableException e) {
@@ -149,19 +154,25 @@ public class SingleAppManagerActivity extends Activity {
         appRecord.uninstall(this);
         rebootCommCare();
    }
-    
+
     /**
-     * If the app is not archived, sets it to archived (i.e. still installed but
-     * not visible to users)
+     * onClick method for Archive button. If the app is not archived, sets it to
+     * archived (i.e. still installed but not visible to users).
      * If it is archived, sets it to unarchived
-     **/
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
     public void toggleArchived(View v) {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
         refresh();
     }
-    
-    /** Triggered when verify MM button is clicked **/
+
+    /**
+     * onClick method for Validate Multimedia button
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
     public void verifyResourcesClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
@@ -174,16 +185,22 @@ public class SingleAppManagerActivity extends Activity {
             verifyResources();
         }
     }
-    
-    /** Opens the MM verification activity for the selected app **/
-    public void verifyResources() {
+
+    /**
+     * Opens the MM verification activity for the selected app
+     */
+    private void verifyResources() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
     }
-    
-    /** Triggered when update button is clicked **/
+
+    /**
+     * onClick method for Update button
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
     public void updateClicked(View v) {
         try {
             CommCareSessionService s = CommCareApplication._().getSession();
@@ -197,9 +214,11 @@ public class SingleAppManagerActivity extends Activity {
             update();
         }
     }
-    
-    /** Conducts an update for the selected app **/
-    public void update() {
+
+    /**
+     * Conducts an update for the selected app
+     */
+    private void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -210,16 +229,23 @@ public class SingleAppManagerActivity extends Activity {
         startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
     }
 
-    /** Relaunches CommCare after an app has been uninstalled **/
-    public void rebootCommCare() {
+    /**
+     * Relaunches CommCare after an app has been uninstalled
+     */
+    private void rebootCommCare() {
         Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                .getLaunchIntentForPackage( getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivityForResult(i, CommCareHomeActivity.RESTART_APP);
     }
 
-    /** Warns a user that the action they are trying to conduct will result in a reboot of CC **/
+    /**
+     * onClick method for Uninstall button. Before actually conducting the uninstall, warns
+     * the user that it will also result in a reboot of CC
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
     public void rebootAlertDialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Uninstalling your app");
@@ -250,7 +276,7 @@ public class SingleAppManagerActivity extends Activity {
      * Warns a user that the action they are trying to conduct will result in the current
      * session being logged out
      */
-    public void triggerLogoutWarning(final int actionKey) {
+    private void triggerLogoutWarning(final int actionKey) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out your app");
         builder.setMessage(R.string.logout_warning)

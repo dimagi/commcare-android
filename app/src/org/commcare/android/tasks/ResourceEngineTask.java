@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;

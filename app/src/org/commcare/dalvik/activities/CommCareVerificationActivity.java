@@ -4,7 +4,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
@@ -41,8 +40,7 @@ public class CommCareVerificationActivity
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
     
     private Button retryButton;
-    private Button skipButton;
-    
+
     private VerificationTask task;
 
     private static final int DIALOG_VERIFY_PROGRESS = 0;
@@ -75,7 +73,7 @@ public class CommCareVerificationActivity
         this.fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
-            skipButton = (Button)findViewById(R.id.skip_verification_button);
+            Button skipButton = (Button)findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
             skipButton.setOnClickListener(this);
         }

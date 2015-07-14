@@ -12,7 +12,6 @@ package org.commcare.android.adapters;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.AppManagerActivity;
-import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.Context;
 import android.view.View;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 
 public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
 
-    private AppManagerActivity context;
+    private final AppManagerActivity context;
 
     public AppManagerAdapter(Context context, int resource, ApplicationRecord[] objects) {
         super(context, resource, objects);
