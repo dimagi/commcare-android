@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.util;
 
@@ -18,19 +18,18 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 /**
- *
+ * 
  * Simple utility/helper methods for common operations across
  * the applicaiton
- *
+ * 
  * @author ctsims
  *
  */
 public class StorageUtils {
-
     @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
-
+        
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids;
         try {
@@ -40,16 +39,16 @@ public class StorageUtils {
             // the db was closed down
             return new FormRecord[0];
         }
-
+        
         if(ids.size() == 0) {
             return new FormRecord[0];
         }
-
+        
         //We need to give these ids a valid order so the server can process them correctly.
         //NOTE: This is slower than it need be. We could batch query this with SQL.
         final Hashtable<Integer, Long> idToDateIndex = new Hashtable<Integer, Long>();
-
-
+        
+        
         for(int id : ids) {
             //Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
             //entry, so it's a safe cannonical ordering
@@ -70,7 +69,7 @@ public class StorageUtils {
                 }
             }
         }
-
+        
         Collections.sort(ids, new Comparator<Integer>() {
             @Override
             public int compare(Integer lhs, Integer rhs) {
@@ -81,8 +80,8 @@ public class StorageUtils {
                 return 0;
             }
         });
-
-        //The records should now be in order and we can pass to the next phase
+        
+        //The records should now be in order and we can pass to the next phase 
         FormRecord[] records = new FormRecord[ids.size()];
         for(int i = 0 ; i < ids.size() ; ++i) {
             records[i] = storage.read(ids.elementAt(i).intValue());
@@ -90,9 +89,11 @@ public class StorageUtils {
         return filterByCurrentApp(records);
     }
 
+    /**
+     * Filter the given list of forms down to only those that are part of the currently seated app
+     */
     public static FormRecord[] filterByCurrentApp(FormRecord[] forms) {
         int numValid = 0;
-        // Null out any forms that are from a different app than the current one
         String currAppId = CommCareApplication._().getCurrentApp()
                 .getUniqueId();
         for (int i = 0; i < forms.length; i++) {
@@ -102,7 +103,6 @@ public class StorageUtils {
                 forms[i] = null;
             }
         }
-        // Copy over remaining forms to new array and return
         FormRecord[] filtered = new FormRecord[numValid];
         int filteredIndex = 0;
         for (int i = 0; i < forms.length; i++) {
