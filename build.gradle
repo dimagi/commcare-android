@@ -8,25 +8,18 @@ buildscript {
     }
 }
 
-// allprojects {
-//   tasks.withType(JavaCompile) { 
-//     sourceCompatibility = "1.6"
-//     targetCompatibility = "1.6" 
-//   }
-// }
-
 apply plugin: 'android'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+    compile fileTree(dir: 'app/libs', include: '*.jar')
 }
 
-// need to use 1.7 for multi-catch
-// sourceCompatibility 1.7
-
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    // compileSdkVersion 21
+    // buildToolsVersion "21.1.2"
+    compileSdkVersion "Google Inc.:Google APIs:22"
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 7
@@ -41,11 +34,19 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'app/AndroidManifest.xml'
-            java.srcDirs = ['app/src', '../commcare/cases/src', '../commcare/backend/src' , '../javarosa/core/src']
+            java.srcDirs = ['app/src'
+                            , '../commcare/cases/src', '../commcare/backend/src'
+                            , '../javarosa/core/src'
+                            , 'libraries/achartengine/achartengine/src'
+                            , 'libraries/mapballoons/android-mapviewballoons/src'
+                           ]
             resources.srcDirs = ['app/src']
             aidl.srcDirs = ['app/src']
             renderscript.srcDirs = ['app/src']
-            res.srcDirs = ['app/res']
+            res.srcDirs = ['app/res'
+                           // ,'libraries/achartengine/achartengine/res'
+                           // ,'libraries/mapballoons/android-mapviewballoons/res'
+                          ]
             assets.srcDirs = ['app/assets']
         }
 
