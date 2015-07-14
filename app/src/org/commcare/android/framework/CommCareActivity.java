@@ -144,12 +144,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     /**
-     *
-     * @param restoreOld Indicates whether or not we want to  use the fields already on screen --
-     *                   Used to allow a refresh when the default language may have changed after
-     *                   switching between apps on the home screen drop-down menu for multiple apps
+     * @param restoreOldFields Use the fields already on screen? For refreshing
+     *                         fields when the default language changes due to
+     *                         the app being changed on the home screen
+     *                         multiple app drop-down menu.
      */
-    protected void loadFields(boolean restoreOld) {
+    protected void loadFields(boolean restoreOldFields) {
         CommCareActivity oldActivity = stateHolder.getPreviousState();
         Class c = this.getClass();
         for(Field f : c.getDeclaredFields()) {
@@ -162,7 +162,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                         View v = this.findViewById(element.value());
                         f.set(this, v);
                         
-                        if(oldActivity != null && restoreOld) {
+                        if(oldActivity != null && restoreOldFields) {
                             View oldView = (View)f.get(oldActivity);
                             if(oldView != null) {
                                 if(v instanceof TextView) {
