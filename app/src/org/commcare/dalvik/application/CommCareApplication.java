@@ -376,7 +376,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     *
      * @return all installed ApplicationRecords, in alphabetical order
      */
     public ArrayList<ApplicationRecord> getInstalledAppRecords() {
@@ -396,7 +395,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     *
      * @return all ApplicationRecords that are installed and NOT archived
      */
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
@@ -410,8 +408,7 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     *
-     * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
+     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
     public ArrayList<ApplicationRecord> getReadyAppRecords() {
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
@@ -429,7 +426,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     *
      * @return the list of all installed apps as an array
      */
     public ApplicationRecord[] appRecordArray() {
@@ -442,8 +438,10 @@ public class CommCareApplication extends Application {
         return appArray;
     }
 
-    // Return the ApplicationRecord that corresponds to the given index in the global list of
-    // installed apps
+    /**
+     *  @return the ApplicationRecord that corresponds to the given index in
+     *  the global list of installed apps
+     */
     public ApplicationRecord getAppAtIndex(int index) {
         ArrayList<ApplicationRecord> currentApps = getInstalledAppRecords();
         if (index < 0 || index >= currentApps.size()) {
