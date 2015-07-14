@@ -52,7 +52,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     }
 
     /**
-     * Method called when the install app button is clicked (declared in app_manager.xml)
+     * onClick method for the Install An App button
      *
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
@@ -69,6 +69,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         }
     }
 
+    // Launches CommCareSetupActivity
     private void installApp() {
         try {
             CommCareApplication._().getSession().closeSession(false);
