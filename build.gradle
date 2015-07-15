@@ -3,23 +3,39 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        // classpath 'com.android.tools.build:gradle:0.5.+'
         classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
 
 apply plugin: 'android'
 
+// this packs the .so files into native-libs.jar in the build directory...
+task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
+    destinationDir file("$buildDir/native-libs")
+    baseName 'native-libs'
+    extension 'jar'
+    from fileTree(dir: 'app/libs', include: '**/*.so')
+    into 'lib/'
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn(nativeLibsToJar)
+}
+
+// we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
+repositories {
+  mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     compile fileTree(dir: 'app/libs', include: '*.jar')
-    // compile project(':libraries:mapballoons')
     compile project(':libraries:mapballoons')
+    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar') //... and this includes the .so files from native-libs.jar 
+    compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
 }
 
 android {
-    // compileSdkVersion 21
-    // buildToolsVersion "21.1.2"
     compileSdkVersion "Google Inc.:Google APIs:22"
     buildToolsVersion "22.0.1"
 
@@ -47,15 +63,11 @@ android {
                             , '../commcare/cases/src', '../commcare/backend/src'
                             , '../javarosa/core/src'
                             , 'libraries/achartengine/achartengine/src'
-                            // , 'libraries/mapballoons/android-mapviewballoons/src'
                            ]
             resources.srcDirs = ['app/src']
             aidl.srcDirs = ['app/src']
             renderscript.srcDirs = ['app/src']
-            res.srcDirs = ['app/res'
-                           // ,'libraries/achartengine/achartengine/res'
-                           // ,'libraries/mapballoons/android-mapviewballoons/res'
-                          ]
+            res.srcDirs = ['app/res']
             assets.srcDirs = ['app/assets']
         }
 
