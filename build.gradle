@@ -14,11 +14,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 // this packs the .so files into native-libs.jar in the build directory...
 task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
@@ -43,7 +43,7 @@ dependencies {
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile project(':libraries:mapballoons')
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar') //... and this includes the .so files from native-libs.jar 
-    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:support-v4:22.1.1'
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
 }
 
