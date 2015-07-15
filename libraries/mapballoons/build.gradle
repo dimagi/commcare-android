@@ -13,12 +13,8 @@ buildscript {
 apply plugin: 'android-library'
 
 android {
-  // compileSdkVersion 21
-  // buildToolsVersion "21.1.2"
   compileSdkVersion "Google Inc.:Google APIs:21"
   buildToolsVersion "21.1.2"
-  // compileSdkVersion "Google Inc.:Google APIs:22"
-  // buildToolsVersion "22.0.1"
 
   defaultConfig {
     minSdkVersion 7
@@ -36,5 +32,3 @@ android {
     }
   }
 }
-
-// ant.importBuild 'android-mapviewballoons/build.xml'
