@@ -78,6 +78,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
+    private boolean inBg;
+    private int showDialogOnResume = -1;
+
     /*
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
@@ -86,6 +89,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        inBg = false;
+
+        if (showDialogOnResume > 0) {
+            startBlockingForTask(showDialogOnResume);
+            showDialogOnResume = -1;
+        }
+
         FragmentManager fm = this.getSupportFragmentManager();
         
         stateHolder = (StateFragment) fm.findFragmentByTag("state");
@@ -261,7 +271,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Override these to control the UI for your task
      */
     @Override
-    public void startBlockingForTask(int id) {        
+    public void startBlockingForTask(int id) {
+        if (inBg) {
+            showDialogOnResume = id;
+            return;
+        }
         //attempt to dismiss the dialog from the last task before showing this one
         attemptDismissDialog();
         
@@ -374,6 +388,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void onStop() {
         super.onStop();
+        inBg = true;
     }
 
     protected void saveLastQueryString(String key) {
