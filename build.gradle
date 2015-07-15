@@ -1,3 +1,14 @@
+////////////
+// README //
+////////////
+
+// This build script assumes the following directory structure:
+// - somewhere/your/code/directory/is
+// -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
+// -- commcare (github: https://github.com/dimagi/commcare/)
+// -- javarosa (github: https://github.com/dimagi/javarosa/)
+// these directories MUST be named like this, or it won't work
+
 buildscript {
     repositories {
         mavenCentral()
@@ -32,24 +43,13 @@ dependencies {
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile project(':libraries:mapballoons')
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar') //... and this includes the .so files from native-libs.jar 
-    // compile 'com.android.support:support-v4:21.1.2'
     compile 'com.android.support:support-v4:21.0.0'
-    // compile 'com.google.android.gms:play-services:+'
-    // compile 'com.google.android.gms:play-services-base:+'
-    // compile 'com.google.android.gms:play-services-maps:+'
-    // compile 'com.google.android.gms:play-services-location:+'
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
 }
 
 android {
-    // compileSdkVersion "Google Inc.:Google APIs:22"
-    // buildToolsVersion "22.0.1"
     compileSdkVersion "Google Inc.:Google APIs:21"
     buildToolsVersion "21.1.2"
-    // compileSdkVersion "Google Inc.:Google APIs:21"
-    // buildToolsVersion "21.0.2"
-    // compileSdkVersion 21
-    // buildToolsVersion "21.1.2"
 
     lintOptions {
       abortOnError false
