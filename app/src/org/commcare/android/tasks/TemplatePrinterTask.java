@@ -239,7 +239,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
                 // First and last tokenSplits are {{ and }}
                 for (int j=1; j<tokenSplits.length-1; j++) {
                     String tokenSplit = tokenSplits[j];
-                    Log.i("token: ", tokenSplit);
 
                     // tokenSplit is key or whitespace
                     if (!tokenSplit.startsWith("<")) {
@@ -291,16 +290,12 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
 
             if (c == '{') {
                 if (isBetweenMustaches) {
-                    Log.i("1", "breaks here");
                     isWellFormed = false;
                     break;
                 } else {
                     i++;
                     if (input.charAt(i) != '{') {
-                        //Log.i("2", "breaks here");
-                        //isWellFormed = false;
                         isBetweenMustaches = false;
-                        //break;
                     } else {
                         isBetweenMustaches = true;
                     }
@@ -315,14 +310,9 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
                     } else {
                         isBetweenMustaches = false;
                     }
-                } else {
-                    //Log.i("4", "breaks here");
-                    //isWellFormed = false;
-                    //break;
                 }
             } else if (c == '<') {
                 if (isBetweenChevrons) {
-                    Log.i("5", "breaks here");
                     isWellFormed = false;
                     break;
                 } else {
@@ -332,7 +322,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
                 if (isBetweenChevrons) {
                     isBetweenChevrons = false;
                 } else {
-                    Log.i("6", "breaks here");
                     isWellFormed = false;
                     break;
                 }
