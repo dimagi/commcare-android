@@ -7,7 +7,7 @@ import java.util.Date;
 import org.commcare.android.adapters.PdfPrintDocumentAdapter;
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
-import org.commcare.android.util.EncryptedStream;
+import org.commcare.android.util.TemplatePrinterEncryptedStream;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -24,6 +24,9 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.print.PrintManager;
+import android.util.Log;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * Intermediate activity which populates a .DOCX/.ODT template
@@ -36,6 +39,13 @@ import android.print.PrintManager;
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
     /**
+     * The name of the file that is written to in TemplatePrinterTask and then read from in
+     * PdfPrintDocumentAdapter, Stored WITHOUT an extension, because we want it to be .docx when
+     * writing to it, and then .pdf when reading from it.
+     */
+    private final static String PATH_NO_EXTENSION = CommCareApplication._().getTempFilePath();
+
+    /**
      * Unique name to use for the print job name
      */
     private static String jobName;
@@ -44,7 +54,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * Provides the encrypted output stream with which to write the filled-in template file,
      * and the input stream with which to decrypt and read back from that file in order to print
      */
-    private EncryptedStream stream;
+    private TemplatePrinterEncryptedStream stream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +109,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
             // Create the EncryptedStream that will be used by TemplatePrinterTask to write to a
             // file, and by PdfPrintDocumentAdapter to read back from that file
-            this.stream = new EncryptedStream();
+            this.stream = new TemplatePrinterEncryptedStream(PATH_NO_EXTENSION, ".html");
 
             new TemplatePrinterTask(
                     templateFile,
@@ -128,9 +138,19 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         showErrorDialog(message);
     }
 
+    /**
+     * Called when TemplatePrinterTask finishes successfully, meaning a .html file of the
+     * filled-out template has been created and saved successfully
+     */
     @Override
-    public void onFinished(File result) {
-        executePrint();
+    public void onFinished() {
+        Log.i("HERE", "populated html successfully");
+        // Create and save a .pdf version of the .docx file created
+        //TemplatePrinterUtils.docxToPDF(this.stream);
+        // Print that pdf file.
+        //executePrint();
+        //doWebViewPrint();
+
     }
 
     private void showErrorDialog(int messageResId) {
@@ -169,5 +189,32 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, jobName, this.stream);
         printManager.print(jobName, adapter, null);
     }
+
+    /*private void doWebViewPrint() {
+        // Create a WebView object specifically for printing
+        WebView webView = new WebView(this);
+        webView.setWebViewClient(new WebViewClient() {
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                Log.i(TAG, "page finished loading " + url);
+                createWebPrintJob(view);
+                mWebView = null;
+            }
+        });
+
+        // Generate an HTML document on the fly:
+        String htmlDocument = "<html><body><h1>Test Content</h1><p>Testing, " +
+                "testing, testing...</p></body></html>";
+        webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
+
+        // Keep a reference to WebView object until you pass the PrintDocumentAdapter
+        // to the PrintManager
+        mWebView = webView;
+    }*/
 
 }

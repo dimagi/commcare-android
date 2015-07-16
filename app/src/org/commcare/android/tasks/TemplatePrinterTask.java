@@ -4,15 +4,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import org.commcare.android.util.EncryptedStream;
+import org.commcare.android.util.TemplatePrinterEncryptedStream;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 
@@ -20,15 +25,17 @@ import org.commcare.dalvik.application.CommCareApplication;
  * Asynchronous task for populating a document with data.
  *
  * @author Richard Lu
+ * @author amstone
  */
-public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
+public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
     
     public enum DocTypeEnum {
 
         DOCX("word/document.xml"),
+        HTML(""),
         ODT("content.xml");
 
-        public static DocTypeEnum getFromExtension(String extension) {
+        public static DocTypeEnum getDocTypeFromExtension(String extension) {
             for (DocTypeEnum docType : DocTypeEnum.values()) {
                 if (docType.toString().equalsIgnoreCase(extension)) {
                     return docType;
@@ -38,7 +45,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
         }
 
         public static boolean isSupportedExtension(String extension) {
-            return getFromExtension(extension) != null;
+            return getDocTypeFromExtension(extension) != null;
         }
 
         public final String CONTENT_FILE_NAME;
@@ -52,7 +59,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
     public interface PopulateListener {
 
         public void onError(String message);
-        public void onFinished(File result);
+        public void onFinished();
 
     }
 
@@ -61,41 +68,65 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
     private final File input;
     private final Bundle values;
     private final PopulateListener listener;
-    private EncryptedStream es;
+    /**
+     * An encrypted stream for writing to and reading back from the filled-in template to be printed
+     */
+    private TemplatePrinterEncryptedStream eStream;
 
     private String errorMessage;
 
-    public TemplatePrinterTask(File input, EncryptedStream es, Bundle values,
+    public TemplatePrinterTask(File input, TemplatePrinterEncryptedStream eStream, Bundle values,
                                PopulateListener listener) {
         this.input = input;
-        this.es = es;
+        this.eStream = eStream;
         this.values = values;
         this.listener = listener;
     }
 
     @Override
-    protected File doInBackground(Void... params) {
+    protected Boolean doInBackground(Void... params) {
 
-        File result = null;
+        boolean success = false;
 
         try {
-            result = populate(input, values);
+            success = populateHtml(input, values);
         } catch (Exception e) {
             errorMessage = e.getMessage();
         }
 
-        return result;
+        return success;
     }
 
     @Override
-    protected void onPostExecute(File result) {
+    protected void onPostExecute(Boolean success) {
 
-        if (result != null) {
-            listener.onFinished(result);
+        if (success) {
+            listener.onFinished();
         } else {
             listener.onError(errorMessage);
         }
 
+    }
+
+    private boolean populateHtml(File input, Bundle values) throws Exception {
+        String fileText = "";
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(input));
+            String str;
+            while ((str = in.readLine()) != null) {
+                fileText +=str;
+            }
+            fileText = replace(fileText, values);
+            BufferedWriter out = new BufferedWriter(
+                    new FileWriter(CommCareApplication._().getTempFilePath() + ".html"));
+            out.write(fileText);
+
+            in.close();
+            out.close();
+            return true;
+        } catch (IOException e) {
+            throw new Exception("Failed to read/populate html");
+        }
     }
 
     /**
@@ -108,26 +139,26 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
      *
      * @param input Document (ODT/DOCX) file
      * @param values Bundle of String attribute key-value mappings
-     * @return Populated document
+     * @return if the population was successful
      * @throws IOException
      */
-    private File populate(File input, Bundle values) throws IOException {
+    /*private boolean populate(File input, Bundle values) throws IOException {
 
         String inputExtension = TemplatePrinterUtils.getExtension(input.getName());
-        File output;
 
         if (DocTypeEnum.isSupportedExtension(inputExtension)) {
 
-            DocTypeEnum docType = DocTypeEnum.getFromExtension(inputExtension);
+            DocTypeEnum docType = DocTypeEnum.getDocTypeFromExtension(inputExtension);
+            if (docType.equals(DocTypeEnum.HTML)) {
+                return populateHtml(input, values);
+            }
 
-            //output = new File(outputFolder, jobName + "." + inputExtension);
-            output = new File(CommCareApplication._().getTempFilePath() + "." + inputExtension);
             ZipFile file = new ZipFile(input);
             Enumeration entries = file.entries();
 
-            //Get the encrypted output stream for this file destination
-            es.initialize(output);
-            ZipOutputStream outputStream = es.getOutputStream();
+            // Get an encrypted output stream for writing the filled-in template to the temp
+            // filepath in .docx format
+            //ZipOutputStream outputStream = eStream.getHtmlOutputStream();
 
             while (entries.hasMoreElements()) {
 
@@ -175,13 +206,12 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
             outputStream.close();
             file.close();
 
-
         } else {
             throw new RuntimeException("Not a supported file format");
         }
 
-        return output;
-    }
+        return true;
+    }*/
 
     /**
      * Populate an input string with attribute keys formatted as {{ attr_key }}
@@ -209,6 +239,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
                 // First and last tokenSplits are {{ and }}
                 for (int j=1; j<tokenSplits.length-1; j++) {
                     String tokenSplit = tokenSplits[j];
+                    Log.i("token: ", tokenSplit);
 
                     // tokenSplit is key or whitespace
                     if (!tokenSplit.startsWith("<")) {
@@ -255,18 +286,21 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
         boolean isBetweenChevrons = false;
         boolean isWellFormed = true;
 
-        for (int i=0; i<input.length(); i++) {
+        for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
 
             if (c == '{') {
                 if (isBetweenMustaches) {
+                    Log.i("1", "breaks here");
                     isWellFormed = false;
                     break;
                 } else {
                     i++;
                     if (input.charAt(i) != '{') {
-                        isWellFormed = false;
-                        break;
+                        //Log.i("2", "breaks here");
+                        //isWellFormed = false;
+                        isBetweenMustaches = false;
+                        //break;
                     } else {
                         isBetweenMustaches = true;
                     }
@@ -275,17 +309,20 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
                 if (isBetweenMustaches) {
                     i++;
                     if (input.charAt(i) != '}') {
+                        Log.i("3", "breaks here");
                         isWellFormed = false;
                         break;
                     } else {
                         isBetweenMustaches = false;
                     }
                 } else {
-                    isWellFormed = false;
-                    break;
+                    //Log.i("4", "breaks here");
+                    //isWellFormed = false;
+                    //break;
                 }
             } else if (c == '<') {
                 if (isBetweenChevrons) {
+                    Log.i("5", "breaks here");
                     isWellFormed = false;
                     break;
                 } else {
@@ -295,6 +332,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, File> {
                 if (isBetweenChevrons) {
                     isBetweenChevrons = false;
                 } else {
+                    Log.i("6", "breaks here");
                     isWellFormed = false;
                     break;
                 }
