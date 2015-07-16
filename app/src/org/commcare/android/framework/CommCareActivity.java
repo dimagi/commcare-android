@@ -71,6 +71,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
+
+    /**
+     * Used to indicate that the (progress) dialog associated with a task
+     * should be dismissed because the task has completed or been canceled.
+     */
     private boolean shouldDismissDialog = true;
 
     private GestureDetector mGestureDetector;
@@ -78,8 +83,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
-    private boolean inBg;
-    private int showDialogOnResume = -1;
+    /**
+     * Activity has been put in the background; used to prevent dialogs from
+     * being shown.
+     */
+    private boolean activityStopped;
+
+    /**
+     * Save the id of a dialog that tried to be shown when the activity wasn't
+     * active. When the activity resumes, create this dialog if the associated
+     * task is still running and the id is non-negative.
+     */
+    private int showDialogIdOnResume = -1;
 
     /*
      * (non-Javadoc)
@@ -89,12 +104,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        inBg = false;
+        activityStopped = false;
 
-        if (showDialogOnResume > 0) {
-            startBlockingForTask(showDialogOnResume);
-            showDialogOnResume = -1;
+        if (showDialogIdOnResume > 0 && !shouldDismissDialog) {
+            startBlockingForTask(showDialogIdOnResume);
         }
+        showDialogIdOnResume = -1;
 
         FragmentManager fm = this.getSupportFragmentManager();
         
@@ -272,14 +287,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     @Override
     public void startBlockingForTask(int id) {
-        if (inBg) {
-            showDialogOnResume = id;
+        if (activityStopped) {
+            // don't show the dialog if the activity is in the background
+            showDialogIdOnResume = id;
             return;
         }
-        //attempt to dismiss the dialog from the last task before showing this one
+
+        // attempt to dismiss the dialog from the last task before showing this
+        // one
         attemptDismissDialog();
-        
-        //ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the last dialog during transition, show a new one
+
+        // ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the
+        // last dialog during transition, show a new one
         if (id >= 0 && shouldDismissDialog) {
             this.showProgressDialog(id);
         }
@@ -388,7 +407,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void onStop() {
         super.onStop();
-        inBg = true;
+        activityStopped = true;
     }
 
     protected void saveLastQueryString(String key) {
