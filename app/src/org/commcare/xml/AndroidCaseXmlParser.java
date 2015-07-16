@@ -95,12 +95,16 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             e.printStackTrace();
         }
     }
-    
+
+    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
+        return CommCareApplication._().getUserDbHandle();
+    }
+
     @Override
     public void commit(Case parsed) throws IOException {
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = getDbHandle();
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException("User database closed while parsing");
         }
