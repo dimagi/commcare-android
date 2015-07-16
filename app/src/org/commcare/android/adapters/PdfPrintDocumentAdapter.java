@@ -1,9 +1,7 @@
 package org.commcare.android.adapters;
 
-import org.commcare.android.util.EncryptedStream;
-import org.commcare.android.util.TemplatePrinterUtils;
+import org.commcare.android.util.TemplatePrinterEncryptedStream;
 import org.commcare.dalvik.R;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,7 +45,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
 
     private Activity mActivity;
     private String mJobName;
-    private EncryptedStream mStream;
+    private TemplatePrinterEncryptedStream mStream;
     private final String TAG = this.getClass().getName();
     public static final String ODK_INTENT_DATA = "odk_intent_data";
     public static final long MAXTIME_FOR_PRINT_WAIT = 120;//in sec
@@ -58,7 +56,8 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
     private Timer mTimer;
     private Resources mResources;
 
-    public PdfPrintDocumentAdapter(Activity activity, String jobName, EncryptedStream es) {
+    public PdfPrintDocumentAdapter(Activity activity, String jobName,
+                                   TemplatePrinterEncryptedStream es) {
         this.mActivity = activity;
         this.mJobName = jobName;
         this.mStream = es;
@@ -99,7 +98,7 @@ public class PdfPrintDocumentAdapter extends PrintDocumentAdapter {
         OutputStream output = null;
 
         try {
-            input = mStream.getInputStream();
+            input = mStream.getPdfInputStream();
             output = new FileOutputStream(destination.getFileDescriptor());
 
             byte[] buf = new byte[1024];
