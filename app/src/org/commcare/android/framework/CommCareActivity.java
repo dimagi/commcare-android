@@ -84,15 +84,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected String lastQueryString;
 
     /**
-     * Activity has been put in the background; used to prevent dialogs from
-     * being shown.
+     * Activity has been put in the background. This is used to prevent dialogs
+     * from being shown while activity isn't active.
      */
     private boolean activityStopped;
 
     /**
-     * Save the id of a dialog that tried to be shown when the activity wasn't
-     * active. When the activity resumes, create this dialog if the associated
-     * task is still running and the id is non-negative.
+     * Stores the id of a dialog that tried to be shown when the activity
+     * wasn't active. When the activity resumes, create this dialog if the
+     * associated task is still running and the id is non-negative.
      */
     private int showDialogIdOnResume = -1;
 
