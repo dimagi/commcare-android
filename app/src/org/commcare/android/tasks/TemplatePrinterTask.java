@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import java.io.File;
 
-import org.commcare.android.util.TemplatePrinterIOUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 
 
@@ -77,7 +76,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
         fileText = replace(fileText, values);
 
         // Write the new HTML to the desired  temp file location
-        TemplatePrinterIOUtil.writeStringToFile(fileText, outputPath);
+        TemplatePrinterUtils.writeStringToFile(fileText, outputPath);
     }
 
     /**

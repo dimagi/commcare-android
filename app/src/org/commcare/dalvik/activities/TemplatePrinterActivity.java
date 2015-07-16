@@ -7,7 +7,6 @@ import java.util.Date;
 
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
-import org.commcare.android.util.TemplatePrinterIOUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -222,7 +221,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         });
         try {
-            String htmlDocString = TemplatePrinterIOUtil.readStringFromFile(outputPath);
+            String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
             webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
 
             // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
