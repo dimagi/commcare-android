@@ -41,7 +41,6 @@ import android.net.Uri;
 
 /**
  * @author ctsims
- *
  */
 public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
@@ -121,10 +120,9 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos,1024*256);
-            
-        
+
             serializer.setOutput(bos, "UTF-8");
-        
+
             document.write(serializer);
 
             cachedStorage().write(r);

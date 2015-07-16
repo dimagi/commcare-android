@@ -226,13 +226,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
                  prefs.getString("key_server", LoginActivity.this.getString(R.string.key_server)),
                  LoginActivity.this) {
-
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                     */
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {
+                        if (result == null) {
+                            // The task crashed unexpectedly
+                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                            return;
+                        }
+
                         switch(result) {
                         case DataPullTask.AUTH_FAILED:
                             receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
@@ -328,7 +329,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     private void refreshView() {
     }
-    
+
     private String getUsername() {
         return username.getText().toString().toLowerCase().trim();
     }

@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -46,10 +45,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.MediaEntity;
-import org.odk.collect.android.views.media.MediaState;
 
 import android.annotation.TargetApi;
 import android.util.Log;
@@ -62,25 +58,21 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity implements CommCareTaskConnector<R>, 
-    AudioController, DialogController, OnGestureListener {
-    public static final String TAG = CommCareActivity.class.getSimpleName();
+public abstract class CommCareActivity<R> extends FragmentActivity
+        implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
+    private static final String TAG = CommCareActivity.class.getSimpleName();
+    
+    private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
-    public final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     StateFragment stateHolder;
 
-    //Fields for implementation of AudioController
-    private MediaEntity currentEntity;
-    private AudioButton currentButton;
-    private MediaState stateBeforePause;
-    
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
     private boolean shouldDismissDialog = true;
-    
+
     private GestureDetector mGestureDetector;
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
@@ -98,16 +90,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         
         stateHolder = (StateFragment) fm.findFragmentByTag("state");
         
-        // If the state holder is null, create a new one for this activity
+        // stateHolder and its previous state aren't null if the activity is
+        // being created due to an orientation change.
         if (stateHolder == null) {
             stateHolder = new StateFragment();
             fm.beginTransaction().add(stateHolder, "state").commit();
-        } else {
-            if (stateHolder.getPreviousState() != null) {
-                loadPreviousAudio(stateHolder.getPreviousState());
-            }
+            // entering new activity, not just rotating one, so release old
+            // media
+            AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
-        
+
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
             loadFields();
@@ -136,29 +128,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         }
     }
 
-    private void loadPreviousAudio(AudioController oldController) {
-        MediaEntity oldEntity = oldController.getCurrMedia();
-        if (oldEntity != null) {
-            this.currentEntity = oldEntity;
-            oldController.removeCurrentMediaEntity();
-        }
-    }
-
-    private void playPreviousAudio() {
-        if (currentEntity != null) {
-            switch (currentEntity.getState()) {
-                case PausedForRenewal:
-                    playCurrentMediaEntity();
-                    break;
-                case Paused:
-                    break;
-                case Playing:
-                case Ready:
-                    Log.w(TAG, "State in loadPreviousAudio is invalid");
-            }
-        }
-    }
-    
     /*
      * (non-Javadoc)
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
@@ -233,9 +202,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         return false;
     }
     
-    private boolean visible = false;
-    
-
     /* (non-Javadoc)
      * @see android.app.Activity#onResume()
      */
@@ -249,8 +215,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             this.setTitle(getTitle(this, getActivityTitle()));
         }
 
-        visible = true;
-        playPreviousAudio();
+        AudioController.INSTANCE.playPreviousAudio();
     }
     
     /* (non-Javadoc)
@@ -259,23 +224,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
     @Override
     protected void onPause() {
         super.onPause();
-        visible = false;
-        if (currentEntity != null) saveEntityStateAndClear();
-    }
-    
-    protected boolean isInVisibleState() {
-        return visible;
-    }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onDestroy()
-     */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (currentEntity != null) {
-            attemptSetStateToPauseForRenewal();
-        }
+        AudioController.INSTANCE.systemInducedPause();
     }
 
     /* (non-Javadoc)
@@ -413,9 +363,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
         
     }
     
-    /**
-     * 
-     */
     public void cancelCurrentTask() {
         stateHolder.cancelTask();
     }
@@ -529,174 +476,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity implements Co
             titleBuf.append(" > ").append(local);
         }
         return titleBuf.toString();
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getCurrMedia()
-     * 
-     * All methods for implementation of AudioController
-     */
-    @Override
-    public MediaEntity getCurrMedia() {
-        return currentEntity;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#refreshCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
-     */
-    @Override
-    public void refreshCurrentAudioButton(AudioButton clickedButton) {
-        if (currentButton != null && currentButton != clickedButton) {
-            currentButton.setStateToReady();
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity, org.odk.collect.android.views.media.AudioButton)
-     */
-    @Override
-    public void setCurrent(MediaEntity e, AudioButton b) {
-        refreshCurrentAudioButton(b);
-        setCurrent(e);
-        setCurrentAudioButton(b);
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrent(org.odk.collect.android.views.media.MediaEntity)
-     */
-    @Override
-    public void setCurrent(MediaEntity e) {
-        releaseCurrentMediaEntity();
-        currentEntity = e;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setCurrentAudioButton(org.odk.collect.android.views.media.AudioButton)
-     */
-    @Override
-    public void setCurrentAudioButton(AudioButton b) {
-        currentButton = b;
-    }
-    
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#releaseCurrentMediaEntity()
-     */
-    @Override
-    public void releaseCurrentMediaEntity() {
-        if (currentEntity != null) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            mp.reset();
-            mp.release();    
-        }
-        currentEntity = null;
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#playCurrentMediaEntity()
-     */
-    @Override
-    public void playCurrentMediaEntity() {
-        if (currentEntity != null) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            mp.start();            
-            currentEntity.setState(MediaState.Playing);
-        }
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#pauseCurrentMediaEntity()
-     */
-    @Override
-    public void pauseCurrentMediaEntity() {
-        if (currentEntity != null && currentEntity.getState().equals(MediaState.Playing)) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            mp.pause();
-            currentEntity.setState(MediaState.Paused);
-        }
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getMediaEntityId()
-     */
-    @Override
-    public Object getMediaEntityId() {
-        return currentEntity.getId();
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#attemptSetStateToPauseForRenewal()
-     */
-    @Override
-    public void attemptSetStateToPauseForRenewal() {
-        if (stateBeforePause != null && stateBeforePause.equals(MediaState.Playing)) {
-            currentEntity.setState(MediaState.PausedForRenewal);
-        }
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#saveEntityStateAndClear()
-     */
-    @Override
-    public void saveEntityStateAndClear() {
-        stateBeforePause = currentEntity.getState();
-        pauseCurrentMediaEntity();
-        refreshCurrentAudioButton(null);
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#setMediaEntityState(org.odk.collect.android.views.media.MediaState)
-     */
-    @Override
-    public void setMediaEntityState(MediaState state) {
-        currentEntity.setState(state);
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#removeCurrentMediaEntity()
-     */
-    @Override
-    public void removeCurrentMediaEntity() {
-        currentEntity = null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getDuration()
-     */
-    @Override
-    public Integer getDuration() {
-        if (currentEntity != null) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            return mp.getDuration();
-        }
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.views.media.AudioController#getProgress()
-     */
-    @Override
-    public Integer getProgress() {
-        if (currentEntity != null) {
-            MediaPlayer mp = currentEntity.getPlayer();
-            return mp.getCurrentPosition();
-        }
-        return null;
     }
 
     protected void createErrorDialog(String errorMsg, boolean shouldExit) {

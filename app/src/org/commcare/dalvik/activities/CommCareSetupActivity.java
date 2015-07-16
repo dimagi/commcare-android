@@ -58,7 +58,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
+
+    /**
+     * Should the user be logged out when this activity is done?
+     */
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+
+    /**
+     * Activity is being launched by auto update, instead of being triggered
+     * manually.
+     */
     public static final String KEY_AUTO = "is_auto_update";
     private static final String KEY_START_OVER = "start_over_uprgrade";
     private static final String KEY_LAST_INSTALL = "last_install_time";
@@ -143,11 +152,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(savedInstanceState == null) {
             Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
             if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
-                
                 //We got called from an outside application, it's gonna be a wild ride!
                 incomingRef = this.getIntent().getData().toString();
-                
-                if(incomingRef.contains(".ccz")){
+                if(incomingRef.contains(".ccz")) {
                     // make sure this is in the file system
                     boolean isFile = incomingRef.contains("file://");
                     if(isFile){
@@ -312,26 +319,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.basic;
-            uiStateScreenTransition();
         }
+        uiStateScreenTransition();
     }
 
     private String getRef(){
         return incomingRef;
     }
-    
+
     private CommCareApp getCommCareApp(){
-        CommCareApp app;
-        
-        // we are in upgrade mode, just send back current app
-        if(inUpgradeMode){
-            app = CommCareApplication._().getCurrentApp();
-            return app;
+        if (inUpgradeMode) {
+            return CommCareApplication._().getCurrentApp();
         }
 
-        ApplicationRecord newRecord = new ApplicationRecord(PropertyUtils.genUUID().replace("-",""), ApplicationRecord.STATUS_UNINITIALIZED);
-        app = new CommCareApp(newRecord);
-        return app;
+        ApplicationRecord newRecord =
+            new ApplicationRecord(PropertyUtils.genUUID().replace("-",""),
+                    ApplicationRecord.STATUS_UNINITIALIZED);
+
+        return new CommCareApp(newRecord);
     }
 
     private void startResourceInstall() {
@@ -364,11 +369,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.stopBlockingForTask(id);
         this.startAllowed = true;
     }
-    
+
     /**
      * @param startOverUpgrade what determines whether
-     * CommCarePlatform.stageUpgradeTable() reuses the last version of the
-     * upgrade table, or starts over
+     *                         CommCarePlatform.stageUpgradeTable() reuses the
+     *                         last version of the upgrade table, or starts
+     *                         over
      */
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
@@ -494,25 +500,30 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
     
+    /**
+     * Return to or launch home activity.
+     *
+     * @param requireRefresh should the user be logged out upon returning to
+     *                       home activity?
+     */
     void done(boolean requireRefresh) {
-        // TODO: We might have gotten here due to being called from the
-        // outside, in which case we should manually start up the home activity
-        
-        if(Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+        if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
-            finish();
         } else {
             //Good to go
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             setResult(RESULT_OK, i);
-            finish();
         }
+        finish();
     }
 
+    /**
+     * Raise failure message and return to the home activity
+     */
     void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
@@ -571,8 +582,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
                 updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
             }
-        }
-        else {
+        } else {
             updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
             updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
         }

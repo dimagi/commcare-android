@@ -14,34 +14,25 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
-import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
 
 /**
  * @author ctsims
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
-    public static final String ENTITY_NONE = "NONE";
-    public static final String STATE_REFERRAL_TYPE = "REFERRAL_TYPE";
-
-    private Hashtable<String, String> xmlnstable;
-    private Context c;
+    private final Hashtable<String, String> xmlnstable;
     private ResourceTable global;
     private ResourceTable upgrade;
     private ResourceTable recovery;
 
     private Profile profile;
-    private Vector<Suite> installedSuites;
-    CommCareApp app;
+    private final Vector<Suite> installedSuites;
+    private final CommCareApp app;
 
-    private long callDuration = 0;
-
-    public AndroidCommCarePlatform(int majorVersion, int minorVersion, Context c, CommCareApp app) {
+    public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
         super(majorVersion, minorVersion);
         xmlnstable = new Hashtable<String, String>();
-        this.c = c;
         installedSuites = new Vector<Suite>();
         this.app = app;
     }
@@ -96,34 +87,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         this.profile = p;
     }
 
-
     public void registerSuite(Suite s) {
         this.installedSuites.add(s);
     }
 
-
-    public void pack(Bundle outgoing) {
-
-    }
-
-    public void unpack(Bundle incoming) {
-        if (incoming == null) {
-            return;
-        }
-    }
-
-    public void setCallDuration(long callDuration) {
-        this.callDuration = callDuration;
-    }
-
-    public long getCallDuration() {
-        return callDuration;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.util.CommCarePlatform#initialize(org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public void initialize(ResourceTable global) {
         this.profile = null;

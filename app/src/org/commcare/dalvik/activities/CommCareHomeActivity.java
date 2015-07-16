@@ -723,9 +723,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     break;
                 } else if(resultCode == RESULT_OK) {
                     currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    if(intent.hasExtra(CallOutActivity.CALL_DURATION)) {
-                        platform.setCallDuration(intent.getLongExtra(CallOutActivity.CALL_DURATION, 0));
-                    }
                     break;
                 }
             case MODEL_RESULT:
@@ -1015,31 +1012,34 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
+    /**
+     * Create (or re-use) a form record and pass it to the form entry activity
+     * launcher. If there is an existing incomplete form that uses the same
+     * case, ask the user if they want to edit or delete that one.
+     *
+     * @param state Needed for FormRecord manipulations
+     */
     private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException {
-        try {
-            //If this is a new record (never saved before), which currently all should be 
             if (state.getFormRecordId() == -1) {
-
-                //If form management isn't enabled we can't have these old forms around anyway
                 if (CommCarePreferences.isIncompleteFormsEnabled()) {
-                    //First, see if we've already started this form before
-                    SessionStateDescriptor existing = state.searchForDuplicates();
+                    // Are existing (incomplete) forms using the same case?
+                    SessionStateDescriptor existing =
+                        state.getExistingIncompleteCaseDescriptor();
 
-                    //I'm not proud of the second clause, here. Basically, only ask if we should continue entry if the
-                    //saved state actually involved selecting some data.
-                    if (existing != null && existing.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
+                    if (existing != null) {
+                        // Ask user if they want to just edit existing form that
+                        // uses the same case.
                         createAskUseOldDialog(state, existing);
                         return;
                     }
                 }
 
-                //Otherwise, generate a stub record and commit it
+                // Generate a stub form record and commit it
                 state.commitStub();
             } else {
                 Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
             }
 
-            //We should now have a valid record for our state. Time to get to form entry.
             FormRecord record = state.getFormRecord();
 
             if (platform == null &&
@@ -1047,12 +1047,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 platform = CommCareApplication._().getCommCarePlatform();
             }
 
-            //TODO: May need to pass session over manually
             formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
-
-        } catch (StorageFullException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /*
