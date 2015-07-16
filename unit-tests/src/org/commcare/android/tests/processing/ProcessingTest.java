@@ -3,8 +3,6 @@
  */
 package org.commcare.android.tests.processing;
 
-import static junit.framework.Assert.assertEquals;
-
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
@@ -15,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author ctsims

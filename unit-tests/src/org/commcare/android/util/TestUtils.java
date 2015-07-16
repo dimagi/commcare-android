@@ -1,9 +1,5 @@
 package org.commcare.android.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
@@ -30,6 +26,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.robolectric.Robolectric;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -65,7 +65,6 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
-                        @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
                         }

@@ -2,11 +2,11 @@ package org.commcare.util.externalizable;
 
 import android.util.Log;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author ctsims
@@ -31,7 +31,7 @@ public class AndroidClassHasher implements Hasher {
 
     @Override
     public byte[] getClassHashValue(Class type) {
-        byte[] hash = new byte[PrototypeFactory.CLASS_HASH_SIZE];
+        byte[] hash = new byte[getHashSize()];
         
         byte[] md5;
         synchronized(mMessageDigester) {
@@ -48,5 +48,11 @@ public class AndroidClassHasher implements Hasher {
         
         return hash;
     }
+
+    @Override
+    public int getHashSize(){
+        return PrototypeFactory.getClassHashSize();
+    }
+
 
 }

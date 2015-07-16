@@ -3,14 +3,17 @@
  */
 package org.commcare.android.util;
 
-import java.util.Hashtable;
-
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.util.Hashtable;
+
 /**
+ *
+ * Prototype factory for testing. Persistable hashes will not be accessible between runtimes.
+ *
  * @author ctsims
  *
  */
@@ -49,6 +52,11 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
         byte[] hash = hasher.getClassHashValue(type);
         factoryTable.put(ExtUtil.printBytes(hash), type);
         return hash;
+    }
+
+    @Override
+    public int getHashSize() {
+        return hasher.getHashSize();
     }
 
 }
