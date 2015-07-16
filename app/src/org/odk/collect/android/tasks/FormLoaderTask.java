@@ -283,7 +283,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             // populate the data model
             TreeReference tr = TreeReference.rootRef();
             tr.add(templateRoot.getName(), TreeReference.INDEX_UNBOUND);
-            templateRoot.populate(savedRoot, fec.getModel().getForm());
+            templateRoot.populate(savedRoot);
 
             // populated model to current form
             fec.getModel().getForm().getInstance().setRoot(templateRoot);
