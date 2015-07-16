@@ -404,12 +404,12 @@ public class GraphView {
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            String orientation = mData.getConfiguration("x-orientation", "");
-            if (orientation.equalsIgnoreCase("horizontal")) {
-                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
+            String orientation = mData.getConfiguration("bar-orientation", "");
+            if (orientation.equalsIgnoreCase("vertical")) {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
             }
             else {
-                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
             }
         }
 
