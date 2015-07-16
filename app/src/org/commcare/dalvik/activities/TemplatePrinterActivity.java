@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.commcare.android.adapters.PdfPrintDocumentAdapter;
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
-import org.commcare.android.util.TemplatePrinterEncryptedStream;
+import org.commcare.android.util.TemplatePrinterIOUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -28,14 +27,12 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintManager;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+
 /**
- * Intermediate activity which populates a .DOCX/.ODT template
- * with data before sending it off to a document viewer app
- * capable of printing.
+ * Intermediate activity which populates an HTML template with data and then prints it
  * 
  * @author Richard Lu
  * @author amstone
@@ -43,11 +40,10 @@ import android.webkit.WebViewClient;
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
     /**
-     * The name of the file that is written to in TemplatePrinterTask and then read from in
-     * PdfPrintDocumentAdapter, Stored WITHOUT an extension, because we want it to be .docx when
-     * writing to it, and then .pdf when reading from it.
+     * The path to the temp file location that is written to in TemplatePrinterTask, and then
+     * read back from in doHtmlPrint()
      */
-    public final static String PATH_NO_EXTENSION = CommCareApplication._().getTempFilePath();
+    public String outputPath;
 
     /**
      * Unique name to use for the print job name
@@ -55,16 +51,19 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private static String jobName;
 
     /**
-     * Provides the encrypted output stream with which to write the filled-in template file,
-     * and the input stream with which to decrypt and read back from that file in order to print
-     */
-    private TemplatePrinterEncryptedStream stream;
-
-    /**
      * Used to hold an instance of the WebView object being printed, so that is it not garbage
      * collected before the print job is created
      */
     private WebView mWebView;
+
+    /**
+     * Indicates whether a print job has been started, used to determine if this activity should
+     * finish under certain conditions
+     */
+    private boolean jobStarted;
+
+    private PrintJob printJob;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +81,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             showErrorDialog(R.string.no_data);
         }
 
-        // Get the case number, which may be sent with the intent bundle -- For purposes of
-        // creating the job name. If not included, will just not be used.
-        String caseNum = data.getString("cc:case_num");
+        this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
 
         //Check if a doc location is coming in from the Intent
         //Will return a reference of format jr://... if it has been set
@@ -92,7 +89,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         if (path != null) {
             try {
                 path = ReferenceManager._().DeriveReference(path).getLocalURI();
-                preparePrintDoc(path, caseNum);
+                preparePrintDoc(path);
             } catch (InvalidReferenceException e) {
                 showErrorDialog(getString(R.string.template_invalid, path));
             }
@@ -103,46 +100,41 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             if ("".equals(path)) {
                 showErrorDialog(getString(R.string.template_not_set));
             } else {
-                preparePrintDoc(path, caseNum);
+                preparePrintDoc(path);
             }
         }
     }
 
-    private void preparePrintDoc(String path, String caseNum) {
-        String extension = TemplatePrinterUtils.getExtension(path);
-        File templateFile = new File(path);
-
-        if (TemplatePrinterTask.DocTypeEnum.isSupportedExtension(extension)
-                && templateFile.exists()) {
-
-            generateJobName(templateFile, caseNum);
-
-            // Create the EncryptedStream that will be used by TemplatePrinterTask to write to a
-            // file, and by PdfPrintDocumentAdapter to read back from that file
-            this.stream = new TemplatePrinterEncryptedStream(PATH_NO_EXTENSION, ".html");
-
+    private void preparePrintDoc(String inputPath) {
+        generateJobName(inputPath);
+        String extension = TemplatePrinterUtils.getExtension(inputPath);
+        File templateFile = new File(inputPath);
+        if (extension.equalsIgnoreCase("html") && templateFile.exists()) {
             new TemplatePrinterTask(
                     templateFile,
-                    this.stream,
+                    outputPath,
                     getIntent().getExtras(),
                     this
             ).execute();
         } else {
-            showErrorDialog(getString(R.string.template_invalid, path));
+            showErrorDialog(getString(R.string.template_invalid, inputPath));
         }
     }
 
-    private void generateJobName(File templateFile, String caseNum) {
-        String inputName = templateFile.getName().substring(0, templateFile.getName().lastIndexOf('.'));
+    /**
+     * Generate a unique name for this print job, using the name of the template file and the date
+     *
+     * @param templateFilename the path to the given template file
+     */
+    private void generateJobName(String templateFilename) {
+        String inputWithoutExtension = templateFilename.substring(0,
+                templateFilename.lastIndexOf('.'));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = sdf.format(new Date());
-        if (caseNum != null) {
-            jobName = inputName + "_" + caseNum + "_" + dateString;
-        } else {
-            jobName = inputName + "_" + dateString;
-        }
+        jobName = inputWithoutExtension + "_" + dateString;
     }
 
+    /**  Called when TemplatePrinterTask encounters an error **/
     @Override
     public void onError(String message) {
         showErrorDialog(message);
@@ -154,7 +146,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     @Override
     public void onFinished() {
-        doHtmlPrint(PATH_NO_EXTENSION + ".html");
+        doHtmlPrint();
     }
 
     private void showErrorDialog(int messageResId) {
@@ -187,23 +179,34 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         dialogBuilder.show();
     }
 
-    /*@TargetApi(Build.VERSION_CODES.KITKAT)
-    private void executePrint() {
-        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-        PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, jobName, this.stream);
-        printManager.print(jobName, adapter, null);
-    }*/
+    /**
+     * Shows an alert dialog about the status of the print job.
+     * Activity will quit upon exiting the dialog.
+     *
+     * @param msg String message that should be shown on the alert
+     */
+    public void showAlertDialog(String msg) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle(msg);
+        alert.setCancelable(false);
+        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        alert.show();
+    }
 
     /**
-     * Prepares a WebView out of an html document, which can then be printed by the Android print
-     * framework
+     * Prepares a WebView of the html document generated by this activity, which can then be
+     * printed by the Android print framework
      *
      * Source: https://developer.android.com/training/printing/html-docs.html
-     *
-     * @param path path to the html document to print
      */
-    private void doHtmlPrint(String path) {
+    private void doHtmlPrint() {
         // Create a WebView object specifically for printing
         WebView webView = new WebView(this);
         webView.setWebViewClient(new WebViewClient() {
@@ -219,7 +222,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         });
         try {
-            String htmlDocString = TemplatePrinterUtils.docToString(new File(path));
+            String htmlDocString = TemplatePrinterIOUtil.readStringFromFile(outputPath);
             webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
 
             // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
@@ -231,7 +234,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     /**
-     * Starts a print job for a WebView
+     * Starts a print job for the given WebView
      *
      * Source: https://developer.android.com/training/printing/html-docs.html
      *
@@ -247,8 +250,34 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         PrintDocumentAdapter printAdapter = v.createPrintDocumentAdapter();
 
         // Create a print job with name and adapter instance
-        PrintJob printJob = printManager.print(jobName, printAdapter,
+        printJob = printManager.print(jobName, printAdapter,
                 new PrintAttributes.Builder().build());
+        jobStarted = true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (jobStarted) {
+            reportJobResult();
+        }
+    }
+
+    /**
+     * If we have reached onResume after a job was started, that means that the external
+     * Android print dialog has closed, either because the user pressed 'back' or because the
+     * job actually finished. We therefore want to check the status of the job and report back
+     * on it with an alert (activity will finish when AlertDialog closes)
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void reportJobResult() {
+        if (printJob.isCompleted()) {
+            showAlertDialog(getString(R.string.printing_done));
+        } else if (printJob.isFailed()) {
+            showAlertDialog(getString(R.string.print_error));
+        } else {
+            showAlertDialog(getString(R.string.printjob_not_started));
+        }
     }
 
 }

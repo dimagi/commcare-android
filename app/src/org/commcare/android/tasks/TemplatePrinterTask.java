@@ -2,220 +2,83 @@ package org.commcare.android.tasks;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
-import org.commcare.android.util.TemplatePrinterEncryptedStream;
+import org.commcare.android.util.TemplatePrinterIOUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
-import org.commcare.dalvik.activities.TemplatePrinterActivity;
-import org.commcare.dalvik.application.CommCareApplication;
+
 
 /**
- * Asynchronous task for populating a document with data.
+ * Asynchronous task for populating an html document with data.
  *
  * @author Richard Lu
  * @author amstone
  */
 public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
-    
-    public enum DocTypeEnum {
-
-        DOCX("word/document.xml"),
-        HTML(""),
-        ODT("content.xml");
-
-        public static DocTypeEnum getDocTypeFromExtension(String extension) {
-            for (DocTypeEnum docType : DocTypeEnum.values()) {
-                if (docType.toString().equalsIgnoreCase(extension)) {
-                    return docType;
-                }
-            }
-            return null;
-        }
-
-        public static boolean isSupportedExtension(String extension) {
-            return getDocTypeFromExtension(extension) != null;
-        }
-
-        public final String CONTENT_FILE_NAME;
-
-        private DocTypeEnum(String contentFileName) {
-            this.CONTENT_FILE_NAME = contentFileName;
-        }
-
-    }
-
-    public interface PopulateListener {
-
-        public void onError(String message);
-        public void onFinished();
-
-    }
 
     private static final int BUFFER_SIZE = 1024;
 
-    private final File input;
+    private File input;
+    private String outputPath;
     private final Bundle values;
     private final PopulateListener listener;
-    /**
-     * An encrypted stream for writing to and reading back from the filled-in template to be printed
-     */
-    private TemplatePrinterEncryptedStream eStream;
 
     private String errorMessage;
 
-    public TemplatePrinterTask(File input, TemplatePrinterEncryptedStream eStream, Bundle values,
+    public TemplatePrinterTask(File input, String outputPath, Bundle values,
                                PopulateListener listener) {
         this.input = input;
-        this.eStream = eStream;
+        this.outputPath = outputPath;
         this.values = values;
         this.listener = listener;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-
-        boolean success = false;
-
         try {
-            success = populateHtml(input, values);
+            populateHtml(input, values);
+            return true;
         } catch (Exception e) {
             errorMessage = e.getMessage();
+            return false;
         }
-
-        return success;
     }
 
+    /**
+     * Receives the return value from doInBackground and proceeds accordingly
+     */
     @Override
     protected void onPostExecute(Boolean success) {
-
         if (success) {
             listener.onFinished();
         } else {
             listener.onError(errorMessage);
         }
-
     }
 
     /**
      * Populates an html print template based on the given set of key-value pairings
+     * and save the newly-populated template to a temp location
      *
      * @param input the html print template
      * @param values the mapping of keywords to case property values
-     * @return whether population of the template was successful
      * @throws Exception
      */
-    private boolean populateHtml(File input, Bundle values) throws Exception {
-        // Read from input file, may throw exception
+    private void populateHtml(File input, Bundle values) throws Exception {
+        // Read from input file
         String fileText = TemplatePrinterUtils.docToString(input);
-        // Check if string is mal-formed, may throw exception
-        validateStringOrThrowException(fileText);
+
+        // Check if the <body></body> section of the html string is properly formed
+        int startBodyIndex = fileText.indexOf("<body");
+        validateStringOrThrowException(fileText.substring(startBodyIndex));
+
         // Swap out place-holder keywords for case property values
         fileText = replace(fileText, values);
-        //Write the new text out to a temp html file
-        BufferedWriter out = new BufferedWriter(
-                new FileWriter(TemplatePrinterActivity.PATH_NO_EXTENSION + ".html"));
-        out.write(fileText);
-        out.close();
-        return true;
 
+        // Write the new HTML to the desired  temp file location
+        TemplatePrinterIOUtil.writeStringToFile(fileText, outputPath);
     }
-
-    /**
-     * Populate an input document with attribute keys formatted as {{ attr_key }}
-     * with attribute values.
-     *
-     * Sources:
-     * http://isip-blog.blogspot.com/2010/04/extracting-xml-files-from-odt-file-in.html
-     * http://stackoverflow.com/questions/11502260/modifying-a-text-file-in-a-zip-archive-in-java
-     *
-     * @param input Document (ODT/DOCX) file
-     * @param values Bundle of String attribute key-value mappings
-     * @return if the population was successful
-     * @throws IOException
-     */
-    /*private boolean populate(File input, Bundle values) throws IOException {
-
-        String inputExtension = TemplatePrinterUtils.getExtension(input.getName());
-
-        if (DocTypeEnum.isSupportedExtension(inputExtension)) {
-
-            DocTypeEnum docType = DocTypeEnum.getDocTypeFromExtension(inputExtension);
-            if (docType.equals(DocTypeEnum.HTML)) {
-                return populateHtml(input, values);
-            }
-
-            ZipFile file = new ZipFile(input);
-            Enumeration entries = file.entries();
-
-            // Get an encrypted output stream for writing the filled-in template to the temp
-            // filepath in .docx format
-            //ZipOutputStream outputStream = eStream.getHtmlOutputStream();
-
-            while (entries.hasMoreElements()) {
-
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-
-                InputStream inputStream = file.getInputStream(entry);
-
-                byte[] byteBuffer = new byte[BUFFER_SIZE];
-                int numBytesRead;
-
-                outputStream.putNextEntry(new ZipEntry(entry.getName()));
-
-                if (entry.getName().equals(docType.CONTENT_FILE_NAME)) {
-
-                    // Read entire file as String
-                    String fileText = "";
-
-                    while ((numBytesRead = inputStream.read(byteBuffer)) > 0) {
-                        fileText += new String(TemplatePrinterUtils.copyOfArray(byteBuffer, numBytesRead));
-                    }
-
-                    // Populate String
-                    if (fileText.contains("{{")) {
-                        fileText = replace(fileText, values);
-                    }
-
-                    byte[] fileTextBytes = fileText.getBytes();
-
-                    outputStream.write(fileTextBytes, 0, fileTextBytes.length);
-
-                } else {
-
-                    // Straight up copy file
-                    while ((numBytesRead = inputStream.read(byteBuffer)) > 0) {
-                        outputStream.write(byteBuffer, 0, numBytesRead);
-                    }
-
-                }
-
-                outputStream.closeEntry();
-                inputStream.close();
-
-            }
-
-            outputStream.close();
-            file.close();
-
-        } else {
-            throw new RuntimeException("Not a supported file format");
-        }
-
-        return true;
-    }*/
 
     /**
      * Populate an input string with attribute keys formatted as {{ attr_key }}
@@ -227,7 +90,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
     private static String replace(String input, Bundle values) {
         // Split input into tokens bounded by {{ and }}
         String[] tokens = TemplatePrinterUtils.splitKeepDelimiter(input, "\\{{2}", "\\}{2}");
-
         for (int i=0; i<tokens.length; i++) {
             String token = tokens[i];
 
@@ -331,6 +193,13 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
         if (!isWellFormed) {
             throw new RuntimeException("Ill-formed input string: " + input);
         }
+
+    }
+
+    public interface PopulateListener {
+
+        void onError(String message);
+        void onFinished();
 
     }
 }
