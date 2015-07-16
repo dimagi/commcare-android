@@ -2,9 +2,11 @@ package org.commcare.android.util;
 
 import android.text.TextUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,6 +98,17 @@ public abstract class TemplatePrinterUtils {
         String delimiter = String.format(FORMAT_REGEX_WITH_DELIMITER, delimiterStart, delimiterEnd);
 
         return input.split(delimiter);
+    }
+
+    public static String docToString(File file) throws IOException {
+        String fileText = "";
+        BufferedReader in = new BufferedReader(new FileReader(file));
+        String str;
+        while ((str = in.readLine()) != null) {
+            fileText += str;
+        }
+        in.close();
+        return fileText;
     }
 
     /*public static void docxToPDF(TemplatePrinterEncryptedStream eStream) {

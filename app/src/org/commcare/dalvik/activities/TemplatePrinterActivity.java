@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,6 +24,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintJob;
 import android.print.PrintManager;
 import android.util.Log;
 import android.webkit.WebView;
@@ -43,7 +47,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * PdfPrintDocumentAdapter, Stored WITHOUT an extension, because we want it to be .docx when
      * writing to it, and then .pdf when reading from it.
      */
-    private final static String PATH_NO_EXTENSION = CommCareApplication._().getTempFilePath();
+    public final static String PATH_NO_EXTENSION = CommCareApplication._().getTempFilePath();
 
     /**
      * Unique name to use for the print job name
@@ -55,6 +59,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * and the input stream with which to decrypt and read back from that file in order to print
      */
     private TemplatePrinterEncryptedStream stream;
+
+    /**
+     * Used to hold an instance of the WebView object being printed, so that is it not garbage
+     * collected before the print job is created
+     */
+    private WebView mWebView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,13 +154,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     @Override
     public void onFinished() {
-        Log.i("HERE", "populated html successfully");
-        // Create and save a .pdf version of the .docx file created
-        //TemplatePrinterUtils.docxToPDF(this.stream);
-        // Print that pdf file.
-        //executePrint();
-        //doWebViewPrint();
-
+        doHtmlPrint(PATH_NO_EXTENSION + ".html");
     }
 
     private void showErrorDialog(int messageResId) {
@@ -183,14 +187,23 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         dialogBuilder.show();
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
+    /*@TargetApi(Build.VERSION_CODES.KITKAT)
     private void executePrint() {
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
         PdfPrintDocumentAdapter adapter = new PdfPrintDocumentAdapter(this, jobName, this.stream);
         printManager.print(jobName, adapter, null);
-    }
+    }*/
 
-    /*private void doWebViewPrint() {
+
+    /**
+     * Prepares a WebView out of an html document, which can then be printed by the Android print
+     * framework
+     *
+     * Source: https://developer.android.com/training/printing/html-docs.html
+     *
+     * @param path path to the html document to print
+     */
+    private void doHtmlPrint(String path) {
         // Create a WebView object specifically for printing
         WebView webView = new WebView(this);
         webView.setWebViewClient(new WebViewClient() {
@@ -201,20 +214,41 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                Log.i(TAG, "page finished loading " + url);
                 createWebPrintJob(view);
                 mWebView = null;
             }
         });
+        try {
+            String htmlDocString = TemplatePrinterUtils.docToString(new File(path));
+            webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
 
-        // Generate an HTML document on the fly:
-        String htmlDocument = "<html><body><h1>Test Content</h1><p>Testing, " +
-                "testing, testing...</p></body></html>";
-        webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
+            // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
+            mWebView = webView;
+        } catch (IOException e) {
+            showErrorDialog("Could not read from generated HTML doc in order to print");
+        }
 
-        // Keep a reference to WebView object until you pass the PrintDocumentAdapter
-        // to the PrintManager
-        mWebView = webView;
-    }*/
+    }
+
+    /**
+     * Starts a print job for a WebView
+     *
+     * Source: https://developer.android.com/training/printing/html-docs.html
+     *
+     * @param v the WebView to be printed
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private void createWebPrintJob(WebView v) {
+
+        // Get a PrintManager instance
+        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+
+        // Get a print adapter instance
+        PrintDocumentAdapter printAdapter = v.createPrintDocumentAdapter();
+
+        // Create a print job with name and adapter instance
+        PrintJob printJob = printManager.print(jobName, printAdapter,
+                new PrintAttributes.Builder().build());
+    }
 
 }

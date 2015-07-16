@@ -19,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.commcare.android.util.TemplatePrinterEncryptedStream;
 import org.commcare.android.util.TemplatePrinterUtils;
+import org.commcare.dalvik.activities.TemplatePrinterActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
@@ -108,25 +109,28 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
 
     }
 
+    /**
+     * Populates an html print template based on the given set of key-value pairings
+     *
+     * @param input the html print template
+     * @param values the mapping of keywords to case property values
+     * @return whether population of the template was successful
+     * @throws Exception
+     */
     private boolean populateHtml(File input, Bundle values) throws Exception {
-        String fileText = "";
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(input));
-            String str;
-            while ((str = in.readLine()) != null) {
-                fileText +=str;
-            }
-            fileText = replace(fileText, values);
-            BufferedWriter out = new BufferedWriter(
-                    new FileWriter(CommCareApplication._().getTempFilePath() + ".html"));
-            out.write(fileText);
+        // Read from input file, may throw exception
+        String fileText = TemplatePrinterUtils.docToString(input);
+        // Check if string is mal-formed, may throw exception
+        validateStringOrThrowException(fileText);
+        // Swap out place-holder keywords for case property values
+        fileText = replace(fileText, values);
+        //Write the new text out to a temp html file
+        BufferedWriter out = new BufferedWriter(
+                new FileWriter(TemplatePrinterActivity.PATH_NO_EXTENSION + ".html"));
+        out.write(fileText);
+        out.close();
+        return true;
 
-            in.close();
-            out.close();
-            return true;
-        } catch (IOException e) {
-            throw new Exception("Failed to read/populate html");
-        }
     }
 
     /**
@@ -221,9 +225,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
      * @return The populated String
      */
     private static String replace(String input, Bundle values) {
-
-        validateStringOrThrowException(input);
-
         // Split input into tokens bounded by {{ and }}
         String[] tokens = TemplatePrinterUtils.splitKeepDelimiter(input, "\\{{2}", "\\}{2}");
 
@@ -304,7 +305,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
                 if (isBetweenMustaches) {
                     i++;
                     if (input.charAt(i) != '}') {
-                        Log.i("3", "breaks here");
                         isWellFormed = false;
                         break;
                     } else {
