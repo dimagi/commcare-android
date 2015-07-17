@@ -70,9 +70,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         taskId = ZIP_TASK_ID;
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
@@ -81,10 +79,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(FormRecord[] result) {
         super.onPostExecute(result);
@@ -223,10 +217,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected FormRecord[] doTaskBackground(String... params) {
         
@@ -395,9 +385,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();

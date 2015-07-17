@@ -27,10 +27,6 @@ public class DecryptingCursor extends SQLiteCursor {
         this.cipher = pool.borrow();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getBlob(int)
-     */
     @Override
     public byte[] getBlob(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -40,10 +36,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getDouble(int)
-     */
     @Override
     public double getDouble(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -53,10 +45,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getFloat(int)
-     */
     @Override
     public float getFloat(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -66,10 +54,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getInt(int)
-     */
     @Override
     public int getInt(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -79,10 +63,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getLong(int)
-     */
     @Override
     public long getLong(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -92,10 +72,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getShort(int)
-     */
     @Override
     public short getShort(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -105,10 +81,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.database.AbstractWindowedCursor#getString(int)
-     */
     @Override
     public String getString(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -171,9 +143,6 @@ public class DecryptingCursor extends SQLiteCursor {
     }
     
     
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteCursor#close()
-     */
     @Override
     public void close() {
         super.close();

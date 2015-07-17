@@ -25,18 +25,10 @@ public class DataSubmissionEntity extends MultipartEntity {
         this.submissionId = submissionId;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.apache.http.entity.mime.MultipartEntity#isRepeatable()
-     */
     @Override
     public boolean isRepeatable() {
         return true;
     }
-
-    /* (non-Javadoc)
-     * @see org.apache.http.entity.mime.MultipartEntity#writeTo(java.io.OutputStream)
-     */
     @Override
     public void writeTo(OutputStream outstream) throws IOException {
         if(attempt != 1) {

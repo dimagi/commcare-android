@@ -175,10 +175,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     ImageView topBannerImageView;
     int gridViewMargin;
 
-    /*
-         * (non-Javadoc)
-         * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-         */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -412,10 +408,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", this.getString(R.string.ota_restore_url)), "", this) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-             */
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 receiver.refreshView();
@@ -448,10 +440,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-             */
             @Override
             protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
                 if (update[0] == DataPullTask.PROGRESS_STARTED) {
@@ -472,10 +460,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-             */
             @Override
             protected void deliverError(CommCareHomeActivity receiver,
                                         Exception e) {
@@ -489,22 +473,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mDataPullTask.execute();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("was_external", wasExternal);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onRestoreInstanceState(Bundle inState) {
         super.onRestoreInstanceState(inState);
@@ -513,10 +487,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
@@ -943,10 +913,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
             if (text != null) {
                 createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
-                    /*
-                     * (non-Javadoc)
-                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                     */
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         session.stepBack();
@@ -1050,10 +1016,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
     @Override
     public String getActivityTitle() {
         String userName = null;
@@ -1069,10 +1031,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return "";
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
     @Override
     protected boolean isTopNavEnabled() {
         return false;
@@ -1151,10 +1109,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(),
                 sendTaskId, syncAfterwards) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-             */
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
@@ -1183,19 +1137,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-             */
             @Override
             protected void deliverUpdate(CommCareHomeActivity receiver, Long... update) {
                 //we don't need to deliver updates here, it happens on the notification bar
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-             */
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
                 //TODO: Display somewhere useful
@@ -1221,11 +1167,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -1543,10 +1484,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     //END - Process and Send Listeners
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -1572,9 +1509,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -1595,10 +1529,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -1747,10 +1677,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
@@ -1779,10 +1705,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return dialog;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
-     */
     @Override
     public boolean isBackEnabled() {
         return false;

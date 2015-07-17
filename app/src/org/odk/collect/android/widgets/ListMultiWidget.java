@@ -93,10 +93,6 @@ public class ListMultiWidget extends QuestionWidget {
 
                 // when clicked, check for readonly before toggling
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    /*
-                     * (non-Javadoc)
-                     * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-                     */
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (!mCheckboxInit && mPrompt.isReadOnly()) {
@@ -253,10 +249,6 @@ public class ListMultiWidget extends QuestionWidget {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         int j = mItems.size();
@@ -271,10 +263,6 @@ public class ListMultiWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<Selection>();
@@ -295,10 +283,6 @@ public class ListMultiWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -339,10 +323,6 @@ public class ListMultiWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         for (CheckBox c : mCheckboxes) {
@@ -351,10 +331,6 @@ public class ListMultiWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

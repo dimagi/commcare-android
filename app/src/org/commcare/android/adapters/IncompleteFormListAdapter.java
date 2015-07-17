@@ -195,10 +195,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetChanged()
-     */
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
@@ -207,10 +203,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetInvalidated()
-     */
     @Override
     public void notifyDataSetInvalidated() {
         super.notifyDataSetInvalidated();
@@ -220,52 +212,38 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int i) {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return current.size();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int i) {
         return current.get(i);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int i) {
         //Skeeeeetccchhyyyy maybe?
         return current.get(i).getID();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int i) {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
@@ -289,23 +267,17 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return ifrv;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
@@ -400,15 +372,11 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }

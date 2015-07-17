@@ -138,9 +138,7 @@ public abstract class ResourceEngineTask<R>
         TAG = ResourceEngineTask.class.getSimpleName();
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
+    @Override
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
         AndroidCommCarePlatform platform = app.getCommCarePlatform();

@@ -419,26 +419,20 @@ public class EntityListAdapter implements ListAdapter {
         });
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int position) {
         return true;
     }
 
-    /*
+    /**
      * Includes action, if enabled, as an item.
-     * 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
      */
+    @Override
     public int getCount() {
         return getCount(false, false);
     }
@@ -458,16 +452,12 @@ public class EntityListAdapter implements ListAdapter {
         return (fullCount ? full.size() : current.size()) + (actionEnabled && !ignoreAction ? 1 : 0);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public TreeReference getItem(int position) {
         return current.get(position).getElement();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int position) {
         if(actionEnabled) {
             if(position == actionPosition) {
@@ -477,9 +467,7 @@ public class EntityListAdapter implements ListAdapter {
         return references.indexOf(current.get(position).getElement());
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int position) {
         if(actionEnabled) {
             if(position == actionPosition) {
@@ -489,12 +477,11 @@ public class EntityListAdapter implements ListAdapter {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
-    /* Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
+    /**
+     * Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
      * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
      */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(actionEnabled && position == actionPosition) {
             HorizontalMediaView tiav =(HorizontalMediaView)convertView;
@@ -542,23 +529,17 @@ public class EntityListAdapter implements ListAdapter {
 
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return actionEnabled? 2 : 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
@@ -585,16 +566,12 @@ public class EntityListAdapter implements ListAdapter {
         return reverseSort;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }

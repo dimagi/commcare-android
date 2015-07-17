@@ -58,51 +58,37 @@ public class EntityDetailAdapter implements ListAdapter {
         this.detailIndex = detailIndex;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int position) {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return valid.size();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int position) {
         return entity.getField(valid.get(position));
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int position) {
         return valid.get(position);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int position) {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         EntityDetailView dv =(EntityDetailView)convertView;
         if (dv == null) {
@@ -120,36 +106,26 @@ public class EntityDetailAdapter implements ListAdapter {
         return dv;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
     
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
     }
 

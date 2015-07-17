@@ -111,10 +111,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         this.listeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doInBackground(FormRecord... params) {
         int loadedFormCount = 0;
@@ -214,9 +210,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         return this.loadingComplete;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
@@ -234,9 +227,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         formNames = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(Pair<FormRecord, ArrayList<String>>... values) {
         super.onProgressUpdate(values);

@@ -70,10 +70,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed fixtureStorage;
                         
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.FixtureXmlParser#storage()
-                         */
                         @Override
                         public IStorageUtilityIndexed storage() {
                             if(fixtureStorage == null) {
@@ -89,10 +85,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         }; 
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-     */
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String name = parser.getName();
         String namespace = parser.getNamespace();
@@ -132,10 +125,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 @Override
                 public void commit(String parsed) throws IOException {}
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.javarosa.xml.ElementParser#parse()
-                 */
                 @Override
                 public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
                     this.checkNode("sync");

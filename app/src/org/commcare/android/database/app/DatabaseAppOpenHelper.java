@@ -50,9 +50,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         return DB_LOCATOR_PREF_APP + appId;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
         try {
@@ -99,9 +96,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);

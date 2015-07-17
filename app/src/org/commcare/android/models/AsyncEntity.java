@@ -122,10 +122,6 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.models.Entity#getNormalizedField(int)
-     */
     @Override
     public String getNormalizedField(int i) {
         String normalized = this.getSortField(i);
@@ -198,10 +194,6 @@ public class AsyncEntity extends Entity<TreeReference>{
         return fields.length;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.models.Entity#isValidField(int)
-     */
     @Override
     public boolean isValidField(int i) {
         //NOTE: This totally jacks the asynchronicity. It's only used in
