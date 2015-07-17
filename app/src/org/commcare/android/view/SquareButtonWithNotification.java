@@ -100,7 +100,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
             typedArray.recycle();
 
-            buttonWithText.setColor(backgroundColorButton);
+            buttonWithText.setColor(getResources().getColor(backgroundColorButton));
             buttonWithText.setImage(backgroundImg);
             buttonWithText.setText(subtitleButton);
             setNotificationText(textNotification);
