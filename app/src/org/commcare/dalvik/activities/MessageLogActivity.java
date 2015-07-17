@@ -1,7 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.MessageRecordAdapter;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 
 import android.app.ListActivity;
@@ -14,7 +13,6 @@ import android.widget.ListView;
 
 /**
  * @author ctsims
- *
  */
 public class MessageLogActivity extends ListActivity {
 
@@ -59,31 +57,4 @@ public class MessageLogActivity extends ListActivity {
         startActivity(i);
         return;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        switch(requestCode){
-//        case CONFIRM_SELECT:
-//            if(resultCode == RESULT_OK) {
-//                // create intent for return and store path
-//                Intent i = new Intent(this.getIntent());
-//                
-//                i.putExtras(intent.getExtras());
-//                setResult(RESULT_OK, i);
-//
-//                finish();
-//                return;
-//            } else {
-//                Intent i = new Intent(this.getIntent());
-//                setResult(RESULT_CANCELED, i);
-//                return;
-//            }
-//        default:
-//            super.onActivityResult(requestCode, resultCode, intent);
-//        }
-//    }
 }

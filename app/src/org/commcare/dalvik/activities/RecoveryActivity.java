@@ -13,7 +13,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.services.Logger;
 
 import android.annotation.SuppressLint;

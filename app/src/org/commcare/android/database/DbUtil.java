@@ -9,9 +9,7 @@ import java.util.List;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
-import net.sqlcipher.database.SQLiteStatement;
 
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.externalizable.ImprovedPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;

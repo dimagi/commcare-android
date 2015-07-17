@@ -2,7 +2,6 @@ package org.commcare.android.tasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.apache.http.HttpResponse;
@@ -529,5 +528,4 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;
     }
-
 }

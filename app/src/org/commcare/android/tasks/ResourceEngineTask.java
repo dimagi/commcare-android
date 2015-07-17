@@ -14,7 +14,6 @@ import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;

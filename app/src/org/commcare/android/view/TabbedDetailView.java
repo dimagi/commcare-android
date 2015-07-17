@@ -2,13 +2,11 @@ package org.commcare.android.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +18,13 @@ import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
  * User can navigate either by swiping through pages or by tapping the tabs.
- * @author jschweers
  *
+ * @author jschweers
  */
 public class TabbedDetailView extends RelativeLayout {
     private FragmentActivity mContext;

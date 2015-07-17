@@ -3,9 +3,6 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Log;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
@@ -15,7 +12,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
@@ -23,7 +19,6 @@ import java.io.FileNotFoundException;
 
 /**
  * @author ctsims
- *
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
     Context c;

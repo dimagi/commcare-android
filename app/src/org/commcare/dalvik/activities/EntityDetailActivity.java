@@ -21,7 +21,6 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
