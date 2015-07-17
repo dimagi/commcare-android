@@ -80,7 +80,6 @@ public class PollSensorAction extends Action implements LocationListener {
     /**
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
      * @param model The FormDef that triggered the action
-     * @param contextRef
      */
     public void processAction(FormDef model, TreeReference contextRef) {
         mModel = model;
@@ -143,7 +142,6 @@ public class PollSensorAction extends Action implements LocationListener {
      * @see android.location.LocationListener#onLocationChanged(android.location.Location)
      * 
      * If this action has a target node, update its value with the given location.
-     * @param location
      */
     @Override
     public void onLocationChanged(Location location) {

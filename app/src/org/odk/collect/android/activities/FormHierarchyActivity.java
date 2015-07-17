@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.activities;
 
 import java.util.ArrayList;
@@ -345,9 +331,6 @@ public class FormHierarchyActivity extends ListActivity {
      * used to go up one level in the formIndex. That is, if you're at 5_0, 1 (the second question
      * in a repeating group), this method will return a FormInex of 5_0 (the start of the repeating
      * group). If your at index 16 or 5_0, this will return null;
-     * 
-     * @param index
-     * @return index
      */
     public FormIndex stepIndexOut(FormIndex index) {
         if (index.isTerminal()) {
@@ -423,5 +406,4 @@ public class FormHierarchyActivity extends ListActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 }

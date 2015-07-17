@@ -257,8 +257,6 @@ public class CaseDataContentProvider extends ContentProvider {
     
     /**
      * Query the casedb for the key/value pairs for a specific case.
-     * 
-     * @return
      */
     private Cursor queryCaseData(String caseId) {
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully

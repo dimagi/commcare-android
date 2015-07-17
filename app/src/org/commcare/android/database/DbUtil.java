@@ -124,11 +124,6 @@ public class DbUtil {
     * one any time the method would have crashed anyway.
     * 
     * Will crash if this update doesn't work, so no return is needed
-    * 
-    * @param key
-    * @param context
-    * @param dbName
-    * @return
     */
    public static void trySqlCipherDbUpdate(String key, Context context, String dbName) {
        //There's no clear way how to tell whether this call is the invalid db version

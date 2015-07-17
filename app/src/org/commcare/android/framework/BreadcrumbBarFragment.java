@@ -398,10 +398,6 @@ public class BreadcrumbBarFragment extends Fragment {
      * Get the breadcrumb bar view
      * 
      * Sunsetting this soon.
-     * 
-     * @param activity
-     * @param local
-     * @return
      */
         public View getTitleView(final Activity activity, String local) {
             

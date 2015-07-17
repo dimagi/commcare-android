@@ -39,7 +39,6 @@ import android.util.Pair;
 
 /**
  * @author ctsims
- *
  */
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
     
@@ -184,13 +183,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 
     /**
      * Perform any custom installation actions required for this resource.
-     * 
-     * @param r
-     * @param local
-     * @param upgrade
-     * @return
-     * @throws IOException
-     * @throws UnresolvedResourceException
      */
     protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
     

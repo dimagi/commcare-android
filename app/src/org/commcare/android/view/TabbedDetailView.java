@@ -47,9 +47,6 @@ public class TabbedDetailView extends RelativeLayout {
      * Create a tabbed detail view with a specific root pager ID
      * (this is necessary in any context where multiple detail views
      * will be used at once)
-     *  
-     * @param context
-     * @param alternateId
      */
     public TabbedDetailView(Context context, int alternateId) {
         super(context);

@@ -175,10 +175,7 @@ public class HomeScreenAdapter extends BaseAdapter {
     /**
      * Returns the index of the button with the given resource code. If lookupID is set, will search for the button with the given R.id; if not, will search for the button with the given R.layout code.
      *
-     * @param resourceCode
-     * @param lookupID
-     * @return
-     * @throws java.lang.IllegalArgumentException If the given resourceCode is not found
+     * @throws IllegalArgumentException If the given resourceCode is not found
      */
     private int getButtonIndex(int resourceCode, boolean lookupID) {
         int code = resourceCode;

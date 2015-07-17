@@ -232,10 +232,6 @@ public class HttpRequestGenerator {
      * with redirects. We don't want to just accept any redirect, though, since we may be directed
      * away from a secure connection. For now we'll only accept redirects from HTTP -> * servers,
      * or HTTPS -> HTTPS severs on the same domain
-     * 
-     * @param client
-     * @param request
-     * @return
      */
     private HttpResponse execute(HttpClient client, HttpUriRequest request) throws IOException {
         HttpContext context = new BasicHttpContext(); 
@@ -278,8 +274,7 @@ public class HttpRequestGenerator {
      * but this generates an input stream for a URL using the best package for your
      * application
      * 
-     * @param url
-     * @return a Stream to that URL 
+     * @return a Stream to that URL
      */
     public InputStream simpleGet(URL url) throws IOException {
         
@@ -350,11 +345,6 @@ public class HttpRequestGenerator {
         return get.getEntity().getContent();        
     }
     
-
-    /**
-     * @param con
-     * @throws IOException
-     */
     private void setup(HttpURLConnection con) throws IOException {
         con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
         con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);

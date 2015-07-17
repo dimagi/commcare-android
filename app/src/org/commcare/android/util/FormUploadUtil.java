@@ -297,11 +297,6 @@ public class FormUploadUtil {
      * NOTE: this is a shallow validation (everything should be more or else constant time).
      * Throws an exception if the file is gone because that's a common issue that gets caught
      * to check if storage got removed 
-     * 
-     * @param f
-     * @param decryptCipher
-     * @return
-     * @throws FileNotFoundException 
      */
     public static boolean validateSubmissionFile(File f, Cipher decryptCipher) throws FileNotFoundException {
         if(!f.exists()) {

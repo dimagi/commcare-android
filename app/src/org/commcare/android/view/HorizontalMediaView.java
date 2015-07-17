@@ -166,8 +166,6 @@ public class HorizontalMediaView extends RelativeLayout {
 
     /**
      * This adds a divider at the bottom of this layout. Used to separate fields in lists.
-     * 
-     * @param v
      */
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
@@ -203,5 +201,4 @@ public class HorizontalMediaView extends RelativeLayout {
             }
         }
     }
-
 }
