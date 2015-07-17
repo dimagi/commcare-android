@@ -39,7 +39,6 @@ import android.util.Pair;
 
 /**
  * @author ctsims
- *
  */
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
     
@@ -140,33 +139,23 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
                 throw new UnresolvedResourceException(r, "After install there is no local resource location");
             }
             return true;
-            /*
-             * This error is thrown by the HttpRequestGenerator on 4.3 devices when the peer certificate is bad. 
-             * We catch this and deliver upstream to the SetupActivity as an UnresolvedResourceException
-             */
-        } catch(SSLHandshakeException she){
-            
-            she.printStackTrace();
-            
-            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
-            mURE.initCause(she);
-            
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+            // SSLHandshakeException is thrown by the HttpRequestGenerator on
+            // 4.3 devices when the peer certificate is bad.
+            //
+            // SSLPeerUnverifiedException is thrown by the HttpRequestGenerator
+            // on 2.3 devices when the peer certificate is bad.
+            //
+            // Deliver these errors upstream to the SetupActivity as an
+            // UnresolvedResourceException
+            e.printStackTrace();
+
+            UnresolvedResourceException mURE =
+                new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
+            mURE.initCause(e);
+
             throw mURE;
-            /*
-             * This error is thrown by the HttpRequestGenerator on 2.3 devices when the peer certificate is bad.
-             * Handled the same as above.
-             */
-        } catch(SSLPeerUnverifiedException spue){
-            
-            spue.printStackTrace();
-            
-            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
-            mURE.initCause(spue);
-            
-            throw mURE;
-            
-        } catch (IOException e) { 
-            
+        } catch (IOException e) {
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
         }
@@ -184,16 +173,9 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 
     /**
      * Perform any custom installation actions required for this resource.
-     * 
-     * @param r
-     * @param local
-     * @param upgrade
-     * @return
-     * @throws IOException
-     * @throws UnresolvedResourceException
      */
     protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
-    
+
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
      */
@@ -402,10 +384,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
             File preMove = new File(ReferenceManager._().DeriveReference(oldRef).getLocalURI());
             
             File expectedFile = new File(ReferenceManager._().DeriveReference(expectedRef).getLocalURI());
-            
-            
-            
-            
+
             //the expectation is that localReference might be pointing to the old ref which no longer exists, 
             //in which case the moved already happened.
             if(currentPointer.exists()) {
