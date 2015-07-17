@@ -102,8 +102,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
-    private static final int REQUEST_TEMPLATE = 0;
 
+    // Fields for setting print template
+    private static final int REQUEST_TEMPLATE = 0;
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
     private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
 
@@ -377,15 +378,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     }
 
     private void startFileBrowser() {
-
         Intent chooseTemplateIntent = new Intent()
                 .setAction(Intent.ACTION_GET_CONTENT)
                 .setType("file/*")
                 .addCategory(Intent.CATEGORY_OPENABLE);
-
-        startActivityForResult(
-                chooseTemplateIntent, REQUEST_TEMPLATE);
-
+        startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
     }
 
 }
