@@ -215,11 +215,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="please_wait">Please wait a few moments.</string>
     <string name="please_wait_long">Please wait. This could take a few minutes.</string>
     <string name="print_error">There was an error while printing. Please try again.</string>
+     <string name="print_io_error">There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance</string>
     <string name="print_not_supported">This device does not support printing at this time.</string>
-    <string name="printjob_queued">"PrintJob Queued&#8230;"</string>
-    <string name="printjob_started">"PrintJob Started&#8230;"</string>
-    <string name="printjob_blocked">"PrintJob Blocked and restarting&#8230;"</string>
-    <string name="printjob_failed">"PrintJob failed and restarting&#8230;"</string>
     <string name="printjob_not_started">No print job was started</string>
     <string name="printing_done">"Printing done successfully"</string>
     <string name="quit_application">Exit %s</string>
@@ -248,10 +245,9 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="server_requires_auth">Server Requires Authentication</string>
     <string name="server_url">URL</string>
     <string name="server_preferences">Server</string>
-    <string name="template_invalid">The file set for your print job is invalid. Please ask a
-        supervisor to assist you.</string>
-    <string name="template_not_set">No template file has been set for your print job.
-        Please ask a supervisor to assist you in setting one.</string>
+    <string name="template_invalid">The template file set for your print job is invalid. Please ask a supervisor for assistance.</string>
+    <string name="template_not_set">No template file has been set for your print job. Please ask a supervisor to assist you in setting one.</string>
+    <string name="template_malformed">"The template file set for your print job has improperly-formed content. Please ask a supervisor for assistance."</string>
     <string name="toggle_selected">Toggle All</string>
     <string name="trigger">OK. Please continue.</string>
     <string name="uploading_data">Sending Form</string>

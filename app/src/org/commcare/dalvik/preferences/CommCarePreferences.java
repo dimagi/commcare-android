@@ -36,6 +36,7 @@ import android.widget.Toast;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -104,6 +105,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     private static final int REQUEST_TEMPLATE = 0;
 
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
+    private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
+
 
     /*
      * (non-Javadoc)
@@ -130,11 +133,11 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         setTitle("CommCare" + " > " + "Application Preferences");
 
         //Set an OnPreferenceClickListener for Print doc location
-        Preference pref = prefMgr.findPreference("print-doc-location");
+        Preference pref = prefMgr.findPreference(PREF_MANAGER_PRINT_KEY);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (preference.getKey().equals("print-doc-location")) {
+                if (preference.getKey().equals(PREF_MANAGER_PRINT_KEY)) {
                     startFileBrowser();
                     return true;
                 }
@@ -147,21 +150,45 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == REQUEST_TEMPLATE) {
-
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-                editor.putString(PRINT_DOC_LOCATION, filePath);
-                editor.commit();
-                Toast.makeText(this, "Template set successfully!", Toast.LENGTH_SHORT).show();
+                String extension = TemplatePrinterUtils.getExtension(filePath);
+                if (extension.equalsIgnoreCase("html")) {
+                    SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
+                            getAppPreferences().edit();
+                    editor.putString(PRINT_DOC_LOCATION, filePath);
+                    editor.commit();
+                    Toast.makeText(this, "Template set successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    showAlertDialog("No template file was set", "A print template must have " +
+                            "extension .html. Please choose a different file");
+                }
             } else {
-                // No template file selected
-                finish();
+                //No file selected
+                Toast.makeText(this, "No template file was set.", Toast.LENGTH_SHORT).show();
             }
-
         }
 
+    }
+
+    private void showAlertDialog(String title, String message) {
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(
+                        R.string.ok,
+                        new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }
+                );
+        dialogBuilder.show();
     }
 
     /*

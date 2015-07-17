@@ -34,24 +34,6 @@ public abstract class TemplatePrinterUtils {
     private static final String FORMAT_REGEX_WITH_DELIMITER = "((?<=%2$s)|(?=%1$s))";
     private static final SecretKey KEY = CryptUtil.generateSemiRandomKey();
 
-
-    /**
-     * Returns a copy of the byte array, truncated to the specified length.
-     *
-     * @param array Input array
-     * @param length Length to truncate to; must be less than or equal to array.length
-     * @return Copied, truncated array
-     */
-    public static byte[] copyOfArray(byte[] array, int length) {
-        byte[] result = new byte[length];
-
-        for (int i = 0; i < result.length; i++) {
-            result[i] = array[i];
-        }
-
-        return result;
-    }
-
     /**
      * Gets the file extension from the given file path.
      *
@@ -78,7 +60,7 @@ public abstract class TemplatePrinterUtils {
      * @param strings String array
      * @return Last element
      */
-    public static String last(String[] strings) {
+    private static String last(String[] strings) {
         return strings[strings.length - 1];
     }
 

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.commcare.android.util.TemplatePrinterUtils;
 
@@ -16,30 +17,58 @@ import org.commcare.android.util.TemplatePrinterUtils;
  */
 public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
 
-    private static final int BUFFER_SIZE = 1024;
+    /**
+     * If an error occurs, stores which type the error was, to be passed back to
+     * TemplatePrinterActivity through the PopulateListener's onError method
+     */
+    private int errorType;
 
-    private File input;
-    private String outputPath;
+    /**
+     * The 2 types of errors that can be encountered in this task
+     */
+    public static final int IO_ERROR = 0;
+    private static final int VALIDATION_ERROR = 1;
+
+    /**
+     * The template file for this print action
+     */
+    private final File inputFile;
+
+    /**
+     * The path where the populated template should be saved to
+     */
+    private final String outputPath;
+
+    /**
+     * The mapping from keywords to case property values to be used in populating the template
+     */
     private final Bundle values;
+
     private final PopulateListener listener;
 
-    private String errorMessage;
 
     public TemplatePrinterTask(File input, String outputPath, Bundle values,
                                PopulateListener listener) {
-        this.input = input;
+        this.inputFile = input;
         this.outputPath = outputPath;
         this.values = values;
         this.listener = listener;
     }
 
+    /**
+     * Attempts to perform population of the template file, and throws the appropriate exception
+     * if encountering an error.
+     */
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            populateHtml(input, values);
+            populateHtml(inputFile, values);
             return true;
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
+        } catch (IOException e) {
+            errorType = IO_ERROR;
+            return false;
+        } catch (RuntimeException e) {
+            errorType = VALIDATION_ERROR;
             return false;
         }
     }
@@ -52,7 +81,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
         if (success) {
             listener.onFinished();
         } else {
-            listener.onError(errorMessage);
+            listener.onError(errorType);
         }
     }
 
@@ -62,21 +91,26 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
      *
      * @param input the html print template
      * @param values the mapping of keywords to case property values
-     * @throws Exception
+     * @throws IOException
      */
-    private void populateHtml(File input, Bundle values) throws Exception {
+    private void populateHtml(File input, Bundle values) throws IOException {
         // Read from input file
+        // throws IOException
         String fileText = TemplatePrinterUtils.docToString(input);
 
-        // Check if the <body></body> section of the html string is properly formed
+        // Check if <body></body> section of html string is properly formed
+        // throws RuntimeException
         int startBodyIndex = fileText.indexOf("<body");
-        validateStringOrThrowException(fileText.substring(startBodyIndex));
+        String beforeBodySection = fileText.substring(0, startBodyIndex);
+        String bodySection = fileText.substring(startBodyIndex);
+        validateStringOrThrowException(bodySection);
 
-        // Swap out place-holder keywords for case property values
-        fileText = replace(fileText, values);
+        // Swap out place-holder keywords for case property values within <body></body> section
+        bodySection = replace(bodySection, values);
 
         // Write the new HTML to the desired  temp file location
-        TemplatePrinterUtils.writeStringToFile(fileText, outputPath);
+        // throws IO Exception
+        TemplatePrinterUtils.writeStringToFile(beforeBodySection + bodySection, outputPath);
     }
 
     /**
@@ -129,9 +163,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         // Reconstruct input
-        String result = TemplatePrinterUtils.join(tokens);
-
-        return result;
+        return TemplatePrinterUtils.join(tokens);
     }
 
     /**
@@ -156,10 +188,10 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
                     break;
                 } else {
                     i++;
-                    if (input.charAt(i) != '{') {
-                        isBetweenMustaches = false;
-                    } else {
+                    if (input.charAt(i) == '{') {
                         isBetweenMustaches = true;
+                    } else {
+                        isBetweenMustaches = false;
                     }
                 }
             } else if (c == '}') {
@@ -190,14 +222,17 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         if (!isWellFormed) {
-            throw new RuntimeException("Ill-formed input string: " + input);
+            throw new RuntimeException();
         }
 
     }
 
+    /**
+     * A listener for this task, implemented by TemplatePrinterActivity
+     */
     public interface PopulateListener {
 
-        void onError(String message);
+        void onError(int errorType);
         void onFinished();
 
     }

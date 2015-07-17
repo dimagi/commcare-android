@@ -42,7 +42,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * The path to the temp file location that is written to in TemplatePrinterTask, and then
      * read back from in doHtmlPrint()
      */
-    public String outputPath;
+    private String outputPath;
 
     /**
      * Unique name to use for the print job name
@@ -71,7 +71,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            showErrorDialog(getString(R.string.print_not_supported));
+            showErrorDialog(R.string.print_not_supported);
         }
 
         Bundle data = getIntent().getExtras();
@@ -97,7 +97,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
-                showErrorDialog(getString(R.string.template_not_set));
+                showErrorDialog(R.string.template_not_set);
             } else {
                 preparePrintDoc(path);
             }
@@ -133,10 +133,19 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         jobName = inputWithoutExtension + "_" + dateString;
     }
 
-    /**  Called when TemplatePrinterTask encounters an error **/
+    /**
+     * Called when TemplatePrinterTask encounters an error and displays the correct error message
+     * depending on the type of error that was encountered
+     *
+     * @param errorType indicates the type of error encountered in TemplatePrinterTask
+     */
     @Override
-    public void onError(String message) {
-        showErrorDialog(message);
+    public void onError(int errorType) {
+        if (errorType ==  TemplatePrinterTask.IO_ERROR) {
+            showErrorDialog(R.string.print_io_error);
+        } else {
+            showErrorDialog(R.string.template_malformed);
+        }
     }
 
     /**
@@ -184,7 +193,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      *
      * @param msg String message that should be shown on the alert
      */
-    public void showAlertDialog(String msg) {
+    private void showAlertDialog(String msg) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setTitle(msg);
         alert.setCancelable(false);
@@ -223,11 +232,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         try {
             String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
             webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
-
             // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
             mWebView = webView;
         } catch (IOException e) {
-            showErrorDialog("Could not read from generated HTML doc in order to print");
+            showErrorDialog(R.string.print_io_error);
         }
 
     }
