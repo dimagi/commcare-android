@@ -2,8 +2,11 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
+import android.util.StateSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -93,7 +96,13 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     public void setColor(int backgroundColor) {
-        squareButton.setBackgroundResource(backgroundColor);
+        // shows a bluish background when pressed, otherwise shows the chosen color
+        ColorDrawable pressedBackground = new ColorDrawable(android.R.color.holo_blue_dark);
+        ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
+        StateListDrawable sld = new StateListDrawable();
+        sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
+        sld.addState(StateSet.WILD_CARD, colorDrawable);
+        squareButton.setBackgroundDrawable(sld);
     }
 
     public void setTextColor(int textColor) {
