@@ -395,7 +395,6 @@ public class GraphView {
         mRenderer.setYLabelsVerticalPadding(padding);
         
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
             mRenderer.setBarSpacing(0.5);
         }
         
@@ -403,6 +402,16 @@ public class GraphView {
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
+
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            String orientation = mData.getConfiguration("bar-orientation", "");
+            if (orientation.equalsIgnoreCase("vertical")) {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            }
+            else {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
+            }
+        }
 
         if (mData.getConfiguration("x-min") != null) {
             mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min"), "x-min"));
