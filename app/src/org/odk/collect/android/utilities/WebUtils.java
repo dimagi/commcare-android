@@ -57,8 +57,7 @@ public final class WebUtils {
 
     private static final GregorianCalendar g = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 
-
-    public static final List<AuthScope> buildAuthScopes(String host) {
+    public static List<AuthScope> buildAuthScopes(String host) {
         List<AuthScope> asList = new ArrayList<AuthScope>();
 
         AuthScope a;
@@ -74,16 +73,14 @@ public final class WebUtils {
         return asList;
     }
 
-
-    public static final void clearAllCredentials() {
+    public static void clearAllCredentials() {
         HttpContext localContext = Collect.getInstance().getHttpContext();
         CredentialsProvider credsProvider =
             (CredentialsProvider) localContext.getAttribute(ClientContext.CREDS_PROVIDER);
         credsProvider.clear();
     }
 
-
-    public static final boolean hasCredentials(String userEmail, String host) {
+    public static boolean hasCredentials(String userEmail, String host) {
         HttpContext localContext = Collect.getInstance().getHttpContext();
         CredentialsProvider credsProvider =
             (CredentialsProvider) localContext.getAttribute(ClientContext.CREDS_PROVIDER);
@@ -100,15 +97,13 @@ public final class WebUtils {
         return hasCreds;
     }
 
-
-    public static final void addCredentials(String userEmail, String password, String host) {
+    public static void addCredentials(String userEmail, String password, String host) {
         HttpContext localContext = Collect.getInstance().getHttpContext();
         Credentials c = new UsernamePasswordCredentials(userEmail, password);
         addCredentials(localContext, c, host);
     }
 
-
-    private static final void addCredentials(HttpContext localContext, Credentials c, String host) {
+    private static void addCredentials(HttpContext localContext, Credentials c, String host) {
         CredentialsProvider credsProvider =
             (CredentialsProvider) localContext.getAttribute(ClientContext.CREDS_PROVIDER);
 
@@ -118,27 +113,23 @@ public final class WebUtils {
         }
     }
 
-
-    private static final void setOpenRosaHeaders(HttpRequest req) {
+    private static void setOpenRosaHeaders(HttpRequest req) {
         req.setHeader(OPEN_ROSA_VERSION_HEADER, OPEN_ROSA_VERSION);
         g.setTime(new Date());
         req.setHeader(DATE_HEADER, DateFormat.format("E, dd MMM yyyy hh:mm:ss zz", g).toString());
     }
 
-
-    public static final HttpHead createOpenRosaHttpHead(URI uri) {
+    public static HttpHead createOpenRosaHttpHead(URI uri) {
         HttpHead req = new HttpHead(uri);
         setOpenRosaHeaders(req);
         return req;
     }
 
-
-    public static final HttpGet createOpenRosaHttpGet(URI uri) {
+    public static HttpGet createOpenRosaHttpGet(URI uri) {
         return createOpenRosaHttpGet(uri, "");
     }
 
-
-    public static final HttpGet createOpenRosaHttpGet(URI uri, String auth) {
+    public static HttpGet createOpenRosaHttpGet(URI uri, String auth) {
         HttpGet req = new HttpGet();
         setOpenRosaHeaders(req);
         setGoogleHeaders(req, auth);
@@ -146,28 +137,24 @@ public final class WebUtils {
         return req;
     }
 
-
-    public static final void setGoogleHeaders(HttpRequest req, String auth) {
+    public static void setGoogleHeaders(HttpRequest req, String auth) {
         if ((auth != null) && (auth.length() > 0)) {
             req.setHeader("Authorization", "GoogleLogin auth=" + auth);
         }
     }
 
-
-    public static final HttpPost createOpenRosaHttpPost(URI uri) {
+    public static HttpPost createOpenRosaHttpPost(URI uri) {
         return createOpenRosaHttpPost(uri, "");
     }
 
-
-    public static final HttpPost createOpenRosaHttpPost(URI uri, String auth) {
+    public static HttpPost createOpenRosaHttpPost(URI uri, String auth) {
         HttpPost req = new HttpPost(uri);
         setOpenRosaHeaders(req);
         setGoogleHeaders(req, auth);
         return req;
     }
 
-
-    public static final HttpClient createHttpClient(int timeout) {
+    public static HttpClient createHttpClient(int timeout) {
         // configure connection
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, timeout);
@@ -190,7 +177,6 @@ public final class WebUtils {
 
         return httpclient;
     }
-
 
     /**
      * Common method for returning a parsed xml document given a url and the http context and client
