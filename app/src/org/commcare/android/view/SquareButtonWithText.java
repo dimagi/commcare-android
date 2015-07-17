@@ -58,7 +58,7 @@ public class SquareButtonWithText extends RelativeLayout {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
         backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
-        backgroundColor = typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent);
+        backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
         text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
         colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, colorButtonText);
 
