@@ -199,7 +199,6 @@ public class CommCareVerificationActivity
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             startActivity(i);
-            startActivity(i);
         } else {
             //Good to go
             Intent i = new Intent(getIntent());
@@ -254,13 +253,13 @@ public class CommCareVerificationActivity
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-        case R.id.skip_verification_button:
-            Intent i = new Intent(getIntent());
-            setResult(RESULT_CANCELED, i);
-            finish();
-            break;
-        case R.id.screen_multimedia_retry:
-            verifyResourceInstall();
+            case R.id.skip_verification_button:
+                Intent i = new Intent(getIntent());
+                setResult(RESULT_CANCELED, i);
+                finish();
+                break;
+            case R.id.screen_multimedia_retry:
+                verifyResourceInstall();
         }
         
     }

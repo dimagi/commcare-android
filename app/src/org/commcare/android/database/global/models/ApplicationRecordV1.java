@@ -15,7 +15,7 @@ import org.commcare.android.storage.framework.Table;
  * @author amstone
  *
  */
-@Table("app_record")
+@Table(ApplicationRecord.STORAGE_KEY)
 public class ApplicationRecordV1 extends Persisted {
     private static final String META_STATUS = "status";
     

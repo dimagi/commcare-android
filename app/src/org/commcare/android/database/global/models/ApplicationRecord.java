@@ -7,12 +7,14 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 
 import android.content.Context;
 
@@ -25,8 +27,12 @@ import android.content.Context;
  *
  */
 
-@Table("app_record")
+@Table(ApplicationRecord.STORAGE_KEY)
 public class ApplicationRecord extends Persisted {
+
+    /**
+     * Name of database that stores application records
+     */
     public static final String STORAGE_KEY = "app_record";
     private static final String META_STATUS = "status";
     
@@ -158,11 +164,19 @@ public class ApplicationRecord extends Persisted {
         SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().
                 getAppStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
-            c.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
+            boolean deleted = c.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
+            if (!deleted) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was not properly deleted" +
+                        "during app uninstall");
+            }
         }
         //4) Delete the app database
-        c.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().
+        boolean deleted = c.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().
                 getApplicationId())).delete();
+        if (!deleted) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was not properly deleted" +
+                    "during app uninstall");
+        }
         //5) Delete the ApplicationRecord
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(this.getID());
         //6) Reset the appResourceState in CCApplication

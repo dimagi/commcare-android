@@ -4,6 +4,7 @@
 package org.commcare.android.util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -81,37 +82,27 @@ public class StorageUtils {
             }
         });
         
-        //The records should now be in order and we can pass to the next phase 
+        //The records should now be in order and we can pass to the next phase
         FormRecord[] records = new FormRecord[ids.size()];
         for(int i = 0 ; i < ids.size() ; ++i) {
             records[i] = storage.read(ids.elementAt(i).intValue());
         }
+
         return filterByCurrentApp(records);
     }
 
     /**
      * Filter the given list of forms down to only those that are part of the currently seated app
      */
-    public static FormRecord[] filterByCurrentApp(FormRecord[] forms) {
-        int numValid = 0;
-        String currAppId = CommCareApplication._().getCurrentApp()
-                .getUniqueId();
-        for (int i = 0; i < forms.length; i++) {
-            if (forms[i].getAppId().equals(currAppId)) {
-                numValid++;
-            } else {
-                forms[i] = null;
+    private static FormRecord[] filterByCurrentApp(FormRecord[] forms) {
+        String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+        ArrayList<FormRecord> relevant = new ArrayList<>();
+        for (FormRecord form : forms) {
+            if (form.getAppId().equals(currAppId)) {
+                relevant.add(form);
             }
         }
-        FormRecord[] filtered = new FormRecord[numValid];
-        int filteredIndex = 0;
-        for (int i = 0; i < forms.length; i++) {
-            if (forms[i] != null) {
-                filtered[filteredIndex] = forms[i];
-                filteredIndex++;
-            }
-        }
-        return filtered;
+        return (FormRecord[]) relevant.toArray();
     }
 
 }

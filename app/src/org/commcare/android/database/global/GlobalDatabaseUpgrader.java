@@ -32,7 +32,7 @@ public class GlobalDatabaseUpgrader {
             }
         }
         if (oldVersion == 2) {
-            if(upgradeTwoThree(db, oldVersion, newVersion)) {
+            if(upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }
@@ -49,10 +49,13 @@ public class GlobalDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeTwoThree(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<Persistable> storage = new SqlStorage<Persistable>("app_record", ApplicationRecordV1.class, new ConcreteDbHelper(c, db));
+            SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                    ApplicationRecord.STORAGE_KEY,
+                    ApplicationRecordV1.class,
+                    new ConcreteDbHelper(c, db));
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
                 ApplicationRecord newRecord = new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());

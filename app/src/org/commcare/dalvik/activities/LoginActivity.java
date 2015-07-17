@@ -640,7 +640,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        // TODO Auto-generated method stub      
+        // TODO Auto-generated method stub
     }
 
 }

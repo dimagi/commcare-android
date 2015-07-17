@@ -81,6 +81,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
@@ -88,6 +89,8 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
             boolean installFailed = intent != null && intent.getBooleanExtra(
                     CommCareSetupActivity.KEY_INSTALL_FAILED, false);
             if (resultCode == RESULT_OK && !installFailed) {
+                // If we have just returned from installation and the currently-seated app's
+                // resources are not validated, launch the MM verification activity
                 if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
                     Intent i = new Intent(this, CommCareVerificationActivity.class);
                     i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
