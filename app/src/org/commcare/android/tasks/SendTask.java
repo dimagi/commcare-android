@@ -47,6 +47,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         this.dumpDirectory = dumpDirectory;
     }
     
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
