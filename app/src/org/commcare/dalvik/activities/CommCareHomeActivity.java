@@ -786,11 +786,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return false;
             }
 
-            Cursor c = getContentResolver().query(resultInstanceURI, null, null, null, null);
-            if (!c.moveToFirst()) {
-                throw new IllegalArgumentException("Empty query for instance record!");
+            Cursor c = null;
+            String instanceStatus;
+            try {
+                c = getContentResolver().query(resultInstanceURI, null, null, null, null);
+                if (!c.moveToFirst()) {
+                    throw new IllegalArgumentException("Empty query for instance record!");
+                }
+                instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+            } finally {
+                c.close();
             }
-            String instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
             // was the record marked complete?
             boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
 
@@ -1626,20 +1632,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
     }
 
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//      super.onConfigurationChanged(newConfig);
-//      setContentView(R.layout.mainnew);
-//      try {
-//          configUi();
-//          refreshView();
-//      } catch(SessionUnavailableException sue) {
-//          //we'll handle this in resume?
-//      }
-//    }
-
     private boolean isAirplaneModeOn() {
-
         return Settings.System.getInt(getApplicationContext().getContentResolver(),
                 Settings.System.AIRPLANE_MODE_ON, 0) != 0;
     }
