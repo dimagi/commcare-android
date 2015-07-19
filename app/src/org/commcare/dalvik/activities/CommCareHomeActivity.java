@@ -334,13 +334,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
                 CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
 
-                boolean formsSentToServer = false;
-                try {
-                    formsSentToServer = checkAndStartUnsentTask(true);
-                } catch (SessionUnavailableException e) {
-                    // Session is expired, stop using the user DB.
-                    return;
-                }
+                boolean formsSentToServer = checkAndStartUnsentTask(true);
 
                 if(!formsSentToServer) {
                     // No forms needed to be sent to the server, so let's just
@@ -1056,9 +1050,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         formEntry(formUri, r, null);
     }
 
-    private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException {
+    private void formEntry(Uri formUri, FormRecord r, String headerTitle) {
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
-
 
         //TODO: This is... just terrible. Specify where external instance data should come from
         FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
@@ -1099,7 +1092,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     /**
      * @return Were forms sent to the server by this method invocation?
      */
-    protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) throws SessionUnavailableException {
+    protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
@@ -1107,7 +1100,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             processAndSend(records, syncAfterwards);
             return true;
         } else {
-            //Nothing.
             return false;
         }
     }
