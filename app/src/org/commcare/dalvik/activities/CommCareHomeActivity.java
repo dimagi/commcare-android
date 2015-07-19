@@ -97,33 +97,33 @@ import in.srain.cube.views.GridViewWithHeaderAndFooter;
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
-    public static final int LOGIN_USER = 0;
-    public static final int GET_COMMAND = 1;
-    public static final int GET_CASE = 2;
-    public static final int MODEL_RESULT = 4;
-    public static final int INIT_APP = 8;
-    public static final int GET_INCOMPLETE_FORM = 16;
-    public static final int UPGRADE_APP = 32;
-    public static final int REPORT_PROBLEM_ACTIVITY = 64;
+    private static final int LOGIN_USER = 0;
+    private static final int GET_COMMAND = 1;
+    private static final int GET_CASE = 2;
+    private static final int MODEL_RESULT = 4;
+    private static final int INIT_APP = 8;
+    private static final int GET_INCOMPLETE_FORM = 16;
+    private static final int UPGRADE_APP = 32;
+    private static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
      * Should signal a return from CommCareVerificationActivity.
      */
-    public static final int MISSING_MEDIA_ACTIVITY=256;
-    public static final int DUMP_FORMS_ACTIVITY=512;
-    public static final int WIFI_DIRECT_ACTIVITY=1024;
-    public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
-    public static final int PREFERENCES_ACTIVITY=4096;
+    private static final int MISSING_MEDIA_ACTIVITY=256;
+    private static final int DUMP_FORMS_ACTIVITY=512;
+    private static final int WIFI_DIRECT_ACTIVITY=1024;
+    private static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
+    private static final int PREFERENCES_ACTIVITY=4096;
 
     /**
      * Request code for launching media validator manually (Settings ->
      * Validate Media). Should signal a return from
      * CommCareVerificationActivity.
      */
-    public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+    private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
-    public static final int DIALOG_CORRUPTED = 1;
+    private static final int DIALOG_CORRUPTED = 1;
 
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
@@ -141,33 +141,33 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     public static final int RESULT_RESTART = 3;
 
-    public static int unsentFormNumberLimit;
-    public static int unsentFormTimeLimit;
+    private static int unsentFormNumberLimit;
+    private static int unsentFormTimeLimit;
 
-    public final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
-    public final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
+    private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
+    private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 
-    public static final String SESSION_REQUEST = "ccodk_session_request";
+    private static final String SESSION_REQUEST = "ccodk_session_request";
 
-    public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+    private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
-    boolean wasExternal = false;
+    private boolean wasExternal = false;
 
     private AndroidCommCarePlatform platform;
 
-    AlertDialog mAskOldDialog;
-    AlertDialog mAttemptFixDialog;
-    SquareButtonWithNotification startButton;
-    SquareButtonWithNotification logoutButton;
-    SquareButtonWithNotification viewIncomplete;
-    SquareButtonWithNotification syncButton;
+    private AlertDialog mAskOldDialog;
+    private AlertDialog mAttemptFixDialog;
+    private SquareButtonWithNotification startButton;
+    private SquareButtonWithNotification logoutButton;
+    private SquareButtonWithNotification viewIncomplete;
+    private SquareButtonWithNotification syncButton;
 
-    SquareButtonWithNotification viewOldForms;
-    HomeScreenAdapter adapter;
-    GridViewWithHeaderAndFooter gridView;
-    ImageView topBannerImageView;
+    private SquareButtonWithNotification viewOldForms;
+    private HomeScreenAdapter adapter;
+    private GridViewWithHeaderAndFooter gridView;
+    private ImageView topBannerImageView;
 
     /*
          * (non-Javadoc)
@@ -1092,7 +1092,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     /**
      * @return Were forms sent to the server by this method invocation?
      */
-    protected boolean checkAndStartUnsentTask(final boolean syncAfterwards) {
+    private boolean checkAndStartUnsentTask(final boolean syncAfterwards) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
@@ -1291,7 +1291,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startActivityForResult(i, LOGIN_USER);
     }
 
-    public void createNoStorageDialog() {
+    private void createNoStorageDialog() {
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
     }
 
@@ -1657,7 +1657,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else return null;
     }
 
-    public Dialog createAskFixDialog() {
+    private Dialog createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
         mAttemptFixDialog = new AlertDialog.Builder(this).create();
 
