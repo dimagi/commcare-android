@@ -883,36 +883,23 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 
     private void showDemoModeWarning() {
-        //TODO: How do we style this to "light"?
         AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
         demoModeWarning.setTitle(Localization.get("demo.mode.warning.title"));
+        demoModeWarning.setCancelable(false);
 
         DialogInterface.OnClickListener demoModeWarningListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1:
-                        //Nothing, dismiss
-                        break;
-                }
-
+                // user has acknowledged demo warning
             }
         };
-        demoModeWarning.setCancelable(false);
-        demoModeWarning.setButton(Localization.get("demo.mode.warning.dismiss"), demoModeWarningListener);
-
-
-        String path = null;
-        try {
-            path = Localization.get("demo.warning.filepath");
-        } catch (NoLocalizedTextException nlte) {
-
-        }
-
+        demoModeWarning.setButton(android.content.DialogInterface.BUTTON_POSITIVE,
+                Localization.get("demo.mode.warning.dismiss"),
+                demoModeWarningListener);
 
         HorizontalMediaView tiav = new HorizontalMediaView(this);
-        tiav.setAVT(Localization.get("demo.mode.warning"), path, null);
-        demoModeWarning.setView(tiav);
+        tiav.setAVT(Localization.get("demo.mode.warning"), null, null);
 
+        demoModeWarning.setView(tiav);
         demoModeWarning.show();
     }
 
@@ -1513,22 +1500,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-    //Process and send listeners
-
     private boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
-            if (User.TYPE_DEMO.equals(u.getUserType())) {
-                return true;
-            }
+            return (User.TYPE_DEMO.equals(u.getUserType()));
         } catch (SessionUnavailableException e) {
-
+            return false;
         }
-        return false;
     }
-
-    //END - Process and Send Listeners
-
 
     /*
      * (non-Javadoc)
