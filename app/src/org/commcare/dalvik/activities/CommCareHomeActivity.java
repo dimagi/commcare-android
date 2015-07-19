@@ -640,10 +640,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     this.finish();
                     return;
                 } else if(resultCode == RESULT_OK) {
-                    if(intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
-                        //If we were already logged in just roll with it.
-                        //The onResume() will take us to the screen
-                    } else {
+                    if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
                         refreshView();
                         
                         //Unless we're about to sync (which will handle this
@@ -1006,10 +1003,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
             startNextFetch();
         }
-
-        if (lastPopped != null) {
-            //overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-        }
     }
 
     /**
@@ -1175,12 +1168,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     if (syncAfterwards) {
                         syncData(true);
                     }
-                } else if (result == FormUploadUtil.FAILURE) {
-                    //Failures make their own notification box
-                } else {
+                } else if (result != FormUploadUtil.FAILURE) {
+                    // Tasks with failure result codes will have already created a notification
                     receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
                 }
-
             }
 
             /*
@@ -1326,10 +1317,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private void returnToLogin(String message) {
-        //Not yet.
-        if (message != null) {
-            //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        }
         Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivityForResult(i, LOGIN_USER);
