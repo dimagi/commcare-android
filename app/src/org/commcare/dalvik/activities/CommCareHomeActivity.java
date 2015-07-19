@@ -847,7 +847,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Cancelled");
 
             // If the form was unstarted, we want to wipe the record.
-            if (current.getStatus() == FormRecord.STATUS_UNSTARTED) {
+            if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
                 // Entry was cancelled.
                 FormRecordCleanupTask.wipeRecord(this, currentState);
             }
@@ -961,7 +961,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return;
             }
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
-        } else if (needed == SessionFrame.STATE_COMMAND_ID) {
+        } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             Intent i;
 
             if (DeveloperPreferences.isGridMenuEnabled()) {
@@ -972,7 +972,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
             startActivityForResult(i, GET_COMMAND);
-        } else if (needed == SessionFrame.STATE_DATUM_VAL) {
+        } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
 
             i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
@@ -981,7 +981,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
 
             startActivityForResult(i, GET_CASE);
-        } else if (needed == SessionFrame.STATE_DATUM_COMPUTED) {
+        } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             //compute
             SessionDatum datum = session.getNeededDatum();
             XPathExpression form;
@@ -1056,7 +1056,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     @Override
     public String getActivityTitle() {
-        String userName = null;
+        String userName;
 
         try {
             userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
