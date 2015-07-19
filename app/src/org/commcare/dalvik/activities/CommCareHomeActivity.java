@@ -103,9 +103,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int MODEL_RESULT = 4;
     public static final int INIT_APP = 8;
     public static final int GET_INCOMPLETE_FORM = 16;
-    public static final int GET_REFERRAL = 32;
-    public static final int UPGRADE_APP = 64;
-    public static final int REPORT_PROBLEM_ACTIVITY = 128;
+    public static final int UPGRADE_APP = 32;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
@@ -124,9 +123,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     public static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
-    public static final int USE_OLD_DIALOG = 1;
-    public static final int DIALOG_CORRUPTED = 4;
-    public static final int DIALOG_NO_STORAGE = 8;
+    public static final int DIALOG_CORRUPTED = 1;
 
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
@@ -158,8 +155,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     // activity instead of commcare.
     boolean wasExternal = false;
 
-    View homeScreen;
-
     private AndroidCommCarePlatform platform;
 
     AlertDialog mAskOldDialog;
@@ -173,7 +168,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     HomeScreenAdapter adapter;
     GridViewWithHeaderAndFooter gridView;
     ImageView topBannerImageView;
-    int gridViewMargin;
 
     /*
          * (non-Javadoc)
@@ -1359,7 +1353,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         adapter.setNotificationTextForButton(R.layout.home_sync_button, false, message);
-
     }
 
     private void refreshView() {
@@ -1607,10 +1600,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return super.onOptionsItemSelected(item);
     }
     
-    private void createPreferencesMenu() {
-        createPreferencesMenu(this);
-    }
-
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
