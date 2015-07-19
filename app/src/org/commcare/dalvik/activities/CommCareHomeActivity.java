@@ -76,7 +76,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -505,16 +504,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
-            try {
-                startNextFetch();
-            } catch (SessionUnavailableException e) {
-                // session has expired and re-login intent has
-                // probably already been triggered
-            }
-            return;
-        }
-        
-        try {
+            startNextFetch();
+        } else {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
@@ -716,12 +707,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
 
             startNextFetch();
-        } catch (SessionUnavailableException sue) {
-            //TODO: Cache current return, login, and try again
-            returnToLogin();
         }
         super.onActivityResult(requestCode, resultCode, intent);
-
     }
 
     /**
@@ -736,7 +723,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * the session to launch. If false then caller should exit or spawn home
      * activity.
      */
-    private boolean processReturnFromFormEntry(int resultCode, Intent intent) throws SessionUnavailableException {
+    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
@@ -904,7 +891,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mAlertDialog.show();
     }
 
-    private void startNextFetch() throws SessionUnavailableException {
+    private void startNextFetch() {
         //TODO: feels like this logic should... not be in a big disgusting ifghetti.
         //Interface out the transitions, maybe?
 
@@ -925,12 +912,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         session.stepBack();
-                        try {
-                            CommCareHomeActivity.this.startNextFetch();
-                        } catch (SessionUnavailableException e) {
-                            // session has expired and re-login intent has
-                            // probably already been triggered
-                        }
+                        CommCareHomeActivity.this.startNextFetch();
                     }
                 });
                 return;
@@ -990,7 +972,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      *
      * @param state Needed for FormRecord manipulations
      */
-    private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException {
+    private void startFormEntry(AndroidSessionWrapper state) {
             if (state.getFormRecordId() == -1) {
                 if (CommCarePreferences.isIncompleteFormsEnabled()) {
                     // Are existing (incomplete) forms using the same case?
@@ -1049,7 +1031,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return false;
     }
 
-    private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException {
+    private void formEntry(Uri formUri, FormRecord r) {
         formEntry(formUri, r, null);
     }
 
@@ -1319,8 +1301,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                             formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
                             break;
                     }
-                } catch (SessionUnavailableException sue) {
-                    //TODO: From home activity, login again and return to form list if possible.
                 } catch (StorageFullException e) {
                     throw new RuntimeException(e);
                 }
