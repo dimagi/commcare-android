@@ -287,7 +287,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     // session expired, so re-login's probably been triggered
                     return;
                 }
-                returnToLogin(null);
+                returnToLogin();
             }
         };
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
@@ -1138,7 +1138,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin(Localization.get("app.workflow.login.lost"));
+                    returnToLogin();
                     return;
                 }
                 receiver.refreshView();
@@ -1300,10 +1300,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private void returnToLogin() {
-        returnToLogin(Localization.get("app.workflow.login.lost"));
-    }
-
-    private void returnToLogin(String message) {
         Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivityForResult(i, LOGIN_USER);
@@ -1376,7 +1372,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            returnToLogin(Localization.get("home.logged.out"));
+            returnToLogin();
             return;
         }
 
