@@ -50,6 +50,7 @@ import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -89,6 +90,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -362,15 +364,37 @@ public class CommCareApplication extends Application {
                 record.uninstall(this);
             }
         }
-        
-        // There may now be multiple app records in storage, because of multiple apps support.
-        // Since this method is called from onCreate of CommCareApplication, current behavior is
-        // just to pick the first app in the list to initialize
+
+        // There may now be multiple app records in storage, because of multiple apps support. We
+        // want to initialize one of them to start, so that there will be currently-seated app when
+        // the login screen starts up
+
+        // If there is a 'last app' set in shared preferences, try to initialize that application.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
+        if (!"".equals(lastAppId)){
+            ApplicationRecord lastApp = getAppById(lastAppId);
+            if (lastApp == null) {
+                // This app record could be null if it has since been uninstalled, archived, etc.
+                // In this case, just revert to picking the first app
+                return initFirstAppRecord();
+            } else {
+                return initializeAppResources(new CommCareApp(lastApp));
+            }
+        }
+
+        // Otherwise, just pick the first app in the list to initialize
+        return initFirstAppRecord();
+    }
+
+    private int initFirstAppRecord() {
+
         for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                 return initializeAppResources(new CommCareApp(record));
             }
         }
+
         // There are no installed apps
         return STATE_UNINSTALLED;
     }
@@ -474,6 +498,20 @@ public class CommCareApplication extends Application {
         } else {
             return currentApps.get(index);
         }
+    }
+
+    /**
+     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
+     * @return the ApplicationRecord corresponding to the given id, IF and only if it is a "ready"
+     * app. Otherwise, return null
+     */
+    private ApplicationRecord getAppById(String uniqueId) {
+        for (ApplicationRecord r : getReadyAppRecords()) {
+            if (r.getUniqueId().equals(uniqueId)) {
+                return r;
+            }
+        }
+        return null;
     }
 
     private int initGlobalDb() {

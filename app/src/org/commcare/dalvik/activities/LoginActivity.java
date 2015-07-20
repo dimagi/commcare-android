@@ -69,7 +69,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public final static int MENU_DEMO = Menu.FIRST;
     public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String ALREADY_LOGGED_IN = "la_loggedin";
-    private final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_LAST_APP = "id_of_last_selected";
     
 
     @UiElement(value=R.id.login_button, locale="login.button")
