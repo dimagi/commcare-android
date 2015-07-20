@@ -20,20 +20,12 @@ public class ODKTimer extends CountDownTimer{
         mTimerListener = tl;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.CountDownTimer#onFinish()
-     */
     @Override
     public void onFinish() {
         mUntilFinished = 0;
         mTimerListener.notifyTimerFinished();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.CountDownTimer#onTick(long)
-     */
     @Override
     public void onTick(long millisUntilFinished) {
         mUntilFinished = millisUntilFinished;

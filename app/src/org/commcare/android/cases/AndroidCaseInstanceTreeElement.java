@@ -61,10 +61,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         Log.d(TAG, "Case iterate took: " + value + "ms");
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.cases.util.StorageBackedTreeRoot#union(java.util.Vector, java.util.Vector)
-     */
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         return DataUtil.union(selectedCases, cases);
@@ -199,10 +195,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     
     String[][] mMostRecentBatchFetch = null;
     
-    /*
-     * ](non-Javadoc)
-     * @see org.javarosa.core.model.utils.CacheHost#guessCachePrimer()
-     */
     @Override
     public String[][] getCachePrimeGuess() { 
         return mMostRecentBatchFetch;

@@ -38,10 +38,6 @@ public class DeveloperPreferences extends PreferenceActivity {
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

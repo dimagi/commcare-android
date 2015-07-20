@@ -82,10 +82,6 @@ public class DecimalWidget extends StringWidget {
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.StringWidget#setTextInputType(android.widget.EditText)
-     */
     @Override
     protected void setTextInputType(EditText mAnswer) {
         if(secret) {
@@ -94,10 +90,6 @@ public class DecimalWidget extends StringWidget {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.StringWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();
@@ -111,9 +103,8 @@ public class DecimalWidget extends StringWidget {
             }
         }
     }
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.StringWidget#setLastQuestion(boolean)
+
+    /**
      * If this is the last question, set the action button to close the keyboard
      */
     @Override
@@ -125,10 +116,6 @@ public class DecimalWidget extends StringWidget {
         }
     }
 
-    /*
-* (non-Javadoc)
-* @see android.view.View.OnClickListener#onClick(android.view.View)
-*/
     @Override
     public void onClick(View v) {
         setFocus(getContext());

@@ -35,9 +35,7 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
+    @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         Localization.registerLanguageReference(locale, localLocation);
         return true;
@@ -47,24 +45,18 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         this.locale = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(locale));

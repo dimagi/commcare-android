@@ -48,10 +48,6 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Boolean doTaskBackground(String... params) {
         

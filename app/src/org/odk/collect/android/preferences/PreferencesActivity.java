@@ -93,10 +93,6 @@ public class PreferencesActivity extends PreferenceActivity implements
     private Context mContext;
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,10 +141,6 @@ public class PreferencesActivity extends PreferenceActivity implements
                 }
 
 
-                /*
-                 * (non-Javadoc)
-                 * @see android.preference.Preference.OnPreferenceClickListener#onPreferenceClick(android.preference.Preference)
-                 */
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     // if you have a value, you can clear it or select new.
@@ -165,20 +157,12 @@ public class PreferencesActivity extends PreferenceActivity implements
                         builder.setTitle(getString(R.string.change_splash_path));
                         builder.setNeutralButton(getString(R.string.cancel),
                             new DialogInterface.OnClickListener() {
-                        		/*
-                        		 * (non-Javadoc)
-                        		 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                        		 */
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.dismiss();
                                 }
                             });
                         builder.setItems(items, new DialogInterface.OnClickListener() {
-                        	/*
-                        	 * (non-Javadoc)
-                        	 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                        	 */
                             @Override
                             public void onClick(DialogInterface dialog, int item) {
                                 if (items[item].equals(getString(R.string.select_another_image))) {
@@ -211,10 +195,6 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -223,10 +203,6 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -253,10 +229,6 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -298,10 +270,6 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
-     */
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         switch (key) {

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.app;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -16,15 +13,12 @@ import org.javarosa.core.model.instance.FormInstance;
 import android.content.Context;
 
 /**
- * The helper for opening/updating the global (unencrypted) db space for CommCare.
- * 
- * 
- * 
- * @author ctsims
+ * The helper for opening/updating the global (unencrypted) db space for
+ * CommCare.
  *
+ * @author ctsims
  */
 public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
-    
     /**
      * Version History
      * V.2 - Added recovery table
@@ -50,9 +44,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         return DB_LOCATOR_PREF_APP + appId;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
         try {
@@ -99,9 +90,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);

@@ -99,9 +99,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
 
     /**
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     * 
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
@@ -365,10 +362,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         synchronized (this) {

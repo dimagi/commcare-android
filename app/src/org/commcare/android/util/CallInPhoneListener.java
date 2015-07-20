@@ -59,10 +59,6 @@ public class CallInPhoneListener extends PhoneStateListener {
 
     static final boolean disabled = true;
 
-    /*
-     * (non-Javadoc)
-     * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-     */
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
         super.onCallStateChanged(state, incomingNumber);
@@ -108,10 +104,6 @@ public class CallInPhoneListener extends PhoneStateListener {
         if(disabled) {return;}
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-             */
             @Override
             protected Void doInBackground(Void... params) {
                     synchronized(cachedNumbers) {
