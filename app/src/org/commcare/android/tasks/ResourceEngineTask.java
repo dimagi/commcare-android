@@ -78,7 +78,9 @@ public abstract class ResourceEngineTask<R>
          */
         StatusUpToDate("notification.install.uptodate"),
 
-        /** Attempting to install an app that is already installed **/
+        /**
+         * Attempting to install an app that is already installed
+         */
         StatusDuplicateApp("notification.install.duplicate"),
 
         /**
@@ -229,9 +231,8 @@ public abstract class ResourceEngineTask<R>
                 // Replaces global table with temporary, or w/ recovery if
                 // something goes wrong
                 platform.upgrade(global, temporary, recovery);
-            }
-            // Not upgrade mode, so attempting normal install
-            else {
+            } else {
+                // Not upgrade mode, so attempting normal install
                 global.setStateListener(this);
                 platform.init(profileRef, global, false);
             }

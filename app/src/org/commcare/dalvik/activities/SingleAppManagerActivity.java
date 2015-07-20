@@ -20,24 +20,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- *
  * The activity launched when the user clicks on a specific app within the app manager. From
- * this screen, the selected app can be archived/unarchived, uninstalled, updated, or  have its
+ * this screen, the selected app can be archived/unarchived, uninstalled, updated, or have its
  * multimedia verified if needed.
  *
  * @author amstone
- *
  */
 
 public class SingleAppManagerActivity extends Activity {
-    
+
     private ApplicationRecord appRecord;
     private AlertDialog dialog;
     private static final int LOGOUT_FOR_UPDATE = 0;
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
-    
+
     @Override
-    public void onCreate(Bundle savedInstanceState) { 
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
         // Try to retrieve the app record at the indicated position
@@ -51,12 +49,12 @@ public class SingleAppManagerActivity extends Activity {
             finish();
         }
         //Set app name
-        String appName = appRecord.getDisplayName();                
-        TextView tv = (TextView) findViewById(R.id.app_name);
+        String appName = appRecord.getDisplayName();
+        TextView tv = (TextView)findViewById(R.id.app_name);
         tv.setText(appName);
-        
+
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -66,79 +64,78 @@ public class SingleAppManagerActivity extends Activity {
     /**
      * Refresh all button appearances based on the current state of the app
      */
-    private void refresh() {    
+    private void refresh() {
         // Warns the user that this app came from an old version of the profile file, if necessary
-        TextView warning = (TextView) findViewById(R.id.profile_warning);
+        TextView warning = (TextView)findViewById(R.id.profile_warning);
         if (appRecord.preMultipleAppsProfile()) {
             warning.setVisibility(View.VISIBLE);
         } else {
             warning.setVisibility(View.GONE);
         }
-        
+
         // Updates text of the validate button based on the current state of the app's resources
-        Button validateButton = (Button) findViewById(R.id.verify_button);
+        Button validateButton = (Button)findViewById(R.id.verify_button);
         if (appRecord.resourcesValidated()) {
             validateButton.setVisibility(View.INVISIBLE);
         } else {
             validateButton.setVisibility(View.VISIBLE);
         }
-        
+
         // Updates text of the archive button based on app's archive status
         boolean isArchived = appRecord.isArchived();
-        Button archiveButton = (Button) findViewById(R.id.archive_button);
+        Button archiveButton = (Button)findViewById(R.id.archive_button);
         if (isArchived) {
             archiveButton.setText("Unarchive");
         } else {
             archiveButton.setText("Archive");
         }
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-        case CommCareHomeActivity.UPGRADE_APP:
-            if(resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "Your update did not complete", Toast.LENGTH_LONG).show();
-            } else if(resultCode == RESULT_OK) {
-                if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                    Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                    try {
-                        CommCareApplication._().getSession().closeSession(false);
-                    } catch (SessionUnavailableException e) {
-                        // If the session isn't available, we don't need to logout
+            case CommCareHomeActivity.UPGRADE_APP:
+                if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText(this, "Your update did not complete", Toast.LENGTH_LONG).show();
+                } else if (resultCode == RESULT_OK) {
+                    if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
+                        Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
+                        try {
+                            CommCareApplication._().getSession().closeSession(false);
+                        } catch (SessionUnavailableException e) {
+                            // If the session isn't available, we don't need to logout
+                        }
                     }
+                    return;
                 }
-                return;
-            }
-            break;
-        case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
-            refresh();
-            if (resultCode == RESULT_CANCELED) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Media Not Verified");
-                builder.setMessage(R.string.skipped_verification_warning_2)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                break;
+            case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+                refresh();
+                if (resultCode == RESULT_CANCELED) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Media Not Verified");
+                    builder.setMessage(R.string.skipped_verification_warning_2)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                    int which) {
-                                dialog.dismiss();
-                            }
-                            
-                        });
-                dialog = builder.create();
-                dialog.show();
-            }
-            else if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-            }
-            break;
-        case CommCareHomeActivity.RESTART_APP:
-            if (dialog != null) {
-                dialog.dismiss();
-            }
-            Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
-            startActivity(i);
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    dialog.dismiss();
+                                }
+
+                            });
+                    dialog = builder.create();
+                    dialog.show();
+                } else if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case CommCareHomeActivity.RESTART_APP:
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
+                startActivity(i);
         }
     }
 
@@ -153,7 +150,7 @@ public class SingleAppManagerActivity extends Activity {
         }
         appRecord.uninstall(this);
         rebootCommCare();
-   }
+    }
 
     /**
      * onClick method for Archive button. If the app is not archived, sets it to
@@ -209,8 +206,7 @@ public class SingleAppManagerActivity extends Activity {
             } else {
                 update();
             }
-        }
-        catch (SessionUnavailableException e) {
+        } catch (SessionUnavailableException e) {
             update();
         }
     }
@@ -226,7 +222,7 @@ public class SingleAppManagerActivity extends Activity {
         i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
         i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
-        startActivityForResult(i,CommCareHomeActivity.UPGRADE_APP);
+        startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
     }
 
     /**
@@ -234,7 +230,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void rebootCommCare() {
         Intent i = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage( getBaseContext().getPackageName());
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startActivityForResult(i, CommCareHomeActivity.RESTART_APP);
@@ -250,24 +246,24 @@ public class SingleAppManagerActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Uninstalling your app");
         builder.setMessage(R.string.uninstall_reboot_warning)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
-                @Override
-                public void onClick(DialogInterface dialog,
-                        int which) {
-                    dialog.dismiss();
-                    uninstall();
-                }
-                    
-            })
-            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        dialog.dismiss();
+                        uninstall();
+                    }
+
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
         dialog = builder.create();
         dialog.show();
     }
@@ -280,11 +276,11 @@ public class SingleAppManagerActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out your app");
         builder.setMessage(R.string.logout_warning)
-            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog,
-                            int which) {
+                                        int which) {
                         dialog.dismiss();
                         try {
                             CommCareApplication._().getSession().closeSession(false);
@@ -292,26 +288,25 @@ public class SingleAppManagerActivity extends Activity {
                             // If the session isn't available, we don't need to logout
                         }
                         switch (actionKey) {
-                        case LOGOUT_FOR_UPDATE:
-                            update();
-                            break;
-                        case LOGOUT_FOR_VERIFY_MM:
-                            verifyResources();
-                            break;
-                        } 
+                            case LOGOUT_FOR_UPDATE:
+                                update();
+                                break;
+                            case LOGOUT_FOR_VERIFY_MM:
+                                verifyResources();
+                                break;
+                        }
                     }
-                    
+
                 })
-            .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-                
-            });
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+
+                });
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 }

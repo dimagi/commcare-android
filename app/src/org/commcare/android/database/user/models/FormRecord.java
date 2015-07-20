@@ -69,6 +69,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(6)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
+
     /**
      * Unique id of the CC app to which this form belongs
      */
@@ -83,12 +84,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
-     * 
-     * @param xmlns
-     * @param status
      */
-    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
-                      Date lastModified) {
+    public FormRecord(String instanceURI, String status, String xmlns,
+                      byte[] aesKey, String uuid, Date lastModified) {
         this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
@@ -109,8 +107,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * and status.
      */
     public FormRecord updateStatus(String instanceURI, String newStatus) {
-        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified,
-                idOfOriginApp);
+        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey,
+                uuid, lastModified, idOfOriginApp);
         fr.recordId = this.recordId;
         return fr;
     }
@@ -120,6 +118,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return Uri.parse(instanceURI);
     }
 
+    /**
+     * @return The unique id of the CommCare app to which this form belongs.
+     */
     public String getAppId() {
         return idOfOriginApp;
     }

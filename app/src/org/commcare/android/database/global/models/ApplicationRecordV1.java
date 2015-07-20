@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.global.models;
 
 import org.commcare.android.storage.framework.MetaField;
@@ -13,7 +10,6 @@ import org.commcare.android.storage.framework.Table;
  * used for database upgrade purposes
  * 
  * @author amstone
- *
  */
 @Table(ApplicationRecord.STORAGE_KEY)
 public class ApplicationRecordV1 extends Persisted {

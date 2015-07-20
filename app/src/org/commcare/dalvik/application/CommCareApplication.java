@@ -355,7 +355,6 @@ public class CommCareApplication extends Application {
     }
 
     private int initializeAppResources() {
-
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
@@ -451,7 +450,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     *
      * @return the list of all installed apps as an array
      */
     public ApplicationRecord[] appRecordArray() {
@@ -466,7 +464,8 @@ public class CommCareApplication extends Application {
 
     /**
      * @param index an index into the global table of installed apps
-     * @return the ApplicationRecord that corresponds to the given index
+     * @return the ApplicationRecord that corresponds to the given index in the global list of
+     * installed apps
      */
     public ApplicationRecord getAppAtIndex(int index) {
         ArrayList<ApplicationRecord> currentApps = getInstalledAppRecords();

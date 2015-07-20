@@ -24,7 +24,6 @@ import android.content.Context;
  * 
  * @author ctsims
  * @author amstone
- *
  */
 
 @Table(ApplicationRecord.STORAGE_KEY)
@@ -62,7 +61,7 @@ public class ApplicationRecord extends Persisted {
     @Persisting(8)
     private boolean preMultipleAppsProfile;
     
-    /*
+    /**
      * Deserialization only
      */
     public ApplicationRecord() {
@@ -123,7 +122,7 @@ public class ApplicationRecord extends Persisted {
         return this.resourcesValidated;
     }
 
-    /*
+    /**
      * Returns true if this ApplicationRecord represents an app generated from
      * a pre-Multiple Apps version of CommCare that does not have profile files
      * with uniqueId and displayName
@@ -136,7 +135,7 @@ public class ApplicationRecord extends Persisted {
         this.preMultipleAppsProfile = b;
     }
 
-    /*
+    /**
      * Returns true if this ApplicationRecord was just generated from the a
      * different ApplicationRecord format via the db upgrader, because it was 
      * initially installed on a phone with a pre-Multiple Apps version of CommCare
@@ -149,7 +148,9 @@ public class ApplicationRecord extends Persisted {
         this.convertedViaDbUpgrader = b;
     }
 
-    /** Completes a full uninstall of the CommCare app that this ApplicationRecord represents **/
+    /**
+     * Completes a full uninstall of the CommCare app that this ApplicationRecord represents
+     */
     public void uninstall(Context c) {
         CommCareApplication._().initializeAppResources(new CommCareApp(this));
         CommCareApp app = CommCareApplication._().getCurrentApp();
