@@ -641,8 +641,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 if(resultCode == RESULT_CANCELED) {
                     refreshView();
                     return;
-                }
-                else if(resultCode == RESULT_OK) {
+                } else if(resultCode == RESULT_OK) {
                     int record = intent.getIntExtra("FORMRECORDS", -1);
                     if(record == -1) {
                         //Hm, what to do here?
@@ -782,7 +781,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
                 instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
             } finally {
-                c.close();
+                if (c != null) {
+                    c.close();
+                }
             }
             // was the record marked complete?
             boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
