@@ -759,8 +759,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         if (resultCode == RESULT_OK) {
             // Determine if the form instance is complete
-            // TODO: refactor this into a method -- PLM
-            Uri resultInstanceURI = intent.getData();
+            Uri resultInstanceURI = null;
+            if (intent != null) {
+                resultInstanceURI = intent.getData();
+            }
             if (resultInstanceURI == null) {
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.FormEntry_Unretrievable));
                 Toast.makeText(this,
