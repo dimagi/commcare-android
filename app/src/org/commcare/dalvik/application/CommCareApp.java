@@ -296,7 +296,7 @@ public class CommCareApp {
      * pre-Multiple Apps build of CommCare
      */
     private boolean checkFromOldProfile() {
-        return !getCommCarePlatform().getCurrentProfile().preparedForMultipleApps();
+        return getCommCarePlatform().getCurrentProfile().oldVersion();
     }
 
     /**
@@ -318,7 +318,7 @@ public class CommCareApp {
      */
     private String getDisplayName() {
         String nameFromProfile = getCommCarePlatform().getCurrentProfile().getDisplayName();
-        if (nameFromProfile != null) {
+        if (!"".equals(nameFromProfile)) {
             return nameFromProfile;
         }
         return Localization.get("app.display.name");
