@@ -77,18 +77,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         this.taskId = taskId;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-     */
     @Override
     protected void deliverResult(R receiver, HttpCalloutOutcomes result) {        
         //If this task completed and we logged in.
@@ -134,9 +128,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doSetupTaskBeforeRequest()
-     */
     @Override
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         //This step needs to determine three things
@@ -248,36 +239,22 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doHttpRequest()
-     */
     @Override
     protected HttpResponse doHttpRequest() throws ClientProtocolException, IOException {
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#getTransactionParserFactory()
-     */
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
         TransactionParserFactory factory = new TransactionParserFactory() {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-             */
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 String name = parser.getName();
                 if("auth_keys".equals(name)) {
                     return new KeyRecordParser(parser, username, password, keyRecords) {
 
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-                         */
                         @Override
                         public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
                             ManageKeyRecordTask.this.keyRecords = parsed;
@@ -292,27 +269,17 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return factory;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#HttpCalloutNeeded()
-     */
     @Override
     protected boolean HttpCalloutNeeded() {
         return calloutNeeded;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#HttpCalloutRequired()
-     */
     @Override
     protected boolean HttpCalloutRequired() {
         return calloutRequired;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#processSuccesfulRequest()
-     */
     @Override
     protected boolean processSuccesfulRequest() {
         if(keyRecords == null || keyRecords.size() == 0) {
@@ -351,10 +318,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doPostCalloutTask(boolean)
-     */
     @Override
     protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
         //Now we need to complete our login 
@@ -521,10 +484,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         if(acceptExpired) { return validIsh; }
         return null;
     }
-
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doResponseOther(org.apache.http.HttpResponse)
-     */
     @Override
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;

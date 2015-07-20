@@ -79,9 +79,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
-     */
+    @Override
     public boolean hasMore() {
         //See whether we're ahead of the next gap. If we are, there are valid
         //ids remaining
@@ -150,9 +148,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
-     */
+    @Override
     public int nextID() {
         int ret = current;
         current++;
@@ -165,9 +161,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         return ret;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
-     */
+    @Override
     public T nextRecord() {
         T t = storage.read(this.peekID());
         nextID();
@@ -175,9 +169,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         return t;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
-     */
+    @Override
     public int numRecords() {
         return count;
     }

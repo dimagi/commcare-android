@@ -73,10 +73,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         mCaseIndexTable = new CaseIndexTable();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#removeAttachment(org.commcare.cases.model.Case, java.lang.String)
-     */
     @Override
     protected void removeAttachment(Case caseForBlock, String attachmentName) {
         if(!processAttachments) { return;}
@@ -95,12 +91,16 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             e.printStackTrace();
         }
     }
-    
+
+    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
+        return CommCareApplication._().getUserDbHandle();
+    }
+
     @Override
     public void commit(Case parsed) throws IOException {
         SQLiteDatabase db;
         try {
-            db = CommCareApplication._().getUserDbHandle();
+            db = getDbHandle();
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException("User database closed while parsing");
         }
@@ -116,10 +116,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
-     */
     @Override
     protected String processAttachment(String src, String from, String name, KXmlParser parser) {
         if(!processAttachments) { return null;}
@@ -221,9 +217,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#CreateCase(java.lang.String, java.lang.String)
-     */
     @Override
     protected Case CreateCase(String name, String typeId) {
         return new ACase(name, typeId);

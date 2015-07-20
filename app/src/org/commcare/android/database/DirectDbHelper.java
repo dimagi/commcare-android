@@ -17,10 +17,6 @@ public class DirectDbHelper extends DbHelper {
         handle = database;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.database.DbHelper#getHandle()
-     */
     @Override
     public SQLiteDatabase getHandle() {
         return handle;

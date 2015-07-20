@@ -231,10 +231,6 @@ public class EntityView extends LinearLayout {
 
         btn.setOnClickListener(new OnClickListener(){
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 String textToRead = text;
@@ -437,44 +433,71 @@ public class EntityView extends LinearLayout {
         }
     }
 
+    /**
+     * Determine width of each child view, based on mHints, the suite's size hints.
+     * mHints contains a width hint for each child view, each one of
+     * - A string like "50%", requesting the field take up 50% of the row
+     * - A string like "200", requesting the field take up 200 pixels
+     * - Null, not specifying a width for the field
+     * This function will parcel out requested widths and divide remaining space among unspecified columns.
+     * @param fullSize Width, in pixels, of the containing row.
+     * @return Array of integers, each corresponding to a child view,
+     * representing the desired width, in pixels, of that view.
+     */
     private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels
-        int[] hints = new int[mHints.length];
+        // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
+        int[] widths = new int[mHints.length];
         for (int i = 0; i < mHints.length; i++) {
             if (mHints[i] == null) {
-                hints[i] = -1;
+                widths[i] = -1;
             } else if (mHints[i].contains("%")) {
-                hints[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
+                widths[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
             }
             else {
-                hints[i] = Integer.parseInt(mHints[i]);
-            }
-        }
-
-        // Determine how wide to make columns without a specified width
-        int[] widths = new int[hints.length];
-        int sharedBetween = 0;
-        for(int hint : hints) {
-            if(hint != -1) {
-                fullSize -= hint;
-            } else {
-                sharedBetween++;
+                widths[i] = Integer.parseInt(mHints[i]);
             }
         }
         
-        // Set column widths
-        int defaultWidth = sharedBetween == 0 ? 0 : fullSize / sharedBetween;
-        for(int i = 0; i < hints.length; ++i) {
-            widths[i] = hints[i] == -1 ? defaultWidth : hints[i];
+        int claimedSpace = 0;
+        int indeterminateColumns = 0;
+        for (int width : widths) {
+            if (width != -1) {
+                claimedSpace += width;
+            }
+            else {
+                indeterminateColumns++;
+            }
+        }
+        if (fullSize < claimedSpace + indeterminateColumns 
+                || (fullSize > claimedSpace && indeterminateColumns == 0)) {
+            // Either more space has been claimed than the screen has room for,
+            // or the full width isn't spoken for and there are no indeterminate columns
+            claimedSpace += indeterminateColumns;
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
+                    // Assign indeterminate columns a real width.
+                    // It's arbitrary and tiny, but this is going to look terrible regardless.
+                    widths[i] = 1;
+                }
+                else {
+                    // Shrink or expand columns proportionally
+                    widths[i] = fullSize * widths[i] / claimedSpace;
+                }
+            }
+        }
+        else if (indeterminateColumns > 0) {
+            // Divide remaining space equally among the indeterminate columns
+            int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
+                    widths[i] = defaultWidth;
+                }
+            }
         }
         
         return widths;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -487,5 +510,7 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

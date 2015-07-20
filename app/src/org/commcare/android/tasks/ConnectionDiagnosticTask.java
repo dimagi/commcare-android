@@ -74,21 +74,10 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         this.c = c;
         this.platform = platform;
         this.taskId = CONNECTION_ID;
-    }
-    
-    //onProgressUpdate(<B>)
-    
-    //onPostExecute(<C>)
-    
-    //onCancelled()
 
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     * 
-     * doTaskBackground(<A>) returns <C>
-     */
+        TAG = ConnectionDiagnosticTask.class.getSimpleName();
+    }
+
     @Override
     protected Test doTaskBackground(Void... params) 
     {    

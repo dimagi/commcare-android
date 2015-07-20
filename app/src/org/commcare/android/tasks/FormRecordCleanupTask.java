@@ -68,10 +68,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         this.taskId = taskId;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
@@ -371,11 +367,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         //If we have a proper 2.0 namespace, good.
         if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
             return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
-                 */
                 @Override
                 public void commit(Case parsed) throws IOException {
                     String incoming = parsed.getCaseId();
@@ -384,10 +375,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     }
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
-                 */
                 @Override
                 public ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
@@ -401,10 +388,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // skip this block for compatibility purposes, but we can
             // at least try to get a caseID (which is all we want)
             return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
-                 */
                 @Override
                 public void commit(Hashtable<String, String> values) {
                     if (values.containsKey("case_id")) {
@@ -419,10 +402,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                                      final Date[] modified,
                                                      KXmlParser parser) {
         return new MetaDataXmlParser(parser) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
-             */
             @Override
             public void commit(String[] meta) throws IOException {
                 if (meta[0] != null) {

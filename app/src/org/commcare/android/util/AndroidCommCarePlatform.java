@@ -83,10 +83,12 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         return installedSuites;
     }
 
+    @Override
     public void setProfile(Profile p) {
         this.profile = p;
     }
 
+    @Override
     public void registerSuite(Suite s) {
         this.installedSuites.add(s);
     }

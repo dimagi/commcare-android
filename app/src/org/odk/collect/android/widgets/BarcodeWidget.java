@@ -94,10 +94,6 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);

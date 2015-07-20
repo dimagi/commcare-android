@@ -50,20 +50,12 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         
     
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         btnRunTest.setOnClickListener(new OnClickListener() 
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
@@ -72,10 +64,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         getApplicationContext(),
                         CommCareApplication._().getCurrentApp().getCommCarePlatform())
                 {    
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                 */
                 @Override
                     //<R> receiver, <C> result. 
                     //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
@@ -118,20 +106,12 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         return;
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) 
                     {
                         receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
                     }
                     
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e)
                     {
@@ -148,10 +128,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         //Set a button that allows you to change your airplane mode settings
         this.settingsButton.setOnClickListener( new OnClickListener()
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
@@ -161,10 +137,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         
         this.reportButton.setOnClickListener( new OnClickListener()
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
@@ -201,10 +173,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
+    /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */

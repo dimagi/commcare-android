@@ -70,8 +70,6 @@ import android.util.Log;
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    private static final String TAG = DataPullTask.class.getSimpleName();
-
     String server;
     String keyProvider;
     String username;
@@ -116,7 +114,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
     private InputStream mDebugStream;
 
-    
     public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
         this.server = server;
         this.keyProvider = keyProvider;
@@ -124,11 +121,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         this.password = password;
         this.c = c;
         this.taskId = DATA_PULL_TASK_ID;
+
+        TAG = DataPullTask.class.getSimpleName();
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
@@ -141,10 +137,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doTaskBackground(Void... params) {
         // Don't try to sync if logging out is occuring
@@ -188,10 +180,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
             boolean publishedAuth = false;
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.xml.CommCareTransactionParserFactory#reportProgress(int)
-             */
             @Override
             public void reportProgress(int progress) {
                 if(!publishedAuth) {

@@ -2,36 +2,39 @@ package org.commcare.android.tasks.templates;
 
 import android.os.AsyncTask;
 
+import org.javarosa.core.services.Logger;
+
 /**
  * @author ctsims
- *
  */
 public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C> {
-    
+    protected static String TAG;
+
     public static final int GENERIC_TASK_ID = 32;
     
     private Object connectorLock = new Object();
     private CommCareTaskConnector<R> connector;
     
-    private boolean isLostOrphan = false;
     private Exception unknownError;
     
     protected int taskId = GENERIC_TASK_ID;
     
     public CommCareTask() {
+        TAG = CommCareTask.class.getSimpleName();
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
     @Override
     protected final C doInBackground(A... params) {
         //Never have to wrap the entirety of your task.
         try {
             return doTaskBackground(params);
         } catch(Exception e) {
+            Logger.log(TAG, e.getMessage());
             e.printStackTrace();
+
+            // Save error for reporting during post-execute
             unknownError = e;
+
             return null;
         }
     }
@@ -42,9 +45,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
      */
     protected abstract C doTaskBackground(A... params);
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
@@ -61,9 +61,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(C result) {
         super.onPostExecute(result);
@@ -91,9 +88,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     
     protected abstract void deliverError(R receiver, Exception e);
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPreExecute()
-     */
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -107,9 +101,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(B... values) {
         super.onProgressUpdate(values);
@@ -152,14 +143,10 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
             //something from connecting in the mean time
             if(connector != null) { return connector; }
             
-            //Otherwise, cancel if possible
             if(this.getStatus() == AsyncTask.Status.RUNNING) {
                 this.cancel(false);
             }
-            //Mark this as a lost orphan
-            this.isLostOrphan = true;
-            
-            //and return null;
+
             return null;
         }
     }

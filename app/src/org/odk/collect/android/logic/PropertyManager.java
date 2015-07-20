@@ -72,59 +72,35 @@ public class PropertyManager implements IPropertyManager {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#getProperty(java.lang.String)
-     */
     @Override
     public Vector<String> getProperty(String propertyName) {
         return null;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#getSingularProperty(java.lang.String)
-     */
     @Override
     public String getSingularProperty(String propertyName) {
         return mProperties.get(propertyName.toLowerCase());
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#setProperty(java.lang.String, java.lang.String)
-     */
     @Override
     public void setProperty(String propertyName, String propertyValue) {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#setProperty(java.lang.String, java.util.Vector)
-     */
     @Override
     public void setProperty(String propertyName, @SuppressWarnings("rawtypes") Vector propertyValue) {
 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#addRules(org.javarosa.core.services.properties.IPropertyRules)
-     */
     @Override
     public void addRules(IPropertyRules rules) {
 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.services.IPropertyManager#getRules()
-     */
     @Override
     public Vector<IPropertyRules> getRules() {
         return null;

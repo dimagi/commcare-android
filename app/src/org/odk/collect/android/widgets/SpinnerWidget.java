@@ -86,10 +86,6 @@ public class SpinnerWidget extends QuestionWidget {
         }
         
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
-             */
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if(hasListener){
@@ -97,10 +93,6 @@ public class SpinnerWidget extends QuestionWidget {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
-             */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 //do nothing here
@@ -113,10 +105,6 @@ public class SpinnerWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         int i = spinner.getSelectedItemPosition();
@@ -129,10 +117,6 @@ public class SpinnerWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         // It seems that spinners cannot return a null answer. This resets the answer
@@ -142,10 +126,6 @@ public class SpinnerWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -173,10 +153,6 @@ public class SpinnerWidget extends QuestionWidget {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getDropDownView(int, android.view.View, android.view.ViewGroup)
-         */
         @Override
         // Defines the text view parameters for the drop down list entries
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
@@ -194,10 +170,6 @@ public class SpinnerWidget extends QuestionWidget {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
-         */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
@@ -214,20 +186,12 @@ public class SpinnerWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         spinner.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

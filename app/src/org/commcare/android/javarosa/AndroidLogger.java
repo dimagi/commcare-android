@@ -75,10 +75,6 @@ public class AndroidLogger implements ILogger {
         this.storage = storage;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#log(java.lang.String, java.lang.String, java.util.Date)
-     */
     @Override
     public void log(String type, String message, Date logDate) {
         try {
@@ -89,20 +85,12 @@ public class AndroidLogger implements ILogger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#clearLogs()
-     */
     @Override
     public void clearLogs() {
         if(serializing) {
             storage.removeAll();
         } else {
             storage.removeAll(new EntityFilter<AndroidLogEntry>() {
-                    /*
-                     * (non-Javadoc)
-                     * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
-                     */
                     @Override
                     public boolean matches(AndroidLogEntry e) {
                         if(e.getID() <= lastEntry) {
@@ -117,10 +105,6 @@ public class AndroidLogger implements ILogger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.IFullLogSerializer)
-     */
     @Override
     public <T> T serializeLogs(IFullLogSerializer<T> serializer) {
         ArrayList<LogEntry> logs = new ArrayList<LogEntry>(); 
@@ -135,10 +119,6 @@ public class AndroidLogger implements ILogger {
         return serializer.serializeLogs(logs.toArray(new LogEntry[0]));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.StreamLogSerializer)
-     */
     @Override
     public void serializeLogs(StreamLogSerializer serializer) throws IOException {
         for(AndroidLogEntry entry : storage) {
@@ -151,10 +131,6 @@ public class AndroidLogger implements ILogger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.StreamLogSerializer, int)
-     */
     @Override
     public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
         int count = 0;
@@ -170,28 +146,16 @@ public class AndroidLogger implements ILogger {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#panic()
-     */
     @Override
     public void panic() {
         //Unclear
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#logSize()
-     */
     @Override
     public int logSize() {
         return storage.getNumRecords();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.api.ILogger#halt()
-     */
     @Override
     public void halt() {
         //Meh.
