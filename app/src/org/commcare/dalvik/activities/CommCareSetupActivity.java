@@ -375,9 +375,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * @param startOverUpgrade If set CommCarePlatform.stageUpgradeTable()
-     *                         will reuse the last version of the upgrade
-     *                         table, or clear it and start over
+     * @param startOverUpgrade When set CommCarePlatform.stageUpgradeTable()
+     *                         will clear the last version of the upgrade table
+     *                         and start over. Otherwise install reuses the
+     *                         last version of the upgrade table.
      */
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
