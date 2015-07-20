@@ -140,9 +140,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     public static final int RESULT_RESTART = 3;
 
-    private static int unsentFormNumberLimit;
-    private static int unsentFormTimeLimit;
-
     private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 
@@ -156,14 +153,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private AndroidCommCarePlatform platform;
 
-    private AlertDialog mAskOldDialog;
-    private AlertDialog mAttemptFixDialog;
     private SquareButtonWithNotification startButton;
     private SquareButtonWithNotification logoutButton;
     private SquareButtonWithNotification viewIncomplete;
     private SquareButtonWithNotification syncButton;
 
-    private SquareButtonWithNotification viewOldForms;
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
     private ImageView topBannerImageView;
@@ -295,7 +289,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             formGroupLabel.setText(Localization.get("home.forms"));
         }
 
-        viewOldForms = adapter.getButton(R.layout.home_savedforms_button, false);
+        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button, false);
         if (viewOldForms == null) {
             Log.d("buttons", "viewOldForms is null! Crashing!");
         }
@@ -1284,7 +1278,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        mAskOldDialog = new AlertDialog.Builder(this).create();
+        AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
         mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
         DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
@@ -1353,8 +1347,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
-        unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
+        int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
+        int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
 
         String syncKey = "home.sync";
         String lastMessageKey = "home.sync.message.last";
@@ -1639,7 +1633,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private Dialog createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        mAttemptFixDialog = new AlertDialog.Builder(this).create();
+        AlertDialog mAttemptFixDialog = new AlertDialog.Builder(this).create();
 
         mAttemptFixDialog.setTitle("Storage is Corrupt :/");
         mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
@@ -1650,7 +1644,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
                         startActivity(intent);
                         break;
-
                     case DialogInterface.BUTTON_NEGATIVE: // Shut down
                         CommCareHomeActivity.this.finish();
                         break;
