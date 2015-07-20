@@ -1473,7 +1473,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
                     return true;
                 }
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                Intent i = new Intent(getApplicationContext(), UpgradeActivity.class);
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
                 String ref = prefs.getString("default_app_server", null);
                 i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);

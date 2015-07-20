@@ -130,6 +130,10 @@
                 <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.UpgradeActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
             android:name=".application.AndroidShortcuts"
