@@ -39,9 +39,6 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         this.mContext = context;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
         
@@ -80,9 +77,6 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     
     
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         new GlobalDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);

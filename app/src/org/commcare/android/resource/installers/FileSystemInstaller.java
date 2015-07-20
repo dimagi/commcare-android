@@ -59,24 +59,15 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         this.upgradeDestination = upgradeDestination;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#cleanup()
-     */
     @Override
     public void cleanup() {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
     @Override
     public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
-     */
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
@@ -176,15 +167,9 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
      */
     protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
     @Override
     public abstract boolean requiresRuntimeInitialization();
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         try{
@@ -194,9 +179,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean upgrade(Resource r) {
         try {             
@@ -261,10 +243,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#unstage(org.commcare.resources.model.Resource, int)
-     */
     @Override
     public boolean unstage(Resource r, int newStatus) {
         try {
@@ -302,10 +280,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#revert(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean revert(Resource r, ResourceTable table) {
         String finalLocation = null;
@@ -415,9 +389,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         } 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.localLocation = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -425,9 +396,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         this.upgradeDestination = ExtUtil.readString(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(localLocation));

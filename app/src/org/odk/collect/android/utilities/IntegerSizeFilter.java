@@ -14,10 +14,6 @@ import android.text.Spanned;
 
 public class IntegerSizeFilter implements InputFilter {
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.InputFilter#filter(java.lang.CharSequence, int, int, android.text.Spanned, int, int)
-     */
     @Override
     public CharSequence filter(CharSequence source, int start, int end,
             Spanned dest, int dstart, int dend) {

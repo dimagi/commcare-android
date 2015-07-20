@@ -46,18 +46,12 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
         listener.attach(this);
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
     }
     
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
         super.onPostExecute(result);
@@ -104,10 +98,6 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     */
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
 

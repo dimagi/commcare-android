@@ -32,19 +32,12 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
     @UiElement(value = R.id.screen_permission_request_button_deny, locale="app.key.request.deny")
     Button denyButton;
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         grantButton.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 Intent response = new Intent(getIntent());
@@ -69,10 +62,6 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
         
         denyButton.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 setResult(Activity.RESULT_CANCELED);
@@ -84,9 +73,6 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
     
     
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         // TODO Auto-generated method stub

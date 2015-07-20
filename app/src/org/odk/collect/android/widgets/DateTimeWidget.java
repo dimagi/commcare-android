@@ -65,10 +65,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         }
 
         mDateListener = new DatePicker.OnDateChangedListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.widget.DatePicker.OnDateChangedListener#onDateChanged(android.widget.DatePicker, int, int, int)
-             */
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
                 if (mPrompt.isReadOnly()) {
@@ -138,9 +134,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+    /**
      * Resets date to today.
      */
     @Override
@@ -153,10 +147,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();
@@ -170,10 +160,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -183,10 +169,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mDatePicker.setOnLongClickListener(l);
@@ -194,10 +176,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
@@ -205,10 +183,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mTimePicker.cancelLongPress();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.TimePicker.OnTimeChangedListener#onTimeChanged(android.widget.TimePicker, int, int)
-     */
     @Override
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         widgetEntryChanged();

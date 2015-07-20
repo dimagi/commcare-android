@@ -59,10 +59,6 @@ public class EntityDetailFragment extends Fragment {
         }
     }
 
-    /*
-         * (non-Javadoc)
-         * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-         */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(savedInstanceState != null){

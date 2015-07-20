@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import java.io.ByteArrayOutputStream;
@@ -67,9 +64,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         taskId = DumpTask.BULK_DUMP_ID;
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
@@ -78,10 +73,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
@@ -155,10 +146,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         return FormUploadUtil.FULL_SUCCESS;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @SuppressLint("NewApi")
     @Override
     protected Boolean doTaskBackground(String... params) {
@@ -321,9 +308,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();

@@ -187,10 +187,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
-     */
     @Override
     public void setBinaryData(Object binaryuri) {
         // when replacing an answer. remove the current media.

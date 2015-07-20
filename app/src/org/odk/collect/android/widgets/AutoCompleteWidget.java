@@ -88,10 +88,6 @@ public class AutoCompleteWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         String response = autocomplete.getText().toString();
@@ -113,20 +109,12 @@ public class AutoCompleteWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         autocomplete.setText("");
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -148,10 +136,6 @@ public class AutoCompleteWidget extends QuestionWidget {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#add(java.lang.Object)
-         */
         @Override
         public void add(String toAdd) {
             super.add(toAdd);
@@ -159,30 +143,18 @@ public class AutoCompleteWidget extends QuestionWidget {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getCount()
-         */
         @Override
         public int getCount() {
             return mItems.size();
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getItem(int)
-         */
         @Override
         public String getItem(int position) {
             return mItems.get(position);
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getPosition(java.lang.Object)
-         */
         @Override
         public int getPosition(String item) {
             return mItems.indexOf(item);
@@ -197,10 +169,6 @@ public class AutoCompleteWidget extends QuestionWidget {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getItemId(int)
-         */
         @Override
         public long getItemId(int position) {
             return position;
@@ -219,10 +187,6 @@ public class AutoCompleteWidget extends QuestionWidget {
             }
 
 
-            /*
-             * (non-Javadoc)
-             * @see android.widget.Filter#performFiltering(java.lang.CharSequence)
-             */
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 // Initiate our results object
@@ -296,10 +260,6 @@ public class AutoCompleteWidget extends QuestionWidget {
             }
 
 
-            /*
-             * (non-Javadoc)
-             * @see android.widget.Filter#publishResults(java.lang.CharSequence, android.widget.Filter.FilterResults)
-             */
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
@@ -318,20 +278,12 @@ public class AutoCompleteWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         autocomplete.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

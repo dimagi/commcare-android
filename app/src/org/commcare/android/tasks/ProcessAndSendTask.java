@@ -100,10 +100,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.taskId = -1;
         }
     }
-    
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
+
+    @Override
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
@@ -342,9 +340,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(Long... values) {
         if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
@@ -376,10 +372,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
@@ -427,9 +419,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
