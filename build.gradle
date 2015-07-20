@@ -47,6 +47,7 @@ dependencies {
     // this includes the .so files from native-libs.jar
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
     compile 'com.android.support:support-v4:22.1.1'
+    compile 'com.etsy.android.grid:library:1.0.5'
 
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
@@ -63,6 +64,11 @@ project(':libraries:mapballoons') {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
   }
+}
+
+ext {
+  compileSdkVersion = "Google Inc.:Google APIs:21"
+  buildToolsVersion = "21.1.2"
 }
 
 android {
@@ -86,8 +92,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 22
+        minSdkVersion 10
+        targetSdkVersion 21
     }
 
     compileOptions {

@@ -17,7 +17,7 @@
         style="@style/MainPane">
 
         <!-- adding top banner as dependency -->
-        <in.srain.cube.views.GridViewWithHeaderAndFooter
+        <com.etsy.android.grid.StaggeredGridView
             android:layout_weight="1"
             android:id="@+id/home_gridview_buttons"
             android:numColumns="3"

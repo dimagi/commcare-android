@@ -426,7 +426,7 @@
         android:name="android.permission.USE_CREDENTIALS" />
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="10"
         android:targetSdkVersion="14" >
     </uses-sdk>
 
