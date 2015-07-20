@@ -888,7 +888,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
         mAlertDialog.setMessage(errorMsg);
         mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
         mAlertDialog.show();
     }
 
@@ -1618,8 +1618,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     private boolean isAirplaneModeOn() {
-        return Settings.System.getInt(getApplicationContext().getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return Settings.Global.getInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+        } else {
+            return Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+        }
     }
 
     private boolean hasP2p() {
