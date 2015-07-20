@@ -316,7 +316,8 @@ public class CommCareApp {
 
     /**
      *
-     * @return the app name assigned to this app from HQ
+     * @return the app name assigned to this app from HQ -- either from the profile file if it was
+     * included there, or from the localization strings if it was not
      */
     private String getDisplayName() {
         String nameFromProfile = getCommCarePlatform().getCurrentProfile().getDisplayName();
