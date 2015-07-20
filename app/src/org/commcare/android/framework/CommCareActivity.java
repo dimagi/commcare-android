@@ -76,10 +76,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-     */
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,10 +122,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -200,9 +192,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return false;
     }
     
-    /* (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     @TargetApi(11)
     protected void onResume() {
@@ -216,9 +205,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         AudioController.INSTANCE.playPreviousAudio();
     }
     
-    /* (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -226,9 +212,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         AudioController.INSTANCE.systemInducedPause();
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
-     */
     @Override
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
         //If stateHolder is null here, it's because it is restoring itself, it doesn't need
@@ -244,18 +227,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
-     */
     @Override
     public R getReceiver() {
         return (R)this;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask()
-     * 
+    /**
      * Override these to control the UI for your task
      */
     @Override
@@ -269,9 +246,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask()
-     */
     @Override
     public void stopBlockingForTask(int id) {
         if (id >= 0) { 
@@ -285,19 +259,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         unlock();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startTaskTransition()
-     */
     @Override
     public void startTaskTransition() {
         inTaskTransition = true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopTaskTransition()
-     */
     @Override
     public void stopTaskTransition() {
         inTaskTransition = false;
@@ -335,10 +301,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
         mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[] {mErrorMessage}));
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -353,9 +315,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         mAlertDialog.show();
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
-     */
     @Override
     public void taskCancelled(int id) {
         
@@ -365,10 +324,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onStop()
-     */
     @Override
     public void onStop() {
         super.onStop();
@@ -491,10 +446,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
         dialog.setMessage(errorMsg);
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -515,10 +466,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /** All methods for implementation of DialogController **/
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#updateProgress(java.lang.String, int)
-     */
     @Override
     public void updateProgress(String updateText, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -534,10 +481,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#updateProgressBar(int, int, int)
-     */
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -553,10 +496,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#showProgressDialog(int)
-     */
     @Override
     public void showProgressDialog(int taskId) {
         CustomProgressDialog dialog = generateProgressDialog(taskId);
@@ -565,20 +504,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#getCurrentDialog()
-     */
     @Override
     public CustomProgressDialog getCurrentDialog() {
         return (CustomProgressDialog) getSupportFragmentManager().
                 findFragmentByTag(KEY_DIALOG_FRAG);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#dismissProgressDialog()
-     */
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
@@ -587,10 +518,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.dalvik.dialogs.DialogController#generateProgressDialog(int)
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
@@ -661,29 +588,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#dispatchTouchEvent(android.view.MotionEvent)
-     */
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
         return !(mGestureDetector == null || !mGestureDetector.onTouchEvent(mv)) || super.dispatchTouchEvent(mv);
 
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onDown(android.view.MotionEvent)
-     */
     @Override
     public boolean onDown(MotionEvent arg0) {
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
-     */
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2)) {
@@ -712,37 +627,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onLongPress(android.view.MotionEvent)
-     */
     @Override
     public void onLongPress(MotionEvent arg0) {
         // ignore
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
-     */
     @Override
     public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2, float arg3) {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onShowPress(android.view.MotionEvent)
-     */
     @Override
     public void onShowPress(MotionEvent arg0) {
         // ignore
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onSingleTapUp(android.view.MotionEvent)
-     */
     @Override
     public boolean onSingleTapUp(MotionEvent arg0) {
         return false;

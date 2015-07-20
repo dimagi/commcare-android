@@ -23,9 +23,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         TAG = CommCareTask.class.getSimpleName();
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
     @Override
     protected final C doInBackground(A... params) {
         //Never have to wrap the entirety of your task.
@@ -48,9 +45,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
      */
     protected abstract C doTaskBackground(A... params);
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
@@ -67,9 +61,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(C result) {
         super.onPostExecute(result);
@@ -97,9 +88,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     
     protected abstract void deliverError(R receiver, Exception e);
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPreExecute()
-     */
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -113,9 +101,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(B... values) {
         super.onProgressUpdate(values);

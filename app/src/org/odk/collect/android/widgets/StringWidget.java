@@ -120,20 +120,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         mAnswer.setText(null);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();
@@ -145,10 +137,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         
@@ -172,10 +160,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#onKeyDown(int, android.view.KeyEvent)
-     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.isAltPressed() == true) {
@@ -186,30 +170,18 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mAnswer.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mAnswer.cancelLongPress();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
     @Override
     public void onClick(View v) {
         //revert to default editor behavior
@@ -222,19 +194,11 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.performClick();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
-     */
     @Override
     public void afterTextChanged(Editable s) {
         widgetEntryChanged();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#beforeTextChanged(java.lang.CharSequence, int, int, int)
-     */
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
             int after) {
@@ -242,10 +206,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#onTextChanged(java.lang.CharSequence, int, int, int)
-     */
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub

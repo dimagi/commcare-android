@@ -31,9 +31,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         this.records = records;
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
@@ -42,10 +40,6 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
@@ -54,10 +48,6 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         results = null;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Boolean doTaskBackground(String... params) {
         

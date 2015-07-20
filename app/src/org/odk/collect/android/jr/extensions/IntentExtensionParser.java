@@ -22,10 +22,6 @@ public class IntentExtensionParser implements IElementHandler {
     private static String RESPONSE = "response";
     private static String EXTRA = "extra";
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.xform.parse.IElementHandler#handle(org.javarosa.xform.parse.XFormParser, org.kxml2.kdom.Element, java.lang.Object)
-     */
     @Override
     public void handle(XFormParser p, Element e, Object parent) {
         if(!(parent instanceof FormDef)) {

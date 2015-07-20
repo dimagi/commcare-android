@@ -21,10 +21,6 @@ public class MessageLogActivity extends ListActivity {
     
     boolean isMessages = false;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,10 +38,7 @@ public class MessageLogActivity extends ListActivity {
         this.setListAdapter(messages);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
-     * 
+    /**
      * Stores the path of selected form and finishes.
      */
     @Override

@@ -49,9 +49,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
     TextView txtUserMessage;
     
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,10 +63,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         
         sendForms.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @SuppressLint("NewApi")
             @Override
             public void onClick(View v) {
@@ -79,19 +72,12 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                 ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", 
                         RecoveryActivity.this.getString(R.string.PostURL)), SEND_TASK_ID, true){
 
-                    /* (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#onPreExecute()
-                     */
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
                         displayMessage("Submitting form(s) to the server...");
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                     */
                     @Override
                     protected void deliverResult(RecoveryActivity receiver, Integer result) {
                          if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
@@ -111,19 +97,11 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(RecoveryActivity receiver, Long... update) {
                         //we don't need to deliver updates here, it happens on the notification bar
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(RecoveryActivity receiver,Exception e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,"Error in recovery form send: " + ExceptionReportTask.getStackTrace(e));
@@ -154,10 +132,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         
         btnRecoverApp.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install.");
@@ -169,18 +143,12 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         txtUserMessage.setText(this.localize(text));
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#startBlockingForTask(int)
-     */
     @Override
     public void startBlockingForTask(int id) {
         btnRecoverApp.setEnabled(false);
         sendForms.setEnabled(false);
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#stopBlockingForTask(int)
-     */
     @Override
     public void stopBlockingForTask(int id) {
         updateSendFormsState();

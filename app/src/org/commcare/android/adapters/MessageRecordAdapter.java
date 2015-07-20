@@ -64,52 +64,38 @@ public class MessageRecordAdapter implements ListAdapter {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int position) {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return enabled.size();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int position) {
         cursor.moveToPosition(enabled.get(position));
         return cursor.getString(cursor.getColumnIndex("address"));
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int position) {
         return enabled.get(position);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int position) {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         cursor.moveToPosition(enabled.get(position));
         
@@ -148,36 +134,26 @@ public class MessageRecordAdapter implements ListAdapter {
         
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return this.getCount() > 0;
     }
     
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
     }
 

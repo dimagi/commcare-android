@@ -35,9 +35,6 @@ import android.net.Uri;
  */
 public class FixtureDataContentProvider extends ContentProvider {
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
         return true;
@@ -136,9 +133,6 @@ public class FixtureDataContentProvider extends ContentProvider {
     /** All of the below are invalid due to the read-only nature of the content provider. It's not 100% clear from spec how to express
      * the read-only-ness. **/
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
-     */
     @Override
     public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
         // Case content provider is read only.
@@ -146,9 +140,6 @@ public class FixtureDataContentProvider extends ContentProvider {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Case content provider is read only.
@@ -156,9 +147,6 @@ public class FixtureDataContentProvider extends ContentProvider {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
-     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO Auto-generated method stub

@@ -107,11 +107,6 @@ public class Collect extends Application {
         return localContext;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onCreate()
-     */
     @Override
     public void onCreate() {
         Log.i("Collect", "Collect created");

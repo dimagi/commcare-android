@@ -142,10 +142,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private DataSetObserver mListStateObserver;
     private OnClickListener barcodeScanOnClickListener;
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -360,19 +356,11 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         };
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern
@@ -529,10 +517,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return detailIntent;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
-     */
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if(id == EntityListAdapter.SPECIAL_ACTION) {
@@ -555,10 +539,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode){
@@ -676,10 +656,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -749,9 +725,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return searchbox.getText();
     }
     
-    /* (non-Javadoc)
-     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         
@@ -762,10 +735,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return super.onPrepareOptionsMenu(menu);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -855,10 +824,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         alert.show();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
-     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -880,10 +845,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.speech.tts.TextToSpeech.OnInitListener#onInit(int)
-     */
     @Override
     public void onInit(int status) {
  
@@ -895,10 +856,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.EntityLoaderListener#deliverResult(java.util.List, java.util.List)
-     */
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
         loader = null;
@@ -954,10 +911,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.EntityLoaderListener#attach(org.commcare.android.tasks.EntityLoaderTask)
-     */
     @Override
     public void attach(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
@@ -1042,20 +995,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
            detailView.refresh(factory.getDetail(), selection, detailIndex, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.EntityLoaderListener#deliverError(java.lang.Exception)
-     */
     @Override
     public void deliverError(Exception e) {
         displayException(e);
     }
 
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
-     */
     @Override
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
@@ -1071,10 +1016,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
-     */
     @Override
     protected boolean onBackwardSwipe() {
         if (inAwesomeMode && detailView != null && detailView.getCurrentTab() > 0) {

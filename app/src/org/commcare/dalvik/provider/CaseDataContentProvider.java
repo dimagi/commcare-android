@@ -43,9 +43,6 @@ public class CaseDataContentProvider extends ContentProvider {
     
     //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?
     
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
     @Override
     public String getType(Uri uri) {
         int match = CaseDataAPI.UriMatch(uri);
@@ -67,9 +64,6 @@ public class CaseDataContentProvider extends ContentProvider {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
         caseMetaIndexTable.put(CaseDataAPI.MetadataColumns.CASE_ID, Case.INDEX_CASE_ID);
@@ -78,9 +72,6 @@ public class CaseDataContentProvider extends ContentProvider {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
-     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
@@ -289,9 +280,6 @@ public class CaseDataContentProvider extends ContentProvider {
     /** All of the below are invalid due to the read-only nature of the content provider. It's not 100% clear from spec how to express
      * the read-only-ness. **/
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
-     */
     @Override
     public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
         // Case content provider is read only.
@@ -299,9 +287,6 @@ public class CaseDataContentProvider extends ContentProvider {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Case content provider is read only.
@@ -309,9 +294,6 @@ public class CaseDataContentProvider extends ContentProvider {
     }
     
 
-    /* (non-Javadoc)
-     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
-     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO Auto-generated method stub

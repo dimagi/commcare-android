@@ -42,10 +42,6 @@ public class FormHierarchyActivity extends ListActivity {
     FormIndex mStartIndex;
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,10 +57,6 @@ public class FormHierarchyActivity extends ListActivity {
 
         jumpPreviousButton = (Button) findViewById(R.id.jumpPreviousButton);
         jumpPreviousButton.setOnClickListener(new OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 goUpLevel();
@@ -73,10 +65,6 @@ public class FormHierarchyActivity extends ListActivity {
 
         Button jumpBeginningButton = (Button) findViewById(R.id.jumpBeginningButton);
         jumpBeginningButton.setOnClickListener(new OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 FormEntryActivity.mFormController.jumpToIndex(FormIndex
@@ -88,10 +76,6 @@ public class FormHierarchyActivity extends ListActivity {
 
         Button jumpEndButton = (Button) findViewById(R.id.jumpEndButton);
         jumpEndButton.setOnClickListener(new OnClickListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-        	 */
             @Override
             public void onClick(View v) {
                 FormEntryActivity.mFormController.jumpToIndex(FormIndex.createEndOfFormIndex());
@@ -103,10 +87,6 @@ public class FormHierarchyActivity extends ListActivity {
         // kinda slow, but works.
         // this scrolls to the last question the user was looking at
         getListView().post(new Runnable() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see java.lang.Runnable#run()
-        	 */
             @Override
             public void run() {
                 int position = 0;
@@ -341,10 +321,6 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
-     */
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         HierarchyElement h = (HierarchyElement) l.getItemAtPosition(position);
@@ -394,10 +370,6 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
-     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {

@@ -31,9 +31,7 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
         this.models = models;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
-     */
+    @Override
     public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
         if(models == null || !models.containsKey(editTable)) {
             return new SQLiteCursor(db, masterQuery, editTable, query);

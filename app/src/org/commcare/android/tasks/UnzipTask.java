@@ -34,10 +34,6 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
             TAG = UnzipTask.class.getSimpleName();
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-         */
         @Override
         protected Integer doTaskBackground(String... params) {
             

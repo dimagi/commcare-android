@@ -145,10 +145,6 @@ public class CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onCreate()
-     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -399,10 +395,6 @@ public class CommCareApplication extends Application {
 
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
         return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
@@ -429,10 +421,6 @@ public class CommCareApplication extends Application {
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -446,10 +434,6 @@ public class CommCareApplication extends Application {
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;
@@ -492,10 +476,6 @@ public class CommCareApplication extends Application {
 
         this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
-            /*
-             * (non-Javadoc)
-             * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
-             */
             @Override
             public boolean matches(UserKeyRecord ukr) {
                 if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
