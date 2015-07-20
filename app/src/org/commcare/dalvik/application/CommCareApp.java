@@ -240,6 +240,9 @@ public class CommCareApp {
         });
     }
 
+    /**
+     * Update the app's record to the installed state.
+     */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         try {

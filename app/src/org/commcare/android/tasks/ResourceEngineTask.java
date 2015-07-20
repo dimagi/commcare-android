@@ -242,7 +242,6 @@ public abstract class ResourceEngineTask<R>
             // Initialize them now that they're installed
             CommCareApplication._().initializeGlobalResources(app);
 
-
             // update the current profile reference
             prefs = app.getAppPreferences();
             Editor edit = prefs.edit();

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.app;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -16,15 +13,12 @@ import org.javarosa.core.model.instance.FormInstance;
 import android.content.Context;
 
 /**
- * The helper for opening/updating the global (unencrypted) db space for CommCare.
- * 
- * 
- * 
- * @author ctsims
+ * The helper for opening/updating the global (unencrypted) db space for
+ * CommCare.
  *
+ * @author ctsims
  */
 public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
-    
     /**
      * Version History
      * V.2 - Added recovery table
