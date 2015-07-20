@@ -1,5 +1,6 @@
 package org.commcare.dalvik.application;
 
+import java.StethoInitializer;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -93,6 +94,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 /**
  * @author ctsims
  */
@@ -150,6 +153,7 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        StethoInitializer.initStetho(this);
         Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
