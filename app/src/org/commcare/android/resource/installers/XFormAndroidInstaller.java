@@ -66,6 +66,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
      */
+    @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         instance.registerXmlns(namespace, contentUri);
         return true;
