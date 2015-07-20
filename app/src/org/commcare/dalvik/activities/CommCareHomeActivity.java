@@ -1289,17 +1289,21 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             public void onClick(DialogInterface dialog, int i) {
                 try {
                     switch (i) {
-                        case DialogInterface.BUTTON1: // yes, use old
-                            //Replace the current state from the descriptor
+                        case DialogInterface.BUTTON_POSITIVE:
+                            // use the old form instance and load the it's state from the descriptor
                             state.loadFromStateDescription(existing);
                             formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
                             break;
-                        case DialogInterface.BUTTON2: // no, and delete the old one
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            // delete the old incomplete form
                             FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
-                            //fallthrough to new now that old record is gone
-                        case DialogInterface.BUTTON3: // no, create new
+                            // fallthrough to new now that old record is gone
+                        case DialogInterface.BUTTON_NEUTRAL:
+                            // create a new form record and begin form entry
                             state.commitStub();
                             formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                            break;
+                        default:
                             break;
                     }
                 } catch (StorageFullException e) {
@@ -1308,9 +1312,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         };
         mAskOldDialog.setCancelable(false);
-        mAskOldDialog.setButton(Localization.get("option.yes"), useOldListener);
-        mAskOldDialog.setButton2(Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
-        mAskOldDialog.setButton3(Localization.get("option.no"), useOldListener);
+        mAskOldDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("option.yes"), useOldListener);
+        mAskOldDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
+        mAskOldDialog.setButton(DialogInterface.BUTTON_NEUTRAL, Localization.get("option.no"), useOldListener);
 
         mAskOldDialog.show();
     }
@@ -1637,24 +1641,23 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
-                    case DialogInterface.BUTTON1: // attempt repair
+                    case DialogInterface.BUTTON_POSITIVE: // attempt repair
                         Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
                         startActivity(intent);
                         break;
 
-                    case DialogInterface.BUTTON2: // Shut down
+                    case DialogInterface.BUTTON_NEGATIVE: // Shut down
                         CommCareHomeActivity.this.finish();
                         break;
                 }
             }
         };
         mAttemptFixDialog.setCancelable(false);
-        mAttemptFixDialog.setButton("Enter Recovery Mode", attemptFixDialog);
-        mAttemptFixDialog.setButton2("Shut Down", attemptFixDialog);
+        mAttemptFixDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Enter Recovery Mode", attemptFixDialog);
+        mAttemptFixDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Shut Down", attemptFixDialog);
 
         return mAttemptFixDialog;
     }
-
 
     /**
      * All methods for implementation of DialogController that are not already handled in CommCareActivity *
