@@ -296,7 +296,7 @@ public class CommCareApp {
      * pre-Multiple Apps build of CommCare
      */
     private boolean checkFromOldProfile() {
-        return getCommCarePlatform().getCurrentProfile().oldVersion();
+        return getCommCarePlatform().getCurrentProfile().isOldVersion();
     }
 
     /**
