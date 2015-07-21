@@ -52,7 +52,6 @@ public class SingleAppManagerActivity extends Activity {
         String appName = appRecord.getDisplayName();
         TextView tv = (TextView)findViewById(R.id.app_name);
         tv.setText(appName);
-
     }
 
     @Override
@@ -148,7 +147,7 @@ public class SingleAppManagerActivity extends Activity {
         } catch (SessionUnavailableException e) {
             // if the session isn't available, we don't need to logout
         }
-        appRecord.uninstall(this);
+        CommCareApplication._().uninstall(appRecord);
         rebootCommCare();
     }
 

@@ -19,6 +19,7 @@ import net.sqlcipher.database.SQLiteException;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -357,11 +358,12 @@ public class CommCareApplication extends Application {
     }
 
     private int initializeAppResources() {
+
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
-                record.uninstall(this);
+                uninstall(record);
             }
         }
 
@@ -512,6 +514,45 @@ public class CommCareApplication extends Application {
             }
         }
         return null;
+    }
+
+    /**
+     * Completes a full uninstall of the CC app that the given ApplicationRecord represents
+     */
+    public void uninstall(ApplicationRecord record) {
+        CommCareApp app = new CommCareApp(record);
+        initializeAppResources(app);
+
+        //1) Set status to delete requested so we know if we have left the app in a bad state later
+        setAppResourceState(CommCareApplication.STATE_DELETE_REQUESTED);
+        record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
+        getGlobalStorage(ApplicationRecord.class).write(record);
+
+        //2) Tear down the sandbox for this app
+        app.teardownSandbox();
+
+        //3) Delete all the user databases associated with this app
+        SqlStorage<UserKeyRecord> userDatabase = getAppStorage(UserKeyRecord.class);
+        for (UserKeyRecord user : userDatabase) {
+            boolean deleted = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
+            if (!deleted) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was not properly deleted" +
+                        "during app uninstall");
+            }
+        }
+
+        //4) Delete the app database
+        boolean deleted = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
+        if (!deleted) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was not properly deleted" +
+                    "during app uninstall");
+        }
+
+        //5) Delete the ApplicationRecord
+        getGlobalStorage(ApplicationRecord.class).remove(record.getID());
+
+        //6) Reset the appResourceState in CCApplication
+        setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
     }
 
     private int initGlobalDb() {

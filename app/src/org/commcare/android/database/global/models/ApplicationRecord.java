@@ -148,40 +148,4 @@ public class ApplicationRecord extends Persisted {
         this.convertedViaDbUpgrader = b;
     }
 
-    /**
-     * Completes a full uninstall of the CommCare app that this ApplicationRecord represents
-     */
-    public void uninstall(Context c) {
-        CommCareApplication._().initializeAppResources(new CommCareApp(this));
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        
-        //1) Set states to delete requested so we know if we have left the app in a bad state later
-        CommCareApplication._().setAppResourceState(CommCareApplication.STATE_DELETE_REQUESTED);
-        this.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(this);
-        //2) Teardown the sandbox for this app
-        app.teardownSandbox();   
-        //3) Delete all the user databases associated with this app
-        SqlStorage<UserKeyRecord> userDatabase = CommCareApplication._().
-                getAppStorage(UserKeyRecord.class);
-        for (UserKeyRecord user : userDatabase) {
-            boolean deleted = c.getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
-            if (!deleted) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was not properly deleted" +
-                        "during app uninstall");
-            }
-        }
-        //4) Delete the app database
-        boolean deleted = c.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().
-                getApplicationId())).delete();
-        if (!deleted) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was not properly deleted" +
-                    "during app uninstall");
-        }
-        //5) Delete the ApplicationRecord
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).remove(this.getID());
-        //6) Reset the appResourceState in CCApplication
-        CommCareApplication._().setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
-    }
-
 }
