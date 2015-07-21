@@ -68,7 +68,6 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             HttpCalloutOutcomes outcome;
 
             try {
-
                 HttpResponse response = doHttpRequest();
                 
                 int responseCode = response.getStatusLine().getStatusCode();
@@ -80,11 +79,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
                 } else {
                     outcome = doResponseOther(response);
                 }
-            } catch (ClientProtocolException e) {
-                //This is a general HTTP exception, basically 
-                outcome = HttpCalloutOutcomes.NetworkFailure;
-            } catch (UnknownHostException e) {
-                //HTTP Error 
+            } catch (ClientProtocolException | UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             } catch(SSLPeerUnverifiedException e){
                 // Couldn't get a valid SSL certificate
@@ -92,10 +87,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             } catch (IOException e) {
                 //This is probably related to local files, actually 
                 outcome = HttpCalloutOutcomes.NetworkFailure;
-            } finally {
-                
             }
-            
+
             //If we needed the callout to succeed and it didn't, return our failure.
             if(outcome != HttpCalloutOutcomes.Success) {
                 //TODO:Cleanup?
