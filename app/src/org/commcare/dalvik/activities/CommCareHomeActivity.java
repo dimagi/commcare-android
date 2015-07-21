@@ -1204,22 +1204,22 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     /**
      * Called in the event that we are leaving the CCHomeActivity (generally due to there no
-     * longer being an active session). Makes the decision of which prior screen or application
-     * state to return to, depending on the state of all currently installed CC apps.
+     * longer being an active session). Decides between 3 possible options for which prior screen
+     * or application state we want to return to, depending on the state of all currently installed
+     * CC apps.
      */
     private void returnToInitialScreen() {
-        // 1) If there is exactly one visible app and it's missing its MM, redirect to MM
-        // verification (because we're assuming the user is not using multiple apps)
-        if (CommCareApplication._().getVisibleAppRecords().size() == 1 && 
-                CommCareApplication._().getReadyAppRecords().size() == 0) {
+
+        // 1) Check if user should be redirected to MM verification
+        if (CommCareApplication._().shouldSeeMMVerification()) {
             ApplicationRecord r = CommCareApplication._().getVisibleAppRecords().get(0);
             CommCareApplication._().initializeAppResources(new CommCareApp(r));
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         }
 
-        // 2) If there are multiple apps installed and none are verified,
-        // display an error message and then close the app
+        // 2) If there are multiple apps installed and none have MM verified, display an error
+        // message and then close the app
         else if (CommCareApplication._().getVisibleAppRecords().size() > 1 
                 && CommCareApplication._().getReadyAppRecords().size() == 0) {
             CommCareApplication._().triggerHandledAppExit(this, 

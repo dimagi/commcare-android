@@ -467,6 +467,16 @@ public class CommCareApplication extends Application {
         return ready;
     }
 
+    /**
+     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
+     * that this should occur only if there is exactly one visible app and it is missing its MM
+     * (because we are then assuming the user is not currently using multiple apps functionality)
+     */
+    public boolean shouldSeeMMVerification() {
+        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
+                CommCareApplication._().getReadyAppRecords().size() == 0);
+    }
+
     public boolean visibleAppsPresent() {
         return getVisibleAppRecords().size() > 0;
     }

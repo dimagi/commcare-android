@@ -87,17 +87,13 @@ public class CommCareVerificationActivity
     public void onResume() {
         super.onResume();
 
-        // Workaround for the possibility that CommCare screen is left off in the
-        // VerificationActivity, but then something is done on the Manager screen that means we
-        // no longer want to be there
-        boolean shouldBeHere = (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getReadyAppRecords().size() == 0);
-
-        // If not, and we were not explicitly sent here from the Manager screen, then redirect to
-        // CommCareHomeActivity
-        if (!fromManager && !shouldBeHere) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
-            this.startActivity(i);
+        // It is possible that the CommCare screen was left off in the VerificationActivity, but
+        // then something was done on the Manager screen that means we no longer want to be here --
+        // VerificationActivity should be displayed to a user only if we were explicitly sent from
+        // the manager, or if the state of installed apps calls for it
+        boolean shouldBeHere = fromManager || CommCareApplication._().shouldSeeMMVerification();
+        if (!shouldBeHere) {
+            finish();
         }
     }
     
