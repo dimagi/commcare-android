@@ -6,8 +6,9 @@ import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 
 /**
- * The previous version of ApplicationRecord in the database,
- * used for database upgrade purposes
+ * The version of ApplicationRecord that exists in databases on any pre- multiple apps version
+ * of CommCare. This class is used to read and make available an ApplicationRecord that exists in
+ * such a database (for database upgrade purposes).
  * 
  * @author amstone
  */
