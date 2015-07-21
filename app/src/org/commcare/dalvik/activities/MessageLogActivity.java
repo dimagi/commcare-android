@@ -23,10 +23,6 @@ public class MessageLogActivity extends ListActivity {
     
     boolean isMessages = false;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,18 +36,11 @@ public class MessageLogActivity extends ListActivity {
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        try {
-            messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
-            this.setListAdapter(messages);
-        } catch(SessionUnavailableException sue) {
-            //TODO: login and return
-        }
+        messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
+        this.setListAdapter(messages);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
-     * 
+    /**
      * Stores the path of selected form and finishes.
      */
     @Override

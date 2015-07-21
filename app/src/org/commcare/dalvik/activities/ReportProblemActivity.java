@@ -21,10 +21,6 @@ import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends CommCareActivity<ReportProblemActivity> implements OnClickListener {
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,10 +31,6 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         ((TextView)findViewById(R.id.ReportPrompt01)).setText(this.localize("problem.report.prompt"));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
     @Override
     public void onClick(View v) {
         EditText mEdit = (EditText)findViewById(R.id.ReportText01);
@@ -89,8 +81,8 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         String postURL = ReportProblemActivity.getPostURL();
         String version= ReportProblemActivity.getVersion();
         String username = ReportProblemActivity.getUser();
-
-        String message = "Problem reported via CommCareODK. " +
+        
+        return "Problem reported via CommCareODK. " +
                 "\n User: " + username +
                 "\n Domain: " + domain +
                 "\n PostURL: " + postURL +
@@ -99,7 +91,6 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
                 "\n Manufacturer: " + Build.MANUFACTURER +
                 "\n Android Version: " + Build.VERSION.RELEASE +
                 "\n Message: " + userInput;
-        return message;
     }
 
     public void sendReportEmail(String report){

@@ -100,10 +100,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
          * Initialise handlers for incrementing/decrementing dates
          */
         mDayHandler = new Handler() {
-            /*
-             * (non-Javadoc)
-             * @see android.os.Handler#handleMessage(android.os.Message)
-             */
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -119,10 +115,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         };
         
         mMonthHandler = new Handler() {
-            /*
-             * (non-Javadoc)
-             * @see android.os.Handler#handleMessage(android.os.Message)
-             */
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -138,10 +130,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         };
         
         mYearHandler = new Handler() {
-            /*
-             * (non-Javadoc)
-             * @see android.os.Handler#handleMessage(android.os.Message)
-             */
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
@@ -172,10 +160,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         
         // button click listeners
         btnDayUp.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -185,10 +169,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
         
         btnMonthUp.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -198,10 +178,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
        
         btnYearUp.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -211,10 +187,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
 
         btnDayDown.setOnClickListener(new View.OnClickListener() {    
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -224,10 +196,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
 
         btnMonthDown.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -237,10 +205,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
 
         btnYearDown.setOnClickListener(new View.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -328,9 +292,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      */
     protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+    /**
      * Resets date to today
      */
     @Override
@@ -341,10 +303,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         updateGregorianDateHelperDisplay();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     * Return the date for storing in ODK 
+    /**
+     * @return the date for storing in ODK 
      */
     @Override
     public IAnswerData getAnswer() {
@@ -352,10 +312,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         return new DateData(date);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -364,10 +320,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         //super.setOnLongClickListener(l);
@@ -528,10 +480,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             mView = mV;
             mHandler = mH;
         }
-        /*
-         * (non-Javadoc)
-         * @see android.view.View.OnTouchListener#onTouch(android.view.View, android.view.MotionEvent)
-         */
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             boolean isReleased = event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL;
@@ -557,10 +505,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             mView = mV;
             mHandler = mH;
         }
-        /*
-         * (non-Javadoc)
-         * @see android.view.View.OnKeyListener#onKey(android.view.View, int, android.view.KeyEvent)
-         */
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             boolean isKeyOfInterest = keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER;

@@ -46,70 +46,42 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     
     CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
-         */
         @Override
         public void connectTask(CommCareTask task) {
             // TODO Auto-generated method stub
             
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startBlockingForTask(int)
-         */
         @Override
         public void startBlockingForTask(int id) {
             // TODO Auto-generated method stub
             
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopBlockingForTask(int)
-         */
         @Override
         public void stopBlockingForTask(int id) {
             // TODO Auto-generated method stub
             
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
-         */
         @Override
         public void taskCancelled(int id) {
             // TODO Auto-generated method stub
             
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
-         */
         @Override
         public Object getReceiver() {
             // TODO Auto-generated method stub
             return null;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#startTaskTransition()
-         */
         @Override
         public void startTaskTransition() {
             // TODO Auto-generated method stub
             
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTaskConnector#stopTaskTransition()
-         */
         @Override
         public void stopTaskTransition() {
             // TODO Auto-generated method stub
@@ -118,9 +90,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         
     };
 
-    /* (non-Javadoc)
-     * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
-     */
     @Override
     public void onReceive(Context context, Intent intent) {
         if(!intent.hasExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID)) {
@@ -149,18 +118,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             tryLocalLogin(context, username, password);
         } else if(b.getString("commcareaction").equals("sync")) {
             
-            boolean formsToSend = checkAndStartUnsentTask(context, new ProcessTaskListener() {
+            boolean formsToSend = checkAndStartUnsentTask(context);
 
-                public void processTaskAllProcessed() {
-                    //Don't cancel the dialog, we need it to stay in the foreground to ensure things are set
-                }
-                
-                public void processAndSendFinished(int result, int successfulSends) {
-
-                }
-
-            });
-            
             if(!formsToSend) {
                 //No unsent forms, just sync
                 syncData(context);
@@ -171,8 +130,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
     
     
-    protected boolean checkAndStartUnsentTask(final Context context, ProcessTaskListener listener) throws SessionUnavailableException {
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+    protected boolean checkAndStartUnsentTask(final Context context) {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
@@ -184,12 +143,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
-
-
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                 */
                 @Override
                 protected void deliverResult(Object receiver, Integer result) {
                     if(result == FormUploadUtil.FULL_SUCCESS) {
@@ -203,20 +156,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                     }
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                 */
                 @Override
                 protected void deliverUpdate(Object receiver, Long... update) {
                     // TODO Auto-generated method stub
                     
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                 */
                 @Override
                 protected void deliverError(Object receiver, Exception e) {
                     // TODO Auto-generated method stub
@@ -224,7 +169,13 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
                 
             };
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+            try {
+                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+            } catch (SessionUnavailableException e) {
+                // if the session expired don't launch the process
+                return false;
+            }
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -233,18 +184,20 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             return false;
         }
     }
-    
+
     private void syncData(final Context c) {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            // if the session expired don't launch the process
+            return;
+        }
+
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url",c.getString(R.string.ota_restore_url)), "", c) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-             */
             @Override
             protected void deliverResult(Object receiver, Integer result) {
                 if(result != DataPullTask.DOWNLOAD_SUCCESS) {
@@ -254,20 +207,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-             */
             @Override
             protected void deliverUpdate(Object receiver, Integer... update) {
                 // TODO Auto-generated method stub
                 
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-             */
             @Override
             protected void deliverError(Object receiver, Exception e) {
                 // TODO Auto-generated method stub
@@ -337,10 +282,6 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
 
             }) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                 */
                 @Override
                 protected void deliverUpdate(Object r, String... update) {
                 }

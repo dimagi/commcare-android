@@ -68,10 +68,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     int zX = -1;
     int zY = -1;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,11 +141,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         mGestureDetector = new GestureDetector();
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -161,10 +152,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -291,10 +278,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -307,10 +290,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -328,10 +307,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         showView(home, AnimationType.zoomout);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
-     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -366,11 +341,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 
     boolean mBeenSwiped;
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onTouchEvent(android.view.MotionEvent)
-     */
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         /*
@@ -493,8 +463,8 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
                 empty = false;
             }
         }
-        if(empty) { return null; };
-        
+        if(empty) { return null; }
+
         Calendar c = Calendar.getInstance();
         c.setTime(dotsData.anchor());
         c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);

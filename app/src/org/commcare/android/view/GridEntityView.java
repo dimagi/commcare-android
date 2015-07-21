@@ -14,7 +14,6 @@ import org.commcare.util.GridStyle;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathUnhandledException;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import android.annotation.SuppressLint;
@@ -25,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
@@ -32,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Space;
 import android.widget.TextView;
+
+import java.util.Arrays;
 
 /**
  * @author wspride
@@ -48,6 +50,7 @@ public class GridEntityView extends GridLayout {
 	private GridCoordinate[] coords;
 	private GridStyle[] styles;
 	Object[] mRowData;
+    View[] mRowViews;
 	boolean mFuzzySearchEnabled = false;
 	boolean mIsAsynchronous = false;
 	
@@ -82,8 +85,7 @@ public class GridEntityView extends GridLayout {
 	public double rowHeight;
 	public double rowWidth;
 	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
-	private AudioController controller;
-	
+
 	/**
 	 * Used to create a entity view tile outside of a managed context (like 
 	 * for an individual entity out of a search context).
@@ -92,8 +94,8 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, AudioController controller) {
-	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), controller, false);
+	public GridEntityView(Context context, Detail detail, Entity entity) {
+	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), false);
 	}
 	
 	/**
@@ -105,14 +107,12 @@ public class GridEntityView extends GridLayout {
 	 * @param entity
 	 * @param searchTerms
 	 * @param mLoader
-	 * @param controller
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, AudioController controller, boolean fuzzySearchEnabled) {
+	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
-		this.controller = controller;
-		this.mIsAsynchronous = entity instanceof AsyncEntity;		
+		this.mIsAsynchronous = entity instanceof AsyncEntity;
 		
 		int maximumRows = this.getMaxRows(detail);
 		this.NUMBER_ROWS_PER_GRID = maximumRows;
@@ -251,6 +251,9 @@ public class GridEntityView extends GridLayout {
 		coords = detail.getGridCoordinates();
 		styles = detail.getGridStyles();
 		mRowData = entity.getData();
+        mRowViews = new View[mRowData.length];
+
+        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(mRowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
 		
 		String[] bgData = entity.getBackgroundData();
 		
@@ -258,15 +261,20 @@ public class GridEntityView extends GridLayout {
 		
 		// see if any entities have background data set
 		for(int i=0; i<bgData.length; i++){
-			if(!bgData[i].equals("")){
-				if(bgData[i].equals(("red-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-				} else if(bgData[i].equals(("yellow-border"))){
-					this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-				} else if(bgData[i].equals(("red-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
-                } else if(bgData[i].equals(("yellow-background"))){
-                    this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+			if(!"".equals(bgData[i])){
+                switch (bgData[i]) {
+                    case ("red-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
+                        break;
+                    case ("yellow-border"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
+                        break;
+                    case ("red-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
+                        break;
+                    case ("yellow-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                        break;
                 }
 			}
 		}
@@ -318,10 +326,11 @@ public class GridEntityView extends GridLayout {
 			}
 
 			mView.setLayoutParams(mGridParams);
+
+            mRowViews[i] = mView;
 		
 			this.addView(mView, mGridParams);
 		}
-        
 	}
 	
 	/**
@@ -340,49 +349,58 @@ public class GridEntityView extends GridLayout {
 	 */
 	private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
 		View retVal;
-		if(multimediaType.equals(EntityView.FORM_IMAGE)){
-			retVal = new ImageView(context);
-	        if(horzAlign.equals("center")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
-	        } else if(horzAlign.equals("left")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
-	        } else if(horzAlign.equals("right")) {
-	            ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
-	        }  
-			retVal.setPadding(CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL,CELL_PADDING_HORIZONTAL,CELL_PADDING_VERTICAL);
-			// image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
-			if(rowData != null && !rowData.equals("")){
-			    if(mImageLoader != null){
-			        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
-			    } else{
-			        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
-			        ((ImageView)retVal).setImageBitmap(b);
-			    }
-			}
-		} 
-		else if(multimediaType.equals(EntityView.FORM_AUDIO)){
-            retVal = new AudioButton(context, rowData, uniqueId,
-                    controller, (rowData != null && rowData.length() > 0));
-		} else{
-			retVal = new TextView(context);
-			
-			//the html spanner currently does weird stuff like converts "a  a" into "a a"
-			//so we've gotta mirror that for the search text. Booooo. I dunno if there's any
-			//other other side effects (newlines? nbsp?)
-			
-			String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
-			
-			if(cssid !=null && !cssid.equals("none")){
-			    // user defined a style we want to use
-			    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			} else{
-			    // just process inline markup 
-			    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
-			    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
-			    ((TextView)retVal).setText(mSpannable);
-			}
+        switch (multimediaType) {
+            case EntityView.FORM_IMAGE:
+                retVal = new ImageView(context);
+                switch(horzAlign){
+                    case "center":
+                        ((ImageView)retVal).setScaleType(ScaleType.CENTER_INSIDE);
+                        break;
+                    case "left":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_START);
+                        break;
+                    case "right":
+                        ((ImageView)retVal).setScaleType(ScaleType.FIT_END);
+                        break;
+                }
+                retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
+                // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
+                if (rowData != null && !rowData.equals("")) {
+                    if (mImageLoader != null) {
+                        mImageLoader.display(rowData, ((ImageView)retVal), R.drawable.info_bubble);
+                    } else {
+                        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+                        ((ImageView)retVal).setImageBitmap(b);
+                    }
+                }
+                break;
+            case EntityView.FORM_AUDIO:
+                if (rowData != null & rowData.length() > 0) {
+                    retVal = new AudioButton(context, rowData, uniqueId, true);
+                } else {
+                    retVal = new AudioButton(context, rowData, uniqueId, false);
+                }
+                break;
+            default:
+                retVal = new TextView(context);
+
+                //the html spanner currently does weird stuff like converts "a  a" into "a a"
+                //so we've gotta mirror that for the search text. Booooo. I dunno if there's any
+                //other other side effects (newlines? nbsp?)
+
+                String htmlIfiedSearchField = searchField == null ? searchField : MarkupUtil.getSpannable(searchField).toString();
+
+                if (cssid != null && !cssid.equals("none")) {
+                    // user defined a style we want to use
+                    Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                } else {
+                    // just process inline markup
+                    Spannable mSpannable = MarkupUtil.returnCSS(rowData);
+                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    ((TextView)retVal).setText(mSpannable);
+                }
 
 			// handle horizontal alignments
 			if(horzAlign.equals("center")){
@@ -417,5 +435,26 @@ public class GridEntityView extends GridLayout {
 	}
     public void setSearchTerms(String[] currentSearchTerms) {
         this.searchTerms = currentSearchTerms;
+    }
+
+    public void setTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+            }
+        }
+    }
+
+    public void setTitleTextColor(int color){
+        for (int i = 0; i < mRowViews.length; i++) {
+            View v = mRowViews[i];
+            if (v == null) continue;
+            if(v instanceof TextView){
+                ((TextView)v).setTextColor(color);
+                return;
+            }
+        }
     }
 }

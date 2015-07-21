@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -25,15 +26,12 @@ import java.io.FileNotFoundException;
  *
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
-
     Context c;
     String url;
     Long[] results;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
-    
-    SqlStorage<FormRecord> storage;
+
     File dumpDirectory;
     
     public static String MALFORMED_FILE_CATEGORY = "malformed-file";
@@ -42,18 +40,14 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     
      // 5MB less 1KB overhead
     
-    public SendTask(Context c, CommCarePlatform platform, String url, File dumpDirectory) throws SessionUnavailableException{
+    public SendTask(Context c, String url, File dumpDirectory) {
         this.c = c;
         this.url = url;
-        storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         this.taskId = SendTask.BULK_SEND_ID;
         this.dumpDirectory = dumpDirectory;
-        platform = this.platform;
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
@@ -63,10 +57,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
@@ -76,9 +66,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         results = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
@@ -88,10 +75,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Boolean doTaskBackground(Void... params) {
         
@@ -143,7 +126,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                     publishProgress(Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}));
                 }
                 counter++;
-            } catch(FileNotFoundException fe){
+            } catch(SessionUnavailableException | FileNotFoundException fe){
                 Log.e("E", Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}), fe);
                 publishProgress(Localization.get("bulk.send.file.error", new String[] {fe.getMessage()}));
             }

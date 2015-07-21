@@ -16,7 +16,6 @@ package org.odk.collect.android.widgets;
 
 import java.util.Vector;
 
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -72,6 +71,8 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
                 rb.setFocusable(!prompt.isReadOnly());
+
+                rb.setBackgroundResource(R.drawable.selector_button_press);
                 
                 buttons.add(rb);
 
@@ -123,10 +124,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         for (RadioButton button : this.buttons) {
@@ -138,10 +135,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         int i = getCheckedId();
@@ -161,10 +154,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         onUserInteracton();
@@ -181,10 +170,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
-     */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         onUserInteracton();
@@ -205,10 +190,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         for (RadioButton r : buttons) {
@@ -217,10 +198,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

@@ -1,11 +1,5 @@
 package org.odk.collect.android.views;
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,6 +14,12 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+
+import java.io.File;
 
 /**
  * @author wspride
@@ -58,30 +58,18 @@ public class ResizingImageView extends ImageView {
         this.bigImageURI = bigImageURI;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#onTouchEvent(android.view.MotionEvent)
-     */
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         scaleGestureDetector.onTouchEvent(e);
         return gestureDetector.onTouchEvent(e);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.ImageView#setMaxWidth(int)
-     */
     @Override
     public void setMaxWidth(int maxWidth) {
         super.setMaxWidth(maxWidth);
         mMaxWidth = maxWidth;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.ImageView#setMaxHeight(int)
-     */
     @Override
     public void setMaxHeight(int maxHeight) {
         super.setMaxHeight(maxHeight);
@@ -89,31 +77,20 @@ public class ResizingImageView extends ImageView {
     }
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        /*
-         * (non-Javadoc)
-         * @see android.view.GestureDetector.SimpleOnGestureListener#onDown(android.view.MotionEvent)
-         */
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.view.GestureDetector.SimpleOnGestureListener#onDoubleTap(android.view.MotionEvent)
-         */
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            getSuggestedMinimumHeight();
             setFullScreen();
             return true;
         }
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        /*
-         * (non-Javadoc)
-         * @see android.view.ScaleGestureDetector.SimpleOnScaleGestureListener#onScale(android.view.ScaleGestureDetector)
-         */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
@@ -157,47 +134,21 @@ public class ResizingImageView extends ImageView {
         }
     }
 
-    public Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, Drawable drawable, double scaleFactor){
+    private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor){
 
-        int wMode = MeasureSpec.getMode(widthMeasureSpec);
-        int hMode = MeasureSpec.getMode(heightMeasureSpec);
+        int maxWidth = mMaxWidth;
+        int maxHeight = mMaxHeight;
 
-        // Calculate the most appropriate size for the view. Take into
-        // account minWidth, minHeight, maxWith, maxHeigh and allowed size
-        // for the view, then scale by the scaleFactor
-
-        int maxWidth = wMode == MeasureSpec.AT_MOST
-                ? Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth)
-                        : mMaxWidth;
-                int maxHeight = hMode == MeasureSpec.AT_MOST
-                        ? Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight)
-                                : mMaxHeight;
-
-                        float dWidth = dipToPixels(getContext(), drawable.getIntrinsicWidth());
-                        float dHeight = dipToPixels(getContext(), drawable.getIntrinsicHeight());
-                        float ratio = (dWidth) / dHeight;
-
-                        int width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
-                        int height = (int) (width / ratio);
-
-                        height = Math.min(Math.max(height, getSuggestedMinimumHeight()), maxHeight);
-                        width = (int) (height * ratio);
-
-                        if (width > maxWidth) {
-                            width = maxWidth;
-                            height = (int) (width / ratio);
-                        }
-
-                        Pair<Integer,Integer> mPair = new Pair<Integer,Integer>(new Double(width * scaleFactor).intValue(), new Double(height * scaleFactor).intValue());
-
-
-                        return mPair;
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            maxWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth);
+        }
+        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+            maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight);
+        }
+        return new Pair<Integer,Integer>(new Double(maxWidth * imageScaleFactor).intValue(), new Double(maxHeight * imageScaleFactor).intValue());
     }
 
     /*
-     * (non-Javadoc)
-     * @see android.widget.ImageView#onMeasure(int, int)
-     * 
      * The meat and potatoes of the class. Determines what algorithm to use
      * to resize the image based on the KEY_RESIZE preference. Currently can be
      * "full", "width", or "none". Will always preserve aspect ratio. 
@@ -216,7 +167,7 @@ public class ResizingImageView extends ImageView {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, drawable, 1);
+                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, 1);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
         }
@@ -224,7 +175,7 @@ public class ResizingImageView extends ImageView {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, drawable, .5);
+                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, .5);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
         }

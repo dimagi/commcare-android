@@ -15,22 +15,14 @@ import org.xmlpull.v1.XmlPullParserException;
 public class MetaDataXmlParser extends TransactionParser<String[]> {
 
     public MetaDataXmlParser(KXmlParser parser) {
-        super(parser, "meta", null);
+        super(parser);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-     */
     @Override
     public void commit(String[] data) throws IOException {
         //nothing;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
     @Override
     public String[] parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("meta");

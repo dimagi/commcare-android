@@ -9,6 +9,7 @@ import java.util.Hashtable;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.user.models.EntityStorageCache;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.DetailField;
@@ -121,10 +122,6 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.models.Entity#getNormalizedField(int)
-     */
     @Override
     public String getNormalizedField(int i) {
         String normalized = this.getSortField(i);
@@ -135,8 +132,13 @@ public class AsyncEntity extends Entity<TreeReference>{
     @Override
     public String getSortField(int i) {
         //Get a db handle so we can get an outer lock
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
-        
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            return null;
+        }
+
         //get the db lock
         db.beginTransaction();
         try {
@@ -192,10 +194,6 @@ public class AsyncEntity extends Entity<TreeReference>{
         return fields.length;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.models.Entity#isValidField(int)
-     */
     @Override
     public boolean isValidField(int i) {
         //NOTE: This totally jacks the asynchronicity. It's only used in

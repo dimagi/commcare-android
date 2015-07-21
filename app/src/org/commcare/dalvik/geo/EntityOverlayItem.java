@@ -18,9 +18,6 @@ public class EntityOverlayItem extends OverlayItem {
         super(gp, big, small);
         this.custom = custom;
     }
-    /* (non-Javadoc)
-     * @see com.google.android.maps.OverlayItem#getMarker(int)
-     */
     @Override
     public Drawable getMarker(int stateBitset) {
         if(custom == null) {

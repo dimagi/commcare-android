@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -18,6 +19,7 @@ import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.references.JavaHttpReference;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -71,10 +73,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         mCaseIndexTable = new CaseIndexTable();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#removeAttachment(org.commcare.cases.model.Case, java.lang.String)
-     */
     @Override
     protected void removeAttachment(Case caseForBlock, String attachmentName) {
         if(!processAttachments) { return;}
@@ -89,16 +87,23 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         //Handle these cases better later.
         try {
             ReferenceManager._().DeriveReference(source).remove();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidReferenceException e) {
+        } catch (InvalidReferenceException | IOException e) {
             e.printStackTrace();
         }
     }
-    
+
+    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
+        return CommCareApplication._().getUserDbHandle();
+    }
+
     @Override
     public void commit(Case parsed) throws IOException {
-        SQLiteDatabase db = getDbHandle();
+        SQLiteDatabase db;
+        try {
+            db = getDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException("User database closed while parsing");
+        }
         db.beginTransaction();
         try {
             super.commit(parsed);
@@ -110,15 +115,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             db.endTransaction();
         }
     }
-    
-    protected SQLiteDatabase getDbHandle() {
-        return CommCareApplication._().getUserDbHandle();
-    }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
-     */
+
     @Override
     protected String processAttachment(String src, String from, String name, KXmlParser parser) {
         if(!processAttachments) { return null;}
@@ -220,9 +217,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.xml.CaseXmlParser#CreateCase(java.lang.String, java.lang.String)
-     */
     @Override
     protected Case CreateCase(String name, String typeId) {
         return new ACase(name, typeId);

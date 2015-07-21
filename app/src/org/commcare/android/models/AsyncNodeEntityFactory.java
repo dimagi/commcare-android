@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
 import java.util.Hashtable;
@@ -10,9 +7,12 @@ import java.util.Vector;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import android.util.Log;
+
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
@@ -27,9 +27,9 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 /**
  * @author ctsims
- *
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
+    private static final String TAG = AsyncNodeEntityFactory.class.getSimpleName();
 
     User current; 
     
@@ -53,7 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
+    public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         
         mCacheHost = nodeContext.getCacheHost(data);
@@ -66,7 +66,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
         } 
         if(mTemplateIsCachable) {
-            if(mCacheHost == null) { System.out.println("Template is cachable, but there's no cache host for this instance?"); }
+            if(mCacheHost == null) { Log.d(TAG, "Template is cachable, but there's no cache host for this instance?"); }
             else {
                 mCacheIndex = mCacheHost.getCacheIndex(data);
             }
@@ -80,7 +80,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return entity;
     }
     
-    public void primeCache() {
+    private void primeCache() {
         if(mTemplateIsCachable == null || mTemplateIsCachable == false || mCacheHost == null ) { return; }
         
         String[][] cachePrimeKeys = mCacheHost.getCachePrimeGuess();
@@ -130,8 +130,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
         
         long now = System.currentTimeMillis();
-        
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            // TODO PLM: not sure how to fail elegantly here, so mimicking
+            // current behaviour by raising a runtime error.
+            throw new UserStorageClosedException(e.getMessage());
+        }
         
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
@@ -152,7 +159,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         walker.close();
         
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            System.out.println("Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
+            Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
         }
     }
     

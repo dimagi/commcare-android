@@ -11,16 +11,11 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.cases.model.CaseIndex;
-import org.commcare.resources.model.Resource;
-import org.commcare.resources.model.ResourceInstaller;
-import org.commcare.resources.model.ResourceLocation;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
@@ -45,9 +40,6 @@ public class ACasePreV6Model extends ACase {
         
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.Resource#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         typeId = ExtUtil.readString(in);
@@ -60,10 +52,6 @@ public class ACasePreV6Model extends ACase {
         data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, typeId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
@@ -84,9 +72,7 @@ public class ACasePreV6Model extends ACase {
             
         }
 
-        /* (non-Javadoc)
-         * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-         */
+        @Override
         public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
             mName = ExtUtil.readString(in);
             mTargetId = ExtUtil.readString(in);
@@ -94,9 +80,7 @@ public class ACasePreV6Model extends ACase {
             mRelationship = CaseIndex.RELATIONSHIP_CHILD;
         }
 
-        /* (non-Javadoc)
-         * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-         */
+        @Override
         public void writeExternal(DataOutputStream out) throws IOException {
             ExtUtil.writeString(out, mName);
             ExtUtil.writeString(out, mTargetId);

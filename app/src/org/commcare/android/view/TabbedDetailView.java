@@ -3,6 +3,8 @@ package org.commcare.android.view;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -13,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.DisplayData;
@@ -32,9 +36,9 @@ public class TabbedDetailView extends RelativeLayout {
     private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
     private ViewPager mViewPager;
     private View mViewPagerWrapper;
-    
+
     private int mAlternateId = -1;
-    
+
     public TabbedDetailView(Context context) {
         this(context, -1);
     }
@@ -55,6 +59,7 @@ public class TabbedDetailView extends RelativeLayout {
 
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        if(isInEditMode()) return;
         mContext = (FragmentActivity) context;
     }
     
@@ -96,62 +101,16 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Populate view with content from given Detail.
      */
-    public void setDetail(Detail detail) {
-        Detail[] details = detail.getDetails();
-
-        LinearLayout.LayoutParams pagerLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        int margin = 0;
-        int menuVisibility = View.GONE;
-        int backgroundColor = Color.TRANSPARENT;
-
-        if (details.length > 0) {
-            mMenu.setWeightSum(details.length);
-            LinearLayout.LayoutParams fillLayout = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, 
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1
-            );
-
-            for (Detail d : details) {
-                OnClickListener listener = new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int index = ((ViewGroup) v.getParent()).indexOfChild(v);
-                        mViewPager.setCurrentItem(index, true);
-                        markSelectedTab(index);
-                    }
-                };
-                
-                // Create MenuListEntryView for tab
-                HorizontalMediaView view = new HorizontalMediaView(mContext);
-                DisplayData title = d.getTitle().evaluate();
-                view.setAVT(title.getName(), title.getAudioURI(), title.getImageURI());
-                view.setGravity(Gravity.CENTER);
-                view.setClickable(true);
-                view.setOnClickListener(listener);
-                view.setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-                mMenu.addView(view, fillLayout);                    
-            }
-            markSelectedTab(0);
-            menuVisibility = View.VISIBLE;
-            backgroundColor = mContext.getResources().getColor(R.color.yellow_green);
-            margin = (int) getResources().getDimension(R.dimen.spacer);
-            pagerLayout.setMargins(0, margin, margin, margin);
-        }
-
-        mMenu.setVisibility(menuVisibility);
-        mViewPagerWrapper.setBackgroundColor(backgroundColor);
-        pagerLayout.setMargins(0, margin, margin, margin);
-        mViewPager.setLayoutParams(pagerLayout);
-    }
+    public void setDetail(Detail detail) { mMenu.setVisibility(VISIBLE); }
     
     /*
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
-        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference, hasDetailCalloutListener);
+        mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
+                hasDetailCalloutListener, new DefaultEDVModifier()
+        );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
-        markSelectedTab(0);
     }
 
     /*
@@ -183,5 +142,30 @@ public class TabbedDetailView extends RelativeLayout {
     public int getTabCount() {
         return mViewPager.getAdapter().getCount();
     }
-    
+
+    //region Private classes
+
+    private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
+        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
+
+        public DefaultEDVModifier() {
+        }
+
+        @Override
+        public void modifyEntityDetailView(EntityDetailView edv) {
+            edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
+        }
+
+        @Override
+        public int describeContents() {
+            return rowColors[0] ^ rowColors[1];
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+        }
+    }
+
+    //endregion
 }

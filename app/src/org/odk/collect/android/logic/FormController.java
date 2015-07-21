@@ -73,7 +73,7 @@ public class FormController {
         InstanceMetadata( String instanceId ) {
             this.instanceId = instanceId;
         }
-    };
+    }
 
 
     public FormController(FormEntryController fec) {
@@ -456,8 +456,6 @@ public class FormController {
 
     /**
      * Creates a new repeated instance of the group referenced by the current FormIndex.
-     * 
-     * @param questionIndex
      */
     public void newRepeat() {
         mFormEntryController.newRepeat();

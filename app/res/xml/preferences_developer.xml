@@ -24,7 +24,9 @@ the License.
         android:entries="@array/pref_enabled_lables"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-action-nav-enabled"
-        android:title="Action Bar Enabled" />
+        android:title="Action Bar Enabled"
+        android:defaultValue="yes"
+        />
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_lables"
@@ -36,7 +38,9 @@ the License.
         android:entries="@array/pref_enabled_lables"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-nav-ui-enabled"
-        android:title="Navigation UI" />
+        android:title="Navigation UI"
+        android:defaultValue="yes"
+        />
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_lables"

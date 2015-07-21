@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import android.util.Log;
+
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.android.util.FileUtil;
@@ -35,9 +37,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class SuiteAndroidInstaller extends FileSystemInstaller {
+    private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
     
     public SuiteAndroidInstaller() {
         
@@ -48,9 +50,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
+    @Override
     public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
         
         try {
@@ -60,10 +60,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
     
             SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(),null) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -102,10 +98,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             
             SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid()) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -141,23 +133,17 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
     }
@@ -166,19 +152,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try{
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     //shouldn't be necessary
                     return null;
                 }
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#inValidationMode()
-                 */
                 @Override
                 protected boolean inValidationMode(){
                     return true;
@@ -207,7 +185,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         }
         catch(Exception e){
             Logger.log("e", "suite validation failed with: " + e.getMessage());
-            System.out.println("Suite validation failed");
+            Log.d(TAG, "Suite validation failed");
             e.printStackTrace();
         }
 

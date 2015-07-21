@@ -1,10 +1,11 @@
-
 package org.odk.collect.android.views;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -36,23 +38,21 @@ import java.util.HashMap;
 /**
  * @author carlhartung
  */
-public class ODKView extends ScrollView implements OnLongClickListener, WidgetChangedListener {
+public class ODKView extends ScrollView
+        implements OnLongClickListener, WidgetChangedListener {
 
     // starter random number for view IDs
     private final static int VIEW_ID = 12345;  
     
-    private final static String t = "CLASSNAME";
-    private final static int TEXTSIZE = 21;
-    
-    private Context mContext;
+    private static final String TAG = ODKView.class.getSimpleName();
 
-    private LinearLayout mView;
-    private LinearLayout.LayoutParams mLayout;
-    private ArrayList<QuestionWidget> widgets;
-    private ArrayList<View> dividers;
+    private final LinearLayout mView;
+    private final LinearLayout.LayoutParams mLayout;
+    private final ArrayList<QuestionWidget> widgets;
+    private final ArrayList<View> dividers;
     private ProgressBar mProgressBar;
     
-    private int mQuestionFontsize;
+    private final int mQuestionFontsize;
 
     public final static String FIELD_LIST = "field-list";
     
@@ -63,26 +63,17 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
-
-
-    public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory) {
-        this(context, new FormEntryPrompt[] {
-            questionPrompt
-        }, groups, factory);
-    }
     
-    public ODKView(Context context, FormEntryPrompt questionPrompt, FormEntryCaption[] groups, WidgetFactory factory, WidgetChangedListener wcl) {
-        this(context, new FormEntryPrompt[] {
-            questionPrompt
-        }, groups, factory, wcl, false);
-    }
-    
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts, FormEntryCaption[] groups, WidgetFactory factory) {
-        this(context, questionPrompts, groups, factory, null, false);
-    }
+    private final SpannableStringBuilder mGroupLabel;
 
+    /**
+     * If enabled, we use dividers between question prompts
+     */
+    private static final boolean SEPERATORS_ENABLED = false;
 
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts, FormEntryCaption[] groups, WidgetFactory factory, WidgetChangedListener wcl, boolean isGroup) {
+    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
+                   FormEntryCaption[] groups, WidgetFactory factory,
+                   WidgetChangedListener wcl) {
         super(context);
         
         if(wcl !=null){
@@ -96,19 +87,16 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
 
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font);
         
-        mContext = context;
-
         widgets = new ArrayList<QuestionWidget>();
         dividers = new ArrayList<View>();
 
-        mView = new LinearLayout(getContext());
-        mView.setOrientation(LinearLayout.VERTICAL);
-        mView.setGravity(Gravity.TOP);
-        mView.setPadding(0, 7, 0, 0);
+        View layout = inflate(getContext(), R.layout.odkview_layout, null);
+
+        mView = (LinearLayout) layout.findViewById(R.id.odkview_layout);
         
-        if(PreferencesActivity.getProgressBarMode(mContext) == ProgressBarMode.ProgressOnly) {
+        if(PreferencesActivity.getProgressBarMode(context) == ProgressBarMode.ProgressOnly) {
             this.mProgressEnabled = true;
         }
 
@@ -126,14 +114,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             LinearLayout barView = new LinearLayout(getContext());
             barView.setOrientation(LinearLayout.VERTICAL);
             barView.setGravity(Gravity.BOTTOM);
-            barView.addView((View) mProgressBar);
+            barView.addView(mProgressBar);
             mView.addView(barView, barLayout);
         }
 
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-        mLayout.setMargins(10, 0, 10, 0);
 
         //Figure out if we share hint text between questions
         String hintText = null;
@@ -153,7 +140,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
 
         // display which group you are in as well as the question
-        addGroupText(groups);
+        mGroupLabel = deriveGroupText(groups);
         
         addHintText(hintText);
         
@@ -163,8 +150,12 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             
             if (!first) {
                 View divider = new View(getContext());
-                divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-                divider.setMinimumHeight(3);
+                if(SEPERATORS_ENABLED) {
+                    divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+                    divider.setMinimumHeight(3);
+                } else {
+                    divider.setMinimumHeight(0);
+                }
                 dividers.add(divider);
                 mView.addView(divider);
             } else {
@@ -183,22 +174,28 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             }
 
             widgets.add(qw);
-            mView.addView((View) qw, mLayout);
+            mView.addView(qw, mLayout);
             
             qw.setChangedListener(this);
         }
         
         updateLastQuestion();
-        
-        addView(mView);
+
+        addView(layout);
     }
     
-    public void removeQuestionFromIndex(int i){
-        mView.removeView((View) widgets.get(i));
+    void removeQuestionFromIndex(int i){
         int dividerIndex = Math.max(i - 1, 0);
-        mView.removeView(dividers.get(dividerIndex));
-        widgets.remove(i);
-        dividers.remove(dividerIndex);
+
+        if (dividerIndex < dividers.size()) {
+            mView.removeView(dividers.get(dividerIndex));
+            dividers.remove(dividerIndex);
+        }
+
+        if (i < widgets.size()) {
+            mView.removeView(widgets.get(i));
+            widgets.remove(i);
+        }
     }
     
     public void removeQuestionsFromIndex(ArrayList<Integer> indexes){
@@ -208,15 +205,18 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         Collections.reverse(indexes);
         
         for(int i=0; i< indexes.size(); i++){
-            removeQuestionFromIndex(indexes.get(i).intValue());
+            removeQuestionFromIndex(indexes.get(i));
         }
     }
     
     public void addQuestionToIndex(FormEntryPrompt fep, WidgetFactory factory, int i){
-
         View divider = new View(getContext());
-        divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
-        divider.setMinimumHeight(3);
+        if(SEPERATORS_ENABLED) {
+            divider.setBackgroundResource(android.R.drawable.divider_horizontal_bright);
+            divider.setMinimumHeight(3);
+        } else {
+            divider.setMinimumHeight(0);
+        }
         int dividerIndex = mViewBannerCount;
         if(i > 0) {
             dividerIndex += 2 * i - 1;
@@ -224,7 +224,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         mView.addView(divider, getViewIndex(dividerIndex));
         dividers.add(Math.max(0, i - 1), divider);
         
-        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());;
+        QuestionWidget qw = factory.createWidgetFromPrompt(fep, getContext());
         qw.setLongClickable(true);
         qw.setOnLongClickListener(this);
         qw.setId(VIEW_ID + widgetIdCount++);
@@ -235,7 +235,7 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
 //        }
 
         widgets.add(i, qw);
-        mView.addView((View) qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
+        mView.addView(qw, getViewIndex(2 * i + mViewBannerCount), mLayout);
         
         qw.setChangedListener(this);
     }
@@ -256,9 +256,6 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         return answers;
     }
     
-    /* (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -272,16 +269,6 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
         
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-                
-//        double change = ((this.getMeasuredHeight() * 1.0 - gmh) / this.getMeasuredHeight()); 
-//        System.out.println("Old: " + gmh + ". New: "+ this.getMeasuredHeight() + ". CurrentHeight: " + height);
-//        
-//        if(gmh == -1 || gmh == 0 || change > .2) {
-//            //If the view size change has changed by more than 20% 
-//            if(mHelpText != null) {
-//                mHelpText.updateMaxHeight((this.getMeasuredHeight() - this.getScrollY())/ 3);
-//            }
-//        }
     }
     
     private void updateConstraintRelevancies(){
@@ -303,40 +290,53 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
     }
 
     /**
-     * // * Add a TextView containing the hierarchy of groups to which the question belongs. //
+     * Returns the hierarchy of groups to which the question belongs.
      */
-    private void addGroupText(FormEntryCaption[] groups) {
-        StringBuffer s = new StringBuffer("");
+    private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
+        SpannableStringBuilder s = new SpannableStringBuilder("");
         String t = "";
+        String m = "";
         int i;
         // list all groups in one string
         for (FormEntryCaption g : groups) {
             i = g.getMultiplicity() + 1;
             t = g.getLongText();
-            if (t != null) {
-                s.append(t);
-                if (g.repeats() && i > 0) {
-                    s.append(" (" + i + ")");
-                }
-                s.append(" > ");
-            }
-        }
+            m = g.getMarkdownText();
 
-        // build view
-        if (s.length() > 0) {
-            TextView tv = new TextView(getContext());
-            tv.setText(s.substring(0, s.length() - 3));
-            tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE - 4);
-            tv.setPadding(0, 0, 0, 5);
-            mView.addView(tv, mLayout);
-            mViewBannerCount ++;
+            if(m != null){
+                Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
+                s.append(markdownSpannable);
+            }
+            else if (t != null) {
+                s.append(t);
+            }
+
+            if (g.repeats() && i > 0) {
+                s.append(" (" + i + ")");
+            }
+            s.append(" > ");
         }
+        
+        //remove the trailing " > "
+        if(s.length() > 0) {
+            s.delete(s.length() - 2, s.length());
+        }
+        
+        return s;
+    }
+    
+    
+    /**
+     * Ugh, the coupling here sucks, but this returns the group label
+     * to be used for this odk view. 
+     */
+    public SpannableStringBuilder getGroupLabel() {
+        return mGroupLabel;
     }
     
     private void addHintText(String hintText) {
         if (hintText != null && !hintText.equals("")) {
             TextView mHelpText = new TextView(getContext());
-            mHelpText = new TextView(getContext());
             mHelpText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize - 3);
             mHelpText.setPadding(0, -5, 0, 7);
             // wrap to the widget of view
@@ -348,9 +348,6 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
             mView.addView(mHelpText, mLayout);
         }
     }
-    
-    
-
 
     public void setFocus(Context context) {
         if (widgets.size() > 0) {
@@ -358,14 +355,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
     }
 
-
     /**
      * Called when another activity returns information to answer this question.
-     * 
-     * @param answer
      */
     public void setBinaryData(Object answer) {
-        
         boolean set = false;
         for (QuestionWidget q : widgets) {
             if (q instanceof IBinaryWidget) {
@@ -378,17 +371,14 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
 
         if (!set) {
-            Log.w(t, "Attempting to return data to a widget or set of widgets not looking for data");
+            Log.w(TAG, "Attempting to return data to a widget or set of widgets not looking for data");
                      
             for (QuestionWidget q : widgets) {
                 if (q instanceof IBinaryWidget) {
                     ((IBinaryWidget) q).setBinaryData(answer);
-                    set = true;
                     break;
                 }
             }
-            
-            
         }
     }
 
@@ -407,16 +397,10 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
     }
 
-
     public ArrayList<QuestionWidget> getWidgets() {
         return widgets;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#setOnFocusChangeListener(android.view.View.OnFocusChangeListener)
-     */
     @Override
     public void setOnFocusChangeListener(OnFocusChangeListener l) {
         for (int i = 0; i < widgets.size(); i++) {
@@ -425,21 +409,11 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnLongClickListener#onLongClick(android.view.View)
-     */
     @Override
     public boolean onLongClick(View v) {
         return false;
     }
     
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
@@ -448,21 +422,13 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.WidgetChangedListener#widgetEntryChanged()
-     */
     @Override
     public void widgetEntryChanged() {
-        
         updateConstraintRelevancies();
-        
         updateLastQuestion();
-        
     }
     
-    public void updateLastQuestion(){
-
+    void updateLastQuestion(){
         StringWidget last = null;
         
         for(QuestionWidget q: widgets){
@@ -505,5 +471,4 @@ public class ODKView extends ScrollView implements OnLongClickListener, WidgetCh
         }
         return questionIndex;
     }
-    
 }

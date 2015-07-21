@@ -11,6 +11,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.geo.EntityOverlay;
@@ -34,6 +35,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -46,6 +48,7 @@ import com.google.android.maps.OverlayItem;
  *
  */
 public class EntityMapActivity extends MapActivity {
+    private static final String TAG = EntityMapActivity.class.getSimpleName();
 
     MapView map;
     MyLocationOverlay mMyLocationOverlay;
@@ -58,9 +61,6 @@ public class EntityMapActivity extends MapActivity {
     EntityOverlay mEntityOverlay;
     Vector<Entity<TreeReference>> entities;
     
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -94,7 +94,7 @@ public class EntityMapActivity extends MapActivity {
             entities.add(factory.getEntity(ref));
         }
 
-        System.out.println("Entities generated");
+        Log.d(TAG, "Entities generated");
         
         map.displayZoomControls(true);
         mMyLocationOverlay = new MyLocationOverlay(this, map);
@@ -127,10 +127,6 @@ public class EntityMapActivity extends MapActivity {
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.dalvik.geo.EntityOverlay#selected(org.javarosa.core.model.instance.TreeReference)
-             */
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());
@@ -141,7 +137,7 @@ public class EntityMapActivity extends MapActivity {
                 EntityMapActivity.this.finish();                
             }
         };
-        System.out.println("Loading addresses...");
+        Log.d(TAG, "Loading addresses...");
         
         int legit = 0;
         int bogus = 0;
@@ -226,7 +222,7 @@ public class EntityMapActivity extends MapActivity {
             }
         }
         
-        System.out.println("Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
+        Log.d(TAG, "Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
 
         if(legit != 0 && mEntityOverlay.getCenter() != null) {
             map.getController().animateTo(mEntityOverlay.getCenter());
@@ -246,7 +242,7 @@ public class EntityMapActivity extends MapActivity {
         map.getController().setZoom(18);
         map.setClickable(true);
         map.setEnabled(true);
-        System.out.println("Done loading");
+        Log.d(TAG, "Done loading");
     }
     
     private String getLicenseKey() {
@@ -272,9 +268,6 @@ public class EntityMapActivity extends MapActivity {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onStop()
-     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -282,9 +275,6 @@ public class EntityMapActivity extends MapActivity {
         mMyLocationOverlay.disableMyLocation();
     }
 
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();

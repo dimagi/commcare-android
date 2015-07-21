@@ -26,16 +26,12 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
     ArrayList<UserKeyRecord> keyRecords;
 
     public KeyRecordParser(KXmlParser parser, String username, String currentpwd, ArrayList<UserKeyRecord> keyRecords) {
-        super(parser,"auth_keys", null);
+        super(parser);
         this.username = username;
         this.currentpwd = currentpwd;
         this.keyRecords = new ArrayList<UserKeyRecord>();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
     @Override
     public ArrayList<UserKeyRecord> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("auth_keys");

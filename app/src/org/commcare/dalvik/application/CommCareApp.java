@@ -27,6 +27,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
@@ -36,21 +37,23 @@ import android.content.SharedPreferences;
  * @author ctsims
  */
 public class CommCareApp {
-    ApplicationRecord record;
+    private final ApplicationRecord record;
 
-    JavaFileRoot fileRoot;
-    AndroidCommCarePlatform platform;
+    private JavaFileRoot fileRoot;
+    private final AndroidCommCarePlatform platform;
 
-    public static Object lock = new Object();
+    private static final String TAG = CommCareApp.class.getSimpleName();
+
+    private static final Object lock = new Object();
 
     // This unfortunately can't be managed entirely by the application object,
     // so we have to do some here
     public static CommCareApp currentSandbox;
 
-    private Object appDbHandleLock = new Object();
+    private final Object appDbHandleLock = new Object();
     private SQLiteDatabase appDatabase; 
     
-    public static Stylizer mStylizer;
+    private static Stylizer mStylizer;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -59,7 +62,7 @@ public class CommCareApp {
         int[] version = CommCareApplication._().getCommCareVersion();
 
         // TODO: Badly coupled
-        platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
+        platform = new AndroidCommCarePlatform(version[0], version[1], this);
     }
     
     public Stylizer getStylizer(){
@@ -73,7 +76,7 @@ public class CommCareApp {
         return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
-    public void createPaths() {
+    void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
             GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
             GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
@@ -90,7 +93,6 @@ public class CommCareApp {
     public String fsPath(String relative) {
         return storageRoot() + relative;
     }
-
 
     private void initializeFileRoots() {
         synchronized (lock) {
@@ -123,7 +125,7 @@ public class CommCareApp {
         setupSandbox(true);
     }
     
-    public void initializeStylizer() {
+    void initializeStylizer() {
         mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
@@ -145,7 +147,6 @@ public class CommCareApp {
         }
     }
 
-
     public boolean initializeApplication() {
         setupSandbox();
 
@@ -153,26 +154,18 @@ public class CommCareApp {
         ResourceTable upgrade = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
 
-        System.out.println("Global");
-        System.out.println(global.toString());
-
-        System.out.println("upgrade");
-        System.out.println(upgrade.toString());
-
-        System.out.println("recovery");
-        System.out.println(recovery.toString());
-
+        Log.d(TAG, "Global\n" + global.toString());
+        Log.d(TAG, "Upgrade\n" + upgrade.toString());
+        Log.d(TAG, "Recovery\n" + recovery.toString());
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             global.rollbackCommits();
-            System.out.println("Global after rollback");
-            System.out.println(global.toString());
+            Log.d(TAG, "Global after rollback\n" + global.toString());
         }
         if (upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             upgrade.rollbackCommits();
-            System.out.println("upgrade after rollback");
-            System.out.println(upgrade.toString());
+            Log.d(TAG, "upgrade after rollback\n" + upgrade.toString());
         }
 
         // See if we got left in the middle of an update
@@ -196,8 +189,6 @@ public class CommCareApp {
             
             return true;
         }
-        
-       
         return false;
     }
 
@@ -231,16 +222,12 @@ public class CommCareApp {
         return platform;
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) {
         return getStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
         return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -253,13 +240,9 @@ public class CommCareApp {
         });
     }
 
-    public void clearInstallData() {
-        ResourceTable global = platform.getGlobalResourceTable();
-
-        // Install was botched, clear anything left lying around....
-        global.clear();
-    }
-
+    /**
+     * Update the app's record to the installed state.
+     */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         try {

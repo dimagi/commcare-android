@@ -5,7 +5,9 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -34,7 +36,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import java.util.HashSet;
@@ -67,7 +68,6 @@ public class EntityDetailView extends FrameLayout {
     private AudioButton audioButton;
     private View valuePane;
     private View currentView;
-    private AudioController controller;
     private LinearLayout detailRow;
     private LinearLayout.LayoutParams origValue;
     private LinearLayout.LayoutParams origLabel;
@@ -91,14 +91,15 @@ public class EntityDetailView extends FrameLayout {
     private static final int CALLOUT = 7;
     
     int current = TEXT;
-    
-    DetailCalloutListener listener;
 
-    public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-            AudioController controller, int detailNumber) {
-        super(context);        
-        this.controller = controller;
-        
+    DetailCalloutListener listener;
+    private int oddRowColor;
+    private int evenRowColor;
+
+    public EntityDetailView(Context context, CommCareSession session, Detail d,
+                            Entity e, int index, int detailNumber) {
+        super(context);
+
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 
@@ -109,7 +110,7 @@ public class EntityDetailView extends FrameLayout {
         
         ViewId uniqueId = new ViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
-        audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
+        audioButton = new AudioButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
         
@@ -134,8 +135,34 @@ public class EntityDetailView extends FrameLayout {
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         setParams(session, d, e, index, detailNumber);
+
+        int[] colorAttr = new int[] {
+                R.attr.entity_detail_odd_row_color,
+                R.attr.entity_detail_even_row_color
+        };
+        Resources.Theme theme = context.getTheme();
+        for (int i = 0; i < colorAttr.length; i++) {
+            TypedValue typedValue = new TypedValue();
+            theme.resolveAttribute(colorAttr[i], typedValue, true);
+            int color = typedValue.data;
+            if(i == 0) { oddRowColor = color; }
+            else { evenRowColor = color; }
+        }
     }
-    
+
+    public void setLineColor(boolean isOddRow){
+        if(isOddRow){
+            detailRow.setBackgroundColor(oddRowColor);
+        } else {
+            detailRow.setBackgroundColor(evenRowColor);
+        }
+    }
+
+    public void setOddEvenRowColors(int oddRowColor, int evenRowColor){
+        this.oddRowColor = oddRowColor;
+        this.evenRowColor = evenRowColor;
+    }
+
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }

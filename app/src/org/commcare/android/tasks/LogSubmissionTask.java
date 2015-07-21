@@ -16,6 +16,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -34,7 +35,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
@@ -68,27 +68,21 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     
     }
     
-    private Context c;
     private boolean serializeCurrentLogs = false;
     private DataSubmissionListener listener;
     private String submissionUrl;
     
-    public LogSubmissionTask(Context c, boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
-        this.c = c;
+    public LogSubmissionTask(boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
         this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
         this.submissionUrl = submissionUrl;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     */
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
             SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
-            
+
             //First, see if we're supposed to serialize the current logs
             if(serializeCurrentLogs) {
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -96,10 +90,14 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 //update the last recorded record
                 settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
     
-                
-                //TODO: Test for logged in
-                DeviceReportRecord record = DeviceReportRecord.GenerateNewRecordStub();
-                
+                DeviceReportRecord record;
+                try {
+                    record = DeviceReportRecord.generateNewRecordStub();
+                } catch (SessionUnavailableException e) {
+                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit logs");
+                    return LogSubmitOutcomes.Error;
+                }
+
                 //Ok, so first, we're going to write the logs to disk in an encrypted file 
                 try {
                     DeviceReportWriter reporter;
@@ -187,7 +185,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 //Some remain unsent
                 return LogSubmitOutcomes.Serialized;
             }
-        } catch(SessionUnavailableException sue) {
+        } catch(UserStorageClosedException e) {
+            // The user database closed on us
             return LogSubmitOutcomes.Error;
         }
     }
@@ -207,8 +206,15 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         //signal that it's time to start submitting the file
         this.startSubmission(index, f.length());
         HttpRequestGenerator generator;
-        User user = CommCareApplication._().getSession().getLoggedInUser();
-        if(user.getUserType().equals(User.TYPE_DEMO)) {
+        User user;
+        try {
+            user = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException e) {
+            // lost the session, so report failed submission
+            return false;
+        }
+
+        if (User.TYPE_DEMO.equals(user.getUserType())) {
             generator = new HttpRequestGenerator();
         } else {
             generator = new HttpRequestGenerator(user);
@@ -278,46 +284,27 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.DataSubmissionListener#beginSubmissionProcess(int)
-     */
     @Override
     public void beginSubmissionProcess(int totalItems) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems});        
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.DataSubmissionListener#startSubmission(int, long)
-     */
     @Override
     public void startSubmission(int itemNumber, long length) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length});
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.DataSubmissionListener#notifyProgress(int, long)
-     */
     @Override
     public void notifyProgress(int itemNumber, long progress) {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress});
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.DataSubmissionListener#endSubmissionProcess()
-     */
     @Override
     public void endSubmissionProcess() {
         this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_DONE});
     }
     
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(Long... values) {
         super.onProgressUpdate(values);
@@ -333,9 +320,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } 
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(LogSubmitOutcomes result) {
         super.onPostExecute(result);

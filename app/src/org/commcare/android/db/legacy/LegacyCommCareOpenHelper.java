@@ -24,8 +24,6 @@ import android.database.sqlite.SQLiteOpenHelper;
  *
  */
 public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
-    
-    
     /*
      * Version History:
      * 28 - Added the geocaching table
@@ -45,12 +43,8 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
         this.context = context;
     }
     
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
-        
         try {
             database.beginTransaction();
             
@@ -105,9 +99,6 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         LegacyCommCareUpgrader upgrader = new LegacyCommCareUpgrader(context);
@@ -116,5 +107,4 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
         //mess with anything in the DB, or any old encrypted files, we need a hook for that...
         upgrader.doUpgrade(database, oldVersion, newVersion);
     }
-
 }

@@ -37,6 +37,7 @@ import org.acra.ACRAConfiguration;
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -55,6 +56,7 @@ import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
@@ -64,6 +66,7 @@ import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.MessageActivity;
@@ -123,7 +126,7 @@ public class    CommCareApplication extends Application {
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
-    
+
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
@@ -154,10 +157,6 @@ public class    CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Application#onCreate()
-     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -199,7 +198,7 @@ public class    CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch (StorageFullException sfe) {
+        } catch(SessionUnavailableException | StorageFullException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
@@ -273,7 +272,7 @@ public class    CommCareApplication extends Application {
         }
     }
 
-    public SecretKey createNewSymetricKey() {
+    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
         return getSession().createNewSymetricKey();
     }
 
@@ -311,10 +310,6 @@ public class    CommCareApplication extends Application {
 
     /**
      * Get the current CommCare session that's being executed
-     *
-     * @return
-     * @throws SessionUnavailableException If there is no session current being
-     *                                     executed
      */
     public CommCareSession getCurrentSession() {
         return getCurrentSessionWrapper().getSession();
@@ -322,7 +317,9 @@ public class    CommCareApplication extends Application {
 
     public AndroidSessionWrapper getCurrentSessionWrapper() {
         if (sessionWrapper == null) {
-            throw new SessionUnavailableException();
+            // TODO PLM: should be able to init this so it is never null.
+            // Need to find the correct place after the currentApp is set.
+            throw new SessionStateUninitException("CommCare user session isn't available");
         }
         return sessionWrapper;
     }
@@ -416,7 +413,7 @@ public class    CommCareApplication extends Application {
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() {
+    public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
         return this.getSession().getUserDbHandle();
     }
 
@@ -426,10 +423,6 @@ public class    CommCareApplication extends Application {
 
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
         return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
@@ -442,29 +435,25 @@ public class    CommCareApplication extends Application {
         });
     }
 
-    public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) {
         return getAppStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) {
         return currentApp.getStorage(name, c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) {
         return getUserStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
-            public SQLiteDatabase getHandle() {
+            public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
                 if (database == null) {
-                    throw new NullPointerException("Somehow didn't get a database handle!");
+                    throw new SessionUnavailableException("The user database has been closed!");
                 }
                 return database;
             }
@@ -473,10 +462,6 @@ public class    CommCareApplication extends Application {
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;
@@ -519,10 +504,6 @@ public class    CommCareApplication extends Application {
 
         this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
-            /*
-             * (non-Javadoc)
-             * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
-             */
             @Override
             public boolean matches(UserKeyRecord ukr) {
                 if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
@@ -548,7 +529,6 @@ public class    CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
-
     }
 
     public void prepareTemporaryStorage() {
@@ -615,7 +595,6 @@ public class    CommCareApplication extends Application {
                 // cast its IBinder to a concrete class and directly access it.
                 User user = null;
                 synchronized (serviceLock) {
-
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
                     mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
@@ -641,7 +620,7 @@ public class    CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        getSession().startSession(user);
+                        mBoundService.startSession(user);
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
@@ -695,9 +674,19 @@ public class    CommCareApplication extends Application {
             return;
         }
 
-        LogSubmissionTask task = new LogSubmissionTask(this,
+        DataSubmissionListener dataListener = null;
+
+        try {
+            dataListener =
+                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
+
+        LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                dataListener,
                 url);
 
         //Execute on a true multithreaded chain, since this is an asynchronous process
@@ -884,14 +873,25 @@ public class    CommCareApplication extends Application {
         }
     }
 
-
+    /**
+     * @return A pair comprised of last sync time and an array with unsent and
+     * incomplete form counts. If the user storage isn't open, return 0 vals
+     * for unsent/incomplete forms.
+     */
     public Pair<Long, int[]> getSyncDisplayParameters() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long lastSync = prefs.getLong("last-succesful-sync", 0);
-        int unsentForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-        int incompleteForms = this.getUserStorage(FormRecord.class).getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
 
-        return new Pair<Long, int[]>(lastSync, new int[]{unsentForms, incompleteForms});
+        SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
+
+        try {
+            int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+            int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+
+            return new Pair<>(lastSync, new int[]{unsentForms, incompleteForms});
+        } catch (UserStorageClosedException e) {
+            return new Pair<>(lastSync, new int[]{0, 0});
+        }
     }
 
 

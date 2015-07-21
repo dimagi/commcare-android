@@ -1,10 +1,9 @@
-/**
- * 
- */
 package org.commcare.android.cases;
 
 import java.util.Hashtable;
 import java.util.Vector;
+
+import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
@@ -22,9 +21,9 @@ import org.javarosa.core.util.DataUtil;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
+    private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
     SqlStorageIterator<ACase> iter;
     CaseIndexTable mCaseIndexTable;
     
@@ -46,7 +45,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         cases = new Vector<CaseChildElement>();
-        System.out.println("Getting Cases!");
+        Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
 
         int mult = 0;
@@ -59,14 +58,9 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             mult++;
         }
         long value = System.currentTimeMillis() - timeInMillis;
-        System.out.println("Case iterate took: " + value + "ms");
+        Log.d(TAG, "Case iterate took: " + value + "ms");
     }
     
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.cases.util.StorageBackedTreeRoot#union(java.util.Vector, java.util.Vector)
-     */
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         return DataUtil.union(selectedCases, cases);
@@ -201,10 +195,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     
     String[][] mMostRecentBatchFetch = null;
     
-    /*
-     * ](non-Javadoc)
-     * @see org.javarosa.core.model.utils.CacheHost#guessCachePrimer()
-     */
     @Override
     public String[][] getCachePrimeGuess() { 
         return mMostRecentBatchFetch;

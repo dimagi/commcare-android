@@ -70,26 +70,14 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
     private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
     
-    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) throws SessionUnavailableException
-    {
+    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) {
         this.c = c;
         this.platform = platform;
         this.taskId = CONNECTION_ID;
-    }
-    
-    //onProgressUpdate(<B>)
-    
-    //onPostExecute(<C>)
-    
-    //onCancelled()
 
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     * 
-     * doTaskBackground(<A>) returns <C>
-     */
+        TAG = ConnectionDiagnosticTask.class.getSimpleName();
+    }
+
     @Override
     protected Test doTaskBackground(Void... params) 
     {    

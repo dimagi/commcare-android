@@ -92,7 +92,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         
         this.uuid = uuid;
         this.lastModified = lastModified;
-        if(lastModified == null) { lastModified = new Date(); } ;
+        if(lastModified == null) { lastModified = new Date(); }
     }
     
     /**
@@ -160,10 +160,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
     }
     
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());

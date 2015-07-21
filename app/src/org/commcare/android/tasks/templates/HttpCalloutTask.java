@@ -45,6 +45,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     
     public HttpCalloutTask(Context c) {
         this.c = c;
+
+        TAG = HttpCalloutTask.class.getSimpleName();
     }
     
     protected Context getContext() {

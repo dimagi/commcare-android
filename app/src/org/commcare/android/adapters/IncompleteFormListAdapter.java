@@ -36,35 +36,49 @@ import android.widget.BaseAdapter;
  *
  */
 public class IncompleteFormListAdapter extends BaseAdapter implements FormRecordLoadListener {
+    private final Context context;
     
-    private AndroidCommCarePlatform platform;
-    private Context context;
+    private final List<DataSetObserver> observers;
     
-    List<DataSetObserver> observers;
-    
-    FormRecordFilter filter;
-    // loaded form records, before filtering occurs
+    private FormRecordFilter filter;
+
+    /**
+     * All loaded form records of a given status, with no filtering.
+     */
     private List<FormRecord> records;
-    // filtered form records
-    private List<FormRecord> current = new ArrayList<FormRecord>();
 
-    // Maps FormRecord ID to an array of text that will be shown to the user
-    // and query-able. Text should includes modified date, record title, & form
-    // name.
-    private Hashtable<Integer, String[]> searchCache;
+    /**
+     * Filtered form records. getView reads from this to display all the forms.
+     */
+    private final List<FormRecord> current = new ArrayList<FormRecord>();
 
-    // last query made, used to filter records
-    private String query;
+    /**
+     * Maps FormRecord ID to an array of text that will be shown to the user
+     * and query-able. Text should includes modified date, record title, and
+     * form name.
+     */
+    private final Hashtable<Integer, String[]> searchCache = new Hashtable<Integer, String[]>();
 
-    FormRecordLoaderTask loader;
+    /**
+     * The last query made, used to filter forms.
+     */
+    private String query = "";
 
-    // Maps form namespace (unique id for forms) to their form title
-    // (entry-point text). Needed because FormRecords don't have form title
-    // info, but do have the namespace.
-    Hashtable<String, Text> names;
+    /**
+     * The current query split up by spaces. Used for filtering forms.
+     */
+    private String [] queryPieces = new String[0];
+
+    private FormRecordLoaderTask loader;
+
+    /**
+     * Maps form namespace (unique id for forms) to their form title
+     * (entry-point text). Needed because FormRecords don't have form title
+     * info, but do have the namespace.
+     */
+    private final Hashtable<String, Text> names;
 
     public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
-        this.platform = platform;
         this.context = context;
         this.filter = null;
         this.loader = loader;
@@ -88,22 +102,35 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
     /**
-     * Unused since priority loading logic is currently too messy/broken.
+     * Add a newly-loaded form to the current list if it satisfies the current
+     * query.
      */
-    public void notifyPriorityLoaded(Integer first, boolean contains) {
-        return;
+    @Override
+    public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
+        if (isLoaded && satisfiesQuery(record)) {
+            current.add(record);
+        }
     }
 
     /**
-     * Filter and display the form list after form record data has finished
-     * loading.
-     *
-     * Implements FormRecordLoadListener and is called every time
-     * FormRecordLoaderTask finishes loading.
+     * Notify observers that the form list has loaded/potentially been updated.
      */
+    @Override
     public void notifyLoaded() {
-        this.filterValues();
         this.notifyDataSetChanged();
+    }
+
+    /**
+     * Load new records and text if the given FormFilter differs from the
+     * current filter.
+     *
+     * @param newFilter update the internal FormFilter to this value
+     */
+    public void setFilterAndResetRecords(FormRecordFilter newFilter) {
+        if (!newFilter.equals(this.filter)) {
+            setFormFilter(newFilter);
+            resetRecords();
+        }
     }
 
     /**
@@ -111,7 +138,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * text data using FormRecordLoaderTask; results will then be re-filtered
      * and displayed via callbacks.
      */
-    public void resetRecords() throws SessionUnavailableException {
+    public void resetRecords() {
         // reload the form records, even if they are currently being loaded
         if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
@@ -120,7 +147,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -149,7 +176,8 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             }
         });
 
-        searchCache = new Hashtable<Integer, String[]>();
+        searchCache.clear();
+        current.clear();
 
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
@@ -167,10 +195,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetChanged()
-     */
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
@@ -179,10 +203,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetInvalidated()
-     */
     @Override
     public void notifyDataSetInvalidated() {
         super.notifyDataSetInvalidated();
@@ -192,52 +212,38 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int i) {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return current.size();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int i) {
         return current.get(i);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int i) {
         //Skeeeeetccchhyyyy maybe?
         return current.get(i).getID();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int i) {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
@@ -261,28 +267,22 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return ifrv;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
     
-    public void setFormFilter(FormRecordFilter filter) throws SessionUnavailableException {
+    public void setFormFilter(FormRecordFilter filter) {
         this.filter = filter;
     }
     
@@ -306,25 +306,41 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         current.clear();
 
-        if (query == null || query.equals("")) {
+        if ("".equals(query)) {
             current.addAll(records);
             return;
         }
 
-        String[] pieces = query.toLowerCase().split(" ");
-
         // collect all forms that have text data that contains pieces.
-        full:
         for (FormRecord r : records) {
-            for (String cacheValue : searchCache.get(r.getID())) {
-                for (String piece : pieces) {
-                    if (cacheValue.toLowerCase().contains(piece)) {
-                        current.add(r);
-                        continue full;
-                    }
+            if (satisfiesQuery(r)) {
+                current.add(r);
+            }
+        }
+    }
+
+    /**
+     * Does the form record have text that contains one of the query segments?
+     *
+     * @param r Lookup this form record's text and compare to the current query
+     *          segments.
+     * @return Did the text corresponding to the form record argument contain
+     * any of the query segments?
+     */
+    private boolean satisfiesQuery(FormRecord r) {
+        if (queryPieces.length == 0) {
+            // empty queries always pass
+            return true;
+        }
+
+        for (String cacheValue : searchCache.get(r.getID())) {
+            for (String piece : this.queryPieces) {
+                if (cacheValue.toLowerCase().contains(piece)) {
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     /**
@@ -333,23 +349,34 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * @param newQuery set the current query to this value.
      */
     public void applyTextFilter(String newQuery) {
+        if (this.query.trim().equals(newQuery.trim())) {
+            // don't perform filtering if old and new queries are same, modulo
+            // whitespace
+            return;
+        }
+
         this.query = newQuery;
+
+        // split the query up into segments, by whitespace.
+        if ("".equals(this.query)) {
+            this.queryPieces = new String[0];
+        } else {
+            this.queryPieces = newQuery.toLowerCase().split(" ");
+        }
+
         filterValues();
+
         for (DataSetObserver o : observers) {
             o.onChanged();
         }
     }
 
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }

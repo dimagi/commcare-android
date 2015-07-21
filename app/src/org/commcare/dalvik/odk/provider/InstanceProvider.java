@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2007 The Android Open Source Project
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.odk.provider;
 
 import java.io.File;
@@ -23,7 +9,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -44,11 +29,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-/**
- * 
- */
 public class InstanceProvider extends ContentProvider {
-
     private static final String t = "InstancesProvider";
 
     private static final String DATABASE_NAME = "instances.db";
@@ -71,11 +52,6 @@ public class InstanceProvider extends ContentProvider {
             super(c, databaseName, null, DATABASE_VERSION);
         }
 
-
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-         */
         @Override
         public void onCreate(SQLiteDatabase db) {            
            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
@@ -91,10 +67,6 @@ public class InstanceProvider extends ContentProvider {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
@@ -106,16 +78,12 @@ public class InstanceProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
         //This is so stupid.
         return true;
     }
-    
+
     /**
      * Setup helper to access database.
      */
@@ -126,11 +94,6 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
-     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -161,11 +124,6 @@ public class InstanceProvider extends ContentProvider {
         return c;
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
@@ -179,7 +137,6 @@ public class InstanceProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -240,7 +197,6 @@ public class InstanceProvider extends ContentProvider {
         throw new SQLException("Failed to insert row into " + uri);
     }
 
-
     /**
      * Create display subtext for current date and time
      *
@@ -263,7 +219,7 @@ public class InstanceProvider extends ContentProvider {
             return "Added on " + ts;
         }
     }
-    
+
     private void deleteFileOrDir(String fileName ) {
         File file = new File(fileName);
         if (file.exists()) {
@@ -280,11 +236,7 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     * 
+    /**
      * This method removes the entry from the content provider, and also removes any associated files.
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
@@ -520,7 +472,6 @@ public class InstanceProvider extends ContentProvider {
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
                 }
             }
-
         }
     }
 
@@ -553,5 +504,4 @@ public class InstanceProvider extends ContentProvider {
         currentState.reset();
         throw new RuntimeException(loggerText);
     }
-
 }

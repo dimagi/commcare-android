@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.commcare.android.view.SquareButtonWithNotification
+    android:id="@+id/home.sync.sqbn"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    app:sbn_subtitle="Sync with server"
+    app:backgroundcolorButton="@color/cc_brand_color"
+    app:sbn_img="@drawable/home_sync"
+    app:backgroundcolorNotification="@color/cc_brand_text"
+    app:colorButtonText="@color/white"
+    app:colorNotificationText="@color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>

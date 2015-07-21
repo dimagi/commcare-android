@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import java.util.Date;
@@ -22,6 +8,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TimePicker;
@@ -35,6 +22,7 @@ import android.widget.TimePicker.OnTimeChangedListener;
 public class TimeWidget extends QuestionWidget implements OnTimeChangedListener {
 
     private TimePicker mTimePicker;
+    private static final String TAG = TimeWidget.class.getSimpleName();
 
 
     public TimeWidget(Context context, final FormEntryPrompt prompt) {
@@ -68,7 +56,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
             // create a new date time from date object using default time zone
             DateTime ldt =
                 new DateTime(((Date) ((TimeData) getCurrentAnswer()).getValue()).getTime());
-            System.out.println("retrieving:" + ldt);
+            Log.d(TAG, "retrieving:" + ldt);
 
             int altVal = ldt.getHourOfDay() == 1 ? 2 : 1;
             mTimePicker.setCurrentHour(altVal);
@@ -84,9 +72,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+    /**
      * Resets time to today.
      */
     @Override
@@ -96,10 +82,6 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         mTimePicker.setCurrentMinute(ldt.getMinuteOfHour());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         mTimePicker.clearFocus();
@@ -111,15 +93,11 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
             (new DateTime(0)).withTime(mTimePicker.getCurrentHour(), mTimePicker.getCurrentMinute(),
                 0, 0);
         //DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
-        System.out.println("storing:" + ldt);
+        Log.d(TAG, "storing:" + ldt);
         return new TimeData(ldt.toDate());
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -129,30 +107,18 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mTimePicker.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mTimePicker.cancelLongPress();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.TimePicker.OnTimeChangedListener#onTimeChanged(android.widget.TimePicker, int, int)
-     */
     @Override
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         this.widgetEntryChanged();

@@ -38,10 +38,6 @@ public class DeveloperPreferences extends PreferenceActivity {
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +80,7 @@ public class DeveloperPreferences extends PreferenceActivity {
     }
 
     public static boolean isActionBarEnabled() {
-        return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+        return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
     }
 
     public static boolean isGridMenuEnabled() {
@@ -94,7 +90,7 @@ public class DeveloperPreferences extends PreferenceActivity {
 
     public static boolean isNewNavEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
     
     public static boolean isCssEnabled(){

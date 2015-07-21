@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -89,16 +90,14 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
+    public final static String ACTIONBAR_PREFS = "actionbar-prefs";
+
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
 
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,10 +119,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         setTitle("CommCare" + " > " + "Application Preferences");
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -150,15 +145,14 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     int mDeveloperModeClicks = 0;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                CommCareApplication._().clearUserData();
+                try {
+                    CommCareApplication._().clearUserData();
+                } catch (SessionUnavailableException e) {
+                }
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:
@@ -246,10 +240,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -258,10 +248,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();

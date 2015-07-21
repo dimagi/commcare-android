@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -8,7 +9,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
@@ -28,7 +28,6 @@ import android.widget.TextView;
 
 /**
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
@@ -51,9 +50,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
     TextView txtUserMessage;
     
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,10 +64,6 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         
         sendForms.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @SuppressLint("NewApi")
             @Override
             public void onClick(View v) {
@@ -81,19 +73,12 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                 ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", 
                         RecoveryActivity.this.getString(R.string.PostURL)), SEND_TASK_ID, true){
 
-                    /* (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#onPreExecute()
-                     */
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
                         displayMessage("Submitting form(s) to the server...");
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                     */
                     @Override
                     protected void deliverResult(RecoveryActivity receiver, Integer result) {
                          if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
@@ -110,25 +95,14 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                             receiver.displayMessage("There were errors submitting the forms." + remainder);
                         } else if(result == FormUploadUtil.TRANSPORT_FAILURE){
                             receiver.displayMessage("Unable to contact the remote server.");
-                        } else {
-                            
-                        } 
-
+                        }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(RecoveryActivity receiver, Long... update) {
                         //we don't need to deliver updates here, it happens on the notification bar
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(RecoveryActivity receiver,Exception e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,"Error in recovery form send: " + ExceptionReportTask.getStackTrace(e));
@@ -136,7 +110,15 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                     }
                     
                 };
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+
+                try {
+                    mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
+                } catch (SessionUnavailableException sue) {
+                    // abort since it looks like the session expired
+                    displayMessage("CommCare session is no longer available.");
+                    return;
+                }
+
                 mProcess.connect(RecoveryActivity.this);
                 
                 //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -146,18 +128,11 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                 } else {
                     mProcess.execute(records);
                 }
-                
-                
-                
             }
         });
         
         btnRecoverApp.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 displayMessage("App recovery is not yet enabled. Please clear user data (After sending all of your forms!) and re-install.");
@@ -169,18 +144,12 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         txtUserMessage.setText(this.localize(text));
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#startBlockingForTask(int)
-     */
     @Override
     public void startBlockingForTask(int id) {
         btnRecoverApp.setEnabled(false);
         sendForms.setEnabled(false);
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#stopBlockingForTask(int)
-     */
     @Override
     public void stopBlockingForTask(int id) {
         updateSendFormsState();
@@ -198,11 +167,9 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
         if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
-            return;
         } else {
             appState.setText("App is installed and valid");
             btnRecoverApp.setEnabled(false);
-            return;
         }
     }
 
@@ -213,16 +180,16 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             return;
         }
         
-        
         try {
-            CommCareSessionService session = CommCareApplication._().getSession();
+            CommCareApplication._().getSession();
         } catch(SessionUnavailableException sue) {
             txtUnsentForms.setText("Couldn't read unsent forms. Not Logged in");
             return;
         }
-            
+
+        SqlStorage<FormRecord> recordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
         try {
-            FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication._().getUserStorage(FormRecord.class));
+            FormRecord[] records = StorageUtils.getUnsentRecords(recordStorage);
             if(records.length == 0) {
                 txtUnsentForms.setText("This device has no unsent forms");
             } else{
@@ -233,16 +200,5 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, e.getMessage());
             txtUnsentForms.setText("Couldn't read unsent forms. Error : " + e.getMessage());
         }
-
     }
-
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onResume()
-     */
-    @Override
-    protected void onResume() {
-        // TODO Auto-generated method stub
-        super.onResume();
-    }
-    
 }

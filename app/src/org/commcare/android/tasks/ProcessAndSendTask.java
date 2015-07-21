@@ -21,8 +21,8 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
@@ -34,7 +34,6 @@ import android.os.AsyncTask;
 
 /**
  * @author ctsims
- *
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
@@ -79,22 +78,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_SDCARD_REMOVED = 512;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
     private FormRecordProcessor processor;
     
     private static int SUBMISSION_ATTEMPTS = 2;
     
-    
     static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
     
-    private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
-    
-    public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url) {
         this(c, url, SEND_PHASE_ID, true);
     }
     
-    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) 
-            throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) {
         this.c = c;
         this.url = url;
         this.sendTaskId = sendTaskId;
@@ -106,12 +100,22 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.taskId = -1;
         }
     }
-    
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
+
+    @Override
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
+
+        // Don't try to sync if logging out is occuring
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            // NOTE: DataPullTask also needs this lock to run, so they
+            // cannot run in parallel.
+            //
+            // TODO PLM: once this task is refactored into manageable
+            // components, it should use the ManagedAsyncTask pattern of
+            // checking for isCancelled() and aborting at safe places.
+            return (int)PROGRESS_LOGGED_OUT;
+        }
+
         try {
         results = new Long[records.length];
         for(int i = 0; i < records.length ; ++i ) {
@@ -322,9 +326,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             synchronized(processTasks) {
                 processTasks.remove(this);
             }
+
             if(needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
+            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
     
@@ -334,9 +340,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(Long... values) {
         if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
@@ -368,10 +372,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
@@ -419,9 +419,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();

@@ -26,6 +26,7 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Pair;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,9 +35,9 @@ import android.widget.Toast;
 
 /**
  * @author ctsims
- *
  */
 public class CallInPhoneListener extends PhoneStateListener {
+    private static final String TAG = CallInPhoneListener.class.getSimpleName();
 
     private Context context;
     private AndroidCommCarePlatform platform;
@@ -56,13 +57,8 @@ public class CallInPhoneListener extends PhoneStateListener {
         toastTimer = new Timer("toastTimer");
     }
 
-
     static final boolean disabled = true;
-    
-    /*
-     * (non-Javadoc)
-     * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-     */
+
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
         super.onCallStateChanged(state, incomingNumber);
@@ -88,7 +84,6 @@ public class CallInPhoneListener extends PhoneStateListener {
     }
 
     public void startToastLoop() {
-
         synchronized(toastTimer) {
             toastTimer.schedule(
                     new TimerTask() {
@@ -105,22 +100,15 @@ public class CallInPhoneListener extends PhoneStateListener {
         }
     }
 
-
     public void startCache() {
         if(disabled) {return;}
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-             */
             @Override
             protected Void doInBackground(Void... params) {
-                try {
                     synchronized(cachedNumbers) {
                         Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
                         Set<Detail> details = new HashSet<Detail>();
-
 
                         //To fan this out, we first need to find the appropriate long detail screens
                         //then determine what nodeset to use to iterate over it
@@ -178,7 +166,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
                                 TreeReference nodesetSource = detailSources.get(d.getId()).second;
 
-                                Vector<TreeReference> references =ec .expandReference(nodesetSource);
+                                Vector<TreeReference> references = ec.expandReference(nodesetSource);
 
                                 Set<Integer> phoneIds = new HashSet<Integer>();
                                 String[] forms = d.getTemplateForms();
@@ -208,13 +196,9 @@ public class CallInPhoneListener extends PhoneStateListener {
                                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Caching failed with exception: " + e.getMessage());
                             }
                         }
-                        System.out.println("Caching Complete");
+                        Log.d(TAG, "Caching Complete");
                         return null;
                     }
-                } catch(SessionUnavailableException sue) {
-                    //We got logged out in the middle of 
-                    return null;
-                }
             }
 
             private EvaluationContext getEC(String commandId) {

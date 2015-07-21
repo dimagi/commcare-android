@@ -59,9 +59,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         return USER_DB_LOCATOR + sandboxId;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
 
@@ -133,9 +130,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         boolean inSenseMode = false;

@@ -71,7 +71,7 @@ public class LegacyInstallUtils {
     public static final String LEGACY_UPGRADE_PROGRESS = "legacy_upgrade_progress";
     public static final String UPGRADE_COMPLETE = "complete";
 
-    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException {
+    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException, SessionUnavailableException {
         SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         if(globalPreferences.getString(LEGACY_UPGRADE_PROGRESS, "").equals(UPGRADE_COMPLETE)) { return; }
         //Check to see if the legacy database exists on this system
@@ -126,10 +126,6 @@ public class LegacyInstallUtils {
         //get the legacy storage
         final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c).getReadableDatabase();
         LegacyDbHelper ldbh = new LegacyDbHelper(c) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
-             */
             @Override
             public android.database.sqlite.SQLiteDatabase getHandle() {
                 return olddb;
@@ -284,9 +280,6 @@ public class LegacyInstallUtils {
         //4) Finally, we need to register a new UserKeyRecord which will prepare the user-facing records for transition
         //when the user logs in again
         
-        
-        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
-        
         //Get legacy user storage
         LegacySqlIndexedStorageUtility<User> legacyUsers = new LegacySqlIndexedStorageUtility<User>("USER", User.class, ldbh);
         
@@ -299,7 +292,9 @@ public class LegacyInstallUtils {
         
         //we're done with the old storage now.
         olddb.close();
-        
+
+        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
+
         User preferred = null;
         //go through all of the old users and generate key records for them
         for(User u : oldUsers) {
@@ -374,7 +369,7 @@ public class LegacyInstallUtils {
         return filesystemHome + "commcare/";
     }
 
-    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException{
+    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
         
         try {
@@ -382,10 +377,6 @@ public class LegacyInstallUtils {
                 Object lock = new Object();
                 byte[] key = oldKey;
     
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
-                 */
                 @Override
                 public Cipher generateNewCipher() {
                     synchronized(lock) {
@@ -416,7 +407,7 @@ public class LegacyInstallUtils {
             
             //get the legacy storage
             final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
-                protected CipherPool getCipherPool() throws SessionUnavailableException {
+                protected CipherPool getCipherPool() {
                     return pool;
                 }
             }).getReadableDatabase();
@@ -424,10 +415,6 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
             
             LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
-                 */
                 @Override
                 public android.database.sqlite.SQLiteDatabase getHandle() {
                     return olddb;
@@ -469,10 +456,6 @@ public class LegacyInstallUtils {
             final SQLiteDatabase currentUserDatabase = ourDb;
             
             DbHelper newDbHelper = new DbHelper(c) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.database.DbHelper#getHandle()
-                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return currentUserDatabase;
@@ -556,7 +539,7 @@ public class LegacyInstallUtils {
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
                     new SqlStorage<FormInstance>("fixture", FormInstance.class, newDbHelper));
             
-            } catch(StorageFullException sfe) {
+            } catch(SessionUnavailableException | StorageFullException sfe) {
                 throw new RuntimeException(sfe);
             }
             
@@ -565,7 +548,7 @@ public class LegacyInstallUtils {
             //Now we can update this key record to confirm that it is fully installed
             ukr.setType(UserKeyRecord.TYPE_NORMAL);
             app.getStorage(UserKeyRecord.class).write(ukr);
-            
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
             
             //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
@@ -633,5 +616,4 @@ public class LegacyInstallUtils {
         }
         return imei;
     }
-    
 }
