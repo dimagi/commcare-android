@@ -100,15 +100,16 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
                     }
                 } else {
-                        Toast.makeText(this, "No app was installed!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.no_installation,
+                                Toast.LENGTH_LONG).show();
                 }
                 break;
             case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Media Not Verified");
+                    builder.setTitle(R.string.media_not_verified);
                     builder.setMessage(R.string.skipped_verification_warning)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -119,7 +120,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 } else if (resultCode == RESULT_OK) {
-                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 break;
         }
@@ -145,9 +146,9 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
      */
     private void triggerLogoutWarning() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Logging out your app");
+        builder.setTitle(R.string.logging_out);
         builder.setMessage(R.string.logout_warning)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -155,7 +156,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     }
 
                 })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

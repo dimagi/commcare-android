@@ -2,7 +2,6 @@
 <resources>
 
     <string name="application_name">CommCare ODK</string>
-    <string name="manager_activity_name">App Manager</string>
     <string name="title_bar_name">CommCare</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
@@ -14,9 +13,12 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
 
+    <!-- region: All strings for multiple apps -->
+    <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install An App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
+    <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="select_app_prompt">Select an app to install</string>
@@ -32,6 +34,16 @@
         For full functionality of multiple application seating, please make a new build of your app.</string>
     <string name="uninstall_reboot_warning">CommCare will uninstall your app and then reboot to save changes.</string>
     <string name="logout_warning">In order to complete this action, CommCare must log out the currently logged-in app. Do you want to proceed?</string>
+    <string name="logging_out">Logging out your app</string>
+    <string name="uninstalling">Uninstalling your app</string>
+    <string name="media_not_verified">Media Not Verified</string>
+    <string name="media_verified">Media Validated!</string>
+    <string name="no_installation">No app was installed!</string>
+    <string name="update_canceled">Your update did not complete</string>
+    <string name="login_welcome_single">Welcome back! Please log in.</string>
+    <string name="login_welcome_multiple">Welcome back! Please select an app and log in.</string>
+    <!-- endregion -->
+
     <integer-array name="commcare_version">
         <item>2</item>
         <item>22</item>
@@ -206,8 +218,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="location_provider_accuracy">Location found using %1$s. Accuracy is %2$s m.</string>
     <string name="location_provider">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy">Location found. Accuracy is %1$s m</string>
-    <string name="login_welcome_single">Welcome back! Please log in.</string>
-    <string name="login_welcome_multiple">Welcome back! Please select an app and log in.</string>
     <string name="longitude">Longitude</string>
     <string name="main_menu">Main Menu</string>
     <string name="main_menu_details">Data collection made easier...</string>

@@ -84,9 +84,9 @@ public class SingleAppManagerActivity extends Activity {
         boolean isArchived = appRecord.isArchived();
         Button archiveButton = (Button)findViewById(R.id.archive_button);
         if (isArchived) {
-            archiveButton.setText("Unarchive");
+            archiveButton.setText(R.string.unarchive_app);
         } else {
-            archiveButton.setText("Archive");
+            archiveButton.setText(R.string.archive_app);
         }
     }
 
@@ -95,7 +95,7 @@ public class SingleAppManagerActivity extends Activity {
         switch (requestCode) {
             case CommCareHomeActivity.UPGRADE_APP:
                 if (resultCode == RESULT_CANCELED) {
-                    Toast.makeText(this, "Your update did not complete", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                 } else if (resultCode == RESULT_OK) {
                     if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
@@ -112,9 +112,9 @@ public class SingleAppManagerActivity extends Activity {
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Media Not Verified");
+                    builder.setTitle(R.string.media_not_verified);
                     builder.setMessage(R.string.skipped_verification_warning_2)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog,
@@ -126,7 +126,7 @@ public class SingleAppManagerActivity extends Activity {
                     dialog = builder.create();
                     dialog.show();
                 } else if (resultCode == RESULT_OK) {
-                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 break;
             case CommCareHomeActivity.RESTART_APP:
@@ -243,9 +243,9 @@ public class SingleAppManagerActivity extends Activity {
      */
     public void rebootAlertDialog(View v) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Uninstalling your app");
+        builder.setTitle(R.string.uninstalling);
         builder.setMessage(R.string.uninstall_reboot_warning)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog,
@@ -255,7 +255,7 @@ public class SingleAppManagerActivity extends Activity {
                     }
 
                 })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -273,9 +273,9 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void triggerLogoutWarning(final int actionKey) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Logging out your app");
+        builder.setTitle(R.string.logging_out);
         builder.setMessage(R.string.logout_warning)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog,
@@ -297,7 +297,7 @@ public class SingleAppManagerActivity extends Activity {
                     }
 
                 })
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
