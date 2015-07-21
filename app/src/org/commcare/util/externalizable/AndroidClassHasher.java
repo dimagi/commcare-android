@@ -15,6 +15,8 @@ public class AndroidClassHasher implements Hasher {
     private static final String TAG = AndroidClassHasher.class.getSimpleName();
 
     MessageDigest mMessageDigester;
+
+    int CLASS_HASH_SIZE = 4;
     
     public AndroidClassHasher() {
         try {
@@ -51,7 +53,7 @@ public class AndroidClassHasher implements Hasher {
 
     @Override
     public int getHashSize(){
-        return PrototypeFactory.getClassHashSize();
+        return CLASS_HASH_SIZE;
     }
 
 

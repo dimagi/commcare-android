@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -90,8 +91,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
-import android.text.Spannable;
-
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
@@ -110,7 +109,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     /**
      * Request code for automatically validating media from home dispatch.
      * Should signal a return from CommCareVerificationActivity.
-     */
+    */
     public static final int MISSING_MEDIA_ACTIVITY=256;
     public static final int DUMP_FORMS_ACTIVITY=512;
     public static final int WIFI_DIRECT_ACTIVITY=1024;
@@ -514,9 +513,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     }
 
     /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
+         * (non-Javadoc)
+         * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+         */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
