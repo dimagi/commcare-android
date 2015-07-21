@@ -3,8 +3,11 @@ package org.commcare.dalvik.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
+import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
 import static java.lang.Thread.sleep;
@@ -25,18 +28,28 @@ public class UpgradeActivity extends Activity {
 
     private Handler mHandler = new Handler();
 
+    @UiElement(R.id.check_for_upgrade_button)
+    Button checkUpgradeButton;
+
+    @UiElement(R.id.stop_upgrade_download_button)
+    Button stopUpgradeButton;
+
+    @UiElement(R.id.install_upgrade_button)
+    Button installUpgradeButton;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // setup UI
         setContentView(R.layout.upgrade_activity);
-
         mProgress = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
+        setupButtonListeners();
 
         // attempt to attach to auto-update task
 
         // update UI based on current state
+        setupButtonState();
 
         // Start lengthy operation in a background thread
         new Thread(new Runnable() {
@@ -86,5 +99,31 @@ public class UpgradeActivity extends Activity {
         } catch (Exception e) {
         }
         return mProgressStatus + 1;
+    }
+
+    private void setupButtonListeners() {
+        checkUpgradeButton = (Button)findViewById(R.id.check_for_upgrade_button);
+        checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+        stopUpgradeButton = (Button)findViewById(R.id.stop_upgrade_download_button);
+        stopUpgradeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+        installUpgradeButton = (Button)findViewById(R.id.install_upgrade_button);
+        installUpgradeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+    }
+
+    private void setupButtonState() {
     }
 }
