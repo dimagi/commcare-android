@@ -101,18 +101,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             
             if(!upgrade) {
                 initProperties(p);
-
-                // Check that this app is not already installed on the phone
-                String newAppId = p.getUniqueId();
-                ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
-                        getInstalledAppRecords();
-                for (ApplicationRecord record : installedApps) {
-                    if (record.getUniqueId().equals(newAppId)) {
-                        throw new UnfullfilledRequirementsException(
-                                "The app you are trying to install already exists on this device",
-                                CommCareElementParser.SEVERITY_PROMPT, true);
-                    }
-                }
+                checkDuplicate(p);
             }
             
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
@@ -131,6 +120,20 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
         
         return false;
+    }
+
+    // Check that this app is not already installed on the phone
+    private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
+        String newAppId = p.getUniqueId();
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
+                getInstalledAppRecords();
+        for (ApplicationRecord record : installedApps) {
+            if (record.getUniqueId().equals(newAppId)) {
+                throw new UnfullfilledRequirementsException(
+                        "The app you are trying to install already exists on this device",
+                        CommCareElementParser.SEVERITY_PROMPT, true);
+            }
+        }
     }
     
     private void initProperties(Profile profile) {
