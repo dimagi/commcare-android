@@ -25,46 +25,26 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
         this.app = app;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.InstallerFactory#getXFormInstaller()
-     */
     @Override
     public ResourceInstaller getXFormInstaller() {
         return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.InstallerFactory#getProfileInstaller(boolean)
-     */
     @Override
     public ResourceInstaller getProfileInstaller(boolean forceInstall) {
         return new ProfileAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.InstallerFactory#getSuiteInstaller()
-     */
     @Override
     public ResourceInstaller getSuiteInstaller() {
         return new SuiteAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.InstallerFactory#getLocaleFileInstaller(java.lang.String)
-     */
     @Override
     public ResourceInstaller getLocaleFileInstaller(String locale) {
         return new LocaleAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF, locale);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.InstallerFactory#getMediaInstaller(java.lang.String)
-     */
     @Override
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaFileAndroidInstaller(GlobalConstants.MEDIA_REF, GlobalConstants.UPGRADE_REF, path);

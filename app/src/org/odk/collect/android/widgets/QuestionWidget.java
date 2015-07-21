@@ -191,10 +191,6 @@ public abstract class QuestionWidget extends LinearLayout {
         public URLSpanNoUnderline(String url) {
             super(url);
         }
-        /*
-         * (non-Javadoc)
-         * @see android.text.style.ClickableSpan#updateDrawState(android.text.TextPaint)
-         */
         @Override public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);

@@ -21,10 +21,6 @@ import android.widget.Toast;
 
 public class ReportProblemActivity extends CommCareActivity<ReportProblemActivity> implements OnClickListener {
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,10 +31,6 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         ((TextView)findViewById(R.id.ReportPrompt01)).setText(this.localize("problem.report.prompt"));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
     @Override
     public void onClick(View v) {
         EditText mEdit = (EditText)findViewById(R.id.ReportText01);

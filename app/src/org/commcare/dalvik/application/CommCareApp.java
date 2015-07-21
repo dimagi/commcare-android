@@ -258,10 +258,6 @@ public class CommCareApp {
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
         return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -274,6 +270,9 @@ public class CommCareApp {
         });
     }
 
+    /**
+     * Update the app's record to the installed state.
+     */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setUniqueId(getUniqueId());

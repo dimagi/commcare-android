@@ -47,9 +47,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         this.dumpDirectory = dumpDirectory;
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
     }
@@ -59,10 +57,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
@@ -72,9 +66,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         results = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
@@ -84,10 +75,6 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Boolean doTaskBackground(Void... params) {
         

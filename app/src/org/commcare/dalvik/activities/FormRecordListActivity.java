@@ -114,10 +114,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
 
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -165,10 +161,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 filterSelect.setAdapter(spinneritems);
                 spinneritems.setDropDownViewResource(R.layout.form_filter_item);
                 filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    /*
-                     * (non-Javadoc)
-                     * @see android.widget.AdapterView.OnItemSelectedListener#onItemSelected(android.widget.AdapterView, android.view.View, int, long)
-                     */
                     @Override
                     public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
                         // NOTE: This gets called every time a spinner gets
@@ -184,10 +176,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see android.widget.AdapterView.OnItemSelectedListener#onNothingSelected(android.widget.AdapterView)
-                     */
                     @Override
                     public void onNothingSelected(AdapterView<?> arg0) {
                         // TODO Auto-generated method stub
@@ -253,10 +241,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
-     * 
+    /**
      * Stores the path of selected form and finishes.
      */
     @Override
@@ -279,10 +264,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
@@ -301,10 +282,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         menu.add(Menu.NONE, SCAN_RECORD, SCAN_RECORD, Localization.get("app.workflow.forms.scan"));
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         try {
@@ -346,10 +323,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         mAlertDialog.setMessage(result.second);
         
         DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-             */
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -363,10 +336,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         mAlertDialog.show();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
@@ -417,10 +386,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         return parent;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -438,10 +403,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 
     TextToSpeech mTts;
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -463,30 +424,18 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 //down.
                 DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),u.getCachedPwd(), source, "", this) {
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                     */
                     @Override
                     protected void deliverResult(FormRecordListActivity receiver, Integer status) {
                         switch(status) {
                         case DataPullTask.DOWNLOAD_SUCCESS:                            
                             FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(FormRecordListActivity.this, platform,CLEANUP_ID) {
 
-                                /*
-                                 * (non-Javadoc)
-                                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                                 */
                                 @Override
                                 protected void deliverResult( FormRecordListActivity receiver, Integer result) {
                                     receiver.refreshView();
                                     
                                 }
 
-                                /*
-                                 * (non-Javadoc)
-                                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                                 */
                                 @Override
                                 protected void deliverUpdate( FormRecordListActivity receiver, Integer... values) {
                                     if(values[0] < 0) {
@@ -502,10 +451,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                                     
                                 }
 
-                                /*
-                                 * (non-Javadoc)
-                                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                                 */
                                 @Override
                                 protected void deliverError( FormRecordListActivity receiver, Exception e) {
                                     receiver.taskError(e);
@@ -537,10 +482,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
                         switch(update[0]){
@@ -552,10 +493,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(FormRecordListActivity receiver, Exception e) {
                         receiver.taskError(e);
@@ -588,20 +525,12 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         CommCareUtil.triggerLogSubmission(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onDestroy()
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         adapter.release();
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getWakeLockingLevel()
-     */
     @Override
     protected int getWakeLockingLevel() {
         return PowerManager.PARTIAL_WAKE_LOCK;
@@ -634,10 +563,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         enableSearch();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
+    /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
