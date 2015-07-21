@@ -1,0 +1,15 @@
+app.display.name=Untitled Application
+cchq.case=Case
+cchq.referral=Referral
+en=English
+forms.m0f0=Register Face
+forms.m0f1=Lookup Face
+homescreen.title=Untitled Application
+m0.case_long.case_name_1.header=Name
+m0.case_long.title=Cases
+m0.case_short.case_case_id_2.header=Case Id
+m0.case_short.case_name_1.header=Name
+m0.case_short.title=Cases
+m0.ref_long.title=Referrals
+m0.ref_short.title=Referrals
+modules.m0=Face

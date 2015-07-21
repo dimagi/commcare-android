@@ -1,0 +1,249 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>10. HIV Testing</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/845522f3b9062f1cc90fc69768535f7dc47c8dbc" uiVersion="1" version="1787" name="10. HIV Testing">
+					<hivconsent/>
+					<cnthivtestdt/>
+					<cnthivtestplc/>
+					<cntdetrslt/>
+					<indeterminteconfi/>
+					<cntstatpakrslt/>
+					<cntunigoldrslt/>
+					<cnthivfnlrslt/>
+					<surepositive/>
+					<surenegative/>
+					<pttype/>
+					<screenid/>
+					<ptid/>
+					<age/>
+					<gender/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data></instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/hivconsent" required="true()"/>
+			<bind nodeset="/data/cnthivtestdt" type="xsd:date" relevant="/data/hivconsent = 'yes'" required="true()"/>
+			<bind nodeset="/data/cnthivtestplc" relevant="/data/hivconsent = 'yes'" required="true()"/>
+			<bind nodeset="/data/cntdetrslt" relevant="/data/hivconsent = 'yes'" required="true()"/>
+			<bind nodeset="/data/indeterminteconfi" constraint="indeterminteconfi !='No'" jr:constraintMsg="jr:itext('indeterminteconfi-constraintMsg')" relevant="/data/cntdetrslt = 'Indeterminate' " required="true()"/>
+			<bind nodeset="/data/cntstatpakrslt" relevant="/data/hivconsent = 'yes' and /data/cntdetrslt = 'positive'" required="true()"/>
+			<bind nodeset="/data/cntunigoldrslt" relevant="/data/hivconsent = 'yes' and /data/cntstatpakrslt != 'positive'" required="true()"/>
+			<bind nodeset="/data/cnthivfnlrslt" relevant="/data/hivconsent = 'yes'" required="true()"/>
+			<bind nodeset="/data/surepositive" relevant="/data/cnthivfnlrslt = 'positive'"/>
+			<bind nodeset="/data/surenegative" relevant="/data/cnthivfnlrslt = 'negative'"/>
+			<bind nodeset="/data/pttype"/>
+			<bind nodeset="/data/screenid"/>
+			<bind nodeset="/data/ptid"/>
+			<bind nodeset="/data/age"/>
+			<bind nodeset="/data/gender"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="hivconsent-label">
+						<value>Did patient consent to HIV testing?</value>
+					</text>
+					<text id="hivconsent-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="hivconsent-no-label">
+						<value>No</value>
+					</text>
+					<text id="hivconsent-knowpos-label">
+						<value>Known prior HIV positive</value>
+					</text>
+					<text id="cnthivtestdt-label">
+						<value>Date HIV testing performed</value>
+					</text>
+					<text id="cnthivtestplc-label">
+						<value>Place where tested</value>
+					</text>
+					<text id="cnthivtestplc-home-label">
+						<value>Home</value>
+					</text>
+					<text id="cnthivtestplc-hivclinic-label">
+						<value>HIV Clinic</value>
+					</text>
+					<text id="cnthivtestplc-tbclinic-label">
+						<value>TB Clinic</value>
+					</text>
+					<text id="cnthivtestplc-other-label">
+						<value>Other</value>
+					</text>
+					<text id="cntdetrslt-label">
+						<value>Determine Result</value>
+					</text>
+					<text id="cntdetrslt-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="cntdetrslt-negative-label">
+						<value>Negative</value>
+					</text>
+					<text id="cntdetrslt-indeterminate-label">
+						<value>Indeterminate</value>
+					</text>
+					<text id="cntdetrslt-notdone-label">
+						<value>Not Done</value>
+					</text>
+					<text id="indeterminteconfi-label">
+						<value>Are you sure the patient's result is Indeterminate? </value>
+					</text>
+					<text id="indeterminteconfi-constraintMsg">
+						<value>You must go back to the previous question and correct your answer or, select yes and confirm that the result was indeterminate. </value>
+					</text>
+					<text id="cntstatpakrslt-label">
+						<value>Stat-Pak Result</value>
+					</text>
+					<text id="cntunigoldrslt-label">
+						<value>Uni-Gold Result</value>
+					</text>
+					<text id="cnthivfnlrslt-label">
+						<value>Final Result</value>
+					</text>
+					<text id="surepositive-label">
+						<value>Basing on your answers below:
+Determine Result: <output value="/data/cntdetrslt"/>
+Stat-Pak Result: <output value="/data/cntstatpakrslt"/>
+Uni-Gold Result: <output value="/data/cntunigoldrslt"/>
+Final Result: <output value="/data/cnthivfnlrslt"/>
+Are you sure about the final positive results? If not you may go back and crosscheck your answers.
+
+Thanks.</value>
+					</text>
+					<text id="surenegative-label">
+						<value>Are you sure about the final negative results</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/gender" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptgender"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/screenid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/screenid"/><setvalue event="xforms-ready" ref="/data/age" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptage"/><setvalue event="xforms-ready" ref="/data/ptid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptid"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/hivconsent">
+			<label ref="jr:itext('hivconsent-label')"/>
+			<item>
+				<label ref="jr:itext('hivconsent-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hivconsent-no-label')"/>
+				<value>no</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hivconsent-knowpos-label')"/>
+				<value>knowpos</value>
+			</item>
+		</select1>
+		<input ref="/data/cnthivtestdt">
+			<label ref="jr:itext('cnthivtestdt-label')"/>
+		</input>
+		<select1 ref="/data/cnthivtestplc">
+			<label ref="jr:itext('cnthivtestplc-label')"/>
+			<item>
+				<label ref="jr:itext('cnthivtestplc-home-label')"/>
+				<value>home</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cnthivtestplc-hivclinic-label')"/>
+				<value>hivclinic</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cnthivtestplc-tbclinic-label')"/>
+				<value>tbclinic</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cnthivtestplc-other-label')"/>
+				<value>other</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cntdetrslt">
+			<label ref="jr:itext('cntdetrslt-label')"/>
+			<item>
+				<label ref="jr:itext('cntdetrslt-positive-label')"/>
+				<value>positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-indeterminate-label')"/>
+				<value>indeterminate</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-notdone-label')"/>
+				<value>notdone</value>
+			</item>
+		</select1>
+		<select1 ref="/data/indeterminteconfi">
+			<label ref="jr:itext('indeterminteconfi-label')"/>
+			<item>
+				<label ref="jr:itext('hivconsent-yes-label')"/>
+				<value>idyes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hivconsent-no-label')"/>
+				<value>IDno</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cntstatpakrslt">
+			<label ref="jr:itext('cntstatpakrslt-label')"/>
+			<item>
+				<label ref="jr:itext('cntdetrslt-positive-label')"/>
+				<value>positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-indeterminate-label')"/>
+				<value>indeterminate</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-notdone-label')"/>
+				<value>notdone</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cntunigoldrslt">
+			<label ref="jr:itext('cntunigoldrslt-label')"/>
+			<item>
+				<label ref="jr:itext('cntdetrslt-positive-label')"/>
+				<value>positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-indeterminate-label')"/>
+				<value>indeterminate</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-notdone-label')"/>
+				<value>notdone</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cnthivfnlrslt">
+			<label ref="jr:itext('cnthivfnlrslt-label')"/>
+			<item>
+				<label ref="jr:itext('cntdetrslt-positive-label')"/>
+				<value>positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-indeterminate-label')"/>
+				<value>indeterminate</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cntdetrslt-notdone-label')"/>
+				<value>notdone</value>
+			</item>
+		</select1>
+		<trigger ref="/data/surepositive">
+			<label ref="jr:itext('surepositive-label')"/>
+		</trigger>
+		<trigger ref="/data/surenegative">
+			<label ref="jr:itext('surenegative-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

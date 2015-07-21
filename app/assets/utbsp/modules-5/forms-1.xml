@@ -1,0 +1,140 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>8. SMS Confirmation</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/a10a0ff7c397440ddcd51f1bd272e24c3ad7546a" uiVersion="1" version="1781" name="8. SMS Confirmation">
+					<received_sms_code/>
+					<surephonechange/>
+					<cancelsmscontact/>
+					<sms_registration_code/>
+					<successfully_registered_for_sms/>
+					<new_contact_phone_number/>
+					<question31/>
+					<case_verification_code/>
+					<case_verification_code_trigger/>
+					<contact_phone_number_is_verified/>
+					<contact_phone_number/>
+					<verification_code/>
+					<verification_code_trigger/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><contact_phone_number/><contact_phone_number_is_verified/><verification_code/><verification_code_trigger/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data></instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/received_sms_code" required="true()"/>
+			<bind nodeset="/data/surephonechange" relevant="/data/received_sms_code = 'change_phone'" required="true()"/>
+			<bind nodeset="/data/cancelsmscontact" relevant="/data/received_sms_code = 'cancel_sms'" required="true()"/>
+			<bind nodeset="/data/sms_registration_code" type="xsd:string" constraint="/data/sms_registration_code = /data/case_verification_code" jr:constraintMsg="jr:itext('sms_registration_code-constraintMsg')" relevant="/data/received_sms_code = 'enter_code'" required="true()"/>
+			<bind nodeset="/data/successfully_registered_for_sms" relevant="/data/sms_registration_code = /data/case_verification_code and /data/case_verification_code != ''" required="true()"/>
+			<bind nodeset="/data/new_contact_phone_number" type="xsd:string" constraint="string-length(.) &gt;=9" jr:constraintMsg="jr:itext('new_contact_phone_number-constraintMsg')" relevant="/data/received_sms_code = 'change_phone' and /data/surephonechange = 'yes'" required="true()"/>
+			<bind nodeset="/data/question31"/>
+			<bind nodeset="/data/case_verification_code"/>
+			<bind nodeset="/data/case_verification_code_trigger"/>
+			<bind nodeset="/data/contact_phone_number_is_verified" relevant="/data/sms_registration_code = /data/case_verification_code and /data/case_verification_code != ''" calculate="1"/>
+			<bind nodeset="/data/contact_phone_number" relevant="/data/received_sms_code = 'change_phone' or /data/received_sms_code = 'cancel_sms'" calculate="concat('256', /data/new_contact_phone_number)"/>
+			<bind nodeset="/data/verification_code" relevant="/data/received_sms_code = 'change_phone' or /data/received_sms_code = 'cancel_sms'" calculate="if(/data/received_sms_code = &quot;change_phone&quot;, uuid(4), '')"/>
+			<bind nodeset="/data/verification_code_trigger" calculate="if(/data/case_verification_code_trigger = 'A', 'B', 'A')"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="received_sms_code-label">
+						<value>Please wait a few minutes for contact's phone to receive a 4 digit confirmation code. 
+
+What would you like to do?</value>
+					</text>
+					<text id="received_sms_code-enter_code-label">
+						<value>Enter confirmation code</value>
+					</text>
+					<text id="received_sms_code-change_phone-label">
+						<value>Change phone number</value>
+					</text>
+					<text id="received_sms_code-cancel_sms-label">
+						<value>Cancel SMS for contact</value>
+					</text>
+					<text id="surephonechange-label">
+						<value>Are you sure you want to change the phone number ?</value>
+					</text>
+					<text id="cancelsmscontact-label">
+						<value>Are you sure you want to cancel SMS for the contact?</value>
+					</text>
+					<text id="cancelsmscontact-no-label">
+						<value>Yes</value>
+					</text>
+					<text id="cancelsmscontact-no-label2">
+						<value>No</value>
+					</text>
+					<text id="sms_registration_code-label">
+						<value>What was the 4 digit code that was sent to the phone?</value>
+					</text>
+					<text id="sms_registration_code-constraintMsg">
+						<value>This confirmation code is incorrect.  Make sure you've entered the code correctly.  You can also try go back and change the phone number for the contact.  </value>
+					</text>
+					<text id="successfully_registered_for_sms-label">
+						<value>This contact was successfully registered for SMS messages! </value>
+					</text>
+					<text id="new_contact_phone_number-label">
+						<value>New Phone Number</value>
+					</text>
+					<text id="new_contact_phone_number-hint">
+						<value>(Please present the number as this example 782953767)</value>
+					</text>
+					<text id="new_contact_phone_number-constraintMsg">
+						<value>Enter a 9 digit phone number, without the leading zero.</value>
+					</text>
+					<text id="question31-label">
+						<value>Please  proceed to complete the Extended Procedures form</value>
+						<value form="image">jr://file/commcare/image/data/question31.png</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/contact_phone_number" nodeset="/data/case/update/contact_phone_number" relevant="count(/data/contact_phone_number) &gt; 0"/><bind calculate="/data/contact_phone_number_is_verified" nodeset="/data/case/update/contact_phone_number_is_verified" relevant="count(/data/contact_phone_number_is_verified) &gt; 0"/><bind calculate="/data/verification_code" nodeset="/data/case/update/verification_code" relevant="count(/data/verification_code) &gt; 0"/><bind calculate="/data/verification_code_trigger" nodeset="/data/case/update/verification_code_trigger" relevant="count(/data/verification_code_trigger) &gt; 0"/><setvalue event="xforms-ready" ref="/data/case_verification_code" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/verification_code"/><setvalue event="xforms-ready" ref="/data/case_verification_code_trigger" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/verification_code_trigger"/><setvalue event="xforms-ready" ref="/data/new_contact_phone_number" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/contact_phone_number"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/received_sms_code">
+			<label ref="jr:itext('received_sms_code-label')"/>
+			<item>
+				<label ref="jr:itext('received_sms_code-enter_code-label')"/>
+				<value>enter_code</value>
+			</item>
+			<item>
+				<label ref="jr:itext('received_sms_code-change_phone-label')"/>
+				<value>change_phone</value>
+			</item>
+			<item>
+				<label ref="jr:itext('received_sms_code-cancel_sms-label')"/>
+				<value>cancel_sms</value>
+			</item>
+		</select1>
+		<select1 ref="/data/surephonechange">
+			<label ref="jr:itext('surephonechange-label')"/>
+			<item>
+				<label ref="jr:itext('cancelsmscontact-no-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cancelsmscontact-no-label2')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cancelsmscontact">
+			<label ref="jr:itext('cancelsmscontact-label')"/>
+			<item>
+				<label ref="jr:itext('cancelsmscontact-no-label')"/>
+				<value>no</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cancelsmscontact-no-label2')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/sms_registration_code">
+			<label ref="jr:itext('sms_registration_code-label')"/>
+		</input>
+		<trigger ref="/data/successfully_registered_for_sms">
+			<label ref="jr:itext('successfully_registered_for_sms-label')"/>
+		</trigger>
+		<input ref="/data/new_contact_phone_number" appearance="numeric">
+			<label ref="jr:itext('new_contact_phone_number-label')"/>
+			<hint ref="jr:itext('new_contact_phone_number-hint')"/>
+		</input>
+		<trigger ref="/data/question31" appearance="minimal">
+			<label ref="jr:itext('question31-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

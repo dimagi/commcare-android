@@ -1,0 +1,59 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>4. Record Visit</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/d92bfaf217c6cbb0c80f2424791be38ffa273f27" uiVersion="1" version="1781" name="4. Record Visit">
+					<contact_home/>
+					<gpslocation/>
+					<indexid/>
+					<pttype/>
+					<ptid/>
+					<username/>
+					<uid/>
+					<group/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><gpslocation/><ptid/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/contact_home" required="true()"/>
+			<bind nodeset="/data/gpslocation" type="geopoint"/>
+			<bind nodeset="/data/indexid"/>
+			<bind nodeset="/data/pttype"/>
+			<bind nodeset="/data/ptid"/>
+			<bind nodeset="/data/username"/>
+			<bind nodeset="/data/uid"/>
+			<bind nodeset="/data/group"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="contact_home-label">
+						<value>Are any contacts at home and available for a visit?</value>
+					</text>
+					<text id="contact_home-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="contact_home-no-label">
+						<value>No</value>
+					</text>
+					<text id="gpslocation-label">
+						<value>Get the Home location. Thanks.</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/gpslocation" nodeset="/data/case/update/gpslocation" relevant="count(/data/gpslocation) &gt; 0"/><bind calculate="/data/ptid" nodeset="/data/case/update/ptid" relevant="count(/data/ptid) &gt; 0"/><setvalue event="xforms-ready" ref="/data/indexid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/screenid"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/contact_home">
+			<label ref="jr:itext('contact_home-label')"/>
+			<item>
+				<label ref="jr:itext('contact_home-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('contact_home-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/gpslocation">
+			<label ref="jr:itext('gpslocation-label')"/>
+		</input>
+	</h:body>
+</h:html>

@@ -1,0 +1,254 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Remove Tablet User</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/5BD02E6E-D5B4-4EC5-AFFB-B2B07EBFD89E" uiVersion="1" version="583" name="Remove Tablet User">
+					<remove_admin_warnin/>
+					<admin_authentication>
+						<entered_admin_pin/>
+					</admin_authentication>
+					<remove_user/>
+					<come_from_another_clinic/>
+					<know_next_clinic/>
+					<new_clinic_region/>
+					<new_clinic_province/>
+					<new_clinic_department/>
+					<new_clinic_cpss/>
+					<debug>
+						<debug_admin_caseid/>
+						<debug_user_caseid/>
+						<debug_admin_user_count/>
+					</debug>
+					<username/>
+					<user_caseid/>
+					<user_type/>
+					<admin_username/>
+					<admin_pin/>
+					<admin_caseid/>
+					<admin_user_count/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><user_type/></update><close/></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<instance src="jr://fixture/commtrack:locations" id="locations"/>
+			<bind nodeset="/data/remove_admin_warnin" constraint="1=2" jr:constraintMsg="jr:itext('remove_admin_warnin-constraintMsg')" relevant="/data/user_caseid = /data/admin_caseid and /data/admin_user_count &lt;= 1"/>
+			<bind nodeset="/data/admin_authentication"/>
+			<bind nodeset="/data/admin_authentication/entered_admin_pin" type="xsd:string" constraint=". = /data/admin_pin" jr:constraintMsg="jr:itext('admin_authentication/entered_admin_pin-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/remove_user" required="true()"/>
+			<bind nodeset="/data/come_from_another_clinic" required="true()"/>
+			<bind nodeset="/data/know_next_clinic" relevant="/data/come_from_another_clinic = 'yes'" required="true()"/>
+			<bind nodeset="/data/new_clinic_region" relevant="/data/know_next_clinic = 'yes'" required="true()"/>
+			<bind nodeset="/data/new_clinic_province" relevant="/data/new_clinic_region != ''" required="true()"/>
+			<bind nodeset="/data/new_clinic_department" relevant="/data/new_clinic_province != ''" required="true()"/>
+			<bind nodeset="/data/new_clinic_cpss" relevant="/data/new_clinic_department != ''" required="true()"/>
+			<bind nodeset="/data/debug" relevant="1=2"/>
+			<bind nodeset="/data/debug/debug_admin_caseid"/>
+			<bind nodeset="/data/debug/debug_user_caseid"/>
+			<bind nodeset="/data/debug/debug_admin_user_count"/>
+			<bind nodeset="/data/username"/>
+			<bind nodeset="/data/user_caseid" calculate="instance('commcaresession')/session/data/case_id"/>
+			<bind nodeset="/data/user_type" calculate="'regular'"/>
+			<bind nodeset="/data/admin_username" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/username"/>
+			<bind nodeset="/data/admin_pin" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/pin"/>
+			<bind nodeset="/data/admin_caseid" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/@case_id"/>
+			<bind nodeset="/data/admin_user_count" calculate="count(instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'])"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="remove_admin_warnin-label">
+						<value>User '<output value="/data/username"/>' is currently the only Admin user, hence cannot be removed. If you wish to remove her, change Admin user to someone else first. After that you can remove this user.</value>
+					</text>
+					<text id="remove_admin_warnin-constraintMsg">
+						<value>Cannot remove Admin user!</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Admin user authentication</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Please enter the 4 digit pin number administrator user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="remove_user-label">
+						<value>Are you sure you wish to remove user '<output value="/data/username"/>'? This user will no longer be able to perform consultations.</value>
+					</text>
+					<text id="come_from_another_clinic-label">
+						<value>Is this user going to another clinic?</value>
+					</text>
+					<text id="come_from_another_clinic-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="come_from_another_clinic-no-label">
+						<value>No</value>
+					</text>
+					<text id="know_next_clinic-label">
+						<value>Do you know the next clinic the user is going to?</value>
+					</text>
+					<text id="new_clinic_region-label">
+						<value>Select region of next clinic</value>
+					</text>
+					<text id="new_clinic_province-label">
+						<value>Select province of next clinic</value>
+					</text>
+					<text id="new_clinic_department-label">
+						<value>Select department of next clinic</value>
+					</text>
+					<text id="new_clinic_cpss-label">
+						<value>Select next clinic</value>
+					</text>
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/debug_admin_caseid-label">
+						<value>Admin case id : <output value="/data/admin_caseid"/></value>
+					</text>
+					<text id="debug/debug_user_caseid-label">
+						<value>User case id: <output value="/data/user_caseid"/></value>
+					</text>
+					<text id="debug/debug_admin_user_count-label">
+						<value>admin user count: <output value="/data/admin_user_count"/></value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="remove_admin_warnin-label">
+						<value>L'utilisateur '<output value="/data/username"/>' est l'ICP. Il n'est pas possible de d&#233;sactiver le compte de l'ICP. Si vous souhaitez le faire, il faut d'abord changer d'ICP.</value>
+					</text>
+					<text id="remove_admin_warnin-constraintMsg">
+						<value>Impossible de d&#233;sactiver le compte de l'ICP. Veuillez quitter ce formulaire.</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Identification de l'ICP</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Saisissez le mot de passe de l'ICP (<output value="/data/admin_username"/>)</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>Mot de passe incorrect. Veuillez r&#233;essayer.</value>
+					</text>
+					<text id="remove_user-label">
+						<value>Etes-vous s&#251;r de vouloir d&#233;sactiver l'utilisateur <output value="/data/username"/> ? Cet utilisateur ne sera plus en mesure d'effectuer de consultations.</value>
+					</text>
+					<text id="come_from_another_clinic-label">
+						<value>Est-ce que cet utilisateur est transf&#233;r&#233; dans une autre clinique?</value>
+					</text>
+					<text id="come_from_another_clinic-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="come_from_another_clinic-no-label">
+						<value>Non</value>
+					</text>
+					<text id="know_next_clinic-label">
+						<value>Connaissez-vous la prochaine clinique de l'utilisateur?</value>
+					</text>
+					<text id="new_clinic_region-label">
+						<value>Selectionnez la r&#233;gion de la prochaine clinique</value>
+					</text>
+					<text id="new_clinic_province-label">
+						<value>Selectionnez la province de la prochaine clinique</value>
+					</text>
+					<text id="new_clinic_department-label">
+						<value>Selectionnez le d&#233;partement de la prochaine clinique</value>
+					</text>
+					<text id="new_clinic_cpss-label">
+						<value>Selectionnez la prochaine clinique</value>
+					</text>
+					<text id="debug-label">
+						<value>D&#233;pannage</value>
+					</text>
+					<text id="debug/debug_admin_caseid-label">
+						<value>ID du dossier administrateur : <output value="/data/admin_caseid"/></value>
+					</text>
+					<text id="debug/debug_user_caseid-label">
+						<value>ID du dossier utilisateur: <output value="/data/user_caseid"/></value>
+					</text>
+					<text id="debug/debug_admin_user_count-label">
+						<value>Nombre d'utilisateur administrateur: <output value="/data/admin_user_count"/></value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/user_type" nodeset="/data/case/update/user_type" relevant="count(/data/user_type) &gt; 0"/><bind nodeset="/data/case/close" relevant="/data/remove_user = 'yes'"/><setvalue event="xforms-ready" ref="/data/username" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/username"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/remove_admin_warnin" appearance="minimal">
+			<label ref="jr:itext('remove_admin_warnin-label')"/>
+		</trigger>
+		<group ref="/data/admin_authentication" appearance="field-list">
+			<label ref="jr:itext('admin_authentication-label')"/>
+			<secret ref="/data/admin_authentication/entered_admin_pin" appearance="numeric">
+				<label ref="jr:itext('admin_authentication/entered_admin_pin-label')"/>
+			</secret>
+		</group>
+		<select1 ref="/data/remove_user">
+			<label ref="jr:itext('remove_user-label')"/>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/come_from_another_clinic">
+			<label ref="jr:itext('come_from_another_clinic-label')"/>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/know_next_clinic">
+			<label ref="jr:itext('know_next_clinic-label')"/>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('come_from_another_clinic-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/new_clinic_region">
+			<label ref="jr:itext('new_clinic_region-label')"/>
+			<itemset nodeset="instance('locations')/regions/region">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/new_clinic_province">
+			<label ref="jr:itext('new_clinic_province-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/new_clinic_region]/provinces/province">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/new_clinic_department">
+			<label ref="jr:itext('new_clinic_department-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/new_clinic_region]/provinces/province[site_code = /data/new_clinic_province]/departments/department">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/new_clinic_cpss">
+			<label ref="jr:itext('new_clinic_cpss-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/new_clinic_region]/provinces/province[site_code = /data/new_clinic_province]/departments/department[site_code = /data/new_clinic_department]/cspss/csps">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<group ref="/data/debug" appearance="field-list">
+			<label ref="jr:itext('debug-label')"/>
+			<trigger ref="/data/debug/debug_admin_caseid" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_caseid-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_user_caseid" appearance="minimal">
+				<label ref="jr:itext('debug/debug_user_caseid-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_admin_user_count" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_user_count-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

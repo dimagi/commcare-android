@@ -1,0 +1,465 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Add Tablet User</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/97B3CE6E-A534-42BD-A17F-76F7DDB8D8AE" uiVersion="1" version="687" name="Add Tablet User">
+					<no_admin_warning/>
+					<admin_authentication>
+						<entered_admin_pin/>
+					</admin_authentication>
+					<registration_question>
+						<username/>
+						<duplicate_username_message/>
+						<entered_pin_1/>
+						<entered_pin_2/>
+						<qualification/>
+						<user_phone_number/>
+						<come_from_another_clinic/>
+					</registration_question>
+					<previous_clinic_region/>
+					<previous_clinic_province/>
+					<previous_clinic_department/>
+					<previous_clinic_cpss/>
+					<security_questions>
+						<security_question_explain_message/>
+						<user_dob/>
+						<mother_first_name/>
+					</security_questions>
+					<confirmation>
+						<user_creation_confirmation_message/>
+						<admin_creation_confirmation/>
+					</confirmation>
+					<debug>
+						<debug_admin_user/>
+						<debug_admin_pin/>
+						<debug_admin_exists/>
+					</debug>
+					<user_type/>
+					<admin_username/>
+					<admin_pin/>
+					<does_admin_exist/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>tablet_user</case_type></create><update><mother_first_name/><pin/><qualification/><user_dob/><user_phone_number/><user_type/><username/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<instance src="jr://fixture/commtrack:locations" id="locations"/>
+			<bind nodeset="/data/no_admin_warning" relevant="/data/does_admin_exist = 'no'" required="true()"/>
+			<bind nodeset="/data/admin_authentication" relevant="/data/does_admin_exist = 'yes'"/>
+			<bind nodeset="/data/admin_authentication/entered_admin_pin" type="xsd:string" constraint=". = /data/admin_pin" jr:constraintMsg="jr:itext('admin_authentication/entered_admin_pin-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/registration_question"/>
+			<bind nodeset="/data/registration_question/username" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/registration_question/duplicate_username_message" constraint="1=2" jr:constraintMsg="jr:itext('registration_question/duplicate_username_message-constraintMsg')" relevant="/data/registration_question/username != '' and (count(instance('casedb')/casedb/case[@case_type='tablet_user'][username =/data/registration_question/username]) != 0)" required="true()"/>
+			<bind nodeset="/data/registration_question/entered_pin_1" type="xsd:string" constraint="string-length(.) = 4 and regex(.,'^[0-9]+$')" jr:constraintMsg="jr:itext('registration_question/entered_pin_1-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/registration_question/entered_pin_2" type="xsd:string" constraint=". = /data/registration_question/entered_pin_1" jr:constraintMsg="jr:itext('registration_question/entered_pin_2-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/registration_question/qualification" required="true()"/>
+			<bind nodeset="/data/registration_question/user_phone_number" type="xsd:string"/>
+			<bind nodeset="/data/registration_question/come_from_another_clinic" required="true()"/>
+			<bind nodeset="/data/previous_clinic_region" relevant="/data/registration_question/come_from_another_clinic = 'yes'" required="true()"/>
+			<bind nodeset="/data/previous_clinic_province" relevant="/data/previous_clinic_region != ''" required="true()"/>
+			<bind nodeset="/data/previous_clinic_department" relevant="/data/previous_clinic_province != ''" required="true()"/>
+			<bind nodeset="/data/previous_clinic_cpss" relevant="/data/previous_clinic_department != ''" required="true()"/>
+			<bind nodeset="/data/security_questions"/>
+			<bind nodeset="/data/security_questions/security_question_explain_message"/>
+			<bind nodeset="/data/security_questions/user_dob" type="xsd:date" constraint=". &lt; today()" jr:constraintMsg="jr:itext('security_questions/user_dob-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/security_questions/mother_first_name" type="xsd:string" constraint="regex(.,'^[^\s]+$')" jr:constraintMsg="jr:itext('security_questions/mother_first_name-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/confirmation"/>
+			<bind nodeset="/data/confirmation/user_creation_confirmation_message"/>
+			<bind nodeset="/data/confirmation/admin_creation_confirmation" relevant="/data/does_admin_exist = 'no'"/>
+			<bind nodeset="/data/debug" relevant="1=2"/>
+			<bind nodeset="/data/debug/debug_admin_user"/>
+			<bind nodeset="/data/debug/debug_admin_pin"/>
+			<bind nodeset="/data/debug/debug_admin_exists"/>
+			<bind nodeset="/data/user_type" calculate="if(/data/does_admin_exist='yes', 'regular', 'admin')"/>
+			<bind nodeset="/data/admin_username" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/username"/>
+			<bind nodeset="/data/admin_pin" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/pin"/>
+			<bind nodeset="/data/does_admin_exist" calculate="if(count(instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin']) &gt; 0, 'yes', 'no')"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="no_admin_warning-label">
+						<value>Currently there is no administrator user. The user that you will create now will be made administrator by default. Administrator user has the privilege to add new users, remove users, etc. Generally, head nurse of the clinic should be made as the administrator.</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Admin user authentication</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Please enter the 4 digit pin number administrator user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="registration_question-label">
+						<value>New User Details</value>
+					</text>
+					<text id="registration_question/username-label">
+						<value>Please enter a username for the new user</value>
+					</text>
+					<text id="registration_question/duplicate_username_message-label">
+						<value>Username '<output value="/data/registration_question/username"/>' is already taken. Please enter a different one.</value>
+					</text>
+					<text id="registration_question/duplicate_username_message-constraintMsg">
+						<value>Please enter a different user id.</value>
+					</text>
+					<text id="registration_question/entered_pin_1-label">
+						<value>Enter 4 digit pin number</value>
+					</text>
+					<text id="registration_question/entered_pin_1-constraintMsg">
+						<value>Pin must be of length 4 and consist of only digits (0-9)</value>
+					</text>
+					<text id="registration_question/entered_pin_2-label">
+						<value>Enter the 4 digit pin again</value>
+					</text>
+					<text id="registration_question/entered_pin_2-constraintMsg">
+						<value>Pin does not match the one entered before</value>
+					</text>
+					<text id="registration_question/qualification-label">
+						<value>Qualification of user</value>
+					</text>
+					<text id="registration_question/qualification-ide-label">
+						<value>IDE</value>
+					</text>
+					<text id="registration_question/qualification-ib-label">
+						<value>IB</value>
+					</text>
+					<text id="registration_question/qualification-ab-label">
+						<value>Accoucheuse brevet&#233;e</value>
+					</text>
+					<text id="registration_question/qualification-accoucheuse-label">
+						<value>Accoucheuse</value>
+					</text>
+					<text id="registration_question/qualification-fe_me-label">
+						<value>FE / ME</value>
+					</text>
+					<text id="registration_question/qualification-ais-label">
+						<value>AIS</value>
+					</text>
+					<text id="registration_question/qualification-other-label">
+						<value>Other</value>
+					</text>
+					<text id="registration_question/user_phone_number-label">
+						<value>Please enter the phone number of the user</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-label">
+						<value>Did this user come from another clinic previously?</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-no-label">
+						<value>No</value>
+					</text>
+					<text id="registration_question/previous_clinic_region-label">
+						<value>Select region of previous clinic</value>
+					</text>
+					<text id="registration_question/previous_clinic_province-label">
+						<value>Select province of previous clinic</value>
+					</text>
+					<text id="registration_question/previous_clinic_department-label">
+						<value>Select department of previous clinic</value>
+					</text>
+					<text id="registration_question/previous_clinic_cpss-label">
+						<value>Select previous clinic</value>
+					</text>
+					<text id="security_questions-label">
+						<value>Security Questions</value>
+					</text>
+					<text id="security_questions/security_question_explain_message-label">
+						<value>Security questions are used to identify you in case of loss of your password.</value>
+					</text>
+					<text id="security_questions/user_dob-label">
+						<value>Date of birth of user</value>
+					</text>
+					<text id="security_questions/user_dob-constraintMsg">
+						<value>Date of birth must be less than today</value>
+					</text>
+					<text id="security_questions/mother_first_name-label">
+						<value>First name of user's mother</value>
+					</text>
+					<text id="security_questions/mother_first_name-hint">
+						<value>Make sure to check the spelling and capital letters.</value>
+					</text>
+					<text id="security_questions/mother_first_name-constraintMsg">
+						<value>All input a single word (first name only).</value>
+					</text>
+					<text id="registration_question/confirmation_message-label">
+						<value>A new user with username '<output value="/data/registration_question/username"/>' will be created. You will be asked to select a user at the beginning of each consultation</value>
+					</text>
+					<text id="confirmation/admin_creation_confirmation-label">
+						<value>Username '<output value="/data/registration_question/username"/>' will also have administrator status (i.e. privilege to add users, remove users, etc).</value>
+					</text>
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/question2-label">
+						<value>Admin user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="debug/debug_admin_pin-label">
+						<value>Admin PIN: <output value="/data/admin_pin"/></value>
+					</text>
+					<text id="debug/debug_admin_exists-label">
+						<value>admin exists: <output value="/data/does_admin_exist"/></value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="no_admin_warning-label">
+						<value>Vous &#234;tes sur le point de cr&#233;er le premier utilisateur. Il s'agit du compte de l'ICP. L'ICP est le seul &#224; pouvoir ajouter et d&#233;sactiver des utilisateurs.
+
+Si vous n'&#234;tes pas l'ICP, veuillez quitter ce formulaire.</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Identification de l'ICP</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Saisissez le mot de passe de l'ICP: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>Le mot de passe est incorrect</value>
+					</text>
+					<text id="registration_question-label">
+						<value>Donn&#233;es de l'utilisateur</value>
+					</text>
+					<text id="registration_question/username-label">
+						<value>Quel est votre nom ?</value>
+					</text>
+					<text id="registration_question/duplicate_username_message-label">
+						<value>Le nom '<output value="/data/registration_question/username"/>' 
+est d&#233;j&#224; utilis&#233;. Choisissez-en un autre.</value>
+					</text>
+					<text id="registration_question/duplicate_username_message-constraintMsg">
+						<value>S'il vous pla&#238;t entrer un nom d'utilisateur diff&#233;rent. </value>
+					</text>
+					<text id="registration_question/entered_pin_1-label">
+						<value>Veuillez saisir un mot de passe &#224; 4 chiffres</value>
+					</text>
+					<text id="registration_question/entered_pin_1-constraintMsg">
+						<value>Le mot de passe doit &#234;tre compos&#233; exclusivement de 4 chiffres </value>
+					</text>
+					<text id="registration_question/entered_pin_2-label">
+						<value>Veuillez confirmer votre mot de passe &#224; 4 chiffres</value>
+					</text>
+					<text id="registration_question/entered_pin_2-constraintMsg">
+						<value>Le mot de passe de confirmation ne correspond pas &#224; celui saisi pr&#233;c&#233;demment.</value>
+					</text>
+					<text id="registration_question/qualification-label">
+						<value>Quelle est votre qualification ?</value>
+					</text>
+					<text id="registration_question/qualification-ide-label">
+						<value>IDE</value>
+					</text>
+					<text id="registration_question/qualification-ib-label">
+						<value>IB</value>
+					</text>
+					<text id="registration_question/qualification-ab-label">
+						<value>Accoucheuse brevet&#233;e</value>
+					</text>
+					<text id="registration_question/qualification-accoucheuse-label">
+						<value>Accoucheuse</value>
+					</text>
+					<text id="registration_question/qualification-fe_me-label">
+						<value>FE / ME</value>
+					</text>
+					<text id="registration_question/qualification-ais-label">
+						<value>AIS</value>
+					</text>
+					<text id="registration_question/qualification-other-label">
+						<value>Autre</value>
+					</text>
+					<text id="registration_question/user_phone_number-label">
+						<value>Quel est votre num&#233;ro de t&#233;l&#233;phone ?</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-label">
+						<value>Est-ce que l'utilisateur &#233;tait affili&#233; &#224; une autre clinique auparavant?</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="registration_question/come_from_another_clinic-no-label">
+						<value>Non</value>
+					</text>
+					<text id="registration_question/previous_clinic_region-label">
+						<value>S&#233;lectionnez la r&#233;gion de la pr&#233;c&#233;dente clinique</value>
+					</text>
+					<text id="registration_question/previous_clinic_province-label">
+						<value>S&#233;lectionnez la province de la pr&#233;c&#233;dente clinique</value>
+					</text>
+					<text id="registration_question/previous_clinic_department-label">
+						<value>S&#233;lectionnez le d&#233;partement de la pr&#233;c&#233;dente clinique</value>
+					</text>
+					<text id="registration_question/previous_clinic_cpss-label">
+						<value>S&#233;lectionnez la pr&#233;c&#233;dente clinique</value>
+					</text>
+					<text id="security_questions-label">
+						<value>Questions de s&#233;curit&#233;</value>
+					</text>
+					<text id="security_questions/security_question_explain_message-label">
+						<value>Les questions de s&#233;curit&#233; sont utilis&#233;es pour vous identifier en cas de perte / oubli de votre mot de passe.</value>
+					</text>
+					<text id="security_questions/user_dob-label">
+						<value>Quelle est votre date de naissance ?</value>
+					</text>
+					<text id="security_questions/user_dob-constraintMsg">
+						<value>Votre date de naissance doit &#234;tre dans le pass&#233;</value>
+					</text>
+					<text id="security_questions/mother_first_name-label">
+						<value>Quel est le pr&#233;nom de votre m&#232;re ?</value>
+					</text>
+					<text id="security_questions/mother_first_name-hint">
+						<value>Assurez-vous de la bonne orthographe et des majuscules.</value>
+					</text>
+					<text id="security_questions/mother_first_name-constraintMsg">
+						<value>Veuillez saisir un seul mot (le pr&#233;nom uniquement).</value>
+					</text>
+					<text id="registration_question/confirmation_message-label">
+						<value>Votre compte sera cr&#233;&#233; avec le nom de '<output value="/data/registration_question/username"/>'. Il vous sera demand&#233; de vous identifier au d&#233;but de chaque consultation.</value>
+					</text>
+					<text id="confirmation/admin_creation_confirmation-label">
+						<value>Votre compte sera cr&#233;&#233; avec le nom de '<output value="/data/registration_question/username"/>'. Il vous sera demand&#233; de vous identifier au d&#233;but de chaque consultation. Vous &#234;tes l'ICP.</value>
+					</text>
+					<text id="debug-label">
+						<value>D&#233;pannage</value>
+					</text>
+					<text id="debug/question2-label">
+						<value>Nom Administrateur: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="debug/debug_admin_pin-label">
+						<value>Administateur PIN: <output value="/data/admin_pin"/></value>
+					</text>
+					<text id="debug/debug_admin_exists-label">
+						<value>Administrateur existant: <output value="/data/does_admin_exist"/></value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_tablet_user_0"/><bind calculate="/data/registration_question/username" nodeset="/data/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/><bind calculate="/data/security_questions/mother_first_name" nodeset="/data/case/update/mother_first_name" relevant="count(/data/security_questions/mother_first_name) &gt; 0"/><bind calculate="/data/registration_question/entered_pin_1" nodeset="/data/case/update/pin" relevant="count(/data/registration_question/entered_pin_1) &gt; 0"/><bind calculate="/data/registration_question/qualification" nodeset="/data/case/update/qualification" relevant="count(/data/registration_question/qualification) &gt; 0"/><bind calculate="/data/security_questions/user_dob" nodeset="/data/case/update/user_dob" relevant="count(/data/security_questions/user_dob) &gt; 0"/><bind calculate="/data/registration_question/user_phone_number" nodeset="/data/case/update/user_phone_number" relevant="count(/data/registration_question/user_phone_number) &gt; 0"/><bind calculate="/data/user_type" nodeset="/data/case/update/user_type" relevant="count(/data/user_type) &gt; 0"/><bind calculate="/data/registration_question/username" nodeset="/data/case/update/username" relevant="count(/data/registration_question/username) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/no_admin_warning">
+			<label ref="jr:itext('no_admin_warning-label')"/>
+		</trigger>
+		<group ref="/data/admin_authentication" appearance="field-list">
+			<label ref="jr:itext('admin_authentication-label')"/>
+			<secret ref="/data/admin_authentication/entered_admin_pin" appearance="numeric">
+				<label ref="jr:itext('admin_authentication/entered_admin_pin-label')"/>
+			</secret>
+		</group>
+		<group ref="/data/registration_question" appearance="field-list">
+			<label ref="jr:itext('registration_question-label')"/>
+			<input ref="/data/registration_question/username">
+				<label ref="jr:itext('registration_question/username-label')"/>
+			</input>
+			<trigger ref="/data/registration_question/duplicate_username_message" appearance="minimal">
+				<label ref="jr:itext('registration_question/duplicate_username_message-label')"/>
+			</trigger>
+			<secret ref="/data/registration_question/entered_pin_1" appearance="numeric">
+				<label ref="jr:itext('registration_question/entered_pin_1-label')"/>
+			</secret>
+			<secret ref="/data/registration_question/entered_pin_2" appearance="numeric">
+				<label ref="jr:itext('registration_question/entered_pin_2-label')"/>
+			</secret>
+			<select1 ref="/data/registration_question/qualification">
+				<label ref="jr:itext('registration_question/qualification-label')"/>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-ide-label')"/>
+					<value>ide</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-ib-label')"/>
+					<value>ib</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-ab-label')"/>
+					<value>ab</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-accoucheuse-label')"/>
+					<value>accoucheuse</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-fe_me-label')"/>
+					<value>fe_me</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-ais-label')"/>
+					<value>ais</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/qualification-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/registration_question/user_phone_number" appearance="numeric">
+				<label ref="jr:itext('registration_question/user_phone_number-label')"/>
+			</input>
+			<select1 ref="/data/registration_question/come_from_another_clinic">
+				<label ref="jr:itext('registration_question/come_from_another_clinic-label')"/>
+				<item>
+					<label ref="jr:itext('registration_question/come_from_another_clinic-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('registration_question/come_from_another_clinic-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<select1 ref="/data/previous_clinic_region">
+			<label ref="jr:itext('registration_question/previous_clinic_region-label')"/>
+			<itemset nodeset="instance('locations')/regions/region">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/previous_clinic_province">
+			<label ref="jr:itext('registration_question/previous_clinic_province-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/previous_clinic_region]/provinces/province">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/previous_clinic_department">
+			<label ref="jr:itext('registration_question/previous_clinic_department-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/previous_clinic_region]/provinces/province[site_code = /data/previous_clinic_province]/departments/department">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/previous_clinic_cpss">
+			<label ref="jr:itext('registration_question/previous_clinic_cpss-label')"/>
+			<itemset nodeset="instance('locations')/regions/region[site_code = /data/previous_clinic_region]/provinces/province[site_code = /data/previous_clinic_province]/departments/department[site_code = /data/previous_clinic_department]/cspss/csps">
+				<label ref="name"/>
+				<value ref="site_code"/>
+			</itemset>
+		</select1>
+		<group ref="/data/security_questions" appearance="field-list">
+			<label ref="jr:itext('security_questions-label')"/>
+			<trigger ref="/data/security_questions/security_question_explain_message" appearance="minimal">
+				<label ref="jr:itext('security_questions/security_question_explain_message-label')"/>
+			</trigger>
+			<input ref="/data/security_questions/user_dob">
+				<label ref="jr:itext('security_questions/user_dob-label')"/>
+			</input>
+			<input ref="/data/security_questions/mother_first_name">
+				<label ref="jr:itext('security_questions/mother_first_name-label')"/>
+				<hint ref="jr:itext('security_questions/mother_first_name-hint')"/>
+			</input>
+		</group>
+		<group ref="/data/confirmation" appearance="field-list">
+			<trigger ref="/data/confirmation/user_creation_confirmation_message" appearance="minimal">
+				<label ref="jr:itext('registration_question/confirmation_message-label')"/>
+			</trigger>
+			<trigger ref="/data/confirmation/admin_creation_confirmation" appearance="minimal">
+				<label ref="jr:itext('confirmation/admin_creation_confirmation-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/debug">
+			<label ref="jr:itext('debug-label')"/>
+			<trigger ref="/data/debug/debug_admin_user" appearance="minimal">
+				<label ref="jr:itext('debug/question2-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_admin_pin" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_pin-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_admin_exists" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_exists-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

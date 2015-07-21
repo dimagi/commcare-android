@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="9" descriptor="Media Suite File">
+  <media path="../../commcare/audio/data">
+    <resource descriptor="Audio File: something.mp3" id="media-5843e98968197a77b7279b32c42859c4-something.mp3" version="4">
+      <location authority="local">./commcare/audio/data/something.mp3</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareAudio/d690aa9a68f8adb4cf8179ad96aea3ab/something.mp3</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: something.png" id="media-5fc4df6479c88c72a77b9789ce0acee6-something.png" version="4">
+      <location authority="local">./commcare/image/data/something.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/b749d2815c90ee7e2dbb84b91329cfab/something.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/video/data">
+    <resource descriptor="Video File: something.3gp" id="media-81a9a6d5cf44a1b59a20fac5f4a1355a-something.3gp" version="4">
+      <location authority="local">./commcare/video/data/something.3gp</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareVideo/cb4acb58e8ae26737cf41fed8df3419f/something.3gp</location>
+    </resource>
+  </media>
+</suite>

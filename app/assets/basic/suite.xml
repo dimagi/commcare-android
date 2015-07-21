@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="238" descriptor="Suite File">
+  <xform>
+    <resource id="87459d42f5e30e33966f315cdf2291b606deb7bd" version="238" descriptor="Form: (Module HIN: Basic Test) - HIN: First Form">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="171bc4e83ee5fa041f93fffa2d18b13ca3be2f8a" version="238" descriptor="Form: (Module HIN: Basic Test) - HIN: New Case">
+      <location authority="local">./modules-0/forms-1.xml</location>
+      <location authority="remote">./modules-0/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="a4c709c54808b59f596c2fc3602a904e6590f64b" version="238" descriptor="Form: (Module HIN: Basic Test) - HIN: Update Case">
+      <location authority="local">./modules-0/forms-2.xml</location>
+      <location authority="remote">./modules-0/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="17cc59c878aff89b7f6d2d637b5e6255eccc933" version="238" descriptor="Form: (Module HIN: Basic Test) - HIN: Close Case">
+      <location authority="local">./modules-0/forms-3.xml</location>
+      <location authority="remote">./modules-0/forms-3.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="238" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="hin">
+    <resource id="app_hin_strings" version="238" descriptor="Translations: Unknown Language (hin)">
+      <location authority="local">./hin/app_strings.txt</location>
+      <location authority="remote">./hin/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en">
+    <resource id="app_en_strings" version="238" descriptor="Translations: English">
+      <location authority="local">./en/app_strings.txt</location>
+      <location authority="remote">./en/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="est">
+    <resource id="app_est_strings" version="238" descriptor="Translations: Unknown Language (est)">
+      <location authority="local">./est/app_strings.txt</location>
+      <location authority="remote">./est/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en" form="markdown">
+    <resource id="app_en_strings_md" version="238" descriptor="Translations: English Markdown">
+        <location authority="local">./en/app_strings_md.txt</location>
+        <location authority="remote">./en/app_strings_md.txt</location>
+  </resource>
+  </locale>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_eye_colour_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="eye_colour"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_eye_colour_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="eye_colour"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/CD4CC542-472C-419A-80FF-AD7EADF64358</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/C913EF30-3F45-4071-956F-E2B6513CFCC9</form>
+    <command id="m0-f1">
+      <text>
+        <locale id="forms.m0f1"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/FFA854BD-61DE-4CE2-89BC-5176D4EB9148</form>
+    <command id="m0-f2">
+      <text>
+        <locale id="forms.m0f2"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='Case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/B9BA3D0C-E107-4C31-A25D-4A98940C4537</form>
+    <command id="m0-f3">
+      <text>
+        <locale id="forms.m0f3"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='Case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <command id="m0-case-list">
+      <text>
+        <locale id="case_lists.m0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='Case'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <menu id="m0">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+    <command id="m0-f3"/>
+    <command id="m0-case-list"/>
+  </menu>
+</suite>

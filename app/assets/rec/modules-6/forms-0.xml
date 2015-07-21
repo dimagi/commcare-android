@@ -1,0 +1,259 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Number of consults</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/FE949CB5-57B7-48F3-B4B3-21B475190611" uiVersion="1" version="1108" name="Number of consults">
+					<stat_disclaimer>
+						<stat_dec_last_label/>
+						<stat_dec_last/>
+						<stat_jan_label/>
+						<stat_jan/>
+						<stat_fev_label/>
+						<stat_fev/>
+						<stat_mar_label/>
+						<stat_mar/>
+						<stat_avr_label/>
+						<stat_avr/>
+						<stat_may_label/>
+						<stat_may/>
+						<stat_jun_label/>
+						<stat_jun/>
+						<stat_jul_label/>
+						<stat_jul/>
+						<stat_aug_label/>
+						<stat_aug/>
+						<stat_sep_label/>
+						<stat_sep/>
+						<stat_oct_label/>
+						<stat_oct/>
+						<stat_nov_label/>
+						<stat_nov/>
+						<stat_dec_label/>
+						<stat_dec/>
+						<stat_total_label/>
+						<stat_total/>
+						<current_year/>
+						<current_month/>
+						<last_year/>
+						<nov_end_last/>
+						<dec_end_last/>
+						<jan_end/>
+						<feb_end/>
+						<mar_end/>
+						<apr_end/>
+						<may_end/>
+						<jun_end/>
+						<jul_end/>
+						<aug_end/>
+						<sep_end/>
+						<oct_end/>
+						<nov_end/>
+						<dec_end/>
+						<stat_exit_disclaimer/>
+					</stat_disclaimer>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/stat_disclaimer"/>
+			<bind nodeset="/data/stat_disclaimer/stat_dec_last_label" relevant="/data/stat_disclaimer/current_month = 1"/>
+			<bind nodeset="/data/stat_disclaimer/stat_dec_last" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/nov_end_last and date(visit_date) &lt;= /data/stat_disclaimer/dec_end_last])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jan_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jan" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/dec_end_last and date(visit_date) &lt;= /data/stat_disclaimer/jan_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_fev_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_fev" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/jan_end and date(visit_date) &lt;= /data/stat_disclaimer/feb_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_mar_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_mar" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/feb_end and date(visit_date) &lt;= /data/stat_disclaimer/mar_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_avr_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_avr" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/mar_end and date(visit_date) &lt;= /data/stat_disclaimer/apr_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_may_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_may" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/apr_end and date(visit_date) &lt;= /data/stat_disclaimer/may_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jun_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jun" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/may_end and date(visit_date) &lt;= /data/stat_disclaimer/jun_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jul_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_jul" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/jun_end and date(visit_date) &lt;= /data/stat_disclaimer/jul_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_aug_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_aug" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/jul_end and date(visit_date) &lt;= /data/stat_disclaimer/aug_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_sep_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_sep" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/aug_end and date(visit_date) &lt;= /data/stat_disclaimer/sep_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_oct_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_oct" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/sep_end and date(visit_date) &lt;= /data/stat_disclaimer/oct_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_nov_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_nov" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/oct_end and date(visit_date) &lt;= /data/stat_disclaimer/nov_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_dec_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_dec" calculate="count(instance('casedb')/casedb/case[@case_type='imci_visit'][date(visit_date) &gt; /data/stat_disclaimer/nov_end and date(visit_date) &lt;= /data/stat_disclaimer/dec_end])"/>
+			<bind nodeset="/data/stat_disclaimer/stat_total_label"/>
+			<bind nodeset="/data/stat_disclaimer/stat_total"/>
+			<bind nodeset="/data/stat_disclaimer/current_year" calculate="format-date(today(), '%Y')"/>
+			<bind nodeset="/data/stat_disclaimer/current_month" calculate="int(format-date(today(), '%m'))"/>
+			<bind nodeset="/data/stat_disclaimer/last_year" calculate="int(format-date(today(), '%Y')) - 1"/>
+			<bind nodeset="/data/stat_disclaimer/nov_end_last" calculate="date(concat(/data/stat_disclaimer/last_year, '-11-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/dec_end_last" calculate="date(concat(/data/stat_disclaimer/last_year, '-12-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/jan_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-01-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/feb_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-02-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/mar_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-03-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/apr_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-04-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/may_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-05-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/jun_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-06-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/jul_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-07-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/aug_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-08-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/sep_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-09-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/oct_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-10-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/nov_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-11-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/dec_end" calculate="date(concat(/data/stat_disclaimer/current_year, '-12-25'))"/>
+			<bind nodeset="/data/stat_disclaimer/stat_exit_disclaimer" constraint="1=2" jr:constraintMsg="jr:itext('stat_disclaimer/stat_exit_disclaimer-constraintMsg')" required="true()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="stat_disclaimer-label">
+						<value>Number of monthly consultations</value>
+					</text>
+					<text id="stat_disclaimer/stat_dec_last_label-label">
+						<value>December <output value="/data/stat_disclaimer/last_year"/>: <output value="/data/stat_disclaimer/stat_dec_last"/></value>
+					</text>
+					<text id="stat_jan_label-label">
+						<value>January <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_jan"/></value>
+					</text>
+					<text id="stat_fev_label-label">
+						<value>February <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_fev"/></value>
+					</text>
+					<text id="stat_mar_label-label">
+						<value>March <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_mar"/></value>
+					</text>
+					<text id="stat_avr_label-label">
+						<value>April <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_avr"/></value>
+					</text>
+					<text id="stat_may_label-label">
+						<value>May <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_may"/></value>
+					</text>
+					<text id="stat_jun_label-label">
+						<value>June <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_jun"/></value>
+					</text>
+					<text id="stat_jul_label-label">
+						<value>July <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_jul"/></value>
+					</text>
+					<text id="stat_aug_label-label">
+						<value>August <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_aug"/></value>
+					</text>
+					<text id="stat_sep_label-label">
+						<value>September <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_sep"/></value>
+					</text>
+					<text id="stat_oct_label-label">
+						<value>October <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_oct"/></value>
+					</text>
+					<text id="stat_nov_label-label">
+						<value>November <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_nov"/></value>
+					</text>
+					<text id="stat_dec_label-label">
+						<value>December <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_dec"/></value>
+					</text>
+					<text id="stat_disclaimer/stat_total_label-label">
+						<value>Total <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_total"/></value>
+					</text>
+					<text id="stat_disclaimer/stat_exit_disclaimer-constraintMsg">
+						<value>Please exit the form after inspecting the statistics</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="stat_disclaimer-label">
+						<value>Nombre de consultations mensuelles</value>
+					</text>
+					<text id="stat_disclaimer/stat_dec_last_label-label">
+						<value>D&#233;cembre <output value="/data/stat_disclaimer/last_year"/> : <output value="/data/stat_disclaimer/stat_dec_last"/></value>
+					</text>
+					<text id="stat_jan_label-label">
+						<value>Janvier <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_jan"/></value>
+					</text>
+					<text id="stat_fev_label-label">
+						<value>F&#233;vrier <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_fev"/></value>
+					</text>
+					<text id="stat_mar_label-label">
+						<value>Mars <output value="/data/stat_disclaimer/current_year"/>: <output value="/data/stat_disclaimer/stat_mar"/></value>
+					</text>
+					<text id="stat_avr_label-label">
+						<value>Avril <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_avr"/></value>
+					</text>
+					<text id="stat_may_label-label">
+						<value>Mai <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_may"/></value>
+					</text>
+					<text id="stat_jun_label-label">
+						<value>Juin <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_jun"/></value>
+					</text>
+					<text id="stat_jul_label-label">
+						<value>Juillet <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_jul"/></value>
+					</text>
+					<text id="stat_aug_label-label">
+						<value>Ao&#251;t <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_aug"/></value>
+					</text>
+					<text id="stat_sep_label-label">
+						<value>Septembre <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_sep"/></value>
+					</text>
+					<text id="stat_oct_label-label">
+						<value>Octobre <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_oct"/></value>
+					</text>
+					<text id="stat_nov_label-label">
+						<value>Novembre <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_nov"/></value>
+					</text>
+					<text id="stat_dec_label-label">
+						<value>D&#233;cembre <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_dec"/></value>
+					</text>
+					<text id="stat_disclaimer/stat_total_label-label">
+						<value>Total <output value="/data/stat_disclaimer/current_year"/> : <output value="/data/stat_disclaimer/stat_total"/></value>
+					</text>
+					<text id="stat_disclaimer/stat_exit_disclaimer-constraintMsg">
+						<value>Veuillez quitter le formulaire apr&#232;s avoir consult&#233; les statistiques</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/stat_disclaimer" appearance="field-list">
+			<label ref="jr:itext('stat_disclaimer-label')"/>
+			<trigger ref="/data/stat_disclaimer/stat_dec_last_label" appearance="minimal">
+				<label ref="jr:itext('stat_disclaimer/stat_dec_last_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_jan_label" appearance="minimal">
+				<label ref="jr:itext('stat_jan_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_fev_label" appearance="minimal">
+				<label ref="jr:itext('stat_fev_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_mar_label" appearance="minimal">
+				<label ref="jr:itext('stat_mar_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_avr_label" appearance="minimal">
+				<label ref="jr:itext('stat_avr_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_may_label" appearance="minimal">
+				<label ref="jr:itext('stat_may_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_jun_label" appearance="minimal">
+				<label ref="jr:itext('stat_jun_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_jul_label" appearance="minimal">
+				<label ref="jr:itext('stat_jul_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_aug_label" appearance="minimal">
+				<label ref="jr:itext('stat_aug_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_sep_label" appearance="minimal">
+				<label ref="jr:itext('stat_sep_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_oct_label" appearance="minimal">
+				<label ref="jr:itext('stat_oct_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_nov_label" appearance="minimal">
+				<label ref="jr:itext('stat_nov_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_dec_label" appearance="minimal">
+				<label ref="jr:itext('stat_dec_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_total_label" appearance="minimal">
+				<label ref="jr:itext('stat_disclaimer/stat_total_label-label')"/>
+			</trigger>
+			<trigger ref="/data/stat_disclaimer/stat_exit_disclaimer" appearance="minimal">
+				<label ref="jr:itext('stat_disclaimer/stat_exit_disclaimer-constraintMsg')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

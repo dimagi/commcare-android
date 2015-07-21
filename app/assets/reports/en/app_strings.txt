@@ -1,0 +1,16 @@
+app.display.name=Dimagi Reports
+cchq.case=Case
+cchq.referral=Referral
+cchq.report_description_header=Report Description
+cchq.report_menu=Reports
+cchq.report_name_header=Report Name
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.headers.count=Forms
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.headers.phone_screen=Phone Screens
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.headers.resume_screen=Resume Screens
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.headers.second_round=Second Rounds
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.headers.username=User
+cchq.reports.6e89d42b071fe56b6b09fa177984271c.name=Interviews by Person
+en=English
+homescreen.title=Dimagi Reports
+modules.m0=Dimagi Reports
+reports.6e89d42b071fe56b6b09fa177984271c=Interviews by Person

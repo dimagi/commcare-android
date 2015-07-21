@@ -1,0 +1,109 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>9c. Sputum 2 Collection</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/8d55ba9362fd29bb012ddf2d860a88fbb2c8d357" uiVersion="1" version="1972" name="9c. Sputum 2 Collection">
+					<allocationinfo/>
+					<tbrisklabel/>
+					<sputum2collected/>
+					<sput2colldt/>
+					<sput2timecoll/>
+					<comments/>
+					<pttype/>
+					<screenid/>
+					<tb_risk/>
+					<ptage/>
+					<gender/>
+					<ptid/>
+					<hiv_status/>
+					<allocation/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><hiv_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/allocationinfo" relevant="/data/allocation = 'B'" required="true()"/>
+			<bind nodeset="/data/tbrisklabel" relevant="/data/allocation = 'A' and  /data/tb_risk = 'unlikely'" required="true()"/>
+			<bind nodeset="/data/sputum2collected" relevant="/data/allocation = 'A' and  /data/tb_risk = 'likely'" required="true()"/>
+			<bind nodeset="/data/sput2colldt" type="xsd:date" constraint=".&lt;=today()" relevant="/data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/sput2timecoll" relevant="/data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/comments" type="xsd:string" required="false()"/>
+			<bind nodeset="/data/pttype"/>
+			<bind nodeset="/data/screenid"/>
+			<bind nodeset="/data/tb_risk"/>
+			<bind nodeset="/data/ptage"/>
+			<bind nodeset="/data/gender"/>
+			<bind nodeset="/data/ptid"/>
+			<bind nodeset="/data/hiv_status"/>
+			<bind nodeset="/data/allocation"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="allocationinfo-label">
+						<value>This contact has been allocated to the control arm. You can not proceed to carryout the HIV Counseling and Testing at home.</value>
+					</text>
+					<text id="tbrisklabel-label">
+						<value>This contact does not present as one who needs sputum collection. You may not proceed to collect sputum</value>
+					</text>
+					<text id="sputum2collected-label">
+						<value>Was sputum 2 collected?</value>
+					</text>
+					<text id="sputum2collected-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="sputum2collected-no-label">
+						<value>No</value>
+					</text>
+					<text id="sput2colldt-label">
+						<value>Date of collection of sputum</value>
+					</text>
+					<text id="sput2timecoll-label">
+						<value>Timing of collection of sputum 2</value>
+					</text>
+					<text id="sput2timecoll-spot-label">
+						<value>Spot</value>
+					</text>
+					<text id="sput2timecoll-morning-label">
+						<value>Early Morning</value>
+					</text>
+					<text id="comments-label">
+						<value>Free text comments to explain unusual situations encountered during sputum evaluation process.</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/hiv_status" nodeset="/data/case/update/hiv_status" relevant="count(/data/hiv_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/gender" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptgender"/><setvalue event="xforms-ready" ref="/data/screenid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/screenid"/><setvalue event="xforms-ready" ref="/data/ptage" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptage"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/ptid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptid"/><setvalue event="xforms-ready" ref="/data/tb_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_risk"/><setvalue event="xforms-ready" ref="/data/hiv_status" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/hiv_status"/><setvalue event="xforms-ready" ref="/data/allocation" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/allocationinfo" appearance="minimal">
+			<label ref="jr:itext('allocationinfo-label')"/>
+		</trigger>
+		<trigger ref="/data/tbrisklabel" appearance="minimal">
+			<label ref="jr:itext('tbrisklabel-label')"/>
+		</trigger>
+		<select1 ref="/data/sputum2collected">
+			<label ref="jr:itext('sputum2collected-label')"/>
+			<item>
+				<label ref="jr:itext('sputum2collected-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sputum2collected-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/sput2colldt">
+			<label ref="jr:itext('sput2colldt-label')"/>
+		</input>
+		<select1 ref="/data/sput2timecoll">
+			<label ref="jr:itext('sput2timecoll-label')"/>
+			<item>
+				<label ref="jr:itext('sput2timecoll-spot-label')"/>
+				<value>spot</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2timecoll-morning-label')"/>
+				<value>morning</value>
+			</item>
+		</select1>
+		<input ref="/data/comments">
+			<label ref="jr:itext('comments-label')"/>
+		</input>
+	</h:body>
+</h:html>

@@ -1,0 +1,338 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Question Type Exercise</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/49C4C47B-689B-4905-AE3D-FDC0F73CE9E4" uiVersion="1" version="815" name="Question Type Exercise">
+					<text_list>
+						<text_question/>
+						<example_text/>
+					</text_list>
+					<label_list>
+						<label_question_ex/>
+						<question51/>
+					</label_list>
+					<single_select_list>
+						<single_select/>
+						<fav_color/>
+					</single_select_list>
+					<multi_select_list>
+						<multi_select/>
+						<languages/>
+					</multi_select_list>
+					<question9>
+						<numerical/>
+						<number_of_children/>
+					</question9>
+					<date_list>
+						<date/>
+						<uganda_country/>
+					</date_list>
+					<time_list>
+						<question55/>
+						<wakeup/>
+					</time_list>
+					<image/>
+					<fullname/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/text_list"/>
+			<bind nodeset="/data/text_list/text_question" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/text_list/example_text" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/label_list"/>
+			<bind nodeset="/data/label_list/label_question_ex" required="true()"/>
+			<bind nodeset="/data/label_list/question51" required="true()"/>
+			<bind nodeset="/data/single_select_list"/>
+			<bind nodeset="/data/single_select_list/single_select" required="true()"/>
+			<bind nodeset="/data/single_select_list/fav_color" required="true()"/>
+			<bind nodeset="/data/multi_select_list"/>
+			<bind nodeset="/data/multi_select_list/multi_select" required="true()"/>
+			<bind nodeset="/data/multi_select_list/languages" required="true()"/>
+			<bind nodeset="/data/question9"/>
+			<bind nodeset="/data/question9/numerical" type="xsd:int" constraint=".&lt;=100" jr:constraintMsg="jr:itext('numerical-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/question9/number_of_children" type="xsd:int" constraint=".&lt;=20" jr:constraintMsg="jr:itext('number_of_children-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/date_list"/>
+			<bind nodeset="/data/date_list/date" type="xsd:date" required="true()"/>
+			<bind nodeset="/data/date_list/uganda_country" type="xsd:date" constraint=".&lt;=today()" jr:constraintMsg="jr:itext('uganda_country-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/time_list"/>
+			<bind nodeset="/data/time_list/question55" type="xsd:time"/>
+			<bind nodeset="/data/time_list/wakeup" type="xsd:time" required="true()"/>
+			<bind nodeset="/data/image" type="binary"/>
+			<bind nodeset="/data/fullname"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="text_list-label">
+						<value>Text Question</value>
+					</text>
+					<text id="text_question-label">
+						<value>This is a text question, it allows you to answer with free text</value>
+					</text>
+					<text id="example_text-label">
+						<value>Example: Who is your favorite musician?</value>
+					</text>
+					<text id="label_list-label">
+						<value>Label Question</value>
+					</text>
+					<text id="label_question_ex-label">
+						<value>This is a label question. It does not ask for any information but displays information, but might have an "Ok" button.</value>
+					</text>
+					<text id="question51-label">
+						<value>Example: Your favorite musician is <output ref="/data/text_list/example_text"/></value>
+					</text>
+					<text id="single_select_list-label">
+						<value>Sinlgle Select</value>
+					</text>
+					<text id="single_select-label">
+						<value>This is a single select question. You can only select one option.</value>
+					</text>
+					<text id="single_select-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="single_select-no-label">
+						<value>No</value>
+					</text>
+					<text id="fav_color-label">
+						<value>Example: What is your favorite color?</value>
+					</text>
+					<text id="fav_color-red-label">
+						<value>Red</value>
+					</text>
+					<text id="fav_color-orange-label">
+						<value>Orange</value>
+					</text>
+					<text id="fav_color-yellow-label">
+						<value>Yellow</value>
+					</text>
+					<text id="fav_color-green-label">
+						<value>Green</value>
+					</text>
+					<text id="fav_color-blue-label">
+						<value>Blue</value>
+					</text>
+					<text id="fav_color-purple-label">
+						<value>Purple</value>
+					</text>
+					<text id="fav_color-black-label">
+						<value>Black</value>
+					</text>
+					<text id="fav_color-white-label">
+						<value>White</value>
+					</text>
+					<text id="multi_select_list-label">
+						<value>Multi Select</value>
+					</text>
+					<text id="multi_select-label">
+						<value>This is a multi-select, it allows you to select more than one option</value>
+					</text>
+					<text id="multi_select-a-label">
+						<value>A</value>
+					</text>
+					<text id="multi_select-b-label">
+						<value>B</value>
+					</text>
+					<text id="multi_select-c-label">
+						<value>C</value>
+					</text>
+					<text id="multi_select-d-label">
+						<value>D</value>
+					</text>
+					<text id="languages-label">
+						<value>Example: What languages can you speak?</value>
+					</text>
+					<text id="languages-lugunda-label">
+						<value>Lugunda</value>
+					</text>
+					<text id="languages-english-label">
+						<value>English</value>
+					</text>
+					<text id="languages-other-label">
+						<value>Other</value>
+					</text>
+					<text id="question9-label">
+						<value>Integer</value>
+					</text>
+					<text id="numerical-label">
+						<value>This is a numerical question, it let's you enter a number.</value>
+					</text>
+					<text id="numerical-hint">
+						<value>(try to enter a number greater than 100)</value>
+					</text>
+					<text id="numerical-constraintMsg">
+						<value>Whoops! This is a validation, it appears when you have entered something out of range. Any number greater than 100 is out of range for this question!</value>
+					</text>
+					<text id="number_of_children-label">
+						<value>Example: How many children do you have</value>
+					</text>
+					<text id="number_of_children-constraintMsg">
+						<value>That number is out of range, must be less than 20.</value>
+					</text>
+					<text id="date_list-label">
+						<value>Date</value>
+					</text>
+					<text id="date-label">
+						<value>This is a date question, it let's you enter a date.</value>
+					</text>
+					<text id="uganda_country-label">
+						<value>Example: On what date did Uganda become an independent country?</value>
+					</text>
+					<text id="uganda_country-constraintMsg">
+						<value>Date cannot be in the future.</value>
+					</text>
+					<text id="time_list-label">
+						<value>Time</value>
+					</text>
+					<text id="question55-label">
+						<value>This is a time question. It allows you to enter a time in a 24 hour clock format.</value>
+					</text>
+					<text id="question55-hint">
+						<value>24 hour clock</value>
+					</text>
+					<text id="wakeup-label">
+						<value>Example: What time did you wake up this morning?</value>
+					</text>
+					<text id="image-label">
+						<value>This is an image question, it takes allows you to take a picture and store it. Take a picture of your neighbor (or a selfie!)</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/text_list" appearance="field-list">
+			<label ref="jr:itext('text_list-label')"/>
+			<input ref="/data/text_list/text_question">
+				<label ref="jr:itext('text_question-label')"/>
+			</input>
+			<input ref="/data/text_list/example_text">
+				<label ref="jr:itext('example_text-label')"/>
+			</input>
+		</group>
+		<group ref="/data/label_list" appearance="field-list">
+			<label ref="jr:itext('label_list-label')"/>
+			<trigger ref="/data/label_list/label_question_ex">
+				<label ref="jr:itext('label_question_ex-label')"/>
+			</trigger>
+			<trigger ref="/data/label_list/question51">
+				<label ref="jr:itext('question51-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/single_select_list" appearance="field-list">
+			<label ref="jr:itext('single_select_list-label')"/>
+			<select1 ref="/data/single_select_list/single_select">
+				<label ref="jr:itext('single_select-label')"/>
+				<item>
+					<label ref="jr:itext('single_select-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('single_select-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/single_select_list/fav_color">
+				<label ref="jr:itext('fav_color-label')"/>
+				<item>
+					<label ref="jr:itext('fav_color-red-label')"/>
+					<value>red</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-orange-label')"/>
+					<value>orange</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-yellow-label')"/>
+					<value>yellow</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-green-label')"/>
+					<value>green</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-blue-label')"/>
+					<value>blue</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-purple-label')"/>
+					<value>purple</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-black-label')"/>
+					<value>black</value>
+				</item>
+				<item>
+					<label ref="jr:itext('fav_color-white-label')"/>
+					<value>white</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/multi_select_list" appearance="field-list">
+			<label ref="jr:itext('multi_select_list-label')"/>
+			<select ref="/data/multi_select_list/multi_select">
+				<label ref="jr:itext('multi_select-label')"/>
+				<item>
+					<label ref="jr:itext('multi_select-a-label')"/>
+					<value>a</value>
+				</item>
+				<item>
+					<label ref="jr:itext('multi_select-b-label')"/>
+					<value>b</value>
+				</item>
+				<item>
+					<label ref="jr:itext('multi_select-c-label')"/>
+					<value>c</value>
+				</item>
+				<item>
+					<label ref="jr:itext('multi_select-d-label')"/>
+					<value>d</value>
+				</item>
+			</select>
+			<select ref="/data/multi_select_list/languages">
+				<label ref="jr:itext('languages-label')"/>
+				<item>
+					<label ref="jr:itext('languages-lugunda-label')"/>
+					<value>lugunda</value>
+				</item>
+				<item>
+					<label ref="jr:itext('languages-english-label')"/>
+					<value>english</value>
+				</item>
+				<item>
+					<label ref="jr:itext('languages-other-label')"/>
+					<value>other</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/question9" appearance="field-list">
+			<label ref="jr:itext('question9-label')"/>
+			<input ref="/data/question9/numerical">
+				<label ref="jr:itext('numerical-label')"/>
+				<hint ref="jr:itext('numerical-hint')"/>
+			</input>
+			<input ref="/data/question9/number_of_children">
+				<label ref="jr:itext('number_of_children-label')"/>
+			</input>
+		</group>
+		<group ref="/data/date_list" appearance="field-list">
+			<label ref="jr:itext('date_list-label')"/>
+			<input ref="/data/date_list/date">
+				<label ref="jr:itext('date-label')"/>
+			</input>
+			<input ref="/data/date_list/uganda_country">
+				<label ref="jr:itext('uganda_country-label')"/>
+			</input>
+		</group>
+		<group ref="/data/time_list" appearance="field-list">
+			<label ref="jr:itext('time_list-label')"/>
+			<input ref="/data/time_list/question55">
+				<label ref="jr:itext('question55-label')"/>
+				<hint ref="jr:itext('question55-hint')"/>
+			</input>
+			<input ref="/data/time_list/wakeup">
+				<label ref="jr:itext('wakeup-label')"/>
+			</input>
+		</group>
+		<upload ref="/data/image" mediatype="image/*">
+			<label ref="jr:itext('image-label')"/>
+		</upload>
+	</h:body>
+</h:html>

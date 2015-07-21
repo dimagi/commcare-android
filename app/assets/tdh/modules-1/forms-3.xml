@@ -1,0 +1,342 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Edit Child</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/42fc81a578ca34d2b80f75229312a866adba4755" uiVersion="1" version="1001" name="Edit Child">
+					<questions_to_edit/>
+					<edit_properties>
+						<name/>
+						<sex/>
+						<mother_name/>
+						<age_questions>
+							<dob_known/>
+							<dob/>
+							<age/>
+							<age_units/>
+							<warn_date_not_in_past/>
+							<warn_child_over_five/>
+							<display_dob/>
+						</age_questions>
+						<village/>
+					</edit_properties>
+					<normalized_dob/>
+					<user_csps_site_code/>
+					<sex_loaded/>
+					<sex_display/>
+					<village_loaded/>
+					<dob_loaded/>
+					<dob_known_loaded/>
+					<mother_name_loaded/>
+					<name_loaded/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><case_name/><dob/><dob_known/><mother_name/><sex/><village/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<instance id="locations" src="jr://fixture/commtrack:locations"/>
+			<bind nodeset="/data/questions_to_edit" required="true()"/>
+			<bind nodeset="/data/edit_properties"/>
+			<bind nodeset="/data/edit_properties/name" type="xsd:string" constraint="string-length(.) &gt;= 2" jr:constraintMsg="jr:itext('demographics/mother_name-constraintMsg')" relevant="selected(/data/questions_to_edit, 'name')" required="true()"/>
+			<bind nodeset="/data/edit_properties/sex" relevant="selected(/data/questions_to_edit, 'sex')" required="true()"/>
+			<bind nodeset="/data/edit_properties/mother_name" type="xsd:string" constraint="string-length(.) &gt;= 2" jr:constraintMsg="jr:itext('demographics/mother_name-constraintMsg')" relevant="selected(/data/questions_to_edit, 'mother_name')" required="true()"/>
+			<bind nodeset="/data/edit_properties/age_questions" relevant="selected(/data/questions_to_edit, 'dob')"/>
+			<bind nodeset="/data/edit_properties/age_questions/dob_known" required="true()"/>
+			<bind nodeset="/data/edit_properties/age_questions/dob" type="xsd:date" constraint=". &lt;= today() and . &gt;= today() - 5 * 365.25" jr:constraintMsg="jr:itext('edit_properties/dob-constraintMsg')" relevant="/data/edit_properties/age_questions/dob_known = 'yes'" required="true()"/>
+			<bind nodeset="/data/edit_properties/age_questions/age" type="xsd:int" relevant="/data/edit_properties/age_questions/dob_known = 'no'" required="true()"/>
+			<bind nodeset="/data/edit_properties/age_questions/age_units" relevant="/data/edit_properties/age_questions/dob_known = 'no'" required="true()"/>
+			<bind nodeset="/data/edit_properties/age_questions/warn_date_not_in_past" constraint="false()" jr:constraintMsg="jr:itext('edit_properties/age_questions/warn_date_not_in_past-constraintMsg')" relevant="not(/data/normalized_dob = '') and (int(today()) - int(date(/data/normalized_dob))) &lt; 0"/>
+			<bind nodeset="/data/edit_properties/age_questions/warn_child_over_five" constraint="false()" jr:constraintMsg="jr:itext('edit_properties/age_questions/warn_child_over_five-constraintMsg')" relevant="not(/data/normalized_dob = '') and ((int(today()) - int(date(/data/normalized_dob))) div 365.24) &gt; 5"/>
+			<bind nodeset="/data/edit_properties/age_questions/display_dob" relevant="/data/edit_properties/age_questions/dob_known = 'no' and (not(/data/edit_properties/age_questions/age ='' or /data/edit_properties/age_questions/age_units = ''))"/>
+			<bind nodeset="/data/edit_properties/village" relevant="selected(/data/questions_to_edit, 'village')" required="true()"/>
+			<bind nodeset="/data/normalized_dob" calculate="if(not(/data/edit_properties/age_questions/dob_known = 'no') or /data/edit_properties/age_questions/age ='' or /data/edit_properties/age_questions/age_units = '', /data/edit_properties/age_questions/dob, date(int(today()) - (/data/edit_properties/age_questions/age * double(/data/edit_properties/age_questions/age_units))))"/>
+			<bind nodeset="/data/user_csps_site_code" calculate="if(count(instance('commcaresession')/session/user/data/csps_site_code) &gt; 0, instance('commcaresession')/session/user/data/csps_site_code, 'Unknown')"/>
+			<bind nodeset="/data/sex_loaded"/>
+			<bind nodeset="/data/sex_display" calculate="if(/data/sex_loaded = 'female', 'Fille', 'Gar&#231;on')"/>
+			<bind nodeset="/data/village_loaded"/>
+			<bind nodeset="/data/dob_loaded"/>
+			<bind nodeset="/data/dob_known_loaded"/>
+			<bind nodeset="/data/mother_name_loaded"/>
+			<bind nodeset="/data/name_loaded"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="questions_to_edit-label">
+						<value>Select properties to edit</value>
+					</text>
+					<text id="demographics/question1-item1-label">
+						<value>Edit Child's Name: <output value="/data/name_loaded"/></value>
+					</text>
+					<text id="questions_to_edit-sex-label">
+						<value>Edit Sex: <output value="/data/sex_display"/></value>
+					</text>
+					<text id="questions_to_edit-mother_name-label">
+						<value>Edit Mother's Name: <output value="/data/mother_name_loaded"/></value>
+					</text>
+					<text id="questions_to_edit-dob-label">
+						<value>Edit Date of Birth: <output value="/data/dob_loaded"/></value>
+					</text>
+					<text id="questions_to_edit-village-label">
+						<value>Edit Village: <output value="/data/village_loaded"/></value>
+					</text>
+					<text id="edit_questions-label">
+						<value>Properties to update</value>
+					</text>
+					<text id="name-label">
+						<value>Update child's full name:</value>
+					</text>
+					<text id="sex-label">
+						<value>Update the child's sex:</value>
+					</text>
+					<text id="sex-male-label">
+						<value>Male</value>
+					</text>
+					<text id="sex-female-label">
+						<value>Female</value>
+					</text>
+					<text id="mother_name-label">
+						<value>Update the name of the Child's Mother:</value>
+					</text>
+					<text id="demographics/mother_name-constraintMsg">
+						<value>The name must have at least 2 characters</value>
+					</text>
+					<text id="edit_properties/age_questions-label">
+						<value>Age</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-label">
+						<value>Is the child's Date of Birth known?</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-no-label">
+						<value>No</value>
+					</text>
+					<text id="edit_properties/dob-label">
+						<value>Update the child's Date of Birth:</value>
+					</text>
+					<text id="edit_properties/dob-constraintMsg">
+						<value>Please cancel the enrollment or correct the date of birth</value>
+					</text>
+					<text id="edit_properties/age_questions/age-label">
+						<value>What is the child's age?</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-label">
+						<value>Age in...</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-1-label">
+						<value>Days</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-30.4-label">
+						<value>Months</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-365.24-label">
+						<value>Years</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_date_not_in_past-label">
+						<value>The date of birth must be in the past!</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_date_not_in_past-constraintMsg">
+						<value>Please correct the date or birth</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_child_over_five-label">
+						<value>Children older than 5 years cannot be enrolled in the REC.</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_child_over_five-constraintMsg">
+						<value>Please cancel the amendment or correct the date of birth</value>
+					</text>
+					<text id="edit_properties/age_questions/display_dob-label">
+						<value>The child's date of birth will be estimated as: <output ref="format-date(date(/data/normalized_dob), '%d/%m/%Y')"/></value>
+					</text>
+					<text id="village-label">
+						<value>Update the village the child lives in?</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="questions_to_edit-label">
+						<value>S&#233;lectionnez les donn&#233;es &#224; modifier</value>
+					</text>
+					<text id="demographics/question1-item1-label">
+						<value>Nom de l'enfant : <output value="/data/name_loaded"/></value>
+					</text>
+					<text id="questions_to_edit-sex-label">
+						<value>Sexe de l'enfant : <output value="/data/sex_display"/></value>
+					</text>
+					<text id="questions_to_edit-mother_name-label">
+						<value>Nom de la m&#232;re de l'enfant : <output value="/data/mother_name_loaded"/></value>
+					</text>
+					<text id="questions_to_edit-dob-label">
+						<value>Date de naissance de l'enfant : <output value="format-date(date(/data/dob_loaded), '%d/%m/%Y')"/></value>
+					</text>
+					<text id="questions_to_edit-village-label">
+						<value>Village : <output value="/data/village_loaded"/></value>
+					</text>
+					<text id="edit_questions-label">
+						<value>Donn&#233;es personnelles &#224; modifier</value>
+					</text>
+					<text id="name-label">
+						<value>Nom de l'enfant :</value>
+					</text>
+					<text id="sex-label">
+						<value>Sexe de l'enfant :</value>
+					</text>
+					<text id="sex-male-label">
+						<value>Gar&#231;on</value>
+					</text>
+					<text id="sex-female-label">
+						<value>Fille</value>
+					</text>
+					<text id="mother_name-label">
+						<value>Nom de la m&#232;re de l'enfant :</value>
+					</text>
+					<text id="demographics/mother_name-constraintMsg">
+						<value>Le nom doit avoir au moins 2 caract&#232;res</value>
+					</text>
+					<text id="edit_properties/age_questions-label">
+						<value>&#194;ge</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-label">
+						<value>La date de naissance de l'enfant est-elle connue ?</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="edit_properties/age_questions/dob_known-no-label">
+						<value>Non</value>
+					</text>
+					<text id="edit_properties/dob-label">
+						<value>Date de naissance de l'enfant :</value>
+					</text>
+					<text id="edit_properties/dob-constraintMsg">
+						<value>La date de naissance doit correspondre &#224; un &#226;ge de 0 &#224; 5 ans</value>
+					</text>
+					<text id="edit_properties/age_questions/age-label">
+						<value>Quel est l'&#226;ge de l'enfant ?</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-label">
+						<value>&#194;ge en...</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-1-label">
+						<value>Jours</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-30.4-label">
+						<value>Mois</value>
+					</text>
+					<text id="edit_properties/age_questions/age_units-365.24-label">
+						<value>Ann&#233;es</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_date_not_in_past-label">
+						<value>La date de naissance doit &#234;tre dans le pass&#233;</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_date_not_in_past-constraintMsg">
+						<value>Veuillez corriger la date de naissance</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_child_over_five-label">
+						<value>L'enfant doit avoir moins de 5 ans</value>
+					</text>
+					<text id="edit_properties/age_questions/warn_child_over_five-constraintMsg">
+						<value>Veuillez annuler la modification ou corriger la date de naissance</value>
+					</text>
+					<text id="edit_properties/age_questions/display_dob-label">
+						<value>La date de naissance estim&#233;e est : <output ref="format-date(date(/data/normalized_dob), '%d/%m/%Y')"/></value>
+					</text>
+					<text id="village-label">
+						<value>Village :</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/edit_properties/name" nodeset="/data/case/update/case_name" relevant="count(/data/edit_properties/name) &gt; 0"/><bind calculate="/data/edit_properties/age_questions/dob" nodeset="/data/case/update/dob" relevant="count(/data/edit_properties/age_questions/dob) &gt; 0"/><bind calculate="/data/edit_properties/age_questions/dob_known" nodeset="/data/case/update/dob_known" relevant="count(/data/edit_properties/age_questions/dob_known) &gt; 0"/><bind calculate="/data/edit_properties/mother_name" nodeset="/data/case/update/mother_name" relevant="count(/data/edit_properties/mother_name) &gt; 0"/><bind calculate="/data/edit_properties/sex" nodeset="/data/case/update/sex" relevant="count(/data/edit_properties/sex) &gt; 0"/><bind calculate="/data/edit_properties/village" nodeset="/data/case/update/village" relevant="count(/data/edit_properties/village) &gt; 0"/><setvalue event="xforms-ready" ref="/data/edit_properties/age_questions/dob" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob"/><setvalue event="xforms-ready" ref="/data/name_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><setvalue event="xforms-ready" ref="/data/village_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/village"/><setvalue event="xforms-ready" ref="/data/sex_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/sex"/><setvalue event="xforms-ready" ref="/data/mother_name_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/mother_name"/><setvalue event="xforms-ready" ref="/data/dob_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob"/><setvalue event="xforms-ready" ref="/data/dob_known_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob_known"/><setvalue event="xforms-ready" ref="/data/edit_properties/age_questions/dob_known" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob_known"/><setvalue event="xforms-ready" ref="/data/edit_properties/sex" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/sex"/><setvalue event="xforms-ready" ref="/data/edit_properties/name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><setvalue event="xforms-ready" ref="/data/edit_properties/mother_name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/mother_name"/><setvalue event="xforms-ready" ref="/data/edit_properties/village" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/village"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select ref="/data/questions_to_edit">
+			<label ref="jr:itext('questions_to_edit-label')"/>
+			<item>
+				<label ref="jr:itext('demographics/question1-item1-label')"/>
+				<value>name</value>
+			</item>
+			<item>
+				<label ref="jr:itext('questions_to_edit-sex-label')"/>
+				<value>sex</value>
+			</item>
+			<item>
+				<label ref="jr:itext('questions_to_edit-mother_name-label')"/>
+				<value>mother_name</value>
+			</item>
+			<item>
+				<label ref="jr:itext('questions_to_edit-dob-label')"/>
+				<value>dob</value>
+			</item>
+			<item>
+				<label ref="jr:itext('questions_to_edit-village-label')"/>
+				<value>village</value>
+			</item>
+		</select>
+		<group ref="/data/edit_properties" appearance="field-list">
+			<label ref="jr:itext('edit_questions-label')"/>
+			<input ref="/data/edit_properties/name">
+				<label ref="jr:itext('name-label')"/>
+			</input>
+			<select1 ref="/data/edit_properties/sex">
+				<label ref="jr:itext('sex-label')"/>
+				<item>
+					<label ref="jr:itext('sex-male-label')"/>
+					<value>male</value>
+				</item>
+				<item>
+					<label ref="jr:itext('sex-female-label')"/>
+					<value>female</value>
+				</item>
+			</select1>
+			<input ref="/data/edit_properties/mother_name">
+				<label ref="jr:itext('mother_name-label')"/>
+			</input>
+			<group ref="/data/edit_properties/age_questions" appearance="field-list">
+				<label ref="jr:itext('edit_properties/age_questions-label')"/>
+				<select1 ref="/data/edit_properties/age_questions/dob_known">
+					<label ref="jr:itext('edit_properties/age_questions/dob_known-label')"/>
+					<item>
+						<label ref="jr:itext('edit_properties/age_questions/dob_known-yes-label')"/>
+						<value>yes</value>
+					</item>
+					<item>
+						<label ref="jr:itext('edit_properties/age_questions/dob_known-no-label')"/>
+						<value>no</value>
+					</item>
+				</select1>
+				<input ref="/data/edit_properties/age_questions/dob">
+					<label ref="jr:itext('edit_properties/dob-label')"/>
+				</input>
+				<input ref="/data/edit_properties/age_questions/age">
+					<label ref="jr:itext('edit_properties/age_questions/age-label')"/>
+				</input>
+				<select1 ref="/data/edit_properties/age_questions/age_units">
+					<label ref="jr:itext('edit_properties/age_questions/age_units-label')"/>
+					<item>
+						<label ref="jr:itext('edit_properties/age_questions/age_units-1-label')"/>
+						<value>1</value>
+					</item>
+					<item>
+						<label ref="jr:itext('edit_properties/age_questions/age_units-30.4-label')"/>
+						<value>30.4</value>
+					</item>
+					<item>
+						<label ref="jr:itext('edit_properties/age_questions/age_units-365.24-label')"/>
+						<value>365.24</value>
+					</item>
+				</select1>
+				<trigger ref="/data/edit_properties/age_questions/warn_date_not_in_past" appearance="minimal">
+					<label ref="jr:itext('edit_properties/age_questions/warn_date_not_in_past-label')"/>
+				</trigger>
+				<trigger ref="/data/edit_properties/age_questions/warn_child_over_five" appearance="minimal">
+					<label ref="jr:itext('edit_properties/age_questions/warn_child_over_five-label')"/>
+				</trigger>
+				<trigger ref="/data/edit_properties/age_questions/display_dob" appearance="minimal">
+					<label ref="jr:itext('edit_properties/age_questions/display_dob-label')"/>
+				</trigger>
+			</group>
+			<select1 ref="/data/edit_properties/village">
+				<label ref="jr:itext('village-label')"/>
+				<itemset nodeset="instance('locations')/regions/region/provinces/province/departments/department/cspss/csps[site_code = /data/user_csps_site_code]/villages/village">
+					<label ref="name"/>
+					<value ref="name"/>
+				</itemset>
+			</select1>
+		</group>
+	</h:body>
+</h:html>

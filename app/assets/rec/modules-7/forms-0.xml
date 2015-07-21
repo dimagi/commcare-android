@@ -1,0 +1,545 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Treatment test [fra]</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/C143650C-5096-47FD-98CA-16917ECBCFEB" uiVersion="1" version="1128" name="Treatment test [fra]">
+					<treatments>
+						<pneumonie_normal>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_normal>
+						<pneumonie_header2>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_header2>
+						<pneumonie_header3>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_header3>
+						<pneumonie_header4>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_header4>
+						<pneumonie_header5>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_header5>
+						<pneumonie_bold>
+							<title/>
+							<donner/>
+							<antibio/>
+							<calmer/>
+							<remede_ino/>
+							<expliquer_mere/>
+							<revoir/>
+						</pneumonie_bold>
+					</treatments>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/treatments"/>
+			<bind nodeset="/data/treatments/pneumonie_normal"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/title"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_normal/revoir"/>
+			<bind nodeset="/data/treatments/pneumonie_header2"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/title"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_header2/revoir"/>
+			<bind nodeset="/data/treatments/pneumonie_header3"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/title"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_header3/revoir"/>
+			<bind nodeset="/data/treatments/pneumonie_header4"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/title"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_header4/revoir"/>
+			<bind nodeset="/data/treatments/pneumonie_header5"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/title"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_header5/revoir"/>
+			<bind nodeset="/data/treatments/pneumonie_bold"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/title"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/donner"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/antibio"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/calmer"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/remede_ino"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/expliquer_mere"/>
+			<bind nodeset="/data/treatments/pneumonie_bold/revoir"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="treatments-label">
+						<value>treatments</value>
+					</text>
+					<text id="treatments/pneumonie_normal-label">
+						<value>pneumonie_normal</value>
+					</text>
+					<text id="treatments/pneumonie_normal/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_normal/antibio-label">
+						<value>antibio</value>
+						<value form="markdown">2&#232;me intention : **Cotrimoxazole** - 400 mg-smx par prise - 2 fois par jour pendant 8 jours</value>
+					</text>
+					<text id="treatments/pneumonie_normal/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_normal/remede_ino-label">
+						<value>remede_ino</value>
+						<value form="markdown">* Donner un rem&#232;de inoffencif</value>
+					</text>
+					<text id="treatments/pneumonie_normal/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_normal/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header2-label">
+						<value>pneumonie_header2</value>
+					</text>
+					<text id="treatments/pneumonie_header2/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header2/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_header2/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \n</value>
+					</text>
+					<text id="treatments/pneumonie_header2/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header3-label">
+						<value>pneumonie_header3</value>
+					</text>
+					<text id="treatments/pneumonie_header3/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header3/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_header3/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \n</value>
+					</text>
+					<text id="treatments/pneumonie_header3/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header4-label">
+						<value>pneumonie_header4</value>
+					</text>
+					<text id="treatments/pneumonie_header4/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header4/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_header4/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \n</value>
+					</text>
+					<text id="treatments/pneumonie_header4/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header5-label">
+						<value>pneumonie_header5</value>
+					</text>
+					<text id="treatments/pneumonie_header5/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header5/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_header5/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \n</value>
+					</text>
+					<text id="treatments/pneumonie_header5/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_bold-label">
+						<value>pneumonie_bold</value>
+					</text>
+					<text id="treatments/pneumonie_bold/title-label">
+						<value>title</value>
+						<value form="markdown"># Pneumonie</value>
+					</text>
+					<text id="treatments/pneumonie_bold/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_bold/antibio-label">
+						<value>antibio</value>
+						<value form="markdown">2&#232;me intention : **Cotrimoxazole** - 400 mg-smx par prise - 2 fois par jour pendant 8 jours \n</value>
+					</text>
+					<text id="treatments/pneumonie_bold/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux</value>
+					</text>
+					<text id="treatments/pneumonie_bold/remede_ino-label">
+						<value>remede_ino</value>
+						<value form="markdown">* Donner un rem&#232;de inoffencif \n</value>
+					</text>
+					<text id="treatments/pneumonie_bold/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \n</value>
+					</text>
+					<text id="treatments/pneumonie_bold/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="treatments-label">
+						<value>treatments</value>
+					</text>
+					<text id="treatments/pneumonie_normal-label">
+						<value>pneumonie_normal</value>
+					</text>
+					<text id="treatments/pneumonie_normal/donner-label">
+						<value>donner</value>
+						<value form="markdown">Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_normal/antibio-label">
+						<value>antibio</value>
+						<value form="markdown">* 2&#232;me intention : **Cotrimoxazole** - 400 mg-smx par prise - 2 fois par jour pendant 8 jours</value>
+					</text>
+					<text id="treatments/pneumonie_normal/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">Calmer le mal de gorge et la toux :</value>
+					</text>
+					<text id="treatments/pneumonie_normal/remede_ino-label">
+						<value>remede_ino</value>
+						<value form="markdown">* Donner un rem&#232;de inoffencif</value>
+					</text>
+					<text id="treatments/pneumonie_normal/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_normal/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header2-label">
+						<value>pneumonie_header2</value>
+					</text>
+					<text id="treatments/pneumonie_header2/donner-label">
+						<value>donner</value>
+						<value form="markdown">## Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header2/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">## Calmer le mal de gorge et la toux :</value>
+					</text>
+					<text id="treatments/pneumonie_header2/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">## Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_header2/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">## Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header3-label">
+						<value>pneumonie_header3</value>
+					</text>
+					<text id="treatments/pneumonie_header3/donner-label">
+						<value>donner</value>
+						<value form="markdown">### Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header3/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">### Calmer le mal de gorge et la toux :</value>
+					</text>
+					<text id="treatments/pneumonie_header3/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">### Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_header3/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">### Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header4-label">
+						<value>pneumonie_header4</value>
+					</text>
+					<text id="treatments/pneumonie_header4/donner-label">
+						<value>donner</value>
+						<value form="markdown">#### Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header4/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">#### Calmer le mal de gorge et la toux :</value>
+					</text>
+					<text id="treatments/pneumonie_header4/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">#### Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_header4/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">#### Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_header5-label">
+						<value>pneumonie_header5</value>
+					</text>
+					<text id="treatments/pneumonie_header5/donner-label">
+						<value>donner</value>
+						<value form="markdown">##### Donner un antibiotique :</value>
+					</text>
+					<text id="treatments/pneumonie_header5/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">##### Calmer le mal de gorge et la toux :</value>
+					</text>
+					<text id="treatments/pneumonie_header5/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">##### Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+					</text>
+					<text id="treatments/pneumonie_header5/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">##### Revoir dans 2 jours</value>
+					</text>
+					<text id="treatments/pneumonie_bold-label">
+						<value>pneumonie_bold</value>
+					</text>
+					<text id="treatments/pneumonie_bold/title-label">
+						<value>title</value>
+						<value form="markdown"># Pneumonie</value>
+					</text>
+					<text id="treatments/pneumonie_bold/donner-label">
+						<value>donner</value>
+						<value form="markdown">**Donner un antibiotique :**</value>
+					</text>
+					<text id="treatments/pneumonie_bold/antibio-label">
+						<value>antibio</value>
+						<value form="markdown">* 2&#232;me intention : **Cotrimoxazole** - 400 mg-smx par prise - 2 fois par jour pendant 8 jours</value>
+					</text>
+					<text id="treatments/pneumonie_bold/calmer-label">
+						<value>calmer</value>
+						<value form="markdown">**Calmer le mal de gorge et la toux :**</value>
+					</text>
+					<text id="treatments/pneumonie_bold/remede_ino-label">
+						<value>remede_ino</value>
+						<value form="markdown">* Donner un rem&#232;de inoffencif</value>
+					</text>
+					<text id="treatments/pneumonie_bold/expliquer_mere-label">
+						<value>expliquer_mere</value>
+						<value form="markdown">**Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement**</value>
+					</text>
+					<text id="treatments/pneumonie_bold/revoir-label">
+						<value>revoir</value>
+						<value form="markdown">**Revoir dans 2 jours**</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/treatments">
+			<label ref="jr:itext('treatments-label')"/>
+			<group ref="/data/treatments/pneumonie_normal" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_normal-label')"/>
+				<trigger ref="/data/treatments/pneumonie_normal/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_normal/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_normal/revoir-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pneumonie_header2" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_header2-label')"/>
+				<trigger ref="/data/treatments/pneumonie_header2/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header2/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header2/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header2/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header2/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header2/revoir-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pneumonie_header3" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_header3-label')"/>
+				<trigger ref="/data/treatments/pneumonie_header3/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header3/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header3/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header3/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header3/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header3/revoir-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pneumonie_header4" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_header4-label')"/>
+				<trigger ref="/data/treatments/pneumonie_header4/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header4/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header4/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header4/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header4/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header4/revoir-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pneumonie_header5" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_header5-label')"/>
+				<trigger ref="/data/treatments/pneumonie_header5/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header5/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header5/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header5/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_header5/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_header5/revoir-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pneumonie_bold" appearance="field-list">
+				<label ref="jr:itext('treatments/pneumonie_bold-label')"/>
+				<trigger ref="/data/treatments/pneumonie_bold/title" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/donner" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/donner-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/antibio" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/antibio-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/calmer" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/calmer-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/remede_ino" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/remede_ino-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/expliquer_mere" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/expliquer_mere-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pneumonie_bold/revoir" appearance="minimal">
+					<label ref="jr:itext('treatments/pneumonie_bold/revoir-label')"/>
+				</trigger>
+			</group>
+		</group>
+	</h:body>
+</h:html>

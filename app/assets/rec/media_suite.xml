@@ -1,0 +1,237 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1152" descriptor="Media Suite File">
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: red_increased.png" id="media-704d5500d26fc6bbd6e7b790c87ee63c-red_increased.png" version="637">
+      <location authority="local">./commcare/image/data/red_increased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/d5c15ae5072395194a3fce40455824e9/red_increased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/media">
+    <resource descriptor="Image File: child_profile.png" id="media-4406d0d7740ea2594abe80edd3935961-child_profile.png" version="1033">
+      <location authority="local">./commcare/media/child_profile.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec2957/child_profile.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module5_form0.png" id="media-89d885a838992051cef325d792de25e9-module5_form0.png" version="1033">
+      <location authority="local">./commcare/image/module5_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec3c6a/module5_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: green_decreased.png" id="media-f202dc04ef66c42a226e3ee6992c6d6a-green_decreased.png" version="698">
+      <location authority="local">./commcare/image/data/green_decreased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/544b1b4a8006a9e878f18c3066adc109/green_decreased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: red_constant.png" id="media-9a956c0695cfe1f0caa06a74a714ff56-red_constant.png" version="698">
+      <location authority="local">./commcare/image/data/red_constant.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/8725ad46c454a0eba71c8d51a1120915/red_constant.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: yellow_constant.png" id="media-40c5e69749d3b8869863f7f43d17ad82-yellow_constant.png" version="698">
+      <location authority="local">./commcare/image/data/yellow_constant.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2e9c256b8da3794340682b23d2f2609e/yellow_constant.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form0.png" id="media-992dd43ae5f6a4ae08af1bc1f3341e8f-module2_form0.png" version="1033">
+      <location authority="local">./commcare/image/module2_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec6801/module2_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/video/data">
+    <resource descriptor="Video File: hint-video-stridor.3gp" id="media-e854e8fe07f684dcc42e0b8b224241f8-hint-video-stridor.3gp" version="143">
+      <location authority="local">./commcare/video/data/hint-video-stridor.3gp</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareVideo/ed61431f7acf6eedb3dd3ed3bd83f577/hint-video-stridor.3gp</location>
+    </resource>
+  </media>
+  <media path="../../commcare/logo/data">
+    <resource descriptor="Image File: hq_logo_android_home.png" id="media-14bdf6b9684e8422d0046c22dbe0d1ff-hq_logo_android_home.png" version="901">
+      <location authority="local">./commcare/logo/data/hq_logo_android_home.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7477f26ac4ea4c2b3bc0fc616c849a86/hq_logo_android_home.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: red_decreased.png" id="media-63a5d9e38dd5738e3693b229be068824-red_decreased.png" version="698">
+      <location authority="local">./commcare/image/data/red_decreased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2be6e490aba1351cf3704ff32c5c563a/red_decreased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module3.png" id="media-8144b7c60f4fd5133422e4e993cd8b30-module3.png" version="1033">
+      <location authority="local">./commcare/image/module3.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec6611/module3.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: green_constant.png" id="media-aa98e0a0ed8487372812ad67608ad08d-green_constant.png" version="698">
+      <location authority="local">./commcare/image/data/green_constant.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2e9c256b8da3794340682b23d2d23609/green_constant.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/help/data/fievre">
+    <resource descriptor="Image File: cornee.jpg" id="media-377f2163d77d1ff6761ecdac7bc53233-cornee.jpg" version="482">
+      <location authority="local">./commcare/image/help/data/fievre/cornee.jpg</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/73cc0711bf1e2497f86c4a84b60dacc1/cornee.jpg</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: green_no_prev.png" id="media-b11f11c6e2559af66e3f9631a33dd33d-green_no_prev.png" version="698">
+      <location authority="local">./commcare/image/data/green_no_prev.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2be6e490aba1351cf3704ff32c5c4687/green_no_prev.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/media">
+    <resource descriptor="Image File: plus.png" id="media-b72caaa5fe6737e4b876772fddd88e44-plus.png" version="1033">
+      <location authority="local">./commcare/media/plus.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec1fa0/plus.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: yellow_decreased.png" id="media-b13cf915871e6196166e5c8b90cd036d-yellow_decreased.png" version="698">
+      <location authority="local">./commcare/image/data/yellow_decreased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2e9c256b8da3794340682b23d2f25796/yellow_decreased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/logo/data">
+    <resource descriptor="Image File: hq_logo_android_login.png" id="media-2654c6e7aaa0d7f31c9ca42e2ec33b2a-hq_logo_android_login.png" version="901">
+      <location authority="local">./commcare/logo/data/hq_logo_android_login.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7477f26ac4ea4c2b3bc0fc616c849a86/hq_logo_android_login.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module5.png" id="media-e5912c32985e6104b8d2ea991302e885-module5.png" version="1033">
+      <location authority="local">./commcare/image/module5.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec3c6a/module5.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2.png" id="media-c63b2747a81dd301a5119c9b3e6e3220-module2.png" version="1033">
+      <location authority="local">./commcare/image/module2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec6e33/module2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1.png" id="media-8bc7edd8620d16b1ddeed6ec237cd1bd-module1.png" version="1033">
+      <location authority="local">./commcare/image/module1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec7db1/module1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module0_form0.png" id="media-9b7e06bc7cc176d861c7dae945d31e10-module0_form0.png" version="1033">
+      <location authority="local">./commcare/image/module0_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec8177/module0_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module3_form1.png" id="media-4f97e3020c3954fb19fe5d92cd4d06ab-module3_form1.png" version="1033">
+      <location authority="local">./commcare/image/module3_form1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec5504/module3_form1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form2.png" id="media-31f86df24d459e46f844f2acff6ea95c-module2_form2.png" version="1033">
+      <location authority="local">./commcare/image/module2_form2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec6801/module2_form2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: green_increased.png" id="media-afe21a02397c3b3807f4598a5c93ccba-green_increased.png" version="698">
+      <location authority="local">./commcare/image/data/green_increased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2be6e490aba1351cf3704ff32c5c4482/green_increased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_form3.png" id="media-eac3d4861cfdd91c765237f055bb85d9-module1_form3.png" version="1033">
+      <location authority="local">./commcare/image/module1_form3.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec741c/module1_form3.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module6.png" id="media-420b84dacbf889cc04285d02a53f9094-module6.png" version="1033">
+      <location authority="local">./commcare/image/module6.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec2e72/module6.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module4.png" id="media-347ad0ef8f88c746913d064a10522d66-module4.png" version="1033">
+      <location authority="local">./commcare/image/module4.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec40f7/module4.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: red_no_prev.png" id="media-b1114ab6c23bf238137e2cf801abea57-red_no_prev.png" version="698">
+      <location authority="local">./commcare/image/data/red_no_prev.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/2e9c256b8da3794340682b23d2d242cc/red_no_prev.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module6_form0.png" id="media-ce30673ee4c7d0a079c727c8e754982c-module6_form0.png" version="1033">
+      <location authority="local">./commcare/image/module6_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec2e72/module6_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module4_form0.png" id="media-0754921094fa8c9ebbb2d5b126eaa2c1-module4_form0.png" version="1033">
+      <location authority="local">./commcare/image/module4_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec40f7/module4_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module3_form0.png" id="media-aa5a61f36605436e8fbad45a61901f04-module3_form0.png" version="1033">
+      <location authority="local">./commcare/image/module3_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec5bba/module3_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module3_form2.png" id="media-0dc086409aa1ec39c3873dd7c0ea6243-module3_form2.png" version="1033">
+      <location authority="local">./commcare/image/module3_form2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec4932/module3_form2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form1.png" id="media-0da7371ce486148a211311c8d844771f-module2_form1.png" version="1033">
+      <location authority="local">./commcare/image/module2_form1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec6801/module2_form1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: yellow_no_prev.png" id="media-d9af5d184d022037a99c7107a2e247f9-yellow_no_prev.png" version="698">
+      <location authority="local">./commcare/image/data/yellow_no_prev.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/885533e65620e99d4b4b00830ac543c1/yellow_no_prev.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: checkmark.png" id="media-b07c85ab9163a7329de99544d5a68aa1-checkmark.png" version="1033">
+      <location authority="local">./commcare/image/data/icons/checkmark.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec84e1/checkmark.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: yellow_increased.png" id="media-188055a5b8c78e8afed9cf6efc898f1d-yellow_increased.png" version="698">
+      <location authority="local">./commcare/image/data/yellow_increased.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/1f4c99adf0c553f70aab1cf775981da4/yellow_increased.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_form2.png" id="media-66bc83546332901173f5cb966f46b3bd-module1_form2.png" version="1033">
+      <location authority="local">./commcare/image/module1_form2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec7ce3/module1_form2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_form0.png" id="media-4dcd21208545df6de54bc892156effce-module1_form0.png" version="1033">
+      <location authority="local">./commcare/image/module1_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec7ce3/module1_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_form1.png" id="media-01107db00e133cb8851c4827879e1dc1-module1_form1.png" version="1033">
+      <location authority="local">./commcare/image/module1_form1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/cf1eb14a08a203c8fa7cd6e5a6ec7ce3/module1_form1.png</location>
+    </resource>
+  </media>
+</suite>

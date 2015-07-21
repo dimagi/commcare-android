@@ -1,0 +1,98 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>15. Contact TB Case Not Present Form</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/6CF1A3A6-66AE-4266-9FE9-727F4B747DCF" uiVersion="1" version="1896" name="15. Contact TB Case Not Present Form">
+					<todaydate/>
+					<patientname/>
+					<notpresent/>
+					<datedied/>
+					<datelastcontacted/>
+					<datetransferedout/>
+					<forunknownlstdtcontacted/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/todaydate" type="xsd:date" required="true()"/>
+			<bind nodeset="/data/patientname" type="xsd:string"/>
+			<bind nodeset="/data/notpresent" required="true()"/>
+			<bind nodeset="/data/datedied" type="xsd:date" relevant="/data/notpresent = 'died'"/>
+			<bind nodeset="/data/datelastcontacted" type="xsd:date" relevant="/data/notpresent = 'lost2followup'" required="false()"/>
+			<bind nodeset="/data/datetransferedout" type="xsd:date" relevant="/data/notpresent = 'notevaluatedtransferred'"/>
+			<bind nodeset="/data/forunknownlstdtcontacted" type="xsd:date" relevant="/data/notpresent = 'notevaluatedunknown'"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="todaydate-label">
+						<value>Today's Date</value>
+					</text>
+					<text id="patientname-label">
+						<value>Patient Name</value>
+					</text>
+					<text id="notpresent-label">
+						<value>Contact TB patient not present outcome</value>
+					</text>
+					<text id="notpresent-died-label">
+						<value>Died</value>
+					</text>
+					<text id="notpresent-lost2followup-label">
+						<value>Lost to follow-up &#8211; never initiated  or treatment interrupted for 2 months or more</value>
+					</text>
+					<text id="notpresent-notevaluatedtransferred-label">
+						<value>Not evaluated &#8211; transferred out</value>
+					</text>
+					<text id="notpresent-notevaluatedunknown-label">
+						<value>Not evaluated &#8211; unknown</value>
+					</text>
+					<text id="datedied-label">
+						<value>Date Died</value>
+					</text>
+					<text id="datelastcontacted-label">
+						<value>Date last successfully contacted</value>
+					</text>
+					<text id="datetransferedout-label">
+						<value>Date transferred out to another facility for TB treatment</value>
+					</text>
+					</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/todaydate">
+			<label ref="jr:itext('todaydate-label')"/>
+		</input>
+		<input ref="/data/patientname">
+			<label ref="jr:itext('patientname-label')"/>
+		</input>
+		<select1 ref="/data/notpresent">
+			<label ref="jr:itext('notpresent-label')"/>
+			<item>
+				<label ref="jr:itext('notpresent-died-label')"/>
+				<value>died</value>
+			</item>
+			<item>
+				<label ref="jr:itext('notpresent-lost2followup-label')"/>
+				<value>lost2followup</value>
+			</item>
+			<item>
+				<label ref="jr:itext('notpresent-notevaluatedtransferred-label')"/>
+				<value>notevaluatedtransferred</value>
+			</item>
+			<item>
+				<label ref="jr:itext('notpresent-notevaluatedunknown-label')"/>
+				<value>notevaluatedunknown</value>
+			</item>
+		</select1>
+		<input ref="/data/datedied">
+			<label ref="jr:itext('datedied-label')"/>
+		</input>
+		<input ref="/data/datelastcontacted">
+			<label ref="jr:itext('datelastcontacted-label')"/>
+		</input>
+		<input ref="/data/datetransferedout">
+			<label ref="jr:itext('datetransferedout-label')"/>
+		</input>
+		<input ref="/data/forunknownlstdtcontacted">
+			<label ref="jr:itext('datelastcontacted-label')"/>
+		</input>
+	</h:body>
+</h:html>

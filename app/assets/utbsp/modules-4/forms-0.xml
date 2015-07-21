@@ -1,0 +1,241 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>13a. Contact Clinic Evaluation</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/93D465FA-A438-40E8-919B-FD825965647C" uiVersion="1" version="1781" name="13a. Contact Clinic Evaluation">
+					<biometricscan/>
+					<fstvisitdt/>
+					<rxactivetb/>
+					<additionaleval/>
+					<rsltscnfm/>
+					<dtsttbrx/>
+					<search/>
+					<identify/>
+					<intent_0>com.biometrac.core.SCAN</intent_0>
+					<intent_1>com.biometrac.core.IDENTIFY</intent_1>
+					<finger_left_index>left_index</finger_left_index>
+					<finger_left_thumb>left_thumb</finger_left_thumb>
+					<finger_right_thumb>right_thumb</finger_right_thumb>
+					<finger_right_index>right_index</finger_right_index>
+					<left_index/>
+					<right_index/>
+					<left_thumb/>
+					<right_thumb/>
+					<match_id/>
+					<returned/>
+					<random_id/>
+					<pttype/>
+					<not_contact_pt/>
+					<no_record_exists/>
+					<record_exists/>
+					<visithivcln/>
+					<name_lookup/>
+					<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+						
+					<update>
+							<lastvisit/>
+							<clinevalrslts/>
+							<addrsltstb/>
+							<rsltscnfm/>
+							<dtsttbrx/>
+						</update></case>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="casedb" src="jr://instance/casedb"/><bind nodeset="/data/biometricscan" required="true()"/><bind nodeset="/data/case/@date_modified" type="dateTime" calculate="now()"/><bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/><bind nodeset="/data/case/update"/><bind calculate="now()" nodeset="/data/case/update/lastvisit"/><bind calculate="/data/rsltscnfm" nodeset="/data/case/update/rsltscnfm" relevant="count(/data/rsltscnfm) &gt; 0"/><bind calculate="/data/dtsttbrx" nodeset="/data/case/update/dtsttbrx" relevant="count(/data/dtsttbrx) &gt; 0"/><bind calculate="/data/rxactivetb" nodeset="/data/case/update/clinevalrslts" relevant="count(/data/rxactivetb) &gt; 0"/>
+			<bind nodeset="/data/biometricscan"/>
+			<bind nodeset="/data/fstvisitdt" type="xsd:date" relevant="/data/returned != '0' and /data/visithivcln = 'yes'" required="true()"/>
+			<bind nodeset="/data/rxactivetb" relevant="/data/returned != '0'" required="true()"/>
+			<bind nodeset="/data/additionaleval" relevant=" /data/rxactivetb = 'undecided'" required="true()"/>
+			<bind nodeset="/data/rsltscnfm" relevant="/data/rxactivetb = 'yes'" required="true()"/>
+			<bind nodeset="/data/dtsttbrx" type="xsd:date" relevant="/data/rxactivetb = 'yes'" required="true()"/>
+			<bind nodeset="/data/search" type="intent" required="false()"/>
+			<bind nodeset="/data/identify"/>
+			<bind nodeset="/data/intent_0"/>
+			<bind nodeset="/data/intent_1"/>
+			<bind nodeset="/data/finger_left_index"/>
+			<bind nodeset="/data/finger_left_thumb"/>
+			<bind nodeset="/data/finger_right_thumb"/>
+			<bind nodeset="/data/finger_right_index"/>
+			<bind nodeset="/data/left_index" type="xsd:string"/>
+			<bind nodeset="/data/right_index" type="xsd:string"/>
+			<bind nodeset="/data/left_thumb" type="xsd:string"/>
+			<bind nodeset="/data/right_thumb" type="xsd:string"/>
+			<bind nodeset="/data/match_id"/>
+			<bind nodeset="/data/returned"/>
+			<bind nodeset="/data/random_id"/>
+			<bind nodeset="/data/pttype" type="xsd:string" relevant="/data/returned != '0'" calculate="if(/data/returned &gt; 0, instance('casedb')/casedb/case[@case_id=/data/match_id]/pttype, 'none found')"/>
+			<bind nodeset="/data/not_contact_pt" constraint="false()" relevant="/data/pttype!='contact'"/>
+			<bind nodeset="/data/no_record_exists" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/record_exists" relevant="not(/data/returned = '0')"/><bind nodeset="/data/name_lookup" type="xsd:string" calculate="if(/data/returned &gt; 0, instance('casedb')/casedb/case[@case_id=/data/match_id]/case_name, 'none found')"/><setvalue event="xforms-revalidate" ref="/data/case/@case_id" value="/data/match_id"/>
+			<bind nodeset="/data/visithivcln" relevant="/data/returned != '0'"/>
+			<bind nodeset="/data/name_lookup"/>
+			<bind nodeset="/data/case"/><bind calculate="/data/additionaleval" nodeset="/data/case/update/addrsltstb" relevant="count(/data/additionaleval) &gt; 0"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="biometricscan-label">
+						<value>BIOMETRIC (Finger Print) SCAN: check to see if they are in the system and if they are a contact patient. Block if not.</value>
+					</text>
+					<text id="not_contact_pt-label">
+						<value>The patient <output value="/data/name_lookup"/> is not a contact patient. You can not fill out this form for a non-contact patient. Please hit back to exit this form.</value>
+					</text>
+					<text id="record_exists-label">
+						<value>Record exists with name: <output value="/data/name_lookup"/> and id: <output value="/data/match_id"/> and type: <output value="/data/pttype"/></value>
+					</text>
+					<text id="visithivcln-label">
+						<value>Did the patient visit the HIV clinic?</value>
+					</text>
+					<text id="visithivcln-notapplicable-label">
+						<value>Not Applicable</value>
+					</text>
+					<text id="fstvisitdt-label">
+						<value>What date did the patient first visit the HIV clinic?</value>
+					</text>
+					<text id="rxactivetb-label">
+						<value>Is the contact going to be treated for active TB?</value>
+					</text>
+					<text id="rxactivetb-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="rxactivetb-no-label">
+						<value>No</value>
+					</text>
+					<text id="rxactivetb-undecided-label">
+						<value>Undecided - Further testing planned</value>
+					</text>
+					<text id="additionaleval-label">
+						<value>What additional evaluation is planned ( Choose all that apply) ?</value>
+					</text>
+					<text id="additionaleval-reftomulago-label">
+						<value>Referral to Mulago</value>
+					</text>
+					<text id="additionaleval-refcxr-label">
+						<value>Referral for CXR</value>
+					</text>
+					<text id="additionaleval-refoutsideprov-label">
+						<value>Referral to Outside provider</value>
+					</text>
+					<text id="rsltscnfm-label">
+						<value>What is the basis for TB diagnosis and/or treatment?</value>
+					</text>
+					<text id="rsltscnfm-smear_positive-label">
+						<value>Smear-positive</value>
+					</text>
+					<text id="rsltscnfm-xpert-label">
+						<value>Xpert-positive</value>
+					</text>
+					<text id="rsltscnfm-culture-label">
+						<value>Culture-positive</value>
+					</text>
+					<text id="rsltscnfm-no_microbiologic-label">
+						<value>No microbiologic confirmation</value>
+					</text>
+					<text id="dtsttbrx-label">
+						<value>What day is the patient starting TB treatment</value>
+					</text>
+					<text id="no_record_exists-label">
+						<value>No record exist for this scan </value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="search" class="com.biometrac.core.PIPE">
+			<extra key="action_0" ref="/data/intent_0"/>
+			<extra key="action_1" ref="/data/intent_1"/>
+			<extra key="left_finger_assignment_0" ref="/data/finger_left_index"/>
+			<extra key="right_finger_assignment_0" ref="/data/finger_right_index"/>
+			<extra key="left_finger_assignment_1" ref="/data/finger_left_thumb"/>
+			<extra key="right_finger_assignment_1" ref="/data/finger_right_thumb"/>
+			<response key="matches_found" ref="/data/returned"/>
+			<response key="left_index" ref="/data/left_index"/>
+			<response key="left_thumb" ref="/data/left_thumb"/>
+			<response key="right_index" ref="/data/right_index"/>
+			<response key="right_thumb" ref="/data/right_thumb"/>
+			<response key="match_id_0" ref="/data/match_id"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<input ref="/data/search" appearance="intent:search">
+			<label ref="jr:itext('biometricscan-label')"/>
+		</input>
+		<trigger ref="/data/not_contact_pt" appearance="minimal">
+			<label ref="jr:itext('not_contact_pt-label')"/>
+		</trigger>
+		<trigger ref="/data/record_exists">
+			<label ref="jr:itext('record_exists-label')"/>
+		</trigger>
+		<select1 ref="/data/visithivcln">
+			<label ref="jr:itext('visithivcln-label')"/>
+			<item>
+				<label ref="jr:itext('rxactivetb-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rxactivetb-no-label')"/>
+				<value>no</value>
+			</item>
+			<item>
+				<label ref="jr:itext('visithivcln-notapplicable-label')"/>
+				<value>notapplicable</value>
+			</item>
+		</select1>
+		<input ref="/data/fstvisitdt">
+			<label ref="jr:itext('fstvisitdt-label')"/>
+		</input>
+		<select1 ref="/data/rxactivetb">
+			<label ref="jr:itext('rxactivetb-label')"/>
+			<item>
+				<label ref="jr:itext('rxactivetb-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rxactivetb-no-label')"/>
+				<value>no</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rxactivetb-undecided-label')"/>
+				<value>undecided</value>
+			</item>
+		</select1>
+		<select ref="/data/additionaleval">
+			<label ref="jr:itext('additionaleval-label')"/>
+			<item>
+				<label ref="jr:itext('additionaleval-reftomulago-label')"/>
+				<value>reftomulago</value>
+			</item>
+			<item>
+				<label ref="jr:itext('additionaleval-refcxr-label')"/>
+				<value>refcxr</value>
+			</item>
+			<item>
+				<label ref="jr:itext('additionaleval-refoutsideprov-label')"/>
+				<value>refoutsideprov</value>
+			</item>
+		</select>
+		<select1 ref="/data/rsltscnfm">
+			<label ref="jr:itext('rsltscnfm-label')"/>
+			<item>
+				<label ref="jr:itext('rsltscnfm-smear_positive-label')"/>
+				<value>smear_positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rsltscnfm-xpert-label')"/>
+				<value>xpert</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rsltscnfm-culture-label')"/>
+				<value>culture</value>
+			</item>
+			<item>
+				<label ref="jr:itext('rsltscnfm-no_microbiologic-label')"/>
+				<value>no_microbiologic</value>
+			</item>
+		</select1>
+		<input ref="/data/dtsttbrx">
+			<label ref="jr:itext('dtsttbrx-label')"/>
+		</input>
+		<trigger ref="/data/no_record_exists" appearance="minimal">
+			<label ref="jr:itext('no_record_exists-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

@@ -1,0 +1,468 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Pre-training Survey</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/B8507156-2741-42B9-B504-30CD9E6A8745" uiVersion="1" version="1972" name="Pre-training Survey">
+					<healthworker_name>
+						<given_name/>
+						<surname/>
+					</healthworker_name>
+					<dob/>
+					<age_display/>
+					<gender/>
+					<languages/>
+					<health_worker_type/>
+					<otherhealthwkr/>
+					<years_health_worker/>
+					<mobile_phone_access/>
+					<ever_used_tablet/>
+					<mobile_phones>
+						<phone_brand/>
+						<phone_model/>
+						<phone/>
+						<sms_messages_per_day/>
+						<phone_calls_per_day/>
+					</mobile_phones>
+					<age/>
+					<full_name/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>health_worker</case_type></create><update><dob/><gender/><health_worker_type/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/healthworker_name"/>
+			<bind nodeset="/data/healthworker_name/given_name" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/healthworker_name/surname" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/dob" type="xsd:date" constraint=". &lt;= today() - 6570" jr:constraintMsg="jr:itext('dob-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/age_display"/>
+			<bind nodeset="/data/gender" required="true()"/>
+			<bind nodeset="/data/languages" required="false()"/>
+			<bind nodeset="/data/health_worker_type" required="true()"/>
+			<bind nodeset="/data/otherhealthwkr" type="xsd:string" relevant="/data/health_worker_type = 'other'"/>
+			<bind nodeset="/data/years_health_worker" type="xsd:int" constraint=".&lt;=40" jr:constraintMsg="jr:itext('years_health_worker-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/mobile_phone_access" required="true()"/>
+			<bind nodeset="/data/ever_used_tablet" required="true()"/>
+			<bind nodeset="/data/mobile_phones" relevant="/data/mobile_phone_access = 'yes_share' and /data/mobile_phone_access = 'yes_own'"/>
+			<bind nodeset="/data/mobile_phones/phone_brand" required="true()"/>
+			<bind nodeset="/data/mobile_phones/phone_model" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/mobile_phones/phone" required="true()"/>
+			<bind nodeset="/data/mobile_phones/sms_messages_per_day" required="true()"/>
+			<bind nodeset="/data/mobile_phones/phone_calls_per_day" required="true()"/>
+			<bind nodeset="/data/age" calculate="int((today() - date(/data/dob)) div 365.25)"/>
+			<bind nodeset="/data/full_name" calculate="concat(/data/healthworker_name/given_name,/data/healthworker_name/surname)" required="true()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="healthworker_name-label">
+						<value>Health worker name</value>
+					</text>
+					<text id="given_name-label">
+						<value>Given Name</value>
+					</text>
+					<text id="surname-label">
+						<value>Surname</value>
+					</text>
+					<text id="dob-label">
+						<value>Date of Birth</value>
+					</text>
+					<text id="dob-constraintMsg">
+						<value>You should be 18 years and above</value>
+					</text>
+					<text id="age_display-label">
+						<value>You are <output ref="/data/age"/> years old.</value>
+					</text>
+					<text id="gender-label">
+						<value>Gender</value>
+					</text>
+					<text id="gender-male-label">
+						<value>Male</value>
+					</text>
+					<text id="gender-female-label">
+						<value>Female</value>
+					</text>
+					<text id="gender-other-label">
+						<value>Other</value>
+					</text>
+					<text id="languages-label">
+						<value>What languages can you speak?</value>
+					</text>
+					<text id="languages-luganda-label">
+						<value>Luganda</value>
+					</text>
+					<text id="languages-english-label">
+						<value>English</value>
+					</text>
+					<text id="health_worker_type-label">
+						<value>What type of health worker are you?</value>
+					</text>
+					<text id="health_worker_type-in_charge-label">
+						<value>In Charge or Supervisor</value>
+					</text>
+					<text id="health_worker_type-nurse-label">
+						<value>Nurse</value>
+					</text>
+					<text id="health_worker_type-chew-label">
+						<value>Community Health Extension Worker</value>
+					</text>
+					<text id="health_worker_type-chw-label">
+						<value>Community Health Worker</value>
+					</text>
+					<text id="otherhealthwkr-label">
+						<value>Specify the type of Health Worker you are ?</value>
+					</text>
+					<text id="years_health_worker-label">
+						<value>How many years have you been working as a health worker?</value>
+					</text>
+					<text id="years_health_worker-constraintMsg">
+						<value>Cannot be greater than 40.</value>
+					</text>
+					<text id="mobile_phone_access-label">
+						<value>Do you have access to a mobile phone?</value>
+					</text>
+					<text id="mobile_phone_access-yes_share-label">
+						<value>Yes, I share one with family members</value>
+					</text>
+					<text id="mobile_phone_access-yes_own-label">
+						<value>Yes, I have my own personal phone</value>
+					</text>
+					<text id="mobile_phone_access-no-label">
+						<value>No I do not have access to a mobile phone</value>
+					</text>
+					<text id="ever_used_tablet-label">
+						<value>Have you ever used a tablet before?</value>
+					</text>
+					<text id="ever_used_tablet-yes_played-label">
+						<value>Yes, I have played with one before but do not own my own</value>
+					</text>
+					<text id="ever_used_tablet-yes_own-label">
+						<value>Yes, I own my own tablet</value>
+					</text>
+					<text id="ever_used_tablet-no-label">
+						<value>No, I have never used one before</value>
+					</text>
+					<text id="mobile_phones-label">
+						<value>Mobile phone questions</value>
+					</text>
+					<text id="phone_brand-label">
+						<value>Brand of phone</value>
+					</text>
+					<text id="phone_brand-nokia-label">
+						<value>Nokia</value>
+					</text>
+					<text id="phone_brand-samsung-label">
+						<value>Samsung</value>
+					</text>
+					<text id="phone_brand-blackberry-label">
+						<value>Blackberry</value>
+					</text>
+					<text id="phone_model-label">
+						<value>Phone Model:</value>
+					</text>
+					<text id="phone_model-hint">
+						<value>Example: Blackberry Curve, Samsung Pocket, Nokia C2</value>
+					</text>
+					<text id="phone-label">
+						<value>Check all of the tasks that you do with your phone</value>
+					</text>
+					<text id="question46-phone_calls-label">
+						<value>Make phone calls</value>
+					</text>
+					<text id="question46-sms-label">
+						<value>Send and recieve SMS</value>
+					</text>
+					<text id="question46-mobile_money-label">
+						<value>Mobile money</value>
+					</text>
+					<text id="question46-email-label">
+						<value>Check email</value>
+					</text>
+					<text id="question46-facebook-label">
+						<value>Facebook</value>
+					</text>
+					<text id="question46-twitter-label">
+						<value>Twitter</value>
+					</text>
+					<text id="question46-games-label">
+						<value>Play games</value>
+					</text>
+					<text id="question46-look_up_info-label">
+						<value>Look up information (google, web search)</value>
+					</text>
+					<text id="question46-news-label">
+						<value>Read the news and other information</value>
+					</text>
+					<text id="question46-music-label">
+						<value>Listen to music</value>
+					</text>
+					<text id="question46-other_social_media-label">
+						<value>Other social media</value>
+					</text>
+					<text id="question46-other_applications-label">
+						<value>Other mobile applications</value>
+					</text>
+					<text id="sms_messages_per_day-label">
+						<value>How many SMS messages do you send per day?</value>
+					</text>
+					<text id="sms_messages_per_day-none-label">
+						<value>I do not send SMS messages ever</value>
+					</text>
+					<text id="phone_calls_per_day-label">
+						<value>How many phone calls are made per day?</value>
+					</text>
+					<text id="phone_calls_per_day-none-label">
+						<value>I do not make phone calls</value>
+					</text>
+					<text id="phone_calls_per_day-1_5-label">
+						<value>1-5</value>
+					</text>
+					<text id="phone_calls_per_day-5_10-label">
+						<value>5-10</value>
+					</text>
+					<text id="phone_calls_per_day-1_25-label">
+						<value>10-25</value>
+					</text>
+					<text id="phone_calls_per_day-25_50-label">
+						<value>25 50</value>
+					</text>
+					<text id="phone_calls_per_day-grt_50-label">
+						<value>Greater than 50</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_health_worker_0"/><bind calculate="/data/full_name" nodeset="/data/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/><bind calculate="/data/dob" nodeset="/data/case/update/dob" relevant="count(/data/dob) &gt; 0"/><bind calculate="/data/gender" nodeset="/data/case/update/gender" relevant="count(/data/gender) &gt; 0"/><bind calculate="/data/health_worker_type" nodeset="/data/case/update/health_worker_type" relevant="count(/data/health_worker_type) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/healthworker_name" appearance="field-list">
+			<label ref="jr:itext('healthworker_name-label')"/>
+			<input ref="/data/healthworker_name/given_name">
+				<label ref="jr:itext('given_name-label')"/>
+			</input>
+			<input ref="/data/healthworker_name/surname">
+				<label ref="jr:itext('surname-label')"/>
+			</input>
+		</group>
+		<input ref="/data/dob">
+			<label ref="jr:itext('dob-label')"/>
+		</input>
+		<trigger ref="/data/age_display" appearance="minimal">
+			<label ref="jr:itext('age_display-label')"/>
+		</trigger>
+		<select1 ref="/data/gender">
+			<label ref="jr:itext('gender-label')"/>
+			<item>
+				<label ref="jr:itext('gender-male-label')"/>
+				<value>male</value>
+			</item>
+			<item>
+				<label ref="jr:itext('gender-female-label')"/>
+				<value>female</value>
+			</item>
+			<item>
+				<label ref="jr:itext('gender-other-label')"/>
+				<value>other</value>
+			</item>
+		</select1>
+		<select ref="/data/languages">
+			<label ref="jr:itext('languages-label')"/>
+			<item>
+				<label ref="jr:itext('languages-luganda-label')"/>
+				<value>luganda</value>
+			</item>
+			<item>
+				<label ref="jr:itext('languages-english-label')"/>
+				<value>english</value>
+			</item>
+			<item>
+				<label ref="jr:itext('gender-other-label')"/>
+				<value>other</value>
+			</item>
+		</select>
+		<select1 ref="/data/health_worker_type">
+			<label ref="jr:itext('health_worker_type-label')"/>
+			<item>
+				<label ref="jr:itext('health_worker_type-in_charge-label')"/>
+				<value>in_charge</value>
+			</item>
+			<item>
+				<label ref="jr:itext('health_worker_type-nurse-label')"/>
+				<value>nurse</value>
+			</item>
+			<item>
+				<label ref="jr:itext('health_worker_type-chew-label')"/>
+				<value>chew</value>
+			</item>
+			<item>
+				<label ref="jr:itext('health_worker_type-chw-label')"/>
+				<value>chw</value>
+			</item>
+			<item>
+				<label ref="jr:itext('gender-other-label')"/>
+				<value>other</value>
+			</item>
+		</select1>
+		<input ref="/data/otherhealthwkr">
+			<label ref="jr:itext('otherhealthwkr-label')"/>
+		</input>
+		<input ref="/data/years_health_worker">
+			<label ref="jr:itext('years_health_worker-label')"/>
+		</input>
+		<select1 ref="/data/mobile_phone_access">
+			<label ref="jr:itext('mobile_phone_access-label')"/>
+			<item>
+				<label ref="jr:itext('mobile_phone_access-yes_share-label')"/>
+				<value>yes_share</value>
+			</item>
+			<item>
+				<label ref="jr:itext('mobile_phone_access-yes_own-label')"/>
+				<value>yes_own</value>
+			</item>
+			<item>
+				<label ref="jr:itext('mobile_phone_access-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/ever_used_tablet">
+			<label ref="jr:itext('ever_used_tablet-label')"/>
+			<item>
+				<label ref="jr:itext('ever_used_tablet-yes_played-label')"/>
+				<value>yes_played</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ever_used_tablet-yes_own-label')"/>
+				<value>yes_own</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ever_used_tablet-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/mobile_phones">
+			<label ref="jr:itext('mobile_phones-label')"/>
+			<select1 ref="/data/mobile_phones/phone_brand">
+				<label ref="jr:itext('phone_brand-label')"/>
+				<item>
+					<label ref="jr:itext('phone_brand-nokia-label')"/>
+					<value>nokia</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_brand-samsung-label')"/>
+					<value>samsung</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_brand-blackberry-label')"/>
+					<value>blackberry</value>
+				</item>
+				<item>
+					<label ref="jr:itext('gender-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/mobile_phones/phone_model">
+				<label ref="jr:itext('phone_model-label')"/>
+				<hint ref="jr:itext('phone_model-hint')"/>
+			</input>
+			<select ref="/data/mobile_phones/phone">
+				<label ref="jr:itext('phone-label')"/>
+				<item>
+					<label ref="jr:itext('question46-phone_calls-label')"/>
+					<value>phone_calls</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-sms-label')"/>
+					<value>sms</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-mobile_money-label')"/>
+					<value>mobile_money</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-email-label')"/>
+					<value>email</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-facebook-label')"/>
+					<value>facebook</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-twitter-label')"/>
+					<value>twitter</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-games-label')"/>
+					<value>games</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-look_up_info-label')"/>
+					<value>look_up_info</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-news-label')"/>
+					<value>news</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-music-label')"/>
+					<value>music</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-other_social_media-label')"/>
+					<value>other_social_media</value>
+				</item>
+				<item>
+					<label ref="jr:itext('question46-other_applications-label')"/>
+					<value>other_applications</value>
+				</item>
+			</select>
+			<select1 ref="/data/mobile_phones/sms_messages_per_day">
+				<label ref="jr:itext('sms_messages_per_day-label')"/>
+				<item>
+					<label ref="jr:itext('sms_messages_per_day-none-label')"/>
+					<value>none</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-1_5-label')"/>
+					<value>1_5</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-5_10-label')"/>
+					<value>5_10</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-1_25-label')"/>
+					<value>1_25</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-25_50-label')"/>
+					<value>25_50</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-grt_50-label')"/>
+					<value>grt_50</value>
+				</item>
+			</select1>
+			<select1 ref="/data/mobile_phones/phone_calls_per_day">
+				<label ref="jr:itext('phone_calls_per_day-label')"/>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-none-label')"/>
+					<value>none</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-1_5-label')"/>
+					<value>1_5</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-5_10-label')"/>
+					<value>5_10</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-1_25-label')"/>
+					<value>1_25</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-25_50-label')"/>
+					<value>25_50</value>
+				</item>
+				<item>
+					<label ref="jr:itext('phone_calls_per_day-grt_50-label')"/>
+					<value>grt_50</value>
+				</item>
+			</select1>
+		</group>
+	</h:body>
+</h:html>

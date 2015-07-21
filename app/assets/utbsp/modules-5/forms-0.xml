@@ -1,0 +1,896 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>7. Contact Interview</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/2de6c1ed3304713da3961c0ce466cf51d3324672" uiVersion="1" version="1781" name="7. Contact Interview">
+					<notEligibleLabel/>
+					<birthdate/>
+					<age_year_display/>
+					<age_month_display/>
+					<gender/>
+					<relationship_to_contact/>
+					<sms_registration>
+						<phone_no/>
+						<phone_no_for_SMS/>
+						<wiling_to__receive_msgs/>
+					</sms_registration>
+					<clinicalhistory>
+						<hiv_status/>
+						<hivposenrcln/>
+						<tested_last_three_months/>
+						<agree_to_test/>
+						<taking_arvs/>
+					</clinicalhistory>
+					<tbscreening>
+						<have_cough/>
+						<cough2wks/>
+						<hadfeverlstmo/>
+						<weight_loss/>
+						<ntsweatsmo/>
+						<been_evaluated/>
+					</tbscreening>
+					<follow_up_information>
+						<planned_for_clinic_evaluation/>
+						<kcca_health_facility/>
+						<specifichc/>
+						<otherfacility/>
+					</follow_up_information>
+					<hhhead/>
+					<householdse>
+						<ptoccupation/>
+						<schoollevel/>
+						<ablread/>
+						<hhIncome/>
+						<hhExpenditure/>
+						<transmode/>
+						<spectransmode/>
+						<timespentintrans/>
+						<moneyspenttrans/>
+						<indexYrsNeighborhood/>
+					</householdse>
+					<smspreflang/>
+					<preferedname/>
+					<morecontacts/>
+					<question226/>
+					<age/>
+					<age_in_months/>
+					<index_patient_id/>
+					<cIntvwDate/>
+					<pttype/>
+					<screenid/>
+					<ctscreenid/>
+					<eligible/>
+					<allocation/>
+					<allocation_id/>
+					<verification_code/>
+					<contact_phone_number/>
+					<verification_code_trigger/>
+					<tb_status/>
+					<tb_risk/>
+					<target_clinic_visit_date/>
+					<send_SMS/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><contact_phone_number/><healthcentre/><hiv_status/><phone_no/><ptage/><ptgender/><pttype/><send_SMS/><tb_risk/><tb_status/><verification_code/><verification_code_trigger/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/notEligibleLabel" constraint="'1'='0'" relevant="/data/eligible = 'no'" required="true()"/>
+			<bind nodeset="/data/birthdate" type="xsd:date" constraint=".&lt;=today()" jr:constraintMsg="jr:itext('birthdate-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/age_year_display" relevant="/data/age&gt;=2" required="true()"/>
+			<bind nodeset="/data/age_month_display" relevant="/data/age&lt;=2"/>
+			<bind nodeset="/data/gender" required="true()"/>
+			<bind nodeset="/data/relationship_to_contact" required="true()"/>
+			<bind nodeset="/data/sms_registration"/>
+			<bind nodeset="/data/sms_registration/phone_no" type="xsd:string" constraint="string-length(.) =9" jr:constraintMsg="jr:itext('phone_no-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/sms_registration/phone_no_for_SMS" calculate="concat('256', substr(/data/sms_registration/phone_no,1, 10))"/>
+			<bind nodeset="/data/sms_registration/wiling_to__receive_msgs" required="true()"/>
+			<bind nodeset="/data/clinicalhistory"/>
+			<bind nodeset="/data/clinicalhistory/hiv_status" required="true()"/>
+			<bind nodeset="/data/clinicalhistory/hivposenrcln" relevant="/data/clinicalhistory/hiv_status = 'positive'" required="true()"/>
+			<bind nodeset="/data/clinicalhistory/tested_last_three_months" relevant="/data/clinicalhistory/hiv_status = 'negative'" required="true()"/>
+			<bind nodeset="/data/clinicalhistory/agree_to_test" relevant="/data/clinicalhistory/hiv_status = 'unknown' and /data/clinicalhistory/tested_last_three_months = 'no'" required="true()"/>
+			<bind nodeset="/data/clinicalhistory/taking_arvs" relevant="/data/clinicalhistory/hiv_status = 'positive'" required="true()"/>
+			<bind nodeset="/data/tbscreening"/>
+			<bind nodeset="/data/tbscreening/have_cough" required="true()"/>
+			<bind nodeset="/data/tbscreening/cough2wks" relevant="/data/tbscreening/have_cough = 'yes'" required="true()"/>
+			<bind nodeset="/data/tbscreening/hadfeverlstmo" required="true()"/>
+			<bind nodeset="/data/tbscreening/weight_loss" required="true()"/>
+			<bind nodeset="/data/tbscreening/ntsweatsmo" required="true()"/>
+			<bind nodeset="/data/tbscreening/been_evaluated" relevant="/data/tbscreening/have_cough = 'yes' or /data/tbscreening/cough2wks = 'yes' or /data/tbscreening/hadfeverlstmo = 'yes' or /data/tbscreening/weight_loss = 'yes'" required="true()"/>
+			<bind nodeset="/data/follow_up_information"/>
+			<bind nodeset="/data/follow_up_information/planned_for_clinic_evaluation" relevant="/data/tbscreening/have_cough = 'yes' or /data/tbscreening/cough2wks = 'yes' or /data/tbscreening/hadfeverlstmo = 'yes' or /data/tbscreening/weight_loss = 'yes'" required="true()"/>
+			<bind nodeset="/data/follow_up_information/kcca_health_facility" relevant="/data/follow_up_information/planned_for_clinic_evaluation = 'yes'" required="true()"/>
+			<bind nodeset="/data/follow_up_information/specifichc" relevant="/data/follow_up_information/kcca_health_facility = 'other'"/>
+			<bind nodeset="/data/follow_up_information/otherfacility" type="xsd:string" relevant="/data/follow_up_information/specifichc = 'otherspecify'" required="true()"/>
+			<bind nodeset="/data/hhhead" relevant="/data/age&gt;18" required="true()"/>
+			<bind nodeset="/data/householdse" relevant="/data/hhhead = 'yes'"/>
+			<bind nodeset="/data/householdse/ptoccupation" required="true()"/>
+			<bind nodeset="/data/householdse/schoollevel" required="true()"/>
+			<bind nodeset="/data/householdse/ablread" required="true()"/>
+			<bind nodeset="/data/householdse/hhIncome" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/householdse/hhExpenditure" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/householdse/transmode" required="true()"/>
+			<bind nodeset="/data/householdse/spectransmode" type="xsd:string" relevant="/data/householdse/transmode = 'other'" required="true()"/>
+			<bind nodeset="/data/householdse/timespentintrans" type="xsd:string"/>
+			<bind nodeset="/data/householdse/moneyspenttrans" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/householdse/indexYrsNeighborhood" type="xsd:int" constraint=".&lt;=110" jr:constraintMsg="jr:itext('indexYrsNeighborhood-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/smspreflang" required="true()"/>
+			<bind nodeset="/data/preferedname" type="xsd:string"/>
+			<bind nodeset="/data/morecontacts"/>
+			<bind nodeset="/data/question226"/>
+			<bind nodeset="/data/age" calculate="int((today() - date(/data/birthdate)) div 365.25)"/>
+			<bind nodeset="/data/age_in_months" calculate="if(/data/age &lt;= 2, int((today() - date(/data/birthdate)) div 30.4), '')"/>
+			<bind nodeset="/data/index_patient_id"/>
+			<bind nodeset="/data/cIntvwDate"/>
+			<bind nodeset="/data/pttype" calculate="'underfive'"/>
+			<bind nodeset="/data/screenid"/>
+			<bind nodeset="/data/ctscreenid"/>
+			<bind nodeset="/data/eligible"/>
+			<bind nodeset="/data/allocation"/>
+			<bind nodeset="/data/allocation_id"/>
+			<bind nodeset="/data/verification_code" relevant="/data/sms_registration/wiling_to__receive_msgs = 'yes'" calculate="uuid(4)"/>
+			<bind nodeset="/data/contact_phone_number" relevant="/data/sms_registration/wiling_to__receive_msgs = 'yes'" calculate="concat('256', /data/sms_registration/phone_no)"/>
+			<bind nodeset="/data/verification_code_trigger" calculate="'A'"/>
+			<bind nodeset="/data/tb_status"/>
+			<bind nodeset="/data/tb_risk" calculate="if(/data/clinicalhistory/hiv_status = 'positive' or /data/age &lt;= 5, 'likely', 'unlikely')"/>
+			<bind nodeset="/data/target_clinic_visit_date"/>
+			<bind nodeset="/data/send_SMS" calculate="if(/data/allocation = &quot;B&quot;, &quot;control&quot;, if(/data/tb_status = &quot;positive&quot;, &quot;confirmed&quot;, if (/data/tb_status = &quot;negative&quot; or /data/tb_risk = &quot;unlikely&quot;, &quot;unlikely&quot;, if(/data/tb_risk = &quot;likely&quot;, &quot;likely&quot;,&quot;not_testable&quot;))))"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="notEligibleLabel-label">
+						<value>This contact is not eligible to be enrolled. Please return to the home screen.</value>
+					</text>
+					<text id="birthdate-label">
+						<value>Date of Birth</value>
+					</text>
+					<text id="birthdate-constraintMsg">
+						<value>Date cannot be in the future.</value>
+					</text>
+					<text id="age_year_display-label">
+						<value>Patient is <output ref="/data/age"/> years</value>
+					</text>
+					<text id="age_month_display-label">
+						<value>Patient is <output ref="/data/age_in_months"/> months</value>
+					</text>
+					<text id="gender-label">
+						<value>Gender</value>
+					</text>
+					<text id="gender-male-label">
+						<value>Male</value>
+					</text>
+					<text id="gender-female-label">
+						<value>Female</value>
+					</text>
+					<text id="relationship_to_contact-label">
+						<value>Relationship to Index Patient</value>
+					</text>
+					<text id="relationship_to_contact-spouse-label">
+						<value>Spouse</value>
+					</text>
+					<text id="relationship_to_contact-parent-label">
+						<value>Parent</value>
+					</text>
+					<text id="relationship_to_contact-child-label">
+						<value>Child</value>
+					</text>
+					<text id="relationship_to_contact-sibling-label">
+						<value>Sibling</value>
+					</text>
+					<text id="relationship_to_contact-other_relative-label">
+						<value>Other relative including in-law</value>
+					</text>
+					<text id="relationship_to_contact-non_relative-label">
+						<value>Non-relative or co-resident</value>
+					</text>
+					<text id="sms_registration-label">
+						<value>SMS Registration</value>
+					</text>
+					<text id="phone_no-label">
+						<value>Phone Number</value>
+					</text>
+					<text id="phone_no-hint">
+						<value>(Please only add the nine digits for the number .For example 772123456...)</value>
+					</text>
+					<text id="phone_no-constraintMsg">
+						<value>Enter a 9 digit phone number, without the leading zero.</value>
+					</text>
+					<text id="wiling_to__receive_msgs-label">
+						<value>Are you willing to receive personal health messages at this telephone number?</value>
+					</text>
+					<text id="clinicalhistory-label">
+						<value>Clinical History</value>
+					</text>
+					<text id="hiv_status-label">
+						<value>What was your HIV status the last time you tested? </value>
+					</text>
+					<text id="hiv_status-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="hiv_status-negative-label">
+						<value>Negative</value>
+					</text>
+					<text id="hiv_status-unknown-label">
+						<value>Unknown</value>
+					</text>
+					<text id="hiv_status-decline-label">
+						<value>Declined to state</value>
+					</text>
+					<text id="hivposenrcln-label">
+						<value>If HIV-positive, are you currently enrolled in an HIV clinic?</value>
+					</text>
+					<text id="tested_last_three_months-label">
+						<value>Have you been tested for HIV within the last 3 months?</value>
+					</text>
+					<text id="agree_to_test-label">
+						<value>Would you agree to be tested for HIV?</value>
+					</text>
+					<text id="taking_arvs-label">
+						<value>Are you taking anti-retroviral therapy (ART)?</value>
+					</text>
+					<text id="tbscreening-label">
+						<value>TB Screening Questions</value>
+					</text>
+					<text id="have_cough-label">
+						<value>Do you currently have a cough?</value>
+					</text>
+					<text id="cough2wks-label">
+						<value>Have you been coughing for the last two weeks or more ?</value>
+					</text>
+					<text id="hadfeverlstmo-label">
+						<value>Have you had fever in the last one month?</value>
+					</text>
+					<text id="weight_loss-label">
+						<value>Have you lost weight, defined as at least 3 kilograms (to make clothes feel loose) in the last one month?</value>
+					</text>
+					<text id="ntsweatsmo-label">
+						<value>Have you had night sweats (enough to make you want to change the clothes or  sheets) in the last one month?</value>
+					</text>
+					<text id="been_evaluated-label">
+						<value>Have you been evaluated for any of these symptoms in the previous 6 months?</value>
+					</text>
+					<text id="follow_up_information-label">
+						<value>Follow-up Information</value>
+					</text>
+					<text id="planned_for_clinic_evaluation-label">
+						<value>Had you planned to go to a health facility to have these symptoms checked before we came to your home?</value>
+					</text>
+					<text id="kcca_health_facility-label">
+						<value>Which KCCA health facility would you plan to visit if we suggest follow-up?</value>
+					</text>
+					<text id="kcca_health_facility-kisugu-label">
+						<value>Kisugu Health Centre</value>
+					</text>
+					<text id="kcca_health_facility-kawaala-label">
+						<value>Kawaala Health Centre</value>
+					</text>
+					<text id="kcca_health_facility-naguru-label">
+						<value>Naguru Hospital</value>
+					</text>
+					<text id="kcca_health_facility-Kitebi-label">
+						<value>Kitebi Health Centre </value>
+					</text>
+					<text id="kcca_health_facility-Kiswa-label">
+						<value>Kiswa Health Centre</value>
+					</text>
+					<text id="kcca_health_facility-kisenyi-label">
+						<value>Kisenyi Health Centre</value>
+					</text>
+					<text id="kcca_health_facility-komamboga-label">
+						<value>Komamboga Health Centre</value>
+					</text>
+					<text id="specifichc-label">
+						<value>Kindly specify the Health Facility you plan to go to?</value>
+					</text>
+					<text id="follow_up_information/specifichc-pubhlthclinhosp-label">
+						<value>Public Health Clinic/Hospital</value>
+					</text>
+					<text id="follow_up_information/specifichc-privhlthclinhosp-label">
+						<value>Private Health Clinic/Hospital</value>
+					</text>
+					<text id="follow_up_information/specifichc-privlab-label">
+						<value>Private Lab</value>
+					</text>
+					<text id="follow_up_information/specifichc-drugshop-label">
+						<value>Drug Shop</value>
+					</text>
+					<text id="follow_up_information/specifichc-tradhealer-label">
+						<value>Traditional Healer</value>
+					</text>
+					<text id="follow_up_information/specifichc-otherspecify-label">
+						<value>Other (Specify)</value>
+					</text>
+					<text id="follow_up_information/otherfacility-label">
+						<value>Please specify the Health Facility</value>
+					</text>
+					<text id="hhhead-label">
+						<value>Are you the head of household?</value>
+					</text>
+					<text id="householdse-label">
+						<value>Household SES</value>
+					</text>
+					<text id="ptoccupation-label">
+						<value>What is your occupation? </value>
+					</text>
+					<text id="ptoccupation-unemployed-label">
+						<value>Unemployed</value>
+					</text>
+					<text id="ptoccupation-student-label">
+						<value>Student</value>
+					</text>
+					<text id="ptoccupation-casual_laborer-label">
+						<value>Casual Laborer</value>
+					</text>
+					<text id="ptoccupation-civil_servant-label">
+						<value>Civil Servant</value>
+					</text>
+					<text id="ptoccupation-ngo_private_sector-label">
+						<value>NGO Private Sector</value>
+					</text>
+					<text id="ptoccupation-housewife-label">
+						<value>Housewife</value>
+					</text>
+					<text id="ptoccupation-domestic_worker-label">
+						<value>Domestic Worker</value>
+					</text>
+					<text id="ptoccupation-self_employed-label">
+						<value>Self-employed</value>
+					</text>
+					<text id="schoollevel-label">
+						<value>How far did you go in school?</value>
+					</text>
+					<text id="schoollevel-nofmsch-label">
+						<value>No formal school</value>
+					</text>
+					<text id="schoollevel-prlv1to4-label">
+						<value>Primary Level 1 to 4</value>
+					</text>
+					<text id="schoollevel-prlv5to7-label">
+						<value>Primary Level 5 to 7</value>
+					</text>
+					<text id="schoollevel-olevel-label">
+						<value>Secondary  O Level</value>
+					</text>
+					<text id="schoollevel-alevel-label">
+						<value>Secondary A Level</value>
+					</text>
+					<text id="schoollevel-vactnl-label">
+						<value>Vocational </value>
+					</text>
+					<text id="schoollevel-tertiary-label">
+						<value>Tertiary / University</value>
+					</text>
+					<text id="schoollevel-postgrad-label">
+						<value>Post-graduate</value>
+					</text>
+					<text id="ablwrt-label">
+						<value>Can you read a letter or newspaper in any language?</value>
+					</text>
+					<text id="ablwrt-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="ablwrt-no-label">
+						<value>No</value>
+					</text>
+					<text id="hhIncome-label">
+						<value>What is your weekly household income? Include all members of the household? </value>
+					</text>
+					<text id="hhExpenditure-label">
+						<value>What are your weekly household expenditures? Include all members of the household?
+</value>
+					</text>
+					<text id="householdse/transmode-label">
+						<value>What is your primary mode of transport to places that are more than 5 minutes away from your home?  By primary, we mean the mode of transport that you use to travel the greatest distance.</value>
+					</text>
+					<text id="householdse/transmode-walking-label">
+						<value>Walking</value>
+					</text>
+					<text id="householdse/transmode-bicycle-label">
+						<value>Bicycle</value>
+					</text>
+					<text id="householdse/transmode-bodaboda-label">
+						<value>Boda boda </value>
+					</text>
+					<text id="householdse/transmode-taxi-label">
+						<value>Taxi/Matatu</value>
+					</text>
+					<text id="householdse/transmode-car-label">
+						<value>Car</value>
+					</text>
+					<text id="householdse/transmode-other-label">
+						<value>Other</value>
+					</text>
+					<text id="householdse/spectransmode-label">
+						<value>Please specify your other mode of transport</value>
+					</text>
+					<text id="householdse/timespentintrans-label">
+						<value>In a typical week , how much time do you spend in transport to places more than 5 minutes away from your home?</value>
+					</text>
+					<text id="householdse/moneyspenttrans-label">
+						<value>In a typical week, how much money do you spend (in UGX) on transport?</value>
+					</text>
+					<text id="indexYrsNeighborhood-label">
+						<value>For how many years have you been living within walking distance of your current dwelling?</value>
+					</text>
+					<text id="indexYrsNeighborhood-constraintMsg">
+						<value>Must be less than or equal to 110.</value>
+					</text>
+					<text id="householdse/smspreflang-label">
+						<value>In which language would you prefer to be addressed with SMS?</value>
+					</text>
+					<text id="householdse/smspreflang-english-label">
+						<value>English</value>
+					</text>
+					<text id="householdse/smspreflang-luganda-label">
+						<value>Luganda</value>
+					</text>
+					<text id="preferedname-label">
+						<value>Which name would you prefer to be addressed as in the SMS?
+</value>
+					</text>
+					<text id="morecontacts-label">
+						<value>Are there more contacts to be interviewed in the household?
+</value>
+					</text>
+					<text id="question226-label">
+						<value>Please Complete the SMS Confirmation Form</value>
+						<value form="image">jr://file/commcare/image/data/question226.png</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/contact_phone_number" nodeset="/data/case/update/contact_phone_number" relevant="count(/data/contact_phone_number) &gt; 0"/><bind calculate="/data/follow_up_information/planned_for_clinic_evaluation" nodeset="/data/case/update/healthcentre" relevant="count(/data/follow_up_information/planned_for_clinic_evaluation) &gt; 0"/><bind calculate="/data/clinicalhistory/hiv_status" nodeset="/data/case/update/hiv_status" relevant="count(/data/clinicalhistory/hiv_status) &gt; 0"/><bind calculate="/data/sms_registration/phone_no" nodeset="/data/case/update/phone_no" relevant="count(/data/sms_registration/phone_no) &gt; 0"/><bind calculate="/data/age" nodeset="/data/case/update/ptage" relevant="count(/data/age) &gt; 0"/><bind calculate="/data/gender" nodeset="/data/case/update/ptgender" relevant="count(/data/gender) &gt; 0"/><bind calculate="/data/pttype" nodeset="/data/case/update/pttype" relevant="count(/data/pttype) &gt; 0"/><bind calculate="/data/send_SMS" nodeset="/data/case/update/send_SMS" relevant="count(/data/send_SMS) &gt; 0"/><bind calculate="/data/tb_risk" nodeset="/data/case/update/tb_risk" relevant="count(/data/tb_risk) &gt; 0"/><bind calculate="/data/tb_status" nodeset="/data/case/update/tb_status" relevant="count(/data/tb_status) &gt; 0"/><bind calculate="/data/verification_code" nodeset="/data/case/update/verification_code" relevant="count(/data/verification_code) &gt; 0"/><bind calculate="/data/verification_code_trigger" nodeset="/data/case/update/verification_code_trigger" relevant="count(/data/verification_code_trigger) &gt; 0"/><setvalue event="xforms-ready" ref="/data/allocation" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation"/><setvalue event="xforms-ready" ref="/data/tb_status" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_status"/><setvalue event="xforms-ready" ref="/data/clinicalhistory/hiv_status" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/hiv_status"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/eligible" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/eligible"/><setvalue event="xforms-ready" ref="/data/ctscreenid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ctscreenid"/><setvalue event="xforms-ready" ref="/data/tb_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_risk"/><setvalue event="xforms-ready" ref="/data/send_SMS" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/send_SMS"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/notEligibleLabel" appearance="minimal">
+			<label ref="jr:itext('notEligibleLabel-label')"/>
+		</trigger>
+		<input ref="/data/birthdate">
+			<label ref="jr:itext('birthdate-label')"/>
+		</input>
+		<trigger ref="/data/age_year_display" appearance="minimal">
+			<label ref="jr:itext('age_year_display-label')"/>
+		</trigger>
+		<trigger ref="/data/age_month_display" appearance="minimal">
+			<label ref="jr:itext('age_month_display-label')"/>
+		</trigger>
+		<select1 ref="/data/gender">
+			<label ref="jr:itext('gender-label')"/>
+			<item>
+				<label ref="jr:itext('gender-male-label')"/>
+				<value>male</value>
+			</item>
+			<item>
+				<label ref="jr:itext('gender-female-label')"/>
+				<value>female</value>
+			</item>
+		</select1>
+		<select1 ref="/data/relationship_to_contact">
+			<label ref="jr:itext('relationship_to_contact-label')"/>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-spouse-label')"/>
+				<value>spouse</value>
+			</item>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-parent-label')"/>
+				<value>parent</value>
+			</item>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-child-label')"/>
+				<value>child</value>
+			</item>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-sibling-label')"/>
+				<value>sibling</value>
+			</item>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-other_relative-label')"/>
+				<value>other_relative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('relationship_to_contact-non_relative-label')"/>
+				<value>non_relative</value>
+			</item>
+		</select1>
+		<group ref="/data/sms_registration">
+			<label ref="jr:itext('sms_registration-label')"/>
+			<input ref="/data/sms_registration/phone_no" appearance="numeric">
+				<label ref="jr:itext('phone_no-label')"/>
+				<hint ref="jr:itext('phone_no-hint')"/>
+			</input>
+			<select1 ref="/data/sms_registration/wiling_to__receive_msgs">
+				<label ref="jr:itext('wiling_to__receive_msgs-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/clinicalhistory">
+			<label ref="jr:itext('clinicalhistory-label')"/>
+			<select1 ref="/data/clinicalhistory/hiv_status">
+				<label ref="jr:itext('hiv_status-label')"/>
+				<item>
+					<label ref="jr:itext('hiv_status-positive-label')"/>
+					<value>positive</value>
+				</item>
+				<item>
+					<label ref="jr:itext('hiv_status-negative-label')"/>
+					<value>negative</value>
+				</item>
+				<item>
+					<label ref="jr:itext('hiv_status-unknown-label')"/>
+					<value>unknown</value>
+				</item>
+				<item>
+					<label ref="jr:itext('hiv_status-decline-label')"/>
+					<value>decline</value>
+				</item>
+			</select1>
+			<select1 ref="/data/clinicalhistory/hivposenrcln">
+				<label ref="jr:itext('hivposenrcln-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/clinicalhistory/tested_last_three_months">
+				<label ref="jr:itext('tested_last_three_months-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/clinicalhistory/agree_to_test">
+				<label ref="jr:itext('agree_to_test-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/clinicalhistory/taking_arvs">
+				<label ref="jr:itext('taking_arvs-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/tbscreening">
+			<label ref="jr:itext('tbscreening-label')"/>
+			<select1 ref="/data/tbscreening/have_cough">
+				<label ref="jr:itext('have_cough-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/tbscreening/cough2wks">
+				<label ref="jr:itext('cough2wks-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/tbscreening/hadfeverlstmo">
+				<label ref="jr:itext('hadfeverlstmo-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/tbscreening/weight_loss">
+				<label ref="jr:itext('weight_loss-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/tbscreening/ntsweatsmo">
+				<label ref="jr:itext('ntsweatsmo-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/tbscreening/been_evaluated">
+				<label ref="jr:itext('been_evaluated-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/follow_up_information">
+			<label ref="jr:itext('follow_up_information-label')"/>
+			<select1 ref="/data/follow_up_information/planned_for_clinic_evaluation">
+				<label ref="jr:itext('planned_for_clinic_evaluation-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/follow_up_information/kcca_health_facility">
+				<label ref="jr:itext('kcca_health_facility-label')"/>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-kisugu-label')"/>
+					<value>kisugu</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-kawaala-label')"/>
+					<value>kawaala</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-naguru-label')"/>
+					<value>naguru</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-Kitebi-label')"/>
+					<value>Kitebi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-Kiswa-label')"/>
+					<value>Kiswa</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-kisenyi-label')"/>
+					<value>kisenyi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('kcca_health_facility-komamboga-label')"/>
+					<value>komamboga</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<select1 ref="/data/follow_up_information/specifichc">
+				<label ref="jr:itext('specifichc-label')"/>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-pubhlthclinhosp-label')"/>
+					<value>pubhlthclinhosp</value>
+				</item>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-privhlthclinhosp-label')"/>
+					<value>privhlthclinhosp</value>
+				</item>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-privlab-label')"/>
+					<value>privlab</value>
+				</item>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-drugshop-label')"/>
+					<value>drugshop</value>
+				</item>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-tradhealer-label')"/>
+					<value>tradhealer</value>
+				</item>
+				<item>
+					<label ref="jr:itext('follow_up_information/specifichc-otherspecify-label')"/>
+					<value>otherspecify</value>
+				</item>
+			</select1>
+			<input ref="/data/follow_up_information/otherfacility">
+				<label ref="jr:itext('follow_up_information/otherfacility-label')"/>
+			</input>
+		</group>
+		<select1 ref="/data/hhhead">
+			<label ref="jr:itext('hhhead-label')"/>
+			<item>
+				<label ref="jr:itext('ablwrt-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ablwrt-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/householdse">
+			<label ref="jr:itext('householdse-label')"/>
+			<select1 ref="/data/householdse/ptoccupation">
+				<label ref="jr:itext('ptoccupation-label')"/>
+				<item>
+					<label ref="jr:itext('ptoccupation-unemployed-label')"/>
+					<value>unemployed</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-student-label')"/>
+					<value>student</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-casual_laborer-label')"/>
+					<value>casual_laborer</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-civil_servant-label')"/>
+					<value>civil_servant</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-ngo_private_sector-label')"/>
+					<value>ngo_private_sector</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-housewife-label')"/>
+					<value>housewife</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-domestic_worker-label')"/>
+					<value>domestic_worker</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-self_employed-label')"/>
+					<value>self_employed</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<select1 ref="/data/householdse/schoollevel">
+				<label ref="jr:itext('schoollevel-label')"/>
+				<item>
+					<label ref="jr:itext('schoollevel-nofmsch-label')"/>
+					<value>nofmsch</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-prlv1to4-label')"/>
+					<value>prlv1to4</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-prlv5to7-label')"/>
+					<value>prlv5to7</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-olevel-label')"/>
+					<value>olevel</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-alevel-label')"/>
+					<value>alevel</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-vactnl-label')"/>
+					<value>vactnl</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-tertiary-label')"/>
+					<value>tertiary</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-postgrad-label')"/>
+					<value>postgrad</value>
+				</item>
+			</select1>
+			<select1 ref="/data/householdse/ablread">
+				<label ref="jr:itext('ablwrt-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/hhIncome">
+				<label ref="jr:itext('hhIncome-label')"/>
+			</input>
+			<input ref="/data/householdse/hhExpenditure">
+				<label ref="jr:itext('hhExpenditure-label')"/>
+			</input>
+			<select1 ref="/data/householdse/transmode">
+				<label ref="jr:itext('householdse/transmode-label')"/>
+				<item>
+					<label ref="jr:itext('householdse/transmode-walking-label')"/>
+					<value>walking</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-bicycle-label')"/>
+					<value>bicycle</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-bodaboda-label')"/>
+					<value>bodaboda</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-taxi-label')"/>
+					<value>taxi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-car-label')"/>
+					<value>car</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/transmode-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/spectransmode">
+				<label ref="jr:itext('householdse/spectransmode-label')"/>
+			</input>
+			<input ref="/data/householdse/timespentintrans">
+				<label ref="jr:itext('householdse/timespentintrans-label')"/>
+			</input>
+			<input ref="/data/householdse/moneyspenttrans">
+				<label ref="jr:itext('householdse/moneyspenttrans-label')"/>
+			</input>
+			<input ref="/data/householdse/indexYrsNeighborhood">
+				<label ref="jr:itext('indexYrsNeighborhood-label')"/>
+			</input>
+		</group>
+		<select1 ref="/data/smspreflang">
+			<label ref="jr:itext('householdse/smspreflang-label')"/>
+			<item>
+				<label ref="jr:itext('householdse/smspreflang-english-label')"/>
+				<value>english</value>
+			</item>
+			<item>
+				<label ref="jr:itext('householdse/smspreflang-luganda-label')"/>
+				<value>luganda</value>
+			</item>
+		</select1>
+		<input ref="/data/preferedname">
+			<label ref="jr:itext('preferedname-label')"/>
+		</input>
+		<select1 ref="/data/morecontacts">
+			<label ref="jr:itext('morecontacts-label')"/>
+			<item>
+				<label ref="jr:itext('ablwrt-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ablwrt-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<trigger ref="/data/question226" appearance="minimal">
+			<label ref="jr:itext('question226-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

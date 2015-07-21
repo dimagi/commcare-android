@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="14"
+         update="https://www.commcarehq.org/a/willslearningproject/apps/download/651be5431a0252442f5d648ac979a5ff/media_profile.ccpr?latest=true"
+         requiredMajor="2"
+         requiredMinor="20"
+         uniqueid="d2bf37b19c42de749cc13704e59525dd"
+         name="Untitled Application"
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/willslearningproject/phone/restore/"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/willslearningproject/phone/restore/"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/willslearningproject/receiver/secure/651be5431a0252442f5d648ac979a5ff/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/willslearningproject/receiver/secure/651be5431a0252442f5d648ac979a5ff/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/willslearningproject/phone/keys/"/>
+    <property key="cur_locale" value="en"/>
+    <property key="cc_user_domain" value="willslearningproject.commcarehq.org"/>
+    <property key="jr_openrosa_api" value="1.0"/>
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="extra_key_action" value="audio"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal"/>
+    
+        <property key="log_prop_weekly" value="log_short"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+        <users active="true">
+            
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="14">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/willslearningproject/apps/download/651be5431a0252442f5d648ac979a5ff/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="14">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/willslearningproject/apps/download/651be5431a0252442f5d648ac979a5ff/media_suite.xml</location>
+    </resource></suite>
+    
+</profile>

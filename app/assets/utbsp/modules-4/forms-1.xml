@@ -1,0 +1,492 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>14a. Contact TB Patient Follow-up</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/8CA9A628-6A56-43C7-9071-BDE50BBF805B" uiVersion="1" version="1972" name="14a. Contact TB Patient Follow-up">
+					<search/>
+					<no_record_exists/>
+					<not_contact/>
+					<record_exists/>
+					<followupdt/>
+					<cntrxstdate/>
+					<tbdosesmsd/>
+					<cnttbptltvisistdate/>
+					<tkmedslstrefil/>
+					<hvhiv/>
+					<hasvistedhiv/>
+					<cd4count/>
+					<starttakarvs/>
+					<whatdt/>
+					<lstartrefill/>
+					<tkartlstrefil/>
+					<completedrx/>
+					<dtofcomtn/>
+					<outcome/>
+					<endofrxsmear/>
+					<smearslt/>
+					<smearmicroresult/>
+					<msgfrompatient/>
+					<identify/>
+					<intent_0>com.biometrac.core.SCAN</intent_0>
+					<intent_1>com.biometrac.core.IDENTIFY</intent_1>
+					<finger_left_index>left_index</finger_left_index>
+					<finger_left_thumb>left_thumb</finger_left_thumb>
+					<finger_right_thumb>right_thumb</finger_right_thumb>
+					<finger_right_index>right_index</finger_right_index>
+					<left_index/>
+					<right_index/>
+					<left_thumb/>
+					<right_thumb/>
+					<match_id/>
+					<returned/>
+					<random_id/>
+					<name_lookup/>
+					<pttype/>
+					<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+						
+					<update>
+							<lastvisit/>
+						</update></case>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/search" type="intent" required="false()"/>
+			<bind nodeset="/data/no_record_exists" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/not_contact" relevant="/data/pttype != 'contact'"/>
+			<bind nodeset="/data/record_exists" relevant="not(/data/returned = '0')"/>
+			<bind nodeset="/data/followupdt" type="xsd:date" relevant="not(/data/returned = '0')" required="true()"/>
+			<bind nodeset="/data/cntrxstdate" type="xsd:date" relevant="not(/data/returned = '0')" required="true()"/>
+			<bind nodeset="/data/tbdosesmsd" relevant="not(/data/returned = '0')" required="true()"/>
+			<bind nodeset="/data/cnttbptltvisistdate" type="xsd:date" relevant="not(/data/returned = '0')" required="true()"/>
+			<bind nodeset="/data/tkmedslstrefil" required="true()"/>
+			<bind nodeset="/data/hvhiv" required="true()"/>
+			<bind nodeset="/data/hasvistedhiv" relevant="not(/data/returned = '0') and  /data/hvhiv = 'yes'" required="true()"/>
+			<bind nodeset="/data/cd4count" type="xsd:string" constraint=".&gt;=1 and .&lt;=2500" relevant="/data/hvhiv = 'yes'" required="true()"/>
+			<bind nodeset="/data/starttakarvs" relevant="/data/hasvistedhiv = 'yes' and not(/data/returned = '0') and /data/hvhiv = 'yes'" required="true()"/>
+			<bind nodeset="/data/whatdt" type="xsd:date" relevant="/data/starttakarvs = 'yes' or /data/starttakarvs = 'alrdytkart'" required="true()"/>
+			<bind nodeset="/data/lstartrefill" type="xsd:date" relevant="/data/starttakarvs = 'yes' or /data/starttakarvs = 'alrdytkart'" required="true()"/>
+			<bind nodeset="/data/tkartlstrefil" relevant="/data/starttakarvs = 'yes' or  /data/starttakarvs = 'alrdytkart'" required="true()"/>
+			<bind nodeset="/data/completedrx" relevant="not(/data/returned = '0') and /data/starttakarvs = 'yes' or  /data/starttakarvs = 'alrdytkart'" required="true()"/>
+			<bind nodeset="/data/dtofcomtn" type="xsd:date" relevant="/data/completedrx = 'yes'" required="true()"/>
+			<bind nodeset="/data/outcome" relevant="not(/data/returned = '0') and /data/completedrx = 'yes'" required="true()"/>
+			<bind nodeset="/data/endofrxsmear" required="true()"/>
+			<bind nodeset="/data/smearslt" type="xsd:date" required="true()"/>
+			<bind nodeset="/data/smearmicroresult" relevant="/data/endofrxsmear = 'yes'" required="true()"/>
+			<bind nodeset="/data/msgfrompatient" type="xsd:string"/>
+			<bind nodeset="/data/identify"/>
+			<bind nodeset="/data/intent_0"/>
+			<bind nodeset="/data/intent_1"/>
+			<bind nodeset="/data/finger_left_index"/>
+			<bind nodeset="/data/finger_left_thumb"/>
+			<bind nodeset="/data/finger_right_thumb"/>
+			<bind nodeset="/data/finger_right_index"/>
+			<bind nodeset="/data/left_index" type="xsd:string"/>
+			<bind nodeset="/data/right_index" type="xsd:string"/>
+			<bind nodeset="/data/left_thumb" type="xsd:string"/>
+			<bind nodeset="/data/right_thumb" type="xsd:string"/>
+			<bind nodeset="/data/match_id"/>
+			<bind nodeset="/data/returned"/>
+			<bind nodeset="/data/random_id"/>
+			<bind nodeset="/data/name_lookup"/><setvalue event="xforms-revalidate" ref="/data/case/@case_id" value="/data/match_id"/><bind nodeset="/data/case/@date_modified" type="dateTime" calculate="now()"/><bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/><bind calculate="now()" nodeset="/data/case/update/lastvisit"/><bind nodeset="/data/case/update"/>
+			<bind nodeset="/data/pttype" type="xsd:string" relevant="/data/returned != '0'" calculate="if(/data/returned &gt; 0, instance('casedb')/casedb/case[@case_id=/data/match_id]/pttype, 'none found')"/>
+			<bind nodeset="/data/case"/><bind nodeset="/data/name_lookup" type="xsd:string" calculate="if(/data/returned &gt; 0, instance('casedb')/casedb/case[@case_id=/data/match_id]/case_name, 'none found')"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="biometricscanid-label">
+						<value>BIOMETRIC SCANNING: verify that they are in the system already, block if not.</value>
+					</text>
+					<text id="no_record_exists-label">
+						<value>No record exist for this scan </value>
+					</text>
+					<text id="not_contact-label">
+						<value>Not a contact patient. Please return to the home screen.</value>
+					</text>
+					<text id="record_exists-label">
+						<value>Record exists with name: <output value="/data/name_lookup"/> and id: <output value="/data/match_id"/></value>
+					</text>
+					<text id="followupdt-label">
+						<value>Date of follow-up visit</value>
+					</text>
+					<text id="cntrxstdate-label">
+						<value>Date treatment started </value>
+					</text>
+					<text id="tbdosesmsd-label">
+						<value>Reviewing the TB treatment card and the TB treatment register, how many weeks/months of treatment have been completed?</value>
+					</text>
+					<text id="tbdosesmsd-hint">
+						<value>Review treatment card with the patient and count</value>
+					</text>
+					<text id="tbdosesmsd-2weeks-label">
+						<value>Two weeks</value>
+					</text>
+					<text id="tbdosesmsd-onemon-label">
+						<value>One month</value>
+					</text>
+					<text id="tbdosesmsd-sixweeks-label">
+						<value>Six weeks</value>
+					</text>
+					<text id="tbdosesmsd-twomons-label">
+						<value>Two months</value>
+					</text>
+					<text id="tbdosesmsd-threemons-label">
+						<value>Three months </value>
+					</text>
+					<text id="tbdosesmsd-fourmons-label">
+						<value>Four months</value>
+					</text>
+					<text id="tbdosesmsd-fivemons-label">
+						<value>Five months</value>
+					</text>
+					<text id="tbdosesmsd-sixmons-label">
+						<value>Six months </value>
+					</text>
+					<text id="tbdosesmsd-sevmons-label">
+						<value>Seven months</value>
+					</text>
+					<text id="tbdosesmsd-eightmons-label">
+						<value>Eight months</value>
+					</text>
+					<text id="cnttbptltvisistdate-label">
+						<value>On what date did the patient last receive a refill of TB medications?</value>
+					</text>
+					<text id="tkmedslstrefil-label">
+						<value>Did you take all your TB medications all the time since the last refill?</value>
+					</text>
+					<text id="hvhiv-label">
+						<value>Does the patient have HIV?</value>
+					</text>
+					<text id="hasvistedhiv-label">
+						<value>Has the patient visited an HIV clinic since receiving the current TB diagnosis?</value>
+					</text>
+					<text id="cd4count-label">
+						<value>What is the CD4 count result taken at the time of the TB diagnosis? </value>
+					</text>
+					<text id="starttakarvs-label">
+						<value>Since the time of the TB diagnosis, has the patient started taking ART? </value>
+					</text>
+					<text id="starttakarvs-alrdytkart-label">
+						<value>Already taking ART prior to TB diagnosis</value>
+					</text>
+					<text id="whatdt-label">
+						<value>On what date? </value>
+					</text>
+					<text id="lstartrefill-label">
+						<value>On what date was the last ART refill given? </value>
+					</text>
+					<text id="tkartlstrefil-label">
+						<value>Did you take all your ART medications all the time since the last refill?</value>
+					</text>
+					<text id="tkartlstrefil-none-label">
+						<value>None of the time</value>
+					</text>
+					<text id="tkartlstrefil-alittle-label">
+						<value>A little of the time</value>
+					</text>
+					<text id="tkartlstrefil-smoftm-label">
+						<value>Some of the time</value>
+					</text>
+					<text id="tkartlstrefil-agdbit-label">
+						<value>A good bit of the time</value>
+					</text>
+					<text id="tkartlstrefil-mstoftm-label">
+						<value>Most of the time</value>
+					</text>
+					<text id="completedrx-label">
+						<value>Has the patient completed the full course of treatment?</value>
+					</text>
+					<text id="completedrx-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="completedrx-no-label">
+						<value>No</value>
+					</text>
+					<text id="dtofcomtn-label">
+						<value>Date of completion</value>
+					</text>
+					<text id="outcome-label">
+						<value>If Yes, what is the outcome?</value>
+					</text>
+					<text id="outcome-rxsuccess-label">
+						<value>Treatment Success</value>
+					</text>
+					<text id="outcome-rxfailure-label">
+						<value>Treatment Failure</value>
+					</text>
+					<text id="endofrxsmear-label">
+						<value>Was an end-of-treatment sputum smear performed?</value>
+					</text>
+					<text id="smearslt-label">
+						<value>If Yes, What date was the smear performed?</value>
+					</text>
+					<text id="smearmicroresult-label">
+						<value>What was the smear microscopy result</value>
+					</text>
+					<text id="smearmicroresult-positive3+-label">
+						<value>Positive 3+</value>
+					</text>
+					<text id="smearmicroresult-positve2+-label">
+						<value>Positive 2+</value>
+					</text>
+					<text id="smearmicroresult-positive1+-label">
+						<value>Positive 1+</value>
+					</text>
+					<text id="smearmicroresult-scanty-label">
+						<value>Scanty</value>
+					</text>
+					<text id="smearmicroresult-negative-label">
+						<value>Negative</value>
+					</text>
+					<text id="smearmicroresult-resultmissing-label">
+						<value>Result Missing</value>
+					</text>
+					<text id="msgfrompatient-label">
+						<value>Kindly document any messages you get from patients.Thanks.</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="search" class="com.biometrac.core.PIPE">
+			<extra key="action_0" ref="/data/intent_0"/>
+			<extra key="action_1" ref="/data/intent_1"/>
+			<extra key="left_finger_assignment_0" ref="/data/finger_left_index"/>
+			<extra key="right_finger_assignment_0" ref="/data/finger_right_index"/>
+			<extra key="left_finger_assignment_1" ref="/data/finger_left_thumb"/>
+			<extra key="right_finger_assignment_1" ref="/data/finger_right_thumb"/>
+			<response key="matches_found" ref="/data/returned"/>
+			<response key="left_index" ref="/data/left_index"/>
+			<response key="left_thumb" ref="/data/left_thumb"/>
+			<response key="right_index" ref="/data/right_index"/>
+			<response key="right_thumb" ref="/data/right_thumb"/>
+			<response key="match_id_0" ref="/data/match_id"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<input ref="/data/search" appearance="intent:search">
+			<label ref="jr:itext('biometricscanid-label')"/>
+		</input>
+		<trigger ref="/data/no_record_exists">
+			<label ref="jr:itext('no_record_exists-label')"/>
+		</trigger>
+		<trigger ref="/data/not_contact">
+			<label ref="jr:itext('not_contact-label')"/>
+		</trigger>
+		<trigger ref="/data/record_exists">
+			<label ref="jr:itext('record_exists-label')"/>
+		</trigger>
+		<input ref="/data/followupdt">
+			<label ref="jr:itext('followupdt-label')"/>
+		</input>
+		<input ref="/data/cntrxstdate">
+			<label ref="jr:itext('cntrxstdate-label')"/>
+		</input>
+		<select1 ref="/data/tbdosesmsd">
+			<label ref="jr:itext('tbdosesmsd-label')"/>
+			<hint ref="jr:itext('tbdosesmsd-hint')"/>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-2weeks-label')"/>
+				<value>2weeks</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-onemon-label')"/>
+				<value>onemon</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-sixweeks-label')"/>
+				<value>sixweeks</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-twomons-label')"/>
+				<value>twomons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-threemons-label')"/>
+				<value>threemons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-fourmons-label')"/>
+				<value>fourmons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-fivemons-label')"/>
+				<value>fivemons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-sixmons-label')"/>
+				<value>sixmons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-sevmons-label')"/>
+				<value>sevmons</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tbdosesmsd-eightmons-label')"/>
+				<value>eightmons</value>
+			</item>
+		</select1>
+		<input ref="/data/cnttbptltvisistdate">
+			<label ref="jr:itext('cnttbptltvisistdate-label')"/>
+		</input>
+		<select1 ref="/data/tkmedslstrefil">
+			<label ref="jr:itext('tkmedslstrefil-label')"/>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-none-label')"/>
+				<value>none</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-alittle-label')"/>
+				<value>alittle</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-smoftm-label')"/>
+				<value>smoftm</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-agdbit-label')"/>
+				<value>agdbit</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-mstoftm-label')"/>
+				<value>mstoftm</value>
+			</item>
+		</select1>
+		<select1 ref="/data/hvhiv">
+			<label ref="jr:itext('hvhiv-label')"/>
+			<item>
+				<label ref="jr:itext('completedrx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('completedrx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/hasvistedhiv">
+			<label ref="jr:itext('hasvistedhiv-label')"/>
+			<item>
+				<label ref="jr:itext('completedrx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('completedrx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/cd4count">
+			<label ref="jr:itext('cd4count-label')"/>
+		</input>
+		<select1 ref="/data/starttakarvs">
+			<label ref="jr:itext('starttakarvs-label')"/>
+			<item>
+				<label ref="jr:itext('completedrx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('completedrx-no-label')"/>
+				<value>no</value>
+			</item>
+			<item>
+				<label ref="jr:itext('starttakarvs-alrdytkart-label')"/>
+				<value>alrdytkart</value>
+			</item>
+		</select1>
+		<input ref="/data/whatdt">
+			<label ref="jr:itext('whatdt-label')"/>
+		</input>
+		<input ref="/data/lstartrefill">
+			<label ref="jr:itext('lstartrefill-label')"/>
+		</input>
+		<select1 ref="/data/tkartlstrefil">
+			<label ref="jr:itext('tkartlstrefil-label')"/>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-none-label')"/>
+				<value>none</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-alittle-label')"/>
+				<value>alittle</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-smoftm-label')"/>
+				<value>smoftm</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-agdbit-label')"/>
+				<value>agdbit</value>
+			</item>
+			<item>
+				<label ref="jr:itext('tkartlstrefil-mstoftm-label')"/>
+				<value>mstoftm</value>
+			</item>
+		</select1>
+		<select1 ref="/data/completedrx">
+			<label ref="jr:itext('completedrx-label')"/>
+			<item>
+				<label ref="jr:itext('completedrx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('completedrx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/dtofcomtn">
+			<label ref="jr:itext('dtofcomtn-label')"/>
+		</input>
+		<select1 ref="/data/outcome">
+			<label ref="jr:itext('outcome-label')"/>
+			<item>
+				<label ref="jr:itext('outcome-rxsuccess-label')"/>
+				<value>rxsuccess</value>
+			</item>
+			<item>
+				<label ref="jr:itext('outcome-rxfailure-label')"/>
+				<value>rxfailure</value>
+			</item>
+		</select1>
+		<select1 ref="/data/endofrxsmear">
+			<label ref="jr:itext('endofrxsmear-label')"/>
+			<item>
+				<label ref="jr:itext('completedrx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('completedrx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/smearslt">
+			<label ref="jr:itext('smearslt-label')"/>
+		</input>
+		<select1 ref="/data/smearmicroresult">
+			<label ref="jr:itext('smearmicroresult-label')"/>
+			<item>
+				<label ref="jr:itext('smearmicroresult-positive3+-label')"/>
+				<value>positive3+</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearmicroresult-positve2+-label')"/>
+				<value>positve2+</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearmicroresult-positive1+-label')"/>
+				<value>positive1+</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearmicroresult-scanty-label')"/>
+				<value>scanty</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearmicroresult-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearmicroresult-resultmissing-label')"/>
+				<value>resultmissing</value>
+			</item>
+		</select1>
+		<input ref="/data/msgfrompatient">
+			<label ref="jr:itext('msgfrompatient-label')"/>
+		</input>
+	</h:body>
+</h:html>

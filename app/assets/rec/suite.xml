@@ -1,0 +1,3654 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="1152" descriptor="Suite File">
+  <xform>
+    <resource id="5adb14d3527c49294cb71ae9dc75fd12fa7a78a1" version="1008" descriptor="Form: (Module Patient Management) - Enroll Child">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="9b565094d4146ec21bc02077cb38111001826b48" version="1096" descriptor="Form: (Module Child Visit) - Newborn Classification">
+      <location authority="local">./modules-1/forms-0.xml</location>
+      <location authority="remote">./modules-1/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="e84dac1b7d466a64659df078f8bfe22b45c2057c" version="1096" descriptor="Form: (Module Child Visit) - Infant Classification">
+      <location authority="local">./modules-1/forms-1.xml</location>
+      <location authority="remote">./modules-1/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="b332bced5bb0c237b829fae3f9d7a329495048f4" version="1109" descriptor="Form: (Module Child Visit) - Child Classification">
+      <location authority="local">./modules-1/forms-2.xml</location>
+      <location authority="remote">./modules-1/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="42fc81a578ca34d2b80f75229312a866adba4755" version="1152" descriptor="Form: (Module Child Visit) - Edit Child">
+      <location authority="local">./modules-1/forms-3.xml</location>
+      <location authority="remote">./modules-1/forms-3.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="7392b0ede62faf78ca8d697829418b0fc9123293" version="1060" descriptor="Form: (Module Visit History) - Newborn Treatment">
+      <location authority="local">./modules-2/forms-0.xml</location>
+      <location authority="remote">./modules-2/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="368e7c69b68b7ad930baedf0fdcacf704b553834" version="1060" descriptor="Form: (Module Visit History) - Infant Treatment">
+      <location authority="local">./modules-2/forms-1.xml</location>
+      <location authority="remote">./modules-2/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="2eb766539b895bb9d06a6626c20238c41f65ded8" version="1096" descriptor="Form: (Module Visit History) - Child Treatment">
+      <location authority="local">./modules-2/forms-2.xml</location>
+      <location authority="remote">./modules-2/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="81b8f2c6f0d27f9bd7e4db15c12f3a035c7cf3cc" version="996" descriptor="Form: (Module Visit History) - Treatment complete for this visit">
+      <location authority="local">./modules-2/forms-3.xml</location>
+      <location authority="remote">./modules-2/forms-3.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="dde622ab41bbcb418602d7dd112cc4acb5b9812d" version="687" descriptor="Form: (Module Tablet User Management) - Add Tablet User">
+      <location authority="local">./modules-3/forms-0.xml</location>
+      <location authority="remote">./modules-3/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="a85aef4405cd4280ab1c14bd2a4d5b3caa3a855c" version="1004" descriptor="Form: (Module Tablet User Management) - Modify Tablet User Details">
+      <location authority="local">./modules-3/forms-1.xml</location>
+      <location authority="remote">./modules-3/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="8692c10d103090994a6dfe0fb3b09966a3ed6c86" version="583" descriptor="Form: (Module Tablet User Management) - Remove Tablet User">
+      <location authority="local">./modules-3/forms-2.xml</location>
+      <location authority="remote">./modules-3/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="7137e032e042d633c2cbca36c2117fb3af0278f3" version="687" descriptor="Form: (Module Select New Admin) - Select New Admin">
+      <location authority="local">./modules-4/forms-0.xml</location>
+      <location authority="remote">./modules-4/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="579637a6f56c0411cc33e1ce1cf3fe0ad7b0d337" version="687" descriptor="Form: (Module Support Appraisal) - Support Appraisal">
+      <location authority="local">./modules-5/forms-0.xml</location>
+      <location authority="remote">./modules-5/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="653580c3ff8d1a7f1bbd3b8d5b69346df97d9fab" version="1108" descriptor="Form: (Module Monthly Statistics) - Number of consults">
+      <location authority="local">./modules-6/forms-0.xml</location>
+      <location authority="remote">./modules-6/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="128b572f6b4c68e47b1e879d092e4f9478def9d4" version="1128" descriptor="Form: (Module Field Test Module [fra]) - Treatment test [fra]">
+      <location authority="local">./modules-7/forms-0.xml</location>
+      <location authority="remote">./modules-7/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="ea90ffcfd7685537305b71986acbcdd0913a71d1" version="1152" descriptor="Form: (Module Field Test Module [fra]) - Medication Selection Test [fra]">
+      <location authority="local">./modules-7/forms-1.xml</location>
+      <location authority="remote">./modules-7/forms-1.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="1152" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en">
+    <resource id="app_en_strings" version="1152" descriptor="Translations: English">
+      <location authority="local">./en/app_strings.txt</location>
+      <location authority="remote">./en/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="fra">
+    <resource id="app_fra_strings" version="1152" descriptor="Translations: Unknown Language (fra)">
+      <location authority="local">./fra/app_strings.txt</location>
+      <location authority="remote">./fra/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_sex_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(sex = 'male', $kmale, if(sex = 'female', $kfemale, ''))">
+            <variable name="kfemale">
+              <locale id="m0.case_short.case_sex_2.enum.kfemale"/>
+            </variable>
+            <variable name="kmale">
+              <locale id="m0.case_short.case_sex_2.enum.kmale"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="if(sex = 'male', 0, if(sex = 'female', 1, ''))"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_dob_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(dob = '', '', string(int((today() - date(dob)) div 365.25)))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <xpath function="last_visit_date"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="descending">
+        <text>
+          <xpath function="last_visit_date"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_sex_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(sex = 'male', $kmale, if(sex = 'female', $kfemale, ''))">
+            <variable name="kfemale">
+              <locale id="m0.case_long.case_sex_2.enum.kfemale"/>
+            </variable>
+            <variable name="kmale">
+              <locale id="m0.case_long.case_sex_2.enum.kmale"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_mother_name_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="mother_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_village_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="village"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_dob_5.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(dob = '', '', format_date(date(if(dob = '', 0, dob)),'short'))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_dob_6.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(dob = '', '', string(int((today() - date(dob)) div 365.25)))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_last_visit_date_7.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(last_visit_date = '', '', format_date(date(if(last_visit_date = '', 0, last_visit_date)),'short'))"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m0_product_short">
+    <title>
+      <text>
+        <locale id="m0.product_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.product_short.product_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m1_case_short">
+    <title>
+      <text>
+        <locale id="m1.case_short.title"/>
+      </text>
+    </title>
+    <action>
+    	<display>
+	      <text>
+	        <locale id="forms.m0f0"/>
+	      </text>
+	      <media image="jr://media/plus.png"/>
+      </display>
+      <stack>
+      	<push>
+      		<command value="'m0-f0'"/>
+      	    <datum id="case_id_new_rec_child_0" value="uuid()"/>
+      	</push>
+      </stack>
+    </action>
+
+    <variables>
+        <ageindays function="today() - date(dob)"/>
+    </variables>
+    <field>
+      <style horz-align="center" vert-align="center" font-size="medium">
+      	<grid grid-height="3" grid-width="2" grid-x="0" grid-y="0"/>
+       </style>
+      <header>
+        <text/>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="'jr://media/child_profile.png'"/>
+        </text>
+      </template>
+    </field>
+
+
+    <field>
+      <style horz-align="left" vert-align="center" font-size="medium">
+      	<grid grid-height="1" grid-width="10" grid-x="2" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          &lt;b&gt; &lt;/b&gt; <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="-2" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="small">
+      	<grid grid-height="1" grid-width="5" grid-x="2" grid-y="1"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_village_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>&lt;b&gt;Village &lt;/b&gt; <xpath function="village"/></text>
+      </template>
+      <sort type="string" order="-2" direction="ascending">
+        <text>
+          <xpath function="village"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="small">
+      	<grid grid-height="1" grid-width="5" grid-x="7" grid-y="1"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_sex_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>&lt;b&gt; &lt;/b&gt;<xpath function="if(sex = 'male', $kmale, if(sex = 'female', $kfemale, ''))">
+            <variable name="kfemale">
+              <locale id="m1.case_short.case_sex_2.enum.kfemale"/>
+            </variable>
+            <variable name="kmale">
+              <locale id="m1.case_short.case_sex_2.enum.kmale"/>
+            </variable>
+          </xpath></text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="small">
+      	<grid grid-height="1" grid-width="5" grid-x="2" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>&lt;b&gt;Nom de la mère &lt;/b&gt; <xpath function="mother_name"/></text>
+      </template>
+      <sort type="string" order="-2" direction="ascending">
+        <text>
+          <xpath function="mother_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="small">
+      	<grid grid-height="1" grid-width="5" grid-x="7" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>&lt;b&gt; &lt;/b&gt; <xpath function="if($ageindays &gt; 30, concat(int($ageindays div 30.25), ' Mois'), concat(int($ageindays), ' Jours'))"/></text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m1_case_long">
+    <title>
+      <text>
+        <locale id="m1.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_sex_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(sex = 'male', $kmale, if(sex = 'female', $kfemale, ''))">
+            <variable name="kfemale">
+              <locale id="m1.case_long.case_sex_2.enum.kfemale"/>
+            </variable>
+            <variable name="kmale">
+              <locale id="m1.case_long.case_sex_2.enum.kmale"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_dob_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(dob = '', '', format_date(date(if(dob = '', 0, dob)),'short'))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_village_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="village"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_mother_name_5.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="mother_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_last_visit_date_6.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(last_visit_date = '', '', format_date(date(if(last_visit_date = '', 0, last_visit_date)),'short'))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_last_modified_by_username_7.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="last_modified_by_username"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_last_height_8.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="last_height"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_last_weight_9.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="last_weight"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_last_muac_10.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="last_muac"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m2_case_short">
+    <title>
+      <text>
+        <locale id="m2.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="13%">
+        <text>
+          <locale id="m2.case_short.case_treatment_complete_2.header"/>
+        </text>
+      </header>
+      <template width="13%" form="image">
+        <text>
+          <xpath function="if(treatment_complete = 'completed', $kcompleted, '')">
+            <variable name="kcompleted">
+              <locale id="m2.case_short.case_treatment_complete_2.enum.kcompleted"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="if(treatment_complete = 'completed', 0, '')"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <xpath function="visit_date"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="descending">
+        <text>
+          <xpath function="visit_date"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m2_case_long">
+    <title>
+      <text>
+        <locale id="m2.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(case_name = 'imci_infant', $kimci_infant, if(case_name = 'imci_child', $kimci_child, if(case_name = 'imci_newborn', $kimci_newborn, '')))">
+            <variable name="kimci_child">
+              <locale id="m2.case_long.case_name_1.enum.kimci_child"/>
+            </variable>
+            <variable name="kimci_infant">
+              <locale id="m2.case_long.case_name_1.enum.kimci_infant"/>
+            </variable>
+            <variable name="kimci_newborn">
+              <locale id="m2.case_long.case_name_1.enum.kimci_newborn"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_mobile_username_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="mobile_username"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_done_by_username_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="classification_done_by_username"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_visit_date_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(visit_date = '', '', format_date(date(if(visit_date = '', 0, visit_date)),'short'))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_consultation_type_5.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(consultation_type = 'new', $knew, if(consultation_type = 'followup', $kfollowup, ''))">
+            <variable name="kfollowup">
+              <locale id="m2.case_long.case_consultation_type_5.enum.kfollowup"/>
+            </variable>
+            <variable name="knew">
+              <locale id="m2.case_long.case_consultation_type_5.enum.knew"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_temperature_6.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="temperature"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_treatment_complete_7.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(treatment_complete = 'completed', $kcompleted, if(treatment_complete = '', $k, ''))">
+            <variable name="k">
+              <locale id="m2.case_long.case_treatment_complete_7.enum.k"/>
+            </variable>
+            <variable name="kcompleted">
+              <locale id="m2.case_long.case_treatment_complete_7.enum.kcompleted"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_anemie_8.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_anemie = 'anemie_grave', $kanemie_grave, if(classification_anemie = 'anemie', $kanemie, ''))">
+            <variable name="kanemie">
+              <locale id="m2.case_long.case_classification_anemie_8.enum.kanemie"/>
+            </variable>
+            <variable name="kanemie_grave">
+              <locale id="m2.case_long.case_classification_anemie_8.enum.kanemie_grave"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_deshydratation_9.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_deshydratation = 'pas_deshydratation', $kpas_deshydratation, if(classification_deshydratation = 'signes_deshydratation', $ksignes_deshydratation, if(classification_deshydratation = 'deshydratation_severe_grave', $kdeshydratation_severe_grave, if(classification_deshydratation = 'deshydratation_severe', $kdeshydratation_severe, if(classification_deshydratation = 'signe_deshydratation', $ksigne_deshydratation, '')))))">
+            <variable name="kdeshydratation_severe">
+              <locale id="m2.case_long.case_classification_deshydratation_9.enum.kdeshydratation_severe"/>
+            </variable>
+            <variable name="kdeshydratation_severe_grave">
+              <locale id="m2.case_long.case_classification_deshydratation_9.enum.kdeshydratation_severe_grave"/>
+            </variable>
+            <variable name="kpas_deshydratation">
+              <locale id="m2.case_long.case_classification_deshydratation_9.enum.kpas_deshydratation"/>
+            </variable>
+            <variable name="ksigne_deshydratation">
+              <locale id="m2.case_long.case_classification_deshydratation_9.enum.ksigne_deshydratation"/>
+            </variable>
+            <variable name="ksignes_deshydratation">
+              <locale id="m2.case_long.case_classification_deshydratation_9.enum.ksignes_deshydratation"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_diahree_10.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_diahree = 'diahree_persistante', $kdiahree_persistante, if(classification_diahree = 'diahree_persistante_severe_grave', $kdiahree_persistante_severe_grave, if(classification_diahree = 'diahree_persistante_grave', $kdiahree_persistante_grave, if(classification_diahree = 'sang_scelles', $ksang_scelles, ''))))">
+            <variable name="kdiahree_persistante">
+              <locale id="m2.case_long.case_classification_diahree_10.enum.kdiahree_persistante"/>
+            </variable>
+            <variable name="kdiahree_persistante_grave">
+              <locale id="m2.case_long.case_classification_diahree_10.enum.kdiahree_persistante_grave"/>
+            </variable>
+            <variable name="kdiahree_persistante_severe_grave">
+              <locale id="m2.case_long.case_classification_diahree_10.enum.kdiahree_persistante_severe_grave"/>
+            </variable>
+            <variable name="ksang_scelles">
+              <locale id="m2.case_long.case_classification_diahree_10.enum.ksang_scelles"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_dysenterie_11.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_dysenterie = 'dysenterie', $kdysenterie, '')">
+            <variable name="kdysenterie">
+              <locale id="m2.case_long.case_classification_dysenterie_11.enum.kdysenterie"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_infection_12.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_infection = 'infection_grave', $kinfection_grave, if(classification_infection = 'infection_locale', $kinfection_locale, if(classification_infection = 'pas_infection', $kpas_infection, if(classification_infection = 'hypothermie_moderee', $khypothermie_moderee, if(classification_infection = 'infection_peu_probable', $kinfection_peu_probable, '')))))">
+            <variable name="khypothermie_moderee">
+              <locale id="m2.case_long.case_classification_infection_12.enum.khypothermie_moderee"/>
+            </variable>
+            <variable name="kinfection_grave">
+              <locale id="m2.case_long.case_classification_infection_12.enum.kinfection_grave"/>
+            </variable>
+            <variable name="kinfection_locale">
+              <locale id="m2.case_long.case_classification_infection_12.enum.kinfection_locale"/>
+            </variable>
+            <variable name="kinfection_peu_probable">
+              <locale id="m2.case_long.case_classification_infection_12.enum.kinfection_peu_probable"/>
+            </variable>
+            <variable name="kpas_infection">
+              <locale id="m2.case_long.case_classification_infection_12.enum.kpas_infection"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_malnutrition_13.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_malnutrition = 'pas_malnutrition', $kpas_malnutrition, if(classification_malnutrition = 'mam', $kmam, if(classification_malnutrition = 'mass', $kmass, if(classification_malnutrition = 'masc', $kmasc, if(classification_malnutrition = 'incapable_nourrir', $kincapable_nourrir, if(classification_malnutrition = 'probleme_alimentation', $kprobleme_alimentation, if(classification_malnutrition = 'pas_pb_alimentation', $kpas_pb_alimentation, if(classification_malnutrition = 'maladie_grave', $kmaladie_grave, if(classification_malnutrition = 'pas_de_probleme_alimentation', $kpas_de_probleme_alimentation, '')))))))))">
+            <variable name="kincapable_nourrir">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kincapable_nourrir"/>
+            </variable>
+            <variable name="kmaladie_grave">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kmaladie_grave"/>
+            </variable>
+            <variable name="kmam">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kmam"/>
+            </variable>
+            <variable name="kmasc">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kmasc"/>
+            </variable>
+            <variable name="kmass">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kmass"/>
+            </variable>
+            <variable name="kpas_de_probleme_alimentation">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kpas_de_probleme_alimentation"/>
+            </variable>
+            <variable name="kpas_malnutrition">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kpas_malnutrition"/>
+            </variable>
+            <variable name="kpas_pb_alimentation">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kpas_pb_alimentation"/>
+            </variable>
+            <variable name="kprobleme_alimentation">
+              <locale id="m2.case_long.case_classification_malnutrition_13.enum.kprobleme_alimentation"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_occular_14.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_occular = 'conjonctivite', $kconjonctivite, if(classification_occular = 'pas_infection_occulaire', $kpas_infection_occulaire, ''))">
+            <variable name="kconjonctivite">
+              <locale id="m2.case_long.case_classification_occular_14.enum.kconjonctivite"/>
+            </variable>
+            <variable name="kpas_infection_occulaire">
+              <locale id="m2.case_long.case_classification_occular_14.enum.kpas_infection_occulaire"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_oreille_15.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_oreille = 'infection_chronique_oreille', $kinfection_chronique_oreille, if(classification_oreille = 'infection_aigue_oreille', $kinfection_aigue_oreille, if(classification_oreille = 'mastoidite', $kmastoidite, '')))">
+            <variable name="kinfection_aigue_oreille">
+              <locale id="m2.case_long.case_classification_oreille_15.enum.kinfection_aigue_oreille"/>
+            </variable>
+            <variable name="kinfection_chronique_oreille">
+              <locale id="m2.case_long.case_classification_oreille_15.enum.kinfection_chronique_oreille"/>
+            </variable>
+            <variable name="kmastoidite">
+              <locale id="m2.case_long.case_classification_oreille_15.enum.kmastoidite"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_paludisme_16.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_paludisme = 'paludisme_simple', $kpaludisme_simple, if(classification_paludisme = 'paludisme_grave', $kpaludisme_grave, if(classification_paludisme = 'pas_paludisme', $kpas_paludisme, if(classification_paludisme = 'paludisme_grave_sans_tdr', $kpaludisme_grave_sans_tdr, ''))))">
+            <variable name="kpaludisme_grave">
+              <locale id="m2.case_long.case_classification_paludisme_16.enum.kpaludisme_grave"/>
+            </variable>
+            <variable name="kpaludisme_grave_sans_tdr">
+              <locale id="m2.case_long.case_classification_paludisme_16.enum.kpaludisme_grave_sans_tdr"/>
+            </variable>
+            <variable name="kpaludisme_simple">
+              <locale id="m2.case_long.case_classification_paludisme_16.enum.kpaludisme_simple"/>
+            </variable>
+            <variable name="kpas_paludisme">
+              <locale id="m2.case_long.case_classification_paludisme_16.enum.kpas_paludisme"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_pneumonie_17.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_pneumonie = 'pas_pneumonie', $kpas_pneumonie, if(classification_pneumonie = 'pneumonie', $kpneumonie, if(classification_pneumonie = 'pneumonie_grave', $kpneumonie_grave, '')))">
+            <variable name="kpas_pneumonie">
+              <locale id="m2.case_long.case_classification_pneumonie_17.enum.kpas_pneumonie"/>
+            </variable>
+            <variable name="kpneumonie">
+              <locale id="m2.case_long.case_classification_pneumonie_17.enum.kpneumonie"/>
+            </variable>
+            <variable name="kpneumonie_grave">
+              <locale id="m2.case_long.case_classification_pneumonie_17.enum.kpneumonie_grave"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_poids_18.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_poids = 'poids_tres_faible', $kpoids_tres_faible, if(classification_poids = 'faible_poids', $kfaible_poids, if(classification_poids = 'pas_de_faible_poids', $kpas_de_faible_poids, '')))">
+            <variable name="kfaible_poids">
+              <locale id="m2.case_long.case_classification_poids_18.enum.kfaible_poids"/>
+            </variable>
+            <variable name="kpas_de_faible_poids">
+              <locale id="m2.case_long.case_classification_poids_18.enum.kpas_de_faible_poids"/>
+            </variable>
+            <variable name="kpoids_tres_faible">
+              <locale id="m2.case_long.case_classification_poids_18.enum.kpoids_tres_faible"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_rougeole_19.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_rougeole = 'antecedent_rougeole', $kantecedent_rougeole, if(classification_rougeole = 'rougeole', $krougeole, if(classification_rougeole = 'rougeole_complications', $krougeole_complications, if(classification_rougeole = 'rougeole_compliquee', $krougeole_compliquee, ''))))">
+            <variable name="kantecedent_rougeole">
+              <locale id="m2.case_long.case_classification_rougeole_19.enum.kantecedent_rougeole"/>
+            </variable>
+            <variable name="krougeole">
+              <locale id="m2.case_long.case_classification_rougeole_19.enum.krougeole"/>
+            </variable>
+            <variable name="krougeole_complications">
+              <locale id="m2.case_long.case_classification_rougeole_19.enum.krougeole_complications"/>
+            </variable>
+            <variable name="krougeole_compliquee">
+              <locale id="m2.case_long.case_classification_rougeole_19.enum.krougeole_compliquee"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_classification_vih_20.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(classification_vih = 'vih_pas', $kvih_pas, if(classification_vih = 'vih_peu_probable', $kvih_peu_probable, if(classification_vih = 'vih_symp_suspecte', $kvih_symp_suspecte, if(classification_vih = 'vih_possible', $kvih_possible, if(classification_vih = 'vih_symp_probable', $kvih_symp_probable, if(classification_vih = 'vih_confirmee', $kvih_confirmee, if(classification_vih = 'vih_symp_confirmee', $kvih_symp_confirmee, if(classification_vih = 'vih_asymp_confirmee', $kvih_asymp_confirmee, if(classification_vih = 'vih_pas_infection', $kvih_pas_infection, if(classification_vih = 'vih_probable', $kvih_probable, ''))))))))))">
+            <variable name="kvih_asymp_confirmee">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_asymp_confirmee"/>
+            </variable>
+            <variable name="kvih_confirmee">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_confirmee"/>
+            </variable>
+            <variable name="kvih_pas">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_pas"/>
+            </variable>
+            <variable name="kvih_pas_infection">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_pas_infection"/>
+            </variable>
+            <variable name="kvih_peu_probable">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_peu_probable"/>
+            </variable>
+            <variable name="kvih_possible">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_possible"/>
+            </variable>
+            <variable name="kvih_probable">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_probable"/>
+            </variable>
+            <variable name="kvih_symp_confirmee">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_symp_confirmee"/>
+            </variable>
+            <variable name="kvih_symp_probable">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_symp_probable"/>
+            </variable>
+            <variable name="kvih_symp_suspecte">
+              <locale id="m2.case_long.case_classification_vih_20.enum.kvih_symp_suspecte"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/centile_wfa_21.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/centile_wfa"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/zscore_wfa_22.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/zscore_wfa"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/centile_wfh_23.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/centile_wfh"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/zscore_wfh_24.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/zscore_wfh"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/centile_hfa_25.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/centile_hfa"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_parent/zscore_hfa_26.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/zscore_hfa"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qa_27.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qa = 'yes', $kyes, if(alimentation_qa = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_alimentation_qa_27.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_alimentation_qa_27.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qb_28.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qb = 'yes', $kyes, if(alimentation_qb = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_alimentation_qb_28.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_alimentation_qb_28.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qc_29.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="alimentation_qc"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qd_30.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qd = 'yes', $kyes, if(alimentation_qd = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_alimentation_qd_30.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_alimentation_qd_30.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qf_31.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qf = 'pas_prise', $kpas_prise, if(alimentation_qf = 'mauvaise_prise', $kmauvaise_prise, if(alimentation_qf = 'bonne_prise', $kbonne_prise, '')))">
+            <variable name="kbonne_prise">
+              <locale id="m2.case_long.case_alimentation_qf_31.enum.kbonne_prise"/>
+            </variable>
+            <variable name="kmauvaise_prise">
+              <locale id="m2.case_long.case_alimentation_qf_31.enum.kmauvaise_prise"/>
+            </variable>
+            <variable name="kpas_prise">
+              <locale id="m2.case_long.case_alimentation_qf_31.enum.kpas_prise"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qg_32.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qg = 'pas_succion', $kpas_succion, if(alimentation_qg = 'non_efficace', $knon_efficace, if(alimentation_qg = 'efficace', $kefficace, '')))">
+            <variable name="kefficace">
+              <locale id="m2.case_long.case_alimentation_qg_32.enum.kefficace"/>
+            </variable>
+            <variable name="knon_efficace">
+              <locale id="m2.case_long.case_alimentation_qg_32.enum.knon_efficace"/>
+            </variable>
+            <variable name="kpas_succion">
+              <locale id="m2.case_long.case_alimentation_qg_32.enum.kpas_succion"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qh_33.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qh = 'yes', $kyes, if(alimentation_qh = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_alimentation_qh_33.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_alimentation_qh_33.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_alimentation_qg_new_34.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(alimentation_qg_new = 'yes', $kyes, if(alimentation_qg_new = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_alimentation_qg_new_34.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_alimentation_qg_new_34.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_augmentation_glande_parotide_35.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(augmentation_glande_parotide = 'yes', $kyes, if(augmentation_glande_parotide = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_augmentation_glande_parotide_35.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_augmentation_glande_parotide_35.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_boire_36.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(boire = 'yes', $kyes, if(boire = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_boire_36.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_boire_36.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vomit_37.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vomit = 'yes', $kyes, if(vomit = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vomit_37.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vomit_37.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_convulsions_passe_38.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(convulsions_passe = 'yes', $kyes, if(convulsions_passe = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_convulsions_passe_38.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_convulsions_passe_38.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_lethargie_39.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(lethargie = 'yes', $kyes, if(lethargie = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_lethargie_39.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_lethargie_39.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_convulsions_present_40.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(convulsions_present = 'yes', $kyes, if(convulsions_present = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_convulsions_present_40.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_convulsions_present_40.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_candidose_buccale_41.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(candidose_buccale = 'yes', $kyes, if(candidose_buccale = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_candidose_buccale_41.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_candidose_buccale_41.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_fievre_presence_42.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(fievre_presence = 'yes', $kyes, if(fievre_presence = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_fievre_presence_42.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_fievre_presence_42.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_fievre_presence_duree_43.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="fievre_presence_duree"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_fievre_presence_longue_44.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(fievre_presence_longue = 'yes', $kyes, if(fievre_presence_longue = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_fievre_presence_longue_44.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_fievre_presence_longue_44.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_tdr_45.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="tdr"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_urines_foncees_46.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(urines_foncees = 'yes', $kyes, if(urines_foncees = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_urines_foncees_46.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_urines_foncees_46.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_saignements_anormaux_47.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(saignements_anormaux = 'yes', $kyes, if(saignements_anormaux = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_saignements_anormaux_47.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_saignements_anormaux_47.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_raideur_nuque_48.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(raideur_nuque = 'yes', $kyes, if(raideur_nuque = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_raideur_nuque_48.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_raideur_nuque_48.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_ictere_49.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(ictere = 'yes', $kyes, if(ictere = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_ictere_49.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_ictere_49.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_choc_50.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(choc = 'yes', $kyes, if(choc = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_choc_50.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_choc_50.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_eruption_cutanee_51.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(eruption_cutanee = 'aucun', $kaucun, if(eruption_cutanee = 'eruption', $keruption, if(eruption_cutanee = 'antecedent', $kantecedent, '')))">
+            <variable name="kantecedent">
+              <locale id="m2.case_long.case_eruption_cutanee_51.enum.kantecedent"/>
+            </variable>
+            <variable name="kaucun">
+              <locale id="m2.case_long.case_eruption_cutanee_51.enum.kaucun"/>
+            </variable>
+            <variable name="keruption">
+              <locale id="m2.case_long.case_eruption_cutanee_51.enum.keruption"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_ecoulement_nasal_52.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(ecoulement_nasal = 'yes', $kyes, if(ecoulement_nasal = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_ecoulement_nasal_52.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_ecoulement_nasal_52.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_yeux_rouge_53.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(yeux_rouge = 'yes', $kyes, if(yeux_rouge = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_yeux_rouge_53.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_yeux_rouge_53.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_cornee_54.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(cornee = 'yes', $kyes, if(cornee = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_cornee_54.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_cornee_54.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_ecoulement_oculaire_55.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(ecoulement_oculaire = 'yes', $kyes, if(ecoulement_oculaire = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_ecoulement_oculaire_55.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_ecoulement_oculaire_55.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_ulcerations_56.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(ulcerations = 'absentes', $kabsentes, if(ulcerations = 'presentes', $kpresentes, if(ulcerations = 'profondes_etendues', $kprofondes_etendues, '')))">
+            <variable name="kabsentes">
+              <locale id="m2.case_long.case_ulcerations_56.enum.kabsentes"/>
+            </variable>
+            <variable name="kpresentes">
+              <locale id="m2.case_long.case_ulcerations_56.enum.kpresentes"/>
+            </variable>
+            <variable name="kprofondes_etendues">
+              <locale id="m2.case_long.case_ulcerations_56.enum.kprofondes_etendues"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_diarrhee_dernierement_57.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(diarrhee_dernierement = 'yes', $kyes, if(diarrhee_dernierement = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_diarrhee_dernierement_57.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_diarrhee_dernierement_57.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_diarrhee_presence_58.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(diarrhee_presence = 'yes', $kyes, if(diarrhee_presence = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_diarrhee_presence_58.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_diarrhee_presence_58.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_diarrhee_presence_duree_59.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="diarrhee_presence_duree"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_sang_selles_60.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(sang_selles = 'yes', $kyes, if(sang_selles = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_sang_selles_60.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_sang_selles_60.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_conscience_agitation_61.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(conscience_agitation = 'normal', $knormal, if(conscience_agitation = 'agite_irritable', $kagite_irritable, if(conscience_agitation = 'lethargique_inconscient', $klethargique_inconscient, '')))">
+            <variable name="kagite_irritable">
+              <locale id="m2.case_long.case_conscience_agitation_61.enum.kagite_irritable"/>
+            </variable>
+            <variable name="klethargique_inconscient">
+              <locale id="m2.case_long.case_conscience_agitation_61.enum.klethargique_inconscient"/>
+            </variable>
+            <variable name="knormal">
+              <locale id="m2.case_long.case_conscience_agitation_61.enum.knormal"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_yeux_enfonces_62.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(yeux_enfonces = 'yes', $kyes, if(yeux_enfonces = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_yeux_enfonces_62.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_yeux_enfonces_62.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_soif_63.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(soif = 'normal', $knormal, if(soif = 'avide', $kavide, if(soif = 'impossible', $kimpossible, '')))">
+            <variable name="kavide">
+              <locale id="m2.case_long.case_soif_63.enum.kavide"/>
+            </variable>
+            <variable name="kimpossible">
+              <locale id="m2.case_long.case_soif_63.enum.kimpossible"/>
+            </variable>
+            <variable name="knormal">
+              <locale id="m2.case_long.case_soif_63.enum.knormal"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_pli_cutane_64.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(pli_cutane = 'normal', $knormal, if(pli_cutane = 'lentement', $klentement, if(pli_cutane = 'tres_lentement', $ktres_lentement, '')))">
+            <variable name="klentement">
+              <locale id="m2.case_long.case_pli_cutane_64.enum.klentement"/>
+            </variable>
+            <variable name="knormal">
+              <locale id="m2.case_long.case_pli_cutane_64.enum.knormal"/>
+            </variable>
+            <variable name="ktres_lentement">
+              <locale id="m2.case_long.case_pli_cutane_64.enum.ktres_lentement"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_hypertrophie_ganglions_lymphatiques_65.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(hypertrophie_ganglions_lymphatiques = 'yes', $kyes, if(hypertrophie_ganglions_lymphatiques = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_hypertrophie_ganglions_lymphatiques_65.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_hypertrophie_ganglions_lymphatiques_65.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qa_66.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qa = 'yes', $kyes, if(inf_bac_qa = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qa_66.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qa_66.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qb_67.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qb = 'yes', $kyes, if(inf_bac_qb = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qb_67.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qb_67.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qc_68.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qc = 'yes', $kyes, if(inf_bac_qc = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qc_68.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qc_68.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qd_69.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qd = 'yes', $kyes, if(inf_bac_qd = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qd_69.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qd_69.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qe_70.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qe = 'yes', $kyes, if(inf_bac_qe = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qe_70.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qe_70.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qf_71.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qf = 'normaux', $knormaux, if(inf_bac_qf = 'bouge_stimule', $kbouge_stimule, if(inf_bac_qf = 'pas_mouvements', $kpas_mouvements, '')))">
+            <variable name="kbouge_stimule">
+              <locale id="m2.case_long.case_inf_bac_qf_71.enum.kbouge_stimule"/>
+            </variable>
+            <variable name="knormaux">
+              <locale id="m2.case_long.case_inf_bac_qf_71.enum.knormaux"/>
+            </variable>
+            <variable name="kpas_mouvements">
+              <locale id="m2.case_long.case_inf_bac_qf_71.enum.kpas_mouvements"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qg_72.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qg = 'yes', $kyes, if(inf_bac_qg = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qg_72.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qg_72.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qh_73.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qh = 'normale', $knormale, if(inf_bac_qh = 'hypothermie_moderee', $khypothermie_moderee, if(inf_bac_qh = 'hypothermie_severe', $khypothermie_severe, if(inf_bac_qh = 'fievre', $kfievre, ''))))">
+            <variable name="kfievre">
+              <locale id="m2.case_long.case_inf_bac_qh_73.enum.kfievre"/>
+            </variable>
+            <variable name="khypothermie_moderee">
+              <locale id="m2.case_long.case_inf_bac_qh_73.enum.khypothermie_moderee"/>
+            </variable>
+            <variable name="khypothermie_severe">
+              <locale id="m2.case_long.case_inf_bac_qh_73.enum.khypothermie_severe"/>
+            </variable>
+            <variable name="knormale">
+              <locale id="m2.case_long.case_inf_bac_qh_73.enum.knormale"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qi_74.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qi = 'yes', $kyes, if(inf_bac_qi = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qi_74.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qi_74.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qj_75.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qj = 'normale', $knormale, if(inf_bac_qj = 'hypothermique', $khypothermique, if(inf_bac_qj = 'fievre', $kfievre, '')))">
+            <variable name="kfievre">
+              <locale id="m2.case_long.case_inf_bac_qj_75.enum.kfievre"/>
+            </variable>
+            <variable name="khypothermique">
+              <locale id="m2.case_long.case_inf_bac_qj_75.enum.khypothermique"/>
+            </variable>
+            <variable name="knormale">
+              <locale id="m2.case_long.case_inf_bac_qj_75.enum.knormale"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qk_76.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qk = 'absentes', $kabsentes, if(inf_bac_qk = 'presentes', $kpresentes, if(inf_bac_qk = 'nombreuses_severes', $knombreuses_severes, '')))">
+            <variable name="kabsentes">
+              <locale id="m2.case_long.case_inf_bac_qk_76.enum.kabsentes"/>
+            </variable>
+            <variable name="knombreuses_severes">
+              <locale id="m2.case_long.case_inf_bac_qk_76.enum.knombreuses_severes"/>
+            </variable>
+            <variable name="kpresentes">
+              <locale id="m2.case_long.case_inf_bac_qk_76.enum.kpresentes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_ql_77.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_ql = 'normal', $knormal, if(inf_bac_ql = 'agite_irritable', $kagite_irritable, if(inf_bac_ql = 'lethargique_inconscient', $klethargique_inconscient, '')))">
+            <variable name="kagite_irritable">
+              <locale id="m2.case_long.case_inf_bac_ql_77.enum.kagite_irritable"/>
+            </variable>
+            <variable name="klethargique_inconscient">
+              <locale id="m2.case_long.case_inf_bac_ql_77.enum.klethargique_inconscient"/>
+            </variable>
+            <variable name="knormal">
+              <locale id="m2.case_long.case_inf_bac_ql_77.enum.knormal"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qm_78.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qm = 'yes', $kyes, if(inf_bac_qm = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qm_78.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qm_78.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qf_inf_79.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qf_inf = 'yes', $kyes, if(inf_bac_qf_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qf_inf_79.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qf_inf_79.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qg_inf_80.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qg_inf = 'yes', $kyes, if(inf_bac_qg_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qg_inf_80.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qg_inf_80.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_bac_qh_inf_81.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_bac_qh_inf = 'yes', $kyes, if(inf_bac_qh_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_bac_qh_inf_81.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_bac_qh_inf_81.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_inf_occ_qa_82.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(inf_occ_qa = 'yes', $kyes, if(inf_occ_qa = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_inf_occ_qa_82.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_inf_occ_qa_82.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oedemes_83.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="oedemes"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oreille_probleme_84.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(oreille_probleme = 'yes', $kyes, if(oreille_probleme = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_oreille_probleme_84.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_oreille_probleme_84.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oreille_douleur_85.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(oreille_douleur = 'yes', $kyes, if(oreille_douleur = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_oreille_douleur_85.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_oreille_douleur_85.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oreille_ecoulement_86.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(oreille_ecoulement = 'yes', $kyes, if(oreille_ecoulement = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_oreille_ecoulement_86.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_oreille_ecoulement_86.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oreille_ecoulement_duree_87.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="oreille_ecoulement_duree"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_oreille_gonflement_88.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(oreille_gonflement = 'yes', $kyes, if(oreille_gonflement = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_oreille_gonflement_88.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_oreille_gonflement_88.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_paleur_palmaire_89.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(paleur_palmaire = 'absente', $kabsente, if(paleur_palmaire = 'legere', $klegere, if(paleur_palmaire = 'severe', $ksevere, '')))">
+            <variable name="kabsente">
+              <locale id="m2.case_long.case_paleur_palmaire_89.enum.kabsente"/>
+            </variable>
+            <variable name="klegere">
+              <locale id="m2.case_long.case_paleur_palmaire_89.enum.klegere"/>
+            </variable>
+            <variable name="ksevere">
+              <locale id="m2.case_long.case_paleur_palmaire_89.enum.ksevere"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_pneumonie_recidivante_90.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(pneumonie_recidivante = 'yes', $kyes, if(pneumonie_recidivante = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_pneumonie_recidivante_90.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_pneumonie_recidivante_90.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_poids_qa_91.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(poids_qa = 'normal', $knormal, if(poids_qa = 'faible', $kfaible, if(poids_qa = 'tres_faible', $ktres_faible, '')))">
+            <variable name="kfaible">
+              <locale id="m2.case_long.case_poids_qa_91.enum.kfaible"/>
+            </variable>
+            <variable name="knormal">
+              <locale id="m2.case_long.case_poids_qa_91.enum.knormal"/>
+            </variable>
+            <variable name="ktres_faible">
+              <locale id="m2.case_long.case_poids_qa_91.enum.ktres_faible"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_serologie_enfant_92.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(serologie_enfant = 'inconnue', $kinconnue, if(serologie_enfant = 'positive', $kpositive, if(serologie_enfant = 'negative', $knegative, '')))">
+            <variable name="kinconnue">
+              <locale id="m2.case_long.case_serologie_enfant_92.enum.kinconnue"/>
+            </variable>
+            <variable name="knegative">
+              <locale id="m2.case_long.case_serologie_enfant_92.enum.knegative"/>
+            </variable>
+            <variable name="kpositive">
+              <locale id="m2.case_long.case_serologie_enfant_92.enum.kpositive"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_test_appetit_93.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(test_appetit = 'positif', $kpositif, if(test_appetit = 'negatif', $knegatif, ''))">
+            <variable name="knegatif">
+              <locale id="m2.case_long.case_test_appetit_93.enum.knegatif"/>
+            </variable>
+            <variable name="kpositif">
+              <locale id="m2.case_long.case_test_appetit_93.enum.kpositif"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_test_enfant_94.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(test_enfant = 'pas_de_test', $kpas_de_test, if(test_enfant = 'positif', $kpositif, if(test_enfant = 'negatif', $knegatif, '')))">
+            <variable name="knegatif">
+              <locale id="m2.case_long.case_test_enfant_94.enum.knegatif"/>
+            </variable>
+            <variable name="kpas_de_test">
+              <locale id="m2.case_long.case_test_enfant_94.enum.kpas_de_test"/>
+            </variable>
+            <variable name="kpositif">
+              <locale id="m2.case_long.case_test_enfant_94.enum.kpositif"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_test_mere_95.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(test_mere = 'pas_de_test', $kpas_de_test, if(test_mere = 'positif', $kpositif, if(test_mere = 'negatif', $knegatif, '')))">
+            <variable name="knegatif">
+              <locale id="m2.case_long.case_test_mere_95.enum.knegatif"/>
+            </variable>
+            <variable name="kpas_de_test">
+              <locale id="m2.case_long.case_test_mere_95.enum.kpas_de_test"/>
+            </variable>
+            <variable name="kpositif">
+              <locale id="m2.case_long.case_test_mere_95.enum.kpositif"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_toux_presence_96.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(toux_presence = 'yes', $kyes, if(toux_presence = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_toux_presence_96.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_toux_presence_96.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_toux_presence_duree_97.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="toux_presence_duree"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_freq_resp_98.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="freq_resp"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_tirage_99.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(tirage = 'yes', $kyes, if(tirage = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_tirage_99.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_tirage_99.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_stridor_100.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(stridor = 'yes', $kyes, if(stridor = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_stridor_100.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_stridor_100.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qa_101.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qa = 'inconnue', $kinconnue, if(vih_qa = 'positive', $kpositive, if(vih_qa = 'negative', $knegative, if(vih_qa = 'negatif_grossesse', $knegatif_grossesse, ''))))">
+            <variable name="kinconnue">
+              <locale id="m2.case_long.case_vih_qa_101.enum.kinconnue"/>
+            </variable>
+            <variable name="knegatif_grossesse">
+              <locale id="m2.case_long.case_vih_qa_101.enum.knegatif_grossesse"/>
+            </variable>
+            <variable name="knegative">
+              <locale id="m2.case_long.case_vih_qa_101.enum.knegative"/>
+            </variable>
+            <variable name="kpositive">
+              <locale id="m2.case_long.case_vih_qa_101.enum.kpositive"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qb_102.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qb = 'yes', $kyes, if(vih_qb = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qb_102.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qb_102.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qc_103.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qc = 'yes', $kyes, if(vih_qc = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qc_103.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qc_103.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qd_104.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qd = 'yes', $kyes, if(vih_qd = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qd_104.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qd_104.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qe_105.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qe = 'yes', $kyes, if(vih_qe = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qe_105.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qe_105.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qf_106.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qf = 'yes', $kyes, if(vih_qf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qf_106.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qf_106.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qg_107.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qg = 'yes', $kyes, if(vih_qg = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qg_107.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qg_107.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qh_108.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qh = 'yes', $kyes, if(vih_qh = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qh_108.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qh_108.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qi_109.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qi = 'yes', $kyes, if(vih_qi = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qi_109.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qi_109.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qk_110.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qk = 'yes', $kyes, if(vih_qk = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qk_110.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qk_110.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_ql_111.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_ql = 'inconnue', $kinconnue, if(vih_ql = 'positive', $kpositive, if(vih_ql = 'negative', $knegative, '')))">
+            <variable name="kinconnue">
+              <locale id="m2.case_long.case_vih_ql_111.enum.kinconnue"/>
+            </variable>
+            <variable name="knegative">
+              <locale id="m2.case_long.case_vih_ql_111.enum.knegative"/>
+            </variable>
+            <variable name="kpositive">
+              <locale id="m2.case_long.case_vih_ql_111.enum.kpositive"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vitamin_a_112.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vitamin_a = 'yes', $kyes, if(vitamin_a = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vitamin_a_112.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vitamin_a_112.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qa_inf_113.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qa_inf = 'yes', $kyes, if(vih_qa_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qa_inf_113.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qa_inf_113.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qf_inf_114.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qf_inf = 'yes', $kyes, if(vih_qf_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qf_inf_114.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qf_inf_114.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_vih_qg_inf_115.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(vih_qg_inf = 'yes', $kyes, if(vih_qg_inf = 'no', $kno, ''))">
+            <variable name="kno">
+              <locale id="m2.case_long.case_vih_qg_inf_115.enum.kno"/>
+            </variable>
+            <variable name="kyes">
+              <locale id="m2.case_long.case_vih_qg_inf_115.enum.kyes"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.case_long.case_other_comments_116.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="other_comments"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m2_product_short">
+    <title>
+      <text>
+        <locale id="m2.product_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m2.product_short.product_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m3_case_short">
+    <title>
+      <text>
+        <locale id="m3.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_short.case_username_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="username"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="username"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_short.case_user_type_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(user_type = 'admin', $kadmin, if(user_type = 'regular', $kregular, ''))">
+            <variable name="kadmin">
+              <locale id="m3.case_short.case_user_type_2.enum.kadmin"/>
+            </variable>
+            <variable name="kregular">
+              <locale id="m3.case_short.case_user_type_2.enum.kregular"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="if(user_type = 'admin', 0, if(user_type = 'regular', 1, ''))"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m3_case_long">
+    <title>
+      <text>
+        <locale id="m3.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_long.case_username_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="username"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_long.case_user_phone_number_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="user_phone_number"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_long.case_qualification_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(qualification = 'ide', $kide, if(qualification = 'ib', $kib, if(qualification = 'ab', $kab, if(qualification = 'accoucheuse', $kaccoucheuse, if(qualification = 'fe_me', $kfe_me, if(qualification = 'ais', $kais, if(qualification = 'other', $kother, '')))))))">
+            <variable name="kab">
+              <locale id="m3.case_long.case_qualification_3.enum.kab"/>
+            </variable>
+            <variable name="kaccoucheuse">
+              <locale id="m3.case_long.case_qualification_3.enum.kaccoucheuse"/>
+            </variable>
+            <variable name="kais">
+              <locale id="m3.case_long.case_qualification_3.enum.kais"/>
+            </variable>
+            <variable name="kfe_me">
+              <locale id="m3.case_long.case_qualification_3.enum.kfe_me"/>
+            </variable>
+            <variable name="kib">
+              <locale id="m3.case_long.case_qualification_3.enum.kib"/>
+            </variable>
+            <variable name="kide">
+              <locale id="m3.case_long.case_qualification_3.enum.kide"/>
+            </variable>
+            <variable name="kother">
+              <locale id="m3.case_long.case_qualification_3.enum.kother"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m3.case_long.case_user_type_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(user_type = 'regular', $kregular, if(user_type = 'admin', $kadmin, ''))">
+            <variable name="kadmin">
+              <locale id="m3.case_long.case_user_type_4.enum.kadmin"/>
+            </variable>
+            <variable name="kregular">
+              <locale id="m3.case_long.case_user_type_4.enum.kregular"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m4_case_short">
+    <title>
+      <text>
+        <locale id="m4.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m4.case_short.case_username_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="username"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="username"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m4.case_short.case_user_type_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(user_type = 'admin', $kadmin, if(user_type = 'regular', $kregular, ''))">
+            <variable name="kadmin">
+              <locale id="m4.case_short.case_user_type_2.enum.kadmin"/>
+            </variable>
+            <variable name="kregular">
+              <locale id="m4.case_short.case_user_type_2.enum.kregular"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="if(user_type = 'admin', 0, if(user_type = 'regular', 1, ''))"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m4_product_short">
+    <title>
+      <text>
+        <locale id="m4.product_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m4.product_short.product_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m5_case_short">
+    <title>
+      <text>
+        <locale id="m5.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_short.case_display_problem_category_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="display_problem_category"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="display_problem_category"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_short.case_date_issue_experienced_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(date_issue_experienced = '', '', format_date(date(if(date_issue_experienced = '', 0, date_issue_experienced)),'short'))"/>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="date_issue_experienced"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_short.case_date_resolved_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="if(date_resolved = '', '', format_date(date(if(date_resolved = '', 0, date_resolved)),'short'))"/>
+        </text>
+      </template>
+      <sort type="string">
+        <text>
+          <xpath function="date_resolved"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m5_case_long">
+    <title>
+      <text>
+        <locale id="m5.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m6_case_short">
+    <title>
+      <text>
+        <locale id="m6.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m6.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m6_case_long">
+    <title>
+      <text>
+        <locale id="m6.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m6.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m7_case_short">
+    <title>
+      <text>
+        <locale id="m7.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m7.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m7_case_long">
+    <title>
+      <text>
+        <locale id="m7.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m7.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/10753F54-3ABA-45BA-B2B4-3AFE7F558682</form>
+    <command id="m0-f0">
+      <display>
+        <text>
+          <locale id="forms.m0f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module0_form0.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id_new_rec_child_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]) &gt; 0">
+        <command value="instance('commcaresession')/session/data/return_to"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_rec_child_0"/>
+      </create>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]) = 0">
+        <command value="instance('commcaresession')/session/data/return_to"/>
+      </create>
+      <create if="(count(instance('commcaresession')/session/data/return_to) = 0) and (((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]/dob)) &lt; 7))">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_rec_child_0"/>
+        <command value="'m1-f0'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+      </create>
+      <create if="(count(instance('commcaresession')/session/data/return_to) = 0) and (((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]/dob)) &gt;= 7) and ((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]/dob)) &lt; 61))">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_rec_child_0"/>
+        <command value="'m1-f1'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+      </create>
+      <create if="(count(instance('commcaresession')/session/data/return_to) = 0) and (((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_rec_child_0]/dob)) &gt;= 61))">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_rec_child_0"/>
+        <command value="'m1-f2'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/BEFAA61E-C03D-4641-9EAE-EA781FF7EF65</form>
+    <command id="m1-f0">
+      <display>
+        <text>
+          <locale id="forms.m1f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module1_form0.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-persistent="m1_case_short" detail-inline="m1_case_long"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create if="true()">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id"/>
+        <command value="'m2'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+        <datum id="case_id_case_visit" value="instance('commcaresession')/session/data/case_id_new_imci_visit_0"/>
+        <command value="'m2-f0'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/B70118AE-67BB-424E-8873-901C65ED748F</form>
+    <command id="m1-f1">
+      <display>
+        <text>
+          <locale id="forms.m1f1"/>
+        </text>
+        <media image="jr://file/commcare/image/module1_form1.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-persistent="m1_case_short" detail-inline="m1_case_long"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create if="true()">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id"/>
+        <command value="'m2'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+        <datum id="case_id_case_visit" value="instance('commcaresession')/session/data/case_id_new_imci_visit_0"/>
+        <command value="'m2-f1'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/2f934e7b72944d72fd925e870030ecdc2e5e2ea6</form>
+    <command id="m1-f2">
+      <display>
+        <text>
+          <locale id="forms.m1f2"/>
+        </text>
+        <media image="jr://file/commcare/image/module1_form2.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-persistent="m1_case_short" detail-inline="m1_case_long"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create if="true()">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id"/>
+        <command value="'m2'"/>
+        <datum id="case_id_new_imci_visit_0" value="uuid()"/>
+        <datum id="case_id_case_visit" value="instance('commcaresession')/session/data/case_id_new_imci_visit_0"/>
+        <command value="'m2-f2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/42fc81a578ca34d2b80f75229312a866adba4755</form>
+    <command id="m1-f3">
+      <display>
+        <text>
+          <locale id="forms.m1f3"/>
+        </text>
+        <media image="jr://file/commcare/image/module1_form3.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-persistent="m1_case_short" detail-inline="m1_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/1904f15bf570b2e0169690416432f6103621b155</form>
+    <command id="m2-f0">
+      <display>
+        <text>
+          <locale id="forms.m2f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module2_form0.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m0_case_short"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+      <datum id="case_id_case_visit" nodeset="instance('casedb')/casedb/case[@case_type='imci_visit'][@status='open'][index/parent=instance('commcaresession')/session/data/case_id]" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+    <stack>
+      <create/>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/604656a56cce6cfe691699123c2e2fe9f077da77</form>
+    <command id="m2-f1">
+      <display>
+        <text>
+          <locale id="forms.m2f1"/>
+        </text>
+        <media image="jr://file/commcare/image/module2_form1.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m0_case_short"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+      <datum id="case_id_case_visit" nodeset="instance('casedb')/casedb/case[@case_type='imci_visit'][@status='open'][index/parent=instance('commcaresession')/session/data/case_id]" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+    <stack>
+      <create/>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/88885ce54e53952782e0480736cec53bba9e3be7</form>
+    <command id="m2-f2">
+      <display>
+        <text>
+          <locale id="forms.m2f2"/>
+        </text>
+        <media image="jr://file/commcare/image/module2_form2.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m0_case_short"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+      <datum id="case_id_case_visit" nodeset="instance('casedb')/casedb/case[@case_type='imci_visit'][@status='open'][index/parent=instance('commcaresession')/session/data/case_id]" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+    <stack>
+      <create/>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/9FC7C06F-DBBE-4142-A4B0-BC5224721755</form>
+    <command id="m2-f3">
+      <text>
+        <locale id="forms.m2f3"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='rec_child'][@status='open']" value="./@case_id" detail-select="m0_case_short"/>
+      <datum id="case_id_new_imci_visit_0" function="uuid()"/>
+      <datum id="case_id_case_visit" nodeset="instance('casedb')/casedb/case[@case_type='imci_visit'][@status='open'][index/parent=instance('commcaresession')/session/data/case_id]" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long"/>
+    </session>
+    <stack>
+      <create/>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/97B3CE6E-A534-42BD-A17F-76F7DDB8D8AE</form>
+    <command id="m3-f0">
+      <display>
+        <text>
+          <locale id="forms.m3f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module3_form0.png"/>
+      </display>
+    </command>
+    <session>
+      <datum id="case_id_new_tablet_user_0" function="uuid()"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/b0fefb2aa792c67987f1d15c7bc0327f7ab97354</form>
+    <command id="m3-f1">
+      <display>
+        <text>
+          <locale id="forms.m3f1"/>
+        </text>
+        <media image="jr://file/commcare/image/module3_form1.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open']" value="./@case_id" detail-select="m3_case_short" detail-confirm="m3_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/5BD02E6E-D5B4-4EC5-AFFB-B2B07EBFD89E</form>
+    <command id="m3-f2">
+      <display>
+        <text>
+          <locale id="forms.m3f2"/>
+        </text>
+        <media image="jr://file/commcare/image/module3_form2.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open']" value="./@case_id" detail-select="m3_case_short" detail-confirm="m3_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/80d3fb1033b7ac859332e82b7ce1b82556bc9855</form>
+    <command id="m4-f0">
+      <display>
+        <text>
+          <locale id="forms.m4f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module4_form0.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id_load_tablet_user_0" nodeset="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'regular']" value="./@case_id" detail-select="m4_case_short"/>
+      <datum id="case_id_autoload_tablet_user1" function="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/@case_id"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/17582dfbdd4cd632575913d3ddcea19d0dc0ab3b</form>
+    <command id="m5-f0">
+      <display>
+        <text>
+          <locale id="forms.m5f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module5_form0.png"/>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='request'][@status='open'][(issue_status ='resolved') and (instance('commcaresession')/session/user/data/csps_site_code = location)]" value="./@case_id" detail-select="m5_case_short" detail-confirm="m5_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/FE949CB5-57B7-48F3-B4B3-21B475190611</form>
+    <command id="m6-f0">
+      <display>
+        <text>
+          <locale id="forms.m6f0"/>
+        </text>
+        <media image="jr://file/commcare/image/module6_form0.png"/>
+      </display>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/C143650C-5096-47FD-98CA-16917ECBCFEB</form>
+    <command id="m7-f0">
+      <text>
+        <locale id="forms.m7f0"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/A9B86C5F-2224-4B9D-806C-DABDB0125F06</form>
+    <command id="m7-f1">
+      <text>
+        <locale id="forms.m7f1"/>
+      </text>
+    </command>
+  </entry>
+  <menu relevant="false()" id="root">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="m1">
+    <display>
+      <text>
+        <locale id="modules.m1"/>
+      </text>
+      <media image="jr://file/commcare/image/module1.png"/>
+    </display>
+    <command id="m1-f0" relevant="((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob)) &lt; 7)"/>
+    <command id="m1-f1" relevant="((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob)) &gt;= 7) and ((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob)) &lt; 61)"/>
+    <command id="m1-f2" relevant="((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob)) &gt;= 61) and ((today() - date(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob)) &lt; 1827)"/>
+    <command id="m1-f3"/>
+  </menu>
+  <menu root="m1" id="m2">
+    <display>
+      <text>
+        <locale id="modules.m2"/>
+      </text>
+      <media image="jr://file/commcare/image/module2.png"/>
+    </display>
+    <command id="m2-f0" relevant="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/visit_type = 'imci_newborn' and instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/treatment_complete != 'completed'"/>
+    <command id="m2-f1" relevant="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/visit_type = 'imci_infant'  and instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/treatment_complete != 'completed'"/>
+    <command id="m2-f2" relevant="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/visit_type = 'imci_child'  and instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/treatment_complete != 'completed'"/>
+    <command id="m2-f3" relevant="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/treatment_complete = 'completed'"/>
+  </menu>
+  <menu id="m3">
+    <display>
+      <text>
+        <locale id="modules.m3"/>
+      </text>
+      <media image="jr://file/commcare/image/module3.png"/>
+    </display>
+    <command id="m3-f0"/>
+    <command id="m3-f1"/>
+    <command id="m3-f2"/>
+  </menu>
+  <menu id="root">
+    <display>
+      <text>
+        <locale id="modules.m4"/>
+      </text>
+      <media image="jr://file/commcare/image/module4.png"/>
+    </display>
+    <command id="m4-f0"/>
+  </menu>
+  <menu id="m5">
+    <display>
+      <text>
+        <locale id="modules.m5"/>
+      </text>
+      <media image="jr://file/commcare/image/module5.png"/>
+    </display>
+    <command id="m5-f0"/>
+  </menu>
+  <menu id="m6">
+    <display>
+      <text>
+        <locale id="modules.m6"/>
+      </text>
+      <media image="jr://file/commcare/image/module6.png"/>
+    </display>
+    <command id="m6-f0"/>
+  </menu>
+  <menu id="m7">
+    <text>
+      <locale id="modules.m7"/>
+    </text>
+    <command id="m7-f0"/>
+    <command id="m7-f1"/>
+  </menu>
+</suite>

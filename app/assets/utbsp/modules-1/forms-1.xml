@@ -1,0 +1,373 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>6. Contact Screening</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/1cdd0313eb459d39099e9902464b37e65413335c" uiVersion="1" version="1990" name="6. Contact Screening">
+					<ctverbagmt/>
+					<cMetCriteria/>
+					<cable/>
+					<cAlreadyOnTx/>
+					<cHvPhone/>
+					<cWillSMS/>
+					<cYesEngLug/>
+					<contactchildunder5/>
+					<cwilling/>
+					<cEligible/>
+					<c_not_Eligible/>
+					<cpltconsfm/>
+					<biometricscanid/>
+					<record_exists/>
+					<ctname>
+						<ctsurname/>
+						<ctgivenname/>
+					</ctname>
+					<cntenrollid/>
+					<conclrmk/>
+					<contactScreenDate/>
+					<idxptid/>
+					<idxptid_2/>
+					<ctscreenid/>
+					<pttype/>
+					<allocation/>
+					<allocation_id/>
+					<search/>
+					<identify/>
+					<intent_0>com.biometrac.core.SCAN</intent_0>
+					<intent_1>com.biometrac.core.IDENTIFY</intent_1>
+					<finger_left_index>left_index</finger_left_index>
+					<finger_left_thumb>left_thumb</finger_left_thumb>
+					<finger_right_thumb>right_thumb</finger_right_thumb>
+					<finger_right_index>right_index</finger_right_index>
+					<left_index/>
+					<right_index/>
+					<left_thumb/>
+					<right_thumb/>
+					<match_id/>
+					<returned/>
+					<random_id/>
+					<contact_case>
+						<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+							<create>
+								<case_name/>
+								<owner_id/>
+								<case_type>scanned</case_type>
+							</create><update>
+						<ctscreenid/>
+						<pttype/>
+						<left_thumb/>
+						<left_index/>
+						<right_thumb/>
+						<right_index/>
+						<ptid/>
+						<eligible/>
+						<indxptid/>
+						<allocation/>
+						<allocation_id/>
+					</update>
+						</case>
+					</contact_case>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""/><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/ctverbagmt"/>
+			<bind nodeset="/data/cMetCriteria"/>
+			<bind nodeset="/data/cable" relevant="/data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes' "/>
+			<bind nodeset="/data/cAlreadyOnTx" relevant=" /data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes'"/>
+			<bind nodeset="/data/cHvPhone" relevant=" /data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes'"/>
+			<bind nodeset="/data/cWillSMS" relevant=" /data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes'"/>
+			<bind nodeset="/data/cYesEngLug" relevant=" /data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes'"/>
+			<bind nodeset="/data/contactchildunder5"/>
+			<bind nodeset="/data/cwilling" relevant=" /data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes'"/>
+			<bind nodeset="/data/cEligible" relevant="/data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes' and /data/cYesEngLug = 'yes' and /data/cWillSMS = 'yes' and /data/cHvPhone = 'yes' and /data/cable = 'yes' and /data/cwilling = 'yes' and /data/cAlreadyOnTx = 'no'" required="true()"/>
+			<bind nodeset="/data/c_not_Eligible" relevant="not(/data/cable = 'yes' and /data/cHvPhone = 'yes' and /data/cWillSMS = 'yes' and /data/cYesEngLug = 'yes' and /data/ctverbagmt = 'yes' and /data/cMetCriteria = 'yes' and /data/cwilling = 'yes'  and /data/cAlreadyOnTx = 'no')"/>
+			<bind nodeset="/data/cpltconsfm" relevant="/data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes' and /data/cYesEngLug = 'no' and /data/cWillSMS = 'no' and /data/cHvPhone = 'no' and /data/cable = 'no' and /data/cwilling = 'no'" required="true()"/>
+			<bind nodeset="/data/biometricscanid" type="xsd:string" relevant="/data/contactchildunder5 = 'no'"/>
+			<bind nodeset="/data/record_exists" relevant="/data/returned != '0' and /data/contactchildunder5 = 'no'"/>
+			<bind nodeset="/data/ctname" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/ctname/ctsurname" type="xsd:string" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/ctname/ctgivenname" type="xsd:string" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/cntenrollid" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/conclrmk"/>
+			<bind nodeset="/data/contactScreenDate" calculate="now()"/>
+			<bind nodeset="/data/idxptid"/>
+			<bind nodeset="/data/idxptid_2"/>
+			<bind nodeset="/data/ctscreenid" required="false()"/>
+			<bind nodeset="/data/pttype" calculate="'contact'"/>
+			<bind nodeset="/data/allocation"/>
+			<bind nodeset="/data/allocation_id"/>
+			<bind nodeset="/data/search"/>
+			<bind nodeset="/data/identify"/>
+			<bind nodeset="/data/intent_0"/>
+			<bind nodeset="/data/intent_1"/>
+			<bind nodeset="/data/finger_left_index"/>
+			<bind nodeset="/data/finger_left_thumb"/>
+			<bind nodeset="/data/finger_right_thumb"/>
+			<bind nodeset="/data/finger_right_index"/>
+			<bind nodeset="/data/left_index" type="xsd:string"/>
+			<bind nodeset="/data/right_index" type="xsd:string"/>
+			<bind nodeset="/data/left_thumb" type="xsd:string"/>
+			<bind nodeset="/data/right_thumb" type="xsd:string"/>
+			<bind nodeset="/data/match_id"/>
+			<bind nodeset="/data/returned"/>
+			<bind nodeset="/data/random_id"/>
+			<bind nodeset="/data/contact_case"/>
+			<bind nodeset="/data/contact_case/case"/><bind calculate="/data/pttype" nodeset="/data/contact_case/case/update/pttype"/><setvalue event="xforms-ready" ref="/data/allocation" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation"/><setvalue event="xforms-ready" ref="/data/allocation_id" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation_id"/><bind calculate="/data/meta/timeEnd" nodeset="/data/contact_case/case/@date_modified" type="xsd:dateTime"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><bind nodeset="/data/contact_case/case/update"/><bind calculate="/data/meta/userID" nodeset="/data/contact_case/case/@user_id"/><bind calculate="concat(/data/ctname/ctgivenname,' ',/data/ctname/ctsurname)" nodeset="/data/contact_case/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/contact_case/case/create/owner_id"/><bind calculate="/data/ctscreenid" nodeset="/data/contact_case/case/update/ctscreenid" relevant="count(/data/ctscreenid) &gt; 0"/><setvalue event="xforms-ready" ref="/data/idxptid_2" value="instance('commcaresession')/session/data/case_id"/><setvalue event="xforms-ready" ref="/data/idxptid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptid"/><bind nodeset="/data/contact_case/case/update/eligible" calculate="if(/data/cMetCriteria = 'yes' and /data/ctverbagmt = 'yes' and  /data/cYesEngLug = 'yes' and /data/cWillSMS = 'yes' and /data/cHvPhone = 'yes' and /data/cable = 'yes'  and /data/cwilling = 'yes','yes','no')"/><bind nodeset="/data/contact_case/case/update/right_index" relevant="count(/data/right_index) &gt; 0" calculate="/data/right_index"/><bind nodeset="/data/contact_case/case/update/right_thumb" relevant="count(/data/right_thumb) &gt; 0" calculate="/data/right_thumb"/><bind nodeset="/data/contact_case/case/update/left_index" relevant="count(/data/left_index) &gt; 0" calculate="/data/left_index"/><bind nodeset="/data/contact_case/case/update/left_thumb" relevant="count(/data/left_thumb) &gt; 0" calculate="/data/left_thumb"/><bind nodeset="/data/contact_case/case/update/allocation_id" calculate="/data/allocation_id"/><bind nodeset="/data/contact_case/case/update/allocation" calculate="/data/allocation"/><bind nodeset="/data/contact_case/case/update/indxptid" calculate="/data/idxptid_2"/><setvalue event="xforms-ready" ref="/data/contact_case/case/@case_id" value="uuid()"/><bind nodeset="/data/contact_case/case" relevant="/data/returned = '0'"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+			<bind nodeset="/data/contact_case/case/create"/>
+			<bind nodeset="/data/contact_case/case/create/case_name"/>
+			<bind nodeset="/data/contact_case/case/create/owner_id"/>
+			<bind nodeset="/data/contact_case/case/create/case_type"/><bind nodeset="/data/contact_case/case/@date_modified" type="dateTime" calculate="now()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="ctverbagmt-label">
+						<value>Did the contact verbally agree to undergo screening after being read the Recruitment Script?</value>
+					</text>
+					<text id="cAlreadyOnTx-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="cAlreadyOnTx-no-label">
+						<value>No</value>
+					</text>
+					<text id="cMetCriteria-label">
+						<value>Has the contact been sleeping under same roof as the index patient for more than 5 nights in the last 3 months?</value>
+					</text>
+					<text id="cable-label">
+						<value>Is the contact able to provide informed consent  (e.g. possessing capacity)?</value>
+					</text>
+					<text id="cAlreadyOnTx-label">
+						<value>Is the contact currently taking treatment for active TB?</value>
+					</text>
+					<text id="cHvPhone-label">
+						<value>Does the contact have access to a mobile telephone?	</value>
+					</text>
+					<text id="cWillSMS-label">
+						<value>Is the contact willing and able to receive personal health information by SMS from study staff?</value>
+					</text>
+					<text id="cYesEngLug-label">
+						<value>Is the contact able to understand either Luganda or English?</value>
+					</text>
+					<text id="contactchildunder5-label">
+						<value>Is the contact a Child LESS than 5 years?</value>
+					</text>
+					<text id="cwilling-label">
+						<value>Is the contact willing to consent after hearing about the study?</value>
+					</text>
+					<text id="cEligible-label">
+						<value>CONTACT IS ELIGIBLE.
+
+Please find below the responses:
+Inclusion Questions 
+Verbally agree after read recruitment script:<output value="/data/ctverbagmt"/>
+Sleep under the same roof with the Index patient:<output value="/data/cMetCriteria"/>
+
+Exclusion Questions
+Contact able to provide informed consent:<output value="/data/cable"/>
+Contact currently taking treatment for active TB:<output value="/data/cAlreadyOnTx"/>
+Contact have access mobile telephone:<output value="/data/cHvPhone"/>
+Contact willing and able to receive  by SMS from study:<output value="/data/cWillSMS"/>
+Contact able to understand either Luganda or English:<output value="/data/cYesEngLug"/>
+Contact willing to consent after hearing about the study:<output value="/data/cwilling"/>
+
+Please proceed to administer the assent and or consent form. Thanks.</value>
+					</text>
+					<text id="c_not_Eligible-label">
+						<value>CONTACT IS NOT ELIGIBLE.
+
+Please find below the responses:
+Inclusion Questions 
+Verbally agree after read recruitment script:<output value="/data/ctverbagmt"/>
+Sleep under the same roof with the Index patient:<output value="/data/cMetCriteria"/>
+
+Exclusion Questions
+Contact able to provide informed consent:<output value="/data/cable"/>
+Contact currently taking treatment for active TB:<output value="/data/cAlreadyOnTx"/>
+Contact have access mobile telephone:<output value="/data/cHvPhone"/>
+Contact willing and able to receive  by SMS from study:<output value="/data/cWillSMS"/>
+Contact able to understand either Luganda or English:<output value="/data/cYesEngLug"/>
+Contact willing to consent after hearing about the study:<output value="/data/cwilling"/></value>
+					</text>
+					<text id="cpltconsfm-label">
+						<value>Has the Informed Consent form been completed?</value>
+					</text>
+					<text id="biometricscanid-label">
+						<value>FINGER PRINT SCAN: Please check if their IDs are in the system, screen new patient if not and save as Contact Patient Screening ID (auto assigned by database)
+</value>
+					</text>
+					<text id="record_exists-label">
+						<value><output value="/data/returned"/> record(s) exist for this scan, first id: <output value="/data/match_id"/></value>
+					</text>
+					<text id="ctname-label">
+						<value>Contact's name</value>
+					</text>
+					<text id="ctsurname-label">
+						<value>Contact Surname</value>
+					</text>
+					<text id="ctgivenname-label">
+						<value>Contact Given name </value>
+					</text>
+					<text id="cntenrollid-label">
+						<value>Contact Patient Enrollment ID (auto assigned by database): <output value="/data/contact_case/case/@case_id"/>. Please proceed to Contact Interview form.</value>
+						<value form="image">jr://file/commcare/image/contact_interview.png</value>
+					</text>
+					<text id="conclrmk-label">
+						<value>The Survey has been completed. Thank you very much for your time.</value>
+					</text>
+				</translation>
+			</itext><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><setvalue event="xforms-ready" ref="/data/idxptid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptid"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="search" class="com.biometrac.core.PIPE" appearance="quick">
+			<extra key="action_0" ref="/data/intent_0"/>
+			<extra key="action_1" ref="/data/intent_1"/>
+			<extra key="left_finger_assignment_0" ref="/data/finger_left_index"/>
+			<extra key="right_finger_assignment_0" ref="/data/finger_right_index"/>
+			<extra key="left_finger_assignment_1" ref="/data/finger_left_thumb"/>
+			<extra key="right_finger_assignment_1" ref="/data/finger_right_thumb"/>
+			<response key="matches_found" ref="/data/returned"/>
+			<response key="left_index" ref="/data/left_index"/>
+			<response key="left_thumb" ref="/data/left_thumb"/>
+			<response key="right_index" ref="/data/right_index"/>
+			<response key="right_thumb" ref="/data/right_thumb"/>
+			<response key="match_id_0" ref="/data/match_id"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/ctverbagmt">
+			<label ref="jr:itext('ctverbagmt-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cMetCriteria">
+			<label ref="jr:itext('cMetCriteria-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cable">
+			<label ref="jr:itext('cable-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cAlreadyOnTx">
+			<label ref="jr:itext('cAlreadyOnTx-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cHvPhone">
+			<label ref="jr:itext('cHvPhone-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cWillSMS">
+			<label ref="jr:itext('cWillSMS-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cYesEngLug">
+			<label ref="jr:itext('cYesEngLug-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/contactchildunder5">
+			<label ref="jr:itext('contactchildunder5-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/cwilling">
+			<label ref="jr:itext('cwilling-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<trigger ref="/data/cEligible">
+			<label ref="jr:itext('cEligible-label')"/>
+		</trigger>
+		<trigger ref="/data/c_not_Eligible">
+			<label ref="jr:itext('c_not_Eligible-label')"/>
+		</trigger>
+		<select1 ref="/data/cpltconsfm">
+			<label ref="jr:itext('cpltconsfm-label')"/>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('cAlreadyOnTx-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/biometricscanid" appearance="intent:search">
+			<label ref="jr:itext('biometricscanid-label')"/>
+		</input>
+		<trigger ref="/data/record_exists">
+			<label ref="jr:itext('record_exists-label')"/>
+		</trigger>
+		<group ref="/data/ctname" appearance="field-list">
+			<label ref="jr:itext('ctname-label')"/>
+			<input ref="/data/ctname/ctsurname">
+				<label ref="jr:itext('ctsurname-label')"/>
+			</input>
+			<input ref="/data/ctname/ctgivenname">
+				<label ref="jr:itext('ctgivenname-label')"/>
+			</input>
+		</group>
+		<trigger ref="/data/cntenrollid" appearance="minimal">
+			<label ref="jr:itext('cntenrollid-label')"/>
+		</trigger>
+		<trigger ref="/data/conclrmk" appearance="minimal">
+			<label ref="jr:itext('conclrmk-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

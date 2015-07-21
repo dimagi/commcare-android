@@ -1,0 +1,1680 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Newborn Classification</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/BEFAA61E-C03D-4641-9EAE-EA781FF7EF65" uiVersion="1" version="933" name="Newborn Classification">
+					<authentication>
+						<selected_user/>
+						<entered_pin/>
+					</authentication>
+					<consult_info>
+						<consultation_type/>
+						<distance/>
+					</consult_info>
+					<debug>
+						<add_debug_dob/>
+						<debug_input_dob/>
+						<debug_input_sex/>
+					</debug>
+					<vitals>
+						<height/>
+						<weight/>
+						<temp/>
+						<muac/>
+					</vitals>
+					<zscore_results>
+						<warn_bad_height/>
+						<show_zscore_wfa/>
+						<show_zscore_wfh/>
+						<show_zscore_hfa/>
+						<show_muac_status/>
+						<correct_extremes/>
+					</zscore_results>
+					<vaccines>
+						<bcg/>
+						<opv_0/>
+						<opv_1/>
+						<penta_1/>
+						<pneumo_1/>
+						<rotavirus_1/>
+					</vaccines>
+					<inf_bac>
+						<inf_bac_grave/>
+						<inf_bac_locale/>
+						<inf_bac_hypo/>
+						<inf_bac_peu_probable/>
+						<inf_bac_qa/>
+						<inf_bac_qb/>
+						<inf_bac_freq_resp/>
+						<inf_bac_qd/>
+						<inf_bac_qe/>
+						<inf_bac_qf/>
+						<inf_bac_qg/>
+						<inf_bac_qh/>
+						<inf_bac_qi/>
+						<inf_bac_qj/>
+					</inf_bac>
+					<poids>
+						<poids_high/>
+						<poids_medium/>
+						<poids_low/>
+						<poids_qa/>
+					</poids>
+					<inf_occ>
+						<inf_occ_medium/>
+						<inf_occ_low/>
+						<inf_occ_qa/>
+					</inf_occ>
+					<vih>
+						<vih_probable/>
+						<vih_possible/>
+						<vih_peu_probable/>
+						<vih_qa/>
+						<vih_qb/>
+						<vih_qc/>
+						<vih_qd/>
+						<vih_qe/>
+						<vih_qf/>
+						<vih_qg/>
+					</vih>
+					<alimentation>
+						<alimentation_high/>
+						<alimentation_medium/>
+						<alimentation_low/>
+						<alimentation_qa/>
+						<alimentation_qb/>
+						<alimentation_qc/>
+						<alimentation_qd/>
+						<alimentation_qe/>
+						<alimentation_qf/>
+						<alimentation_qg/>
+						<alimentation_qh/>
+						<alimentation_qi/>
+					</alimentation>
+					<other_comments/>
+					<maladie_grave/>
+					<infection_locale/>
+					<signes_hiv/>
+					<maladie_grave_alim/>
+					<pb_alim/>
+					<classification_infection/>
+					<classification_poids/>
+					<classification_occular/>
+					<classification_vih/>
+					<classification_malnutrition/>
+					<visit_date/>
+					<visit_type/>
+					<dob_loaded/>
+					<sex_loaded/>
+					<dob/>
+					<sex/>
+					<age_in_months/>
+					<age_in_weeks/>
+					<bad_height/>
+					<L_wfa/>
+					<M_wfa/>
+					<S_wfa/>
+					<sd3neg_wfa/>
+					<sd2neg_wfa/>
+					<mean_wfa/>
+					<sd2pos_wfa/>
+					<sd3pos_wfa/>
+					<zscore_unrounded_wfa/>
+					<zscore_wfa/>
+					<zscore_grading_wfa/>
+					<prev_zscore_wfa/>
+					<zscore_wfa_change/>
+					<zscore_wfa_change_status/>
+					<centile_wfa/>
+					<zscore_wfa_image_path/>
+					<height_rounded/>
+					<L_wfh/>
+					<M_wfh/>
+					<S_wfh/>
+					<sd3neg_wfh/>
+					<sd2neg_wfh/>
+					<mean_wfh/>
+					<sd2pos_wfh/>
+					<sd3pos_wfh/>
+					<zscore_unrounded_wfh/>
+					<zscore_wfh/>
+					<zscore_grading_wfh/>
+					<prev_zscore_wfh/>
+					<zscore_wfh_change/>
+					<zscore_wfh_change_status/>
+					<centile_wfh/>
+					<zscore_wfh_image_path/>
+					<L_hfa/>
+					<M_hfa/>
+					<S_hfa/>
+					<sd3neg_hfa/>
+					<sd2neg_hfa/>
+					<mean_hfa/>
+					<sd2pos_hfa/>
+					<sd3pos_hfa/>
+					<zscore_unrounded_hfa/>
+					<zscore_hfa/>
+					<zscore_grading_hfa/>
+					<prev_zscore_hfa/>
+					<zscore_hfa_change/>
+					<zscore_hfa_change_status/>
+					<centile_hfa/>
+					<zscore_hfa_image_path/>
+					<muac_grading/>
+					<prev_muac/>
+					<muac_change/>
+					<muac_change_status/>
+					<muac_image_path/>
+					<selected_user_pin/>
+					<selected_username/>
+					<child_name/>
+					<visit_case_name/>
+					<consult_count_loaded/>
+					<consult_count/>
+					<mobile_username/>
+				<subcase_0><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>imci_visit</case_type></create><update><age_in_months/><alimentation_qa/><alimentation_qb/><alimentation_qc/><alimentation_qd/><alimentation_qg_new/><alimentation_qh/><alimentation_qh_new/><alimentation_qi_new/><centile_hfa/><centile_wfa/><centile_wfh/><classification_done_by_user_caseid/><classification_done_by_username/><classification_infection/><classification_malnutrition/><classification_occular/><classification_poids/><classification_vih/><consultation_type/><freq_resp/><height/><inf_bac_qa/><inf_bac_qb/><inf_bac_qc/><inf_bac_qe/><inf_bac_qf/><inf_bac_qg/><inf_bac_qh/><inf_bac_qh_inf/><inf_bac_qi/><inf_occ_qa/><mobile_username/><other_comments/><poids_qa/><temperature/><vih_qa/><vih_qb/><vih_qc/><vih_qd/><vih_qe/><vih_qf/><vih_qg/><visit_date/><visit_type/><weight/><zscore_grading_hfa/><zscore_grading_wfa/><zscore_grading_wfh/><zscore_hfa/><zscore_wfa/><zscore_wfh/></update><index><parent case_type="rec_child"/></index></case></subcase_0><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><bcg/><centile_hfa/><centile_wfa/><centile_wfh/><consult_count/><last_height/><last_modified_by_user_caseid/><last_modified_by_username/><last_muac/><last_visit_date/><last_weight/><muac_change/><muac_change_status/><muac_grading/><opv_0/><opv_1/><penta_1/><pneumo_1/><rotavirus_1/><zscore_grading_hfa/><zscore_grading_wfa/><zscore_grading_wfh/><zscore_hfa/><zscore_hfa_change/><zscore_hfa_change_status/><zscore_wfa/><zscore_wfa_change/><zscore_wfa_change_status/><zscore_wfh/><zscore_wfh_change/><zscore_wfh_change_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="wfa_0_5_zscores" src="jr://fixture/item-list:wfa_0_5_zscores"/>
+			<instance id="wfa_0_13_zscores" src="jr://fixture/item-list:wfa_0_13_zscores"/>
+			<instance id="wfl_0_2_zscores" src="jr://fixture/item-list:wfl_0_2_zscores"/>
+			<instance id="wfh_2_5_zscores" src="jr://fixture/item-list:wfh_2_5_zscores"/>
+			<instance id="lhfa_0_5_zscores" src="jr://fixture/item-list:lhfa_0_5_zscores"/>
+			<instance id="lhfa_0_13_zscores" src="jr://fixture/item-list:lhfa_0_13_zscores"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/authentication"/>
+			<bind nodeset="/data/authentication/selected_user" required="true()"/>
+			<bind nodeset="/data/authentication/entered_pin" type="xsd:string" constraint=". = /data/selected_user_pin" jr:constraintMsg="jr:itext('authentication/entered_pin-constraintMsg')" relevant="/data/authentication/selected_user != ''" required="true()"/>
+			<bind nodeset="/data/consult_info"/>
+			<bind nodeset="/data/consult_info/consultation_type" required="true()"/>
+			<bind nodeset="/data/consult_info/distance" required="true()"/>
+			<bind nodeset="/data/debug" relevant="false()"/>
+			<bind nodeset="/data/debug/add_debug_dob"/>
+			<bind nodeset="/data/debug/debug_input_dob" type="xsd:date" relevant="/data/debug/add_debug_dob = 'yes'"/>
+			<bind nodeset="/data/debug/debug_input_sex"/>
+			<bind nodeset="/data/vitals"/>
+			<bind nodeset="/data/vitals/height" type="xsd:double" constraint=". &gt;= 35 and . &lt;= 140" jr:constraintMsg="jr:itext('vitals/height-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/weight" type="xsd:double" constraint=". &gt;= 1 and . &lt;= 40" jr:constraintMsg="jr:itext('vitals/weight-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/temp" type="xsd:double" constraint=". &gt;= 35 and . &lt;= 45" jr:constraintMsg="jr:itext('vitals/temp-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/muac" type="xsd:double" constraint=". &gt;= 50 and . &lt;= 250" jr:constraintMsg="jr:itext('vitals/muac-constraintMsg')" relevant="today() - date(/data/dob) &gt;= 182 and today() - date(/data/dob) &lt; 1827" required="true()"/>
+			<bind nodeset="/data/zscore_results"/>
+			<bind nodeset="/data/zscore_results/warn_bad_height" relevant="/data/bad_height = 'yes'"/>
+			<bind nodeset="/data/zscore_results/show_zscore_wfa" relevant="/data/zscore_wfa != ''"/>
+			<bind nodeset="/data/zscore_results/show_zscore_wfh" relevant="/data/zscore_wfh != ''"/>
+			<bind nodeset="/data/zscore_results/show_zscore_hfa" relevant="/data/zscore_hfa != ''"/>
+			<bind nodeset="/data/zscore_results/show_muac_status" relevant="/data/vitals/muac != ''"/>
+			<bind nodeset="/data/zscore_results/correct_extremes" constraint=". != ''" jr:constraintMsg="jr:itext('zscore_results/correct_extremes-constraintMsg')" relevant="/data/zscore_unrounded_wfa &gt; 3 or /data/zscore_unrounded_wfa &lt; -3 or /data/zscore_unrounded_wfh &gt; 3 or /data/zscore_unrounded_wfh &lt; -3 or /data/zscore_unrounded_hfa &gt; 3 or /data/zscore_unrounded_hfa &lt; -3" required="true()"/>
+			<bind nodeset="/data/vaccines"/>
+			<bind nodeset="/data/vaccines/bcg" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_0" relevant=" today() &gt;= date(date(/data/dob) + 14)" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/penta_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/pneumo_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/rotavirus_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/inf_bac"/>
+			<bind nodeset="/data/inf_bac/inf_bac_grave" relevant="/data/maladie_grave = 'yes' and /data/inf_bac/inf_bac_qj != ''"/>
+			<bind nodeset="/data/inf_bac/inf_bac_locale" relevant="/data/maladie_grave != 'yes' and /data/infection_locale = 'yes' and /data/inf_bac/inf_bac_qj != ''"/>
+			<bind nodeset="/data/inf_bac/inf_bac_hypo" relevant="/data/maladie_grave != 'yes' and /data/inf_bac/inf_bac_qh = 'hypothermie_moderee' and /data/inf_bac/inf_bac_qj != ''"/>
+			<bind nodeset="/data/inf_bac/inf_bac_peu_probable" relevant="/data/maladie_grave != 'yes' and /data/infection_locale != 'yes' and /data/inf_bac/inf_bac_qh = 'normale' and /data/inf_bac/inf_bac_qj != ''"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qa" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qb" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_freq_resp" type="xsd:int" constraint=". &gt;= 10 and . &lt;= 120" jr:constraintMsg="jr:itext('inf_bac/inf_bac_freq_resp-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qd" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qe" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qf" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qg" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qh" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qi" required="true()"/>
+			<bind nodeset="/data/inf_bac/inf_bac_qj" required="true()"/>
+			<bind nodeset="/data/poids"/>
+			<bind nodeset="/data/poids/poids_high" relevant="/data/poids/poids_qa = 'tres_faible' and /data/poids/poids_qa != ''"/>
+			<bind nodeset="/data/poids/poids_medium" relevant="/data/poids/poids_qa = 'faible' and /data/poids/poids_qa != ''"/>
+			<bind nodeset="/data/poids/poids_low" relevant="/data/poids/poids_qa = 'normal' and /data/poids/poids_qa != ''"/>
+			<bind nodeset="/data/poids/poids_qa" required="true()"/>
+			<bind nodeset="/data/inf_occ"/>
+			<bind nodeset="/data/inf_occ/inf_occ_medium" relevant="/data/inf_occ/inf_occ_qa = 'yes' and /data/inf_occ/inf_occ_qa != ''"/>
+			<bind nodeset="/data/inf_occ/inf_occ_low" relevant="/data/inf_occ/inf_occ_qa != 'yes' and /data/inf_occ/inf_occ_qa != ''"/>
+			<bind nodeset="/data/inf_occ/inf_occ_qa" required="true()"/>
+			<bind nodeset="/data/vih"/>
+			<bind nodeset="/data/vih/vih_probable" relevant="/data/vih/vih_qa = 'positive' and /data/signes_hiv = 'yes' and /data/vih/vih_qg != ''"/>
+			<bind nodeset="/data/vih/vih_possible" relevant="/data/vih/vih_qa = 'inconnue' and /data/signes_hiv = 'yes' and /data/vih/vih_qg != ''"/>
+			<bind nodeset="/data/vih/vih_peu_probable" relevant="(/data/vih/vih_qa = 'negatif_grossesse' or /data/signes_hiv != 'yes') and /data/vih/vih_qg != ''"/>
+			<bind nodeset="/data/vih/vih_qa" required="true()"/>
+			<bind nodeset="/data/vih/vih_qb" required="true()"/>
+			<bind nodeset="/data/vih/vih_qc" required="true()"/>
+			<bind nodeset="/data/vih/vih_qd" required="true()"/>
+			<bind nodeset="/data/vih/vih_qe" required="true()"/>
+			<bind nodeset="/data/vih/vih_qf" required="true()"/>
+			<bind nodeset="/data/vih/vih_qg" required="true()"/>
+			<bind nodeset="/data/alimentation"/>
+			<bind nodeset="/data/alimentation/alimentation_high" relevant="/data/maladie_grave_alim = 'yes' and ((/data/alimentation/alimentation_qi != '' and /data/alimentation/alimentation_qb = 'yes') or (/data/alimentation/alimentation_qg and /data/alimentation/alimentation_qb = 'no'))"/>
+			<bind nodeset="/data/alimentation/alimentation_medium" relevant="/data/maladie_grave_alim != 'yes' and /data/pb_alim = 'yes' and ((/data/alimentation/alimentation_qi != '' and /data/alimentation/alimentation_qb = 'yes') or (/data/alimentation/alimentation_qg and /data/alimentation/alimentation_qb = 'no'))"/>
+			<bind nodeset="/data/alimentation/alimentation_low" relevant="/data/maladie_grave_alim != 'yes' and /data/pb_alim != 'yes' and ((/data/alimentation/alimentation_qi != '' and /data/alimentation/alimentation_qb = 'yes') or (/data/alimentation/alimentation_qg and /data/alimentation/alimentation_qb = 'no'))"/>
+			<bind nodeset="/data/alimentation/alimentation_qa" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qb" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qc" type="xsd:int" constraint=". &gt;= 1 and .&lt;= 40" jr:constraintMsg="jr:itext('alimentation/alimentation_qc-constraintMsg')" relevant="/data/alimentation/alimentation_qb = 'yes'" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qd" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qe" relevant="/data/alimentation/alimentation_qd = 'yes'" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qf" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qg" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qh" relevant="/data/alimentation/alimentation_qb = 'yes'" required="true()"/>
+			<bind nodeset="/data/alimentation/alimentation_qi" relevant="/data/alimentation/alimentation_qb = 'yes'" required="true()"/>
+			<bind nodeset="/data/other_comments" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/maladie_grave" calculate="if(/data/inf_bac/inf_bac_qa = 'yes' or /data/inf_bac/inf_bac_qb = 'yes' or /data/inf_bac/inf_bac_freq_resp &gt;= 60 or /data/inf_bac/inf_bac_qd = 'yes' or /data/inf_bac/inf_bac_qe = 'yes' or /data/inf_bac/inf_bac_qf != 'normaux' or /data/inf_bac/inf_bac_qh = 'fievre' or /data/inf_bac/inf_bac_qh = 'hypothermie_severe' or /data/inf_bac/inf_bac_qi = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/infection_locale" calculate="if(/data/inf_bac/inf_bac_qg = 'yes' or /data/inf_bac/inf_bac_qj = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/signes_hiv" calculate="if((int(/data/vih/vih_qb = 'yes') + int(/data/vih/vih_qc = 'yes') + int(/data/vih/vih_qd = 'yes') + int(/data/vih/vih_qe = 'yes') + int(/data/vih/vih_qf = 'yes') + int(/data/vih/vih_qg = 'yes')) &gt;= 2, 'yes', 'no')"/>
+			<bind nodeset="/data/maladie_grave_alim" calculate="if(/data/alimentation/alimentation_qa = 'yes' or (/data/alimentation/alimentation_qb = 'yes' and ((/data/alimentation/alimentation_qh = 'pas_prise') or (/data/alimentation/alimentation_qi = 'pas_succion' ))), 'yes', 'no')"/>
+			<bind nodeset="/data/pb_alim" calculate="if((/data/alimentation/alimentation_qb = 'yes' and ((/data/alimentation/alimentation_qh = 'mauvaise_prise') or (/data/alimentation/alimentation_qi = 'non_efficace') or (/data/alimentation/alimentation_qc &lt; 12))) or /data/alimentation/alimentation_qd = 'yes' or /data/alimentation/alimentation_qf = 'yes' or /data/alimentation/alimentation_qe = 'yes' or /data/alimentation/alimentation_qg = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/classification_infection" calculate="if(count(/data/inf_bac/inf_bac_grave) &gt; 0, 'infection_grave', if(count(/data/inf_bac/inf_bac_locale) &gt; 0, 'infection_locale', if(count(/data/inf_bac/inf_bac_hypo) &gt; 0, 'hypothermie_moderee', if(count(/data/inf_bac/inf_bac_peu_probable) &gt; 0, 'infection_peu_probable', ''))))"/>
+			<bind nodeset="/data/classification_poids" calculate="if(count(/data/poids/poids_high) &gt; 0, 'poids_tres_faible', if(count(/data/poids/poids_medium) &gt; 0, 'faible_poids', if(count(/data/poids/poids_low) &gt; 0, 'pas_de_faible_poids', '')))"/>
+			<bind nodeset="/data/classification_occular" calculate="if(count(/data/inf_occ/inf_occ_medium) &gt; 0, 'conjonctivite', if(count(/data/inf_occ/inf_occ_low) &gt; 0, 'pas_infection_occulaire', ''))"/>
+			<bind nodeset="/data/classification_vih" calculate="if(count(/data/vih/vih_probable) &gt; 0, 'vih_probable', if(count(/data/vih/vih_possible) &gt; 0, 'vih_possible', if(count(/data/vih/vih_peu_probable) &gt; 0, 'vih_peu_probable', '')))"/>
+			<bind nodeset="/data/classification_malnutrition" calculate="if(count(/data/alimentation/alimentation_high) &gt; 0, 'maladie_grave', if(count(/data/alimentation/alimentation_medium) &gt; 0, 'probleme_alimentation', if(count(/data/alimentation/alimentation_low) &gt; 0, 'pas_de_probleme_alimentation', '')))"/>
+			<bind nodeset="/data/visit_date" calculate="today()"/>
+			<bind nodeset="/data/visit_type" calculate="'imci_newborn'"/>
+			<bind nodeset="/data/dob_loaded"/>
+			<bind nodeset="/data/sex_loaded"/>
+			<bind nodeset="/data/dob" calculate="if(/data/debug/add_debug_dob = 'yes', /data/debug/debug_input_dob, /data/dob_loaded)"/>
+			<bind nodeset="/data/sex" calculate="if(/data/debug/debug_input_sex != '', /data/debug/debug_input_sex, /data/sex_loaded)"/>
+			<bind nodeset="/data/age_in_months" calculate="int((today() - date(/data/dob)) div 30.4)"/>
+			<bind nodeset="/data/age_in_weeks" calculate="int((today() - date(/data/dob)) div 7)"/>
+			<bind nodeset="/data/bad_height" calculate="if((/data/age_in_months &lt; 24 and /data/height_rounded &lt; 45) or (/data/age_in_months &lt; 24 and /data/height_rounded &gt; 110) or (/data/age_in_months &gt;= 24 and /data/height_rounded &lt; 65) or (/data/age_in_months &gt;= 24 and /data/height_rounded &gt; 120), 'yes', 'no')"/>
+			<bind nodeset="/data/L_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/L, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/M, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/S, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * -3, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd2neg_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * -2, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/mean_wfa" calculate="/data/M_wfa * pow(1, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd2pos_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * 2, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd3pos_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * 3, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/zscore_unrounded_wfa" calculate="if(/data/vitals/weight &lt; /data/sd3neg_wfa, -3 + (/data/vitals/weight - /data/sd3neg_wfa) div (/data/sd2neg_wfa - /data/sd3neg_wfa), if(/data/vitals/weight &gt; /data/sd3pos_wfa, 3 + (/data/vitals/weight - /data/sd3pos_wfa) div (/data/sd3pos_wfa - /data/sd2pos_wfa),  (pow((/data/vitals/weight div /data/M_wfa),/data/L_wfa)-1) div (/data/S_wfa * /data/L_wfa)))"/>
+			<bind nodeset="/data/zscore_wfa" calculate="if(/data/zscore_unrounded_wfa &gt; 0, int((/data/zscore_unrounded_wfa + 0.005) * 100) div 100, int((/data/zscore_unrounded_wfa - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_wfa" calculate="if(/data/zscore_wfa = '', '', if(/data/zscore_wfa &lt; -3, 'red', if(/data/zscore_wfa &lt; -2, 'yellow', if(/data/zscore_wfa &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_wfa"/>
+			<bind nodeset="/data/zscore_wfa_change" calculate="int((/data/zscore_wfa - /data/prev_zscore_wfa) * 100) div 100"/>
+			<bind nodeset="/data/zscore_wfa_change_status" calculate="if(/data/zscore_wfa_change &gt;= 0.1, 'increased', if(/data/zscore_wfa_change &lt;= -0.1, 'decreased', if(/data/zscore_wfa_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_wfa" calculate="int((/data/vitals/weight div /data/mean_wfa) * 100)"/>
+			<bind nodeset="/data/zscore_wfa_image_path" relevant="/data/zscore_wfa != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_wfa, '_', /data/zscore_wfa_change_status, '.png')"/>
+			<bind nodeset="/data/height_rounded" calculate="int((/data/vitals/height + .25)*2) div 2"/>
+			<bind nodeset="/data/L_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/L, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/M, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/S, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * -3, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd2neg_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * -2, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/mean_wfh" calculate="/data/M_wfh * pow(1, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd2pos_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * 2, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd3pos_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * 3, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/zscore_unrounded_wfh" calculate="if(/data/vitals/weight &lt; /data/sd3neg_wfh, -3 + (/data/vitals/weight - /data/sd3neg_wfh) div (/data/sd2neg_wfh - /data/sd3neg_wfh), if(/data/vitals/weight &gt; /data/sd3pos_wfh, 3 + (/data/vitals/weight - /data/sd3pos_wfh) div (/data/sd3pos_wfh - /data/sd2pos_wfh),  (pow((/data/vitals/weight div /data/M_wfh),/data/L_wfh)-1) div (/data/S_wfh * /data/L_wfh)))"/>
+			<bind nodeset="/data/zscore_wfh" calculate="if(/data/zscore_unrounded_wfh &gt; 0, int((/data/zscore_unrounded_wfh + 0.005) * 100) div 100, int((/data/zscore_unrounded_wfh - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_wfh" calculate="if(/data/zscore_wfh = '', '', if(/data/zscore_wfh &lt; -3, 'red', if(/data/zscore_wfh &lt; -2, 'yellow', if(/data/zscore_wfh &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_wfh"/>
+			<bind nodeset="/data/zscore_wfh_change" calculate="int((/data/zscore_wfh - /data/prev_zscore_wfh) * 100) div 100"/>
+			<bind nodeset="/data/zscore_wfh_change_status" calculate="if(/data/zscore_wfh_change &gt;= 0.1, 'increased', if(/data/zscore_wfh_change &lt;= -0.1, 'decreased', if(/data/zscore_wfh_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_wfh" calculate="int((/data/vitals/weight div /data/mean_wfh) * 100)"/>
+			<bind nodeset="/data/zscore_wfh_image_path" relevant="/data/zscore_wfh != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_wfh, '_', /data/zscore_wfh_change_status, '.png')"/>
+			<bind nodeset="/data/L_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/L, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/M, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/S, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * -3, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd2neg_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * -2, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/mean_hfa" calculate="/data/M_hfa * pow(1, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd2pos_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * 2, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd3pos_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * 3, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/zscore_unrounded_hfa" calculate="if(/data/vitals/height &lt; /data/sd3neg_hfa, -3 + (/data/vitals/height - /data/sd3neg_hfa) div (/data/sd2neg_hfa - /data/sd3neg_hfa), if(/data/vitals/height &gt; /data/sd3pos_hfa, 3 + (/data/vitals/height - /data/sd3pos_hfa) div (/data/sd3pos_hfa - /data/sd2pos_hfa),  (pow((/data/vitals/height div /data/M_hfa),/data/L_hfa)-1) div (/data/S_hfa * /data/L_hfa)))"/>
+			<bind nodeset="/data/zscore_hfa" calculate="if(/data/zscore_unrounded_hfa &gt; 0, int((/data/zscore_unrounded_hfa + 0.005) * 100) div 100, int((/data/zscore_unrounded_hfa - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_hfa" calculate="if(/data/zscore_hfa = '', '', if(/data/zscore_hfa &lt; -3, 'red', if(/data/zscore_hfa &lt; -2, 'yellow', if(/data/zscore_hfa &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_hfa"/>
+			<bind nodeset="/data/zscore_hfa_change" calculate="int((/data/zscore_hfa - /data/prev_zscore_hfa) * 100) div 100"/>
+			<bind nodeset="/data/zscore_hfa_change_status" calculate="if(/data/zscore_hfa_change &gt;= 0.1, 'increased', if(/data/zscore_hfa_change &lt;= -0.1, 'decreased', if(/data/zscore_hfa_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_hfa" calculate="int((/data/vitals/height div /data/mean_hfa) * 100)"/>
+			<bind nodeset="/data/zscore_hfa_image_path" relevant="/data/zscore_hfa != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_hfa, '_', /data/zscore_hfa_change_status, '.png')"/>
+			<bind nodeset="/data/muac_grading" calculate="if(/data/vitals/muac = '', '', if(/data/vitals/muac &lt; 115, 'red', if(/data/vitals/muac &lt; 125, 'yellow', if(/data/vitals/muac &gt;= 125, 'green', ''))))"/>
+			<bind nodeset="/data/prev_muac"/>
+			<bind nodeset="/data/muac_change" calculate="int((/data/vitals/muac - /data/prev_muac) * 100) div 100"/>
+			<bind nodeset="/data/muac_change_status" calculate="if(/data/muac_change &gt;= 0.1, 'increased', if(/data/muac_change &lt;= -0.1, 'decreased', if(/data/muac_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/muac_image_path" calculate="concat('jr://file/commcare/image/data/', /data/muac_grading, '_', /data/muac_change_status, '.png')"/>
+			<bind nodeset="/data/selected_user_pin" calculate="if(/data/authentication/selected_user != '', instance('casedb')/casedb/case[@case_type='tablet_user'][selected(/data/authentication/selected_user, @case_id)]/pin, 'unknown')"/>
+			<bind nodeset="/data/selected_username" calculate="if(/data/authentication/selected_user != '', instance('casedb')/casedb/case[@case_type='tablet_user'][selected(/data/authentication/selected_user, @case_id)]/username, 'unknown')"/>
+			<bind nodeset="/data/child_name"/>
+			<bind nodeset="/data/visit_case_name" calculate="concat(format-date(now(), '%d/%m/%Y'),' ',format-date(now(), '%H:%M'), ' - Agent: ', /data/selected_username)" required="true()"/>
+			<bind nodeset="/data/consult_count_loaded"/>
+			<bind nodeset="/data/consult_count" calculate="if(/data/consult_count_loaded='', 1, /data/consult_count_loaded+1)"/>
+			<bind nodeset="/data/mobile_username" calculate="instance('commcaresession')/session/context/username"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="authentication-label">
+						<value>Authentication</value>
+					</text>
+					<text id="authentication/selected_user-label">
+						<value>Please select your name from the list below. If you don't see your name, please exit this form and add yourself as a Tablet User first.</value>
+					</text>
+					<text id="authentication/entered_pin-label">
+						<value>Please enter the 4 digit pin number for the selected user:</value>
+					</text>
+					<text id="authentication/entered_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="consultation_type-label">
+						<value>Type of consultation</value>
+					</text>
+					<text id="consultation_type-new-label">
+						<value>New consultation</value>
+					</text>
+					<text id="consultation_type-followup-label">
+						<value>Followup consultation</value>
+					</text>
+					<text id="distance-label">
+						<value>Distance</value>
+					</text>
+					<text id="distance-less_four-label">
+						<value>0 - 4 km</value>
+					</text>
+					<text id="distance-four_to_ten-label">
+						<value>4 - 10 km</value>
+					</text>
+					<text id="distance-above_ten-label">
+						<value>10 km et +</value>
+					</text>
+					<text id="debug-label">
+						<value>Debug</value>
+					</text>
+					<text id="debug/add_debug_dob-label">
+						<value>Add debug dob?</value>
+					</text>
+					<text id="debug/add_debug_dob-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/add_debug_dob-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/debug_input_dob-label">
+						<value>Enter debug dob:</value>
+					</text>
+					<text id="debug/debug_input_sex-label">
+						<value>Enter debug sex</value>
+					</text>
+					<text id="debug/debu-item1-label">
+						<value>male</value>
+					</text>
+					<text id="debug/debu-item2-label">
+						<value>female</value>
+					</text>
+					<text id="vitals-label">
+						<value>Vital Signs</value>
+					</text>
+					<text id="height-label">
+						<value>Height (cm)</value>
+					</text>
+					<text id="vitals/height-constraintMsg">
+						<value>Height must be between 35 and 140 cm.</value>
+					</text>
+					<text id="weight-label">
+						<value>Weight (kg)</value>
+					</text>
+					<text id="vitals/weight-constraintMsg">
+						<value>Weight must be between 1 and 40 kg.</value>
+					</text>
+					<text id="temp-label">
+						<value>Temp. (&#176;C)</value>
+					</text>
+					<text id="vitals/temp-constraintMsg">
+						<value>Temp must be between 35 and 45 &#176;C.</value>
+					</text>
+					<text id="muac-label">
+						<value>Arm Span (mm)</value>
+					</text>
+					<text id="vitals/muac-constraintMsg">
+						<value>Arm Span must be between 50 and 250 mm</value>
+					</text>
+					<text id="zscore_results-label">
+						<value>ZScore Results</value>
+					</text>
+					<text id="warn_bad_height-label">
+						<value>Unable to display Weight/Height - child is out of height range</value>
+					</text>
+					<text id="zscore_results/show_zscore_wfa-label">
+						<value>Weight / Age 
+
+<output ref="/data/zscore_wfa"/> / <output ref="/data/centile_wfa"/>% <output ref="if(false() and /data/zscore_wfa_change != '', concat('(Zscore change: ',/data/zscore_wfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_wfh-label">
+						<value>Weight / Height
+						     
+<output ref="/data/zscore_wfh"/> / <output ref="/data/centile_wfh"/>% <output ref="if(false() and /data/zscore_wfh_change != '', concat('(Zscore change: ',/data/zscore_wfh_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfh_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_hfa-label">
+						<value>Height / Age 
+
+<output ref="/data/zscore_hfa"/> / <output ref="/data/centile_hfa"/>% <output ref="if(false() and /data/zscore_hfa_change != '', concat('(Zscore change: ',/data/zscore_hfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_hfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_muac_status-label">
+						<value>MUAC status <output ref="if(/data/muac_change != '', concat('(MUAC change in mm: ', /data/muac_change, ')'),'')"/></value>
+						<value form="image"><output ref="/data/muac_image_path"/></value>
+					</text>
+					<text id="zscore_results/correct_extremes-label">
+						<value>The indices have extreme values.
+Are the measurements correct?</value>
+					</text>
+					<text id="zscore_results/correct_extremes-constraintMsg">
+						<value>Cannot be blank</value>
+					</text>
+					<text id="vaccines-label">
+						<value>Vaccines</value>
+					</text>
+					<text id="bcg-label">
+						<value>BCG? </value>
+					</text>
+					<text id="bcg-dont_know-label">
+						<value>Don't know</value>
+					</text>
+					<text id="opv_0-label">
+						<value>Polio - 0? </value>
+					</text>
+					<text id="opv_1-label">
+						<value>Polio - 1? </value>
+					</text>
+					<text id="penta_1-label">
+						<value>Penta - 1? </value>
+					</text>
+					<text id="pneumo_1-label">
+						<value>Pneumo - 1? </value>
+					</text>
+					<text id="rotavirus_1-label">
+						<value>Rotavirus - 1? </value>
+					</text>
+					<text id="inf_bac-label">
+						<value>Bacterial Infection</value>
+					</text>
+					<text id="inf_bac/inf_bac_grave-label">
+						<value>Serious illness or bacterial infection </value>
+					</text>
+					<text id="inf_bac/inf_bac_grave_no_ref-label">
+						<value>Local bacterial infection</value>
+					</text>
+					<text id="inf_bac/inf_bac_hypo-label">
+						<value>Moderate Hypothermia </value>
+					</text>
+					<text id="inf_bac/inf_bac_peu_probable-label">
+						<value>Bacterial infection unlikely and no hypothermia </value>
+					</text>
+					<text id="inf_bac/inf_bac_qa-label">
+						<value>Request: The infant he had convulsions?</value>
+					</text>
+					<text id="inf_bac/inf_bac_qb-label">
+						<value>The newborn is it * unable * to eat?</value>
+						<value form="markdown">The newborn is it *unable* to eat?</value>
+					</text>
+					<text id="inf_bac/inf_bac_freq_resp-label">
+						<value>Count the respiratory rate</value>
+					</text>
+					<text id="inf_bac/inf_bac_freq_resp-constraintMsg">
+						<value>Must be between 10 and 120</value>
+					</text>
+					<text id="inf_bac/inf_bac_qd-label">
+						<value>Search grave indrawing</value>
+						<value form="markdown">Search grave indrawing</value>
+					</text>
+					<text id="inf_bac/inf_bac_qe-label">
+						<value>Search grunting</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-label">
+						<value>Watch the movements of the newborn</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-normaux-label">
+						<value>Normal </value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-bouge_stimule-label">
+						<value>Stimulates moves </value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-pas_mouvements-label">
+						<value>No Movements</value>
+					</text>
+					<text id="inf_bac/inf_bac_qg-label">
+						<value>Search pustules on the skin</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-label">
+						<value>Assess the axillary temperature</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-help">
+						<value>Moderate hypothermia: 35.5 &lt;= T &lt;= 36.6 / severe hypothermia: T &lt; 35.5 / Fever T &gt;= 37.5</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-normale-label">
+						<value>Normal</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-hypothermie_moderee-label">
+						<value>Moderate Hypothermia</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-hypothermie_severe-label">
+						<value>Severe Hypothermia</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-fievre-label">
+						<value>Fever</value>
+					</text>
+					<text id="inf_bac/inf_bac_qi-label">
+						<value>Search severe jaundice</value>
+					</text>
+					<text id="inf_bac/inf_bac_qj-label">
+						<value>Look at the umbilicus. Is it red or purulent?</value>
+					</text>
+					<text id="poids-label">
+						<value>Search low weight</value>
+					</text>
+					<text id="poids/poids_high-label">
+						<value>Very low weight </value>
+					</text>
+					<text id="poids/poids_medium-label">
+						<value>Low Weight</value>
+					</text>
+					<text id="poids/poids_low-label">
+						<value>No Low Weight</value>
+					</text>
+					<text id="poids/poids_qa-label">
+						<value>See the current weight of the child (normal =&gt; p &lt;= 2500g / low =&gt; 1500g &lt;= p &lt;2500g / very low =&gt; p &lt;1500g)</value>
+					</text>
+					<text id="poids/poids_qa-normal-label">
+						<value>Normal</value>
+					</text>
+					<text id="poids/poids_qa-faible-label">
+						<value>Low </value>
+					</text>
+					<text id="poids/poids_qa-tres_faible-label">
+						<value>Very Low </value>
+					</text>
+					<text id="inf_occ-label">
+						<value>Search ocular infections</value>
+					</text>
+					<text id="inf_occ/inf_occ_medium-label">
+						<value>Purulent conjunctivitis of the newborn </value>
+					</text>
+					<text id="inf_occ/inf_occ_low-label">
+						<value>No ocular infection </value>
+					</text>
+					<text id="inf_occ/inf_occ_qa-label">
+						<value>Inspect the eyes of the newborn. Are purulent? Are they swollen?</value>
+					</text>
+					<text id="vih-label">
+						<value>Search HIV infection</value>
+					</text>
+					<text id="vih/vih_probable-label">
+						<value>Symptomatic HIV infection likely</value>
+					</text>
+					<text id="vih/vih_possible-label">
+						<value>Symptomatic HIV infection can </value>
+					</text>
+					<text id="vih/vih_peu_probable-label">
+						<value>HIV infection little probable </value>
+					</text>
+					<text id="vih/vih_qa-label">
+						<value>What is the HIV status of the mother?</value>
+					</text>
+					<text id="vih/vih_qa-negatif_grossesse-label">
+						<value>Negative Pregnancy</value>
+					</text>
+					<text id="vih/vih_qa-inconnue-label">
+						<value>Inconclusive</value>
+					</text>
+					<text id="vih/vih_qa-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="vih/vih_qb-label">
+						<value>Hepatomegaly</value>
+					</text>
+					<text id="vih/vih_qc-label">
+						<value>Splenomegaly</value>
+					</text>
+					<text id="vih/vih_qd-label">
+						<value>Ear infection</value>
+					</text>
+					<text id="vih/vih_qe-label">
+						<value>Signs of infection mucocutaneous</value>
+					</text>
+					<text id="vih/vih_qf-label">
+						<value>Severe pneumonia</value>
+					</text>
+					<text id="vih/vih_qg-label">
+						<value>Low birth weight</value>
+					</text>
+					<text id="alimentation-label">
+						<value>Search difficulty feeding</value>
+					</text>
+					<text id="alimentation/alimentation_high-label">
+						<value>Serious illness or bacterial infection (alim) </value>
+					</text>
+					<text id="alimentation/alimentation_medium-label">
+						<value>Power problem </value>
+					</text>
+					<text id="alimentation/alimentation_low-label">
+						<value>No power problems</value>
+					</text>
+					<text id="alimentation/alimentation_qa-label">
+						<value>The infant he has difficulty feeding?</value>
+					</text>
+					<text id="alimentation/alimentation_qa-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="alimentation/alimentation_qa-no-label">
+						<value>No</value>
+					</text>
+					<text id="alimentation/alimentation_qb-label">
+						<value>The infant is breastfed it?</value>
+					</text>
+					<text id="alimentation/alimentation_qc-label">
+						<value>If yes, how many times in 24 hours?</value>
+					</text>
+					<text id="alimentation/alimentation_qc-constraintMsg">
+						<value>The value should be between 1 and 40 times</value>
+					</text>
+					<text id="alimentation/alimentation_qd-label">
+						<value>The infant receives it usually other foods or liquids in addition to breast milk?</value>
+					</text>
+					<text id="alimentation/alimentation_qe-label">
+						<value>If so, he receives artificial milk?</value>
+					</text>
+					<text id="alimentation/alimentation_qf-label">
+						<value>Watch mouth newborn to detect muget</value>
+					</text>
+					<text id="alimentation/alimentation_qg-label">
+						<value>Watch mouth newborn to detect defects at the mouth</value>
+					</text>
+					<text id="alimentation/alimentation_qg-help">
+						<value>cleft lip, cleft palate</value>
+					</text>
+					<text id="alimentation/alimentation_qh-label">
+						<value>The infant can he take the breast?</value>
+					</text>
+					<text id="alimentation/alimentation_qh-pas_prise-label">
+						<value>No plug </value>
+					</text>
+					<text id="alimentation/alimentation_qh-mauvaise_prise-label">
+						<value>Taking bad </value>
+					</text>
+					<text id="alimentation/alimentation_qh-bonne_prise-label">
+						<value>Taking good </value>
+					</text>
+					<text id="alimentation/alimentation_qi-label">
+						<value>Does the infant head effectively?</value>
+					</text>
+					<text id="alimentation/alimentation_qi-help">
+						<value>That is to say, by slow deep sucks with pauses</value>
+					</text>
+					<text id="alimentation/alimentation_qi-pas_succion-label">
+						<value>Not Sucking </value>
+					</text>
+					<text id="alimentation/alimentation_qi-non_efficace-label">
+						<value>Not Effective </value>
+					</text>
+					<text id="alimentation/alimentation_qi-efficace-label">
+						<value>Effective</value>
+					</text>
+					<text id="other_comments-label">
+						<value>Any other symptoms or comments to enter?</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="authentication-label">
+						<value>Identification de l'agent</value>
+					</text>
+					<text id="authentication/selected_user-label">
+						<value>Veuillez choisir votre nom de la liste ci-dessous.</value>
+					</text>
+					<text id="authentication/entered_pin-label">
+						<value>Veuillez saisir votre mot de passe &#224; 4 chiffres.</value>
+					</text>
+					<text id="authentication/entered_pin-constraintMsg">
+						<value>Le mot de passe saisi est incorrect. Veuillez essayer &#224; nouveau.</value>
+					</text>
+					<text id="consultation_type-label">
+						<value>Type de consultation</value>
+					</text>
+					<text id="consultation_type-new-label">
+						<value>Nouvelle consultation</value>
+					</text>
+					<text id="consultation_type-followup-label">
+						<value>Consultation de suivi</value>
+					</text>
+					<text id="distance-label">
+						<value>Distance</value>
+					</text>
+					<text id="distance-less_four-label">
+						<value>0 - 4 km</value>
+					</text>
+					<text id="distance-four_to_ten-label">
+						<value>4 - 10 km</value>
+					</text>
+					<text id="distance-above_ten-label">
+						<value>10 km et +</value>
+					</text>
+					<text id="debug-label">
+						<value>Debug</value>
+					</text>
+					<text id="debug/add_debug_dob-label">
+						<value>Add debug dob?</value>
+					</text>
+					<text id="debug/add_debug_dob-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/add_debug_dob-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/debug_input_dob-label">
+						<value>Enter debug dob:</value>
+					</text>
+					<text id="debug/debug_input_sex-label">
+						<value>Enter debug sex</value>
+					</text>
+					<text id="debug/debu-item1-label">
+						<value>male</value>
+					</text>
+					<text id="debug/debu-item2-label">
+						<value>female</value>
+					</text>
+					<text id="vitals-label">
+						<value>Nouvelles mesures</value>
+					</text>
+					<text id="height-label">
+						<value>Taille (cm) </value>
+					</text>
+					<text id="vitals/height-constraintMsg">
+						<value>La taille doit &#234;tre comprise entre 35 et 140 cm.</value>
+					</text>
+					<text id="weight-label">
+						<value>Poids (kg)</value>
+					</text>
+					<text id="vitals/weight-constraintMsg">
+						<value>Le poids doit &#234;tre compris entre 1 et 40 kg.</value>
+					</text>
+					<text id="temp-label">
+						<value>Temp. (&#176;C)</value>
+					</text>
+					<text id="vitals/temp-constraintMsg">
+						<value>La temp&#233;rature doit &#234;tre comprise entre 35 et 45 &#176; C.</value>
+					</text>
+					<text id="muac-label">
+						<value>P&#233;rim. Brac. (mm)</value>
+					</text>
+					<text id="vitals/muac-constraintMsg">
+						<value>Le PB doit &#234;tre compris entre 50 et 250 mm.</value>
+					</text>
+					<text id="zscore_results-label">
+						<value>R&#233;sultats du Z-score</value>
+					</text>
+					<text id="warn_bad_height-label">
+						<value>Impossible d'afficher Poids / Taille - L'enfant est hors de port&#233;e en hauteur</value>
+					</text>
+					<text id="zscore_results/show_zscore_wfa-label">
+						<value>Poids / &#194;ge 
+
+<output ref="/data/zscore_wfa"/> / <output ref="/data/centile_wfa"/>% <output ref="if(false() and /data/zscore_wfa_change != '', concat('(Zscore change: ',/data/zscore_wfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_wfh-label">
+						<value>Poids / Taille
+						     
+<output ref="/data/zscore_wfh"/> / <output ref="/data/centile_wfh"/>% <output ref="if(false() and /data/zscore_wfh_change != '', concat('(Zscore change: ',/data/zscore_wfh_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfh_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_hfa-label">
+						<value>Taille / &#194;ge 
+
+<output ref="/data/zscore_hfa"/> / <output ref="/data/centile_hfa"/>% <output ref="if(false() and /data/zscore_hfa_change != '', concat('(Zscore change: ',/data/zscore_hfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_hfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_muac_status-label">
+						<value>PB statut <output ref="if(/data/muac_change != '', concat('(PB changement en mm: ', /data/muac_change, ')'),'')"/></value>
+						<value form="image"><output ref="/data/muac_image_path"/></value>
+					</text>
+					<text id="zscore_results/correct_extremes-label">
+						<value>Les indices ont des valeurs extr&#234;mes. Les mesures sont-elles correctes ?</value>
+					</text>
+					<text id="zscore_results/correct_extremes-constraintMsg">
+						<value>Ne peut &#234;tre vide</value>
+					</text>
+					<text id="vaccines-label">
+						<value>Etat vaccinal</value>
+					</text>
+					<text id="bcg-label">
+						<value>BCG? </value>
+					</text>
+					<text id="bcg-dont_know-label">
+						<value>Je ne sais pas</value>
+					</text>
+					<text id="opv_0-label">
+						<value>Polio - 0? </value>
+					</text>
+					<text id="opv_1-label">
+						<value>Polio - 1? </value>
+					</text>
+					<text id="penta_1-label">
+						<value>Penta - 1? </value>
+					</text>
+					<text id="pneumo_1-label">
+						<value>Pneumo - 1? </value>
+					</text>
+					<text id="rotavirus_1-label">
+						<value>Rotavirus - 1? </value>
+					</text>
+					<text id="inf_bac-label">
+						<value>Infection bact&#233;rienne</value>
+					</text>
+					<text id="inf_bac/inf_bac_grave-label">
+						<value>Maladie grave ou infection bact&#233;rienne grave</value>
+					</text>
+					<text id="inf_bac/inf_bac_grave_no_ref-label">
+						<value>Infection bact&#233;rienne locale</value>
+					</text>
+					<text id="inf_bac/inf_bac_hypo-label">
+						<value>Hypothermie mod&#233;r&#233;e</value>
+					</text>
+					<text id="inf_bac/inf_bac_peu_probable-label">
+						<value>Infection bact&#233;rienne peu probable et pas d'hypothermie</value>
+					</text>
+					<text id="inf_bac/inf_bac_qa-label">
+						<value>Demander et regarder si le nourrisson a eu ou a actuellement des convulsions</value>
+					</text>
+					<text id="inf_bac/inf_bac_qb-label">
+						<value>Le nouveau-n&#233; est-il *incapable* de s'alimenter ?</value>
+						<value form="markdown">Le nouveau-n&#233; est-il *incapable* de s'alimenter ?</value>
+					</text>
+					<text id="inf_bac/inf_bac_freq_resp-label">
+						<value>Compter la fr&#233;quence respiratoire</value>
+					</text>
+					<text id="inf_bac/inf_bac_freq_resp-constraintMsg">
+						<value>La fr&#233;quence respiratoire doit &#234;tre comprise entre 10 et 120</value>
+					</text>
+					<text id="inf_bac/inf_bac_qd-label">
+						<value>Rechercher : L'enfant a-t-il un tirage *sous-costal* (inspiratoire) ?</value>
+						<value form="markdown">Rechercher : L'enfant a-t-il un tirage *sous-costal* (inspiratoire) ?</value>
+					</text>
+					<text id="inf_bac/inf_bac_qe-label">
+						<value>Rechercher un geignement expiratoire</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-label">
+						<value>Regarder les mouvements du nouveau- n&#233;</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-normaux-label">
+						<value>Normaux</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-bouge_stimule-label">
+						<value>Mouvements seulement si stimulation</value>
+					</text>
+					<text id="inf_bac/inf_bac_qf-pas_mouvements-label">
+						<value>Pas de mouvements m&#234;me si stimulation</value>
+					</text>
+					<text id="inf_bac/inf_bac_qg-label">
+						<value>Rechercher des pustules sur la peau</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-label">
+						<value>Appr&#233;cier la temp&#233;rature axilaire</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-help">
+						<value>Hypothermie mod&#233;r&#233;e: 35.5 &lt;= T &lt;= 36.6 / Hypothermique s&#233;v&#232;re: T &lt; 35.5 / Fievre: T &gt;= 37.5</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-normale-label">
+						<value>Normale</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-hypothermie_moderee-label">
+						<value>Hypothermie mod&#233;r&#233;e</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-hypothermie_severe-label">
+						<value>Hypothermie s&#233;v&#232;re</value>
+					</text>
+					<text id="inf_bac/inf_bac_qh-fievre-label">
+						<value>Fi&#232;vre</value>
+					</text>
+					<text id="inf_bac/inf_bac_qi-label">
+						<value>Rechercher un ict&#232;re grave</value>
+					</text>
+					<text id="inf_bac/inf_bac_qj-label">
+						<value>Regarder l'ombilic. Est-il rouge ou purulent ?</value>
+					</text>
+					<text id="poids-label">
+						<value>Recherche d'un faible poids</value>
+					</text>
+					<text id="poids/poids_high-label">
+						<value>Tr&#232;s faible poids</value>
+					</text>
+					<text id="poids/poids_medium-label">
+						<value>Faible poids</value>
+					</text>
+					<text id="poids/poids_low-label">
+						<value>Pas de faible poids</value>
+					</text>
+					<text id="poids/poids_qa-label">
+						<value>Regarder le poids actuel de l'enfant </value>
+					</text>
+					<text id="poids/poids_qa-normal-label">
+						<value>Normal (p &gt;= 2500g)</value>
+					</text>
+					<text id="poids/poids_qa-faible-label">
+						<value>Faible (1500g &lt;= p &lt; 2500g)</value>
+					</text>
+					<text id="poids/poids_qa-tres_faible-label">
+						<value>Tr&#232;s faible (p &lt; 1500g)</value>
+					</text>
+					<text id="inf_occ-label">
+						<value>Recherche d'infections occulaires</value>
+					</text>
+					<text id="inf_occ/inf_occ_medium-label">
+						<value>Conjonctivite purulente du nouveau-n&#233;</value>
+					</text>
+					<text id="inf_occ/inf_occ_low-label">
+						<value>Pas d'infection occulaire</value>
+					</text>
+					<text id="inf_occ/inf_occ_qa-label">
+						<value>Inspecter les yeux du nouveau-n&#233;. Sont-ils purulents ? Sont-ils enfl&#233;s ?</value>
+					</text>
+					<text id="vih-label">
+						<value>Recherche d'une infection VIH</value>
+					</text>
+					<text id="vih/vih_probable-label">
+						<value>Infection VIH symptomatique probable</value>
+					</text>
+					<text id="vih/vih_possible-label">
+						<value>Infection VIH symptomatique possible</value>
+					</text>
+					<text id="vih/vih_peu_probable-label">
+						<value>Infection VIH peu probable</value>
+					</text>
+					<text id="vih/vih_qa-label">
+						<value>Quel est l'&#233;tat s&#233;rologique de la m&#232;re ?</value>
+					</text>
+					<text id="vih/vih_qa-negatif_grossesse-label">
+						<value>N&#233;gatif pendant la grossesse</value>
+					</text>
+					<text id="vih/vih_qa-inconnue-label">
+						<value>Inconnu</value>
+					</text>
+					<text id="vih/vih_qa-positive-label">
+						<value>Positif</value>
+					</text>
+					<text id="vih/vih_qb-label">
+						<value>H&#233;patom&#233;galie</value>
+					</text>
+					<text id="vih/vih_qc-label">
+						<value>Spl&#233;nom&#233;galie</value>
+					</text>
+					<text id="vih/vih_qd-label">
+						<value>Infection de l'oreille</value>
+					</text>
+					<text id="vih/vih_qe-label">
+						<value>Signes d'infection cutan&#233;o-muqueuse</value>
+					</text>
+					<text id="vih/vih_qf-label">
+						<value>Pneumonie grave</value>
+					</text>
+					<text id="vih/vih_qg-label">
+						<value>Faible poids de naissance</value>
+					</text>
+					<text id="alimentation-label">
+						<value>Recherche de difficult&#233; d'alimentation</value>
+					</text>
+					<text id="alimentation/alimentation_high-label">
+						<value>Maladie grave ou infection bact&#233;rienne grave</value>
+					</text>
+					<text id="alimentation/alimentation_medium-label">
+						<value>Probl&#232;me d'alimentation</value>
+					</text>
+					<text id="alimentation/alimentation_low-label">
+						<value>Pas de probl&#232;mes d'alimentation</value>
+					</text>
+					<text id="alimentation/alimentation_qa-label">
+						<value>Le nourrisson a-t-il des difficult&#233;s &#224; se nourrir ?</value>
+					</text>
+					<text id="alimentation/alimentation_qa-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="alimentation/alimentation_qa-no-label">
+						<value>Non</value>
+					</text>
+					<text id="alimentation/alimentation_qb-label">
+						<value>Le nourrisson est-il nourri au sein ?</value>
+					</text>
+					<text id="alimentation/alimentation_qc-label">
+						<value>Si oui, combien de fois en 24 heures ?</value>
+					</text>
+					<text id="alimentation/alimentation_qc-constraintMsg">
+						<value>La valeur doit &#234;tre comprise entre 1 et 40 fois</value>
+					</text>
+					<text id="alimentation/alimentation_qd-label">
+						<value>Le nourrisson re&#231;oit-il d&#8217;habitude d&#8217;autres aliments ou liquides en plus du lait maternel ?</value>
+					</text>
+					<text id="alimentation/alimentation_qe-label">
+						<value>Si oui, re&#231;oit-il du lait artificiel ?</value>
+					</text>
+					<text id="alimentation/alimentation_qf-label">
+						<value>Regarder la bouche du nouveau-n&#233; pour d&#233;tecter un muget</value>
+					</text>
+					<text id="alimentation/alimentation_qg-label">
+						<value>Regarder la bouche du nouveau-n&#233; pour d&#233;tecter une malformation au niveau de la bouche</value>
+					</text>
+					<text id="alimentation/alimentation_qg-help">
+						<value>Bec de li&#232;vre, une fente palatine</value>
+					</text>
+					<text id="alimentation/alimentation_qh-label">
+						<value>Le nourrisson peut-il bien prendre le sein ?</value>
+					</text>
+					<text id="alimentation/alimentation_qh-pas_prise-label">
+						<value>Pas de prise de sein</value>
+					</text>
+					<text id="alimentation/alimentation_qh-mauvaise_prise-label">
+						<value>Mauvaise prise de sein</value>
+					</text>
+					<text id="alimentation/alimentation_qh-bonne_prise-label">
+						<value>Bonne prise de sein</value>
+					</text>
+					<text id="alimentation/alimentation_qi-label">
+						<value>Est-ce que le nourrisson t&#232;te efficacement ?</value>
+					</text>
+					<text id="alimentation/alimentation_qi-help">
+						<value>C'est-&#224;-dire par succions profondes et lentes entrecoup&#233;es de pauses?</value>
+					</text>
+					<text id="alimentation/alimentation_qi-pas_succion-label">
+						<value>Pas de succion</value>
+					</text>
+					<text id="alimentation/alimentation_qi-non_efficace-label">
+						<value>Succion non efficace</value>
+					</text>
+					<text id="alimentation/alimentation_qi-efficace-label">
+						<value>Succion efficace</value>
+					</text>
+					<text id="other_comments-label">
+						<value>Autres probl&#232;mes de sant&#233;</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/vaccines/bcg" nodeset="/data/case/update/bcg" relevant="count(/data/vaccines/bcg) &gt; 0"/><bind calculate="/data/centile_hfa" nodeset="/data/case/update/centile_hfa" relevant="count(/data/centile_hfa) &gt; 0"/><bind calculate="/data/centile_wfa" nodeset="/data/case/update/centile_wfa" relevant="count(/data/centile_wfa) &gt; 0"/><bind calculate="/data/centile_wfh" nodeset="/data/case/update/centile_wfh" relevant="count(/data/centile_wfh) &gt; 0"/><bind calculate="/data/consult_count" nodeset="/data/case/update/consult_count" relevant="count(/data/consult_count) &gt; 0"/><bind calculate="/data/vitals/height" nodeset="/data/case/update/last_height" relevant="count(/data/vitals/height) &gt; 0"/><bind calculate="/data/authentication/selected_user" nodeset="/data/case/update/last_modified_by_user_caseid" relevant="count(/data/authentication/selected_user) &gt; 0"/><bind calculate="/data/selected_username" nodeset="/data/case/update/last_modified_by_username" relevant="count(/data/selected_username) &gt; 0"/><bind calculate="/data/vitals/muac" nodeset="/data/case/update/last_muac" relevant="count(/data/vitals/muac) &gt; 0"/><bind calculate="/data/visit_date" nodeset="/data/case/update/last_visit_date" relevant="count(/data/visit_date) &gt; 0"/><bind calculate="/data/vitals/weight" nodeset="/data/case/update/last_weight" relevant="count(/data/vitals/weight) &gt; 0"/><bind calculate="/data/muac_change" nodeset="/data/case/update/muac_change" relevant="count(/data/muac_change) &gt; 0"/><bind calculate="/data/muac_change_status" nodeset="/data/case/update/muac_change_status" relevant="count(/data/muac_change_status) &gt; 0"/><bind calculate="/data/muac_grading" nodeset="/data/case/update/muac_grading" relevant="count(/data/muac_grading) &gt; 0"/><bind calculate="/data/vaccines/opv_0" nodeset="/data/case/update/opv_0" relevant="count(/data/vaccines/opv_0) &gt; 0"/><bind calculate="/data/vaccines/opv_1" nodeset="/data/case/update/opv_1" relevant="count(/data/vaccines/opv_1) &gt; 0"/><bind calculate="/data/vaccines/penta_1" nodeset="/data/case/update/penta_1" relevant="count(/data/vaccines/penta_1) &gt; 0"/><bind calculate="/data/vaccines/pneumo_1" nodeset="/data/case/update/pneumo_1" relevant="count(/data/vaccines/pneumo_1) &gt; 0"/><bind calculate="/data/vaccines/rotavirus_1" nodeset="/data/case/update/rotavirus_1" relevant="count(/data/vaccines/rotavirus_1) &gt; 0"/><bind calculate="/data/zscore_grading_hfa" nodeset="/data/case/update/zscore_grading_hfa" relevant="count(/data/zscore_grading_hfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfa" nodeset="/data/case/update/zscore_grading_wfa" relevant="count(/data/zscore_grading_wfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfh" nodeset="/data/case/update/zscore_grading_wfh" relevant="count(/data/zscore_grading_wfh) &gt; 0"/><bind calculate="/data/zscore_hfa" nodeset="/data/case/update/zscore_hfa" relevant="count(/data/zscore_hfa) &gt; 0"/><bind calculate="/data/zscore_hfa_change" nodeset="/data/case/update/zscore_hfa_change" relevant="count(/data/zscore_hfa_change) &gt; 0"/><bind calculate="/data/zscore_hfa_change_status" nodeset="/data/case/update/zscore_hfa_change_status" relevant="count(/data/zscore_hfa_change_status) &gt; 0"/><bind calculate="/data/zscore_wfa" nodeset="/data/case/update/zscore_wfa" relevant="count(/data/zscore_wfa) &gt; 0"/><bind calculate="/data/zscore_wfa_change" nodeset="/data/case/update/zscore_wfa_change" relevant="count(/data/zscore_wfa_change) &gt; 0"/><bind calculate="/data/zscore_wfa_change_status" nodeset="/data/case/update/zscore_wfa_change_status" relevant="count(/data/zscore_wfa_change_status) &gt; 0"/><bind calculate="/data/zscore_wfh" nodeset="/data/case/update/zscore_wfh" relevant="count(/data/zscore_wfh) &gt; 0"/><bind calculate="/data/zscore_wfh_change" nodeset="/data/case/update/zscore_wfh_change" relevant="count(/data/zscore_wfh_change) &gt; 0"/><bind calculate="/data/zscore_wfh_change_status" nodeset="/data/case/update/zscore_wfh_change_status" relevant="count(/data/zscore_wfh_change_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_1"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_0" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_0"/><setvalue event="xforms-ready" ref="/data/prev_muac" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/last_muac"/><setvalue event="xforms-ready" ref="/data/prev_zscore_hfa" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_hfa"/><setvalue event="xforms-ready" ref="/data/dob_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob"/><setvalue event="xforms-ready" ref="/data/vaccines/rotavirus_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/rotavirus_1"/><setvalue event="xforms-ready" ref="/data/prev_zscore_wfa" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_wfa"/><setvalue event="xforms-ready" ref="/data/vaccines/penta_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/penta_1"/><setvalue event="xforms-ready" ref="/data/vaccines/pneumo_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pneumo_1"/><setvalue event="xforms-ready" ref="/data/vaccines/bcg" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/bcg"/><setvalue event="xforms-ready" ref="/data/sex_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/sex"/><setvalue event="xforms-ready" ref="/data/consult_count_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/consult_count"/><setvalue event="xforms-ready" ref="/data/prev_zscore_wfh" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_wfh"/><setvalue event="xforms-ready" ref="/data/child_name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><bind calculate="/data/meta/timeEnd" nodeset="/data/subcase_0/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/subcase_0/case/@user_id"/><setvalue event="xforms-ready" ref="/data/subcase_0/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_imci_visit_0"/><bind calculate="/data/visit_case_name" nodeset="/data/subcase_0/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/subcase_0/case/create/owner_id"/><bind calculate="/data/age_in_months" nodeset="/data/subcase_0/case/update/age_in_months" relevant="count(/data/age_in_months) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qa" nodeset="/data/subcase_0/case/update/alimentation_qa" relevant="count(/data/alimentation/alimentation_qa) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qb" nodeset="/data/subcase_0/case/update/alimentation_qb" relevant="count(/data/alimentation/alimentation_qb) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qc" nodeset="/data/subcase_0/case/update/alimentation_qc" relevant="count(/data/alimentation/alimentation_qc) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qd" nodeset="/data/subcase_0/case/update/alimentation_qd" relevant="count(/data/alimentation/alimentation_qd) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qg" nodeset="/data/subcase_0/case/update/alimentation_qg_new" relevant="count(/data/alimentation/alimentation_qg) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qf" nodeset="/data/subcase_0/case/update/alimentation_qh" relevant="count(/data/alimentation/alimentation_qf) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qh" nodeset="/data/subcase_0/case/update/alimentation_qh_new" relevant="count(/data/alimentation/alimentation_qh) &gt; 0"/><bind calculate="/data/alimentation/alimentation_qi" nodeset="/data/subcase_0/case/update/alimentation_qi_new" relevant="count(/data/alimentation/alimentation_qi) &gt; 0"/><bind calculate="/data/centile_hfa" nodeset="/data/subcase_0/case/update/centile_hfa" relevant="count(/data/centile_hfa) &gt; 0"/><bind calculate="/data/centile_wfa" nodeset="/data/subcase_0/case/update/centile_wfa" relevant="count(/data/centile_wfa) &gt; 0"/><bind calculate="/data/centile_wfh" nodeset="/data/subcase_0/case/update/centile_wfh" relevant="count(/data/centile_wfh) &gt; 0"/><bind calculate="/data/authentication/selected_user" nodeset="/data/subcase_0/case/update/classification_done_by_user_caseid" relevant="count(/data/authentication/selected_user) &gt; 0"/><bind calculate="/data/selected_username" nodeset="/data/subcase_0/case/update/classification_done_by_username" relevant="count(/data/selected_username) &gt; 0"/><bind calculate="/data/classification_infection" nodeset="/data/subcase_0/case/update/classification_infection" relevant="count(/data/classification_infection) &gt; 0"/><bind calculate="/data/classification_malnutrition" nodeset="/data/subcase_0/case/update/classification_malnutrition" relevant="count(/data/classification_malnutrition) &gt; 0"/><bind calculate="/data/classification_occular" nodeset="/data/subcase_0/case/update/classification_occular" relevant="count(/data/classification_occular) &gt; 0"/><bind calculate="/data/classification_poids" nodeset="/data/subcase_0/case/update/classification_poids" relevant="count(/data/classification_poids) &gt; 0"/><bind calculate="/data/classification_vih" nodeset="/data/subcase_0/case/update/classification_vih" relevant="count(/data/classification_vih) &gt; 0"/><bind calculate="/data/consult_info/consultation_type" nodeset="/data/subcase_0/case/update/consultation_type" relevant="count(/data/consult_info/consultation_type) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_freq_resp" nodeset="/data/subcase_0/case/update/freq_resp" relevant="count(/data/inf_bac/inf_bac_freq_resp) &gt; 0"/><bind calculate="/data/vitals/height" nodeset="/data/subcase_0/case/update/height" relevant="count(/data/vitals/height) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qa" nodeset="/data/subcase_0/case/update/inf_bac_qa" relevant="count(/data/inf_bac/inf_bac_qa) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qb" nodeset="/data/subcase_0/case/update/inf_bac_qb" relevant="count(/data/inf_bac/inf_bac_qb) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qd" nodeset="/data/subcase_0/case/update/inf_bac_qc" relevant="count(/data/inf_bac/inf_bac_qd) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qe" nodeset="/data/subcase_0/case/update/inf_bac_qe" relevant="count(/data/inf_bac/inf_bac_qe) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qf" nodeset="/data/subcase_0/case/update/inf_bac_qf" relevant="count(/data/inf_bac/inf_bac_qf) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qg" nodeset="/data/subcase_0/case/update/inf_bac_qg" relevant="count(/data/inf_bac/inf_bac_qg) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qh" nodeset="/data/subcase_0/case/update/inf_bac_qh" relevant="count(/data/inf_bac/inf_bac_qh) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qj" nodeset="/data/subcase_0/case/update/inf_bac_qh_inf" relevant="count(/data/inf_bac/inf_bac_qj) &gt; 0"/><bind calculate="/data/inf_bac/inf_bac_qi" nodeset="/data/subcase_0/case/update/inf_bac_qi" relevant="count(/data/inf_bac/inf_bac_qi) &gt; 0"/><bind calculate="/data/inf_occ/inf_occ_qa" nodeset="/data/subcase_0/case/update/inf_occ_qa" relevant="count(/data/inf_occ/inf_occ_qa) &gt; 0"/><bind calculate="/data/mobile_username" nodeset="/data/subcase_0/case/update/mobile_username" relevant="count(/data/mobile_username) &gt; 0"/><bind calculate="/data/other_comments" nodeset="/data/subcase_0/case/update/other_comments" relevant="count(/data/other_comments) &gt; 0"/><bind calculate="/data/poids/poids_qa" nodeset="/data/subcase_0/case/update/poids_qa" relevant="count(/data/poids/poids_qa) &gt; 0"/><bind calculate="/data/vitals/temp" nodeset="/data/subcase_0/case/update/temperature" relevant="count(/data/vitals/temp) &gt; 0"/><bind calculate="/data/vih/vih_qa" nodeset="/data/subcase_0/case/update/vih_qa" relevant="count(/data/vih/vih_qa) &gt; 0"/><bind calculate="/data/vih/vih_qb" nodeset="/data/subcase_0/case/update/vih_qb" relevant="count(/data/vih/vih_qb) &gt; 0"/><bind calculate="/data/vih/vih_qc" nodeset="/data/subcase_0/case/update/vih_qc" relevant="count(/data/vih/vih_qc) &gt; 0"/><bind calculate="/data/vih/vih_qd" nodeset="/data/subcase_0/case/update/vih_qd" relevant="count(/data/vih/vih_qd) &gt; 0"/><bind calculate="/data/vih/vih_qe" nodeset="/data/subcase_0/case/update/vih_qe" relevant="count(/data/vih/vih_qe) &gt; 0"/><bind calculate="/data/vih/vih_qf" nodeset="/data/subcase_0/case/update/vih_qf" relevant="count(/data/vih/vih_qf) &gt; 0"/><bind calculate="/data/vih/vih_qg" nodeset="/data/subcase_0/case/update/vih_qg" relevant="count(/data/vih/vih_qg) &gt; 0"/><bind calculate="/data/visit_date" nodeset="/data/subcase_0/case/update/visit_date" relevant="count(/data/visit_date) &gt; 0"/><bind calculate="/data/visit_type" nodeset="/data/subcase_0/case/update/visit_type" relevant="count(/data/visit_type) &gt; 0"/><bind calculate="/data/vitals/weight" nodeset="/data/subcase_0/case/update/weight" relevant="count(/data/vitals/weight) &gt; 0"/><bind calculate="/data/zscore_grading_hfa" nodeset="/data/subcase_0/case/update/zscore_grading_hfa" relevant="count(/data/zscore_grading_hfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfa" nodeset="/data/subcase_0/case/update/zscore_grading_wfa" relevant="count(/data/zscore_grading_wfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfh" nodeset="/data/subcase_0/case/update/zscore_grading_wfh" relevant="count(/data/zscore_grading_wfh) &gt; 0"/><bind calculate="/data/zscore_hfa" nodeset="/data/subcase_0/case/update/zscore_hfa" relevant="count(/data/zscore_hfa) &gt; 0"/><bind calculate="/data/zscore_wfa" nodeset="/data/subcase_0/case/update/zscore_wfa" relevant="count(/data/zscore_wfa) &gt; 0"/><bind calculate="/data/zscore_wfh" nodeset="/data/subcase_0/case/update/zscore_wfh" relevant="count(/data/zscore_wfh) &gt; 0"/><bind calculate="/data/case/@case_id" nodeset="/data/subcase_0/case/index/parent"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/authentication" appearance="field-list">
+			<label ref="jr:itext('authentication-label')"/>
+			<select1 ref="/data/authentication/selected_user">
+				<label ref="jr:itext('authentication/selected_user-label')"/>
+				<itemset nodeset="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open']">
+					<label ref="username"/>
+					<value ref="@case_id"/>
+				</itemset>
+			</select1>
+			<secret ref="/data/authentication/entered_pin" appearance="numeric">
+				<label ref="jr:itext('authentication/entered_pin-label')"/>
+			</secret>
+		</group>
+		<group ref="/data/consult_info" appearance="field-list">
+			<select1 ref="/data/consult_info/consultation_type">
+				<label ref="jr:itext('consultation_type-label')"/>
+				<item>
+					<label ref="jr:itext('consultation_type-new-label')"/>
+					<value>new</value>
+				</item>
+				<item>
+					<label ref="jr:itext('consultation_type-followup-label')"/>
+					<value>followup</value>
+				</item>
+			</select1>
+			<select1 ref="/data/consult_info/distance">
+				<label ref="jr:itext('distance-label')"/>
+				<item>
+					<label ref="jr:itext('distance-less_four-label')"/>
+					<value>less_four</value>
+				</item>
+				<item>
+					<label ref="jr:itext('distance-four_to_ten-label')"/>
+					<value>four_to_ten</value>
+				</item>
+				<item>
+					<label ref="jr:itext('distance-above_ten-label')"/>
+					<value>above_ten</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/debug" appearance="field-list">
+			<label ref="jr:itext('debug-label')"/>
+			<select1 ref="/data/debug/add_debug_dob">
+				<label ref="jr:itext('debug/add_debug_dob-label')"/>
+				<item>
+					<label ref="jr:itext('debug/add_debug_dob-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/add_debug_dob-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/debug/debug_input_dob">
+				<label ref="jr:itext('debug/debug_input_dob-label')"/>
+			</input>
+			<select1 ref="/data/debug/debug_input_sex">
+				<label ref="jr:itext('debug/debug_input_sex-label')"/>
+				<item>
+					<label ref="jr:itext('debug/debu-item1-label')"/>
+					<value>male</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/debu-item2-label')"/>
+					<value>female</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/vitals" appearance="field-list">
+			<label ref="jr:itext('vitals-label')"/>
+			<input ref="/data/vitals/height">
+				<label ref="jr:itext('height-label')"/>
+			</input>
+			<input ref="/data/vitals/weight">
+				<label ref="jr:itext('weight-label')"/>
+			</input>
+			<input ref="/data/vitals/temp">
+				<label ref="jr:itext('temp-label')"/>
+			</input>
+			<input ref="/data/vitals/muac">
+				<label ref="jr:itext('muac-label')"/>
+			</input>
+		</group>
+		<group ref="/data/zscore_results" appearance="field-list">
+			<label ref="jr:itext('zscore_results-label')"/>
+			<trigger ref="/data/zscore_results/warn_bad_height" appearance="minimal">
+				<label ref="jr:itext('warn_bad_height-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_wfa" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_wfa-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_wfh" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_wfh-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_hfa" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_hfa-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_muac_status" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_muac_status-label')"/>
+			</trigger>
+			<select ref="/data/zscore_results/correct_extremes">
+				<label ref="jr:itext('zscore_results/correct_extremes-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/vaccines" appearance="field-list">
+			<label ref="jr:itext('vaccines-label')"/>
+			<select1 ref="/data/vaccines/bcg">
+				<label ref="jr:itext('bcg-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_0">
+				<label ref="jr:itext('opv_0-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_1">
+				<label ref="jr:itext('opv_1-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/penta_1">
+				<label ref="jr:itext('penta_1-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/pneumo_1">
+				<label ref="jr:itext('pneumo_1-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/rotavirus_1">
+				<label ref="jr:itext('rotavirus_1-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/inf_bac" appearance="field-list">
+			<label ref="jr:itext('inf_bac-label')"/>
+			<trigger ref="/data/inf_bac/inf_bac_grave" appearance="floating-bad">
+				<label ref="jr:itext('inf_bac/inf_bac_grave-label')"/>
+			</trigger>
+			<trigger ref="/data/inf_bac/inf_bac_locale" appearance="floating-caution">
+				<label ref="jr:itext('inf_bac/inf_bac_grave_no_ref-label')"/>
+			</trigger>
+			<trigger ref="/data/inf_bac/inf_bac_hypo" appearance="floating-caution">
+				<label ref="jr:itext('inf_bac/inf_bac_hypo-label')"/>
+			</trigger>
+			<trigger ref="/data/inf_bac/inf_bac_peu_probable" appearance="floating-good">
+				<label ref="jr:itext('inf_bac/inf_bac_peu_probable-label')"/>
+			</trigger>
+			<select1 ref="/data/inf_bac/inf_bac_qa">
+				<label ref="jr:itext('inf_bac/inf_bac_qa-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qb">
+				<label ref="jr:itext('inf_bac/inf_bac_qb-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/inf_bac/inf_bac_freq_resp">
+				<label ref="jr:itext('inf_bac/inf_bac_freq_resp-label')"/>
+			</input>
+			<select1 ref="/data/inf_bac/inf_bac_qd">
+				<label ref="jr:itext('inf_bac/inf_bac_qd-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qe">
+				<label ref="jr:itext('inf_bac/inf_bac_qe-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qf">
+				<label ref="jr:itext('inf_bac/inf_bac_qf-label')"/>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qf-normaux-label')"/>
+					<value>normaux</value>
+				</item>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qf-bouge_stimule-label')"/>
+					<value>bouge_stimule</value>
+				</item>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qf-pas_mouvements-label')"/>
+					<value>pas_mouvements</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qg">
+				<label ref="jr:itext('inf_bac/inf_bac_qg-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qh">
+				<label ref="jr:itext('inf_bac/inf_bac_qh-label')"/>
+				<help ref="jr:itext('inf_bac/inf_bac_qh-help')"/>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qh-normale-label')"/>
+					<value>normale</value>
+				</item>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qh-hypothermie_moderee-label')"/>
+					<value>hypothermie_moderee</value>
+				</item>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qh-hypothermie_severe-label')"/>
+					<value>hypothermie_severe</value>
+				</item>
+				<item>
+					<label ref="jr:itext('inf_bac/inf_bac_qh-fievre-label')"/>
+					<value>fievre</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qi">
+				<label ref="jr:itext('inf_bac/inf_bac_qi-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inf_bac/inf_bac_qj">
+				<label ref="jr:itext('inf_bac/inf_bac_qj-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/poids" appearance="field-list">
+			<label ref="jr:itext('poids-label')"/>
+			<trigger ref="/data/poids/poids_high" appearance="floating-bad">
+				<label ref="jr:itext('poids/poids_high-label')"/>
+			</trigger>
+			<trigger ref="/data/poids/poids_medium" appearance="floating-caution">
+				<label ref="jr:itext('poids/poids_medium-label')"/>
+			</trigger>
+			<trigger ref="/data/poids/poids_low" appearance="floating-good">
+				<label ref="jr:itext('poids/poids_low-label')"/>
+			</trigger>
+			<select1 ref="/data/poids/poids_qa">
+				<label ref="jr:itext('poids/poids_qa-label')"/>
+				<item>
+					<label ref="jr:itext('poids/poids_qa-normal-label')"/>
+					<value>normal</value>
+				</item>
+				<item>
+					<label ref="jr:itext('poids/poids_qa-faible-label')"/>
+					<value>faible</value>
+				</item>
+				<item>
+					<label ref="jr:itext('poids/poids_qa-tres_faible-label')"/>
+					<value>tres_faible</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/inf_occ" appearance="field-list">
+			<label ref="jr:itext('inf_occ-label')"/>
+			<trigger ref="/data/inf_occ/inf_occ_medium" appearance="floating-caution">
+				<label ref="jr:itext('inf_occ/inf_occ_medium-label')"/>
+			</trigger>
+			<trigger ref="/data/inf_occ/inf_occ_low" appearance="floating-good">
+				<label ref="jr:itext('inf_occ/inf_occ_low-label')"/>
+			</trigger>
+			<select1 ref="/data/inf_occ/inf_occ_qa">
+				<label ref="jr:itext('inf_occ/inf_occ_qa-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/vih" appearance="field-list">
+			<label ref="jr:itext('vih-label')"/>
+			<trigger ref="/data/vih/vih_probable" appearance="floating-caution">
+				<label ref="jr:itext('vih/vih_probable-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_possible" appearance="floating-caution">
+				<label ref="jr:itext('vih/vih_possible-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_peu_probable" appearance="floating-good">
+				<label ref="jr:itext('vih/vih_peu_probable-label')"/>
+			</trigger>
+			<select1 ref="/data/vih/vih_qa">
+				<label ref="jr:itext('vih/vih_qa-label')"/>
+				<item>
+					<label ref="jr:itext('vih/vih_qa-negatif_grossesse-label')"/>
+					<value>negatif_grossesse</value>
+				</item>
+				<item>
+					<label ref="jr:itext('vih/vih_qa-inconnue-label')"/>
+					<value>inconnue</value>
+				</item>
+				<item>
+					<label ref="jr:itext('vih/vih_qa-positive-label')"/>
+					<value>positive</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qb">
+				<label ref="jr:itext('vih/vih_qb-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qc">
+				<label ref="jr:itext('vih/vih_qc-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qd">
+				<label ref="jr:itext('vih/vih_qd-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qe">
+				<label ref="jr:itext('vih/vih_qe-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qf">
+				<label ref="jr:itext('vih/vih_qf-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/vih_qg">
+				<label ref="jr:itext('vih/vih_qg-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/alimentation" appearance="field-list">
+			<label ref="jr:itext('alimentation-label')"/>
+			<trigger ref="/data/alimentation/alimentation_high" appearance="floating-bad">
+				<label ref="jr:itext('alimentation/alimentation_high-label')"/>
+			</trigger>
+			<trigger ref="/data/alimentation/alimentation_medium" appearance="floating-caution">
+				<label ref="jr:itext('alimentation/alimentation_medium-label')"/>
+			</trigger>
+			<trigger ref="/data/alimentation/alimentation_low" appearance="floating-good">
+				<label ref="jr:itext('alimentation/alimentation_low-label')"/>
+			</trigger>
+			<select1 ref="/data/alimentation/alimentation_qa">
+				<label ref="jr:itext('alimentation/alimentation_qa-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qb">
+				<label ref="jr:itext('alimentation/alimentation_qb-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/alimentation/alimentation_qc">
+				<label ref="jr:itext('alimentation/alimentation_qc-label')"/>
+			</input>
+			<select1 ref="/data/alimentation/alimentation_qd">
+				<label ref="jr:itext('alimentation/alimentation_qd-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qe">
+				<label ref="jr:itext('alimentation/alimentation_qe-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qf">
+				<label ref="jr:itext('alimentation/alimentation_qf-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qg">
+				<label ref="jr:itext('alimentation/alimentation_qg-label')"/>
+				<help ref="jr:itext('alimentation/alimentation_qg-help')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qa-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qh">
+				<label ref="jr:itext('alimentation/alimentation_qh-label')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qh-pas_prise-label')"/>
+					<value>pas_prise</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qh-mauvaise_prise-label')"/>
+					<value>mauvaise_prise</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qh-bonne_prise-label')"/>
+					<value>bonne_prise</value>
+				</item>
+			</select1>
+			<select1 ref="/data/alimentation/alimentation_qi">
+				<label ref="jr:itext('alimentation/alimentation_qi-label')"/>
+				<help ref="jr:itext('alimentation/alimentation_qi-help')"/>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qi-pas_succion-label')"/>
+					<value>pas_succion</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qi-non_efficace-label')"/>
+					<value>non_efficace</value>
+				</item>
+				<item>
+					<label ref="jr:itext('alimentation/alimentation_qi-efficace-label')"/>
+					<value>efficace</value>
+				</item>
+			</select1>
+		</group>
+		<input ref="/data/other_comments">
+			<label ref="jr:itext('other_comments-label')"/>
+		</input>
+	</h:body>
+</h:html>

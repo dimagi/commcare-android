@@ -1,0 +1,604 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Modify Tablet User Details</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/b0fefb2aa792c67987f1d15c7bc0327f7ab97354" uiVersion="1" version="1004" name="Modify Tablet User Details">
+					<authentication>
+						<authentication_method/>
+						<authentication_user_pin/>
+						<authentication_admin_pin/>
+						<authentication_user_dob/>
+						<authentication_user_mother_first_name/>
+					</authentication>
+					<actions_to_do>
+						<questions_to_edit/>
+					</actions_to_do>
+					<change_details_grp>
+						<new_phone_number/>
+						<new_qualification/>
+					</change_details_grp>
+					<registration_question>
+						<entered_pin_1/>
+						<entered_pin_2/>
+					</registration_question>
+					<change_security_answers_group>
+						<new_user_dob/>
+						<new_mother_first_name/>
+					</change_security_answers_group>
+					<questions_recap>
+						<recap_qualification/>
+						<recap_phone/>
+						<recap_pin/>
+						<recap_dob/>
+						<recap_mother_name/>
+						<recap_confirm/>
+					</questions_recap>
+					<debug>
+						<debug_admin_pin/>
+						<debug_user_pin/>
+						<debug_dob/>
+						<debug_mother_first_name/>
+						<debug_user_pin_matched/>
+						<debug_admin_pin_matched/>
+						<debug_security_answers_matched/>
+						<debug_authentication_successful/>
+					</debug>
+					<user_id/>
+					<username/>
+					<user_dob/>
+					<mother_first_name/>
+					<current_user_pin/>
+					<admin_username/>
+					<admin_pin/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><mother_first_name/><pin/><qualification/><user_dob/><user_phone_number/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/authentication"/>
+			<bind nodeset="/data/authentication/authentication_method" required="true()"/>
+			<bind nodeset="/data/authentication/authentication_user_pin" type="xsd:string" constraint=". = /data/current_user_pin" jr:constraintMsg="jr:itext('authentication/authentication_user_pin-constraintMsg')" relevant="/data/authentication/authentication_method = 'using_pin'" required="true()"/>
+			<bind nodeset="/data/authentication/authentication_admin_pin" type="xsd:string" constraint=". = /data/admin_pin" jr:constraintMsg="jr:itext('authentication/authentication_admin_pin-constraintMsg')" relevant="/data/authentication/authentication_method = 'using_admin'" required="true()"/>
+			<bind nodeset="/data/authentication/authentication_user_dob" type="xsd:date" constraint=". = /data/user_dob" jr:constraintMsg="jr:itext('authentication/authentication_user_dob-constraintMsg')" relevant="/data/authentication/authentication_method = 'using_security_questions'" required="true()"/>
+			<bind nodeset="/data/authentication/authentication_user_mother_first_name" type="xsd:string" constraint=". = /data/mother_first_name" jr:constraintMsg="jr:itext('authentication/authentication_user_dob-constraintMsg')" relevant="/data/authentication/authentication_method = 'using_security_questions'" required="true()"/>
+			<bind nodeset="/data/actions_to_do"/>
+			<bind nodeset="/data/actions_to_do/questions_to_edit" required="true()"/>
+			<bind nodeset="/data/change_details_grp"/>
+			<bind nodeset="/data/change_details_grp/new_phone_number" type="xsd:string" relevant="selected(/data/actions_to_do/questions_to_edit, 'phone_number')" required="true()"/>
+			<bind nodeset="/data/change_details_grp/new_qualification" relevant="selected(/data/actions_to_do/questions_to_edit, 'qualification')" required="true()"/>
+			<bind nodeset="/data/registration_question" relevant="selected(/data/actions_to_do/questions_to_edit, 'pwd')"/>
+			<bind nodeset="/data/registration_question/entered_pin_1" type="xsd:string" constraint="string-length(.) = 4 and regex(.,'^[0-9]+$')" jr:constraintMsg="jr:itext('registration_question/entered_pin_1-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/registration_question/entered_pin_2" type="xsd:string" constraint=". = /data/registration_question/entered_pin_1" jr:constraintMsg="jr:itext('registration_question/entered_pin_2-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/change_security_answers_group"/>
+			<bind nodeset="/data/change_security_answers_group/new_user_dob" type="xsd:date" constraint=". &lt; today()" jr:constraintMsg="jr:itext('change_security_answers_group/new_user_dob-constraintMsg')" relevant="selected(/data/actions_to_do/questions_to_edit, 'dob')" required="true()"/>
+			<bind nodeset="/data/change_security_answers_group/new_mother_first_name" type="xsd:string" constraint="regex(.,'^[^\s]+$')" jr:constraintMsg="jr:itext('change_security_answers_group/new_mother_first_name-constraintMsg')" relevant="selected(/data/actions_to_do/questions_to_edit, 'mother_name')" required="true()"/>
+			<bind nodeset="/data/questions_recap"/>
+			<bind nodeset="/data/questions_recap/recap_qualification" relevant="selected(/data/actions_to_do/questions_to_edit, 'qualification')"/>
+			<bind nodeset="/data/questions_recap/recap_phone" relevant="selected(/data/actions_to_do/questions_to_edit, 'phone_number')"/>
+			<bind nodeset="/data/questions_recap/recap_pin" relevant="selected(/data/actions_to_do/questions_to_edit, 'pwd')"/>
+			<bind nodeset="/data/questions_recap/recap_dob" relevant="selected(/data/actions_to_do/questions_to_edit, 'dob')"/>
+			<bind nodeset="/data/questions_recap/recap_mother_name" relevant="selected(/data/actions_to_do/questions_to_edit, 'mother_name')"/>
+			<bind nodeset="/data/questions_recap/recap_confirm" required="true()"/>
+			<bind nodeset="/data/debug" relevant="1=2"/>
+			<bind nodeset="/data/debug/debug_admin_pin"/>
+			<bind nodeset="/data/debug/debug_user_pin"/>
+			<bind nodeset="/data/debug/debug_dob"/>
+			<bind nodeset="/data/debug/debug_mother_first_name"/>
+			<bind nodeset="/data/debug/debug_user_pin_matched"/>
+			<bind nodeset="/data/debug/debug_admin_pin_matched"/>
+			<bind nodeset="/data/debug/debug_security_answers_matched"/>
+			<bind nodeset="/data/debug/debug_authentication_successful"/>
+			<bind nodeset="/data/user_id"/>
+			<bind nodeset="/data/username"/>
+			<bind nodeset="/data/user_dob"/>
+			<bind nodeset="/data/mother_first_name"/>
+			<bind nodeset="/data/current_user_pin"/>
+			<bind nodeset="/data/admin_username" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/username"/>
+			<bind nodeset="/data/admin_pin" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/pin"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="authentication-label">
+						<value>Authentication</value>
+					</text>
+					<text id="authentication/authentication_method-label">
+						<value>How would you like to authenticate?</value>
+					</text>
+					<text id="authentication/authentication_method-using_pin-label">
+						<value>Using current PIN of user <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_method-using_security_questions-label">
+						<value>By answering security questions for user <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_method-using_admin-label">
+						<value>Using PIN for Admin user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="authentication/authentication_user_pin-label">
+						<value>Enter current PIN for user <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_user_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="authentication/authentication_admin_pin-label">
+						<value>Enter PIN for Admin user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="authentication/authentication_admin_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="authentication/authentication_user_dob-label">
+						<value>Enter date of birth for user <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_user_dob-constraintMsg">
+						<value>Value does not match with the one saved in records for the user</value>
+					</text>
+					<text id="authentication/authentication_user_mother_first_name-label">
+						<value>Enter mother's first name for user <output value="/data/username"/></value>
+					</text>
+					<text id="actions_to_do-label">
+						<value>What actions do you want to perform for user <output value="/data/username"/>?</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-label">
+						<value>Questions to edit</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-qualification-label">
+						<value>Qualification</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-phone_number-label">
+						<value>Phone number</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-pwd-label">
+						<value>Password</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-dob-label">
+						<value>Date of birth</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-mother_name-label">
+						<value>Mother's name</value>
+					</text>
+					<text id="change_details_grp-label">
+						<value>Change details for: <output value="/data/username"/></value>
+					</text>
+					<text id="change_details_grp/new_phone_number-label">
+						<value>Please enter new phone number</value>
+					</text>
+					<text id="change_details_grp/new_qualification-label">
+						<value>New qualification</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ide-label">
+						<value>IDE</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ib-label">
+						<value>IB</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ab-label">
+						<value>Accoucheuse brevet&#233;e</value>
+					</text>
+					<text id="change_details_grp/new_qualification-accoucheuse-label">
+						<value>Accoucheuse</value>
+					</text>
+					<text id="change_details_grp/new_qualification-fe_me-label">
+						<value>FE / ME</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ais-label">
+						<value>AIS</value>
+					</text>
+					<text id="change_details_grp/new_qualification-other-label">
+						<value>Other</value>
+					</text>
+					<text id="registration_question-label">
+						<value>Change User Details</value>
+					</text>
+					<text id="registration_question/entered_pin_1-label">
+						<value>Enter a new 4 digit PIN number</value>
+					</text>
+					<text id="registration_question/entered_pin_1-constraintMsg">
+						<value>PIN must be of length 4 and consist of only digits (0-9)</value>
+					</text>
+					<text id="registration_question/entered_pin_2-label">
+						<value>Enter the 4 digit PIN again</value>
+					</text>
+					<text id="registration_question/entered_pin_2-constraintMsg">
+						<value>PIN does not match the one entered before</value>
+					</text>
+					<text id="question6-label">
+						<value>Change answers to security questions for: <output value="/data/username"/></value>
+					</text>
+					<text id="change_security_answers_group/new_user_dob-label">
+						<value>Date of birth of user</value>
+					</text>
+					<text id="change_security_answers_group/new_user_dob-constraintMsg">
+						<value>Date of birth must be less than today</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-label">
+						<value>First name of user's mother</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-hint">
+						<value>Type just 1 word in lowercase</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-constraintMsg">
+						<value>Spaces are not allowed</value>
+					</text>
+					<text id="questions_recap-label">
+						<value>Recap of changes</value>
+					</text>
+					<text id="questions_recap/recap_qualification-label">
+						<value>New qualification: <output value="/data/change_details_grp/new_qualification"/></value>
+					</text>
+					<text id="questions_recap/recap_phone-label">
+						<value>New phone number: <output value="/data/change_details_grp/new_phone_number"/></value>
+					</text>
+					<text id="questions_recap/recap_pin-label">
+						<value>Your password will be changed</value>
+					</text>
+					<text id="questions_recap/recap_dob-label">
+						<value>New date of birth: <output value="format-date(date(/data/change_security_answers_group/new_user_dob), '%d/%n/%y')"/></value>
+					</text>
+					<text id="questions_recap/recap_mother_name-label">
+						<value>New mother's first name: <output value="/data/change_security_answers_group/new_mother_first_name"/></value>
+					</text>
+					<text id="questions_recap/recap_confirm-label">
+						<value>
+Do you agree with these modifications?</value>
+					</text>
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/debug_admin_pin-label">
+						<value>admin_pin: <output value="/data/admin_pin"/></value>
+					</text>
+					<text id="debug/debug_user_pin-label">
+						<value>user_pin: <output value="/data/current_user_pin"/></value>
+					</text>
+					<text id="debug/debug_dob-label">
+						<value>dob: <output value="/data/user_dob"/></value>
+					</text>
+					<text id="debug/debug_mother_first_name-label">
+						<value>mother first name: <output value="/data/mother_first_name"/></value>
+					</text>
+					<text id="debug/debug_user_pin_matched-label">
+						<value>user pin matched: <output value="/data/user_pin_matched"/></value>
+					</text>
+					<text id="debug/debug_admin_pin_matched-label">
+						<value>admin pin matched: <output value="/data/admin_pin_matched"/></value>
+					</text>
+					<text id="debug/debug_security_answers_matched-label">
+						<value>debug_security_answers_matched: <output value="/data/security_questions_matched"/></value>
+					</text>
+					<text id="debug/debug_authentication_successful-label">
+						<value>debug_authentication_successful: <output value="/data/authentication_successful"/></value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="authentication-label">
+						<value>Identification</value>
+					</text>
+					<text id="authentication/authentication_method-label">
+						<value>Choisissez une m&#233;thode d'identification</value>
+					</text>
+					<text id="authentication/authentication_method-using_pin-label">
+						<value>Mot de passe de l'utilisateur s&#233;lectionn&#233; (<output value="/data/username"/>)</value>
+					</text>
+					<text id="authentication/authentication_method-using_security_questions-label">
+						<value>Questions de s&#233;curit&#233; de l'utilisateur s&#233;lectionn&#233; (<output value="/data/username"/>)</value>
+					</text>
+					<text id="authentication/authentication_method-using_admin-label">
+						<value>Mot de passe de l'ICP (<output value="/data/admin_username"/>)</value>
+					</text>
+					<text id="authentication/authentication_user_pin-label">
+						<value>Saisissez le mot de passe de <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_user_pin-constraintMsg">
+						<value>Le code pin que vous avez entr&#233; n'est pas correct. Veuillez r&#233;essayer.</value>
+					</text>
+					<text id="authentication/authentication_admin_pin-label">
+						<value>Saisissez le mot de passe de l'ICP (<output value="/data/admin_username"/>)</value>
+					</text>
+					<text id="authentication/authentication_admin_pin-constraintMsg">
+						<value>Le mot de passe que vous avez entr&#233; n'est pas correct. Veuillez r&#233;essayer.</value>
+					</text>
+					<text id="authentication/authentication_user_dob-label">
+						<value>Saisissez la date de naissance de <output value="/data/username"/></value>
+					</text>
+					<text id="authentication/authentication_user_dob-constraintMsg">
+						<value>La r&#233;ponse saisie ne correspond pas &#224; celle sauvegard&#233;e dans le dossier de l'utilisateur.</value>
+					</text>
+					<text id="authentication/authentication_user_mother_first_name-label">
+						<value>Saisissez le pr&#233;nom de la m&#232;re de <output value="/data/username"/></value>
+					</text>
+					<text id="actions_to_do-label">
+						<value>S&#233;lectionnez les donn&#233;es &#224; modifier pour <output value="/data/username"/></value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-label">
+						<value>Choix les donn&#233;es &#224; modifier</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-qualification-label">
+						<value>Qualification</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-phone_number-label">
+						<value>Num&#233;ro de t&#233;l&#233;phone</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-pwd-label">
+						<value>Mot de passe</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-dob-label">
+						<value>Date de naissance</value>
+					</text>
+					<text id="actions_to_do/questions_to_edit-mother_name-label">
+						<value>Pr&#233;nom de la m&#232;re</value>
+					</text>
+					<text id="change_details_grp-label">
+						<value>Modification des donn&#233;es de <output value="/data/username"/></value>
+					</text>
+					<text id="change_details_grp/new_phone_number-label">
+						<value>Nouveau num&#233;ro de t&#233;l&#233;phone </value>
+					</text>
+					<text id="change_details_grp/new_qualification-label">
+						<value>Nouvelle qualification</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ide-label">
+						<value>IDE</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ib-label">
+						<value>IB</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ab-label">
+						<value>Accoucheuse brevet&#233;e</value>
+					</text>
+					<text id="change_details_grp/new_qualification-accoucheuse-label">
+						<value>Accoucheuse</value>
+					</text>
+					<text id="change_details_grp/new_qualification-fe_me-label">
+						<value>FE / ME</value>
+					</text>
+					<text id="change_details_grp/new_qualification-ais-label">
+						<value>AIS</value>
+					</text>
+					<text id="change_details_grp/new_qualification-other-label">
+						<value>Autre</value>
+					</text>
+					<text id="registration_question-label">
+						<value>Modification du mot de passe de <output value="/data/username"/></value>
+					</text>
+					<text id="registration_question/entered_pin_1-label">
+						<value>Saisissez un nouveau mot de passe &#224; 4 chiffres</value>
+					</text>
+					<text id="registration_question/entered_pin_1-constraintMsg">
+						<value>Le mot de passe doit &#234;tre compos&#233; exclusivement de 4 chiffres</value>
+					</text>
+					<text id="registration_question/entered_pin_2-label">
+						<value>Confirmez votre mot de passe &#224; 4 chiffres</value>
+					</text>
+					<text id="registration_question/entered_pin_2-constraintMsg">
+						<value>Les mots de passe ne correspondent pas</value>
+					</text>
+					<text id="question6-label">
+						<value>Modification des r&#233;ponses aux questions de s&#233;curit&#233; de <output value="/data/username"/></value>
+					</text>
+					<text id="change_security_answers_group/new_user_dob-label">
+						<value>Nouvelle date de naissance</value>
+					</text>
+					<text id="change_security_answers_group/new_user_dob-constraintMsg">
+						<value>La date de naissance doit &#234;tre dans le pass&#233;</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-label">
+						<value>Nouveau pr&#233;nom de la m&#232;re</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-hint">
+						<value>Taper un mot en minuscule</value>
+					</text>
+					<text id="change_security_answers_group/new_mother_first_name-constraintMsg">
+						<value>Les espaces sont interdits</value>
+					</text>
+					<text id="questions_recap-label">
+						<value>Liste des modifications effectu&#233;es</value>
+					</text>
+					<text id="questions_recap/recap_qualification-label">
+						<value>Nouvelle qualification : <output value="/data/change_details_grp/new_qualification"/></value>
+					</text>
+					<text id="questions_recap/recap_phone-label">
+						<value>Nouveau num&#233;ro de t&#233;l&#233;phone : <output value="/data/change_details_grp/new_phone_number"/></value>
+					</text>
+					<text id="questions_recap/recap_pin-label">
+						<value>Votre mot de passe sera modifi&#233;</value>
+					</text>
+					<text id="questions_recap/recap_dob-label">
+						<value>Nouvelle date de naissance : <output value="format-date(date(/data/change_security_answers_group/new_user_dob), '%d/%n/%y')"/></value>
+					</text>
+					<text id="questions_recap/recap_mother_name-label">
+						<value>Nouveau pr&#233;nom de la m&#232;re : <output value="/data/change_security_answers_group/new_mother_first_name"/></value>
+					</text>
+					<text id="questions_recap/recap_confirm-label">
+						<value>
+Cochez pour confirmer les modifications effectu&#233;es.</value>
+					</text>
+					<text id="debug-label">
+						<value>D&#233;pannage</value>
+					</text>
+					<text id="debug/debug_admin_pin-label">
+						<value>Administrateur PIN: <output value="/data/admin_pin"/></value>
+					</text>
+					<text id="debug/debug_user_pin-label">
+						<value>user_pin: <output value="/data/current_user_pin"/></value>
+					</text>
+					<text id="debug/debug_dob-label">
+						<value>dob: <output value="/data/user_dob"/></value>
+					</text>
+					<text id="debug/debug_mother_first_name-label">
+						<value>Pr&#233;nom de la m&#232;re de l'utilisateur: <output value="/data/mother_first_name"/></value>
+					</text>
+					<text id="debug/debug_user_pin_matched-label">
+						<value>user pin matched: <output value="/data/user_pin_matched"/></value>
+					</text>
+					<text id="debug/debug_admin_pin_matched-label">
+						<value>admin pin matched: <output value="/data/admin_pin_matched"/></value>
+					</text>
+					<text id="debug/debug_security_answers_matched-label">
+						<value>debug_security_answers_matched: <output value="/data/security_questions_matched"/></value>
+					</text>
+					<text id="debug/debug_authentication_successful-label">
+						<value>debug_authentication_successful: <output value="/data/authentication_successful"/></value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/change_security_answers_group/new_mother_first_name" nodeset="/data/case/update/mother_first_name" relevant="count(/data/change_security_answers_group/new_mother_first_name) &gt; 0"/><bind calculate="/data/registration_question/entered_pin_1" nodeset="/data/case/update/pin" relevant="count(/data/registration_question/entered_pin_1) &gt; 0"/><bind calculate="/data/change_details_grp/new_qualification" nodeset="/data/case/update/qualification" relevant="count(/data/change_details_grp/new_qualification) &gt; 0"/><bind calculate="/data/change_security_answers_group/new_user_dob" nodeset="/data/case/update/user_dob" relevant="count(/data/change_security_answers_group/new_user_dob) &gt; 0"/><bind calculate="/data/change_details_grp/new_phone_number" nodeset="/data/case/update/user_phone_number" relevant="count(/data/change_details_grp/new_phone_number) &gt; 0"/><setvalue event="xforms-ready" ref="/data/change_details_grp/new_qualification" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/qualification"/><setvalue event="xforms-ready" ref="/data/current_user_pin" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pin"/><setvalue event="xforms-ready" ref="/data/user_id" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/user_identifier"/><setvalue event="xforms-ready" ref="/data/change_details_grp/new_phone_number" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/user_phone_number"/><setvalue event="xforms-ready" ref="/data/username" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/username"/><setvalue event="xforms-ready" ref="/data/user_dob" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/user_dob"/><setvalue event="xforms-ready" ref="/data/mother_first_name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/mother_first_name"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/authentication" appearance="field-list">
+			<label ref="jr:itext('authentication-label')"/>
+			<select1 ref="/data/authentication/authentication_method">
+				<label ref="jr:itext('authentication/authentication_method-label')"/>
+				<item>
+					<label ref="jr:itext('authentication/authentication_method-using_pin-label')"/>
+					<value>using_pin</value>
+				</item>
+				<item>
+					<label ref="jr:itext('authentication/authentication_method-using_security_questions-label')"/>
+					<value>using_security_questions</value>
+				</item>
+				<item>
+					<label ref="jr:itext('authentication/authentication_method-using_admin-label')"/>
+					<value>using_admin</value>
+				</item>
+			</select1>
+			<secret ref="/data/authentication/authentication_user_pin">
+				<label ref="jr:itext('authentication/authentication_user_pin-label')"/>
+			</secret>
+			<secret ref="/data/authentication/authentication_admin_pin">
+				<label ref="jr:itext('authentication/authentication_admin_pin-label')"/>
+			</secret>
+			<input ref="/data/authentication/authentication_user_dob">
+				<label ref="jr:itext('authentication/authentication_user_dob-label')"/>
+			</input>
+			<input ref="/data/authentication/authentication_user_mother_first_name">
+				<label ref="jr:itext('authentication/authentication_user_mother_first_name-label')"/>
+			</input>
+		</group>
+		<group ref="/data/actions_to_do" appearance="field-list">
+			<label ref="jr:itext('actions_to_do-label')"/>
+			<select ref="/data/actions_to_do/questions_to_edit">
+				<label ref="jr:itext('actions_to_do/questions_to_edit-label')"/>
+				<item>
+					<label ref="jr:itext('actions_to_do/questions_to_edit-qualification-label')"/>
+					<value>qualification</value>
+				</item>
+				<item>
+					<label ref="jr:itext('actions_to_do/questions_to_edit-phone_number-label')"/>
+					<value>phone_number</value>
+				</item>
+				<item>
+					<label ref="jr:itext('actions_to_do/questions_to_edit-pwd-label')"/>
+					<value>pwd</value>
+				</item>
+				<item>
+					<label ref="jr:itext('actions_to_do/questions_to_edit-dob-label')"/>
+					<value>dob</value>
+				</item>
+				<item>
+					<label ref="jr:itext('actions_to_do/questions_to_edit-mother_name-label')"/>
+					<value>mother_name</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/change_details_grp" appearance="field-list">
+			<label ref="jr:itext('change_details_grp-label')"/>
+			<input ref="/data/change_details_grp/new_phone_number" appearance="numeric">
+				<label ref="jr:itext('change_details_grp/new_phone_number-label')"/>
+			</input>
+			<select1 ref="/data/change_details_grp/new_qualification">
+				<label ref="jr:itext('change_details_grp/new_qualification-label')"/>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-ide-label')"/>
+					<value>ide</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-ib-label')"/>
+					<value>ib</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-ab-label')"/>
+					<value>ab</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-accoucheuse-label')"/>
+					<value>accoucheuse</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-fe_me-label')"/>
+					<value>fe_me</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-ais-label')"/>
+					<value>ais</value>
+				</item>
+				<item>
+					<label ref="jr:itext('change_details_grp/new_qualification-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/registration_question" appearance="field-list">
+			<label ref="jr:itext('registration_question-label')"/>
+			<secret ref="/data/registration_question/entered_pin_1">
+				<label ref="jr:itext('registration_question/entered_pin_1-label')"/>
+			</secret>
+			<secret ref="/data/registration_question/entered_pin_2">
+				<label ref="jr:itext('registration_question/entered_pin_2-label')"/>
+			</secret>
+		</group>
+		<group ref="/data/change_security_answers_group" appearance="field-list">
+			<label ref="jr:itext('question6-label')"/>
+			<input ref="/data/change_security_answers_group/new_user_dob">
+				<label ref="jr:itext('change_security_answers_group/new_user_dob-label')"/>
+			</input>
+			<input ref="/data/change_security_answers_group/new_mother_first_name">
+				<label ref="jr:itext('change_security_answers_group/new_mother_first_name-label')"/>
+				<hint ref="jr:itext('change_security_answers_group/new_mother_first_name-hint')"/>
+			</input>
+		</group>
+		<group ref="/data/questions_recap" appearance="field-list">
+			<label ref="jr:itext('questions_recap-label')"/>
+			<trigger ref="/data/questions_recap/recap_qualification" appearance="minimal">
+				<label ref="jr:itext('questions_recap/recap_qualification-label')"/>
+			</trigger>
+			<trigger ref="/data/questions_recap/recap_phone" appearance="minimal">
+				<label ref="jr:itext('questions_recap/recap_phone-label')"/>
+			</trigger>
+			<trigger ref="/data/questions_recap/recap_pin" appearance="minimal">
+				<label ref="jr:itext('questions_recap/recap_pin-label')"/>
+			</trigger>
+			<trigger ref="/data/questions_recap/recap_dob" appearance="minimal">
+				<label ref="jr:itext('questions_recap/recap_dob-label')"/>
+			</trigger>
+			<trigger ref="/data/questions_recap/recap_mother_name" appearance="minimal">
+				<label ref="jr:itext('questions_recap/recap_mother_name-label')"/>
+			</trigger>
+			<trigger ref="/data/questions_recap/recap_confirm">
+				<label ref="jr:itext('questions_recap/recap_confirm-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/debug">
+			<label ref="jr:itext('debug-label')"/>
+			<trigger ref="/data/debug/debug_admin_pin" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_pin-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_user_pin" appearance="minimal">
+				<label ref="jr:itext('debug/debug_user_pin-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_dob" appearance="minimal">
+				<label ref="jr:itext('debug/debug_dob-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_mother_first_name" appearance="minimal">
+				<label ref="jr:itext('debug/debug_mother_first_name-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_user_pin_matched" appearance="minimal">
+				<label ref="jr:itext('debug/debug_user_pin_matched-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_admin_pin_matched" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_pin_matched-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_security_answers_matched" appearance="minimal">
+				<label ref="jr:itext('debug/debug_security_answers_matched-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_authentication_successful" appearance="minimal">
+				<label ref="jr:itext('debug/debug_authentication_successful-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

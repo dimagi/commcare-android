@@ -1,0 +1,589 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Medication Selection Test [fra]</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/A9B86C5F-2224-4B9D-806C-DABDB0125F06" uiVersion="1" version="1152" name="Medication Selection Test [fra]">
+					<normal>
+						<antipalu/>
+						<vita/>
+						<antibio/>
+					</normal>
+					<takes>
+						<antipalu/>
+						<vita/>
+						<antibio/>
+					</takes>
+					<takes_move_illness>
+						<antipalu/>
+						<vita/>
+						<antibio/>
+					</takes_move_illness>
+					<takes_move_illness_bold>
+						<antipalu/>
+						<vita/>
+						<antibio/>
+					</takes_move_illness_bold>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/normal"/>
+			<bind nodeset="/data/normal/antipalu"/>
+			<bind nodeset="/data/normal/vita"/>
+			<bind nodeset="/data/normal/antibio"/>
+			<bind nodeset="/data/takes"/>
+			<bind nodeset="/data/takes/antipalu"/>
+			<bind nodeset="/data/takes/vita"/>
+			<bind nodeset="/data/takes/antibio"/>
+			<bind nodeset="/data/takes_move_illness"/>
+			<bind nodeset="/data/takes_move_illness/antipalu"/>
+			<bind nodeset="/data/takes_move_illness/vita"/>
+			<bind nodeset="/data/takes_move_illness/antibio"/>
+			<bind nodeset="/data/takes_move_illness_bold"/>
+			<bind nodeset="/data/takes_move_illness_bold/antipalu"/>
+			<bind nodeset="/data/takes_move_illness_bold/vita"/>
+			<bind nodeset="/data/takes_move_illness_bold/antibio"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="normal-label">
+						<value>normal</value>
+					</text>
+					<text id="normal/antipalu-label">
+						<value>antipalu</value>
+					</text>
+					<text id="normal/antipalu-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="normal/antipalu-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="normal/vita-label">
+						<value>vita</value>
+					</text>
+					<text id="normal/vita-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="normal/vita-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="normal/vita-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="normal/vita-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="normal/antibio-label">
+						<value>antibio</value>
+					</text>
+					<text id="normal/antibio-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="normal/antibio-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="normal/antibio-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="normal/antibio-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="takes-label">
+						<value>normal</value>
+					</text>
+					<text id="takes/antipalu-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes/antipalu-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes/vita-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes/vita-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="takes/vita-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes/vita-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="takes/antibio-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes/antibio-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes/antibio-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="takes/antibio-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="takes_move_illness-label">
+						<value>normal</value>
+					</text>
+					<text id="takes_move_illness/antipalu-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes_move_illness/antipalu-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes_move_illness/vita-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes_move_illness/vita-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="takes_move_illness/vita-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes_move_illness/vita-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="takes_move_illness/antibio-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="takes_move_illness/antibio-item2-label">
+						<value>item2</value>
+					</text>
+					<text id="takes_move_illness/antibio-item3-label">
+						<value>item3</value>
+					</text>
+					<text id="takes_move_illness/antibio-item4-label">
+						<value>item4</value>
+					</text>
+					<text id="takes_move_illness_bold-label">
+						<value>normal</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-label">
+						<value>antipalu</value>
+						<value form="markdown">**Choisissez un antipalud&#233;en**</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-item1-label">
+						<value>item1</value>
+						<value form="markdown">**Paludisme** - Art&#233;sunate + Amodiaquine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-item2-label">
+						<value>item2</value>
+						<value form="markdown">**Paludisme** - Arth&#233;m&#233;ter + Lum&#233;fantrine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-label">
+						<value>vita</value>
+						<value form="markdown">**Choisissez la forme de Vitamine A**</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item1-label">
+						<value>item1</value>
+						<value form="markdown">**MAM** - Vitamine A - Capsules 100'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item3-label">
+						<value>item3</value>
+						<value form="markdown">**Rougeole** - Vitamine A - Capsules 100'000 UI</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item2-label">
+						<value>item2</value>
+						<value form="markdown">**MAM** - Vitamine A - Capsules 200'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item4-label">
+						<value>item4</value>
+						<value form="markdown">**Rougeole** - Vitamine A - Capsules 200'000 UI</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-label">
+						<value>antibio</value>
+						<value form="markdown">**Choisissez un antibiotique**</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item1-label">
+						<value>item1</value>
+						<value form="markdown">**Pneumonie** - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item2-label">
+						<value>item2</value>
+						<value form="markdown">**Rougeole** - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item3-label">
+						<value>item3</value>
+						<value form="markdown">**Pneumonie** - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item4-label">
+						<value>item4</value>
+						<value form="markdown">**Rougeole** - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="normal-label">
+						<value>Normal</value>
+					</text>
+					<text id="normal/antipalu-label">
+						<value>Choisissez un antipalud&#233;en</value>
+					</text>
+					<text id="normal/antipalu-item1-label">
+						<value>Art&#233;sunate + Amodiaquine - Forme Petit Enfant - dose unique par jour pendant 3 jours - pour le Paludisme</value>
+					</text>
+					<text id="normal/antipalu-item2-label">
+						<value>Arth&#233;m&#233;ter + Lum&#233;fantrine - 2cp par jours pendant 3 jours - pour le Paludisme</value>
+					</text>
+					<text id="normal/vita-label">
+						<value>Choisissez la forme de Vitamine A</value>
+					</text>
+					<text id="normal/vita-item1-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - dose unique par jour pendant au jour 1, jour 2 et jour 14 si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents - pour MAM</value>
+					</text>
+					<text id="normal/vita-item3-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - dose unique par jour pendant au jour 1, jour 2 et jour 14 - pour Rougeole</value>
+					</text>
+					<text id="normal/vita-item2-label">
+						<value>[Optionnel] Vitamine A - Capsules 200'000 UI - dose unique par jour pendant au jour 1, jour 2 et jour 14 si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents - pour MAM</value>
+					</text>
+					<text id="normal/vita-item4-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - dose unique par jour pendant au jour 1, jour 2 et jour 14 - pour Rougeole</value>
+					</text>
+					<text id="normal/antibio-label">
+						<value>Choisissez un antibiotique</value>
+					</text>
+					<text id="normal/antibio-item1-label">
+						<value>Cotrimoxazole - 2 fois par jour pendant 8 jours - pour Pneumonie</value>
+					</text>
+					<text id="normal/antibio-item2-label">
+						<value>Cotrimoxazole - 2 fois par jour pendant 8 jours - pour Rougeole</value>
+					</text>
+					<text id="normal/antibio-item3-label">
+						<value>Amoxiciline Orale - 2 fois par jour pendant 8 jours - pour Pneumonie</value>
+					</text>
+					<text id="normal/antibio-item4-label">
+						<value>Amoxiciline Orale - 2 fois par jour pendant 8 jours - pour Rougeole</value>
+					</text>
+					<text id="takes-label">
+						<value>Takes</value>
+					</text>
+					<text id="takes/antipalu-item1-label">
+						<value>Art&#233;sunate + Amodiaquine - Pendant 3 jours - pour le Paludisme</value>
+					</text>
+					<text id="takes/antipalu-item2-label">
+						<value>Arth&#233;m&#233;ter + Lum&#233;fantrine - Pendant 3 jours - pour le Paludisme</value>
+					</text>
+					<text id="takes/vita-item1-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents - pour MAM</value>
+					</text>
+					<text id="takes/vita-item3-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - pour Rougeole</value>
+					</text>
+					<text id="takes/vita-item2-label">
+						<value>[Optionnel] Vitamine A - Capsules 200'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents - pour MAM</value>
+					</text>
+					<text id="takes/vita-item4-label">
+						<value>[Optionnel] Vitamine A - Capsules 100'000 UI - pour Rougeole</value>
+					</text>
+					<text id="takes/antibio-item1-label">
+						<value>Cotrimoxazole - Pendant 8 jours - pour Pneumonie</value>
+					</text>
+					<text id="takes/antibio-item2-label">
+						<value>Cotrimoxazole - Pendant 8 jours - pour Rougeole</value>
+					</text>
+					<text id="takes/antibio-item3-label">
+						<value>Amoxiciline Orale - Pendant 8 jours - pour Pneumonie</value>
+					</text>
+					<text id="takes/antibio-item4-label">
+						<value>Amoxiciline Orale - Pendant 8 jours - pour Rougeole</value>
+					</text>
+					<text id="takes_move_illness-label">
+						<value>Takes + Move Illness</value>
+					</text>
+					<text id="takes_move_illness/antipalu-item1-label">
+						<value>Paludisme - Art&#233;sunate + Amodiaquine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness/antipalu-item2-label">
+						<value>Paludisme - Arth&#233;m&#233;ter + Lum&#233;fantrine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness/vita-item1-label">
+						<value>MAM - Vitamine A - Capsules 100'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness/vita-item3-label">
+						<value>Rougeole - Vitamine A - Capsules 100'000 UI</value>
+					</text>
+					<text id="takes_move_illness/vita-item2-label">
+						<value>MAM - Vitamine A - Capsules 200'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness/vita-item4-label">
+						<value>Rougeole - Vitamine A - Capsules 200'000 UI</value>
+					</text>
+					<text id="takes_move_illness/antibio-item1-label">
+						<value>Pneumonie - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness/antibio-item2-label">
+						<value>Rougeole - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness/antibio-item3-label">
+						<value>Pneumonie - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness/antibio-item4-label">
+						<value>Rougeole - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold-label">
+						<value>Takes + Move Illness + Bold</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-label">
+						<value>Choisissez un antipalud&#233;en</value>
+						<value form="markdown">**Choisissez un antipalud&#233;en**</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-item1-label">
+						<value>Paludisme - Art&#233;sunate + Amodiaquine - Pendant 3 jours</value>
+						<value form="markdown">**Paludisme** - Art&#233;sunate + Amodiaquine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antipalu-item2-label">
+						<value>Paludisme - Arth&#233;m&#233;ter + Lum&#233;fantrine - Pendant 3 jours</value>
+						<value form="markdown">**Paludisme** - Arth&#233;m&#233;ter + Lum&#233;fantrine - Pendant 3 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-label">
+						<value>Choisissez la forme de Vitamine A</value>
+						<value form="markdown">**Choisissez la forme de Vitamine A**</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item1-label">
+						<value>MAM - Vitamine A - Capsules 100'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+						<value form="markdown">**MAM** - Vitamine A - Capsules 100'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item3-label">
+						<value>Rougeole - Vitamine A - Capsules 100'000 UI</value>
+						<value form="markdown">**Rougeole** - Vitamine A - Capsules 100'000 UI</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item2-label">
+						<value>MAM - Vitamine A - Capsules 200'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+						<value form="markdown">**MAM** - Vitamine A - Capsules 200'000 UI - Si l'enfant n'en a pas re&#231;u dans les 6 mois pr&#233;c&#233;dents</value>
+					</text>
+					<text id="takes_move_illness_bold/vita-item4-label">
+						<value>Rougeole - Vitamine A - Capsules 200'000 UI</value>
+						<value form="markdown">**Rougeole** - Vitamine A - Capsules 200'000 UI</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-label">
+						<value>Choisissez un antibiotique</value>
+						<value form="markdown">**Choisissez un antibiotique**</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item1-label">
+						<value>Pneumonie - Cotrimoxazole - Pendant 8 jours</value>
+						<value form="markdown">**Pneumonie** - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item2-label">
+						<value>Rougeole - Cotrimoxazole - Pendant 8 jours</value>
+						<value form="markdown">**Rougeole** - Cotrimoxazole - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item3-label">
+						<value>Pneumonie - Amoxiciline Orale - Pendant 8 jours</value>
+						<value form="markdown">**Pneumonie** - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+					<text id="takes_move_illness_bold/antibio-item4-label">
+						<value>Rougeole - Amoxiciline Orale - Pendant 8 jours</value>
+						<value form="markdown">**Rougeole** - Amoxiciline Orale - Pendant 8 jours</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/normal" appearance="field-list">
+			<label ref="jr:itext('normal-label')"/>
+			<select1 ref="/data/normal/antipalu">
+				<label ref="jr:itext('normal/antipalu-label')"/>
+				<item>
+					<label ref="jr:itext('normal/antipalu-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/antipalu-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<select1 ref="/data/normal/vita">
+				<label ref="jr:itext('normal/vita-label')"/>
+				<item>
+					<label ref="jr:itext('normal/vita-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/vita-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/vita-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/vita-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/normal/antibio">
+				<label ref="jr:itext('normal/antibio-label')"/>
+				<item>
+					<label ref="jr:itext('normal/antibio-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/antibio-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/antibio-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('normal/antibio-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/takes" appearance="field-list">
+			<label ref="jr:itext('takes-label')"/>
+			<select1 ref="/data/takes/antipalu">
+				<label ref="jr:itext('normal/antipalu-label')"/>
+				<item>
+					<label ref="jr:itext('takes/antipalu-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/antipalu-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes/vita">
+				<label ref="jr:itext('normal/vita-label')"/>
+				<item>
+					<label ref="jr:itext('takes/vita-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/vita-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/vita-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/vita-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes/antibio">
+				<label ref="jr:itext('normal/antibio-label')"/>
+				<item>
+					<label ref="jr:itext('takes/antibio-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/antibio-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/antibio-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes/antibio-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/takes_move_illness" appearance="field-list">
+			<label ref="jr:itext('takes_move_illness-label')"/>
+			<select1 ref="/data/takes_move_illness/antipalu">
+				<label ref="jr:itext('normal/antipalu-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antipalu-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antipalu-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes_move_illness/vita">
+				<label ref="jr:itext('normal/vita-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness/vita-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/vita-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/vita-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/vita-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes_move_illness/antibio">
+				<label ref="jr:itext('normal/antibio-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antibio-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antibio-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antibio-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness/antibio-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/takes_move_illness_bold" appearance="field-list">
+			<label ref="jr:itext('takes_move_illness_bold-label')"/>
+			<select1 ref="/data/takes_move_illness_bold/antipalu">
+				<label ref="jr:itext('takes_move_illness_bold/antipalu-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antipalu-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antipalu-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes_move_illness_bold/vita">
+				<label ref="jr:itext('takes_move_illness_bold/vita-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/vita-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/vita-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/vita-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/vita-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/takes_move_illness_bold/antibio">
+				<label ref="jr:itext('takes_move_illness_bold/antibio-label')"/>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antibio-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antibio-item2-label')"/>
+					<value>item2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antibio-item3-label')"/>
+					<value>item3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('takes_move_illness_bold/antibio-item4-label')"/>
+					<value>item4</value>
+				</item>
+			</select1>
+		</group>
+	</h:body>
+</h:html>

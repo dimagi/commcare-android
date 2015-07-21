@@ -1,0 +1,435 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+ * Project commcare-odk:/Users/wpride1/commcare-odk/app/.classpath:
+   Could not resolve source path /javarosa-core in project commcare-odk:
+   ignored. The project may not compile if the given source path provided source
+   code.
+
+ * Project commcare-odk:/Users/wpride1/commcare-odk/app/.classpath:
+   Could not resolve source path /org.commcare in project commcare-odk: ignored.
+   The project may not compile if the given source path provided source code.
+
+ * Project commcare-odk:/Users/wpride1/commcare-odk/app/.classpath:
+   Could not resolve source path /org.commcare.cases in project commcare-odk:
+   ignored. The project may not compile if the given source path provided source
+   code.
+
+
+Manifest Merging:
+-----------------
+Your project uses libraries that provide manifests, and your Eclipse
+project did not explicitly turn on manifest merging. In Android Gradle
+projects, manifests are always merged (meaning that contents from your
+libraries' manifests will be merged into the app manifest. If you had
+manually copied contents from library manifests into your app manifest
+you may need to remove these for the app to build correctly.
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+* .DS_Store
+* .hgignore
+* AndroidManifest.xml.orig
+* README
+* ant.properties
+* app.iml
+* build.xml
+* buildtmp/
+* buildtmp/customres/
+* buildtmp/customres/anim/
+* buildtmp/customres/anim/fade_in.xml
+* buildtmp/customres/anim/fade_in_delay.xml
+* buildtmp/customres/anim/fade_out.xml
+* buildtmp/customres/anim/push_left_in.xml
+* buildtmp/customres/anim/push_left_out.xml
+* buildtmp/customres/anim/push_right_in.xml
+* buildtmp/customres/anim/push_right_out.xml
+* buildtmp/customres/anim/zoom_in.xml
+* buildtmp/customres/anim/zoom_out.xml
+* buildtmp/customres/drawable-hdpi/
+* buildtmp/customres/drawable-hdpi/ab_icon.png
+* buildtmp/customres/drawable-hdpi/barcode.png
+* buildtmp/customres/drawable-hdpi/ccbanner_hms.png
+* buildtmp/customres/drawable-hdpi/ic_menu_archive.png
+* buildtmp/customres/drawable-hdpi/ic_read_message.png
+* buildtmp/customres/drawable-hdpi/ic_unread_message.png
+* buildtmp/customres/drawable-hdpi/icon.png
+* buildtmp/customres/drawable-hdpi/marker.png
+* buildtmp/customres/drawable-hdpi/notification.png
+* buildtmp/customres/drawable-hdpi/sym_action_call.png
+* buildtmp/customres/drawable-hdpi/sym_action_lookup.png
+* buildtmp/customres/drawable-large/
+* buildtmp/customres/drawable-large/ccbanner_hms.png
+* buildtmp/customres/drawable-ldpi/
+* buildtmp/customres/drawable-ldpi/ab_icon.png
+* buildtmp/customres/drawable-ldpi/ccbanner_hms.png
+* buildtmp/customres/drawable-ldpi/door.png
+* buildtmp/customres/drawable-ldpi/ic_menu_archive.png
+* buildtmp/customres/drawable-ldpi/ic_read_message.png
+* buildtmp/customres/drawable-ldpi/ic_unread_message.png
+* buildtmp/customres/drawable-ldpi/icon.png
+* buildtmp/customres/drawable-ldpi/notebook_full.png
+* buildtmp/customres/drawable-ldpi/notebook_incomplete.png
+* buildtmp/customres/drawable-ldpi/notification.png
+* buildtmp/customres/drawable-ldpi/pencil.png
+* buildtmp/customres/drawable-ldpi/sym_action_call.png
+* buildtmp/customres/drawable-ldpi/sym_action_lookup.png
+* buildtmp/customres/drawable-ldpi/sync.png
+* buildtmp/customres/drawable-mdpi/
+* buildtmp/customres/drawable-mdpi/ab_icon.png
+* buildtmp/customres/drawable-mdpi/ccbanner_hms.png
+* buildtmp/customres/drawable-mdpi/ccbanner_hms_old.png
+* buildtmp/customres/drawable-mdpi/door.png
+* buildtmp/customres/drawable-mdpi/ic_menu_archive.png
+* buildtmp/customres/drawable-mdpi/ic_read_message.png
+* buildtmp/customres/drawable-mdpi/ic_unread_message.png
+* buildtmp/customres/drawable-mdpi/icon.png
+* buildtmp/customres/drawable-mdpi/notebook_full.png
+* buildtmp/customres/drawable-mdpi/notebook_incomplete.png
+* buildtmp/customres/drawable-mdpi/notification.png
+* buildtmp/customres/drawable-mdpi/pencil.png
+* buildtmp/customres/drawable-mdpi/sym_action_call.png
+* buildtmp/customres/drawable-mdpi/sym_action_lookup.png
+* buildtmp/customres/drawable-mdpi/sync.png
+* buildtmp/customres/drawable-v12/
+* buildtmp/customres/drawable-v12/blue_tabbed_box.xml
+* buildtmp/customres/drawable-v12/grey_bordered_box.xml
+* buildtmp/customres/drawable-xhdpi/
+* buildtmp/customres/drawable-xhdpi/ab_icon.png
+* buildtmp/customres/drawable-xlarge/
+* buildtmp/customres/drawable-xlarge/ccbanner_hms.png
+* buildtmp/customres/drawable/
+* buildtmp/customres/drawable/advance.png
+* buildtmp/customres/drawable/arrow_right_float.png
+* buildtmp/customres/drawable/background_compound_detail.xml
+* buildtmp/customres/drawable/background_red.xml
+* buildtmp/customres/drawable/background_yellow.xml
+* buildtmp/customres/drawable/backup.png
+* buildtmp/customres/drawable/badge_background.xml
+* buildtmp/customres/drawable/badge_background_complete.xml
+* buildtmp/customres/drawable/badge_border.xml
+* buildtmp/customres/drawable/blue_tabbed_box.xml
+* buildtmp/customres/drawable/blueq.png
+* buildtmp/customres/drawable/blues.png
+* buildtmp/customres/drawable/border_bottom_black.xml
+* buildtmp/customres/drawable/border_dashed_edges.xml
+* buildtmp/customres/drawable/border_dashed_red.xml
+* buildtmp/customres/drawable/border_dashed_yellow.xml
+* buildtmp/customres/drawable/border_red.xml
+* buildtmp/customres/drawable/border_rounded_black.xml
+* buildtmp/customres/drawable/border_top_black.xml
+* buildtmp/customres/drawable/border_yellow.xml
+* buildtmp/customres/drawable/bubble.xml
+* buildtmp/customres/drawable/bubble_danger.xml
+* buildtmp/customres/drawable/bubble_invalid.xml
+* buildtmp/customres/drawable/bubble_warn.xml
+* buildtmp/customres/drawable/ccbanner.png
+* buildtmp/customres/drawable/ccbanner_hms.png
+* buildtmp/customres/drawable/checkmark.png
+* buildtmp/customres/drawable/date_background_final.9.png
+* buildtmp/customres/drawable/date_background_prop.9.png
+* buildtmp/customres/drawable/date_button_bottom.xml
+* buildtmp/customres/drawable/date_button_top.xml
+* buildtmp/customres/drawable/date_edit.xml
+* buildtmp/customres/drawable/details_view.xml
+* buildtmp/customres/drawable/door.png
+* buildtmp/customres/drawable/dots_back.9.png
+* buildtmp/customres/drawable/dots_date_background.9.png
+* buildtmp/customres/drawable/dots_dose_border.xml
+* buildtmp/customres/drawable/dots_rect_back.xml
+* buildtmp/customres/drawable/expander_ic_maximized.png
+* buildtmp/customres/drawable/expander_ic_minimized.png
+* buildtmp/customres/drawable/expander_ic_right.png
+* buildtmp/customres/drawable/eye.png
+* buildtmp/customres/drawable/green_check_mark.png
+* buildtmp/customres/drawable/greencircle.png
+* buildtmp/customres/drawable/grey_bordered_box.xml
+* buildtmp/customres/drawable/ic_maps_indicator_current_position.png
+* buildtmp/customres/drawable/ic_media_btn_continue.png
+* buildtmp/customres/drawable/ic_media_btn_play.png
+* buildtmp/customres/drawable/ic_media_pause.png
+* buildtmp/customres/drawable/ic_menu_archive.png
+* buildtmp/customres/drawable/ic_menu_clear_playlist.png
+* buildtmp/customres/drawable/ic_menu_goto.png
+* buildtmp/customres/drawable/ic_menu_mark.png
+* buildtmp/customres/drawable/ic_menu_send.png
+* buildtmp/customres/drawable/ic_menu_start_conversation.png
+* buildtmp/customres/drawable/icon_back.png
+* buildtmp/customres/drawable/icon_done.png
+* buildtmp/customres/drawable/icon_exit.png
+* buildtmp/customres/drawable/icon_new.png
+* buildtmp/customres/drawable/icon_next.png
+* buildtmp/customres/drawable/icon_pressed.png
+* buildtmp/customres/drawable/info_bubble.xml
+* buildtmp/customres/drawable/label_floating_bad.xml
+* buildtmp/customres/drawable/label_floating_caution.xml
+* buildtmp/customres/drawable/label_floating_good.xml
+* buildtmp/customres/drawable/left_arrow.png
+* buildtmp/customres/drawable/list_bottom_tab.xml
+* buildtmp/customres/drawable/machine.png
+* buildtmp/customres/drawable/marker.png
+* buildtmp/customres/drawable/next_arrow.png
+* buildtmp/customres/drawable/notebook_full.png
+* buildtmp/customres/drawable/notebook_incomplete.png
+* buildtmp/customres/drawable/notes.png
+* buildtmp/customres/drawable/opendatakit_zig.png
+* buildtmp/customres/drawable/pencil.png
+* buildtmp/customres/drawable/pillbox.png
+* buildtmp/customres/drawable/prev_arrow.png
+* buildtmp/customres/drawable/progressbar.xml
+* buildtmp/customres/drawable/progressbar_full.xml
+* buildtmp/customres/drawable/rect2_background.9.png
+* buildtmp/customres/drawable/rect3_background.9.png
+* buildtmp/customres/drawable/redx.png
+* buildtmp/customres/drawable/right_arrow.png
+* buildtmp/customres/drawable/selector.xml
+* buildtmp/customres/drawable/selector_button_press.xml
+* buildtmp/customres/drawable/sync.png
+* buildtmp/customres/drawable/sync_good.png
+* buildtmp/customres/drawable/title_case_tab.xml
+* buildtmp/customres/drawable/title_case_tab_vertical.xml
+* buildtmp/customres/drawable/title_neutral_tab.xml
+* buildtmp/customres/drawable/title_neutral_tab_vertical.xml
+* buildtmp/customres/drawable/top_border_black.xml
+* buildtmp/customres/layout-land/
+* buildtmp/customres/layout-land/login.xml
+* buildtmp/customres/layout-land/mainnew.xml
+* buildtmp/customres/layout/
+* buildtmp/customres/layout/activity_report_problem.xml
+* buildtmp/customres/layout/call_record_entry.xml
+* buildtmp/customres/layout/call_toast.xml
+* buildtmp/customres/layout/com_tile_holder.xml
+* buildtmp/customres/layout/compact_dot_entry.xml
+* buildtmp/customres/layout/component_audio_text.xml
+* buildtmp/customres/layout/component_entity_detail_item.xml
+* buildtmp/customres/layout/component_floating_label.xml
+* buildtmp/customres/layout/component_repeat_new_dialog.xml
+* buildtmp/customres/layout/component_row_devices.xml
+* buildtmp/customres/layout/component_title_bar.xml
+* buildtmp/customres/layout/component_title_breadcrumb.xml
+* buildtmp/customres/layout/component_title_breadcrumb_case.xml
+* buildtmp/customres/layout/component_title_uncrumb.xml
+* buildtmp/customres/layout/connection_diagnostic.xml
+* buildtmp/customres/layout/custom_spinner_item.xml
+* buildtmp/customres/layout/data_manage_list.xml
+* buildtmp/customres/layout/device_detail.xml
+* buildtmp/customres/layout/device_list.xml
+* buildtmp/customres/layout/dots_detail.xml
+* buildtmp/customres/layout/dotsday.xml
+* buildtmp/customres/layout/dotsdose.xml
+* buildtmp/customres/layout/dotsdoses.xml
+* buildtmp/customres/layout/dotsentry.xml
+* buildtmp/customres/layout/draw_layout.xml
+* buildtmp/customres/layout/entity_detail.xml
+* buildtmp/customres/layout/entity_detail_list.xml
+* buildtmp/customres/layout/entity_item_graph.xml
+* buildtmp/customres/layout/entity_item_grid.xml
+* buildtmp/customres/layout/entity_item_image.xml
+* buildtmp/customres/layout/entity_select_layout.xml
+* buildtmp/customres/layout/file_server.xml
+* buildtmp/customres/layout/first_start_screen.xml
+* buildtmp/customres/layout/form_entry.xml
+* buildtmp/customres/layout/form_entry_end.xml
+* buildtmp/customres/layout/form_entry_start.xml
+* buildtmp/customres/layout/form_filter_display.xml
+* buildtmp/customres/layout/form_filter_item.xml
+* buildtmp/customres/layout/form_manage_list.xml
+* buildtmp/customres/layout/formrecordview.xml
+* buildtmp/customres/layout/fragment_progress_dialog.xml
+* buildtmp/customres/layout/geo_progress.xml
+* buildtmp/customres/layout/geopoint_layout.xml
+* buildtmp/customres/layout/grid_menu_layout.xml
+* buildtmp/customres/layout/hierarchy_layout.xml
+* buildtmp/customres/layout/instance_uploader_list.xml
+* buildtmp/customres/layout/layout_note_msg.xml
+* buildtmp/customres/layout/list_view_filled.xml
+* buildtmp/customres/layout/login.xml
+* buildtmp/customres/layout/main.xml
+* buildtmp/customres/layout/main_menu.xml
+* buildtmp/customres/layout/mainnew.xml
+* buildtmp/customres/layout/menu_grid_item.xml
+* buildtmp/customres/layout/menu_list_item.xml
+* buildtmp/customres/layout/missing_multimedia_layout.xml
+* buildtmp/customres/layout/phone_logs.xml
+* buildtmp/customres/layout/quick_select_layout.xml
+* buildtmp/customres/layout/radiobutton_linearlayout.xml
+* buildtmp/customres/layout/remote_file_manage_list.xml
+* buildtmp/customres/layout/screen_compound_select.xml
+* buildtmp/customres/layout/screen_form_dump.xml
+* buildtmp/customres/layout/screen_form_entry.xml
+* buildtmp/customres/layout/screen_login.xml
+* buildtmp/customres/layout/screen_messages.xml
+* buildtmp/customres/layout/screen_multimedia_inflater.xml
+* buildtmp/customres/layout/screen_permission_request.xml
+* buildtmp/customres/layout/screen_recovery.xml
+* buildtmp/customres/layout/screen_suite_menu.xml
+* buildtmp/customres/layout/server_auth_dialog.xml
+* buildtmp/customres/layout/splash_screen.xml
+* buildtmp/customres/layout/submit_notification.xml
+* buildtmp/customres/layout/tabbed_detail_view.xml
+* buildtmp/customres/layout/tablerow.xml
+* buildtmp/customres/layout/template_text_notification.xml
+* buildtmp/customres/layout/template_text_notification_problem.xml
+* buildtmp/customres/layout/toast_view.xml
+* buildtmp/customres/layout/two_item.xml
+* buildtmp/customres/layout/two_item_multiple_choice.xml
+* buildtmp/customres/layout/universal_date_widget.xml
+* buildtmp/customres/layout/wifi_direct_main.xml
+* buildtmp/customres/layout/wifi_manager.xml
+* buildtmp/customres/menu/
+* buildtmp/customres/menu/activity_report_problem.xml
+* buildtmp/customres/values-am/
+* buildtmp/customres/values-am/arrays.xml
+* buildtmp/customres/values-es/
+* buildtmp/customres/values-es/arrays.xml
+* buildtmp/customres/values-es/strings.xml
+* buildtmp/customres/values-fr/
+* buildtmp/customres/values-fr/arrays.xml
+* buildtmp/customres/values-fr/strings.xml
+* buildtmp/customres/values-large/
+* buildtmp/customres/values-large/dimens.xml
+* buildtmp/customres/values-large/strings.xml
+* buildtmp/customres/values-lt/
+* buildtmp/customres/values-lt/arrays.xml
+* buildtmp/customres/values-lt/strings.xml
+* buildtmp/customres/values-ne/
+* buildtmp/customres/values-ne/arrays.xml
+* buildtmp/customres/values-no/
+* buildtmp/customres/values-no/arrays.xml
+* buildtmp/customres/values-no/strings.xml
+* buildtmp/customres/values-pt/
+* buildtmp/customres/values-pt/arrays.xml
+* buildtmp/customres/values-pt/strings.xml
+* buildtmp/customres/values-small/
+* buildtmp/customres/values-small/dimens.xml
+* buildtmp/customres/values-small/strings.xml
+* buildtmp/customres/values-small/styles.xml
+* buildtmp/customres/values-sw/
+* buildtmp/customres/values-sw/arrays.xml
+* buildtmp/customres/values-sw/strings.xml
+* buildtmp/customres/values-sw720dp-land/
+* buildtmp/customres/values-sw720dp-land/strings.xml
+* buildtmp/customres/values-ti/
+* buildtmp/customres/values-ti/arrays.xml
+* buildtmp/customres/values-v11/
+* buildtmp/customres/values-v11/styles.xml
+* buildtmp/customres/values-v11/themes.xml
+* buildtmp/customres/values-xlarge/
+* buildtmp/customres/values-xlarge/dimens.xml
+* buildtmp/customres/values-xlarge/strings.xml
+* buildtmp/customres/values/
+* buildtmp/customres/values/arrays.xml
+* buildtmp/customres/values/attrs.xml
+* buildtmp/customres/values/colors.xml
+* buildtmp/customres/values/dimens.xml
+* buildtmp/customres/values/dotscolors.xml
+* buildtmp/customres/values/external_strings.xml
+* buildtmp/customres/values/external_strings_dev.xml.template
+* buildtmp/customres/values/mydialog.xml
+* buildtmp/customres/values/strings.xml
+* buildtmp/customres/values/styles.xml
+* buildtmp/customres/values/themes.xml
+* buildtmp/customres/xml/
+* buildtmp/customres/xml/preferences.xml
+* buildtmp/customres/xml/preferences_developer.xml
+* buildtmp/customres/xml/server_preferences.xml
+* custom_rules.xml
+* key.properties.template
+* local.properties.template
+* proguard.cfg
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+android-support-v4.jar => com.android.support:support-v4:19.+
+guava-r09.jar => com.google.guava:guava:17.0
+joda-time-2.0.jar => joda-time:joda-time:2.0
+
+Potentially Missing Dependency:
+-------------------------------
+When we replaced the following .jar files with a Gradle dependency, we
+inferred the dependency version number from the filename. This
+specific version may not actually be available from the repository.
+If you get a build error stating that the dependency is missing, edit
+the version number to for example "+" to pick up the latest version
+instead. (This may require you to update your code if the library APIs
+have changed.)
+
+joda-time-2.0.jar => version 2.0 in joda-time:joda-time:2.0
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+* /Users/wpride1/commcare-odk/AChartEngine/ => commcareodk/src/main/java/
+* AndroidManifest.xml => commcareodk/src/main/AndroidManifest.xml
+* assets/ => commcareodk/src/main/assets/
+* libs/acra-4.6.1.jar => commcareodk/libs/acra-4.6.1.jar
+* libs/apache-mime4j-0.6.jar => commcareodk/libs/apache-mime4j-0.6.jar
+* libs/armeabi-v7a/libbypass.so => commcareodk/src/main/jniLibs/armeabi-v7a/libbypass.so
+* libs/armeabi-v7a/libdatabase_sqlcipher.so => commcareodk/src/main/jniLibs/armeabi-v7a/libdatabase_sqlcipher.so
+* libs/armeabi-v7a/libsqlcipher_android.so => commcareodk/src/main/jniLibs/armeabi-v7a/libsqlcipher_android.so
+* libs/armeabi-v7a/libstlport_shared.so => commcareodk/src/main/jniLibs/armeabi-v7a/libstlport_shared.so
+* libs/armeabi/libbypass.so => commcareodk/src/main/jniLibs/armeabi/libbypass.so
+* libs/armeabi/libdatabase_sqlcipher.so => commcareodk/src/main/jniLibs/armeabi/libdatabase_sqlcipher.so
+* libs/armeabi/libsqlcipher_android.so => commcareodk/src/main/jniLibs/armeabi/libsqlcipher_android.so
+* libs/armeabi/libstlport_shared.so => commcareodk/src/main/jniLibs/armeabi/libstlport_shared.so
+* libs/bypass.jar => commcareodk/libs/bypass.jar
+* libs/commons-codec.jar => commcareodk/libs/commons-codec.jar
+* libs/htmlcleaner-2.2.1.jar => commcareodk/libs/htmlcleaner-2.2.1.jar
+* libs/htmlspanner.jar => commcareodk/libs/htmlspanner.jar
+* libs/httpmime-4.0.jar => commcareodk/libs/httpmime-4.0.jar
+* libs/kxml2-2.3.0.jar => commcareodk/libs/kxml2-2.3.0.jar
+* libs/mips/libbypass.so => commcareodk/src/main/jniLibs/mips/libbypass.so
+* libs/osbcp-css-parser-1.4.jar => commcareodk/libs/osbcp-css-parser-1.4.jar
+* libs/regexp-me.jar => commcareodk/libs/regexp-me.jar
+* libs/sqlcipher.jar => commcareodk/libs/sqlcipher.jar
+* libs/x86/libbypass.so => commcareodk/src/main/jniLibs/x86/libbypass.so
+* libs/x86/libdatabase_sqlcipher.so => commcareodk/src/main/jniLibs/x86/libdatabase_sqlcipher.so
+* libs/x86/libsqlcipher_android.so => commcareodk/src/main/jniLibs/x86/libsqlcipher_android.so
+* libs/x86/libstlport_shared.so => commcareodk/src/main/jniLibs/x86/libstlport_shared.so
+* libs/zxingcore-2.2.jar => commcareodk/libs/zxingcore-2.2.jar
+* lint.xml => commcareodk/lint.xml
+* res/ => commcareodk/src/main/res/
+* src/ => commcareodk/src/main/java/
+
+Missing Android Support Repository:
+-----------------------------------
+Some useful libraries, such as the Android Support Library, are
+installed from a special Maven repository, which should be installed
+via the SDK manager.
+
+It looks like this library is missing from your SDK installation at:
+/usr/local/opt/android-sdk
+
+To install it, open the SDK manager, and in the Extras category,
+select "Android Support Repository". You may also want to install the
+"Google Repository" if you want to use libraries like Google Play
+Services.
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

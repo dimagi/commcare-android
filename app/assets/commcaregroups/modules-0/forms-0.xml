@@ -1,0 +1,71 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Callout</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/0D63C7EF-9457-4916-891B-D6984957D89F" uiVersion="1" version="12" name="Callout">
+					<question7/>
+					<question8/>
+					<question2>
+						<question1/>
+						<question3/>
+						<question4/>
+						<question5/>
+					</question2>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question7" type="intent"/>
+			<bind nodeset="/data/question8" calculate="10"/>
+			<bind nodeset="/data/question2"/>
+			<bind nodeset="/data/question2/question1" type="xsd:int" constraint=".&lt;5"/>
+			<bind nodeset="/data/question2/question3" type="xsd:int" constraint=".&gt;5"/>
+			<bind nodeset="/data/question2/question4" type="xsd:int" constraint=".&lt;100"/>
+			<bind nodeset="/data/question2/question5" type="xsd:int" constraint=".&gt;100"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question7-label">
+						<value>question7</value>
+					</text>
+					<text id="question2-label">
+						<value>question2</value>
+					</text>
+					<text id="question2/question1-label">
+						<value>question1</value>
+					</text>
+					<text id="question2/question3-label">
+						<value>question3</value>
+					</text>
+					<text id="question2/question4-label">
+						<value>question4</value>
+					</text>
+					<text id="question2/question5-label">
+						<value>question5</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="question7" class="org.commcare.respiratory.BREATHCOUNT">
+			<extra key="'duration'" ref="/data/question8"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<input ref="/data/question7" appearance="intent:question7">
+			<label ref="jr:itext('question7-label')"/>
+		</input>
+		<group ref="/data/question2" appearance="field-list">
+			<label ref="jr:itext('question2-label')"/>
+			<input ref="/data/question2/question1">
+				<label ref="jr:itext('question2/question1-label')"/>
+			</input>
+			<input ref="/data/question2/question3">
+				<label ref="jr:itext('question2/question3-label')"/>
+			</input>
+			<input ref="/data/question2/question4">
+				<label ref="jr:itext('question2/question4-label')"/>
+			</input>
+			<input ref="/data/question2/question5">
+				<label ref="jr:itext('question2/question5-label')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

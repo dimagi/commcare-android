@@ -1,0 +1,883 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>3. Index Patient Interview</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/701caee60b173d8c28cc98584c00679ffb294d51" uiVersion="1" version="1972" name="3. Index Patient Interview">
+					<notEligibleLabel/>
+					<ntlpno/>
+					<ptserialno/>
+					<indexdob/>
+					<ptage_years/>
+					<childptAge/>
+					<subcounty/>
+					<parishr/>
+					<village/>
+					<ptgender/>
+					<hiv/>
+					<ptparish/>
+					<ptvillage/>
+					<ptlandlordname/>
+					<ptrxspname/>
+					<ptrxspphno/>
+					<tthhmembers/>
+					<hhhead/>
+					<householdse>
+						<ptoccupation/>
+						<spoccupation/>
+						<schoollevel/>
+						<ablread/>
+						<hhIncome/>
+						<surehhIncome/>
+						<hhExpenditure/>
+						<hhExpendituresure/>
+						<prtransmode/>
+						<spectransmode/>
+						<timespentintrans/>
+						<moneyspenttrans/>
+						<surespenttrans/>
+						<indexyrsneighbourhood/>
+					</householdse>
+					<transmissionqns>
+						<weekscoughing/>
+						<sureweekscoughing/>
+						<ntscurrdwell1mo/>
+						<mocurrdwel1year/>
+						<knowanytbpt/>
+						<anyhhtblst2yrs/>
+						<peoplewithtb/>
+						<friendswithtb2yrs/>
+						<friendswithtb/>
+						<roomsinhouse/>
+					</transmissionqns>
+					<visithm>
+						<visithome/>
+						<question204/>
+						<ptschintvdt/>
+						<pthmlandmark/>
+						<personalphonenos_group jr:template="">
+							<personalphnnos/>
+							<phone_no_for_sms/>
+						</personalphonenos_group>
+					</visithm>
+					<last_visit/>
+					<invdate/>
+					<indexid/>
+					<ptage/>
+					<age_in_months/>
+					<pttype/>
+					<ptid/>
+					<eligible/>
+					<allocation/>
+					<allocation_id/>
+					<display_case_inf/>
+					<group/>
+					<uid/>
+					<username/>
+					<string_data/>
+					<new_string_data/>
+					<matching_case_id/>
+					<old_strata_count/>
+					<allocation_block>
+						<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+							<update>
+								<string_data/>
+							</update>
+						</case>
+					</allocation_block>
+					<strata_block>
+						<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+							<update>
+								<strata_count/>
+							</update>
+						</case>
+					</strata_block>
+					<phone_number_count>3</phone_number_count>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><allocation/><allocation_id/><eligible/><ptage/><ptgender/><pthmlandmark/><ptid/><ptparish/><ptrxspphno/><pttype/><ptvillage/><string_data/><subcounty/><username/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="casedb" src="jr://instance/casedb"/>
+			<instance id="county" src="jr://fixture/item-list:county"/>
+			<instance id="subcounty" src="jr://fixture/item-list:subcounty"/>
+			<instance id="parish" src="jr://fixture/item-list:parish"/>
+			<instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="groups" src="jr://fixture/user-groups"/>
+			<bind nodeset="/data/notEligibleLabel" constraint="'1'='0'" relevant="not(/data/eligible = 'yes')" required="true()"/>
+			<bind nodeset="/data/ntlpno" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/ptserialno" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/indexdob" type="xsd:date" constraint=".&lt;=today()" jr:constraintMsg="jr:itext('indexdob-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/ptage_years" relevant="/data/ptage&gt;2" required="false()"/>
+			<bind nodeset="/data/childptAge" relevant="/data/ptage&lt;=2" required="true()"/>
+			<bind nodeset="/data/subcounty" required="true()"/>
+			<bind nodeset="/data/parishr" required="true()"/>
+			<bind nodeset="/data/village" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/ptgender" required="true()"/>
+			<bind nodeset="/data/hiv" required="true()"/>
+			<bind nodeset="/data/ptparish"/>
+			<bind nodeset="/data/ptvillage" type="xsd:string"/>
+			<bind nodeset="/data/ptlandlordname" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/ptrxspname" type="xsd:string" required="false()"/>
+			<bind nodeset="/data/ptrxspphno" type="xsd:string" constraint="string-length(.) = 10" jr:constraintMsg="jr:itext('ptrxspphno-constraintMsg')" required="false()"/>
+			<bind nodeset="/data/tthhmembers" type="xsd:int" constraint=".&gt;0" jr:constraintMsg="jr:itext('tthhmembers-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/hhhead" relevant="/data/ptage &gt;= 18" required="true()"/>
+			<bind nodeset="/data/householdse" relevant="/data/hhhead = 'yes'"/>
+			<bind nodeset="/data/householdse/ptoccupation" required="true()"/>
+			<bind nodeset="/data/householdse/spoccupation" type="xsd:string" relevant="/data/householdse/ptoccupation = 'other'" required="true()"/>
+			<bind nodeset="/data/householdse/schoollevel" required="true()"/>
+			<bind nodeset="/data/householdse/ablread" required="true()"/>
+			<bind nodeset="/data/householdse/hhIncome" type="xsd:int" constraint=".&gt;= 0" jr:constraintMsg="jr:itext('householdse/hhIncome-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/householdse/surehhIncome" relevant="/data/householdse/hhIncome &gt; 1000" required="true()"/>
+			<bind nodeset="/data/householdse/hhExpenditure" type="xsd:int" constraint=".&gt;0" jr:constraintMsg="jr:itext('householdse/hhExpenditure-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/householdse/hhExpendituresure" relevant="/data/householdse/hhExpenditure &gt; 1000" required="true()"/>
+			<bind nodeset="/data/householdse/prtransmode" required="true()"/>
+			<bind nodeset="/data/householdse/spectransmode" type="xsd:string" relevant="/data/householdse/prtransmode = 'other'" required="true()"/>
+			<bind nodeset="/data/householdse/timespentintrans" type="xsd:int" constraint=".&gt;=0 and .&lt;=168" jr:constraintMsg="jr:itext('householdse/timespentintrans-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/householdse/moneyspenttrans" type="xsd:int" constraint=". &gt;= 0" jr:constraintMsg="jr:itext('householdse/moneyspenttrans-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/householdse/surespenttrans" relevant="/data/householdse/moneyspenttrans &gt; 100" required="true()"/>
+			<bind nodeset="/data/householdse/indexyrsneighbourhood" type="xsd:int" constraint=". &lt;= 0 and . &lt;= 120" required="true()"/>
+			<bind nodeset="/data/transmissionqns"/>
+			<bind nodeset="/data/transmissionqns/weekscoughing" type="xsd:int" constraint=". &lt;= 0" jr:constraintMsg="jr:itext('transmissionqns/weekscoughing-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/transmissionqns/sureweekscoughing" relevant="/data/transmissionqns/weekscoughing &gt; 25" required="true()"/>
+			<bind nodeset="/data/transmissionqns/ntscurrdwell1mo" type="xsd:int" constraint=".&gt;=0 and .&lt;=31" jr:constraintMsg="jr:itext('ntscurrdwell1mo-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/transmissionqns/mocurrdwel1year" type="xsd:int" constraint=".&gt;=0 and .&lt;=12" jr:constraintMsg="jr:itext('mocurrdwel1year-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/transmissionqns/knowanytbpt" required="true()"/>
+			<bind nodeset="/data/transmissionqns/anyhhtblst2yrs" required="true()"/>
+			<bind nodeset="/data/transmissionqns/peoplewithtb" relevant="/data/transmissionqns/anyhhtblst2yrs = 'yes'" required="true()"/>
+			<bind nodeset="/data/transmissionqns/friendswithtb2yrs" required="true()"/>
+			<bind nodeset="/data/transmissionqns/friendswithtb" relevant="/data/transmissionqns/friendswithtb2yrs = 'yes'" required="true()"/>
+			<bind nodeset="/data/transmissionqns/roomsinhouse" type="xsd:int" constraint=".&gt;=1 and .&lt;=30" required="true()"/>
+			<bind nodeset="/data/visithm"/>
+			<bind nodeset="/data/visithm/visithome" required="true()"/>
+			<bind nodeset="/data/visithm/question204" relevant="/data/visithm/visithome = 'yes'" required="true()"/>
+			<bind nodeset="/data/visithm/ptschintvdt" type="xsd:date" relevant="/data/visithm/visithome = 'no'" required="true()"/>
+			<bind nodeset="/data/visithm/pthmlandmark" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/visithm/personalphonenos_group"/>
+			<bind nodeset="/data/visithm/personalphonenos_group/personalphnnos" type="xsd:string" constraint="string-length(.) = 10" jr:constraintMsg="jr:itext('personalphnnos-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/visithm/personalphonenos_group/phone_no_for_sms" calculate="concat('256', substr(/data/visithm/personalphonenos_group/personalphnnos,1, 10))"/>
+			<bind nodeset="/data/last_visit" calculate="today()"/>
+			<bind nodeset="/data/invdate"/>
+			<bind nodeset="/data/indexid"/>
+			<bind nodeset="/data/ptage" calculate="int((today() - date(/data/indexdob)) div 365.25)"/>
+			<bind nodeset="/data/age_in_months" calculate="if(/data/ptage &lt;= 2, int((today() - date(/data/indexdob)) div 30.4), '')"/>
+			<bind nodeset="/data/pttype" calculate="'index'"/>
+			<bind nodeset="/data/ptid"/>
+			<bind nodeset="/data/eligible"/>
+			<bind nodeset="/data/allocation" calculate="substr(/data/string_data,0,1)"/>
+			<bind nodeset="/data/allocation_id" calculate="concat(/data/username, /data/hiv, /data/group, /data/uid, /data/allocation)"/>
+			<bind nodeset="/data/display_case_inf"/>
+			<bind nodeset="/data/group" calculate="if(/data/ptage&lt;5,1, if (/data/ptage &gt;=5 and /data/ptage &lt;=14,2,3))"/>
+			<bind nodeset="/data/uid" calculate="uuid(5)"/>
+			<bind nodeset="/data/username" calculate="instance('commcaresession')/session/context/username"/>
+			<bind nodeset="/data/string_data" calculate="if(/data/matching_case_id='','',instance('casedb')/casedb/case[@case_id=/data/matching_case_id]/string_data)"/>
+			<bind nodeset="/data/new_string_data" calculate="if(/data/string_data = '', '', substr(/data/string_data,1))"/>
+			<bind nodeset="/data/matching_case_id" calculate="if(/data/username = '' or /data/hiv = '' or /data/group = '', '',instance('casedb')/casedb/case[@case_type='strata_group'][username = /data/username][int(hiv)=/data/hiv][int(group) = /data/group]/@case_id)"/>
+			<bind nodeset="/data/old_strata_count" value="instance('casedb')/casedb/case[@case_type='strata_group'][username = /data/username][int(hiv)=/data/hiv][int(group) = /data/group]/@case_id)"/>
+			<bind nodeset="/data/allocation_block"/>
+			<bind nodeset="/data/allocation_block/case"/>
+			<bind nodeset="/data/allocation_block/case/update"/>
+			<bind nodeset="/data/allocation_block/case/update/string_data"/>
+			<bind nodeset="/data/strata_block"/>
+			<bind nodeset="/data/strata_block/case"/>
+			<bind nodeset="/data/strata_block/case/update"/>
+			<bind nodeset="/data/strata_block/case/update/strata_count"/><bind nodeset="/data/allocation_block/case/@user_id" calculate="instance('groups')/groups/group/@id"/><bind calculate="/data/meta/timeEnd" nodeset="/data/allocation_block/case/@date_modified" type="xsd:dateTime"/><bind nodeset="/data/allocation_block/case/@case_id" calculate="/data/matching_case_id"/><bind nodeset="/data/allocation_block/case/update/string_data" calculate="/data/new_string_data"/>
+			<bind nodeset="/data/phone_number_count"/><bind nodeset="/data/strata_block/case/@user_id" calculate="instance('groups')/groups/group/@id"/><bind calculate="/data/meta/timeEnd" nodeset="/data/strata_block/case/@date_modified" type="xsd:dateTime"/><bind nodeset="/data/strata_block/case/@case_id" calculate="/data/matching_case_id"/><bind nodeset="/data/strata_block/case/update/strata_count" calculate="int(/data/old_strata_count) + 1"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="notEligibleLabel-label">
+						<value>The patient is not eligible to be enrolled in the study. Please return to the home screen.</value>
+					</text>
+					<text id="ntlpno-label">
+						<value>NTLP TB Treatment Number
+					</value>
+					</text>
+					<text id="ptserialno-label">
+						<value>Track TB Serial Number </value>
+					</text>
+					<text id="indexdob-label2">
+						<value>Patient Date of Birth</value>
+					</text>
+					<text id="indexdob-constraintMsg">
+						<value>Date cannot be in the future.</value>
+					</text>
+					<text id="ptage_years-label">
+						<value>Patient is <output ref="/data/ptage"/> years old</value>
+					</text>
+					<text id="childptAge-label">
+						<value>Patient is <output ref="/data/age_in_months"/> months old</value>
+					</text>
+					<text id="subcounty-label">
+						<value>Subcounty</value>
+					</text>
+					<text id="parishr-label">
+						<value>Parish</value>
+					</text>
+					<text id="village-label">
+						<value>Village </value>
+					</text>
+					<text id="ptgender-label">
+						<value>Gender</value>
+					</text>
+					<text id="ptgender-female-label">
+						<value>Female</value>
+					</text>
+					<text id="ptgender-male-label">
+						<value>Male</value>
+					</text>
+					<text id="hiv-label">
+						<value>HIV Status</value>
+					</text>
+					<text id="hiv-0-label">
+						<value>Positive</value>
+					</text>
+					<text id="hiv-1-label">
+						<value>Negative</value>
+					</text>
+					<text id="hiv-2-label">
+						<value>Unknown</value>
+					</text>
+					<text id="hiv-9-label">
+						<value>Decline to state</value>
+					</text>
+					<text id="ptlandlordname-label">
+						<value>Name of Landlord</value>
+					</text>
+					<text id="ptrxspname-label">
+						<value>Treatment Supporter Name</value>
+					</text>
+					<text id="ptrxspphno-label">
+						<value>Treatment Supporter Phone Number</value>
+					</text>
+					<text id="ptrxspphno-constraintMsg">
+						<value>Enter a 10 digit phone number.</value>
+					</text>
+					<text id="tthhmembers-label">
+						<value>How many household members are living with the index patient? </value>
+					</text>
+					<text id="tthhmembers-hint">
+						<value>Give the total number of individuals who have slept under same roof as the index patient for more than 5 nights in the last 3 months. Do not include the index patient in the count.</value>
+					</text>
+					<text id="tthhmembers-constraintMsg">
+						<value>The number of household members cannot be less than 1.</value>
+					</text>
+					<text id="hhhead-label">
+						<value>Are you the head of household?</value>
+					</text>
+					<text id="householdse-label">
+						<value>Household SES</value>
+					</text>
+					<text id="ptoccupation-label">
+						<value>What is your occupation?</value>
+					</text>
+					<text id="ptoccupation-unemployed-label">
+						<value>Unemployed</value>
+					</text>
+					<text id="ptoccupation-student-label">
+						<value>Student</value>
+					</text>
+					<text id="ptoccupation-casual_laborer-label">
+						<value>Casual Laborer</value>
+					</text>
+					<text id="ptoccupation-civil_servant-label">
+						<value>Civil Servant</value>
+					</text>
+					<text id="ptoccupation-ngo_private_sector-label">
+						<value>NGO or Private-sector employee</value>
+					</text>
+					<text id="ptoccupation-housewife-label">
+						<value>Housewife</value>
+					</text>
+					<text id="ptoccupation-domestic_worker-label">
+						<value>Domestic Worker</value>
+					</text>
+					<text id="ptoccupation-self_employed-label">
+						<value>Self-employed</value>
+					</text>
+					<text id="householdse/spoccupation-label">
+						<value>Kindly specify which is  your occupation?</value>
+					</text>
+					<text id="schoollevel-label">
+						<value>How far did you go in school?</value>
+					</text>
+					<text id="schoollevel-nofmsch-label">
+						<value>No formal school</value>
+					</text>
+					<text id="schoollevel-pry1to4-label">
+						<value>Primary level 1-4</value>
+					</text>
+					<text id="schoollevel-pry5to7-label">
+						<value>Primary level 5-7</value>
+					</text>
+					<text id="schoollevel-olevel-label">
+						<value>Secondary O level</value>
+					</text>
+					<text id="schoollevel-alevel-label">
+						<value>Secondary A level</value>
+					</text>
+					<text id="schoollevel-vocatnl-label">
+						<value>Vocational</value>
+					</text>
+					<text id="schoollevel-tertiary-label">
+						<value>Tertiary / University</value>
+					</text>
+					<text id="schoollevel-postgrad-label">
+						<value>Post-graduate</value>
+					</text>
+					<text id="ablwrt-label">
+						<value>Can you read  or write a letter or newspaper in any language?</value>
+					</text>
+					<text id="ablwrt-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="ablwrt-no-label">
+						<value>No</value>
+					</text>
+					<text id="hhIncome-label">
+						<value>What is your weekly household income in thousands of UGX? </value>
+					</text>
+					<text id="householdse/hhIncome-constraintMsg">
+						<value>Income should be greater than zero.</value>
+					</text>
+					<text id="householdse/surehhIncome-label">
+						<value>Are you sure about this reported income (<output value="/data/householdse/hhIncome"/>000 UGX)? Note that weekly income is requested in units of thousands of UGX.</value>
+					</text>
+					<text id="hhExpenditure-label">
+						<value>What are your weekly household expenditures in thousands of UGX? </value>
+					</text>
+					<text id="householdse/hhExpenditure-hint">
+						<value>Remember to include all members of the household.</value>
+					</text>
+					<text id="householdse/hhExpenditure-constraintMsg">
+						<value>Expenditure should be greater than zero</value>
+					</text>
+					<text id="householdse/hhExpendituresure-label">
+						<value>Are you sure about this reported ( <output value="/data/householdse/hhExpenditure"/>000 UGX) weekly household expenditure? Note that household weekly expenditure is requested in units of thousands of UGX.</value>
+					</text>
+					<text id="householdse/prtransmode-label">
+						<value>What is your primary mode of transport to places that are more than 5 minutes from your home?  </value>
+					</text>
+					<text id="householdse/prtransmode-hint">
+						<value>By primary, we mean the mode of transport that you use to travel the greatest distance.</value>
+					</text>
+					<text id="householdse/prtransmode-walk-label">
+						<value>Walking</value>
+					</text>
+					<text id="householdse/prtransmode-bicycle-label">
+						<value>Bicycle</value>
+					</text>
+					<text id="householdse/prtransmode-bodaboda-label">
+						<value>Boda boda </value>
+					</text>
+					<text id="householdse/prtransmode-taxi-label">
+						<value>Taxi/Matatu</value>
+					</text>
+					<text id="householdse/prtransmode-car-label">
+						<value>Car</value>
+					</text>
+					<text id="householdse/prtransmode-other-label">
+						<value>Other</value>
+					</text>
+					<text id="householdse/spectransmode-label">
+						<value>Please specify the other mode of transport</value>
+					</text>
+					<text id="householdse/timespentintrans-label">
+						<value>In a typical week, how much time (in hours) do you spend in transport to places more than 5 minutes from your home?</value>
+					</text>
+					<text id="householdse/timespentintrans-constraintMsg">
+						<value>Hours cannot be less than zero or greater than 168.</value>
+					</text>
+					<text id="householdse/moneyspenttrans-label">
+						<value>In a typical week, how much money do you spend (in thousands of UGX) on transport?</value>
+					</text>
+					<text id="householdse/moneyspenttrans-constraintMsg">
+						<value>Should be greater than or equal to zero.</value>
+					</text>
+					<text id="householdse/surespenttrans-label">
+						<value>Are you sure about this reported (<output value="/data/householdse/moneyspenttrans"/>000 UGX) weekly expenditure on transport? Note that expenditure on transport is requested in units of thousands of UGX.</value>
+					</text>
+					<text id="householdse/indexyrsneighbourhood-label">
+						<value>For how many years have you been living within walking distance of your current dwelling ?</value>
+					</text>
+					<text id="transmissionqns-label2">
+						<value>Transmission Questions</value>
+					</text>
+					<text id="sypmsdurbfdgns-label">
+						<value>How many weeks have you been coughing?</value>
+					</text>
+					<text id="transmissionqns/weekscoughing-constraintMsg">
+						<value>Weeks should greater than or equal to zero.</value>
+					</text>
+					<text id="transmissionqns/sureweekscoughing-label">
+						<value>Are you sure you have been coughing for these (<output value="/data/transmissionqns/weekscoughing"/>) weeks?</value>
+					</text>
+					<text id="ntscurrdwell1mo-label">
+						<value>How many nights did you sleep in your current dwelling over the past one month?</value>
+					</text>
+					<text id="ntscurrdwell1mo-constraintMsg">
+						<value>Night must be less than or equal to 31.</value>
+					</text>
+					<text id="mocurrdwel1year-label">
+						<value>How many months did you sleep in that dwelling over the past 12 months?</value>
+					</text>
+					<text id="mocurrdwel1year-constraintMsg">
+						<value>Months must be less than or equal to 12.</value>
+					</text>
+					<text id="knowanytbpt-label">
+						<value>Do you know anyone else who currently has TB?</value>
+					</text>
+					<text id="anyhhtblst2yrs-label">
+						<value> In the past 2 years, have you shared a dwelling with anyone who had active TB while you were living together??</value>
+					</text>
+					<text id="transmissionqns/anyhhtblst2yrs-hint">
+						<value>Sharing a dwelling is defined as spending 5 or more nights sleeping under the same roof at the time</value>
+					</text>
+					<text id="transmissionqns/peoplewithtb-label">
+						<value>Then if yes: Was the person (or people) who had TB an adult or a child under 15 years?  (with option for ""both"")</value>
+					</text>
+					<text id="transmissionqns/peoplewithtb-child-label">
+						<value>Child under five years </value>
+					</text>
+					<text id="transmissionqns/peoplewithtb-adult-label">
+						<value>Above 15 years</value>
+					</text>
+					<text id="transmissionqns/peoplewithtb-both-label">
+						<value>Both Child and Adult</value>
+					</text>
+					<text id="transmissionqns/friendswithtb2yrs-label">
+						<value>In the past 2 years, have you had any friends or other close contacts outside your home who had TB?</value>
+					</text>
+					<text id="transmissionqns/friendswithtb-label">
+						<value>How old was the TB patient with whom you shared the dwelling?</value>
+					</text>
+					<text id="transmissionqns/friendswithtb-child-label">
+						<value>Child (Age &lt;5)</value>
+					</text>
+					<text id="transmissionqns/friendswithtb-adult-label">
+						<value>Adult (Age &gt;=15)</value>
+					</text>
+					<text id="transmissionqns/friendswithtb-childabv5-label">
+						<value>Child (Age 5-14)</value>
+					</text>
+					<text id="transmissionqns/roomsinhouse-label">
+						<value>How many rooms are there in your house? </value>
+					</text>
+					<text id="transmissionqns/roomsinhouse-hint">
+						<value>(Include rooms that are outside of the main house, like servant quarters) </value>
+					</text>
+					<text id="visithm-label">
+						<value>Visiting Home</value>
+					</text>
+					<text id="visithm/visithome-label">
+						<value>Would you  allow me to visit your home now?</value>
+					</text>
+					<text id="question204-label">
+						<value>If you are able to follow the patient home, please do so AFTER you have submitted this form. Once onsite, complete the household arrival form</value>
+						<value form="image">jr://file/commcare/image/data/question204.png</value>
+					</text>
+					<text id="ptschintvdt-label">
+						<value>If not now, when can we come to your home to interview your household contacts?</value>
+					</text>
+					<text id="visithm/pthmlandmark-label">
+						<value>Please provide the name of a public place or landmark where we can meet so you take me to your home.</value>
+					</text>
+					<text id="personalphonenos_group-label">
+						<value>Personal Phone Numbers</value>
+					</text>
+					<text id="personalphnnos-label">
+						<value>Enter Phone Number</value>
+					</text>
+					<text id="personalphnnos-hint">
+						<value>(Please start the number with 0 for example 0772123456)</value>
+					</text>
+					<text id="personalphnnos-constraintMsg">
+						<value>Enter a 10 digit Phone number</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/allocation" nodeset="/data/case/update/allocation" relevant="count(/data/allocation) &gt; 0"/><bind calculate="/data/allocation_id" nodeset="/data/case/update/allocation_id" relevant="count(/data/allocation_id) &gt; 0"/><bind calculate="/data/eligible" nodeset="/data/case/update/eligible" relevant="count(/data/eligible) &gt; 0"/><bind calculate="/data/ptage" nodeset="/data/case/update/ptage" relevant="count(/data/ptage) &gt; 0"/><bind calculate="/data/ptgender" nodeset="/data/case/update/ptgender" relevant="count(/data/ptgender) &gt; 0"/><bind calculate="/data/visithm/pthmlandmark" nodeset="/data/case/update/pthmlandmark" relevant="count(/data/visithm/pthmlandmark) &gt; 0"/><bind calculate="/data/ptid" nodeset="/data/case/update/ptid" relevant="count(/data/ptid) &gt; 0"/><bind calculate="/data/ptparish" nodeset="/data/case/update/ptparish" relevant="count(/data/ptparish) &gt; 0"/><bind calculate="/data/ptrxspphno" nodeset="/data/case/update/ptrxspphno" relevant="count(/data/ptrxspphno) &gt; 0"/><bind calculate="/data/pttype" nodeset="/data/case/update/pttype" relevant="count(/data/pttype) &gt; 0"/><bind calculate="/data/ptvillage" nodeset="/data/case/update/ptvillage" relevant="count(/data/ptvillage) &gt; 0"/><bind calculate="/data/new_string_data" nodeset="/data/case/update/string_data" relevant="count(/data/new_string_data) &gt; 0"/><bind calculate="/data/subcounty" nodeset="/data/case/update/subcounty" relevant="count(/data/subcounty) &gt; 0"/><bind calculate="/data/username" nodeset="/data/case/update/username" relevant="count(/data/username) &gt; 0"/><setvalue event="xforms-ready" ref="/data/display_case_inf" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><setvalue event="xforms-ready" ref="/data/ptage" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptage"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/eligible" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/eligible"/><setvalue event="xforms-ready" ref="/data/indexid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/screenid"/><setvalue event="xforms-ready" ref="/data/ptgender" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptgender"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/notEligibleLabel" appearance="minimal">
+			<label ref="jr:itext('notEligibleLabel-label')"/>
+		</trigger>
+		<input ref="/data/ntlpno">
+			<label ref="jr:itext('ntlpno-label')"/>
+		</input>
+		<input ref="/data/ptserialno">
+			<label ref="jr:itext('ptserialno-label')"/>
+		</input>
+		<input ref="/data/indexdob">
+			<label ref="jr:itext('indexdob-label2')"/>
+		</input>
+		<trigger ref="/data/ptage_years" appearance="minimal">
+			<label ref="jr:itext('ptage_years-label')"/>
+		</trigger>
+		<trigger ref="/data/childptAge" appearance="minimal">
+			<label ref="jr:itext('childptAge-label')"/>
+		</trigger>
+		<select1 ref="/data/subcounty">
+			<label ref="jr:itext('subcounty-label')"/>
+			<itemset nodeset="instance('subcounty')/subcounty_list/subcounty">
+				<label ref="name"/>
+					<value ref="id"/>
+			</itemset>
+		</select1>
+		<select1 ref="/data/parishr">
+			<label ref="jr:itext('parishr-label')"/>
+			<itemset nodeset="instance('parish')/parish_list/parish">
+				<label ref="name"/>
+				<value ref="id"/>
+			</itemset>
+		</select1>
+		<input ref="/data/village">
+			<label ref="jr:itext('village-label')"/>
+		</input>
+		<select1 ref="/data/ptgender">
+			<label ref="jr:itext('ptgender-label')"/>
+			<item>
+				<label ref="jr:itext('ptgender-female-label')"/>
+				<value>female</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ptgender-male-label')"/>
+				<value>male</value>
+			</item>
+		</select1>
+		<select1 ref="/data/hiv">
+			<label ref="jr:itext('hiv-label')"/>
+			<item>
+				<label ref="jr:itext('hiv-0-label')"/>
+				<value>0</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hiv-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hiv-2-label')"/>
+				<value>2</value>
+			</item>
+			<item>
+				<label ref="jr:itext('hiv-9-label')"/>
+				<value>9</value>
+			</item>
+		</select1>
+		<input ref="/data/ptlandlordname">
+			<label ref="jr:itext('ptlandlordname-label')"/>
+		</input>
+		<input ref="/data/ptrxspname">
+			<label ref="jr:itext('ptrxspname-label')"/>
+		</input>
+		<input ref="/data/ptrxspphno" appearance="numeric">
+			<label ref="jr:itext('ptrxspphno-label')"/>
+			<hint ref="jr:itext('personalphnnos-hint')"/>
+		</input>
+		<input ref="/data/tthhmembers">
+			<label ref="jr:itext('tthhmembers-label')"/>
+			<hint ref="jr:itext('tthhmembers-hint')"/>
+		</input>
+		<select1 ref="/data/hhhead">
+			<label ref="jr:itext('hhhead-label')"/>
+			<item>
+				<label ref="jr:itext('ablwrt-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ablwrt-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/householdse">
+			<label ref="jr:itext('householdse-label')"/>
+			<select1 ref="/data/householdse/ptoccupation">
+				<label ref="jr:itext('ptoccupation-label')"/>
+				<item>
+					<label ref="jr:itext('ptoccupation-unemployed-label')"/>
+					<value>unemployed</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-student-label')"/>
+					<value>student</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-casual_laborer-label')"/>
+					<value>casual_laborer</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-civil_servant-label')"/>
+					<value>civil_servant</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-ngo_private_sector-label')"/>
+					<value>ngo_private_sector</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-housewife-label')"/>
+					<value>housewife</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-domestic_worker-label')"/>
+					<value>domestic_worker</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ptoccupation-self_employed-label')"/>
+					<value>self_employed</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/spoccupation">
+				<label ref="jr:itext('householdse/spoccupation-label')"/>
+			</input>
+			<select1 ref="/data/householdse/schoollevel">
+				<label ref="jr:itext('schoollevel-label')"/>
+				<item>
+					<label ref="jr:itext('schoollevel-nofmsch-label')"/>
+					<value>nofmsch</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-pry1to4-label')"/>
+					<value>pry1to4</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-pry5to7-label')"/>
+					<value>pry5to7</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-olevel-label')"/>
+					<value>olevel</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-alevel-label')"/>
+					<value>alevel</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-vocatnl-label')"/>
+					<value>vocatnl</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-tertiary-label')"/>
+					<value>tertiary</value>
+				</item>
+				<item>
+					<label ref="jr:itext('schoollevel-postgrad-label')"/>
+					<value>postgrad</value>
+				</item>
+			</select1>
+			<select1 ref="/data/householdse/ablread">
+				<label ref="jr:itext('ablwrt-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/hhIncome">
+				<label ref="jr:itext('hhIncome-label')"/>
+				<hint ref="jr:itext('householdse/hhExpenditure-hint')"/>
+			</input>
+			<select1 ref="/data/householdse/surehhIncome">
+				<label ref="jr:itext('householdse/surehhIncome-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/hhExpenditure">
+				<label ref="jr:itext('hhExpenditure-label')"/>
+				<hint ref="jr:itext('householdse/hhExpenditure-hint')"/>
+			</input>
+			<select1 ref="/data/householdse/hhExpendituresure">
+				<label ref="jr:itext('householdse/hhExpendituresure-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/householdse/prtransmode">
+				<label ref="jr:itext('householdse/prtransmode-label')"/>
+				<hint ref="jr:itext('householdse/prtransmode-hint')"/>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-walk-label')"/>
+					<value>walk</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-bicycle-label')"/>
+					<value>bicycle</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-bodaboda-label')"/>
+					<value>bodaboda</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-taxi-label')"/>
+					<value>taxi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-car-label')"/>
+					<value>car</value>
+				</item>
+				<item>
+					<label ref="jr:itext('householdse/prtransmode-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/spectransmode">
+				<label ref="jr:itext('householdse/spectransmode-label')"/>
+			</input>
+			<input ref="/data/householdse/timespentintrans">
+				<label ref="jr:itext('householdse/timespentintrans-label')"/>
+			</input>
+			<input ref="/data/householdse/moneyspenttrans">
+				<label ref="jr:itext('householdse/moneyspenttrans-label')"/>
+			</input>
+			<select1 ref="/data/householdse/surespenttrans">
+				<label ref="jr:itext('householdse/surespenttrans-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/householdse/indexyrsneighbourhood">
+				<label ref="jr:itext('householdse/indexyrsneighbourhood-label')"/>
+			</input>
+		</group>
+		<group ref="/data/transmissionqns">
+			<label ref="jr:itext('transmissionqns-label2')"/>
+			<input ref="/data/transmissionqns/weekscoughing">
+				<label ref="jr:itext('sypmsdurbfdgns-label')"/>
+			</input>
+			<select1 ref="/data/transmissionqns/sureweekscoughing">
+				<label ref="jr:itext('transmissionqns/sureweekscoughing-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/transmissionqns/ntscurrdwell1mo">
+				<label ref="jr:itext('ntscurrdwell1mo-label')"/>
+			</input>
+			<input ref="/data/transmissionqns/mocurrdwel1year">
+				<label ref="jr:itext('mocurrdwel1year-label')"/>
+			</input>
+			<select1 ref="/data/transmissionqns/knowanytbpt">
+				<label ref="jr:itext('knowanytbpt-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/transmissionqns/anyhhtblst2yrs">
+				<label ref="jr:itext('anyhhtblst2yrs-label')"/>
+				<hint ref="jr:itext('transmissionqns/anyhhtblst2yrs-hint')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/transmissionqns/peoplewithtb">
+				<label ref="jr:itext('transmissionqns/peoplewithtb-label')"/>
+				<item>
+					<label ref="jr:itext('transmissionqns/peoplewithtb-child-label')"/>
+					<value>child</value>
+				</item>
+				<item>
+					<label ref="jr:itext('transmissionqns/peoplewithtb-adult-label')"/>
+					<value>adult</value>
+				</item>
+				<item>
+					<label ref="jr:itext('transmissionqns/peoplewithtb-both-label')"/>
+					<value>both</value>
+				</item>
+			</select1>
+			<select1 ref="/data/transmissionqns/friendswithtb2yrs">
+				<label ref="jr:itext('transmissionqns/friendswithtb2yrs-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select ref="/data/transmissionqns/friendswithtb">
+				<label ref="jr:itext('transmissionqns/friendswithtb-label')"/>
+				<item>
+					<label ref="jr:itext('transmissionqns/friendswithtb-child-label')"/>
+					<value>child</value>
+				</item>
+				<item>
+					<label ref="jr:itext('transmissionqns/friendswithtb-adult-label')"/>
+					<value>adult</value>
+				</item>
+				<item>
+					<label ref="jr:itext('transmissionqns/friendswithtb-childabv5-label')"/>
+					<value>childabv5</value>
+				</item>
+			</select>
+			<input ref="/data/transmissionqns/roomsinhouse">
+				<label ref="jr:itext('transmissionqns/roomsinhouse-label')"/>
+				<hint ref="jr:itext('transmissionqns/roomsinhouse-hint')"/>
+			</input>
+		</group>
+		<group ref="/data/visithm">
+			<label ref="jr:itext('visithm-label')"/>
+			<select1 ref="/data/visithm/visithome">
+				<label ref="jr:itext('visithm/visithome-label')"/>
+				<item>
+					<label ref="jr:itext('ablwrt-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ablwrt-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<trigger ref="/data/visithm/question204" appearance="minimal">
+				<label ref="jr:itext('question204-label')"/>
+			</trigger>
+			<input ref="/data/visithm/ptschintvdt">
+				<label ref="jr:itext('ptschintvdt-label')"/>
+			</input>
+			<input ref="/data/visithm/pthmlandmark">
+				<label ref="jr:itext('visithm/pthmlandmark-label')"/>
+			</input>
+			<group>
+				<label ref="jr:itext('personalphonenos_group-label')"/>
+				<repeat jr:count="/data/phone_number_count" jr:noAddRemove="true()" nodeset="/data/visithm/personalphonenos_group">
+					<input ref="/data/visithm/personalphonenos_group/personalphnnos" appearance="numeric">
+						<label ref="jr:itext('personalphnnos-label')"/>
+						<hint ref="jr:itext('personalphnnos-hint')"/>
+					</input>
+				</repeat>
+			</group>
+		</group>
+	</h:body>
+</h:html>

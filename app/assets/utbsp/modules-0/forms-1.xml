@@ -1,0 +1,518 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>2. Index Patient Screening</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/C4692A9C-0DEE-41C3-8352-069638BA2593" uiVersion="1" version="1983" name="2. Index Patient Screening">
+					<healthcentre/>
+					<inclusionqns>
+						<afbpos/>
+						<cxpos/>
+						<xpertpos/>
+						<childunder5/>
+						<ptpresumedtb/>
+					</inclusionqns>
+					<exclqns>
+						<ptresideoutkla/>
+						<ptablecons/>
+						<ptmdrtb/>
+						<pthhcnts/>
+						<homeless/>
+						<evrhaveaccphn/>
+						<ptustdlugeng/>
+						<ptwillingconsafter/>
+					</exclqns>
+					<pteligible/>
+					<ptnoteligible/>
+					<infconscplt/>
+					<informconschck/>
+					<search/>
+					<record_exists/>
+					<name_list>
+						<pgivenname/>
+						<ptsurname/>
+					</name_list>
+					<fingerprtid/>
+					<ptfullname/>
+					<screendatetime/>
+					<screenid/>
+					<pttype/>
+					<identify/>
+					<intent_0>com.biometrac.core.SCAN</intent_0>
+					<intent_1>com.biometrac.core.IDENTIFY</intent_1>
+					<finger_left_index>left_index</finger_left_index>
+					<finger_left_thumb>left_thumb</finger_left_thumb>
+					<finger_right_thumb>right_thumb</finger_right_thumb>
+					<finger_right_index>right_index</finger_right_index>
+					<left_index/>
+					<right_index/>
+					<left_thumb/>
+					<right_thumb/>
+					<match_id/>
+					<returned/>
+					<random_id/>
+					<uuid/>
+					<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+						<create>
+							<case_name/>
+							<owner_id/>
+							<case_type>scanned</case_type>
+						</create><update>
+							<healthcentre/>
+							<screenid/>
+							<under5/>
+							<left_thumb/>
+							<left_index/>
+							<right_thumb/>
+							<right_index/>
+							<pttype/>
+							<ptid/>
+							<eligible/>
+						</update>
+					</case>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="groups" src="jr://fixture/user-groups"/>
+			<bind nodeset="/data/healthcentre" required="true()"/>
+			<bind nodeset="/data/inclusionqns"/>
+			<bind nodeset="/data/inclusionqns/afbpos" required="true()"/>
+			<bind nodeset="/data/inclusionqns/cxpos" required="true()"/>
+			<bind nodeset="/data/inclusionqns/xpertpos" required="true()"/>
+			<bind nodeset="/data/inclusionqns/childunder5" required="true()"/>
+			<bind nodeset="/data/inclusionqns/ptpresumedtb" relevant="/data/inclusionqns/childunder5 = 'yes'" required="true()"/>
+			<bind nodeset="/data/exclqns" relevant="/data/inclusionqns/afbpos = 'yes' or /data/inclusionqns/cxpos = 'yes' or /data/inclusionqns/xpertpos = 'yes' or /data/inclusionqns/ptpresumedtb = 'yes'"/>
+			<bind nodeset="/data/exclqns/ptresideoutkla" required="true()"/>
+			<bind nodeset="/data/exclqns/ptablecons" required="true()"/>
+			<bind nodeset="/data/exclqns/ptmdrtb" required="true()"/>
+			<bind nodeset="/data/exclqns/pthhcnts" required="true()"/>
+			<bind nodeset="/data/exclqns/homeless" required="true()"/>
+			<bind nodeset="/data/exclqns/evrhaveaccphn" required="true()"/>
+			<bind nodeset="/data/exclqns/ptustdlugeng" required="true()"/>
+			<bind nodeset="/data/exclqns/ptwillingconsafter" required="true()"/>
+			<bind nodeset="/data/pteligible" relevant="/data/exclqns/ptresideoutkla = 'no' and /data/exclqns/ptablecons = 'yes' and /data/exclqns/ptmdrtb = 'no' and /data/exclqns/pthhcnts = 'no' and /data/exclqns/evrhaveaccphn = 'yes' and /data/exclqns/ptustdlugeng = 'yes' and /data/exclqns/ptwillingconsafter = 'yes' and /data/exclqns/homeless = 'no'" required="true()"/>
+			<bind nodeset="/data/ptnoteligible" relevant="not(/data/exclqns/ptwillingconsafter = 'yes' and /data/exclqns/ptustdlugeng = 'yes' and /data/exclqns/evrhaveaccphn = 'yes' and /data/exclqns/pthhcnts = 'no' and /data/exclqns/ptmdrtb = 'no' and /data/exclqns/ptablecons = 'yes' and /data/exclqns/ptresideoutkla = 'no' and /data/exclqns/homeless = 'no')"/>
+			<bind nodeset="/data/infconscplt" relevant="/data/exclqns/ptresideoutkla = 'no' and /data/exclqns/ptablecons = 'yes' and /data/exclqns/ptmdrtb = 'no' and /data/exclqns/pthhcnts = 'no' and /data/exclqns/evrhaveaccphn = 'yes' and /data/exclqns/ptustdlugeng = 'yes' and /data/exclqns/ptwillingconsafter = 'yes' " required="true()"/>
+			<bind nodeset="/data/informconschck" relevant="/data/infconscplt = 'no'"/>
+			<bind nodeset="/data/search" type="intent" relevant="/data/inclusionqns/childunder5 = 'no'" required="false()"/>
+			<bind nodeset="/data/record_exists" relevant="/data/returned != '0' and /data/inclusionqns/childunder5 = 'no'"/>
+			<bind nodeset="/data/name_list" relevant="/data/infconscplt = 'yes' and (/data/returned = '0'  or /data/inclusionqns/childunder5 = 'yes')"/>
+			<bind nodeset="/data/name_list/pgivenname" type="xsd:string" relevant="/data/infconscplt = 'yes'" required="true()"/>
+			<bind nodeset="/data/name_list/ptsurname" type="xsd:string" relevant="/data/infconscplt = 'yes'" required="true()"/>
+			<bind nodeset="/data/fingerprtid" required="false()"/>
+			<bind nodeset="/data/ptfullname" calculate="concat(/data/name_list/pgivenname,' ',/data/name_list/ptsurname)"/>
+			<bind nodeset="/data/screendatetime" calculate="now()"/>
+			<bind nodeset="/data/screenid"/>
+			<bind nodeset="/data/pttype" calculate="'index'"/>
+			<bind nodeset="/data/identify"/>
+			<bind nodeset="/data/intent_0"/>
+			<bind nodeset="/data/intent_1"/>
+			<bind nodeset="/data/finger_left_index"/>
+			<bind nodeset="/data/finger_left_thumb"/>
+			<bind nodeset="/data/finger_right_thumb"/>
+			<bind nodeset="/data/finger_right_index"/>
+			<bind nodeset="/data/left_index" type="xsd:string"/>
+			<bind nodeset="/data/right_index" type="xsd:string"/>
+			<bind nodeset="/data/left_thumb" type="xsd:string"/>
+			<bind nodeset="/data/right_thumb" type="xsd:string"/>
+			<bind nodeset="/data/match_id"/>
+			<bind nodeset="/data/returned"/>
+			<bind nodeset="/data/random_id"/>
+			<bind nodeset="/data/uuid"/>
+			<bind nodeset="/data/case" relevant="/data/returned = '0'"/>
+			<bind nodeset="/data/case/create"/>
+			<bind nodeset="/data/case/create/case_name" calculate="/data/ptfullname"/>
+			<bind nodeset="/data/case/create/owner_id"/>
+			<bind nodeset="/data/case/create/case_type"/><setvalue event="xforms-ready" ref="/data/case/create/owner_id" value="instance('groups')/groups/group/@id"/><bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/><bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="uuid()"/><setvalue event="xforms-revalidate" ref="/data/case/update/ptid" value="/data/case/@case_id"/><bind nodeset="/data/case/update/eligible" calculate="if(/data/exclqns/ptresideoutkla = 'no' and /data/exclqns/ptablecons = 'yes' and /data/exclqns/ptmdrtb = 'no' and /data/exclqns/pthhcnts = 'no' and /data/exclqns/evrhaveaccphn = 'yes' and /data/exclqns/ptustdlugeng = 'yes' and /data/exclqns/ptwillingconsafter = 'yes' and /data/returned = '0','yes','no')"/><bind nodeset="/data/case/update/ptid" calculate="/data/case/@case_id"/><bind nodeset="/data/case/update/pttype" calculate="/data/pttype"/><bind nodeset="/data/case/update/right_index" relevant="count(/data/right_index) &gt; 0" calculate="/data/right_index"/><bind nodeset="/data/case/update/right_thumb" relevant="count(/data/right_thumb) &gt; 0" calculate="/data/right_thumb"/><bind nodeset="/data/case/update/left_index" relevant="count(/data/left_index) &gt; 0" calculate="/data/left_index"/><bind nodeset="/data/case/update/left_thumb" relevant="count(/data/left_thumb) &gt; 0" calculate="/data/left_thumb"/><bind nodeset="/data/case/update/under5" relevant="count(/data/inclusionqns/ptpresumedtb) &gt; 0" calculate="/data/inclusionqns/ptpresumedtb"/><bind nodeset="/data/case/update/screenid" relevant="count(/data/screenid) &gt; 0" calculate="/data/screenid"/><bind nodeset="/data/case/update/healthcentre" relevant="count(/data/healthcentre) &gt; 0 and /data/returned = '0'" calculate="/data/healthcentre"/><bind nodeset="/data/case/update"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="healthcentre-label">
+						<value>Health Centre</value>
+					</text>
+					<text id="healthcentre-kawaalahc-label">
+						<value>Kawaala Health Centre</value>
+					</text>
+					<text id="healthcentre-kisenyihc-label">
+						<value>Kisenyi Health Centre</value>
+					</text>
+					<text id="healthcentre-kisuguhc-label">
+						<value>Kisugu Health Centre</value>
+					</text>
+					<text id="healthcentre-kiswahc-label">
+						<value>Kiswa Health Centre</value>
+					</text>
+					<text id="healthcentre-kitebihc-label">
+						<value>Kitebi Health Centre</value>
+					</text>
+					<text id="healthcentre-komambogahc-label">
+						<value>Komamboga Health Centre</value>
+					</text>
+					<text id="healthcentre-naguruhp-label">
+						<value>Naguru Hospital</value>
+					</text>
+					<text id="inclusionqns-label">
+						<value>Inclusion Questions</value>
+					</text>
+					<text id="afbpos-label">
+						<value>Is the sputum AFB microscopy smear-positive?&#65279;</value>
+					</text>
+					<text id="afbpos-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="afbpos-no-label">
+						<value>No</value>
+					</text>
+					<text id="afbpos-notavailable-label">
+						<value>Not Available</value>
+					</text>
+					<text id="cxpos-label">
+						<value>Is the sputum MTB culture positive? </value>
+					</text>
+					<text id="xpertpos-label">
+						<value>Is the sputum GeneXpert positive?</value>
+					</text>
+					<text id="xpertpos-notavailable-label">
+						<value>Not Available </value>
+					</text>
+					<text id="childunder5-label">
+						<value>Is the patient a Child LESS than 5 years?</value>
+					</text>
+					<text id="ptpresumedtb-label">
+						<value>Is the child presumed to be a TB patient based on clinical judgment and has NO microbiological result?</value>
+					</text>
+					<text id="exclqns-label">
+						<value>Exclusion Questions</value>
+					</text>
+					<text id="ptresideoutkla-label">
+						<value>Does the index patient reside outside the precincts of Kampala?</value>
+					</text>
+					<text id="ptunablecons-label3">
+						<value>Is the index patient able to provide informed consent (i.e. possessing capacity)?</value>
+					</text>
+					<text id="ptmdrtb-label">
+						<value>Does the index patient have MDR-TB?</value>
+					</text>
+					<text id="pthhcnts-label">
+						<value>Does the index patient live alone without any household contacts ?</value>
+					</text>
+					<text id="exclqns/homeless-label">
+						<value>Is the index patient homeless?</value>
+					</text>
+					<text id="evrlackaccphn-label">
+						<value>Does at least one person in the household of the index patient have access to a mobile telephone?	</value>
+					</text>
+					<text id="ptunabconv-label">
+						<value>Is the index patient able to understand either Luganda or English?</value>
+					</text>
+					<text id="ptunwillingconsafter-label">
+						<value>Is the index patient willing to consent after hearing about the study?</value>
+					</text>
+					<text id="pteligible-label2">
+						<value>Summary of Answers
+Inclusion Questions
+1. Is the sputum AFB microscopy smear -positive? <output value="/data/inclusionqns/afbpos"/>
+2. Is the sputum MTB culture positive? <output value="/data/inclusionqns/cxpos"/>
+3. Is the sputum GeneXpert positive?<output value="/data/inclusionqns/xpertpos"/> 
+4. Is the patient a Child LESS than 5 years? <output value="/data/inclusionqns/childunder5"/>
+5. Is the child presumed to be a TB patient based on clinical judgment and has NO microbiological result? <output value="/data/inclusionqns/ptpresumedtb"/>
+Exclusion Questions
+6. Is the index patient able to provide informed consent (i.e. possessing capacity)?  <output value="/data/exclqns/ptablecons"/>
+7. Does the index patient reside outside the precincts of Kampala? <output value="/data/exclqns/ptresideoutkla"/>
+8. Does the index patient live alone without any household contacts? <output value="/data/exclqns/pthhcnts"/>
+9. Is the index patient homeless? <output value="/data/exclqns/homeless"/>
+10. Does the index patient have MDR-TB? <output value="/data/exclqns/ptmdrtb"/>
+11. Is the index patient able to understand either Luganda or English?<output value="/data/exclqns/ptustdlugeng"/>
+12. Does at least one person in the household of the index patient have access to a mobile telephone?	<output value="/data/exclqns/evrhaveaccphn"/>
+13. Is the index patient willing to consent after hearing about the study? <output value="/data/exclqns/ptwillingconsafter"/>
+
+Patient is eligible to enroll. Please complete informed consent, and then swipe to the right for more questions.</value>
+						<value form="image">jr://file/commcare/image/index_patient_interview.png</value>
+					</text>
+					<text id="ptnoteligible-label">
+						<value>Summary of Answers
+Inclusion Questions
+1. Is the sputum AFB microscopy smear -positive? <output value="/data/inclusionqns/afbpos"/>
+2. Is the sputum MTB culture positive? <output value="/data/inclusionqns/cxpos"/>
+3. Is the sputum GeneXpert positive?<output value="/data/inclusionqns/xpertpos"/> 
+4. Is the patient a Child LESS than 5 years? <output value="/data/inclusionqns/childunder5"/>
+5. Is the child presumed to be a TB patient based on clinical judgment and has NO microbiological result? <output value="/data/inclusionqns/ptpresumedtb"/>
+Exclusion Questions
+6. Is the index patient able to provide informed consent (i.e. possessing capacity)?  <output value="/data/exclqns/ptablecons"/>
+7. Does the index patient reside outside the precincts of Kampala? <output value="/data/exclqns/ptresideoutkla"/>
+8. Does the index patient live alone without any household contacts? <output value="/data/exclqns/pthhcnts"/>
+9. Is the index patient homeless? <output value="/data/exclqns/homeless"/>
+10. Does the index patient have MDR-TB? <output value="/data/exclqns/ptmdrtb"/>
+11. Is the index patient able to understand either Luganda or English?<output value="/data/exclqns/ptustdlugeng"/>
+12. Does at least one person in the household of the index patient have access to a mobile telephone?	<output value="/data/exclqns/evrhaveaccphn"/>
+13. Is the index patient willing to consent after hearing about the study? <output value="/data/exclqns/ptwillingconsafter"/>
+
+Patient is Not Eligible to enroll. Please cross check your responses before proceeding. Thanks </value>
+					</text>
+					<text id="infconscplt-label">
+						<value>Has the Informed Consent Form been completed and signed?</value>
+					</text>
+					<text id="informconschck-label">
+						<value>The patient is not eligible to participate without informed consent.</value>
+					</text>
+					<text id="fingerprtid-label">
+						<value>FINGERPRINT SCAN: Please check whether or not the patient was previously enrolled. If not, then create an ID</value>
+					</text>
+					<text id="record_exists-label">
+						<value><output value="/data/returned"/> record(s) exist for this scan </value>
+					</text>
+					<text id="name_list-label">
+						<value>Patient's Name</value>
+					</text>
+					<text id="pgivenname-label">
+						<value>Patient Given Name</value>
+					</text>
+					<text id="ptsurname-label">
+						<value>Patient Surname </value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="search" class="com.biometrac.core.PIPE" appearance="quick">
+			<extra key="action_0" ref="/data/intent_0"/>
+			<extra key="action_1" ref="/data/intent_1"/>
+			<extra key="left_finger_assignment_0" ref="/data/finger_left_index"/>
+			<extra key="right_finger_assignment_0" ref="/data/finger_right_index"/>
+			<extra key="left_finger_assignment_1" ref="/data/finger_left_thumb"/>
+			<extra key="right_finger_assignment_1" ref="/data/finger_right_thumb"/>
+			<response key="matches_found" ref="/data/returned"/>
+			<response key="left_index" ref="/data/left_index"/>
+			<response key="left_thumb" ref="/data/left_thumb"/>
+			<response key="right_index" ref="/data/right_index"/>
+			<response key="right_thumb" ref="/data/right_thumb"/>
+			<response key="match_id_0" ref="/data/match_id"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/healthcentre">
+			<label ref="jr:itext('healthcentre-label')"/>
+			<item>
+				<label ref="jr:itext('healthcentre-kawaalahc-label')"/>
+				<value>kawaalahc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-kisenyihc-label')"/>
+				<value>kisenyihc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-kisuguhc-label')"/>
+				<value>kisuguhc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-kiswahc-label')"/>
+				<value>kiswahc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-kitebihc-label')"/>
+				<value>kitebihc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-komambogahc-label')"/>
+				<value>komambogahc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('healthcentre-naguruhp-label')"/>
+				<value>naguruhp</value>
+			</item>
+		</select1>
+		<group ref="/data/inclusionqns">
+			<label ref="jr:itext('inclusionqns-label')"/>
+			<select1 ref="/data/inclusionqns/afbpos">
+				<label ref="jr:itext('afbpos-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-notavailable-label')"/>
+					<value>notavailable</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inclusionqns/cxpos">
+				<label ref="jr:itext('cxpos-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-notavailable-label')"/>
+					<value>notavailable</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inclusionqns/xpertpos">
+				<label ref="jr:itext('xpertpos-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('xpertpos-notavailable-label')"/>
+					<value>notavailable</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inclusionqns/childunder5">
+				<label ref="jr:itext('childunder5-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/inclusionqns/ptpresumedtb">
+				<label ref="jr:itext('ptpresumedtb-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/exclqns">
+			<label ref="jr:itext('exclqns-label')"/>
+			<select1 ref="/data/exclqns/ptresideoutkla">
+				<label ref="jr:itext('ptresideoutkla-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/ptablecons">
+				<label ref="jr:itext('ptunablecons-label3')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/ptmdrtb">
+				<label ref="jr:itext('ptmdrtb-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/pthhcnts">
+				<label ref="jr:itext('pthhcnts-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/homeless">
+				<label ref="jr:itext('exclqns/homeless-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>Yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/evrhaveaccphn">
+				<label ref="jr:itext('evrlackaccphn-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/ptustdlugeng">
+				<label ref="jr:itext('ptunabconv-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/exclqns/ptwillingconsafter">
+				<label ref="jr:itext('ptunwillingconsafter-label')"/>
+				<item>
+					<label ref="jr:itext('afbpos-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('afbpos-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<trigger ref="/data/pteligible">
+			<label ref="jr:itext('pteligible-label2')"/>
+		</trigger>
+		<trigger ref="/data/ptnoteligible" appearance="minimal">
+			<label ref="jr:itext('ptnoteligible-label')"/>
+		</trigger>
+		<select1 ref="/data/infconscplt">
+			<label ref="jr:itext('infconscplt-label')"/>
+			<item>
+				<label ref="jr:itext('afbpos-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('afbpos-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<trigger ref="/data/informconschck" appearance="minimal">
+			<label ref="jr:itext('informconschck-label')"/>
+		</trigger>
+		<input ref="/data/search" appearance="intent:search">
+			<label ref="jr:itext('fingerprtid-label')"/>
+		</input>
+		<trigger ref="/data/record_exists">
+			<label ref="jr:itext('record_exists-label')"/>
+		</trigger>
+		<group ref="/data/name_list" appearance="field-list">
+			<label ref="jr:itext('name_list-label')"/>
+			<input ref="/data/name_list/pgivenname">
+				<label ref="jr:itext('pgivenname-label')"/>
+			</input>
+			<input ref="/data/name_list/ptsurname">
+				<label ref="jr:itext('ptsurname-label')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

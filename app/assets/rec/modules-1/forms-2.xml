@@ -1,0 +1,3004 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Child Classification</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/2f934e7b72944d72fd925e870030ecdc2e5e2ea6" uiVersion="1" version="1109" name="Child Classification">
+					<icons>
+						<green_increased_icon/>
+						<red_increased_icon/>
+						<yellow_increased_icon/>
+						<green_constant_icon/>
+						<red_constant_icon/>
+						<yellow_constant_icon/>
+						<green_decreased_icon/>
+						<red_decreased_icon/>
+						<yellow_decreased_icon/>
+						<green_no_prev_icon/>
+						<red_no_prev_icon/>
+						<yellow_no_prev_icon/>
+						<child_profile/>
+						<plus/>
+						<checkmark/>
+					</icons>
+					<authentication>
+						<selected_user/>
+						<entered_pin/>
+					</authentication>
+					<consult_info>
+						<consultation_type/>
+						<distance/>
+					</consult_info>
+					<debug>
+						<add_debug_dob/>
+						<debug_input_dob/>
+						<debug_input_sex/>
+					</debug>
+					<vitals>
+						<height/>
+						<weight/>
+						<temp/>
+						<muac/>
+					</vitals>
+					<zscore_results>
+						<warn_over_five_years/>
+						<warn_bad_height/>
+						<show_zscore_wfa/>
+						<show_zscore_wfh/>
+						<show_zscore_hfa/>
+						<show_muac_status/>
+						<correct_extremes/>
+					</zscore_results>
+					<vaccines>
+						<bcg/>
+						<opv_0/>
+						<opv_1/>
+						<opv_2/>
+						<opv_3/>
+						<penta_1/>
+						<penta_2/>
+						<penta_3/>
+						<pneumo_1/>
+						<pneumo_2/>
+						<pneumo_3/>
+						<rotavirus_1/>
+						<rotavirus_2/>
+						<rotavirus_3/>
+						<measles_1/>
+						<measles_2/>
+						<yf/>
+					</vaccines>
+					<danger>
+						<low_danger/>
+						<high_danger/>
+						<boire/>
+						<vomit/>
+						<convulsions_passe/>
+						<lethargie/>
+						<convulsions_present/>
+					</danger>
+					<toux>
+						<low_toux/>
+						<medium_toux/>
+						<high_toux/>
+						<toux_presence/>
+						<toux_presence_duree/>
+						<freq_resp/>
+						<mouv_resp/>
+						<tirage/>
+						<stridor/>
+					</toux>
+					<diarrhee>
+						<no_dehydration/>
+						<some_dehydration/>
+						<severe_dehydration/>
+						<persistent/>
+						<severe_persistent/>
+						<dysentery/>
+						<diarrhee_presence/>
+						<diarrhee_presence_duree/>
+						<sang_selles/>
+						<conscience_agitation/>
+						<yeux_enfonces/>
+						<soif/>
+						<pli_cutane/>
+					</diarrhee>
+					<fievre>
+						<history_measles/>
+						<measles/>
+						<measles_complex/>
+						<measles_severe/>
+						<tdr_negative/>
+						<malaria/>
+						<malaria_severe_neg_tdr/>
+						<malaria_severe/>
+						<fievre_presence/>
+						<fievre_presence_duree/>
+						<fievre_presence_longue/>
+						<tdr/>
+						<urines_foncees/>
+						<saignements_anormaux/>
+						<raideur_nuque/>
+						<ictere/>
+						<choc/>
+						<eruption_cutanee/>
+						<ecoulement_nasal/>
+						<yeux_rouge/>
+						<ecoulement_oculaire/>
+						<ulcerations/>
+						<cornee/>
+					</fievre>
+					<oreille>
+						<ear_infection_chronic/>
+						<ear_infection_acute/>
+						<ear_mastoiditis/>
+						<oreille_probleme/>
+						<oreille_douleur/>
+						<oreille_ecoulement/>
+						<oreille_ecoulement_duree/>
+						<oreille_gonflement/>
+					</oreille>
+					<anemie>
+						<anemia_none/>
+						<anemia_normal/>
+						<anemia_serious/>
+						<paleur_palmaire/>
+					</anemie>
+					<malnutrition>
+						<malnutrition_na/>
+						<no_malnutrition/>
+						<malnutrition_mam/>
+						<malnutrition_mass/>
+						<malnutrition_masc/>
+						<oedemes/>
+						<test_appetit/>
+					</malnutrition>
+					<vih>
+						<vih_pas/>
+						<vih_peu_probable/>
+						<vih_symp_suspecte/>
+						<vih_possible/>
+						<vih_symp_probable/>
+						<vih_confirmee/>
+						<vih_symp_confirmee/>
+						<serologie_enfant/>
+						<test_enfant/>
+						<pneumonie_recidivante/>
+						<diarrhee_dernierement/>
+						<candidose_buccale/>
+						<hypertrophie_ganglions_lymphatiques/>
+						<augmentation_glande_parotide/>
+						<test_mere/>
+						<serologie_mere/>
+					</vih>
+					<vitamin_a/>
+					<other>
+						<other_comments/>
+					</other>
+					<signes_danger/>
+					<pneumonie_grave/>
+					<frequence_elevee/>
+					<deshydratation_severe/>
+					<deshydratation_evident/>
+					<pas_de_deshydratation/>
+					<diarrhee_persistente/>
+					<diarrhee_persistente_severe/>
+					<tdr_ok/>
+					<paludisme_grave/>
+					<signes_rougeole/>
+					<rougeole_ou_antecedent/>
+					<rougeole_compliquee/>
+					<mastoidite/>
+					<anemie_grave/>
+					<classifications_graves/>
+					<ma_normal/>
+					<ma_mam/>
+					<ma_mas/>
+					<au_moins_deux_maladies/>
+					<au_plus_une_maladie/>
+					<infection_vih_symp_suspecte/>
+					<classification_oreille/>
+					<classification_diahree/>
+					<classification_vih/>
+					<classification_paludisme/>
+					<classification_deshydratation/>
+					<classification_pneumonie/>
+					<classification_malnutrition/>
+					<classification_rougeole/>
+					<classification_anemie/>
+					<classification_dysenterie/>
+					<visit_date/>
+					<visit_type/>
+					<dob/>
+					<dob_loaded/>
+					<sex_loaded/>
+					<sex/>
+					<age_in_weeks/>
+					<age_in_months/>
+					<bad_height/>
+					<L_wfa/>
+					<M_wfa/>
+					<S_wfa/>
+					<sd3neg_wfa/>
+					<sd2neg_wfa/>
+					<mean_wfa/>
+					<sd2pos_wfa/>
+					<sd3pos_wfa/>
+					<zscore_unrounded_wfa/>
+					<zscore_wfa/>
+					<zscore_grading_wfa/>
+					<prev_zscore_wfa/>
+					<zscore_wfa_change/>
+					<zscore_wfa_change_status/>
+					<centile_wfa/>
+					<zscore_wfa_image_path/>
+					<height_rounded/>
+					<L_wfh/>
+					<M_wfh/>
+					<S_wfh/>
+					<sd3neg_wfh/>
+					<sd2neg_wfh/>
+					<mean_wfh/>
+					<sd2pos_wfh/>
+					<sd3pos_wfh/>
+					<zscore_unrounded_wfh/>
+					<zscore_wfh/>
+					<zscore_grading_wfh/>
+					<prev_zscore_wfh/>
+					<zscore_wfh_change/>
+					<zscore_wfh_change_status/>
+					<centile_wfh/>
+					<zscore_wfh_image_path/>
+					<L_hfa/>
+					<M_hfa/>
+					<S_hfa/>
+					<sd3neg_hfa/>
+					<sd2neg_hfa/>
+					<mean_hfa/>
+					<sd2pos_hfa/>
+					<sd3pos_hfa/>
+					<zscore_unrounded_hfa/>
+					<zscore_hfa/>
+					<zscore_grading_hfa/>
+					<prev_zscore_hfa/>
+					<zscore_hfa_change/>
+					<zscore_hfa_change_status/>
+					<centile_hfa/>
+					<zscore_hfa_image_path/>
+					<muac_grading/>
+					<prev_muac/>
+					<muac_change/>
+					<muac_change_status/>
+					<muac_image_path/>
+					<selected_user_pin/>
+					<selected_username/>
+					<child_name/>
+					<visit_case_name/>
+					<consult_count_loaded/>
+					<consult_count/>
+					<mobile_username/>
+				<subcase_0><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>imci_visit</case_type></create><update><age_in_months/><augmentation_glande_parotide/><boire/><candidose_buccale/><centile_hfa/><centile_wfa/><centile_wfh/><choc/><classification_anemie/><classification_deshydratation/><classification_diahree/><classification_done_by_user_caseid/><classification_done_by_username/><classification_dysenterie/><classification_malnutrition/><classification_oreille/><classification_paludisme/><classification_pneumonie/><classification_rougeole/><classification_vih/><conscience_agitation/><consultation_type/><convulsions_passe/><convulsions_present/><cornee/><deshydratation_evident/><deshydratation_severe/><diarrhee_dernierement/><diarrhee_presence/><diarrhee_presence_duree/><ecoulement_nasal/><ecoulement_oculaire/><eruption_cutanee/><fievre_presence/><fievre_presence_duree/><fievre_presence_longue/><freq_resp/><height/><hypertrophie_ganglions_lymphatiques/><ictere/><lethargie/><mobile_username/><muac/><oedemes/><oreille_douleur/><oreille_ecoulement/><oreille_ecoulement_duree/><oreille_gonflement/><oreille_probleme/><other_comments/><paleur_palmaire/><pli_cutane/><pneumonie_recidivante/><raideur_nuque/><saignements_anormaux/><sang_selles/><serologie_enfant/><signes_danger/><soif/><stridor/><tdr/><temperature/><test_appetit/><test_enfant/><test_mere/><tirage/><toux_presence/><toux_presence_duree/><ulcerations/><urines_foncees/><vih_qa/><visit_date/><visit_type/><vitamin_a/><vomit/><weight/><yeux_enfonces/><yeux_rouge/><zscore_grading_hfa/><zscore_grading_wfa/><zscore_grading_wfh/><zscore_hfa/><zscore_wfa/><zscore_wfh/></update><index><parent case_type="rec_child"/></index></case></subcase_0><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><bcg/><centile_hfa/><centile_wfa/><centile_wfh/><consult_count/><last_height/><last_modified_by_user_caseid/><last_modified_by_username/><last_muac/><last_visit_date/><last_weight/><measles_1/><measles_2/><muac_change/><muac_change_status/><muac_grading/><opv_0/><opv_1/><opv_2/><opv_3/><penta_1/><penta_2/><penta_3/><pneumo_1/><pneumo_2/><pneumo_3/><rotavirus_1/><rotavirus_2/><rotavirus_3/><yf/><zscore_grading_hfa/><zscore_grading_wfa/><zscore_grading_wfh/><zscore_hfa/><zscore_hfa_change/><zscore_hfa_change_status/><zscore_wfa/><zscore_wfa_change/><zscore_wfa_change_status/><zscore_wfh/><zscore_wfh_change/><zscore_wfh_change_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="wfa_0_5_zscores" src="jr://fixture/item-list:wfa_0_5_zscores"/>
+			<instance id="wfa_0_13_zscores" src="jr://fixture/item-list:wfa_0_13_zscores"/>
+			<instance id="wfl_0_2_zscores" src="jr://fixture/item-list:wfl_0_2_zscores"/>
+			<instance id="wfh_2_5_zscores" src="jr://fixture/item-list:wfh_2_5_zscores"/>
+			<instance id="lhfa_0_5_zscores" src="jr://fixture/item-list:lhfa_0_5_zscores"/>
+			<instance id="lhfa_0_13_zscores" src="jr://fixture/item-list:lhfa_0_13_zscores"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/icons" relevant="false()"/>
+			<bind nodeset="/data/icons/green_increased_icon"/>
+			<bind nodeset="/data/icons/red_increased_icon"/>
+			<bind nodeset="/data/icons/yellow_increased_icon"/>
+			<bind nodeset="/data/icons/green_constant_icon"/>
+			<bind nodeset="/data/icons/red_constant_icon"/>
+			<bind nodeset="/data/icons/yellow_constant_icon"/>
+			<bind nodeset="/data/icons/green_decreased_icon"/>
+			<bind nodeset="/data/icons/red_decreased_icon"/>
+			<bind nodeset="/data/icons/yellow_decreased_icon"/>
+			<bind nodeset="/data/icons/green_no_prev_icon"/>
+			<bind nodeset="/data/icons/red_no_prev_icon"/>
+			<bind nodeset="/data/icons/yellow_no_prev_icon"/>
+			<bind nodeset="/data/icons/child_profile"/>
+			<bind nodeset="/data/icons/plus"/>
+			<bind nodeset="/data/icons/checkmark"/>
+			<bind nodeset="/data/authentication"/>
+			<bind nodeset="/data/authentication/selected_user" required="true()"/>
+			<bind nodeset="/data/authentication/entered_pin" type="xsd:string" constraint=". = /data/selected_user_pin" jr:constraintMsg="jr:itext('authentication/entered_pin-constraintMsg')" relevant="/data/authentication/selected_user != ''" required="true()"/>
+			<bind nodeset="/data/consult_info"/>
+			<bind nodeset="/data/consult_info/consultation_type" required="true()"/>
+			<bind nodeset="/data/consult_info/distance" required="true()"/>
+			<bind nodeset="/data/debug" relevant="false()"/>
+			<bind nodeset="/data/debug/add_debug_dob"/>
+			<bind nodeset="/data/debug/debug_input_dob" type="xsd:date" relevant="/data/debug/add_debug_dob = 'yes'"/>
+			<bind nodeset="/data/debug/debug_input_sex"/>
+			<bind nodeset="/data/vitals"/>
+			<bind nodeset="/data/vitals/height" type="xsd:double" constraint=". &gt;= 35 and . &lt;= 140" jr:constraintMsg="jr:itext('vitals/height-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/weight" type="xsd:double" constraint=". &gt;= 2 and . &lt;= 40" jr:constraintMsg="jr:itext('vitals/weight-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/temp" type="xsd:double" constraint=". &gt;= 35 and . &lt;= 45" jr:constraintMsg="jr:itext('vitals/temp-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/vitals/muac" type="xsd:double" constraint=". &gt;= 50 and . &lt;= 250" jr:constraintMsg="jr:itext('vitals/muac-constraintMsg')" relevant="today() - date(/data/dob) &gt;= 182 and today() - date(/data/dob) &lt; 1827" required="true()"/>
+			<bind nodeset="/data/zscore_results"/>
+			<bind nodeset="/data/zscore_results/warn_over_five_years" relevant="/data/age_in_months &gt; 60"/>
+			<bind nodeset="/data/zscore_results/warn_bad_height" relevant="/data/bad_height = 'yes'"/>
+			<bind nodeset="/data/zscore_results/show_zscore_wfa" relevant="/data/zscore_wfa != '' and /data/age_in_months &lt;= 60"/>
+			<bind nodeset="/data/zscore_results/show_zscore_wfh" relevant="/data/zscore_wfh != ''"/>
+			<bind nodeset="/data/zscore_results/show_zscore_hfa" relevant="/data/zscore_hfa != '' and /data/age_in_months &lt;= 60"/>
+			<bind nodeset="/data/zscore_results/show_muac_status" relevant="/data/vitals/muac != ''"/>
+			<bind nodeset="/data/zscore_results/correct_extremes" constraint=". != ''" jr:constraintMsg="jr:itext('zscore_results/correct_extremes-constraintMsg')" relevant="/data/zscore_unrounded_wfa &gt; 3 or /data/zscore_unrounded_wfa &lt; -3 or /data/zscore_unrounded_wfh &gt; 3 or /data/zscore_unrounded_wfh &lt; -3 or /data/zscore_unrounded_hfa &gt; 3 or /data/zscore_unrounded_hfa &lt; -3" required="true()"/>
+			<bind nodeset="/data/vaccines"/>
+			<bind nodeset="/data/vaccines/bcg" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_0" relevant=" today() &gt;= date(date(/data/dob) + 14)" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_2" relevant=" today() &gt;= date(date(/data/dob) + 84)" required="true()"/>
+			<bind nodeset="/data/vaccines/opv_3" relevant=" today() &gt;= date(date(/data/dob) + 112)" required="true()"/>
+			<bind nodeset="/data/vaccines/penta_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/penta_2" relevant=" today() &gt;= date(date(/data/dob) + 84)" required="true()"/>
+			<bind nodeset="/data/vaccines/penta_3" relevant=" today() &gt;= date(date(/data/dob) + 112)" required="true()"/>
+			<bind nodeset="/data/vaccines/pneumo_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/pneumo_2" relevant=" today() &gt;= date(date(/data/dob) + 84)" required="true()"/>
+			<bind nodeset="/data/vaccines/pneumo_3" relevant=" today() &gt;= date(date(/data/dob) + 112)" required="true()"/>
+			<bind nodeset="/data/vaccines/rotavirus_1" relevant=" today() &gt;= date(date(/data/dob) + 56)" required="true()"/>
+			<bind nodeset="/data/vaccines/rotavirus_2" relevant=" today() &gt;= date(date(/data/dob) + 84)" required="true()"/>
+			<bind nodeset="/data/vaccines/rotavirus_3" relevant=" today() &gt;= date(date(/data/dob) + 112)" required="true()"/>
+			<bind nodeset="/data/vaccines/measles_1" relevant=" today() &gt;= date(date(/data/dob) + 273)" required="true()"/>
+			<bind nodeset="/data/vaccines/measles_2" relevant=" today() &gt;= date(date(/data/dob) + 456)" required="true()"/>
+			<bind nodeset="/data/vaccines/yf" relevant=" today() &gt;= date(date(date(/data/dob)) + 273)" required="true()"/>
+			<bind nodeset="/data/danger"/>
+			<bind nodeset="/data/danger/low_danger" relevant="/data/signes_danger != 'yes' and /data/danger/convulsions_present != '' and /data/danger/boire != '' and /data/danger/vomit != '' and /data/danger/convulsions_passe != '' and /data/danger/lethargie != ''"/>
+			<bind nodeset="/data/danger/high_danger" relevant="/data/signes_danger = 'yes' and /data/danger/convulsions_present != '' "/>
+			<bind nodeset="/data/danger/boire" required="true()"/>
+			<bind nodeset="/data/danger/vomit" required="true()"/>
+			<bind nodeset="/data/danger/convulsions_passe" required="true()"/>
+			<bind nodeset="/data/danger/lethargie" required="true()"/>
+			<bind nodeset="/data/danger/convulsions_present" required="true()"/>
+			<bind nodeset="/data/toux"/>
+			<bind nodeset="/data/toux/low_toux" relevant="/data/toux/toux_presence = 'yes' and not(/data/frequence_elevee = 'yes') and not(/data/toux/tirage = 'yes') and not(/data/toux/stridor = 'yes') and not(/data/signes_danger = 'yes') and /data/toux/stridor != ''"/>
+			<bind nodeset="/data/toux/medium_toux" relevant="/data/toux/toux_presence = 'yes' and /data/frequence_elevee = 'yes' and not(/data/toux/tirage = 'yes') and not(/data/toux/stridor = 'yes') and not(/data/signes_danger = 'yes') and /data/toux/stridor != ''"/>
+			<bind nodeset="/data/toux/high_toux" relevant="/data/pneumonie_grave = 'yes' and /data/toux/stridor != ''"/>
+			<bind nodeset="/data/toux/toux_presence" required="true()"/>
+			<bind nodeset="/data/toux/toux_presence_duree" type="xsd:int" constraint=". &gt;= 1 and . &lt;= 30" jr:constraintMsg="jr:itext('diarrhee/diarrhee_presence_duree-constraintMsg')" relevant="/data/toux/toux_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/toux/freq_resp" type="xsd:int" constraint=". &gt;= 10 and . &lt;= 120" jr:constraintMsg="jr:itext('freq_resp-constraintMsg')" relevant="/data/toux/toux_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/toux/mouv_resp" relevant="1=2" required="true()"/>
+			<bind nodeset="/data/toux/tirage" relevant="/data/toux/toux_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/toux/stridor" relevant="/data/toux/toux_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee"/>
+			<bind nodeset="/data/diarrhee/no_dehydration" relevant="/data/pas_de_deshydratation = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/some_dehydration" relevant="/data/deshydratation_evident = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/severe_dehydration" relevant="/data/deshydratation_severe = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/persistent" relevant="/data/diarrhee_persistente = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/severe_persistent" relevant="/data/diarrhee_persistente_severe = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/dysentery" relevant="/data/diarrhee/diarrhee_presence = 'yes' and /data/diarrhee/sang_selles = 'yes' and /data/diarrhee/pli_cutane != ''"/>
+			<bind nodeset="/data/diarrhee/diarrhee_presence" required="true()"/>
+			<bind nodeset="/data/diarrhee/diarrhee_presence_duree" type="xsd:int" constraint=". &gt;= 1 and . &lt;= 30" jr:constraintMsg="jr:itext('diarrhee/diarrhee_presence_duree-constraintMsg')" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee/sang_selles" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee/conscience_agitation" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee/yeux_enfonces" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee/soif" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/diarrhee/pli_cutane" relevant="/data/diarrhee/diarrhee_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre"/>
+			<bind nodeset="/data/fievre/history_measles" relevant="/data/fievre/fievre_presence = 'yes' and (/data/fievre/eruption_cutanee = 'antecedent') and not(/data/fievre/cornee = 'yes') and not(/data/fievre/ecoulement_oculaire = 'yes') and (/data/fievre/ulcerations = 'absentes') and not(/data/signes_danger = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee ='no' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/measles" relevant="/data/fievre/fievre_presence = 'yes' and /data/signes_rougeole = 'yes' and not(/data/fievre/cornee = 'yes') and not(/data/fievre/ecoulement_oculaire = 'yes') and (/data/fievre/ulcerations = 'absentes') and not(/data/signes_danger = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee ='no' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/measles_complex" relevant="/data/fievre/fievre_presence = 'yes' and /data/rougeole_ou_antecedent = 'yes' and ((/data/fievre/ecoulement_oculaire = 'yes' or (/data/fievre/ulcerations = 'presentes'))) and not(/data/rougeole_compliquee = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='yes' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/measles_severe" relevant="/data/rougeole_compliquee = 'yes' and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/tdr_negative" relevant="/data/fievre/fievre_presence = 'yes' and not(/data/tdr_ok = 'yes') and not(/data/paludisme_grave = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/malaria" relevant="/data/fievre/fievre_presence = 'yes' and /data/tdr_ok = 'yes' and not(/data/paludisme_grave = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/malaria_severe_neg_tdr" relevant="/data/paludisme_grave = 'yes' and not(/data/tdr_ok = 'yes') and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/malaria_severe" relevant="/data/paludisme_grave = 'yes' and /data/tdr_ok = 'yes' and ((/data/fievre/yeux_rouge !='' and /data/fievre/eruption_cutanee = 'aucun') or (/data/fievre/cornee !='' and /data/fievre/eruption_cutanee != 'aucun'))"/>
+			<bind nodeset="/data/fievre/fievre_presence" required="true()"/>
+			<bind nodeset="/data/fievre/fievre_presence_duree" type="xsd:int" constraint=". &gt;= 1 and . &lt;= 30" jr:constraintMsg="jr:itext('diarrhee/diarrhee_presence_duree-constraintMsg')" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/fievre_presence_longue" relevant="/data/fievre/fievre_presence_duree &gt;= 7" required="true()"/>
+			<bind nodeset="/data/fievre/tdr" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/urines_foncees" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/saignements_anormaux" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/raideur_nuque" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/ictere" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/choc" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/eruption_cutanee" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/ecoulement_nasal" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/yeux_rouge" relevant="/data/fievre/fievre_presence = 'yes'" required="true()"/>
+			<bind nodeset="/data/fievre/ecoulement_oculaire" relevant="(/data/fievre/eruption_cutanee = 'eruption') or (/data/fievre/eruption_cutanee = 'antecedent')" required="true()"/>
+			<bind nodeset="/data/fievre/ulcerations" relevant="(/data/fievre/eruption_cutanee = 'eruption') or (/data/fievre/eruption_cutanee = 'antecedent')" required="true()"/>
+			<bind nodeset="/data/fievre/cornee" relevant="(/data/fievre/eruption_cutanee = 'eruption') or (/data/fievre/eruption_cutanee = 'antecedent')" required="true()"/>
+			<bind nodeset="/data/oreille"/>
+			<bind nodeset="/data/oreille/ear_infection_chronic" relevant="/data/oreille/oreille_probleme = 'yes' and /data/oreille/oreille_ecoulement = 'yes' and (/data/oreille/oreille_ecoulement_duree &gt;= 14) and not(/data/mastoidite = 'yes') and /data/oreille/oreille_gonflement != ''"/>
+			<bind nodeset="/data/oreille/ear_infection_acute" relevant="/data/oreille/oreille_probleme = 'yes' and ((/data/oreille/oreille_ecoulement = 'yes' and (/data/oreille/oreille_ecoulement_duree &lt; 14)) or (not(/data/oreille/oreille_ecoulement = 'yes') and /data/oreille/oreille_douleur = 'yes')) and not(/data/mastoidite = 'yes') and /data/oreille/oreille_gonflement != ''"/>
+			<bind nodeset="/data/oreille/ear_mastoiditis" relevant="/data/mastoidite = 'yes' and /data/oreille/oreille_gonflement != ''"/>
+			<bind nodeset="/data/oreille/oreille_probleme" required="true()"/>
+			<bind nodeset="/data/oreille/oreille_douleur" relevant="/data/oreille/oreille_probleme = 'yes'" required="true()"/>
+			<bind nodeset="/data/oreille/oreille_ecoulement" relevant="/data/oreille/oreille_probleme = 'yes'" required="true()"/>
+			<bind nodeset="/data/oreille/oreille_ecoulement_duree" type="xsd:int" constraint=". &gt;= 1 and . &lt;= 30" jr:constraintMsg="jr:itext('diarrhee/diarrhee_presence_duree-constraintMsg')" relevant="/data/oreille/oreille_probleme = 'yes' and /data/oreille/oreille_ecoulement ='yes'" required="true()"/>
+			<bind nodeset="/data/oreille/oreille_gonflement" relevant="/data/oreille/oreille_probleme = 'yes'" required="true()"/>
+			<bind nodeset="/data/anemie"/>
+			<bind nodeset="/data/anemie/anemia_none" relevant="/data/anemie/paleur_palmaire = 'absente' and /data/anemie/paleur_palmaire != ''"/>
+			<bind nodeset="/data/anemie/anemia_normal" relevant="/data/anemie/paleur_palmaire = 'legere' and /data/anemie/paleur_palmaire != ''"/>
+			<bind nodeset="/data/anemie/anemia_serious" relevant="/data/anemie_grave = 'yes' and /data/anemie/paleur_palmaire != ''"/>
+			<bind nodeset="/data/anemie/paleur_palmaire" required="true()"/>
+			<bind nodeset="/data/malnutrition"/>
+			<bind nodeset="/data/malnutrition/malnutrition_na" relevant="date(today()) - date(/data/dob) &lt;= 6 * 30.4375"/>
+			<bind nodeset="/data/malnutrition/no_malnutrition" relevant="date(today()) - date(/data/dob) &gt;= 6 * 30.4375 and /data/ma_normal = 'yes' and /data/malnutrition/oedemes = 'no' and ((/data/malnutrition/test_appetit != '' and /data/vitals/muac &lt; 115) or (/data/malnutrition/oedemes != '' and /data/vitals/muac &gt;= 115))"/>
+			<bind nodeset="/data/malnutrition/malnutrition_mam" relevant="date(today()) - date(/data/dob) &gt;= 6 * 30.4375 and /data/ma_mam = 'yes' and /data/malnutrition/oedemes = 'no' and ((/data/malnutrition/test_appetit != '' and /data/vitals/muac &lt; 115) or (/data/malnutrition/oedemes != '' and /data/vitals/muac &gt;= 115))"/>
+			<bind nodeset="/data/malnutrition/malnutrition_mass" relevant="date(today()) - date(/data/dob) &gt;= 6 * 30.4375 and /data/ma_mas = 'yes' and /data/malnutrition/test_appetit = 'positif' and /data/malnutrition/oedemes = 'no' and not(/data/classifications_graves = 'yes') and ((/data/malnutrition/test_appetit != '' and /data/vitals/muac &lt; 115) or (/data/malnutrition/oedemes != '' and /data/vitals/muac &gt;= 115))"/>
+			<bind nodeset="/data/malnutrition/malnutrition_masc" relevant="date(today()) - date(/data/dob) &gt;= 6*30.4375 and ((not(/data/malnutrition/oedemes = '') and /data/malnutrition/oedemes != 'no') or (/data/ma_mas = 'yes' and ((/data/malnutrition/test_appetit = 'negatif') or /data/classifications_graves = 'yes'))) and ((/data/malnutrition/test_appetit != '' and /data/vitals/muac &lt; 115) or (/data/malnutrition/oedemes != '' and /data/vitals/muac &gt;= 115))"/>
+			<bind nodeset="/data/malnutrition/oedemes" relevant="date(today()) - date(/data/dob) &gt;= 6 * 30.4375" required="true()"/>
+			<bind nodeset="/data/malnutrition/test_appetit" relevant="date(today()) - date(/data/dob) &gt;= 6 * 30.4375 and (/data/vitals/muac &lt; 115 or /data/centile_wfh &lt; 70)" required="true()"/>
+			<bind nodeset="/data/vih"/>
+			<bind nodeset="/data/vih/vih_pas" relevant="/data/vih/serologie_enfant = 'negative' and /data/vih/serologie_mere = 'negative' and /data/au_plus_une_maladie = 'yes' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_peu_probable" relevant="/data/vih/serologie_enfant = 'inconnue' and /data/vih/serologie_mere = 'inconnue' and /data/au_plus_une_maladie = 'yes' and not(/data/infection_vih_symp_suspecte = 'yes') and /data/vih/test_enfant != 'positif' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_symp_suspecte" relevant="/data/infection_vih_symp_suspecte = 'yes' and /data/vih/test_enfant != 'positif' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_possible" relevant="/data/vih/serologie_enfant = 'inconnue' and /data/vih/serologie_mere = 'positive' or (date(today()) - date(/data/dob) &lt; 18 * 30.4375 and /data/vih/serologie_enfant = 'positive') and /data/au_plus_une_maladie = 'yes' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_symp_probable" relevant="/data/au_moins_deux_maladies = 'yes' and /data/vih/serologie_enfant = 'positive' and date(today()) - date(/data/dob) &lt; 18 * 30.4375 and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_confirmee" relevant="((/data/vih/serologie_enfant = 'positive' and (date(today()) - date(/data/dob)) &gt;= 18 * 30.4375) or /data/vih/test_enfant = 'positif') and /data/au_plus_une_maladie = 'yes' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/vih_symp_confirmee" relevant="((/data/vih/serologie_enfant = 'positive' and (date(today()) - date(/data/dob)) &gt;= 18 * 30.4375) or /data/vih/test_enfant = 'positif') and /data/au_moins_deux_maladies = 'yes' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/vih/serologie_enfant" required="true()"/>
+			<bind nodeset="/data/vih/test_enfant" required="true()"/>
+			<bind nodeset="/data/vih/pneumonie_recidivante" required="true()"/>
+			<bind nodeset="/data/vih/diarrhee_dernierement" required="true()"/>
+			<bind nodeset="/data/vih/candidose_buccale" required="true()"/>
+			<bind nodeset="/data/vih/hypertrophie_ganglions_lymphatiques" required="true()"/>
+			<bind nodeset="/data/vih/augmentation_glande_parotide" required="true()"/>
+			<bind nodeset="/data/vih/test_mere" required="true()"/>
+			<bind nodeset="/data/vih/serologie_mere" required="true()"/>
+			<bind nodeset="/data/vitamin_a" relevant="(date(today()) - date(/data/dob)) &gt;= 6 * 30.4375" required="true()"/>
+			<bind nodeset="/data/other"/>
+			<bind nodeset="/data/other/other_comments" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/signes_danger" calculate="if(/data/danger/boire = 'yes' or /data/danger/vomit = 'yes' or /data/danger/convulsions_passe = 'yes' or /data/danger/lethargie = 'yes' or /data/danger/convulsions_present = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/pneumonie_grave" calculate="if(/data/toux/toux_presence = 'yes' and (/data/signes_danger = 'yes' or /data/toux/tirage = 'yes' or /data/toux/stridor = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/frequence_elevee" calculate="if(((date(today()) - date(/data/dob) &gt;= 365) and (/data/toux/freq_resp &gt;= 40)) or ((date(today()) - date(/data/dob) &lt; 365) and (/data/toux/freq_resp &gt;= 50)), 'yes', 'no')"/>
+			<bind nodeset="/data/deshydratation_severe" calculate="if(/data/diarrhee/diarrhee_presence = 'yes' and (int(/data/diarrhee/conscience_agitation = 'lethargique_inconscient') + int(/data/diarrhee/soif = 'impossible') + int(/data/diarrhee/yeux_enfonces = 'yes') + int(/data/diarrhee/pli_cutane = 'tres_lentement') &gt;= 2), 'yes', 'no')"/>
+			<bind nodeset="/data/deshydratation_evident" calculate="if(/data/diarrhee/diarrhee_presence = 'yes' and (int(/data/diarrhee/conscience_agitation = 'agite_irritable') + int(/data/diarrhee/yeux_enfonces = 'yes') + int(/data/diarrhee/soif = 'avide') + int(/data/diarrhee/pli_cutane = 'lentement')) &gt;= 2 and not(/data/deshydratation_severe = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/pas_de_deshydratation" calculate="if(/data/diarrhee/diarrhee_presence = 'yes' and not(/data/deshydratation_evident = 'yes') and not(/data/deshydratation_severe = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/diarrhee_persistente" calculate="if(/data/diarrhee/diarrhee_presence = 'yes' and (/data/diarrhee/diarrhee_presence_duree &gt;= 14) and /data/pas_de_deshydratation = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/diarrhee_persistente_severe" calculate="if(/data/diarrhee/diarrhee_presence = 'yes' and (/data/diarrhee/diarrhee_presence_duree &gt;= 14) and (/data/deshydratation_severe = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/tdr_ok" calculate="if(/data/fievre/tdr = 'tdr+' or /data/fievre/tdr = 'non_disponible', 'yes', 'no')"/>
+			<bind nodeset="/data/paludisme_grave" calculate="if(/data/fievre/fievre_presence = 'yes' and (/data/fievre/raideur_nuque = 'yes' or /data/fievre/urines_foncees = 'yes' or /data/fievre/saignements_anormaux = 'yes' or /data/fievre/ictere = 'yes' or /data/fievre/choc = 'yes' or /data/signes_danger = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/signes_rougeole" calculate="if((/data/fievre/eruption_cutanee = 'eruption') and (/data/fievre/ecoulement_nasal = 'yes' or /data/fievre/yeux_rouge = 'yes' or /data/toux/toux_presence = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/rougeole_ou_antecedent" calculate="if((/data/fievre/eruption_cutanee = 'antecedent') or /data/signes_rougeole = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/rougeole_compliquee" calculate="if(/data/fievre/fievre_presence = 'yes' and /data/rougeole_ou_antecedent = 'yes' and (/data/fievre/cornee = 'yes' or /data/fievre/ulcerations = 'profondes_etendues' or /data/signes_danger = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/mastoidite" calculate="if(/data/oreille/oreille_probleme = 'yes' and /data/oreille/oreille_gonflement = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/anemie_grave" calculate="if(/data/anemie/paleur_palmaire = 'severe', 'yes', 'no')"/>
+			<bind nodeset="/data/classifications_graves" calculate="if(/data/rougeole_compliquee = 'yes' or /data/diarrhee_persistente_severe = 'yes' or /data/deshydratation_severe = 'yes' or /data/pneumonie_grave = 'yes' or /data/signes_danger = 'yes' or /data/paludisme_grave = 'yes' or /data/anemie_grave = 'yes' or /data/mastoidite = 'yes', 'yes', 'no')"/>
+			<bind nodeset="/data/ma_normal" calculate="if(/data/vitals/muac &gt;= 125 and /data/centile_wfh &gt;= 80, 'yes', 'no')"/>
+			<bind nodeset="/data/ma_mam" calculate="if(/data/vitals/muac &gt;= 115 and /data/centile_wfh &gt;= 70 and not(/data/ma_normal = 'yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/ma_mas" calculate="if(/data/vitals/muac &lt; 115 or /data/centile_wfh &lt; 70, 'yes', 'no')"/>
+			<bind nodeset="/data/au_moins_deux_maladies" calculate="if((int(/data/pneumonie_grave = 'yes') + int(/data/vih/pneumonie_recidivante = 'yes') + int(/data/vih/diarrhee_dernierement = 'yes') + int(/data/oreille/oreille_ecoulement = 'yes') + int((date(today()) - date(/data/dob) &gt;= 6*30.4375) and not(/data/ma_normal = 'yes')) + int(/data/vih/candidose_buccale = 'yes') + int(/data/vih/hypertrophie_ganglions_lymphatiques = 'yes') + int(/data/vih/augmentation_glande_parotide = 'yes') + int((/data/diarrhee_persistente = 'yes') or (/data/diarrhee_persistente_severe = 'yes'))) &gt;= 2, 'yes', 'no')"/>
+			<bind nodeset="/data/au_plus_une_maladie" calculate="if((int(/data/pneumonie_grave = 'yes') + int(/data/vih/pneumonie_recidivante = 'yes') + int(/data/vih/diarrhee_dernierement = 'yes') + int(/data/oreille/oreille_ecoulement = 'yes') + int((date(today()) - date(/data/dob) &gt;= 6*30.4375) and not(/data/ma_normal = 'yes')) + int(/data/vih/candidose_buccale = 'yes') + int(/data/vih/hypertrophie_ganglions_lymphatiques = 'yes') + int(/data/vih/augmentation_glande_parotide = 'yes') + int((/data/diarrhee_persistente = 'yes') or (/data/diarrhee_persistente_severe = 'yes'))) &lt;= 1, 'yes', 'no')"/>
+			<bind nodeset="/data/infection_vih_symp_suspecte" calculate="/data/vih/serologie_mere = 'inconnue' and /data/vih/serologie_enfant = 'inconnue' and /data/au_moins_deux_maladies = 'yes' and /data/vih/serologie_mere != ''"/>
+			<bind nodeset="/data/classification_oreille" calculate="if(count(/data/oreille/ear_infection_chronic) &gt; 0, 'infection_chronique_oreille',      if(count(/data/oreille/ear_infection_acute) &gt; 0, 'infection_aigue_oreille',          if(count(/data/oreille/ear_mastoiditis) &gt; 0, 'mastoidite', '')))"/>
+			<bind nodeset="/data/classification_diahree" calculate="if(count(/data/diarrhee/persistent) &gt; 0, 'diahree_persistante',      if(count(/data/diarrhee/severe_persistent) &gt; 0, 'diahree_persistante_severe_grave',''))"/>
+			<bind nodeset="/data/classification_vih" calculate="if(count(/data/vih/vih_pas) &gt; 0, 'vih_pas', if(count(/data/vih/vih_peu_probable) &gt; 0, 'vih_peu_probable', if(count(/data/vih/vih_symp_suspecte) &gt; 0, 'vih_symp_suspecte', if(count(/data/vih/vih_possible) &gt; 0, 'vih_possible', if(count(/data/vih/vih_symp_probable) &gt; 0, 'vih_symp_probable', if(count(/data/vih/vih_confirmee) &gt; 0, 'vih_confirmee', if(count(/data/vih/vih_symp_confirmee) &gt; 0, 'vih_symp_confirmee', '')))))))"/>
+			<bind nodeset="/data/classification_paludisme" calculate="if(count(/data/fievre/malaria) &gt; 0, 'paludisme_simple',      if(count(/data/fievre/malaria_severe) &gt; 0, 'paludisme_grave', if(count(/data/fievre/tdr_negative) &gt; 0, 'pas_paludisme', if(count(/data/fievre/malaria_severe_neg_tdr) &gt; 0, 'paludisme_grave_sans_tdr', ''))))"/>
+			<bind nodeset="/data/classification_deshydratation" calculate="if(count(/data/diarrhee/no_dehydration) &gt; 0, 'pas_deshydratation',      if(count(/data/diarrhee/some_dehydration) &gt; 0, 'signes_deshydratation',          if(count(/data/diarrhee/severe_dehydration) &gt; 0, 'deshydratation_severe_grave', '')))"/>
+			<bind nodeset="/data/classification_pneumonie" calculate="if(count(/data/toux/low_toux) &gt; 0, 'pas_pneumonie', if(count(/data/toux/medium_toux) &gt; 0, 'pneumonie', if(count(/data/toux/high_toux) &gt; 0, 'pneumonie_grave', '')))"/>
+			<bind nodeset="/data/classification_malnutrition" calculate="if(count(/data/malnutrition/no_malnutrition) &gt; 0, 'pas_malnutrition', if(count(/data/malnutrition/malnutrition_mam) &gt; 0, 'mam', if(count(/data/malnutrition/malnutrition_mass) &gt; 0, 'mass', if(count(/data/malnutrition/malnutrition_masc) &gt; 0, 'masc', ''))))"/>
+			<bind nodeset="/data/classification_rougeole" calculate=" if(count(/data/fievre/history_measles) &gt; 0, 'antecedent_rougeole',      if(count(/data/fievre/measles) &gt; 0, 'rougeole',          if(count(/data/fievre/measles_complex) &gt; 0, 'rougeole_complications',              if(count(/data/fievre/measles_severe) &gt; 0, 'rougeole_compliquee', ''))))"/>
+			<bind nodeset="/data/classification_anemie" calculate="if(count(/data/anemie/anemia_normal) &gt; 0, 'anemie',      if(count(/data/anemie/anemia_serious) &gt; 0, 'anemie_grave', ''))"/>
+			<bind nodeset="/data/classification_dysenterie" calculate="if(count(/data/diarrhee/dysentery) &gt; 0, 'dysenterie', '')"/>
+			<bind nodeset="/data/visit_date" calculate="today()"/>
+			<bind nodeset="/data/visit_type" calculate="'imci_child'"/>
+			<bind nodeset="/data/dob" calculate="if(/data/debug/add_debug_dob = 'yes', /data/debug/debug_input_dob, /data/dob_loaded)"/>
+			<bind nodeset="/data/dob_loaded"/>
+			<bind nodeset="/data/sex_loaded"/>
+			<bind nodeset="/data/sex" calculate="if(/data/debug/debug_input_sex != '', /data/debug/debug_input_sex, /data/sex_loaded)"/>
+			<bind nodeset="/data/age_in_weeks" calculate="int((today() - date(/data/dob)) div 7)"/>
+			<bind nodeset="/data/age_in_months" calculate="int((today() - date(/data/dob)) div 30.4375)"/>
+			<bind nodeset="/data/bad_height" calculate="if((/data/age_in_months &lt; 24 and /data/height_rounded &lt; 45) or (/data/age_in_months &lt; 24 and /data/height_rounded &gt; 110) or (/data/age_in_months &gt;= 24 and /data/height_rounded &lt; 65) or (/data/age_in_months &gt;= 24 and /data/height_rounded &gt; 120), 'yes', 'no')"/>
+			<bind nodeset="/data/L_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/L, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/M, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_wfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('wfa_0_13_zscores')/wfa_0_13_zscores_list/wfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/S, instance('wfa_0_5_zscores')/wfa_0_5_zscores_list/wfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * -3, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd2neg_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * -2, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/mean_wfa" calculate="/data/M_wfa * pow(1, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd2pos_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * 2, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/sd3pos_wfa" calculate="/data/M_wfa * pow(1 + /data/L_wfa * /data/S_wfa * 3, 1 div /data/L_wfa)"/>
+			<bind nodeset="/data/zscore_unrounded_wfa" calculate="if(/data/vitals/weight &lt; /data/sd3neg_wfa, -3 + (/data/vitals/weight - /data/sd3neg_wfa) div (/data/sd2neg_wfa - /data/sd3neg_wfa), if(/data/vitals/weight &gt; /data/sd3pos_wfa, 3 + (/data/vitals/weight - /data/sd3pos_wfa) div (/data/sd3pos_wfa - /data/sd2pos_wfa),  (pow((/data/vitals/weight div /data/M_wfa),/data/L_wfa)-1) div (/data/S_wfa * /data/L_wfa)))"/>
+			<bind nodeset="/data/zscore_wfa" calculate="if(/data/zscore_unrounded_wfa &gt; 0, int((/data/zscore_unrounded_wfa + 0.005) * 100) div 100, int((/data/zscore_unrounded_wfa - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_wfa" calculate="if(/data/zscore_wfa = '', '', if(/data/zscore_wfa &lt; -3, 'red', if(/data/zscore_wfa &lt; -2, 'yellow', if(/data/zscore_wfa &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_wfa"/>
+			<bind nodeset="/data/zscore_wfa_change" calculate="int((/data/zscore_wfa - /data/prev_zscore_wfa) * 100) div 100"/>
+			<bind nodeset="/data/zscore_wfa_change_status" calculate="if(/data/zscore_wfa_change &gt;= 0.1, 'increased', if(/data/zscore_wfa_change &lt;= -0.1, 'decreased', if(/data/zscore_wfa_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_wfa" calculate="int((/data/vitals/weight div /data/mean_wfa) * 100)"/>
+			<bind nodeset="/data/zscore_wfa_image_path" relevant="/data/zscore_wfa != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_wfa, '_', /data/zscore_wfa_change_status, '.png')"/>
+			<bind nodeset="/data/height_rounded" calculate="int((/data/vitals/height + .25)*2) div 2"/>
+			<bind nodeset="/data/L_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/L, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/M, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_wfh" calculate="if(/data/age_in_months = '', '', if(/data/age_in_months &lt; 24, instance('wfl_0_2_zscores')/wfl_0_2_zscores_list/wfl_0_2_zscores[Length = /data/height_rounded][Gender = /data/sex]/S, instance('wfh_2_5_zscores')/wfh_2_5_zscores_list/wfh_2_5_zscores[Height = /data/height_rounded][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * -3, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd2neg_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * -2, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/mean_wfh" calculate="/data/M_wfh * pow(1, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd2pos_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * 2, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/sd3pos_wfh" calculate="/data/M_wfh * pow(1 + /data/L_wfh * /data/S_wfh * 3, 1 div /data/L_wfh)"/>
+			<bind nodeset="/data/zscore_unrounded_wfh" calculate="if(/data/vitals/weight &lt; /data/sd3neg_wfh, -3 + (/data/vitals/weight - /data/sd3neg_wfh) div (/data/sd2neg_wfh - /data/sd3neg_wfh), if(/data/vitals/weight &gt; /data/sd3pos_wfh, 3 + (/data/vitals/weight - /data/sd3pos_wfh) div (/data/sd3pos_wfh - /data/sd2pos_wfh),  (pow((/data/vitals/weight div /data/M_wfh),/data/L_wfh)-1) div (/data/S_wfh * /data/L_wfh)))"/>
+			<bind nodeset="/data/zscore_wfh" calculate="if(/data/zscore_unrounded_wfh &gt; 0, int((/data/zscore_unrounded_wfh + 0.005) * 100) div 100, int((/data/zscore_unrounded_wfh - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_wfh" calculate="if(/data/zscore_wfh = '', '', if(/data/zscore_wfh &lt; -3, 'red', if(/data/zscore_wfh &lt; -2, 'yellow', if(/data/zscore_wfh &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_wfh"/>
+			<bind nodeset="/data/zscore_wfh_change" calculate="int((/data/zscore_wfh - /data/prev_zscore_wfh) * 100) div 100"/>
+			<bind nodeset="/data/zscore_wfh_change_status" calculate="if(/data/zscore_wfh_change &gt;= 0.1, 'increased', if(/data/zscore_wfh_change &lt;= -0.1, 'decreased', if(/data/zscore_wfh_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_wfh" calculate="int((/data/vitals/weight div /data/mean_wfh) * 100)"/>
+			<bind nodeset="/data/zscore_wfh_image_path" relevant="/data/zscore_wfh != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_wfh, '_', /data/zscore_wfh_change_status, '.png')"/>
+			<bind nodeset="/data/L_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/L, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/L))"/>
+			<bind nodeset="/data/M_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/M, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/M))"/>
+			<bind nodeset="/data/S_hfa" calculate="if(/data/age_in_weeks = '', '', if(/data/age_in_weeks &lt;= 13, instance('lhfa_0_13_zscores')/lhfa_0_13_zscores_list/lhfa_0_13_zscores[Week = /data/age_in_weeks][Gender = /data/sex]/S, instance('lhfa_0_5_zscores')/lhfa_0_5_zscores_list/lhfa_0_5_zscores[Month = /data/age_in_months][Gender = /data/sex]/S))"/>
+			<bind nodeset="/data/sd3neg_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * -3, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd2neg_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * -2, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/mean_hfa" calculate="/data/M_hfa * pow(1, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd2pos_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * 2, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/sd3pos_hfa" calculate="/data/M_hfa * pow(1 + /data/L_hfa * /data/S_hfa * 3, 1 div /data/L_hfa)"/>
+			<bind nodeset="/data/zscore_unrounded_hfa" calculate="if(/data/vitals/height &lt; /data/sd3neg_hfa, -3 + (/data/vitals/height - /data/sd3neg_hfa) div (/data/sd2neg_hfa - /data/sd3neg_hfa), if(/data/vitals/height &gt; /data/sd3pos_hfa, 3 + (/data/vitals/height - /data/sd3pos_hfa) div (/data/sd3pos_hfa - /data/sd2pos_hfa),  (pow((/data/vitals/height div /data/M_hfa),/data/L_hfa)-1) div (/data/S_hfa * /data/L_hfa)))"/>
+			<bind nodeset="/data/zscore_hfa" calculate="if(/data/zscore_unrounded_hfa &gt; 0, int((/data/zscore_unrounded_hfa + 0.005) * 100) div 100, int((/data/zscore_unrounded_hfa - 0.005) * 100) div 100)"/>
+			<bind nodeset="/data/zscore_grading_hfa" calculate="if(/data/zscore_hfa = '', '', if(/data/zscore_hfa &lt; -3, 'red', if(/data/zscore_hfa &lt; -2, 'yellow', if(/data/zscore_hfa &lt; 2, 'green', 'green'))))"/>
+			<bind nodeset="/data/prev_zscore_hfa"/>
+			<bind nodeset="/data/zscore_hfa_change" calculate="int((/data/zscore_hfa - /data/prev_zscore_hfa) * 100) div 100"/>
+			<bind nodeset="/data/zscore_hfa_change_status" calculate="if(/data/zscore_hfa_change &gt;= 0.1, 'increased', if(/data/zscore_hfa_change &lt;= -0.1, 'decreased', if(/data/zscore_hfa_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/centile_hfa" calculate="int((/data/vitals/height div /data/mean_hfa) * 100)"/>
+			<bind nodeset="/data/zscore_hfa_image_path" relevant="/data/zscore_hfa != ''" calculate="concat('jr://file/commcare/image/data/', /data/zscore_grading_hfa, '_', /data/zscore_hfa_change_status, '.png')"/>
+			<bind nodeset="/data/muac_grading" calculate="if(/data/vitals/muac = '', '', if(/data/vitals/muac &lt; 115, 'red', if(/data/vitals/muac &lt; 125, 'yellow', if(/data/vitals/muac &gt;= 125, 'green', ''))))"/>
+			<bind nodeset="/data/prev_muac"/>
+			<bind nodeset="/data/muac_change" calculate="int((/data/vitals/muac - /data/prev_muac) * 100) div 100"/>
+			<bind nodeset="/data/muac_change_status" calculate="if(/data/muac_change &gt;= 0.1, 'increased', if(/data/muac_change &lt;= -0.1, 'decreased', if(/data/muac_change = '', 'no_prev', 'constant')))"/>
+			<bind nodeset="/data/muac_image_path" calculate="concat('jr://file/commcare/image/data/', /data/muac_grading, '_', /data/muac_change_status, '.png')"/>
+			<bind nodeset="/data/selected_user_pin" calculate="if(/data/authentication/selected_user != '', instance('casedb')/casedb/case[@case_type='tablet_user'][selected(/data/authentication/selected_user, @case_id)]/pin, 'unknown')"/>
+			<bind nodeset="/data/selected_username" calculate="if(/data/authentication/selected_user != '', instance('casedb')/casedb/case[@case_type='tablet_user'][selected(/data/authentication/selected_user, @case_id)]/username, 'unknown')"/>
+			<bind nodeset="/data/child_name"/>
+			<bind nodeset="/data/visit_case_name" calculate="concat(format-date(now(), '%d/%m/%Y'),' ',format-date(now(), '%H:%M'), ' - Agent: ', /data/selected_username)" required="true()"/>
+			<bind nodeset="/data/consult_count_loaded"/>
+			<bind nodeset="/data/consult_count" calculate="if(/data/consult_count_loaded='', 1, /data/consult_count_loaded+1)"/>
+			<bind nodeset="/data/mobile_username" calculate="instance('commcaresession')/session/context/username"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="icons-label">
+						<value>icons</value>
+					</text>
+					<text id="green_increased_icon-label">
+						<value>green_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_increased.png</value>
+					</text>
+					<text id="red_increased_icon-label">
+						<value>red_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_increased.png</value>
+					</text>
+					<text id="yellow_increased_icon-label">
+						<value>yellow_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_increased.png</value>
+					</text>
+					<text id="green_constant_icon-label">
+						<value>green_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_constant.png</value>
+					</text>
+					<text id="red_constant_icon-label">
+						<value>red_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_constant.png</value>
+					</text>
+					<text id="yellow_constant_icon-label">
+						<value>yellow_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_constant.png</value>
+					</text>
+					<text id="green_decreased_icon-label">
+						<value>green_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_decreased.png</value>
+					</text>
+					<text id="red_decreased_icon-label">
+						<value>red_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_decreased.png</value>
+					</text>
+					<text id="yellow_decreased_icon-label">
+						<value>yellow_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_decreased.png</value>
+					</text>
+					<text id="green_no_prev_icon-label">
+						<value>green_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_no_prev.png</value>
+					</text>
+					<text id="red_no_prev_icon-label">
+						<value>red_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_no_prev.png</value>
+					</text>
+					<text id="yellow_no_prev_icon-label">
+						<value>yellow_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_no_prev.png</value>
+					</text>
+					<text id="icons/child_profile-label">
+						<value>child_profile</value>
+						<value form="image">jr://file/commcare/media/child_profile.png</value>
+					</text>
+					<text id="icons/plus-label">
+						<value>plus</value>
+						<value form="image">jr://file/commcare/media/plus.png</value>
+					</text>
+					<text id="icons/checkmark-label">
+						<value>checkmark</value>
+						<value form="image">jr://file/commcare/image/data/icons/checkmark.png</value>
+					</text>
+					<text id="authentication-label">
+						<value>Authentication</value>
+					</text>
+					<text id="selected_user-label">
+						<value>Please select your name from the list below. If you don't see your name, please exit this form and add yourself as a Tablet User first.</value>
+					</text>
+					<text id="entered_pin-label">
+						<value>Please enter the 4 digit pin number for the selected user:</value>
+					</text>
+					<text id="authentication/entered_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="consultation_type-label">
+						<value>Type of consultation</value>
+					</text>
+					<text id="consultation_type-new-label">
+						<value>New consultation</value>
+					</text>
+					<text id="consultation_type-followup-label">
+						<value>Followup consultation</value>
+					</text>
+					<text id="distance-label">
+						<value>Distance</value>
+					</text>
+					<text id="distance-less_four-label">
+						<value>0 - 4 km</value>
+					</text>
+					<text id="distance-four_to_ten-label">
+						<value>4 - 10 km</value>
+					</text>
+					<text id="distance-above_ten-label">
+						<value>10 km et +</value>
+					</text>
+					<text id="debug-label">
+						<value>Debug</value>
+					</text>
+					<text id="debug/add_debug_dob-label">
+						<value>Add debug dob?</value>
+					</text>
+					<text id="debug/add_debug_dob-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/add_debug_dob-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/debug_input_dob-label">
+						<value>Enter debug dob:</value>
+					</text>
+					<text id="debug/debug_input_sex-label">
+						<value>Enter debug sex</value>
+					</text>
+					<text id="debug/debu-item1-label">
+						<value>male</value>
+					</text>
+					<text id="debug/debu-item2-label">
+						<value>female</value>
+					</text>
+					<text id="vitals-label">
+						<value>Vital Signs</value>
+					</text>
+					<text id="height-label">
+						<value>Height (cm)</value>
+					</text>
+					<text id="vitals/height-constraintMsg">
+						<value>Height must be between 35 and 140 cm.</value>
+					</text>
+					<text id="weight-label">
+						<value>Weight (kg)</value>
+					</text>
+					<text id="vitals/weight-constraintMsg">
+						<value>Weight must be between 2 and 40 kg.</value>
+					</text>
+					<text id="temp-label">
+						<value>Temp. (&#176;C)</value>
+					</text>
+					<text id="vitals/temp-constraintMsg">
+						<value>Temp must be between 35 and 45 &#176;C.</value>
+					</text>
+					<text id="muac-label">
+						<value>Arm Span (mm)</value>
+					</text>
+					<text id="vitals/muac-constraintMsg">
+						<value>Arm Span must be between 50 and 250 mm</value>
+					</text>
+					<text id="zscore_results-label">
+						<value>ZScore Results</value>
+					</text>
+					<text id="warn_over_five_years-label">
+						<value>Unable to display Weight/Age or Height/Age - child is over five years old</value>
+					</text>
+					<text id="warn_bad_height-label">
+						<value>Unable to display Weight/Height - child is out of height range</value>
+					</text>
+					<text id="zscore_results/show_zscore_wfa-label">
+						<value>Weight / Age 
+
+<output ref="/data/zscore_wfa"/> / <output ref="/data/centile_wfa"/>% <output ref="if(false() and /data/zscore_wfa_change != '', concat('(Zscore change: ',/data/zscore_wfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_wfh-label">
+						<value>Weight / Height
+						     
+<output ref="/data/zscore_wfh"/> / <output ref="/data/centile_wfh"/>% <output ref="if(false() and /data/zscore_wfh_change != '', concat('(Zscore change: ',/data/zscore_wfh_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfh_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_hfa-label">
+						<value>Height / Age 
+
+<output ref="/data/zscore_hfa"/> / <output ref="/data/centile_hfa"/>% <output ref="if(false() and /data/zscore_hfa_change != '', concat('(Zscore change: ',/data/zscore_hfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_hfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_muac_status-label">
+						<value>MUAC status <output ref="if(/data/muac_change != '', concat('(MUAC change in mm: ', /data/muac_change, ')'),'')"/></value>
+						<value form="image"><output ref="/data/muac_image_path"/></value>
+					</text>
+					<text id="zscore_results/correct_extremes-label">
+						<value>The indices have extreme values.
+Are the measurements correct?</value>
+					</text>
+					<text id="zscore_results/correct_extremes-constraintMsg">
+						<value>Cannot be blank</value>
+					</text>
+					<text id="vaccines-label">
+						<value>Vaccines</value>
+					</text>
+					<text id="bcg-label">
+						<value>BCG? </value>
+					</text>
+					<text id="bcg-dont_know-label">
+						<value>Don't know</value>
+					</text>
+					<text id="opv_0-label">
+						<value>Polio - 0? </value>
+					</text>
+					<text id="opv_1-label">
+						<value>Polio - 1? </value>
+					</text>
+					<text id="opv_2-label">
+						<value>Polio - 2? </value>
+					</text>
+					<text id="opv_3-label">
+						<value>Polio - 3? </value>
+					</text>
+					<text id="penta_1-label">
+						<value>Penta - 1? </value>
+					</text>
+					<text id="penta_2-label">
+						<value>Penta - 2? </value>
+					</text>
+					<text id="penta_3-label">
+						<value>Penta - 3?</value>
+					</text>
+					<text id="pneumo_1-label">
+						<value>Pneumo - 1? </value>
+					</text>
+					<text id="pneumo_2-label">
+						<value>Pneumo - 2? </value>
+					</text>
+					<text id="pneumo_3-label">
+						<value>Pneumo - 3? </value>
+					</text>
+					<text id="rotavirus_1-label">
+						<value>Rotavirus - 1? </value>
+					</text>
+					<text id="rotavirus_2-label">
+						<value>Rotavirus - 2? </value>
+					</text>
+					<text id="rotavirus_3-label">
+						<value>Rotavirus - 3? </value>
+					</text>
+					<text id="measles_1-label">
+						<value>Measles - 1? </value>
+					</text>
+					<text id="measles_2-label">
+						<value>Measles - 2? </value>
+					</text>
+					<text id="yf-label">
+						<value>Yellow fever vaccine?</value>
+					</text>
+					<text id="danger-label">
+						<value>Danger signs</value>
+					</text>
+					<text id="low_danger-label">
+						<value>No general danger signs</value>
+					</text>
+					<text id="high_danger-label">
+						<value>General danger sign this</value>
+					</text>
+					<text id="boire-label">
+						<value>Ask the child is unable * it * to drink or breastfeed ?</value>
+						<value form="markdown">Ask the child is unable * it * to drink or breastfeed ?</value>
+					</text>
+					<text id="vomit-label">
+						<value>Ask the child vomit * everything * it consumes ?</value>
+						<value form="markdown">Ask the child vomit * everything * it consumes ?</value>
+					</text>
+					<text id="convulsions_passe-label">
+						<value>Ask the child he had convulsions * recently *?</value>
+						<value form="markdown">Ask the child he had convulsions * recently *?</value>
+					</text>
+					<text id="lethargie-label">
+						<value>Observer: the child is lethargic or unconscious it ?</value>
+					</text>
+					<text id="convulsions_present-label">
+						<value>Observer: the child convulses * he * now ?</value>
+						<value form="markdown">Observer: the child convulses * he * now ?</value>
+					</text>
+					<text id="toux-label">
+						<value>Cough</value>
+					</text>
+					<text id="low_toux-label">
+						<value>No pneumonia : cough or cold</value>
+					</text>
+					<text id="medium_toux-label">
+						<value>Pneumonia</value>
+					</text>
+					<text id="high_toux-label">
+						<value>Severe pneumonia or very severe disease</value>
+					</text>
+					<text id="toux_presence-label">
+						<value>The child he * cough or difficulty breathing *?</value>
+						<value form="markdown">The child he * cough or difficulty breathing *?</value>
+					</text>
+					<text id="freq_resp-label">
+						<value>Count the respiratory rate</value>
+					</text>
+					<text id="freq_resp-constraintMsg">
+						<value>Must be between 10 and 120</value>
+					</text>
+					<text id="mouv_resp-label">
+						<value>Count the breaths per minute ( rapid breathing FR = &gt; 40 for children&gt; 12 months / FR &gt; 50 children between 2 and 12 months )</value>
+					</text>
+					<text id="mouv_resp-respiration_normale-label">
+						<value>Normal Breathing</value>
+					</text>
+					<text id="mouv_resp-respiration_rapide-label">
+						<value>Rapid Breathing</value>
+					</text>
+					<text id="tirage-label">
+						<value>Search: The child he has a circulation * subcostal * ( inspiratory ) ?</value>
+						<value form="markdown">Search: The child he has a circulation * subcostal * ( inspiratory ) ?</value>
+					</text>
+					<text id="stridor-label">
+						<value>Listen : the child he has stridor or wheezing breathing ( inspiration ) or a whimper ( expiration)</value>
+						<value form="video">jr://file/commcare/video/data/hint-video-stridor.3gp</value>
+					</text>
+					<text id="diarrhee-label">
+						<value>Diarrhea</value>
+					</text>
+					<text id="no_dehydration-label">
+						<value>No Dehydration</value>
+					</text>
+					<text id="some_dehydration-label">
+						<value>Some dehydration evident</value>
+					</text>
+					<text id="severe_dehydration-label">
+						<value>Severe Dehydration</value>
+					</text>
+					<text id="persistent-label">
+						<value>Persistent Diarrhea</value>
+					</text>
+					<text id="severe_persistent-label">
+						<value>Severe persistent diarrhea</value>
+					</text>
+					<text id="dysentery-label">
+						<value>Dysentery</value>
+					</text>
+					<text id="diarrhee_presence-label">
+						<value>Does the child have diarrhea?</value>
+					</text>
+					<text id="diarrhee_presence_duree-label">
+						<value>How many days ?</value>
+					</text>
+					<text id="diarrhee/diarrhee_presence_duree-constraintMsg">
+						<value>Must be between 1 and 30 days</value>
+					</text>
+					<text id="sang_selles-label">
+						<value>Is there blood in the stool ?</value>
+					</text>
+					<text id="conscience_agitation-label">
+						<value>Is the child normal, restless or irritable, lethargic or unconscious?</value>
+					</text>
+					<text id="conscience_agitation-normal-label">
+						<value>Normal</value>
+					</text>
+					<text id="conscience_agitation-agite_irritable-label">
+						<value>Agitated or Irritable</value>
+					</text>
+					<text id="conscience_agitation-lethargique_inconscient-label">
+						<value>Lethargic or Unconscious</value>
+					</text>
+					<text id="yeux_enfonces-label">
+						<value>The child's eyes are they secured?</value>
+					</text>
+					<text id="diarrhee/yeux_enfonces-help">
+						<value>Un enfant tr&#232;s mal nourri et dont l&#8217;amaigrissement est &#233;vident (marasme ou amaigrissement visible et s&#233;v&#232;re) a souvent les yeux enfonc&#233;s, m&#234;me s&#8217;il n&#8217;est pas d&#233;shydrat&#233;. Bien que le signe "yeux enfonc&#233;s" soit moins &#233;vident chez un enfant d&#8217;une maigreur extr&#234;me, continuer d&#8217;utiliser ce signe pour classer la d&#233;shydratation de l&#8217;enfant.</value>
+						<value form="markdown">Un enfant tr&#232;s mal nourri et dont l&#8217;amaigrissement est &#233;vident (marasme ou amaigrissement visible et s&#233;v&#232;re) a souvent les yeux enfonc&#233;s, m&#234;me s&#8217;il n&#8217;est pas d&#233;shydrat&#233;. Bien que le signe "yeux enfonc&#233;s" soit moins &#233;vident chez un enfant d&#8217;une maigreur extr&#234;me, continuer d&#8217;utiliser ce signe pour classer la d&#233;shydratation de l&#8217;enfant.</value>
+					</text>
+					<text id="soif-label">
+						<value>Give drink to the child is able to drink or drinking poorly ? Or drinking eagerly, thirsty?</value>
+					</text>
+					<text id="soif-avide-label">
+						<value>Eagerly</value>
+					</text>
+					<text id="soif-impossible-label">
+						<value>Impossible</value>
+					</text>
+					<text id="pli_cutane-label">
+						<value>Pinch the skin of the abdomen. The skinfold is he back slowly or very slowly (longer than 2 seconds)?</value>
+					</text>
+					<text id="pli_cutane-entement-label">
+						<value>Slowly</value>
+					</text>
+					<text id="pli_cutane-tres_lentement-label">
+						<value>Very slowly</value>
+					</text>
+					<text id="fievre-label">
+						<value>Fever</value>
+					</text>
+					<text id="history_measles-label">
+						<value>History of Measles</value>
+					</text>
+					<text id="measles-label">
+						<value>Measles</value>
+					</text>
+					<text id="measles_complex-label">
+						<value>Measles with complications in the eyes or mouth</value>
+					</text>
+					<text id="measles_severe-label">
+						<value>Measles with severe complications</value>
+					</text>
+					<text id="tdr_negative-label">
+						<value>negative RDT</value>
+					</text>
+					<text id="malaria-label">
+						<value>Malaria without Complications</value>
+					</text>
+					<text id="malaria_severe_neg_tdr-label">
+						<value>Very severe febrile illness and negative RDT</value>
+					</text>
+					<text id="malaria_severe-label">
+						<value>Febrile disease or severe Malaria</value>
+					</text>
+					<text id="fievre_presence-label">
+						<value>The child does have a fever ?</value>
+					</text>
+					<text id="fievre/fievre_presence-help">
+						<value>By history or feels hot or axillary temperature of over 38 &#176; C or rectal temperature over 37.5 &#176; C</value>
+						<value form="markdown">By history or feels hot or axillary temperature of over 38 &#176; C or rectal temperature over 37.5 &#176; C</value>
+					</text>
+					<text id="fievre_presence_longue-label">
+						<value>If more than 7 days, the fever she was present every day ?</value>
+					</text>
+					<text id="tdr-label">
+						<value>Make a RDT: What is the result ?</value>
+					</text>
+					<text id="tdr-tdr+-label">
+						<value>RDT+</value>
+					</text>
+					<text id="tdr-tdr--label">
+						<value>RDT-</value>
+					</text>
+					<text id="tdr-non_disponible-label">
+						<value>Not Available</value>
+					</text>
+					<text id="urines_foncees-label">
+						<value>Signs of severe malaria : The child he dark urine (Coca -Cola ) ?</value>
+					</text>
+					<text id="saignements_anormaux-label">
+						<value>Signs of severe malaria : The child he was bleeding ?</value>
+					</text>
+					<text id="raideur_nuque-label">
+						<value>Signs of severe malaria : Look or stiff neck</value>
+					</text>
+					<text id="ictere-label">
+						<value>Signs of severe malaria : the child he has jaundice ( yellow eyes ) ?</value>
+					</text>
+					<text id="choc-label">
+						<value>Signs of severe malaria : Is the child he shock ( rapid pulse , cold extremities ) ?</value>
+					</text>
+					<text id="eruption_cutanee-label">
+						<value>Sign measles : The child he has a rash of measles or had measles kind in the last 3 months?</value>
+					</text>
+					<text id="eruption_cutanee-eruption-label">
+						<value>Eruption</value>
+					</text>
+					<text id="eruption_cutanee-antecedent-label">
+						<value>Antecedent</value>
+					</text>
+					<text id="ecoulement_nasal-label">
+						<value>Sign measles : The child he a runny nose ?</value>
+					</text>
+					<text id="yeux_rouge-label">
+						<value>Sign measles : The child he has bloodshot eyes?</value>
+					</text>
+					<text id="ecoulement_oculaire-label">
+						<value>Sign complication of measles : The child he eye pus ?</value>
+					</text>
+					<text id="ulcerations-label">
+						<value>Sign complication of measles : The child he has mouth sores ?</value>
+					</text>
+					<text id="ulcerations-absentes-label">
+						<value>Absent</value>
+					</text>
+					<text id="ulcerations-presentes-label">
+						<value>Presented</value>
+					</text>
+					<text id="ulcerations-profondes_etendues-label">
+						<value>Deep Expanses</value>
+					</text>
+					<text id="cornee-label">
+						<value>Sign complication of measles : The child he has an opacity of the cornea ?</value>
+					</text>
+					<text id="fievre/cornee-help">
+						<value>La corn&#233;e est normalement claire. Lorsqu&#8217;il y a une opacit&#233; de la corn&#233;e, la corn&#233;e parait trouble, nuageuse. Elle ressemble &#224; un verre d&#8217;eau dans lequel on ajoute une petite quantit&#233; de lait. L&#8217;opacit&#233; peut &#234;tre pr&#233;sente dans un &#339;il ou dans les deux yeux. Une opacit&#233; de la corn&#233;e est une maladie grave, qui peut &#234;tre due &#224; une carence en vitamine A aggrav&#233;e par la rougeole. Si l&#8217;opacit&#233; de la corn&#233;e n&#8217;est pas trait&#233;e, la corn&#233;e peut s&#8217;ulc&#233;rer et entra&#238;ner la c&#233;cit&#233;. Tout enfant dont la corn&#233;e est opaque doit recevoir un traitement d&#8217;urgence de vitamine A.
+
+* Un enfant qui a une opacit&#233; de la corn&#233;e peut garder les yeux soigneusement ferm&#233;s en cas d&#8217;exposition &#224; la lumi&#232;re. La lumi&#232;re peut causer une irritation ou des douleurs oculaires. Attendre que l&#8217;enfant ouvre spontan&#233;ment les yeux ou tirer l&#233;g&#232;rement la paupi&#232;re inf&#233;rieure vers le bas pour rechercher une opacit&#233;. \n
+
+* Si la corn&#233;e est opaque, demander &#224; la m&#232;re depuis combien de temps. Si la m&#232;re est certaine que l&#8217;opacit&#233; est pr&#233;sente depuis un certain temps, lui demander si ce signe a d&#233;j&#224; &#233;t&#233; examin&#233; ou trait&#233; &#224; l&#8217;h&#244;pital. Dans l&#8217;affirmative, ne pas transf&#233;rer de nouveau l&#8217;enfant pour traiter l&#8217;opacit&#233; de la corn&#233;e. \n</value>
+						<value form="image">jr://file/commcare/image/help/data/fievre/cornee.jpg</value>
+						<value form="markdown">La corn&#233;e est normalement claire. Lorsqu&#8217;il y a une opacit&#233; de la corn&#233;e, la corn&#233;e parait trouble, nuageuse. Elle ressemble &#224; un verre d&#8217;eau dans lequel on ajoute une petite quantit&#233; de lait. L&#8217;opacit&#233; peut &#234;tre pr&#233;sente dans un &#339;il ou dans les deux yeux. Une opacit&#233; de la corn&#233;e est une maladie grave, qui peut &#234;tre due &#224; une carence en vitamine A aggrav&#233;e par la rougeole. Si l&#8217;opacit&#233; de la corn&#233;e n&#8217;est pas trait&#233;e, la corn&#233;e peut s&#8217;ulc&#233;rer et entra&#238;ner la c&#233;cit&#233;. Tout enfant dont la corn&#233;e est opaque doit recevoir un traitement d&#8217;urgence de vitamine A.
+
+* Un enfant qui a une opacit&#233; de la corn&#233;e peut garder les yeux soigneusement ferm&#233;s en cas d&#8217;exposition &#224; la lumi&#232;re. La lumi&#232;re peut causer une irritation ou des douleurs oculaires. Attendre que l&#8217;enfant ouvre spontan&#233;ment les yeux ou tirer l&#233;g&#232;rement la paupi&#232;re inf&#233;rieure vers le bas pour rechercher une opacit&#233;. \n
+
+* Si la corn&#233;e est opaque, demander &#224; la m&#232;re depuis combien de temps. Si la m&#232;re est certaine que l&#8217;opacit&#233; est pr&#233;sente depuis un certain temps, lui demander si ce signe a d&#233;j&#224; &#233;t&#233; examin&#233; ou trait&#233; &#224; l&#8217;h&#244;pital. Dans l&#8217;affirmative, ne pas transf&#233;rer de nouveau l&#8217;enfant pour traiter l&#8217;opacit&#233; de la corn&#233;e. \n</value>
+					</text>
+					<text id="oreille-label">
+						<value>Ear problem</value>
+					</text>
+					<text id="ear_infection_chronic-label">
+						<value>Chronic Ear Infection</value>
+					</text>
+					<text id="ear_infection_acute-label">
+						<value>Acute Ear Infection</value>
+					</text>
+					<text id="ear_mastoiditis-label">
+						<value>Mastoiditis</value>
+					</text>
+					<text id="oreille_probleme-label">
+						<value>The child does have a problem in the ear ?</value>
+					</text>
+					<text id="oreille_douleur-label">
+						<value>The child he earache ?</value>
+					</text>
+					<text id="oreille_ecoulement-label">
+						<value>Are there a pus ?</value>
+					</text>
+					<text id="oreille_ecoulement_duree-label">
+						<value>If yes, for how many days?</value>
+					</text>
+					<text id="oreille_gonflement-label">
+						<value>Find a painful swelling behind the ear</value>
+					</text>
+					<text id="anemie-label">
+						<value>Anemia</value>
+					</text>
+					<text id="anemia_none-label">
+						<value>No Anemia</value>
+					</text>
+					<text id="anemia_normal-label">
+						<value>An&#233;mie</value>
+					</text>
+					<text id="anemia_serious-label">
+						<value>Serious Anemia</value>
+					</text>
+					<text id="paleur_palmaire-label">
+						<value>Watch and search for palmar pallor</value>
+					</text>
+					<text id="paleur_palmaire-hint">
+						<value>Regarder la couleur de la paume de la main de l'enfant</value>
+					</text>
+					<text id="paleur_palmaire-absente-label">
+						<value>Absent</value>
+					</text>
+					<text id="paleur_palmaire-legere-label">
+						<value>Mild</value>
+					</text>
+					<text id="paleur_palmaire-severe-label">
+						<value>Severe</value>
+					</text>
+					<text id="malnutrition-label">
+						<value>Nutritional status</value>
+					</text>
+					<text id="malnutrition_na-label">
+						<value>Not applicable : child less than 6 months</value>
+					</text>
+					<text id="no_malnutrition-label">
+						<value>No malnutrition</value>
+					</text>
+					<text id="malnutrition_mam-label">
+						<value>MAM</value>
+					</text>
+					<text id="malnutrition_mass-label">
+						<value>MASs</value>
+					</text>
+					<text id="malnutrition_masc-label">
+						<value>MASc</value>
+					</text>
+					<text id="oedemes-label">
+						<value>Look for edema of both feet</value>
+					</text>
+					<text id="oedemes-yes+-label">
+						<value>Yes+</value>
+					</text>
+					<text id="oedemes-yes++-label">
+						<value>Yes++</value>
+					</text>
+					<text id="oedemes-yes+++-label">
+						<value>Yes+++</value>
+					</text>
+					<text id="test_appetit-label">
+						<value>Test of appetite</value>
+					</text>
+					<text id="test_appetit-positif-label">
+						<value>Positive</value>
+					</text>
+					<text id="test_appetit-negatif-label">
+						<value>Negative</value>
+					</text>
+					<text id="vih-label">
+						<value>HIV</value>
+					</text>
+					<text id="vih_pas-label">
+						<value>No HIV</value>
+					</text>
+					<text id="vih_peu_probable-label">
+						<value>HIV little probable</value>
+					</text>
+					<text id="vih_symp_suspecte-label">
+						<value>Symptomatic HIV infection suspected</value>
+					</text>
+					<text id="vih_possible-label">
+						<value>HIV can / HIV exposure</value>
+					</text>
+					<text id="vih_symp_probable-label">
+						<value>Symptomatic HIV infection likely</value>
+					</text>
+					<text id="vih_confirmee-label">
+						<value>Confirmed HIV infection</value>
+					</text>
+					<text id="vih_symp_confirmee-label">
+						<value>Symptomatic HIV infection confirmed</value>
+					</text>
+					<text id="serologie_enfant-label">
+						<value>Serology child</value>
+					</text>
+					<text id="serologie_enfant-inconnue-label">
+						<value>Inconclusive</value>
+					</text>
+					<text id="serologie_enfant-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="serologie_enfant-negative-label">
+						<value>Negative</value>
+					</text>
+					<text id="test_enfant-label">
+						<value>Virological test for child</value>
+					</text>
+					<text id="test_enfant-pas_de_test-label">
+						<value>No Test</value>
+					</text>
+					<text id="pneumonie_recidivante-label">
+						<value>Recurrent pneumonia</value>
+					</text>
+					<text id="diarrhee_dernierement-label">
+						<value>Diarrhea in the last 3 months</value>
+					</text>
+					<text id="candidose_buccale-label">
+						<value>Thrush</value>
+					</text>
+					<text id="hypertrophie_ganglions_lymphatiques-label">
+						<value>Enlarged lymph nodes and palpable in more than one place</value>
+					</text>
+					<text id="augmentation_glande_parotide-label">
+						<value>Increase the volume of the parotid gland</value>
+					</text>
+					<text id="augmentation_glande_parotide-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="augmentation_glande_parotide-no-label">
+						<value>No</value>
+					</text>
+					<text id="test_mere-label">
+						<value>Virological test for mother</value>
+					</text>
+					<text id="serologie_mere-label">
+						<value>Serology mother</value>
+					</text>
+					<text id="vitamin_a-label">
+						<value>Has the child received Vitamine A over the last 6 months?</value>
+					</text>
+					<text id="other_comments-label">
+						<value>Any other symptoms or comments to enter?</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="icons-label">
+						<value>icons</value>
+					</text>
+					<text id="green_increased_icon-label">
+						<value>green_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_increased.png</value>
+					</text>
+					<text id="red_increased_icon-label">
+						<value>red_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_increased.png</value>
+					</text>
+					<text id="yellow_increased_icon-label">
+						<value>yellow_increased_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_increased.png</value>
+					</text>
+					<text id="green_constant_icon-label">
+						<value>green_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_constant.png</value>
+					</text>
+					<text id="red_constant_icon-label">
+						<value>red_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_constant.png</value>
+					</text>
+					<text id="yellow_constant_icon-label">
+						<value>yellow_constant_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_constant.png</value>
+					</text>
+					<text id="green_decreased_icon-label">
+						<value>green_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_decreased.png</value>
+					</text>
+					<text id="red_decreased_icon-label">
+						<value>red_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_decreased.png</value>
+					</text>
+					<text id="yellow_decreased_icon-label">
+						<value>yellow_decreased_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_decreased.png</value>
+					</text>
+					<text id="green_no_prev_icon-label">
+						<value>green_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/green_no_prev.png</value>
+					</text>
+					<text id="red_no_prev_icon-label">
+						<value>red_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/red_no_prev.png</value>
+					</text>
+					<text id="yellow_no_prev_icon-label">
+						<value>yellow_no_prev_icon</value>
+						<value form="image">jr://file/commcare/image/data/yellow_no_prev.png</value>
+					</text>
+					<text id="icons/child_profile-label">
+						<value>child_profile</value>
+						<value form="image">jr://file/commcare/media/child_profile.png</value>
+					</text>
+					<text id="icons/plus-label">
+						<value>plus</value>
+						<value form="image">jr://file/commcare/media/plus.png</value>
+					</text>
+					<text id="icons/checkmark-label">
+						<value>checkmark</value>
+						<value form="image">jr://file/commcare/image/data/icons/checkmark.png</value>
+					</text>
+					<text id="authentication-label">
+						<value>Identification de l'agent</value>
+					</text>
+					<text id="selected_user-label">
+						<value>Veuillez choisir votre nom de la liste ci-dessous.</value>
+					</text>
+					<text id="entered_pin-label">
+						<value>Veuillez saisir votre mot de passe &#224; 4 chiffres.</value>
+					</text>
+					<text id="authentication/entered_pin-constraintMsg">
+						<value>Le mot de passe saisi est incorrect. Veuillez essayer &#224; nouveau.</value>
+					</text>
+					<text id="consultation_type-label">
+						<value>Type de consultation</value>
+					</text>
+					<text id="consultation_type-new-label">
+						<value>Nouvelle consultation</value>
+					</text>
+					<text id="consultation_type-followup-label">
+						<value>Consultation de suivi</value>
+					</text>
+					<text id="distance-label">
+						<value>Distance</value>
+					</text>
+					<text id="distance-less_four-label">
+						<value>0 - 4 km</value>
+					</text>
+					<text id="distance-four_to_ten-label">
+						<value>4 - 10 km</value>
+					</text>
+					<text id="distance-above_ten-label">
+						<value>10 km et +</value>
+					</text>
+					<text id="debug-label">
+						<value>Debug</value>
+					</text>
+					<text id="debug/add_debug_dob-label">
+						<value>Add debug dob?</value>
+					</text>
+					<text id="debug/add_debug_dob-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/add_debug_dob-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/debug_input_dob-label">
+						<value>Enter debug dob:</value>
+					</text>
+					<text id="debug/debug_input_sex-label">
+						<value>Enter debug sex</value>
+					</text>
+					<text id="debug/debu-item1-label">
+						<value>male</value>
+					</text>
+					<text id="debug/debu-item2-label">
+						<value>female</value>
+					</text>
+					<text id="vitals-label">
+						<value>Nouvelles mesures</value>
+					</text>
+					<text id="height-label">
+						<value>Taille (cm) </value>
+					</text>
+					<text id="vitals/height-constraintMsg">
+						<value>La taille doit &#234;tre comprise entre 35 et 140 cm.</value>
+					</text>
+					<text id="weight-label">
+						<value>Poids (kg)</value>
+					</text>
+					<text id="vitals/weight-constraintMsg">
+						<value>Le poids doit &#234;tre compris entre 2 et 40 kg.</value>
+					</text>
+					<text id="temp-label">
+						<value>Temp. (&#176;C)</value>
+					</text>
+					<text id="vitals/temp-constraintMsg">
+						<value>La temp&#233;rature doit &#234;tre comprise entre 35 et 45 &#176;C.</value>
+					</text>
+					<text id="muac-label">
+						<value>P&#233;rim. Brac. (mm)</value>
+					</text>
+					<text id="vitals/muac-constraintMsg">
+						<value>Le PB doit &#234;tre compris entre 50 et 250 mm.</value>
+					</text>
+					<text id="zscore_results-label">
+						<value>R&#233;sultats du Z-score</value>
+					</text>
+					<text id="warn_over_five_years-label">
+						<value>Impossible d'afficher Poids / &#194;ge ou Taille / &#194;ge -L' enfant est &#226;g&#233; de plus de cinq ans</value>
+					</text>
+					<text id="warn_bad_height-label">
+						<value>Impossible d'afficher Poids / Taille - L'enfant est hors de port&#233;e en hauteur</value>
+					</text>
+					<text id="zscore_results/show_zscore_wfa-label">
+						<value>Poids / &#194;ge 
+
+<output ref="/data/zscore_wfa"/> / <output ref="/data/centile_wfa"/>% <output ref="if(false() and /data/zscore_wfa_change != '', concat('(Zscore change: ',/data/zscore_wfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_wfh-label">
+						<value>Poids / Taille
+						     
+<output ref="/data/zscore_wfh"/> / <output ref="/data/centile_wfh"/>% <output ref="if(false() and /data/zscore_wfh_change != '', concat('(Zscore change: ',/data/zscore_wfh_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_wfh_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_zscore_hfa-label">
+						<value>Taille / &#194;ge 
+
+<output ref="/data/zscore_hfa"/> / <output ref="/data/centile_hfa"/>% <output ref="if(false() and /data/zscore_hfa_change != '', concat('(Zscore change: ',/data/zscore_hfa_change,')'), '')"/></value>
+						<value form="image"><output ref="/data/zscore_hfa_image_path"/></value>
+					</text>
+					<text id="zscore_results/show_muac_status-label">
+						<value>PB statut <output ref="if(/data/muac_change != '', concat('(PB changement en mm: ', /data/muac_change, ')'),'')"/></value>
+						<value form="image"><output ref="/data/muac_image_path"/></value>
+					</text>
+					<text id="zscore_results/correct_extremes-label">
+						<value>Les indices ont des valeurs extr&#234;mes. Les mesures sont-elles correctes ?</value>
+					</text>
+					<text id="zscore_results/correct_extremes-constraintMsg">
+						<value>Ne peut &#234;tre vide</value>
+					</text>
+					<text id="vaccines-label">
+						<value>Etat vaccinal</value>
+					</text>
+					<text id="bcg-label">
+						<value>BCG? </value>
+					</text>
+					<text id="bcg-dont_know-label">
+						<value>Je ne sais pas</value>
+					</text>
+					<text id="opv_0-label">
+						<value>Polio - 0? </value>
+					</text>
+					<text id="opv_1-label">
+						<value>Polio - 1? </value>
+					</text>
+					<text id="opv_2-label">
+						<value>Polio - 2? </value>
+					</text>
+					<text id="opv_3-label">
+						<value>Polio - 3? </value>
+					</text>
+					<text id="penta_1-label">
+						<value>Penta - 1? </value>
+					</text>
+					<text id="penta_2-label">
+						<value>Penta - 2? </value>
+					</text>
+					<text id="penta_3-label">
+						<value>Penta - 3?</value>
+					</text>
+					<text id="pneumo_1-label">
+						<value>Pneumo - 1? </value>
+					</text>
+					<text id="pneumo_2-label">
+						<value>Pneumo - 2? </value>
+					</text>
+					<text id="pneumo_3-label">
+						<value>Pneumo - 3? </value>
+					</text>
+					<text id="rotavirus_1-label">
+						<value>Rotavirus - 1? </value>
+					</text>
+					<text id="rotavirus_2-label">
+						<value>Rotavirus - 2? </value>
+					</text>
+					<text id="rotavirus_3-label">
+						<value>Rotavirus - 3? </value>
+					</text>
+					<text id="measles_1-label">
+						<value>Rougeole - 1? </value>
+					</text>
+					<text id="measles_2-label">
+						<value>Rougeole - 2? </value>
+					</text>
+					<text id="yf-label">
+						<value>Vaccin contre la fi&#232;vre jaune?</value>
+					</text>
+					<text id="danger-label">
+						<value>Signes de danger</value>
+					</text>
+					<text id="low_danger-label">
+						<value>Pas de signe g&#233;n&#233;ral de danger</value>
+					</text>
+					<text id="high_danger-label">
+						<value>Signe g&#233;n&#233;ral de danger pr&#233;sent</value>
+					</text>
+					<text id="boire-label">
+						<value>Demander : l&#8217;enfant est-il *incapable* de boire ou de prendre le sein ?</value>
+						<value form="markdown">Demander : l&#8217;enfant est-il *incapable* de boire ou de prendre le sein ?</value>
+					</text>
+					<text id="vomit-label">
+						<value>Demander : l&#8217;enfant vomit-il *tout* ce qu&#8217;il consomme ?</value>
+						<value form="markdown">Demander : l&#8217;enfant vomit-il *tout* ce qu&#8217;il consomme ?</value>
+					</text>
+					<text id="convulsions_passe-label">
+						<value>Demander : l&#8217;enfant a-t-il eu des convulsions *r&#233;cemment* ?</value>
+						<value form="markdown">Demander : l&#8217;enfant a-t-il eu des convulsions *r&#233;cemment* ?</value>
+					</text>
+					<text id="lethargie-label">
+						<value>Observer : l&#8217;enfant est-il l&#233;thargique ou inconscient ?</value>
+					</text>
+					<text id="convulsions_present-label">
+						<value>Observer : l&#8217;enfant convulse t-il *actuellement* ?</value>
+						<value form="markdown">Observer : l&#8217;enfant convulse t-il *actuellement* ?</value>
+					</text>
+					<text id="toux-label">
+						<value>Toux</value>
+					</text>
+					<text id="low_toux-label">
+						<value>Pas de pneumonie : toux ou rhume</value>
+					</text>
+					<text id="medium_toux-label">
+						<value>Pneumonie</value>
+					</text>
+					<text id="high_toux-label">
+						<value>Pneumonie grave ou maladie tr&#232;s grave</value>
+					</text>
+					<text id="toux_presence-label">
+						<value>L'enfant a-t-il la toux ou des *difficult&#233;s respiratoires* ?</value>
+						<value form="markdown">L'enfant a-t-il la toux ou des *difficult&#233;s respiratoires* ?</value>
+					</text>
+					<text id="freq_resp-label">
+						<value>Compter la fr&#233;quence respiratoire</value>
+					</text>
+					<text id="freq_resp-constraintMsg">
+						<value>La fr&#233;quence respiratoire doit &#234;tre comprise entre 10 et 120</value>
+					</text>
+					<text id="mouv_resp-label">
+						<value>Compter les mouvements respiratoires par minute (Respiration rapide = FR &gt; 40 pour enfants &gt; 12 mois / FR &gt; 50 pour enfants entre 2 et 12 mois)</value>
+					</text>
+					<text id="mouv_resp-respiration_normale-label">
+						<value>Respiration normale</value>
+					</text>
+					<text id="mouv_resp-respiration_rapide-label">
+						<value>Respiration rapide</value>
+					</text>
+					<text id="tirage-label">
+						<value>Rechercher : L'enfant a-t-il un tirage *sous-costal* (inspiratoire) ?</value>
+						<value form="markdown">Rechercher : L'enfant a-t-il un tirage *sous-costal* (inspiratoire) ?</value>
+					</text>
+					<text id="stridor-label">
+						<value>&#201;couter : l&#8217;enfant a-t-il un stridor ou un sifflement de la respiration (inspiration) ou un geignement (expiration)</value>
+						<value form="video">jr://file/commcare/video/data/hint-video-stridor.3gp</value>
+					</text>
+					<text id="diarrhee-label">
+						<value>Diarrh&#233;e</value>
+					</text>
+					<text id="no_dehydration-label">
+						<value>Pas de d&#233;shydratation</value>
+					</text>
+					<text id="some_dehydration-label">
+						<value>Signes &#233;vidents de d&#233;shydratation</value>
+					</text>
+					<text id="severe_dehydration-label">
+						<value>D&#233;shydratation s&#233;v&#232;re</value>
+					</text>
+					<text id="persistent-label">
+						<value>Diarrh&#233;e persistente</value>
+					</text>
+					<text id="severe_persistent-label">
+						<value>Diarrh&#233;e persistente s&#233;v&#232;re</value>
+					</text>
+					<text id="dysentery-label">
+						<value>Dysenterie</value>
+					</text>
+					<text id="diarrhee_presence-label">
+						<value>L'enfant a-t-il la diarrh&#233;e ?</value>
+					</text>
+					<text id="diarrhee_presence_duree-label">
+						<value>Depuis combien de jours ?</value>
+					</text>
+					<text id="diarrhee/diarrhee_presence_duree-constraintMsg">
+						<value>La dur&#233;e doit &#234;tre comprise entre 1 et 30 jours</value>
+					</text>
+					<text id="sang_selles-label">
+						<value>Y a-t-il du sang dans les selles ?</value>
+					</text>
+					<text id="conscience_agitation-label">
+						<value>L'enfant est-il normal, agit&#233; ou irritable, l&#233;thargique ou inconscient ?</value>
+					</text>
+					<text id="conscience_agitation-normal-label">
+						<value>Normal</value>
+					</text>
+					<text id="conscience_agitation-agite_irritable-label">
+						<value>Agit&#233; ou irritable</value>
+					</text>
+					<text id="conscience_agitation-lethargique_inconscient-label">
+						<value>L&#233;thargique ou inconscient</value>
+					</text>
+					<text id="yeux_enfonces-label">
+						<value>Les yeux de l'enfant sont-ils enfonc&#233;s ?</value>
+					</text>
+					<text id="diarrhee/yeux_enfonces-help">
+						<value>Un enfant tr&#232;s mal nourri et dont l&#8217;amaigrissement est &#233;vident (marasme ou amaigrissement visible et s&#233;v&#232;re) a souvent les yeux enfonc&#233;s, m&#234;me s&#8217;il n&#8217;est pas d&#233;shydrat&#233;. Bien que le signe "yeux enfonc&#233;s" soit moins &#233;vident chez un enfant d&#8217;une maigreur extr&#234;me, continuer d&#8217;utiliser ce signe pour classer la d&#233;shydratation de l&#8217;enfant.</value>
+						<value form="markdown">Un enfant tr&#232;s mal nourri et dont l&#8217;amaigrissement est &#233;vident (marasme ou amaigrissement visible et s&#233;v&#232;re) a souvent les yeux enfonc&#233;s, m&#234;me s&#8217;il n&#8217;est pas d&#233;shydrat&#233;. Bien que le signe "yeux enfonc&#233;s" soit moins &#233;vident chez un enfant d&#8217;une maigreur extr&#234;me, continuer d&#8217;utiliser ce signe pour classer la d&#233;shydratation de l&#8217;enfant.</value>
+					</text>
+					<text id="soif-label">
+						<value>Offrir &#224; boire &#224; l&#8217;enfant : est-il incapable de boire ou boit-il difficilement? Ou  boit-il avidement, est-il assoiff&#233; ?</value>
+					</text>
+					<text id="soif-avide-label">
+						<value>Avide</value>
+					</text>
+					<text id="soif-impossible-label">
+						<value>Impossible</value>
+					</text>
+					<text id="pli_cutane-label">
+						<value>Pincer la peau de l&#8217;abdomen. Le pli cutan&#233; s&#8217;efface-t-il lentement ou tr&#232;s lentement (plus de 2 secondes) ?</value>
+					</text>
+					<text id="pli_cutane-entement-label">
+						<value>Lentement</value>
+					</text>
+					<text id="pli_cutane-tres_lentement-label">
+						<value>Tr&#232;s lentement</value>
+					</text>
+					<text id="fievre-label">
+						<value>Fi&#232;vre</value>
+					</text>
+					<text id="history_measles-label">
+						<value>Ant&#233;c&#233;dent de rougeole</value>
+					</text>
+					<text id="measles-label">
+						<value>Rougeole</value>
+					</text>
+					<text id="measles_complex-label">
+						<value>Rougeole avec complication aux yeux ou &#224; la bouche</value>
+					</text>
+					<text id="measles_severe-label">
+						<value>Rougeole grave et compliqu&#233;e</value>
+					</text>
+					<text id="tdr_negative-label">
+						<value>TDR n&#233;gatif</value>
+					</text>
+					<text id="malaria-label">
+						<value>Paludisme simple</value>
+					</text>
+					<text id="malaria_severe_neg_tdr-label">
+						<value>Maladie f&#233;brile tr&#232;s grave et TDR n&#233;gatif</value>
+					</text>
+					<text id="malaria_severe-label">
+						<value>Maladie f&#233;brile tr&#232;s grave ou paludisme grave</value>
+					</text>
+					<text id="fievre_presence-label">
+						<value>L'enfant a-t-il de la fi&#232;vre ?</value>
+					</text>
+					<text id="fievre/fievre_presence-help">
+						<value>Ant&#233;c&#233;dents ou chaud au toucher ou temperature axillaire de plus 38&#176;C ou temp&#233;rature rectale de plus 37,5&#176;C</value>
+						<value form="markdown">Ant&#233;c&#233;dents ou chaud au toucher ou temperature axillaire de plus 38&#176;C ou temp&#233;rature rectale de plus 37,5&#176;C</value>
+					</text>
+					<text id="fievre_presence_longue-label">
+						<value>Si depuis plus de 7 jours, la fi&#232;vre a-t-elle &#233;t&#233; pr&#233;sente tous les jours ?</value>
+					</text>
+					<text id="tdr-label">
+						<value>R&#233;aliser un TDR. Quel est le r&#233;sultat ?</value>
+					</text>
+					<text id="tdr-tdr+-label">
+						<value>TDR+</value>
+					</text>
+					<text id="tdr-tdr--label">
+						<value>TDR-</value>
+					</text>
+					<text id="tdr-non_disponible-label">
+						<value>Non disponible</value>
+					</text>
+					<text id="urines_foncees-label">
+						<value>Signes de paludisme grave : L'enfant a t-il les urines fonc&#233;es (Coca-Cola) ?</value>
+					</text>
+					<text id="saignements_anormaux-label">
+						<value>Signes de paludisme grave : L&#8217;enfant a t-il eu des saignements ?</value>
+					</text>
+					<text id="raideur_nuque-label">
+						<value>Signes de paludisme grave : Observer et rechercher une raideur de la nuque</value>
+					</text>
+					<text id="ictere-label">
+						<value>Signes de paludisme grave : L'enfant a-t-il un ict&#232;re (yeux jaunes) ?</value>
+					</text>
+					<text id="choc-label">
+						<value>Signes de paludisme grave : L'enfant est-il en choc (pouls rapide, extr&#233;mit&#233;s froides) ?</value>
+					</text>
+					<text id="eruption_cutanee-label">
+						<value>Signe de rougeole : L'enfant a-t-il une &#233;ruption g&#233;n&#233;ralis&#233;e de type rougeole ou eu une rougeole au cours des 3 derniers mois ?</value>
+					</text>
+					<text id="eruption_cutanee-eruption-label">
+						<value>&#201;ruption</value>
+					</text>
+					<text id="eruption_cutanee-antecedent-label">
+						<value>Ant&#233;c&#233;dent</value>
+					</text>
+					<text id="ecoulement_nasal-label">
+						<value>Signe de rougeole : L'enfant a-t-il un &#233;coulement nasal ?</value>
+					</text>
+					<text id="yeux_rouge-label">
+						<value>Signe de rougeole : L'enfant a-t-il les yeux rouges ?</value>
+					</text>
+					<text id="ecoulement_oculaire-label">
+						<value>Signe de complication de rougeole : L'enfant a-t-il un &#233;coulement oculaire de pus ?</value>
+					</text>
+					<text id="ulcerations-label">
+						<value>Signe de complication de rougeole : L'enfant a-t-il des ulc&#233;rations dans la bouche ?</value>
+					</text>
+					<text id="ulcerations-absentes-label">
+						<value>Absent</value>
+					</text>
+					<text id="ulcerations-presentes-label">
+						<value>Pr&#233;sent</value>
+					</text>
+					<text id="ulcerations-profondes_etendues-label">
+						<value>&#201;tendues profondes</value>
+					</text>
+					<text id="cornee-label">
+						<value>Signe de complication de rougeole : L'enfant a-t-il une opacit&#233; de la corn&#233;e ?</value>
+					</text>
+					<text id="fievre/cornee-help">
+						<value>La corn&#233;e est normalement claire. Lorsqu&#8217;il y a une opacit&#233; de la corn&#233;e, la corn&#233;e parait trouble, nuageuse. Elle ressemble &#224; un verre d&#8217;eau dans lequel on ajoute une petite quantit&#233; de lait. L&#8217;opacit&#233; peut &#234;tre pr&#233;sente dans un &#339;il ou dans les deux yeux. Une opacit&#233; de la corn&#233;e est une maladie grave, qui peut &#234;tre due &#224; une carence en vitamine A aggrav&#233;e par la rougeole. Si l&#8217;opacit&#233; de la corn&#233;e n&#8217;est pas trait&#233;e, la corn&#233;e peut s&#8217;ulc&#233;rer et entra&#238;ner la c&#233;cit&#233;. Tout enfant dont la corn&#233;e est opaque doit recevoir un traitement d&#8217;urgence de vitamine A.
+
+* Un enfant qui a une opacit&#233; de la corn&#233;e peut garder les yeux soigneusement ferm&#233;s en cas d&#8217;exposition &#224; la lumi&#232;re. La lumi&#232;re peut causer une irritation ou des douleurs oculaires. Attendre que l&#8217;enfant ouvre spontan&#233;ment les yeux ou tirer l&#233;g&#232;rement la paupi&#232;re inf&#233;rieure vers le bas pour rechercher une opacit&#233;. \n
+
+* Si la corn&#233;e est opaque, demander &#224; la m&#232;re depuis combien de temps. Si la m&#232;re est certaine que l&#8217;opacit&#233; est pr&#233;sente depuis un certain temps, lui demander si ce signe a d&#233;j&#224; &#233;t&#233; examin&#233; ou trait&#233; &#224; l&#8217;h&#244;pital. Dans l&#8217;affirmative, ne pas transf&#233;rer de nouveau l&#8217;enfant pour traiter l&#8217;opacit&#233; de la corn&#233;e. \n</value>
+						<value form="image">jr://file/commcare/image/help/data/fievre/cornee.jpg</value>
+						<value form="markdown">La corn&#233;e est normalement claire. Lorsqu&#8217;il y a une opacit&#233; de la corn&#233;e, la corn&#233;e parait trouble, nuageuse. Elle ressemble &#224; un verre d&#8217;eau dans lequel on ajoute une petite quantit&#233; de lait. L&#8217;opacit&#233; peut &#234;tre pr&#233;sente dans un &#339;il ou dans les deux yeux. Une opacit&#233; de la corn&#233;e est une maladie grave, qui peut &#234;tre due &#224; une carence en vitamine A aggrav&#233;e par la rougeole. Si l&#8217;opacit&#233; de la corn&#233;e n&#8217;est pas trait&#233;e, la corn&#233;e peut s&#8217;ulc&#233;rer et entra&#238;ner la c&#233;cit&#233;. Tout enfant dont la corn&#233;e est opaque doit recevoir un traitement d&#8217;urgence de vitamine A.
+
+* Un enfant qui a une opacit&#233; de la corn&#233;e peut garder les yeux soigneusement ferm&#233;s en cas d&#8217;exposition &#224; la lumi&#232;re. La lumi&#232;re peut causer une irritation ou des douleurs oculaires. Attendre que l&#8217;enfant ouvre spontan&#233;ment les yeux ou tirer l&#233;g&#232;rement la paupi&#232;re inf&#233;rieure vers le bas pour rechercher une opacit&#233;. \n
+
+* Si la corn&#233;e est opaque, demander &#224; la m&#232;re depuis combien de temps. Si la m&#232;re est certaine que l&#8217;opacit&#233; est pr&#233;sente depuis un certain temps, lui demander si ce signe a d&#233;j&#224; &#233;t&#233; examin&#233; ou trait&#233; &#224; l&#8217;h&#244;pital. Dans l&#8217;affirmative, ne pas transf&#233;rer de nouveau l&#8217;enfant pour traiter l&#8217;opacit&#233; de la corn&#233;e. \n</value>
+					</text>
+					<text id="oreille-label">
+						<value>Affection de l'oreille</value>
+					</text>
+					<text id="ear_infection_chronic-label">
+						<value>Infection chronique de l'oreille</value>
+					</text>
+					<text id="ear_infection_acute-label">
+						<value>Infection aigu&#235; de l'oreille</value>
+					</text>
+					<text id="ear_mastoiditis-label">
+						<value>Masto&#239;dite</value>
+					</text>
+					<text id="oreille_probleme-label">
+						<value>L'enfant a-t-il un probl&#232;me &#224; l'oreille ?</value>
+					</text>
+					<text id="oreille_douleur-label">
+						<value>L'enfant a-t-il mal aux oreilles ?</value>
+					</text>
+					<text id="oreille_ecoulement-label">
+						<value>Y-a- t-il un &#233;coulement de pus ?</value>
+					</text>
+					<text id="oreille_ecoulement_duree-label">
+						<value>Si oui, depuis combien de jours ?</value>
+					</text>
+					<text id="oreille_gonflement-label">
+						<value>Rechercher un gonflement douloureux derri&#232;re l&#8217;oreille</value>
+					</text>
+					<text id="anemie-label">
+						<value>An&#233;mie</value>
+					</text>
+					<text id="anemia_none-label">
+						<value>Pas d'an&#233;mie</value>
+					</text>
+					<text id="anemia_normal-label">
+						<value>An&#233;mie</value>
+					</text>
+					<text id="anemia_serious-label">
+						<value>An&#233;mie grave</value>
+					</text>
+					<text id="paleur_palmaire-label">
+						<value>Observer et rechercher la p&#226;leur palmaire</value>
+					</text>
+					<text id="paleur_palmaire-hint">
+						<value>Regarder la couleur de la paume de la main de l'enfant</value>
+					</text>
+					<text id="paleur_palmaire-absente-label">
+						<value>Absente</value>
+					</text>
+					<text id="paleur_palmaire-legere-label">
+						<value>L&#233;g&#232;re</value>
+					</text>
+					<text id="paleur_palmaire-severe-label">
+						<value>S&#233;v&#232;re</value>
+					</text>
+					<text id="malnutrition-label">
+						<value>Etat nutritionnel</value>
+					</text>
+					<text id="malnutrition_na-label">
+						<value>Non applicable : enfant de moins de 6 mois</value>
+					</text>
+					<text id="no_malnutrition-label">
+						<value>Pas de malnutrition</value>
+					</text>
+					<text id="malnutrition_mam-label">
+						<value>MAM</value>
+					</text>
+					<text id="malnutrition_mass-label">
+						<value>MASs</value>
+					</text>
+					<text id="malnutrition_masc-label">
+						<value>MASc</value>
+					</text>
+					<text id="oedemes-label">
+						<value>Rechercher des oed&#232;mes au niveau des deux pieds</value>
+					</text>
+					<text id="oedemes-yes+-label">
+						<value>Oui+</value>
+					</text>
+					<text id="oedemes-yes++-label">
+						<value>Oui++</value>
+					</text>
+					<text id="oedemes-yes+++-label">
+						<value>Oui+++</value>
+					</text>
+					<text id="test_appetit-label">
+						<value>Test d'appetit</value>
+					</text>
+					<text id="test_appetit-positif-label">
+						<value>Positif</value>
+					</text>
+					<text id="test_appetit-negatif-label">
+						<value>N&#233;gatif</value>
+					</text>
+					<text id="vih-label">
+						<value>VIH</value>
+					</text>
+					<text id="vih_pas-label">
+						<value>Pas d'infection &#224; VIH</value>
+					</text>
+					<text id="vih_peu_probable-label">
+						<value>Infection &#224; VIH peu probable</value>
+					</text>
+					<text id="vih_symp_suspecte-label">
+						<value>Infection &#224; VIH symptomatique suspecte</value>
+					</text>
+					<text id="vih_possible-label">
+						<value>Infection &#224; VIH possible / exposition au VIH</value>
+					</text>
+					<text id="vih_symp_probable-label">
+						<value>Infection &#224; VIH symptomatique probable</value>
+					</text>
+					<text id="vih_confirmee-label">
+						<value>Infection &#224; VIH confirm&#233;e</value>
+					</text>
+					<text id="vih_symp_confirmee-label">
+						<value>Infection &#224; VIH symptomatique confirm&#233;e</value>
+					</text>
+					<text id="serologie_enfant-label">
+						<value>S&#233;rologie de l'enfant</value>
+					</text>
+					<text id="serologie_enfant-inconnue-label">
+						<value>Inconnue</value>
+					</text>
+					<text id="serologie_enfant-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="serologie_enfant-negative-label">
+						<value>N&#233;gative</value>
+					</text>
+					<text id="test_enfant-label">
+						<value>Test virologique pour l'enfant</value>
+					</text>
+					<text id="test_enfant-pas_de_test-label">
+						<value>Pas de test</value>
+					</text>
+					<text id="pneumonie_recidivante-label">
+						<value>Pneumonie r&#233;cidivante</value>
+					</text>
+					<text id="diarrhee_dernierement-label">
+						<value>Diarrh&#233;e au cours des 3 derniers mois</value>
+					</text>
+					<text id="candidose_buccale-label">
+						<value>Candidose buccale</value>
+					</text>
+					<text id="hypertrophie_ganglions_lymphatiques-label">
+						<value>Hypertrophie des ganglions lymphatiques et palpables &#224; plus d&#8217;un endroit</value>
+					</text>
+					<text id="augmentation_glande_parotide-label">
+						<value>Augmentation du volume de la glande parotide</value>
+					</text>
+					<text id="augmentation_glande_parotide-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="augmentation_glande_parotide-no-label">
+						<value>Non</value>
+					</text>
+					<text id="test_mere-label">
+						<value>Test virologique pour la m&#232;re</value>
+					</text>
+					<text id="serologie_mere-label">
+						<value>S&#233;rologie de la m&#232;re</value>
+					</text>
+					<text id="vitamin_a-label">
+						<value>L'enfant a t-il re&#231;u de la vitamine A lors des 6 derniers mois ?</value>
+					</text>
+					<text id="other_comments-label">
+						<value>Autres probl&#232;mes de sant&#233;</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/vaccines/bcg" nodeset="/data/case/update/bcg" relevant="count(/data/vaccines/bcg) &gt; 0"/><bind calculate="/data/centile_hfa" nodeset="/data/case/update/centile_hfa" relevant="count(/data/centile_hfa) &gt; 0"/><bind calculate="/data/centile_wfa" nodeset="/data/case/update/centile_wfa" relevant="count(/data/centile_wfa) &gt; 0"/><bind calculate="/data/centile_wfh" nodeset="/data/case/update/centile_wfh" relevant="count(/data/centile_wfh) &gt; 0"/><bind calculate="/data/consult_count" nodeset="/data/case/update/consult_count" relevant="count(/data/consult_count) &gt; 0"/><bind calculate="/data/vitals/height" nodeset="/data/case/update/last_height" relevant="count(/data/vitals/height) &gt; 0"/><bind calculate="/data/authentication/selected_user" nodeset="/data/case/update/last_modified_by_user_caseid" relevant="count(/data/authentication/selected_user) &gt; 0"/><bind calculate="/data/selected_username" nodeset="/data/case/update/last_modified_by_username" relevant="count(/data/selected_username) &gt; 0"/><bind calculate="/data/vitals/muac" nodeset="/data/case/update/last_muac" relevant="count(/data/vitals/muac) &gt; 0"/><bind calculate="/data/visit_date" nodeset="/data/case/update/last_visit_date" relevant="count(/data/visit_date) &gt; 0"/><bind calculate="/data/vitals/weight" nodeset="/data/case/update/last_weight" relevant="count(/data/vitals/weight) &gt; 0"/><bind calculate="/data/vaccines/measles_1" nodeset="/data/case/update/measles_1" relevant="count(/data/vaccines/measles_1) &gt; 0"/><bind calculate="/data/vaccines/measles_2" nodeset="/data/case/update/measles_2" relevant="count(/data/vaccines/measles_2) &gt; 0"/><bind calculate="/data/muac_change" nodeset="/data/case/update/muac_change" relevant="count(/data/muac_change) &gt; 0"/><bind calculate="/data/muac_change_status" nodeset="/data/case/update/muac_change_status" relevant="count(/data/muac_change_status) &gt; 0"/><bind calculate="/data/muac_grading" nodeset="/data/case/update/muac_grading" relevant="count(/data/muac_grading) &gt; 0"/><bind calculate="/data/vaccines/opv_0" nodeset="/data/case/update/opv_0" relevant="count(/data/vaccines/opv_0) &gt; 0"/><bind calculate="/data/vaccines/opv_1" nodeset="/data/case/update/opv_1" relevant="count(/data/vaccines/opv_1) &gt; 0"/><bind calculate="/data/vaccines/opv_2" nodeset="/data/case/update/opv_2" relevant="count(/data/vaccines/opv_2) &gt; 0"/><bind calculate="/data/vaccines/opv_3" nodeset="/data/case/update/opv_3" relevant="count(/data/vaccines/opv_3) &gt; 0"/><bind calculate="/data/vaccines/penta_1" nodeset="/data/case/update/penta_1" relevant="count(/data/vaccines/penta_1) &gt; 0"/><bind calculate="/data/vaccines/penta_2" nodeset="/data/case/update/penta_2" relevant="count(/data/vaccines/penta_2) &gt; 0"/><bind calculate="/data/vaccines/penta_3" nodeset="/data/case/update/penta_3" relevant="count(/data/vaccines/penta_3) &gt; 0"/><bind calculate="/data/vaccines/pneumo_1" nodeset="/data/case/update/pneumo_1" relevant="count(/data/vaccines/pneumo_1) &gt; 0"/><bind calculate="/data/vaccines/penta_2" nodeset="/data/case/update/pneumo_2" relevant="count(/data/vaccines/penta_2) &gt; 0"/><bind calculate="/data/vaccines/pneumo_3" nodeset="/data/case/update/pneumo_3" relevant="count(/data/vaccines/pneumo_3) &gt; 0"/><bind calculate="/data/vaccines/rotavirus_1" nodeset="/data/case/update/rotavirus_1" relevant="count(/data/vaccines/rotavirus_1) &gt; 0"/><bind calculate="/data/vaccines/rotavirus_2" nodeset="/data/case/update/rotavirus_2" relevant="count(/data/vaccines/rotavirus_2) &gt; 0"/><bind calculate="/data/vaccines/rotavirus_3" nodeset="/data/case/update/rotavirus_3" relevant="count(/data/vaccines/rotavirus_3) &gt; 0"/><bind calculate="/data/vaccines/yf" nodeset="/data/case/update/yf" relevant="count(/data/vaccines/yf) &gt; 0"/><bind calculate="/data/zscore_grading_hfa" nodeset="/data/case/update/zscore_grading_hfa" relevant="count(/data/zscore_grading_hfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfa" nodeset="/data/case/update/zscore_grading_wfa" relevant="count(/data/zscore_grading_wfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfh" nodeset="/data/case/update/zscore_grading_wfh" relevant="count(/data/zscore_grading_wfh) &gt; 0"/><bind calculate="/data/zscore_hfa" nodeset="/data/case/update/zscore_hfa" relevant="count(/data/zscore_hfa) &gt; 0"/><bind calculate="/data/zscore_hfa_change" nodeset="/data/case/update/zscore_hfa_change" relevant="count(/data/zscore_hfa_change) &gt; 0"/><bind calculate="/data/zscore_hfa_change_status" nodeset="/data/case/update/zscore_hfa_change_status" relevant="count(/data/zscore_hfa_change_status) &gt; 0"/><bind calculate="/data/zscore_wfa" nodeset="/data/case/update/zscore_wfa" relevant="count(/data/zscore_wfa) &gt; 0"/><bind calculate="/data/zscore_wfa_change" nodeset="/data/case/update/zscore_wfa_change" relevant="count(/data/zscore_wfa_change) &gt; 0"/><bind calculate="/data/zscore_wfa_change_status" nodeset="/data/case/update/zscore_wfa_change_status" relevant="count(/data/zscore_wfa_change_status) &gt; 0"/><bind calculate="/data/zscore_wfh" nodeset="/data/case/update/zscore_wfh" relevant="count(/data/zscore_wfh) &gt; 0"/><bind calculate="/data/zscore_wfh_change" nodeset="/data/case/update/zscore_wfh_change" relevant="count(/data/zscore_wfh_change) &gt; 0"/><bind calculate="/data/zscore_wfh_change_status" nodeset="/data/case/update/zscore_wfh_change_status" relevant="count(/data/zscore_wfh_change_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/vaccines/measles_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/measles_1"/><setvalue event="xforms-ready" ref="/data/vaccines/measles_2" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/measles_2"/><setvalue event="xforms-ready" ref="/data/prev_zscore_wfa" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_wfa"/><setvalue event="xforms-ready" ref="/data/vaccines/penta_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/penta_1"/><setvalue event="xforms-ready" ref="/data/vaccines/penta_2" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/penta_2"/><setvalue event="xforms-ready" ref="/data/vaccines/penta_3" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/penta_3"/><setvalue event="xforms-ready" ref="/data/prev_zscore_wfh" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_wfh"/><setvalue event="xforms-ready" ref="/data/child_name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><setvalue event="xforms-ready" ref="/data/prev_zscore_hfa" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/zscore_hfa"/><setvalue event="xforms-ready" ref="/data/vaccines/pneumo_3" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pneumo_3"/><setvalue event="xforms-ready" ref="/data/vaccines/pneumo_2" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pneumo_2"/><setvalue event="xforms-ready" ref="/data/vaccines/pneumo_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pneumo_1"/><setvalue event="xforms-ready" ref="/data/sex_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/sex"/><setvalue event="xforms-ready" ref="/data/vaccines/yf" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/yf"/><setvalue event="xforms-ready" ref="/data/prev_muac" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/last_muac"/><setvalue event="xforms-ready" ref="/data/consult_count_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/consult_count"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_3" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_3"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_2" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_2"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_1"/><setvalue event="xforms-ready" ref="/data/vaccines/opv_0" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/opv_0"/><setvalue event="xforms-ready" ref="/data/dob_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/dob"/><setvalue event="xforms-ready" ref="/data/vaccines/rotavirus_3" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/rotavirus_3"/><setvalue event="xforms-ready" ref="/data/vaccines/rotavirus_2" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/rotavirus_2"/><setvalue event="xforms-ready" ref="/data/vaccines/rotavirus_1" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/rotavirus_1"/><setvalue event="xforms-ready" ref="/data/vaccines/bcg" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/bcg"/><bind calculate="/data/meta/timeEnd" nodeset="/data/subcase_0/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/subcase_0/case/@user_id"/><setvalue event="xforms-ready" ref="/data/subcase_0/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_imci_visit_0"/><bind calculate="/data/visit_case_name" nodeset="/data/subcase_0/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/subcase_0/case/create/owner_id"/><bind calculate="/data/age_in_months" nodeset="/data/subcase_0/case/update/age_in_months" relevant="count(/data/age_in_months) &gt; 0"/><bind calculate="/data/vih/augmentation_glande_parotide" nodeset="/data/subcase_0/case/update/augmentation_glande_parotide" relevant="count(/data/vih/augmentation_glande_parotide) &gt; 0"/><bind calculate="/data/danger/boire" nodeset="/data/subcase_0/case/update/boire" relevant="count(/data/danger/boire) &gt; 0"/><bind calculate="/data/vih/candidose_buccale" nodeset="/data/subcase_0/case/update/candidose_buccale" relevant="count(/data/vih/candidose_buccale) &gt; 0"/><bind calculate="/data/centile_hfa" nodeset="/data/subcase_0/case/update/centile_hfa" relevant="count(/data/centile_hfa) &gt; 0"/><bind calculate="/data/centile_wfa" nodeset="/data/subcase_0/case/update/centile_wfa" relevant="count(/data/centile_wfa) &gt; 0"/><bind calculate="/data/centile_wfh" nodeset="/data/subcase_0/case/update/centile_wfh" relevant="count(/data/centile_wfh) &gt; 0"/><bind calculate="/data/fievre/choc" nodeset="/data/subcase_0/case/update/choc" relevant="count(/data/fievre/choc) &gt; 0"/><bind calculate="/data/classification_anemie" nodeset="/data/subcase_0/case/update/classification_anemie" relevant="count(/data/classification_anemie) &gt; 0"/><bind calculate="/data/classification_deshydratation" nodeset="/data/subcase_0/case/update/classification_deshydratation" relevant="count(/data/classification_deshydratation) &gt; 0"/><bind calculate="/data/classification_diahree" nodeset="/data/subcase_0/case/update/classification_diahree" relevant="count(/data/classification_diahree) &gt; 0"/><bind calculate="/data/authentication/selected_user" nodeset="/data/subcase_0/case/update/classification_done_by_user_caseid" relevant="count(/data/authentication/selected_user) &gt; 0"/><bind calculate="/data/selected_username" nodeset="/data/subcase_0/case/update/classification_done_by_username" relevant="count(/data/selected_username) &gt; 0"/><bind calculate="/data/classification_dysenterie" nodeset="/data/subcase_0/case/update/classification_dysenterie" relevant="count(/data/classification_dysenterie) &gt; 0"/><bind calculate="/data/classification_malnutrition" nodeset="/data/subcase_0/case/update/classification_malnutrition" relevant="count(/data/classification_malnutrition) &gt; 0"/><bind calculate="/data/classification_oreille" nodeset="/data/subcase_0/case/update/classification_oreille" relevant="count(/data/classification_oreille) &gt; 0"/><bind calculate="/data/classification_paludisme" nodeset="/data/subcase_0/case/update/classification_paludisme" relevant="count(/data/classification_paludisme) &gt; 0"/><bind calculate="/data/classification_pneumonie" nodeset="/data/subcase_0/case/update/classification_pneumonie" relevant="count(/data/classification_pneumonie) &gt; 0"/><bind calculate="/data/classification_rougeole" nodeset="/data/subcase_0/case/update/classification_rougeole" relevant="count(/data/classification_rougeole) &gt; 0"/><bind calculate="/data/classification_vih" nodeset="/data/subcase_0/case/update/classification_vih" relevant="count(/data/classification_vih) &gt; 0"/><bind calculate="/data/diarrhee/conscience_agitation" nodeset="/data/subcase_0/case/update/conscience_agitation" relevant="count(/data/diarrhee/conscience_agitation) &gt; 0"/><bind calculate="/data/consult_info/consultation_type" nodeset="/data/subcase_0/case/update/consultation_type" relevant="count(/data/consult_info/consultation_type) &gt; 0"/><bind calculate="/data/danger/convulsions_passe" nodeset="/data/subcase_0/case/update/convulsions_passe" relevant="count(/data/danger/convulsions_passe) &gt; 0"/><bind calculate="/data/danger/convulsions_present" nodeset="/data/subcase_0/case/update/convulsions_present" relevant="count(/data/danger/convulsions_present) &gt; 0"/><bind calculate="/data/fievre/cornee" nodeset="/data/subcase_0/case/update/cornee" relevant="count(/data/fievre/cornee) &gt; 0"/><bind calculate="/data/deshydratation_evident" nodeset="/data/subcase_0/case/update/deshydratation_evident" relevant="count(/data/deshydratation_evident) &gt; 0"/><bind calculate="/data/deshydratation_severe" nodeset="/data/subcase_0/case/update/deshydratation_severe" relevant="count(/data/deshydratation_severe) &gt; 0"/><bind calculate="/data/vih/diarrhee_dernierement" nodeset="/data/subcase_0/case/update/diarrhee_dernierement" relevant="count(/data/vih/diarrhee_dernierement) &gt; 0"/><bind calculate="/data/diarrhee/diarrhee_presence" nodeset="/data/subcase_0/case/update/diarrhee_presence" relevant="count(/data/diarrhee/diarrhee_presence) &gt; 0"/><bind calculate="/data/diarrhee/diarrhee_presence_duree" nodeset="/data/subcase_0/case/update/diarrhee_presence_duree" relevant="count(/data/diarrhee/diarrhee_presence_duree) &gt; 0"/><bind calculate="/data/fievre/ecoulement_nasal" nodeset="/data/subcase_0/case/update/ecoulement_nasal" relevant="count(/data/fievre/ecoulement_nasal) &gt; 0"/><bind calculate="/data/fievre/ecoulement_oculaire" nodeset="/data/subcase_0/case/update/ecoulement_oculaire" relevant="count(/data/fievre/ecoulement_oculaire) &gt; 0"/><bind calculate="/data/fievre/eruption_cutanee" nodeset="/data/subcase_0/case/update/eruption_cutanee" relevant="count(/data/fievre/eruption_cutanee) &gt; 0"/><bind calculate="/data/fievre/fievre_presence" nodeset="/data/subcase_0/case/update/fievre_presence" relevant="count(/data/fievre/fievre_presence) &gt; 0"/><bind calculate="/data/fievre/fievre_presence_duree" nodeset="/data/subcase_0/case/update/fievre_presence_duree" relevant="count(/data/fievre/fievre_presence_duree) &gt; 0"/><bind calculate="/data/fievre/fievre_presence_longue" nodeset="/data/subcase_0/case/update/fievre_presence_longue" relevant="count(/data/fievre/fievre_presence_longue) &gt; 0"/><bind calculate="/data/toux/freq_resp" nodeset="/data/subcase_0/case/update/freq_resp" relevant="count(/data/toux/freq_resp) &gt; 0"/><bind calculate="/data/vitals/height" nodeset="/data/subcase_0/case/update/height" relevant="count(/data/vitals/height) &gt; 0"/><bind calculate="/data/vih/hypertrophie_ganglions_lymphatiques" nodeset="/data/subcase_0/case/update/hypertrophie_ganglions_lymphatiques" relevant="count(/data/vih/hypertrophie_ganglions_lymphatiques) &gt; 0"/><bind calculate="/data/fievre/ictere" nodeset="/data/subcase_0/case/update/ictere" relevant="count(/data/fievre/ictere) &gt; 0"/><bind calculate="/data/danger/lethargie" nodeset="/data/subcase_0/case/update/lethargie" relevant="count(/data/danger/lethargie) &gt; 0"/><bind calculate="/data/mobile_username" nodeset="/data/subcase_0/case/update/mobile_username" relevant="count(/data/mobile_username) &gt; 0"/><bind calculate="/data/vitals/muac" nodeset="/data/subcase_0/case/update/muac" relevant="count(/data/vitals/muac) &gt; 0"/><bind calculate="/data/malnutrition/oedemes" nodeset="/data/subcase_0/case/update/oedemes" relevant="count(/data/malnutrition/oedemes) &gt; 0"/><bind calculate="/data/oreille/oreille_douleur" nodeset="/data/subcase_0/case/update/oreille_douleur" relevant="count(/data/oreille/oreille_douleur) &gt; 0"/><bind calculate="/data/oreille/oreille_ecoulement" nodeset="/data/subcase_0/case/update/oreille_ecoulement" relevant="count(/data/oreille/oreille_ecoulement) &gt; 0"/><bind calculate="/data/oreille/oreille_ecoulement_duree" nodeset="/data/subcase_0/case/update/oreille_ecoulement_duree" relevant="count(/data/oreille/oreille_ecoulement_duree) &gt; 0"/><bind calculate="/data/oreille/oreille_gonflement" nodeset="/data/subcase_0/case/update/oreille_gonflement" relevant="count(/data/oreille/oreille_gonflement) &gt; 0"/><bind calculate="/data/oreille/oreille_probleme" nodeset="/data/subcase_0/case/update/oreille_probleme" relevant="count(/data/oreille/oreille_probleme) &gt; 0"/><bind calculate="/data/other/other_comments" nodeset="/data/subcase_0/case/update/other_comments" relevant="count(/data/other/other_comments) &gt; 0"/><bind calculate="/data/anemie/paleur_palmaire" nodeset="/data/subcase_0/case/update/paleur_palmaire" relevant="count(/data/anemie/paleur_palmaire) &gt; 0"/><bind calculate="/data/diarrhee/pli_cutane" nodeset="/data/subcase_0/case/update/pli_cutane" relevant="count(/data/diarrhee/pli_cutane) &gt; 0"/><bind calculate="/data/vih/pneumonie_recidivante" nodeset="/data/subcase_0/case/update/pneumonie_recidivante" relevant="count(/data/vih/pneumonie_recidivante) &gt; 0"/><bind calculate="/data/fievre/raideur_nuque" nodeset="/data/subcase_0/case/update/raideur_nuque" relevant="count(/data/fievre/raideur_nuque) &gt; 0"/><bind calculate="/data/fievre/saignements_anormaux" nodeset="/data/subcase_0/case/update/saignements_anormaux" relevant="count(/data/fievre/saignements_anormaux) &gt; 0"/><bind calculate="/data/diarrhee/sang_selles" nodeset="/data/subcase_0/case/update/sang_selles" relevant="count(/data/diarrhee/sang_selles) &gt; 0"/><bind calculate="/data/vih/serologie_enfant" nodeset="/data/subcase_0/case/update/serologie_enfant" relevant="count(/data/vih/serologie_enfant) &gt; 0"/><bind calculate="/data/signes_danger" nodeset="/data/subcase_0/case/update/signes_danger" relevant="count(/data/signes_danger) &gt; 0"/><bind calculate="/data/diarrhee/soif" nodeset="/data/subcase_0/case/update/soif" relevant="count(/data/diarrhee/soif) &gt; 0"/><bind calculate="/data/toux/stridor" nodeset="/data/subcase_0/case/update/stridor" relevant="count(/data/toux/stridor) &gt; 0"/><bind calculate="/data/fievre/tdr" nodeset="/data/subcase_0/case/update/tdr" relevant="count(/data/fievre/tdr) &gt; 0"/><bind calculate="/data/vitals/temp" nodeset="/data/subcase_0/case/update/temperature" relevant="count(/data/vitals/temp) &gt; 0"/><bind calculate="/data/malnutrition/test_appetit" nodeset="/data/subcase_0/case/update/test_appetit" relevant="count(/data/malnutrition/test_appetit) &gt; 0"/><bind calculate="/data/vih/test_enfant" nodeset="/data/subcase_0/case/update/test_enfant" relevant="count(/data/vih/test_enfant) &gt; 0"/><bind calculate="/data/vih/test_mere" nodeset="/data/subcase_0/case/update/test_mere" relevant="count(/data/vih/test_mere) &gt; 0"/><bind calculate="/data/toux/tirage" nodeset="/data/subcase_0/case/update/tirage" relevant="count(/data/toux/tirage) &gt; 0"/><bind calculate="/data/toux/toux_presence" nodeset="/data/subcase_0/case/update/toux_presence" relevant="count(/data/toux/toux_presence) &gt; 0"/><bind calculate="/data/toux/toux_presence_duree" nodeset="/data/subcase_0/case/update/toux_presence_duree" relevant="count(/data/toux/toux_presence_duree) &gt; 0"/><bind calculate="/data/fievre/ulcerations" nodeset="/data/subcase_0/case/update/ulcerations" relevant="count(/data/fievre/ulcerations) &gt; 0"/><bind calculate="/data/fievre/urines_foncees" nodeset="/data/subcase_0/case/update/urines_foncees" relevant="count(/data/fievre/urines_foncees) &gt; 0"/><bind calculate="/data/vih/serologie_mere" nodeset="/data/subcase_0/case/update/vih_qa" relevant="count(/data/vih/serologie_mere) &gt; 0"/><bind calculate="/data/visit_date" nodeset="/data/subcase_0/case/update/visit_date" relevant="count(/data/visit_date) &gt; 0"/><bind calculate="/data/visit_type" nodeset="/data/subcase_0/case/update/visit_type" relevant="count(/data/visit_type) &gt; 0"/><bind calculate="/data/vitamin_a" nodeset="/data/subcase_0/case/update/vitamin_a" relevant="count(/data/vitamin_a) &gt; 0"/><bind calculate="/data/danger/vomit" nodeset="/data/subcase_0/case/update/vomit" relevant="count(/data/danger/vomit) &gt; 0"/><bind calculate="/data/vitals/weight" nodeset="/data/subcase_0/case/update/weight" relevant="count(/data/vitals/weight) &gt; 0"/><bind calculate="/data/diarrhee/yeux_enfonces" nodeset="/data/subcase_0/case/update/yeux_enfonces" relevant="count(/data/diarrhee/yeux_enfonces) &gt; 0"/><bind calculate="/data/fievre/yeux_rouge" nodeset="/data/subcase_0/case/update/yeux_rouge" relevant="count(/data/fievre/yeux_rouge) &gt; 0"/><bind calculate="/data/zscore_grading_hfa" nodeset="/data/subcase_0/case/update/zscore_grading_hfa" relevant="count(/data/zscore_grading_hfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfa" nodeset="/data/subcase_0/case/update/zscore_grading_wfa" relevant="count(/data/zscore_grading_wfa) &gt; 0"/><bind calculate="/data/zscore_grading_wfh" nodeset="/data/subcase_0/case/update/zscore_grading_wfh" relevant="count(/data/zscore_grading_wfh) &gt; 0"/><bind calculate="/data/zscore_hfa" nodeset="/data/subcase_0/case/update/zscore_hfa" relevant="count(/data/zscore_hfa) &gt; 0"/><bind calculate="/data/zscore_wfa" nodeset="/data/subcase_0/case/update/zscore_wfa" relevant="count(/data/zscore_wfa) &gt; 0"/><bind calculate="/data/zscore_wfh" nodeset="/data/subcase_0/case/update/zscore_wfh" relevant="count(/data/zscore_wfh) &gt; 0"/><bind calculate="/data/case/@case_id" nodeset="/data/subcase_0/case/index/parent"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/icons">
+			<label ref="jr:itext('icons-label')"/>
+			<trigger ref="/data/icons/green_increased_icon" appearance="minimal">
+				<label ref="jr:itext('green_increased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/red_increased_icon" appearance="minimal">
+				<label ref="jr:itext('red_increased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/yellow_increased_icon" appearance="minimal">
+				<label ref="jr:itext('yellow_increased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/green_constant_icon" appearance="minimal">
+				<label ref="jr:itext('green_constant_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/red_constant_icon" appearance="minimal">
+				<label ref="jr:itext('red_constant_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/yellow_constant_icon" appearance="minimal">
+				<label ref="jr:itext('yellow_constant_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/green_decreased_icon" appearance="minimal">
+				<label ref="jr:itext('green_decreased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/red_decreased_icon" appearance="minimal">
+				<label ref="jr:itext('red_decreased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/yellow_decreased_icon" appearance="minimal">
+				<label ref="jr:itext('yellow_decreased_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/green_no_prev_icon" appearance="minimal">
+				<label ref="jr:itext('green_no_prev_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/red_no_prev_icon" appearance="minimal">
+				<label ref="jr:itext('red_no_prev_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/yellow_no_prev_icon" appearance="minimal">
+				<label ref="jr:itext('yellow_no_prev_icon-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/child_profile" appearance="minimal">
+				<label ref="jr:itext('icons/child_profile-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/plus" appearance="minimal">
+				<label ref="jr:itext('icons/plus-label')"/>
+			</trigger>
+			<trigger ref="/data/icons/checkmark" appearance="minimal">
+				<label ref="jr:itext('icons/checkmark-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/authentication" appearance="field-list">
+			<label ref="jr:itext('authentication-label')"/>
+			<select1 ref="/data/authentication/selected_user">
+				<label ref="jr:itext('selected_user-label')"/>
+				<itemset nodeset="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open']">
+					<label ref="username"/>
+					<value ref="@case_id"/>
+				</itemset>
+			</select1>
+			<secret ref="/data/authentication/entered_pin" appearance="numeric">
+				<label ref="jr:itext('entered_pin-label')"/>
+			</secret>
+		</group>
+		<group ref="/data/consult_info" appearance="field-list">
+			<select1 ref="/data/consult_info/consultation_type">
+				<label ref="jr:itext('consultation_type-label')"/>
+				<item>
+					<label ref="jr:itext('consultation_type-new-label')"/>
+					<value>new</value>
+				</item>
+				<item>
+					<label ref="jr:itext('consultation_type-followup-label')"/>
+					<value>followup</value>
+				</item>
+			</select1>
+			<select1 ref="/data/consult_info/distance">
+				<label ref="jr:itext('distance-label')"/>
+				<item>
+					<label ref="jr:itext('distance-less_four-label')"/>
+					<value>less_four</value>
+				</item>
+				<item>
+					<label ref="jr:itext('distance-four_to_ten-label')"/>
+					<value>four_to_ten</value>
+				</item>
+				<item>
+					<label ref="jr:itext('distance-above_ten-label')"/>
+					<value>above_ten</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/debug" appearance="field-list">
+			<label ref="jr:itext('debug-label')"/>
+			<select1 ref="/data/debug/add_debug_dob">
+				<label ref="jr:itext('debug/add_debug_dob-label')"/>
+				<item>
+					<label ref="jr:itext('debug/add_debug_dob-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/add_debug_dob-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/debug/debug_input_dob">
+				<label ref="jr:itext('debug/debug_input_dob-label')"/>
+			</input>
+			<select1 ref="/data/debug/debug_input_sex">
+				<label ref="jr:itext('debug/debug_input_sex-label')"/>
+				<item>
+					<label ref="jr:itext('debug/debu-item1-label')"/>
+					<value>male</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/debu-item2-label')"/>
+					<value>female</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/vitals" appearance="field-list">
+			<label ref="jr:itext('vitals-label')"/>
+			<input ref="/data/vitals/height">
+				<label ref="jr:itext('height-label')"/>
+			</input>
+			<input ref="/data/vitals/weight">
+				<label ref="jr:itext('weight-label')"/>
+			</input>
+			<input ref="/data/vitals/temp">
+				<label ref="jr:itext('temp-label')"/>
+			</input>
+			<input ref="/data/vitals/muac">
+				<label ref="jr:itext('muac-label')"/>
+			</input>
+		</group>
+		<group ref="/data/zscore_results" appearance="field-list">
+			<label ref="jr:itext('zscore_results-label')"/>
+			<trigger ref="/data/zscore_results/warn_over_five_years" appearance="minimal">
+				<label ref="jr:itext('warn_over_five_years-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/warn_bad_height" appearance="minimal">
+				<label ref="jr:itext('warn_bad_height-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_wfa" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_wfa-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_wfh" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_wfh-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_zscore_hfa" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_zscore_hfa-label')"/>
+			</trigger>
+			<trigger ref="/data/zscore_results/show_muac_status" appearance="minimal">
+				<label ref="jr:itext('zscore_results/show_muac_status-label')"/>
+			</trigger>
+			<select ref="/data/zscore_results/correct_extremes">
+				<label ref="jr:itext('zscore_results/correct_extremes-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/vaccines" appearance="field-list">
+			<label ref="jr:itext('vaccines-label')"/>
+			<select1 ref="/data/vaccines/bcg">
+				<label ref="jr:itext('bcg-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_0">
+				<label ref="jr:itext('opv_0-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_1">
+				<label ref="jr:itext('opv_1-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_2">
+				<label ref="jr:itext('opv_2-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/opv_3">
+				<label ref="jr:itext('opv_3-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/penta_1">
+				<label ref="jr:itext('penta_1-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/penta_2">
+				<label ref="jr:itext('penta_2-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/penta_3">
+				<label ref="jr:itext('penta_3-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/pneumo_1">
+				<label ref="jr:itext('pneumo_1-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/pneumo_2">
+				<label ref="jr:itext('pneumo_2-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/pneumo_3">
+				<label ref="jr:itext('pneumo_3-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/rotavirus_1">
+				<label ref="jr:itext('rotavirus_1-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/rotavirus_2">
+				<label ref="jr:itext('rotavirus_2-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/rotavirus_3">
+				<label ref="jr:itext('rotavirus_3-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/measles_1">
+				<label ref="jr:itext('measles_1-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/measles_2">
+				<label ref="jr:itext('measles_2-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vaccines/yf">
+				<label ref="jr:itext('yf-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bcg-dont_know-label')"/>
+					<value>dont_know</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/danger" appearance="field-list">
+			<label ref="jr:itext('danger-label')"/>
+			<trigger ref="/data/danger/low_danger" appearance="floating-good">
+				<label ref="jr:itext('low_danger-label')"/>
+			</trigger>
+			<trigger ref="/data/danger/high_danger" appearance="floating-bad">
+				<label ref="jr:itext('high_danger-label')"/>
+			</trigger>
+			<select1 ref="/data/danger/boire">
+				<label ref="jr:itext('boire-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/danger/vomit">
+				<label ref="jr:itext('vomit-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/danger/convulsions_passe">
+				<label ref="jr:itext('convulsions_passe-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/danger/lethargie">
+				<label ref="jr:itext('lethargie-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/danger/convulsions_present">
+				<label ref="jr:itext('convulsions_present-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/toux" appearance="field-list">
+			<label ref="jr:itext('toux-label')"/>
+			<trigger ref="/data/toux/low_toux" appearance="floating-good">
+				<label ref="jr:itext('low_toux-label')"/>
+			</trigger>
+			<trigger ref="/data/toux/medium_toux" appearance="floating-caution">
+				<label ref="jr:itext('medium_toux-label')"/>
+			</trigger>
+			<trigger ref="/data/toux/high_toux" appearance="floating-bad">
+				<label ref="jr:itext('high_toux-label')"/>
+			</trigger>
+			<select1 ref="/data/toux/toux_presence">
+				<label ref="jr:itext('toux_presence-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/toux/toux_presence_duree">
+				<label ref="jr:itext('diarrhee_presence_duree-label')"/>
+			</input>
+			<input ref="/data/toux/freq_resp">
+				<label ref="jr:itext('freq_resp-label')"/>
+			</input>
+			<select1 ref="/data/toux/mouv_resp">
+				<label ref="jr:itext('mouv_resp-label')"/>
+				<item>
+					<label ref="jr:itext('mouv_resp-respiration_normale-label')"/>
+					<value>respiration_normale</value>
+				</item>
+				<item>
+					<label ref="jr:itext('mouv_resp-respiration_rapide-label')"/>
+					<value>respiration_rapide</value>
+				</item>
+			</select1>
+			<select1 ref="/data/toux/tirage">
+				<label ref="jr:itext('tirage-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/toux/stridor">
+				<label ref="jr:itext('stridor-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/diarrhee" appearance="field-list">
+			<label ref="jr:itext('diarrhee-label')"/>
+			<trigger ref="/data/diarrhee/no_dehydration" appearance="floating-good">
+				<label ref="jr:itext('no_dehydration-label')"/>
+			</trigger>
+			<trigger ref="/data/diarrhee/some_dehydration" appearance="floating-caution">
+				<label ref="jr:itext('some_dehydration-label')"/>
+			</trigger>
+			<trigger ref="/data/diarrhee/severe_dehydration" appearance="floating-bad">
+				<label ref="jr:itext('severe_dehydration-label')"/>
+			</trigger>
+			<trigger ref="/data/diarrhee/persistent" appearance="floating-caution">
+				<label ref="jr:itext('persistent-label')"/>
+			</trigger>
+			<trigger ref="/data/diarrhee/severe_persistent" appearance="floating-bad">
+				<label ref="jr:itext('severe_persistent-label')"/>
+			</trigger>
+			<trigger ref="/data/diarrhee/dysentery" appearance="floating-caution">
+				<label ref="jr:itext('dysentery-label')"/>
+			</trigger>
+			<select1 ref="/data/diarrhee/diarrhee_presence">
+				<label ref="jr:itext('diarrhee_presence-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/diarrhee/diarrhee_presence_duree">
+				<label ref="jr:itext('diarrhee_presence_duree-label')"/>
+			</input>
+			<select1 ref="/data/diarrhee/sang_selles">
+				<label ref="jr:itext('sang_selles-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/diarrhee/conscience_agitation">
+				<label ref="jr:itext('conscience_agitation-label')"/>
+				<item>
+					<label ref="jr:itext('conscience_agitation-normal-label')"/>
+					<value>normal</value>
+				</item>
+				<item>
+					<label ref="jr:itext('conscience_agitation-agite_irritable-label')"/>
+					<value>agite_irritable</value>
+				</item>
+				<item>
+					<label ref="jr:itext('conscience_agitation-lethargique_inconscient-label')"/>
+					<value>lethargique_inconscient</value>
+				</item>
+			</select1>
+			<select1 ref="/data/diarrhee/yeux_enfonces">
+				<label ref="jr:itext('yeux_enfonces-label')"/>
+				<help ref="jr:itext('diarrhee/yeux_enfonces-help')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/diarrhee/soif">
+				<label ref="jr:itext('soif-label')"/>
+				<item>
+					<label ref="jr:itext('conscience_agitation-normal-label')"/>
+					<value>normal</value>
+				</item>
+				<item>
+					<label ref="jr:itext('soif-avide-label')"/>
+					<value>avide</value>
+				</item>
+				<item>
+					<label ref="jr:itext('soif-impossible-label')"/>
+					<value>impossible</value>
+				</item>
+			</select1>
+			<select1 ref="/data/diarrhee/pli_cutane">
+				<label ref="jr:itext('pli_cutane-label')"/>
+				<item>
+					<label ref="jr:itext('conscience_agitation-normal-label')"/>
+					<value>normal</value>
+				</item>
+				<item>
+					<label ref="jr:itext('pli_cutane-entement-label')"/>
+					<value>lentement</value>
+				</item>
+				<item>
+					<label ref="jr:itext('pli_cutane-tres_lentement-label')"/>
+					<value>tres_lentement</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/fievre" appearance="field-list">
+			<label ref="jr:itext('fievre-label')"/>
+			<trigger ref="/data/fievre/history_measles" appearance="floating-good">
+				<label ref="jr:itext('history_measles-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/measles" appearance="floating-caution">
+				<label ref="jr:itext('measles-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/measles_complex" appearance="floating-caution">
+				<label ref="jr:itext('measles_complex-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/measles_severe" appearance="floating-bad">
+				<label ref="jr:itext('measles_severe-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/tdr_negative" appearance="floating-caution">
+				<label ref="jr:itext('tdr_negative-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/malaria" appearance="floating-caution">
+				<label ref="jr:itext('malaria-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/malaria_severe_neg_tdr" appearance="floating-bad">
+				<label ref="jr:itext('malaria_severe_neg_tdr-label')"/>
+			</trigger>
+			<trigger ref="/data/fievre/malaria_severe" appearance="floating-bad">
+				<label ref="jr:itext('malaria_severe-label')"/>
+			</trigger>
+			<select1 ref="/data/fievre/fievre_presence">
+				<label ref="jr:itext('fievre_presence-label')"/>
+				<help ref="jr:itext('fievre/fievre_presence-help')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/fievre/fievre_presence_duree">
+				<label ref="jr:itext('diarrhee_presence_duree-label')"/>
+			</input>
+			<select1 ref="/data/fievre/fievre_presence_longue">
+				<label ref="jr:itext('fievre_presence_longue-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/tdr">
+				<label ref="jr:itext('tdr-label')"/>
+				<item>
+					<label ref="jr:itext('tdr-tdr+-label')"/>
+					<value>tdr+</value>
+				</item>
+				<item>
+					<label ref="jr:itext('tdr-tdr--label')"/>
+					<value>tdr-</value>
+				</item>
+				<item>
+					<label ref="jr:itext('tdr-non_disponible-label')"/>
+					<value>non_disponible</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/urines_foncees">
+				<label ref="jr:itext('urines_foncees-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/saignements_anormaux">
+				<label ref="jr:itext('saignements_anormaux-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/raideur_nuque">
+				<label ref="jr:itext('raideur_nuque-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/ictere">
+				<label ref="jr:itext('ictere-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/choc">
+				<label ref="jr:itext('choc-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/eruption_cutanee">
+				<label ref="jr:itext('eruption_cutanee-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>aucun</value>
+				</item>
+				<item>
+					<label ref="jr:itext('eruption_cutanee-eruption-label')"/>
+					<value>eruption</value>
+				</item>
+				<item>
+					<label ref="jr:itext('eruption_cutanee-antecedent-label')"/>
+					<value>antecedent</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/ecoulement_nasal">
+				<label ref="jr:itext('ecoulement_nasal-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/yeux_rouge">
+				<label ref="jr:itext('yeux_rouge-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/ecoulement_oculaire">
+				<label ref="jr:itext('ecoulement_oculaire-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/ulcerations">
+				<label ref="jr:itext('ulcerations-label')"/>
+				<item>
+					<label ref="jr:itext('ulcerations-absentes-label')"/>
+					<value>absentes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ulcerations-presentes-label')"/>
+					<value>presentes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ulcerations-profondes_etendues-label')"/>
+					<value>profondes_etendues</value>
+				</item>
+			</select1>
+			<select1 ref="/data/fievre/cornee">
+				<label ref="jr:itext('cornee-label')"/>
+				<help ref="jr:itext('fievre/cornee-help')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/oreille" appearance="field-list">
+			<label ref="jr:itext('oreille-label')"/>
+			<trigger ref="/data/oreille/ear_infection_chronic" appearance="floating-caution">
+				<label ref="jr:itext('ear_infection_chronic-label')"/>
+			</trigger>
+			<trigger ref="/data/oreille/ear_infection_acute" appearance="floating-caution">
+				<label ref="jr:itext('ear_infection_acute-label')"/>
+			</trigger>
+			<trigger ref="/data/oreille/ear_mastoiditis" appearance="floating-bad">
+				<label ref="jr:itext('ear_mastoiditis-label')"/>
+			</trigger>
+			<select1 ref="/data/oreille/oreille_probleme">
+				<label ref="jr:itext('oreille_probleme-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/oreille/oreille_douleur">
+				<label ref="jr:itext('oreille_douleur-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/oreille/oreille_ecoulement">
+				<label ref="jr:itext('oreille_ecoulement-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/oreille/oreille_ecoulement_duree">
+				<label ref="jr:itext('oreille_ecoulement_duree-label')"/>
+			</input>
+			<select1 ref="/data/oreille/oreille_gonflement">
+				<label ref="jr:itext('oreille_gonflement-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/anemie" appearance="field-list">
+			<label ref="jr:itext('anemie-label')"/>
+			<trigger ref="/data/anemie/anemia_none" appearance="floating-good">
+				<label ref="jr:itext('anemia_none-label')"/>
+			</trigger>
+			<trigger ref="/data/anemie/anemia_normal" appearance="floating-caution">
+				<label ref="jr:itext('anemia_normal-label')"/>
+			</trigger>
+			<trigger ref="/data/anemie/anemia_serious" appearance="floating-bad">
+				<label ref="jr:itext('anemia_serious-label')"/>
+			</trigger>
+			<select1 ref="/data/anemie/paleur_palmaire">
+				<label ref="jr:itext('paleur_palmaire-label')"/>
+				<hint ref="jr:itext('paleur_palmaire-hint')"/>
+				<item>
+					<label ref="jr:itext('paleur_palmaire-absente-label')"/>
+					<value>absente</value>
+				</item>
+				<item>
+					<label ref="jr:itext('paleur_palmaire-legere-label')"/>
+					<value>legere</value>
+				</item>
+				<item>
+					<label ref="jr:itext('paleur_palmaire-severe-label')"/>
+					<value>severe</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/malnutrition" appearance="field-list">
+			<label ref="jr:itext('malnutrition-label')"/>
+			<trigger ref="/data/malnutrition/malnutrition_na" appearance="minimal">
+				<label ref="jr:itext('malnutrition_na-label')"/>
+			</trigger>
+			<trigger ref="/data/malnutrition/no_malnutrition" appearance="floating-good">
+				<label ref="jr:itext('no_malnutrition-label')"/>
+			</trigger>
+			<trigger ref="/data/malnutrition/malnutrition_mam" appearance="floating-caution">
+				<label ref="jr:itext('malnutrition_mam-label')"/>
+			</trigger>
+			<trigger ref="/data/malnutrition/malnutrition_mass" appearance="floating-caution">
+				<label ref="jr:itext('malnutrition_mass-label')"/>
+			</trigger>
+			<trigger ref="/data/malnutrition/malnutrition_masc" appearance="floating-bad">
+				<label ref="jr:itext('malnutrition_masc-label')"/>
+			</trigger>
+			<select1 ref="/data/malnutrition/oedemes">
+				<label ref="jr:itext('oedemes-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+				<item>
+					<label ref="jr:itext('oedemes-yes+-label')"/>
+					<value>yes+</value>
+				</item>
+				<item>
+					<label ref="jr:itext('oedemes-yes++-label')"/>
+					<value>yes++</value>
+				</item>
+				<item>
+					<label ref="jr:itext('oedemes-yes+++-label')"/>
+					<value>yes+++</value>
+				</item>
+			</select1>
+			<select1 ref="/data/malnutrition/test_appetit">
+				<label ref="jr:itext('test_appetit-label')"/>
+				<item>
+					<label ref="jr:itext('test_appetit-positif-label')"/>
+					<value>positif</value>
+				</item>
+				<item>
+					<label ref="jr:itext('test_appetit-negatif-label')"/>
+					<value>negatif</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/vih" appearance="field-list">
+			<label ref="jr:itext('vih-label')"/>
+			<trigger ref="/data/vih/vih_pas" appearance="floating-good">
+				<label ref="jr:itext('vih_pas-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_peu_probable" appearance="floating-good">
+				<label ref="jr:itext('vih_peu_probable-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_symp_suspecte" appearance="floating-caution">
+				<label ref="jr:itext('vih_symp_suspecte-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_possible" appearance="floating-caution">
+				<label ref="jr:itext('vih_possible-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_symp_probable" appearance="floating-caution">
+				<label ref="jr:itext('vih_symp_probable-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_confirmee" appearance="floating-caution">
+				<label ref="jr:itext('vih_confirmee-label')"/>
+			</trigger>
+			<trigger ref="/data/vih/vih_symp_confirmee" appearance="floating-caution">
+				<label ref="jr:itext('vih_symp_confirmee-label')"/>
+			</trigger>
+			<select1 ref="/data/vih/serologie_enfant">
+				<label ref="jr:itext('serologie_enfant-label')"/>
+				<item>
+					<label ref="jr:itext('serologie_enfant-inconnue-label')"/>
+					<value>inconnue</value>
+				</item>
+				<item>
+					<label ref="jr:itext('serologie_enfant-positive-label')"/>
+					<value>positive</value>
+				</item>
+				<item>
+					<label ref="jr:itext('serologie_enfant-negative-label')"/>
+					<value>negative</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/test_enfant">
+				<label ref="jr:itext('test_enfant-label')"/>
+				<item>
+					<label ref="jr:itext('test_enfant-pas_de_test-label')"/>
+					<value>pas_de_test</value>
+				</item>
+				<item>
+					<label ref="jr:itext('test_appetit-positif-label')"/>
+					<value>positif</value>
+				</item>
+				<item>
+					<label ref="jr:itext('test_appetit-negatif-label')"/>
+					<value>negatif</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/pneumonie_recidivante">
+				<label ref="jr:itext('pneumonie_recidivante-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/diarrhee_dernierement">
+				<label ref="jr:itext('diarrhee_dernierement-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/candidose_buccale">
+				<label ref="jr:itext('candidose_buccale-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/hypertrophie_ganglions_lymphatiques">
+				<label ref="jr:itext('hypertrophie_ganglions_lymphatiques-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/augmentation_glande_parotide">
+				<label ref="jr:itext('augmentation_glande_parotide-label')"/>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/test_mere">
+				<label ref="jr:itext('test_mere-label')"/>
+				<item>
+					<label ref="jr:itext('test_enfant-pas_de_test-label')"/>
+					<value>pas_de_test</value>
+				</item>
+				<item>
+					<label ref="jr:itext('test_appetit-positif-label')"/>
+					<value>positif</value>
+				</item>
+				<item>
+					<label ref="jr:itext('test_appetit-negatif-label')"/>
+					<value>negatif</value>
+				</item>
+			</select1>
+			<select1 ref="/data/vih/serologie_mere">
+				<label ref="jr:itext('serologie_mere-label')"/>
+				<item>
+					<label ref="jr:itext('serologie_enfant-inconnue-label')"/>
+					<value>inconnue</value>
+				</item>
+				<item>
+					<label ref="jr:itext('serologie_enfant-positive-label')"/>
+					<value>positive</value>
+				</item>
+				<item>
+					<label ref="jr:itext('serologie_enfant-negative-label')"/>
+					<value>negative</value>
+				</item>
+			</select1>
+		</group>
+		<select1 ref="/data/vitamin_a">
+			<label ref="jr:itext('vitamin_a-label')"/>
+			<item>
+				<label ref="jr:itext('augmentation_glande_parotide-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('augmentation_glande_parotide-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/other" appearance="field-list">
+			<input ref="/data/other/other_comments">
+				<label ref="jr:itext('other_comments-label')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

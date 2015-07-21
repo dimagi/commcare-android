@@ -1,0 +1,2 @@
+home.forms=1. One \\n2. Two \\n3. Three
+home.start=\\# Start

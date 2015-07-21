@@ -1,0 +1,74 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Groups</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/C66CBBFC-4A49-49AB-BC2D-5B250B5C7FA0" uiVersion="1" version="25" name="Groups">
+					<question5>
+						<question6/>
+					</question5>
+					<question4 jr:template="">
+						<question7/>
+					</question4>
+					<question1>
+						<question2/>
+					</question1>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question5"/>
+			<bind nodeset="/data/question5/question6" type="xsd:string"/>
+			<bind nodeset="/data/question4"/>
+			<bind nodeset="/data/question4/question7" type="xsd:string"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question1/question2" type="xsd:string"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question5-label">
+						<value>List Label</value>
+                        <value form="markdown">*List Label*</value>
+					</text>
+					<text id="question5/question6-label">
+						<value>question6</value>
+					</text>
+					<text id="question4-label">
+						<value>Repeat Label</value>
+                        <value form="markdown">*Repeat Label*</value>
+					</text>
+					<text id="question4/question7-label">
+						<value>question7</value>
+					</text>
+					<text id="question1-label">
+						<value>Group Label</value>
+                        <value form="markdown">*Group Label*</value>
+					</text>
+					<text id="question1/question2-label">
+						<value>question2</value>
+						<value form="markdown">#Header</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/question5" appearance="field-list">
+			<label ref="jr:itext('question5-label')"/>
+			<input ref="/data/question5/question6">
+				<label ref="jr:itext('question5/question6-label')"/>
+			</input>
+		</group>
+		<group>
+			<label ref="jr:itext('question4-label')"/>
+			<repeat nodeset="/data/question4">
+				<input ref="/data/question4/question7">
+					<label ref="jr:itext('question4/question7-label')"/>
+				</input>
+			</repeat>
+		</group>
+		<group ref="/data/question1">
+			<label ref="jr:itext('question1-label')"/>
+			<input ref="/data/question1/question2">
+				<label ref="jr:itext('question1/question2-label')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

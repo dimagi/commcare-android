@@ -1,0 +1,89 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>1. Index Patient Recruitment</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/6E51BCFF-3B5E-42B0-9420-1C6476F01978" uiVersion="1" version="1896" name="1. Index Patient Recruitment">
+					<recruitment_script/>
+					<consgeninfo/>
+					<lastscreen>
+						<ctcons/>
+						<question12/>
+					</lastscreen>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/recruitment_script" required="true()"/>
+			<bind nodeset="/data/consgeninfo" required="true()"/>
+			<bind nodeset="/data/lastscreen"/>
+			<bind nodeset="/data/lastscreen/ctcons" required="true()"/>
+			<bind nodeset="/data/lastscreen/question12" relevant="/data/lastscreen/ctcons = 'yes'"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="recruitment_script-label">
+						<value>My name is &#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;, and I am a community health worker working with the Uganda National Tuberculosis and Leprosy Programme (NTLP) and the Uganda Tuberculosis Surveillance Project (UTBSP). 
+
+We understand that you have been diagnosed with TB. We are starting a new program called &#8220;Tuberculosis (TB) Contact Investigation&#8221; with the NTLP and investigators from Makerere University and the University of California San Francisco in the USA. The Uganda National Council for Science and Technology (UNCST) and the university institutional review boards have reviewed and approved this protocol. We are asking new TB patients like you if we can come to your home to interview the other people living with you (called "household contacts&#8221;) about symptoms of TB. This is because there is a high risk that they might have gotten TB from you. If we find them earlier, we can treat them earlier and prevent severe illness or death. We will also be evaluating different approaches to improving TB contact investigation using SMS (mobile phone short messaging services).
+
+
+Erinya nze &#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;&#8230;,
+Ndi musawo w&#8217;okukyalo akola ne Uganda National Tuberculosis and Leprosy Programme(NTLP) ne Uganda Tuberculosis Surveillance Project (UTBSP).
+Tutegeera nti ozuliddwamu akafuba. Tutandikawo pulogulamu empya emanyiddwa nga &#8220;Tuberculosis (TB) Contact Investigation&#8221; oba okunonyereza kw&#8217;omuntu w&#8217;akafuba atukirirwa ne NTLP n&#8217;abanonyereza okuva mu yunivasite ya Makerere ne yunivasite ya California San Francisco mu USA. Akakiiko akafuga okunonyereza mu Uganda akamanyiddwa nga Uganda National Council for Science and Technology (UNCST) n&#8217;obukiiko bwa yunivasite obufuga okunonyereza obumanyiddwa nga university institutional review boards bekenenyeza era nebayisa ekiwandiiko ky&#8217;okunonyereza kinno. Tusaba abalwadde b&#8217;akafuba abapya nga ggwe oba tuyinza okujja awakawo okubuuza abantu abalala ababeera nawe (abayitibwa &#8220;abatukirirwa awaka&#8221;) ebibuuzo kububonero bw&#8217;akafuba. Kino tukikola olwokuba waliwo akabi kamaanyi nti bayinza okuba nga bafuna akafuba okuva gyoli. Ssinga tubera tubazudde nga bukyali, tuyinza okubajanjaba nga bukyali era netwewala endwadde ey&#8217;amaanyi oba okufa. Tujja kuba era tupima enkola y&#8217;engeri ez&#8217;enjawulo mukutumbula okunonyereza kw&#8217;omuntu atukirirwa ow&#8217;akafuba nga tukozesa obubaka bwessimu obuli mubuwandiike (empeereza y&#8217;obubaka obumpi ku ssimu y&#8217;omungalo).
+</value>
+					</text>
+					<text id="consgeninfo-label">
+						<value>Taking part is your choice, and if you are interested in participating, I will tell you more about it during the informed consent process. Prior to the informed consent process, we will gather some general information from you without any identifying information. If you are eligible, we will start the informed consent process. At that time, I will tell you what would happen if you join the study. This includes the risks, benefits, and alternatives to participating. Finally, I will ask you if you agree to participate.  Would you like to provide us with some general information and to learn more about the study?
+Thank you for your time. 
+
+
+Okwenyigiramu kiri gy&#8217;oli, era bwoba wandyagadde okwenyigiramu, nja kukubulira ebisingawo kwekyo mukunyonyola kw&#8217;okukiriza okusinziddwa kububaka obuwereddwa kukunonyereza. Nga okunyonyola kw&#8217;okukiriza okusinziddwa kububaka obuwereddwa kukunonyereza tekunakolebwa, tujja kukunganya obubaka okuva gy&#8217;oli nga tekuli bubaka bukwawula. Ssinga onoba otukiriza ebisanizo, tujja kutandika okunyonyola kw&#8217;okukiriza okusinziddwa kububaka obuwereddwa kukunonyereza. Mubudde obwo, nja kukutegeeza ekiyinza okubaawo ssinga obeera wenyigidde mukunonyereza. Munno mulimu obubi, eby&#8217;okuganyulwa, n&#8217;ebirala by&#8217;oyinza okukola ssinga obeera tewenyigideemu. Kunkomerero nja kukubuuza oba okiriza okwenyigiramu.
+Weebale olw&#8217;obudde bwo.
+
+
+</value>
+					</text>
+					<text id="lastscreen-label">
+						<value>Last Screen</value>
+					</text>
+					<text id="ctcons-label">
+						<value>Did the patient verbally agree to undergo screening after being read the Recruitment Script?</value>
+					</text>
+					<text id="ctcons-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="ctcons-no-label">
+						<value>No</value>
+					</text>
+					<text id="question12-label">
+						<value>Please continue to the Index Patient Screening Form</value>
+						<value form="image">jr://file/commcare/image/data/question12.png</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/recruitment_script">
+			<label ref="jr:itext('recruitment_script-label')"/>
+		</trigger>
+		<trigger ref="/data/consgeninfo">
+			<label ref="jr:itext('consgeninfo-label')"/>
+		</trigger>
+		<group ref="/data/lastscreen" appearance="field-list">
+			<label ref="jr:itext('lastscreen-label')"/>
+			<select1 ref="/data/lastscreen/ctcons">
+				<label ref="jr:itext('ctcons-label')"/>
+				<item>
+					<label ref="jr:itext('ctcons-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('ctcons-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<trigger ref="/data/lastscreen/question12">
+				<label ref="jr:itext('question12-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

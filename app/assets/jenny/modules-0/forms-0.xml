@@ -1,0 +1,211 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Say something</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/901A0E79-BD35-4211-9212-7D14442ED8B2" uiVersion="1" version="4" name="Say something">
+					<question1>
+						<something/>
+						<copy-1-of-something/>
+						<copy-2-of-something/>
+						<copy-3-of-something/>
+						<copy-4-of-something/>
+						<copy-5-of-something/>
+					</question1>
+					<question3>
+						<something/>
+						<copy-1-of-something/>
+						<copy-2-of-something/>
+						<copy-3-of-something/>
+						<copy-4-of-something/>
+						<copy-5-of-something/>
+					</question3>
+					<copy-2-of-question1>
+						<something/>
+						<copy-1-of-something/>
+						<copy-2-of-something/>
+						<copy-3-of-something/>
+						<copy-4-of-something/>
+						<copy-5-of-something/>
+					</copy-2-of-question1>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question1/something" type="xsd:string"/>
+			<bind nodeset="/data/question1/copy-1-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question1/copy-2-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question1/copy-3-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question1/copy-4-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question1/copy-5-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question3"/>
+			<bind nodeset="/data/question3/something" type="xsd:string"/>
+			<bind nodeset="/data/question3/copy-1-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question3/copy-2-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question3/copy-3-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question3/copy-4-of-something" type="xsd:string"/>
+			<bind nodeset="/data/question3/copy-5-of-something" type="xsd:string"/>
+			<bind nodeset="/data/copy-2-of-question1"/>
+			<bind nodeset="/data/copy-2-of-question1/something"/>
+			<bind nodeset="/data/copy-2-of-question1/copy-1-of-something"/>
+			<bind nodeset="/data/copy-2-of-question1/copy-2-of-something" type="xsd:double"/>
+			<bind nodeset="/data/copy-2-of-question1/copy-3-of-something" type="xsd:time"/>
+			<bind nodeset="/data/copy-2-of-question1/copy-4-of-something" type="binary"/>
+			<bind nodeset="/data/copy-2-of-question1/copy-5-of-something" type="geopoint"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="copy-2-of-question1/question3-label">
+						<value>question3</value>
+					</text>
+					<text id="copy-1-of-question1/something-label">
+						<value>text, audio, image, and video</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-1-of-question1/copy-1-of-something-label">
+						<value>text only</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-1-of-question1/copy-1-of-something-hint">
+						<value>this is a hint</value>
+					</text>
+					<text id="copy-1-of-question1/copy-2-of-something-label">
+						<value>audio only</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-1-of-question1/copy-3-of-something-label">
+						<value>image only</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-1-of-question1/copy-4-of-something-label">
+						<value>video only</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-1-of-question1/copy-5-of-something-label">
+						<value>no help</value>
+						<value form="image">jr://file/commcare/image/data/something.png</value>
+						<value form="audio">jr://file/commcare/audio/data/something.mp3</value>
+						<value form="video">jr://file/commcare/video/data/something.3gp</value>
+					</text>
+					<text id="copy-2-of-question1-label">
+						<value>question1</value>
+					</text>
+					<text id="copy-2-of-question1/copy-1-of-something-item1-label">
+						<value>item1</value>
+					</text>
+					<text id="copy-2-of-question1/copy-1-of-something-item2-label">
+						<value>item2</value>
+					</text>
+					</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/><orx:pollsensor event="xforms-ready"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/question1">
+			<label ref="jr:itext('copy-2-of-question1-label')"/>
+			<input ref="/data/question1/something">
+				<label ref="jr:itext('copy-1-of-question1/something-label')"/>
+                <help ref="jr:itext('copy-1-of-question1/something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question1/copy-1-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-1-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question1/copy-2-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-2-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question1/copy-3-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-3-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question1/copy-4-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-4-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question1/copy-5-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-5-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+		</group>
+		<group ref="/data/question3" appearance="field-list">
+			<label ref="jr:itext('copy-2-of-question1/question3-label')"/>
+			<input ref="/data/question3/something">
+				<label ref="jr:itext('copy-1-of-question1/something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question3/copy-1-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-1-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question3/copy-2-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-2-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question3/copy-3-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-3-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question3/copy-4-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-4-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/question3/copy-5-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-5-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+		</group>
+		<group ref="/data/copy-2-of-question1">
+			<label ref="jr:itext('copy-2-of-question1-label')"/>
+			<select1 ref="/data/copy-2-of-question1/something">
+				<label ref="jr:itext('copy-1-of-question1/something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+				<item>
+					<label ref="jr:itext('copy-2-of-question1/copy-1-of-something-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('copy-2-of-question1/copy-1-of-something-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<select ref="/data/copy-2-of-question1/copy-1-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-1-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+				<item>
+					<label ref="jr:itext('copy-2-of-question1/copy-1-of-something-item1-label')"/>
+					<value>item1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('copy-2-of-question1/copy-1-of-something-item2-label')"/>
+					<value>item2</value>
+				</item>
+			</select>
+			<input ref="/data/copy-2-of-question1/copy-2-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-2-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<input ref="/data/copy-2-of-question1/copy-3-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-3-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+			<upload ref="/data/copy-2-of-question1/copy-4-of-something" mediatype="image/*">
+				<label ref="jr:itext('copy-1-of-question1/copy-4-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</upload>
+			<input ref="/data/copy-2-of-question1/copy-5-of-something">
+				<label ref="jr:itext('copy-1-of-question1/copy-5-of-something-label')"/>
+				<hint ref="jr:itext('copy-1-of-question1/copy-1-of-something-hint')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

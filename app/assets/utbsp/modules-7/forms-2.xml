@@ -1,0 +1,159 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Question Type Quiz</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/921B95C1-F507-4D98-8141-E65FB62AE83D" uiVersion="1" version="704" name="Question Type Quiz">
+					<question6/>
+					<required/>
+					<question16/>
+					<question19/>
+					<date_quesiton/>
+					<invalid_date/>
+					<case_tracking/>
+					<forms/>
+					<modules/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question6"/>
+			<bind nodeset="/data/required"/>
+			<bind nodeset="/data/question16"/>
+			<bind nodeset="/data/question19"/>
+			<bind nodeset="/data/date_quesiton"/>
+			<bind nodeset="/data/invalid_date"/>
+			<bind nodeset="/data/case_tracking"/>
+			<bind nodeset="/data/forms"/>
+			<bind nodeset="/data/modules"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question6-label">
+						<value>The following statements are either True or False, please read them carefully and chose the best option.</value>
+					</text>
+					<text id="required-label">
+						<value>You can be required to answer a question before moving on</value>
+					</text>
+					<text id="question16-label">
+						<value>You can NOT collect GPS location using CommCare</value>
+					</text>
+					<text id="question19-label">
+						<value>You can take a picture using commcare</value>
+					</text>
+					<text id="date_quesiton-label">
+						<value>A date question will allow you to enter a date</value>
+					</text>
+					<text id="invalid_date-label">
+						<value>If an answer is INVALID, for example a birth date in the future, CommCare will still let you enter that information.</value>
+					</text>
+					<text id="case_tracking-label">
+						<value>CommCare tracks cases over time.</value>
+					</text>
+					<text id="case_tracking-true-label">
+						<value>True</value>
+					</text>
+					<text id="case_tracking-false-label">
+						<value>False</value>
+					</text>
+					<text id="forms-label">
+						<value>You fill out information in CommCare in a form</value>
+					</text>
+					<text id="modules-label">
+						<value>A module, like the training module you are in right now, contains multiple forms.</value>
+					</text>
+					</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question6" appearance="minimal">
+			<label ref="jr:itext('question6-label')"/>
+		</trigger>
+		<select1 ref="/data/required">
+			<label ref="jr:itext('required-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question16">
+			<label ref="jr:itext('question16-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question19">
+			<label ref="jr:itext('question19-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/date_quesiton">
+			<label ref="jr:itext('date_quesiton-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/invalid_date">
+			<label ref="jr:itext('invalid_date-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/case_tracking">
+			<label ref="jr:itext('case_tracking-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/forms">
+			<label ref="jr:itext('forms-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/modules">
+			<label ref="jr:itext('modules-label')"/>
+			<item>
+				<label ref="jr:itext('case_tracking-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('case_tracking-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>

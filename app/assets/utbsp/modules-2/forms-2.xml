@@ -1,0 +1,79 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>9. Extended Procedures</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/7D0D73E3-1452-4CDE-9CB5-80A395253007" uiVersion="1" version="1972" name="9. Extended Procedures">
+					<contact_control/>
+					<contact_intervention/>
+					<offerhct/>
+					<nohct/>
+					<sptumnotoffered/>
+					<collectsputum/>
+					<tb_status/>
+					<tb_risk/>
+					<send_SMS/>
+					<target_clinic_visit_date/>
+					<ptage/>
+					<allocation/>
+					<allocation_id/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><send_SMS/><target_clinic_visit_date/><tb_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/contact_control" relevant="/data/allocation = 'B'" required="true()"/>
+			<bind nodeset="/data/contact_intervention" relevant="/data/allocation = 'A'" required="true()"/>
+			<bind nodeset="/data/offerhct" relevant="/data/ptage &gt;= 15 and /data/allocation = 'A'" required="true()"/>
+			<bind nodeset="/data/nohct" relevant="/data/ptage &lt; 15 and /data/allocation = 'A'" required="true()"/>
+			<bind nodeset="/data/sptumnotoffered" relevant="/data/ptage &lt; 5 and /data/allocation = 'A'" required="true()"/>
+			<bind nodeset="/data/collectsputum" relevant="/data/ptage &gt; 5 and /data/allocation = 'A' and /data/tb_risk = 'likely'" required="true()"/>
+			<bind nodeset="/data/tb_status"/>
+			<bind nodeset="/data/tb_risk"/>
+			<bind nodeset="/data/send_SMS" calculate="if(/data/allocation = &quot;B&quot;, &quot;control&quot;, if(/data/tb_status = &quot;positive&quot;, &quot;confirmed&quot;, if (/data/tb_status = &quot;negative&quot;, &quot;unlikely&quot;, &quot;not_testable&quot;)))"/>
+			<bind nodeset="/data/target_clinic_visit_date" calculate="today() +5"/>
+			<bind nodeset="/data/ptage"/>
+			<bind nodeset="/data/allocation"/>
+			<bind nodeset="/data/allocation_id"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="contact_control-label">
+						<value>Contacts in this household have been assigned to the regular home visit group; no home procedures are indicated. Please refer the patient to the clinic if further evaluation is required.</value>
+					</text>
+					<text id="contact_intervention-label">
+						<value>Contacts in this household have been assigned to the SMS group.</value>
+					</text>
+					<text id="offerhct-label">
+						<value>Proceed to Form 9a, HIV Testing, to offer HCT</value>
+					</text>
+					<text id="nohct-label">
+						<value>Home HCT not offered since age &lt;15. If HCT desired or indicated, refer patient to clinic for this service.</value>
+					</text>
+					<text id="sptumnotoffered-label">
+						<value>Home sputum collection not offered since age &lt;5. Refer patient to clinic for TB evaluation by a clinician.</value>
+					</text>
+					<text id="collectsputum-label">
+						<value>Please proceed to collect sputum</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/send_SMS" nodeset="/data/case/update/send_SMS" relevant="count(/data/send_SMS) &gt; 0"/><bind calculate="/data/target_clinic_visit_date" nodeset="/data/case/update/target_clinic_visit_date" relevant="count(/data/target_clinic_visit_date) &gt; 0"/><bind calculate="/data/tb_status" nodeset="/data/case/update/tb_status" relevant="count(/data/tb_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/ptage" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptage"/><setvalue event="xforms-ready" ref="/data/allocation_id" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation_id"/><setvalue event="xforms-ready" ref="/data/allocation" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation"/><setvalue event="xforms-ready" ref="/data/tb_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_risk"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/contact_control" appearance="minimal">
+			<label ref="jr:itext('contact_control-label')"/>
+		</trigger>
+		<trigger ref="/data/contact_intervention" appearance="minimal">
+			<label ref="jr:itext('contact_intervention-label')"/>
+		</trigger>
+		<trigger ref="/data/offerhct" appearance="minimal">
+			<label ref="jr:itext('offerhct-label')"/>
+		</trigger>
+		<trigger ref="/data/nohct" appearance="minimal">
+			<label ref="jr:itext('nohct-label')"/>
+		</trigger>
+		<trigger ref="/data/sptumnotoffered" appearance="minimal">
+			<label ref="jr:itext('sptumnotoffered-label')"/>
+		</trigger>
+		<trigger ref="/data/collectsputum" appearance="minimal">
+			<label ref="jr:itext('collectsputum-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

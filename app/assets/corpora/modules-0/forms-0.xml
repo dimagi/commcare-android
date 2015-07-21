@@ -1,0 +1,72 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Case Create</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/3E8AF57E-F7C0-46DB-8507-60870AA55BDF" uiVersion="1" version="15" name="Case Create">
+					<name/>
+					<number/>
+					<callout/>
+					<left_index/>
+					<right_index/>
+					<left_thumb/>
+					<right_thumb/>
+<match_id/>
+<data_returned/>
+
+					<intent_0>com.biometrac.core.SCAN</intent_0>
+					<intent_1>com.biometrac.core.IDENTIFY</intent_1>
+					<finger_left_index>left_index</finger_left_index>
+					<finger_left_thumb>left_thumb</finger_left_thumb>
+					<finger_right_thumb>right_thumb</finger_right_thumb>
+					<finger_right_index>right_index</finger_right_index>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>case</case_type></create><update><left_index/><left_thumb/><number/><right_index/><right_thumb/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/name" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/number" type="xsd:int"/>
+			<bind nodeset="/data/callout" type="intent"/>
+			<bind nodeset="/data/left_index"/>
+			<bind nodeset="/data/right_index"/>
+			<bind nodeset="/data/left_thumb"/>
+			<bind nodeset="/data/right_thumb"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="name-label">
+						<value>Name</value>
+					</text>
+					<text id="number-label">
+						<value>Number</value>
+					</text>
+					<text id="callout-label">
+						<value>Callout</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_case_0"/><bind calculate="/data/name" nodeset="/data/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/><bind calculate="/data/left_index" nodeset="/data/case/update/left_index" relevant="count(/data/left_index) &gt; 0"/><bind calculate="/data/left_thumb" nodeset="/data/case/update/left_thumb" relevant="count(/data/left_thumb) &gt; 0"/><bind calculate="/data/number" nodeset="/data/case/update/number" relevant="count(/data/number) &gt; 0"/><bind calculate="/data/left_thumb" nodeset="/data/case/update/right_index" relevant="count(/data/left_thumb) &gt; 0"/><bind calculate="/data/right_thumb" nodeset="/data/case/update/right_thumb" relevant="count(/data/right_thumb) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="search" class="com.biometrac.core.PIPE">
+			<extra key="action_0" ref="/data/intent_0"/>
+			<extra key="action_1" ref="/data/intent_1"/>
+			<extra key="left_finger_assignment_0" ref="/data/finger_left_index"/>
+			<extra key="right_finger_assignment_0" ref="/data/finger_right_index"/>
+			<extra key="left_finger_assignment_1" ref="/data/finger_left_thumb"/>
+			<extra key="right_finger_assignment_1" ref="/data/finger_right_thumb"/>
+			<response key="matches_found" ref="/data/returned"/>
+			<response key="left_index" ref="/data/left_index"/>
+			<response key="left_thumb" ref="/data/left_thumb"/>
+			<response key="right_index" ref="/data/right_index"/>
+			<response key="right_thumb" ref="/data/right_thumb"/>
+			<response key="match_id_0" ref="/data/match_id"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<input ref="/data/name">
+			<label ref="jr:itext('name-label')"/>
+		</input>
+		<input ref="/data/number">
+			<label ref="jr:itext('number-label')"/>
+		</input>
+		<input ref="/data/callout" appearance="intent:search">
+			<label ref="jr:itext('callout-label')"/>
+		</input>
+	</h:body>
+</h:html>

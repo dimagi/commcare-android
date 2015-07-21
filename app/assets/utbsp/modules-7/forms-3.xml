@@ -1,0 +1,433 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>CommCare Quiz</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/B0AA5F46-A625-4219-B499-DC14441352D2" uiVersion="1" version="798" name="CommCare Quiz">
+					<question13/>
+					<username/>
+					<form/>
+					<question8/>
+					<question74/>
+					<different_hands/>
+					<copy-1-of-question13/>
+					<log_out/>
+					<forgot_username/>
+					<scan/>
+					<right_thumb_1/>
+					<right_thumb_2/>
+					<question31/>
+					<copy-2-of-question13/>
+					<commcare_can/>
+					<finger_print_types/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question13"/>
+			<bind nodeset="/data/username" required="true()"/>
+			<bind nodeset="/data/form" required="true()"/>
+			<bind nodeset="/data/question8" required="true()"/>
+			<bind nodeset="/data/question74" required="true()"/>
+			<bind nodeset="/data/different_hands" required="true()"/>
+			<bind nodeset="/data/copy-1-of-question13" required="false()"/>
+			<bind nodeset="/data/log_out" required="true()"/>
+			<bind nodeset="/data/forgot_username" required="true()"/>
+			<bind nodeset="/data/scan" required="true()"/>
+			<bind nodeset="/data/right_thumb_1" required="true()"/>
+			<bind nodeset="/data/right_thumb_2" required="true()"/>
+			<bind nodeset="/data/question31" required="true()"/>
+			<bind nodeset="/data/copy-2-of-question13"/>
+			<bind nodeset="/data/commcare_can" required="true()"/>
+			<bind nodeset="/data/finger_print_types" required="true()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question13-label">
+						<value>The following statements are True or False. Please chose the best answer.</value>
+					</text>
+					<text id="username-label">
+						<value>I should always log in with my own username and password</value>
+					</text>
+					<text id="form-label">
+						<value>A form is where you fill out the questions.</value>
+					</text>
+					<text id="question8-label">
+						<value>This image is a good fingerprint.</value>
+					</text>
+					<text id="question74-label">
+						<value>The core of the fingerprint is the first segment, near the joint, near the middle of the finger. </value>
+					</text>
+					<text id="different_hands-label">
+						<value>When finger printing, it does not matter whether you use the left or right hand. They are interchangeable.</value>
+					</text>
+					<text id="different_hands-true-label">
+						<value>True</value>
+					</text>
+					<text id="different_hands-false-label">
+						<value>False</value>
+					</text>
+					<text id="copy-1-of-question13-label">
+						<value>The following questions are multiple choice. Please choose the best answer</value>
+					</text>
+					<text id="log_out-label">
+						<value>When should you log out of CommCare?</value>
+					</text>
+					<text id="log_out-end_of_vist-label">
+						<value>At the end of each visit</value>
+					</text>
+					<text id="log_out-whenever-label">
+						<value>Whenever I feel like it</value>
+					</text>
+					<text id="log_out-after_form-label">
+						<value>After I fill out a form</value>
+					</text>
+					<text id="log_out-never-label">
+						<value>Never</value>
+					</text>
+					<text id="forgot_username-label">
+						<value>What do you do if you forget your username or password?</value>
+					</text>
+					<text id="forgot_username-someone_else-label">
+						<value>Log in with someone else's username and password</value>
+					</text>
+					<text id="forgot_username-demo-label">
+						<value>Log in with the demo user</value>
+					</text>
+					<text id="forgot_username-call_pc-label">
+						<value>Call the project coordinator</value>
+					</text>
+					<text id="forgot_username-paper-label">
+						<value>Not use CommCare at and do it on paper</value>
+					</text>
+					<text id="scan-label">
+						<value>Which of these scans are good?</value>
+					</text>
+					<text id="scan-1-label">
+						<value>Scan 1</value>
+						<value form="image">jr://file/commcare/image/data/scan-item64.png</value>
+					</text>
+					<text id="scan-2-label">
+						<value>Scan 2</value>
+						<value form="image">jr://file/commcare/image/data/scan-item65.png</value>
+					</text>
+					<text id="scan-3-label">
+						<value>Scan 3</value>
+						<value form="image">jr://file/commcare/image/data/scan-3.png</value>
+					</text>
+					<text id="scan-4-label">
+						<value>Scan 4</value>
+						<value form="image">jr://file/commcare/image/data/scan-4.png</value>
+					</text>
+					<text id="right_thumb_1-label">
+						<value>What is wrong with this scan of the right thumb?</value>
+						<value form="image">jr://file/commcare/image/data/question68.png</value>
+					</text>
+					<text id="right_thumb_1-nothing-label">
+						<value>Nothing, the scan is good</value>
+					</text>
+					<text id="right_thumb_1-core_too_high-label">
+						<value>The core is too high</value>
+					</text>
+					<text id="right_thumb_1-too_far_right-label">
+						<value>The core is too far right</value>
+					</text>
+					<text id="right_thumb_1-not_central-label">
+						<value>The core is not central</value>
+					</text>
+					<text id="question31-label">
+						<value>Which of the following are necessary for a good fingerprint?</value>
+					</text>
+					<text id="question31-clean-label">
+						<value>Clean, dry finger</value>
+					</text>
+					<text id="question31-centered-label">
+						<value>Fingerprint is centered</value>
+					</text>
+					<text id="question31-all-label">
+						<value>All of the above</value>
+					</text>
+					<text id="copy-2-of-question13-label">
+						<value>The following questions have multiple answers. Please check all that apply.</value>
+					</text>
+					<text id="commcare_can-label">
+						<value>CommCare can do which of the following</value>
+					</text>
+					<text id="commcare_can-photos-label">
+						<value>Take photos</value>
+					</text>
+					<text id="commcare_can-gps-label">
+						<value>Collect GPS</value>
+					</text>
+					<text id="commcare_can-send_emails-label">
+						<value>Send emails from the app</value>
+					</text>
+					<text id="commcare_can-call_phone-label">
+						<value>Call a phone number from the app</value>
+					</text>
+					<text id="commcare_can-save_forms-label">
+						<value>Save forms to fill out later</value>
+					</text>
+					<text id="commcare_can-track_patients-label">
+						<value>Track patients</value>
+					</text>
+					<text id="commcare_can-directions-label">
+						<value>Give you directions on how to get to a restaurant</value>
+					</text>
+					<text id="finger_print_types-label">
+						<value>Which of the following are fingerprint types?</value>
+					</text>
+					<text id="finger_print_types-loop-label">
+						<value>Loop</value>
+					</text>
+					<text id="finger_print_types-whorl-label">
+						<value>Whorl</value>
+					</text>
+					<text id="finger_print_types-arch-label">
+						<value>Arch</value>
+					</text>
+					<text id="finger_print_types-swirl-label">
+						<value>Swirl</value>
+					</text>
+					<text id="finger_print_types-circle-label">
+						<value>Circle</value>
+					</text>
+					<text id="finger_print_types-tented_arch-label">
+						<value>Tented Arch</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question13" appearance="minimal">
+			<label ref="jr:itext('question13-label')"/>
+		</trigger>
+		<select1 ref="/data/username">
+			<label ref="jr:itext('username-label')"/>
+			<item>
+				<label ref="jr:itext('different_hands-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('different_hands-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/form">
+			<label ref="jr:itext('form-label')"/>
+			<item>
+				<label ref="jr:itext('different_hands-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('different_hands-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question8">
+			<label ref="jr:itext('question8-label')"/>
+			<item>
+				<label ref="jr:itext('different_hands-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('different_hands-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question74">
+			<label ref="jr:itext('question74-label')"/>
+			<item>
+				<label ref="jr:itext('different_hands-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('different_hands-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<select1 ref="/data/different_hands">
+			<label ref="jr:itext('different_hands-label')"/>
+			<item>
+				<label ref="jr:itext('different_hands-true-label')"/>
+				<value>true</value>
+			</item>
+			<item>
+				<label ref="jr:itext('different_hands-false-label')"/>
+				<value>false</value>
+			</item>
+		</select1>
+		<trigger ref="/data/copy-1-of-question13" appearance="minimal">
+			<label ref="jr:itext('copy-1-of-question13-label')"/>
+		</trigger>
+		<select1 ref="/data/log_out">
+			<label ref="jr:itext('log_out-label')"/>
+			<item>
+				<label ref="jr:itext('log_out-end_of_vist-label')"/>
+				<value>end_of_vist</value>
+			</item>
+			<item>
+				<label ref="jr:itext('log_out-whenever-label')"/>
+				<value>whenever</value>
+			</item>
+			<item>
+				<label ref="jr:itext('log_out-after_form-label')"/>
+				<value>after_form</value>
+			</item>
+			<item>
+				<label ref="jr:itext('log_out-never-label')"/>
+				<value>never</value>
+			</item>
+		</select1>
+		<select1 ref="/data/forgot_username">
+			<label ref="jr:itext('forgot_username-label')"/>
+			<item>
+				<label ref="jr:itext('forgot_username-someone_else-label')"/>
+				<value>someone_else</value>
+			</item>
+			<item>
+				<label ref="jr:itext('forgot_username-demo-label')"/>
+				<value>demo</value>
+			</item>
+			<item>
+				<label ref="jr:itext('forgot_username-call_pc-label')"/>
+				<value>call_pc</value>
+			</item>
+			<item>
+				<label ref="jr:itext('forgot_username-paper-label')"/>
+				<value>paper</value>
+			</item>
+		</select1>
+		<select1 ref="/data/scan">
+			<label ref="jr:itext('scan-label')"/>
+			<item>
+				<label ref="jr:itext('scan-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('scan-2-label')"/>
+				<value>2</value>
+			</item>
+			<item>
+				<label ref="jr:itext('scan-3-label')"/>
+				<value>3</value>
+			</item>
+			<item>
+				<label ref="jr:itext('scan-4-label')"/>
+				<value>4</value>
+			</item>
+		</select1>
+		<select1 ref="/data/right_thumb_1">
+			<label ref="jr:itext('right_thumb_1-label')"/>
+			<item>
+				<label ref="jr:itext('right_thumb_1-nothing-label')"/>
+				<value>nothing</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-core_too_high-label')"/>
+				<value>core_too_high</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-too_far_right-label')"/>
+				<value>too_far_right</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-not_central-label')"/>
+				<value>not_central</value>
+			</item>
+		</select1>
+		<select1 ref="/data/right_thumb_2">
+			<label ref="jr:itext('right_thumb_1-label')"/>
+			<item>
+				<label ref="jr:itext('right_thumb_1-nothing-label')"/>
+				<value>nothing</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-core_too_high-label')"/>
+				<value>core_too_high</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-too_far_right-label')"/>
+				<value>too_far_right</value>
+			</item>
+			<item>
+				<label ref="jr:itext('right_thumb_1-not_central-label')"/>
+				<value>not_central</value>
+			</item>
+		</select1>
+		<select1 ref="/data/question31">
+			<label ref="jr:itext('question31-label')"/>
+			<item>
+				<label ref="jr:itext('question31-clean-label')"/>
+				<value>clean</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question31-centered-label')"/>
+				<value>centered</value>
+			</item>
+			<item>
+				<label ref="jr:itext('question31-all-label')"/>
+				<value>all</value>
+			</item>
+		</select1>
+		<trigger ref="/data/copy-2-of-question13" appearance="minimal">
+			<label ref="jr:itext('copy-2-of-question13-label')"/>
+		</trigger>
+		<select ref="/data/commcare_can">
+			<label ref="jr:itext('commcare_can-label')"/>
+			<item>
+				<label ref="jr:itext('commcare_can-photos-label')"/>
+				<value>photos</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-gps-label')"/>
+				<value>gps</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-send_emails-label')"/>
+				<value>send_emails</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-call_phone-label')"/>
+				<value>call_phone</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-save_forms-label')"/>
+				<value>save_forms</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-track_patients-label')"/>
+				<value>track_patients</value>
+			</item>
+			<item>
+				<label ref="jr:itext('commcare_can-directions-label')"/>
+				<value>directions</value>
+			</item>
+		</select>
+		<select ref="/data/finger_print_types">
+			<label ref="jr:itext('finger_print_types-label')"/>
+			<item>
+				<label ref="jr:itext('finger_print_types-loop-label')"/>
+				<value>loop</value>
+			</item>
+			<item>
+				<label ref="jr:itext('finger_print_types-whorl-label')"/>
+				<value>whorl</value>
+			</item>
+			<item>
+				<label ref="jr:itext('finger_print_types-arch-label')"/>
+				<value>arch</value>
+			</item>
+			<item>
+				<label ref="jr:itext('finger_print_types-swirl-label')"/>
+				<value>swirl</value>
+			</item>
+			<item>
+				<label ref="jr:itext('finger_print_types-circle-label')"/>
+				<value>circle</value>
+			</item>
+			<item>
+				<label ref="jr:itext('finger_print_types-tented_arch-label')"/>
+				<value>tented_arch</value>
+			</item>
+		</select>
+	</h:body>
+</h:html>

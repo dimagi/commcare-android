@@ -1,0 +1,367 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>12. Sputum 2</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/926128d3f2c0b3cdc84c1c8bd5371fcced97b4cc" uiVersion="1" version="1781" name="12. Sputum 2">
+					<sputum2collected/>
+					<sput2colldt/>
+					<sput2timecoll/>
+					<sputum2rcvd/>
+					<spt2dlvrd/>
+					<sput2appearance/>
+					<smearperform/>
+					<sput2rsltspos/>
+					<xptsptm2/>
+					<Xpert2Rslts/>
+					<xpmtbsemiquant/>
+					<xpertrifres/>
+					<comments/>
+					<confirmtb/>
+					<pttype/>
+					<screenid/>
+					<ptage/>
+					<gender/>
+					<ptid/>
+					<tb_status/>
+					<hiv_status/>
+					<tb_risk/>
+					<send_SMS/>
+					<allocation/>
+					<target_clinic_visit_date/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><Xpert2Rslts/><hiv_status/><send_SMS/><tb_risk/><tb_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data></instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/sputum2collected" required="true()"/>
+			<bind nodeset="/data/sput2colldt" type="xsd:date" constraint=".&lt;=today()" relevant="/data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/sput2timecoll" relevant="/data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/sputum2rcvd" relevant="/data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/spt2dlvrd" type="xsd:dateTime" relevant="/data/sputum2rcvd = 'yes' and /data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/sput2appearance" relevant="/data/sputum2collected = 'yes' and /data/sputum2rcvd = 'yes'" required="true()"/>
+			<bind nodeset="/data/smearperform" relevant="/data/sputum2collected = 'yes' and /data/sputum2rcvd = 'yes'" required="true()"/>
+			<bind nodeset="/data/sput2rsltspos" relevant="/data/smearperform = 'yes'" required="true()"/>
+			<bind nodeset="/data/xptsptm2" relevant="/data/sputum2collected = 'yes' and /data/sputum2rcvd = 'yes'" required="true()"/>
+			<bind nodeset="/data/Xpert2Rslts" relevant="/data/xptsptm2 = 'yes' and /data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/xpmtbsemiquant" relevant="/data/xptsptm2 = 'yes' and /data/Xpert2Rslts = 'positive'" required="true()"/>
+			<bind nodeset="/data/xpertrifres" relevant="/data/Xpert2Rslts = 'positive' and /data/sputum2collected = 'yes'" required="true()"/>
+			<bind nodeset="/data/comments" type="xsd:string" required="false()"/>
+			<bind nodeset="/data/confirmtb" type="binary" relevant="/data/Xpert2Rslts = 'positive'"/>
+			<bind nodeset="/data/pttype"/>
+			<bind nodeset="/data/screenid"/>
+			<bind nodeset="/data/ptage"/>
+			<bind nodeset="/data/gender"/>
+			<bind nodeset="/data/ptid"/>
+			<bind nodeset="/data/tb_status" calculate="if(/data/sput2rsltspos=&quot;3&quot; or /data/sput2rsltspos=&quot;2&quot; or /data/sput2rsltspos=&quot;1&quot; or  /data/Xpert2Rslts =&quot;positive&quot;, &quot;confirmed&quot;,if(/data/sput2rsltspos =&quot;neg&quot; or /data/Xpert2Rslts = &quot;negative&quot;, &quot;negative&quot;, &quot;not_testable&quot;))"/>
+			<bind nodeset="/data/hiv_status"/>
+			<bind nodeset="/data/tb_risk" calculate="if(/data/hiv_status =&quot;positive&quot; or /data/ptage &lt;=5, &quot;likely&quot;,if(/data/tb_status = &quot;confirmed&quot;, &quot;confirmed&quot;,&quot;unlikely&quot;))"/>
+			<bind nodeset="/data/send_SMS" calculate="if(/data/allocation = &quot;B&quot;, &quot;control&quot;, if(/data/tb_status = &quot;confirmed&quot;, &quot;confirmed&quot;, if (/data/tb_status = &quot;negative&quot;, &quot;unlikely&quot;, &quot;not_testable&quot;)))"/>
+			<bind nodeset="/data/allocation"/>
+			<bind nodeset="/data/target_clinic_visit_date" calculate="today() +5"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="sputum2collected-label">
+						<value>Was sputum 2 collected?</value>
+					</text>
+					<text id="sput2colldt-label">
+						<value>Date of collection of sputum</value>
+					</text>
+					<text id="sput2timecoll-label">
+						<value>Timing of collection of sputum 2</value>
+					</text>
+					<text id="sput2timecoll-spot-label">
+						<value>Spot</value>
+					</text>
+					<text id="sput2timecoll-morning-label">
+						<value>Early Morning</value>
+					</text>
+					<text id="sputum2rcvd-label">
+						<value>Was sputum 2 received in laboratory?</value>
+					</text>
+					<text id="sputum2rcvd-yes-label">
+						<value>Yes </value>
+					</text>
+					<text id="spt2dlvrd-label">
+						<value>Date and time sputum 2 was delivered to Laboratory </value>
+					</text>
+					<text id="spt2dlvrd-hint">
+						<value>(24 hour clock)</value>
+					</text>
+					<text id="sput2appearance-label">
+						<value>Appearance of sputum 2</value>
+					</text>
+					<text id="sput2appearance-blood_stained-label">
+						<value>Blood-stained</value>
+					</text>
+					<text id="sput2appearance-muco_purulent-label">
+						<value>Mucopurulent</value>
+					</text>
+					<text id="sput2appearance-mucoid-label">
+						<value>Mucoid</value>
+					</text>
+					<text id="sput2appearance-salivary-label">
+						<value>Salivary</value>
+					</text>
+					<text id="smearperform-label">
+						<value>Was smear microscopy performed on sputum 2?</value>
+					</text>
+					<text id="smearperform-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="smearperform-no-label">
+						<value>No</value>
+					</text>
+					<text id="sput2rsltspos-label">
+						<value>Smear microscopy results on sputum 2</value>
+					</text>
+					<text id="sput2rsltspos-3-label">
+						<value>Positive 3+</value>
+					</text>
+					<text id="sput2rsltspos-2-label">
+						<value>Positive 2+</value>
+					</text>
+					<text id="sput2rsltspos-1-label">
+						<value>Positve 1+</value>
+					</text>
+					<text id="sput2rsltspos-scanty-label">
+						<value>Scanty</value>
+					</text>
+					<text id="sput2rsltspos-missingresult-label">
+						<value>Result Missing</value>
+					</text>
+					<text id="xptsptm2-label">
+						<value>Was Xpert performed on sputum 2?</value>
+					</text>
+					<text id="Xpert2Rslts-label">
+						<value> Xpert results on sputum 2</value>
+					</text>
+					<text id="Xpert2Rslts-positive-label">
+						<value>Positive</value>
+					</text>
+					<text id="Xpert2Rslts-negative-label">
+						<value>Negative</value>
+					</text>
+					<text id="Xpert2Rslts-invalid-label">
+						<value>Invalid</value>
+					</text>
+					<text id="Xpert2Rslts-error-label">
+						<value>Error</value>
+					</text>
+					<text id="Xpert2Rslts-noresult-label">
+						<value>No result</value>
+					</text>
+					<text id="Xpert2Rslts-xpmissingrst-label">
+						<value>Missing result</value>
+					</text>
+					<text id="xpmtbsemiquant-label">
+						<value>Xpert MTB semi-quantitative result</value>
+					</text>
+					<text id="xpmtbsemiquant-verylow-label">
+						<value>Very low</value>
+					</text>
+					<text id="xpmtbsemiquant-low-label">
+						<value>Low</value>
+					</text>
+					<text id="xpmtbsemiquant-medium-label">
+						<value>Medium</value>
+					</text>
+					<text id="xpmtbsemiquant-high-label">
+						<value>High</value>
+					</text>
+					<text id="xpertrifres-label">
+						<value>Xpert RIF result</value>
+					</text>
+					<text id="xpertrifres-notdetected-label">
+						<value>Rif Resistance not detected</value>
+					</text>
+					<text id="xpertrifres-detected-label">
+						<value>Rif Resistance detected</value>
+					</text>
+					<text id="xpertrifres-indeterminate-label">
+						<value>Rif Resistance indeterminate</value>
+					</text>
+					<text id="comments-label">
+						<value>Free text comments to explain unusual situations encountered during sputum evaluation process.</value>
+					</text>
+					<text id="confirmtb-label">
+						<value>Please confirm cover up the names of the other people in the register and take a picture of the patient's diagnosis.</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/Xpert2Rslts" nodeset="/data/case/update/Xpert2Rslts" relevant="count(/data/Xpert2Rslts) &gt; 0"/><bind calculate="/data/hiv_status" nodeset="/data/case/update/hiv_status" relevant="count(/data/hiv_status) &gt; 0"/><bind calculate="/data/send_SMS" nodeset="/data/case/update/send_SMS" relevant="count(/data/send_SMS) &gt; 0"/><bind calculate="/data/tb_risk" nodeset="/data/case/update/tb_risk" relevant="count(/data/tb_risk) &gt; 0"/><bind calculate="/data/tb_status" nodeset="/data/case/update/tb_status" relevant="count(/data/tb_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/gender" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptgender"/><setvalue event="xforms-ready" ref="/data/screenid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/screenid"/><setvalue event="xforms-ready" ref="/data/ptage" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptage"/><setvalue event="xforms-ready" ref="/data/tb_status" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_status"/><setvalue event="xforms-ready" ref="/data/pttype" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/pttype"/><setvalue event="xforms-ready" ref="/data/ptid" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/ptid"/><setvalue event="xforms-ready" ref="/data/tb_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/tb_risk"/><setvalue event="xforms-ready" ref="/data/hiv_status" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/hiv_status"/><setvalue event="xforms-ready" ref="/data/allocation" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/allocation"/><setvalue event="xforms-ready" ref="/data/send_SMS" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/send_SMS"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/sputum2collected">
+			<label ref="jr:itext('sputum2collected-label')"/>
+			<item>
+				<label ref="jr:itext('smearperform-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearperform-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/sput2colldt">
+			<label ref="jr:itext('sput2colldt-label')"/>
+		</input>
+		<select1 ref="/data/sput2timecoll">
+			<label ref="jr:itext('sput2timecoll-label')"/>
+			<item>
+				<label ref="jr:itext('sput2timecoll-spot-label')"/>
+				<value>spot</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2timecoll-morning-label')"/>
+				<value>morning</value>
+			</item>
+		</select1>
+		<select1 ref="/data/sputum2rcvd">
+			<label ref="jr:itext('sputum2rcvd-label')"/>
+			<item>
+				<label ref="jr:itext('sputum2rcvd-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearperform-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<input ref="/data/spt2dlvrd">
+			<label ref="jr:itext('spt2dlvrd-label')"/>
+			<hint ref="jr:itext('spt2dlvrd-hint')"/>
+		</input>
+		<select1 ref="/data/sput2appearance">
+			<label ref="jr:itext('sput2appearance-label')"/>
+			<item>
+				<label ref="jr:itext('sput2appearance-blood_stained-label')"/>
+				<value>blood_stained</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2appearance-muco_purulent-label')"/>
+				<value>muco_purulent</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2appearance-mucoid-label')"/>
+				<value>mucoid</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2appearance-salivary-label')"/>
+				<value>salivary</value>
+			</item>
+		</select1>
+		<select1 ref="/data/smearperform">
+			<label ref="jr:itext('smearperform-label')"/>
+			<item>
+				<label ref="jr:itext('smearperform-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearperform-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/sput2rsltspos">
+			<label ref="jr:itext('sput2rsltspos-label')"/>
+			<item>
+				<label ref="jr:itext('sput2rsltspos-3-label')"/>
+				<value>3</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2rsltspos-2-label')"/>
+				<value>2</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2rsltspos-1-label')"/>
+				<value>1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2rsltspos-scanty-label')"/>
+				<value>scanty</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-negative-label')"/>
+				<value>neg</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sput2rsltspos-missingresult-label')"/>
+				<value>missingresult</value>
+			</item>
+		</select1>
+		<select1 ref="/data/xptsptm2">
+			<label ref="jr:itext('xptsptm2-label')"/>
+			<item>
+				<label ref="jr:itext('smearperform-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('smearperform-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<select1 ref="/data/Xpert2Rslts">
+			<label ref="jr:itext('Xpert2Rslts-label')"/>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-positive-label')"/>
+				<value>positive</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-negative-label')"/>
+				<value>negative</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-invalid-label')"/>
+				<value>invalid</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-error-label')"/>
+				<value>error</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-noresult-label')"/>
+				<value>noresult</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Xpert2Rslts-xpmissingrst-label')"/>
+				<value>xpmissingrst</value>
+			</item>
+		</select1>
+		<select1 ref="/data/xpmtbsemiquant">
+			<label ref="jr:itext('xpmtbsemiquant-label')"/>
+			<item>
+				<label ref="jr:itext('xpmtbsemiquant-verylow-label')"/>
+				<value>verylow</value>
+			</item>
+			<item>
+				<label ref="jr:itext('xpmtbsemiquant-low-label')"/>
+				<value>low</value>
+			</item>
+			<item>
+				<label ref="jr:itext('xpmtbsemiquant-medium-label')"/>
+				<value>medium</value>
+			</item>
+			<item>
+				<label ref="jr:itext('xpmtbsemiquant-high-label')"/>
+				<value>high</value>
+			</item>
+		</select1>
+		<select1 ref="/data/xpertrifres">
+			<label ref="jr:itext('xpertrifres-label')"/>
+			<item>
+				<label ref="jr:itext('xpertrifres-notdetected-label')"/>
+				<value>notdetected</value>
+			</item>
+			<item>
+				<label ref="jr:itext('xpertrifres-detected-label')"/>
+				<value>detected</value>
+			</item>
+			<item>
+				<label ref="jr:itext('xpertrifres-indeterminate-label')"/>
+				<value>indeterminate</value>
+			</item>
+		</select1>
+		<input ref="/data/comments">
+			<label ref="jr:itext('comments-label')"/>
+		</input>
+		<upload mediatype="image/*" ref="/data/confirmtb">
+			<label ref="jr:itext('confirmtb-label')"/>
+		</upload>
+	</h:body>
+</h:html>

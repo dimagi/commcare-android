@@ -1,0 +1,71 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Fingerprint Help</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E35DAD30-4380-4510-B11B-566F79C78C2D" uiVersion="1" version="798" name="Fingerprint Help">
+					<question7/>
+					<question8/>
+					<question1/>
+					<question9/>
+					<question10/>
+					<question2/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/question7"/>
+			<bind nodeset="/data/question8"/>
+			<bind nodeset="/data/question1"/>
+			<bind nodeset="/data/question9"/>
+			<bind nodeset="/data/question10"/>
+			<bind nodeset="/data/question2"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="question7-label">
+						<value>A Short Primer</value>
+						<value form="image">jr://file/commcare/image/data/question7.png</value>
+					</text>
+					<text id="question8-label">
+						<value>A Short Primer</value>
+						<value form="image">jr://file/commcare/image/data/question8.png</value>
+					</text>
+					<text id="question1-label">
+						<value>Fingerprint Types</value>
+						<value form="image">jr://file/commcare/image/data/question1.png</value>
+					</text>
+					<text id="question9-label">
+						<value>Properly Scanning</value>
+						<value form="image">jr://file/commcare/image/data/question9.png</value>
+					</text>
+					<text id="question10-label">
+						<value>Scanning Workflow</value>
+						<value form="image">jr://file/commcare/image/data/question10.png</value>
+					</text>
+					<text id="question2-label">
+						<value>Examples</value>
+						<value form="image">jr://file/commcare/image/data/question2.png</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/question7" appearance="minimal">
+			<label ref="jr:itext('question7-label')"/>
+		</trigger>
+		<trigger ref="/data/question8" appearance="minimal">
+			<label ref="jr:itext('question8-label')"/>
+		</trigger>
+		<trigger ref="/data/question1" appearance="minimal">
+			<label ref="jr:itext('question1-label')"/>
+		</trigger>
+		<trigger ref="/data/question9" appearance="minimal">
+			<label ref="jr:itext('question9-label')"/>
+		</trigger>
+		<trigger ref="/data/question10" appearance="minimal">
+			<label ref="jr:itext('question10-label')"/>
+		</trigger>
+		<trigger ref="/data/question2" appearance="minimal">
+			<label ref="jr:itext('question2-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

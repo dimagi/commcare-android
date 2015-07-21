@@ -1,0 +1,92 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Support Appraisal</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/17582dfbdd4cd632575913d3ddcea19d0dc0ab3b" uiVersion="1" version="687" name="Support Appraisal">
+					<evaluation_list>
+						<appropriate_answer/>
+						<timely_answer/>
+						<satisfaction_comments/>
+					</evaluation_list>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><appropriate_answer/><satisfaction_comments/><timely_answer/></update><close/></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/evaluation_list"/>
+			<bind nodeset="/data/evaluation_list/appropriate_answer" required="true()"/>
+			<bind nodeset="/data/evaluation_list/timely_answer" required="true()"/>
+			<bind nodeset="/data/evaluation_list/satisfaction_comments" type="xsd:string"/>
+			<itext>
+				<translation lang="fra">
+					<text id="evaluation_list-label">
+						<value>Evaluation du support technique</value>
+					</text>
+					<text id="appropriate_answer-label">
+						<value>Le probl&#232;me est-il r&#233;solu ?</value>
+					</text>
+					<text id="appropriate_answer-yes-label">
+						<value>Oui</value>
+					</text>
+					<text id="appropriate_answer-no-label">
+						<value>Non</value>
+					</text>
+					<text id="timely_answer-label">
+						<value>Le probl&#232;me a-t-il &#233;t&#233; r&#233;solu dans un d&#233;lai raisonnable ?</value>
+					</text>
+					<text id="satisfaction_comments-label">
+						<value>Autres commentaires</value>
+					</text>
+				</translation>
+				<translation lang="en" default="">
+					<text id="evaluation_list-label">
+						<value>Support Appraisal</value>
+					</text>
+					<text id="appropriate_answer-label">
+						<value>Was the problem resolved?</value>
+					</text>
+					<text id="appropriate_answer-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="appropriate_answer-no-label">
+						<value>No</value>
+					</text>
+					<text id="timely_answer-label">
+						<value>Was the problem resolved in a reasonable amount of time?</value>
+					</text>
+					<text id="satisfaction_comments-label">
+						<value>Please include other comments about the support you received</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/evaluation_list/appropriate_answer" nodeset="/data/case/update/appropriate_answer" relevant="count(/data/evaluation_list/appropriate_answer) &gt; 0"/><bind calculate="/data/evaluation_list/satisfaction_comments" nodeset="/data/case/update/satisfaction_comments" relevant="count(/data/evaluation_list/satisfaction_comments) &gt; 0"/><bind calculate="/data/evaluation_list/timely_answer" nodeset="/data/case/update/timely_answer" relevant="count(/data/evaluation_list/timely_answer) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/evaluation_list" appearance="field-list">
+			<label ref="jr:itext('evaluation_list-label')"/>
+			<select1 ref="/data/evaluation_list/appropriate_answer">
+				<label ref="jr:itext('appropriate_answer-label')"/>
+				<item>
+					<label ref="jr:itext('appropriate_answer-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('appropriate_answer-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/evaluation_list/timely_answer">
+				<label ref="jr:itext('timely_answer-label')"/>
+				<item>
+					<label ref="jr:itext('appropriate_answer-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('appropriate_answer-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/evaluation_list/satisfaction_comments">
+				<label ref="jr:itext('satisfaction_comments-label')"/>
+			</input>
+		</group>
+	</h:body>
+</h:html>

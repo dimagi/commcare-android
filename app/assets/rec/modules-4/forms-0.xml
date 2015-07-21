@@ -1,0 +1,148 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Select New Admin</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/80d3fb1033b7ac859332e82b7ce1b82556bc9855" uiVersion="1" version="687" name="Select New Admin">
+					<debug>
+						<debug_selected_user/>
+						<debug_autoloaded_user/>
+						<selected_user_case_id/>
+						<debug_admin_user_caseid/>
+					</debug>
+					<already_admin_message/>
+					<admin_authentication>
+						<entered_admin_pin/>
+					</admin_authentication>
+					<confirmation/>
+					<username/>
+					<new_user_type/>
+					<user_caseid/>
+					<admin_username/>
+					<admin_pin/>
+					<admin_caseid/>
+					<autoloaded_admin_username/>
+					<autoloaded_admin_new_user_type/>
+				<case_load_tablet_user_0><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><user_type/></update></case></case_load_tablet_user_0><case_autoload_tablet_user1><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><user_type/></update></case></case_autoload_tablet_user1><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/debug" relevant="1=2"/>
+			<bind nodeset="/data/debug/debug_selected_user"/>
+			<bind nodeset="/data/debug/debug_autoloaded_user"/>
+			<bind nodeset="/data/debug/selected_user_case_id"/>
+			<bind nodeset="/data/debug/debug_admin_user_caseid"/>
+			<bind nodeset="/data/already_admin_message" constraint="1=2" jr:constraintMsg="jr:itext('already_admin_message-constraintMsg')" relevant="/data/user_caseid = /data/admin_caseid" required="true()"/>
+			<bind nodeset="/data/admin_authentication"/>
+			<bind nodeset="/data/admin_authentication/entered_admin_pin" type="xsd:string" constraint=". = /data/admin_pin" jr:constraintMsg="jr:itext('admin_authentication/entered_admin_pin-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/confirmation" required="true()"/>
+			<bind nodeset="/data/username"/>
+			<bind nodeset="/data/new_user_type" calculate="'admin'"/>
+			<bind nodeset="/data/user_caseid" calculate="instance('commcaresession')/session/data/case_id_load_tablet_user_0"/>
+			<bind nodeset="/data/admin_username" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/username"/>
+			<bind nodeset="/data/admin_pin" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/pin"/>
+			<bind nodeset="/data/admin_caseid" calculate="instance('casedb')/casedb/case[@case_type='tablet_user'][@status='open'][user_type = 'admin'][1]/@case_id"/>
+			<bind nodeset="/data/autoloaded_admin_username"/>
+			<bind nodeset="/data/autoloaded_admin_new_user_type" calculate="'regular'"/>
+			<itext>
+				<translation lang="fra">
+					<text id="debug-label">
+						<value>D&#233;pannage</value>
+					</text>
+					<text id="debug/debug_selected_user-label">
+						<value>Utilisateur selectionn&#233;: <output value="/data/username"/></value>
+					</text>
+					<text id="debug/debug_autoloaded_user-label">
+						<value>Utilisateur administrateur pr&#233;d&#233;termin&#233;: <output value="/data/autoloaded_admin_username"/></value>
+					</text>
+					<text id="debug/selected_user_case_id-label">
+						<value>selected_user_case_id: <output value="/data/user_caseid"/></value>
+					</text>
+					<text id="debug/debug_admin_user_caseid-label">
+						<value>debug_admin_user_caseid: <output value="/data/admin_caseid"/></value>
+					</text>
+					<text id="already_admin_message-label">
+						<value>L'utilisateur selectionn&#233; '<output value="/data/username"/>' est d&#233;j&#224; un ICP. Quittez ce formulaire et s&#233;lectionnez un autre utilisateur.</value>
+					</text>
+					<text id="already_admin_message-constraintMsg">
+						<value>Veuillez quitter ce formulaire, et s&#233;lectionner un autre utilisateur pour cr&#233;er son compte administrateur</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Identification de l'adminstrateur</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Saisissez le mot de passe &#224; 4 chiffres de l'ICP (<output value="/data/admin_username"/>)</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>Le code pin que vous avez entr&#233; n'est pas correct. Veuillez r&#233;essayer.</value>
+					</text>
+					<text id="confirmation-label">
+						<value>En validant ce formulaire, l'utilisateur '<output value="/data/username"/>' deviendra ICP (administrateur/trice) &#224; la place de '<output value="/data/admin_username"/>'. Etes-vous s&#251;r(e) de vouloir continuer ?</value>
+					</text>
+				</translation>
+				<translation lang="en" default="">
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/debug_selected_user-label">
+						<value>Selected user: <output value="/data/username"/></value>
+					</text>
+					<text id="debug/debug_autoloaded_user-label">
+						<value>Autoloaded admin user: <output value="/data/autoloaded_admin_username"/></value>
+					</text>
+					<text id="debug/selected_user_case_id-label">
+						<value>selected_user_case_id: <output value="/data/user_caseid"/></value>
+					</text>
+					<text id="debug/debug_admin_user_caseid-label">
+						<value>debug_admin_user_caseid: <output value="/data/admin_caseid"/></value>
+					</text>
+					<text id="already_admin_message-label">
+						<value>The selected user '<output value="/data/username"/>' is already the Admin. Please exit this form, and select a different regular user, whom you want to make Admin.</value>
+					</text>
+					<text id="already_admin_message-constraintMsg">
+						<value>Please exit this form, and select a different regular user for making her Admin</value>
+					</text>
+					<text id="admin_authentication-label">
+						<value>Admin user authentication</value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-label">
+						<value>Please enter the 4 digit pin number administrator user: <output value="/data/admin_username"/></value>
+					</text>
+					<text id="admin_authentication/entered_admin_pin-constraintMsg">
+						<value>The pin you have entered is incorrect! Please try again.</value>
+					</text>
+					<text id="confirmation-label">
+						<value>If proceed further and submit this form, user '<output value="/data/username"/>' will become the new Admin. Current Admin '<output value="/data/admin_username"/>' would become a regular user.</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/username" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_load_tablet_user_0]/username"/><bind calculate="/data/meta/timeEnd" nodeset="/data/case_load_tablet_user_0/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case_load_tablet_user_0/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id_load_tablet_user_0" nodeset="/data/case_load_tablet_user_0/case/@case_id"/><bind calculate="/data/new_user_type" nodeset="/data/case_load_tablet_user_0/case/update/user_type" relevant="count(/data/new_user_type) &gt; 0"/><setvalue event="xforms-ready" ref="/data/autoloaded_admin_username" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_autoload_tablet_user1]/username"/><bind calculate="/data/meta/timeEnd" nodeset="/data/case_autoload_tablet_user1/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case_autoload_tablet_user1/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id_autoload_tablet_user1" nodeset="/data/case_autoload_tablet_user1/case/@case_id"/><bind calculate="/data/autoloaded_admin_new_user_type" nodeset="/data/case_autoload_tablet_user1/case/update/user_type" relevant="count(/data/autoloaded_admin_new_user_type) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/debug" appearance="field-list">
+			<label ref="jr:itext('debug-label')"/>
+			<trigger ref="/data/debug/debug_selected_user" appearance="minimal">
+				<label ref="jr:itext('debug/debug_selected_user-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_autoloaded_user" appearance="minimal">
+				<label ref="jr:itext('debug/debug_autoloaded_user-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/selected_user_case_id" appearance="minimal">
+				<label ref="jr:itext('debug/selected_user_case_id-label')"/>
+			</trigger>
+			<trigger ref="/data/debug/debug_admin_user_caseid" appearance="minimal">
+				<label ref="jr:itext('debug/debug_admin_user_caseid-label')"/>
+			</trigger>
+		</group>
+		<trigger ref="/data/already_admin_message" appearance="minimal">
+			<label ref="jr:itext('already_admin_message-label')"/>
+		</trigger>
+		<group ref="/data/admin_authentication" appearance="field-list">
+			<label ref="jr:itext('admin_authentication-label')"/>
+			<secret ref="/data/admin_authentication/entered_admin_pin">
+				<label ref="jr:itext('admin_authentication/entered_admin_pin-label')"/>
+			</secret>
+		</group>
+		<trigger ref="/data/confirmation">
+			<label ref="jr:itext('confirmation-label')"/>
+		</trigger>
+	</h:body>
+</h:html>

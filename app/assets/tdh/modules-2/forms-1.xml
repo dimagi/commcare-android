@@ -1,0 +1,2351 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Infant Treatment</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/604656a56cce6cfe691699123c2e2fe9f077da77" uiVersion="1" version="962" name="Infant Treatment">
+					<debug>
+						<classification_infection_debug/>
+						<classification_deshydratation_debug/>
+						<classification_diahree_debug/>
+						<classification_malnutrition_debug/>
+						<classification_vih_debug/>
+						<alimentation_qb_debug/>
+						<alimentation_qc_debug/>
+						<alimentation_qd_debug/>
+						<alimentation_qf_debug/>
+						<alimentation_qg_debug/>
+						<alimentation_qh_debug/>
+						<zscore_unrounded_wfh_debug/>
+						<child_age_debug/>
+						<child_weight_debug/>
+					</debug>
+					<select_treatments>
+						<infection_grave/>
+						<deshydratation_severe/>
+						<signe_deshydratation/>
+						<diahree_persistante_grave/>
+					</select_treatments>
+					<select_meds>
+						<antibio/>
+					</select_meds>
+					<treatments>
+						<infection_grave>
+							<infection_grave_title/>
+							<infection_grave_treat_0/>
+							<infection_grave_treat_1/>
+							<infection_grave_treat_2/>
+							<infection_grave_treat_3/>
+							<infection_grave_treat_4/>
+						</infection_grave>
+						<infection_grave_no_ref>
+							<infection_grave_no_ref_title/>
+							<infection_grave_no_ref_treat_0/>
+							<infection_grave_no_ref_treat_1/>
+							<infection_grave_no_ref_treat_2/>
+						</infection_grave_no_ref>
+						<infection_locale>
+							<infection_locale_title/>
+							<show_antibio_2/>
+							<show_antibio_3/>
+							<infection_locale_treat_2/>
+							<infection_locale_treat_3/>
+							<infection_locale_treat_4/>
+							<infection_locale_treat_0/>
+							<infection_locale_treat_1/>
+						</infection_locale>
+						<pas_infection>
+							<pas_infection_title/>
+							<pas_infection_treat_0/>
+							<pas_infection_treat_1/>
+						</pas_infection>
+						<deshydratation_severe_sans_infection>
+							<deshydratation_severe_sans_infection_title/>
+							<deshydratation_severe_sans_infection_treat_0/>
+						</deshydratation_severe_sans_infection>
+						<deshydratation_severe_infection>
+							<deshydratation_severe_infection_title/>
+							<deshydratation_severe_infection_treat_0/>
+							<deshydratation_severe_infection_treat_1/>
+							<deshydratation_severe_infection_treat_2/>
+						</deshydratation_severe_infection>
+						<signe_deshydratation_sans_infection>
+							<signe_deshydratation_sans_infection_title/>
+							<signe_deshydratation_sans_infection_treat_0/>
+							<signe_deshydratation_sans_infection_treat_1/>
+							<signe_deshydratation_sans_infection_treat_2/>
+						</signe_deshydratation_sans_infection>
+						<signe_deshydratation_infection>
+							<signe_deshydratation_infection_title/>
+							<signe_deshydratation_infection_treat_0/>
+							<signe_deshydratation_infection_treat_1/>
+							<signe_deshydratation_infection_treat_2/>
+						</signe_deshydratation_infection>
+						<pas_deshydratation>
+							<pas_deshydratation_title/>
+							<pas_deshydratation_treat_0/>
+							<pas_deshydratation_treat_1/>
+						</pas_deshydratation>
+						<diahree_persistante_grave_sans_infection>
+							<diahree_persistante_grave_sans_infection_title/>
+							<diahree_persistante_grave_sans_infection_treat_0/>
+							<diahree_persistante_grave_sans_infection_treat_1/>
+							<diahree_persistante_grave_sans_infection_treat_2/>
+						</diahree_persistante_grave_sans_infection>
+						<diahree_persistante_grave_infection>
+							<diahree_persistante_grave_infection_title/>
+							<diahree_persistante_grave_infection_treat_0/>
+						</diahree_persistante_grave_infection>
+						<sang_scelles>
+							<sang_scelles_title/>
+							<sang_scelles_treat_0/>
+							<sang_scelles_treat_1/>
+							<sang_scelles_treat_2/>
+						</sang_scelles>
+						<incapable_nourrir>
+							<incapable_nourrir_title/>
+							<incapable_nourrir_treat_0/>
+							<incapable_nourrir_treat_1/>
+							<incapable_nourrir_treat_2/>
+							<incapable_nourrir_treat_3/>
+							<incapable_nourrir_treat_4/>
+						</incapable_nourrir>
+						<probleme_alimentation>
+							<probleme_alimentation_title/>
+							<probleme_alimentation_treat_0/>
+							<probleme_alimentation_treat_1/>
+							<probleme_alimentation_treat_2/>
+							<probleme_alimentation_treat_3/>
+							<probleme_alimentation_treat_4/>
+							<probleme_alimentation_treat_5/>
+							<probleme_alimentation_treat_6/>
+							<probleme_alimentation_treat_7/>
+							<probleme_alimentation_treat_8/>
+						</probleme_alimentation>
+						<pas_pb_alimentation>
+							<pas_pb_alimentation_title/>
+							<pas_pb_alimentation_treat_0/>
+							<pas_pb_alimentation_treat_1/>
+						</pas_pb_alimentation>
+						<vih_possible>
+							<vih_possible_title/>
+							<vih_possible_treat_0/>
+							<vih_possible_treat_1/>
+							<vih_possible_treat_2/>
+							<vih_possible_treat_3/>
+						</vih_possible>
+						<vih_peu_probable>
+							<vih_peu_probable_title/>
+							<vih_peu_probable_treat_0/>
+						</vih_peu_probable>
+						<vih_pas_infection>
+							<vih_pas_infection_title/>
+							<vih_pas_infection_treat_0/>
+							<vih_pas_infection_treat_1/>
+						</vih_pas_infection>
+						<vih_asymp_confirmee>
+							<vih_asymp_confirmee_title/>
+							<vih_asymp_confirmee_treat_0/>
+							<vih_asymp_confirmee_treat_1/>
+							<vih_asymp_confirmee_treat_2/>
+							<vih_asymp_confirmee_treat_3/>
+						</vih_asymp_confirmee>
+						<vih_symp_confirmee>
+							<vih_symp_confirmee_title/>
+							<vih_symp_confirmee_treat_0/>
+							<vih_symp_confirmee_treat_1/>
+							<vih_symp_confirmee_treat_2/>
+							<vih_symp_confirmee_treat_3/>
+						</vih_symp_confirmee>
+					</treatments>
+					<other_treatments/>
+					<child_age/>
+					<child_weight/>
+					<treatment_complete/>
+					<classification_deshydratation/>
+					<classification_vih/>
+					<classification_malnutrition/>
+					<classification_infection/>
+					<classification_diahree/>
+					<classification_deshydratation_loaded/>
+					<classification_vih_loaded/>
+					<classification_malnutrition_loaded/>
+					<classification_infection_loaded/>
+					<classification_diahree_loaded/>
+					<child_age_loaded/>
+					<child_weight_loaded/>
+					<antibio_valid_meds/>
+					<child_case_id/>
+					<alimentation_qb/>
+					<alimentation_qc/>
+					<alimentation_qd/>
+					<alimentation_qf/>
+					<alimentation_qg/>
+					<alimentation_qh/>
+					<zscore_unrounded_wfh/>
+					<has_severe_classification/>
+					<alimentation_qb_loaded/>
+					<alimentation_qc_loaded/>
+					<alimentation_qd_loaded/>
+					<alimentation_qf_loaded/>
+					<alimentation_qg_loaded/>
+					<alimentation_qh_loaded/>
+					<zscore_unrounded_wfh_loaded/>
+				<case_case_visit><case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><treatment_complete/></update></case></case_case_visit><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<instance id="medications" src="jr://instance/fixture/item-list:medications"/>
+			<bind nodeset="/data/debug" relevant="false()"/>
+			<bind nodeset="/data/debug/classification_infection_debug"/>
+			<bind nodeset="/data/debug/classification_deshydratation_debug"/>
+			<bind nodeset="/data/debug/classification_diahree_debug"/>
+			<bind nodeset="/data/debug/classification_malnutrition_debug"/>
+			<bind nodeset="/data/debug/classification_vih_debug"/>
+			<bind nodeset="/data/debug/alimentation_qb_debug"/>
+			<bind nodeset="/data/debug/alimentation_qc_debug" type="xsd:double" constraint=". &gt; 0 and . &lt; 50"/>
+			<bind nodeset="/data/debug/alimentation_qd_debug"/>
+			<bind nodeset="/data/debug/alimentation_qf_debug"/>
+			<bind nodeset="/data/debug/alimentation_qg_debug"/>
+			<bind nodeset="/data/debug/alimentation_qh_debug"/>
+			<bind nodeset="/data/debug/zscore_unrounded_wfh_debug" type="xsd:double" constraint=". &gt; -5 and . &lt; 5"/>
+			<bind nodeset="/data/debug/child_age_debug" type="xsd:double" constraint=". &gt; 0 and . &lt; 150"/>
+			<bind nodeset="/data/debug/child_weight_debug" type="xsd:double" constraint=". &gt; 0 and . &lt; 150"/>
+			<bind nodeset="/data/select_treatments"/>
+			<bind nodeset="/data/select_treatments/infection_grave" relevant="/data/classification_infection = 'infection_grave'" required="true()"/>
+			<bind nodeset="/data/select_treatments/deshydratation_severe" relevant="/data/classification_deshydratation = 'deshydratation_severe'" required="true()"/>
+			<bind nodeset="/data/select_treatments/signe_deshydratation" relevant="/data/classification_deshydratation = 'signe_deshydratation'" required="true()"/>
+			<bind nodeset="/data/select_treatments/diahree_persistante_grave" relevant="/data/classification_diahree = 'diahree_persistante_grave'" required="true()"/>
+			<bind nodeset="/data/select_meds"/>
+			<bind nodeset="/data/select_meds/antibio" relevant="count(instance('medications')/medications_list/medications[selected(/data/antibio_valid_meds, @key)][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0" required="true()"/>
+			<bind nodeset="/data/treatments"/>
+			<bind nodeset="/data/treatments/infection_grave" relevant="/data/classification_infection = 'infection_grave'  and /data/select_treatments/infection_grave = 'infection_grave'"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_title"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_treat_0" relevant="count(instance('medications')/medications_list/medications[@key = 'm12:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_treat_1" relevant="count(instance('medications')/medications_list/medications[@key = 'm13:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_treat_2"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_treat_3"/>
+			<bind nodeset="/data/treatments/infection_grave/infection_grave_treat_4"/>
+			<bind nodeset="/data/treatments/infection_grave_no_ref" relevant="/data/classification_infection = 'infection_grave'  and /data/select_treatments/infection_grave = 'infection_grave_no_ref'"/>
+			<bind nodeset="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_title"/>
+			<bind nodeset="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_0" relevant="count(instance('medications')/medications_list/medications[@key = 'm12_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_1" relevant="count(instance('medications')/medications_list/medications[@key = 'm13_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_2"/>
+			<bind nodeset="/data/treatments/infection_locale" relevant="/data/classification_infection = 'infection_locale' and /data/has_severe_classification = 'no'"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_title"/>
+			<bind nodeset="/data/treatments/infection_locale/show_antibio_2" relevant="/data/select_meds/antibio = 'antibio:2:infection_locale'"/>
+			<bind nodeset="/data/treatments/infection_locale/show_antibio_3" relevant="/data/select_meds/antibio = 'antibio:3:infection_locale'"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_treat_2"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_treat_3"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_treat_4"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_treat_0" relevant="count(instance('medications')/medications_list/medications[@key = 'antibio:2:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/infection_locale/infection_locale_treat_1" relevant="count(instance('medications')/medications_list/medications[@key = 'antibio:3:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/pas_infection" relevant="/data/classification_infection = 'pas_infection' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/pas_infection/pas_infection_title"/>
+			<bind nodeset="/data/treatments/pas_infection/pas_infection_treat_0"/>
+			<bind nodeset="/data/treatments/pas_infection/pas_infection_treat_1"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_sans_infection" relevant="/data/classification_deshydratation = 'deshydratation_severe'  and /data/select_treatments/deshydratation_severe = 'deshydratation_severe_sans_infection'"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_title"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_treat_0"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_infection" relevant="/data/classification_deshydratation = 'deshydratation_severe'  and /data/select_treatments/deshydratation_severe = 'deshydratation_severe_infection'"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_title"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_0"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1"/>
+			<bind nodeset="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_sans_infection" relevant="/data/classification_deshydratation = 'signe_deshydratation'  and /data/select_treatments/signe_deshydratation = 'signe_deshydratation_sans_infection' and /data/has_severe_classification = 'no'"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_title"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_0"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_1"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_2"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_infection" relevant="/data/classification_deshydratation = 'signe_deshydratation'  and /data/select_treatments/signe_deshydratation = 'signe_deshydratation_infection' and /data/has_severe_classification = 'no'"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_title"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_0"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_1"/>
+			<bind nodeset="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_2"/>
+			<bind nodeset="/data/treatments/pas_deshydratation" relevant="/data/classification_deshydratation = 'pas_deshydratation' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/pas_deshydratation/pas_deshydratation_title"/>
+			<bind nodeset="/data/treatments/pas_deshydratation/pas_deshydratation_treat_0"/>
+			<bind nodeset="/data/treatments/pas_deshydratation/pas_deshydratation_treat_1"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_sans_infection" relevant="/data/classification_diahree = 'diahree_persistante_grave'  and /data/select_treatments/diahree_persistante_grave = 'diahree_persistante_grave_sans_infection'"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_title"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_0" relevant="/data/classification_deshydratation = 'deshydratation_severe' or /data/classification_deshydratation = 'signe_deshydratation'"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_1" relevant="/data/classification_deshydratation = 'deshydratation_severe' or /data/classification_deshydratation = 'signe_deshydratation'"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_2"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_infection" relevant="/data/classification_diahree = 'diahree_persistante_grave'  and /data/select_treatments/diahree_persistante_grave = 'diahree_persistante_grave_infection'"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_title"/>
+			<bind nodeset="/data/treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0"/>
+			<bind nodeset="/data/treatments/sang_scelles" relevant="/data/classification_diahree = 'sang_scelles' "/>
+			<bind nodeset="/data/treatments/sang_scelles/sang_scelles_title"/>
+			<bind nodeset="/data/treatments/sang_scelles/sang_scelles_treat_0"/>
+			<bind nodeset="/data/treatments/sang_scelles/sang_scelles_treat_1"/>
+			<bind nodeset="/data/treatments/sang_scelles/sang_scelles_treat_2"/>
+			<bind nodeset="/data/treatments/incapable_nourrir" relevant="/data/classification_malnutrition = 'incapable_nourrir' "/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_title"/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_treat_0" relevant="count(instance('medications')/medications_list/medications[@key = 'm12:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_treat_1" relevant="count(instance('medications')/medications_list/medications[@key = 'm13:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]) &gt; 0"/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_treat_2"/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_treat_3"/>
+			<bind nodeset="/data/treatments/incapable_nourrir/incapable_nourrir_treat_4"/>
+			<bind nodeset="/data/treatments/probleme_alimentation" relevant="/data/classification_malnutrition = 'probleme_alimentation' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_title"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_0"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_1" relevant="(/data/alimentation_qf != '' and /data/alimentation_qf != 'bonne_prise') or (/data/alimentation_qg != '' and /data/alimentation_qg != 'efficace')"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_2" relevant="/data/alimentation_qc != '' and /data/alimentation_qc &lt; 12"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_3"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_4" relevant="/data/alimentation_qd = 'yes'"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_5" relevant="/data/alimentation_qb = 'no'"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_6" relevant="/data/alimentation_qh = 'yes'"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_7"/>
+			<bind nodeset="/data/treatments/probleme_alimentation/probleme_alimentation_treat_8" relevant="/data/zscore_unrounded_wfh != '' and /data/zscore_unrounded_wfh &lt; 0.842"/>
+			<bind nodeset="/data/treatments/pas_pb_alimentation" relevant="/data/classification_malnutrition = 'pas_pb_alimentation' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_title"/>
+			<bind nodeset="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0"/>
+			<bind nodeset="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_treat_1"/>
+			<bind nodeset="/data/treatments/vih_possible" relevant="/data/classification_vih = 'vih_possible' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/vih_possible/vih_possible_title"/>
+			<bind nodeset="/data/treatments/vih_possible/vih_possible_treat_0"/>
+			<bind nodeset="/data/treatments/vih_possible/vih_possible_treat_1"/>
+			<bind nodeset="/data/treatments/vih_possible/vih_possible_treat_2"/>
+			<bind nodeset="/data/treatments/vih_possible/vih_possible_treat_3"/>
+			<bind nodeset="/data/treatments/vih_peu_probable" relevant="/data/classification_vih = 'vih_peu_probable' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/vih_peu_probable/vih_peu_probable_title"/>
+			<bind nodeset="/data/treatments/vih_peu_probable/vih_peu_probable_treat_0"/>
+			<bind nodeset="/data/treatments/vih_pas_infection" relevant="/data/classification_vih = 'vih_pas_infection' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/vih_pas_infection/vih_pas_infection_title"/>
+			<bind nodeset="/data/treatments/vih_pas_infection/vih_pas_infection_treat_0"/>
+			<bind nodeset="/data/treatments/vih_pas_infection/vih_pas_infection_treat_1"/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee" relevant="/data/classification_vih = 'vih_asymp_confirmee' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_title"/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0"/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_1"/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_2"/>
+			<bind nodeset="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_3"/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee" relevant="/data/classification_vih = 'vih_symp_confirmee' and /data/has_severe_classification = 'no' "/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_title"/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_0"/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_1"/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_2"/>
+			<bind nodeset="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_3"/>
+			<bind nodeset="/data/other_treatments" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/child_age" calculate="if(not(/data/debug/child_age_debug = ''), /data/debug/child_age_debug, /data/child_age_loaded)"/>
+			<bind nodeset="/data/child_weight" calculate="if(not(/data/debug/child_weight_debug = ''), /data/debug/child_weight_debug, /data/child_weight_loaded)"/>
+			<bind nodeset="/data/treatment_complete" calculate="'completed'"/>
+			<bind nodeset="/data/classification_deshydratation" calculate="if(not(/data/debug/classification_deshydratation_debug = ''), /data/debug/classification_deshydratation_debug, /data/classification_deshydratation_loaded)"/>
+			<bind nodeset="/data/classification_vih" calculate="if(not(/data/debug/classification_vih_debug = ''), /data/debug/classification_vih_debug, /data/classification_vih_loaded)"/>
+			<bind nodeset="/data/classification_malnutrition" calculate="if(not(/data/debug/classification_malnutrition_debug = ''), /data/debug/classification_malnutrition_debug, /data/classification_malnutrition_loaded)"/>
+			<bind nodeset="/data/classification_infection" calculate="if(not(/data/debug/classification_infection_debug = ''), /data/debug/classification_infection_debug, /data/classification_infection_loaded)"/>
+			<bind nodeset="/data/classification_diahree" calculate="if(not(/data/debug/classification_diahree_debug = ''), /data/debug/classification_diahree_debug, /data/classification_diahree_loaded)"/>
+			<bind nodeset="/data/classification_deshydratation_loaded"/>
+			<bind nodeset="/data/classification_vih_loaded"/>
+			<bind nodeset="/data/classification_malnutrition_loaded"/>
+			<bind nodeset="/data/classification_infection_loaded"/>
+			<bind nodeset="/data/classification_diahree_loaded"/>
+			<bind nodeset="/data/child_age_loaded"/>
+			<bind nodeset="/data/child_weight_loaded"/>
+			<bind nodeset="/data/antibio_valid_meds" calculate="concat(if(count(/data/treatments/infection_locale/infection_locale_treat_0) &gt; 0, 'antibio:2:infection_locale', ''), ' ', if(count(/data/treatments/infection_locale/infection_locale_treat_1) &gt; 0, 'antibio:3:infection_locale', ''), ' ')"/>
+			<bind nodeset="/data/child_case_id" calculate="instance('commcaresession')/session/data/case_id_case_visit"/>
+			<bind nodeset="/data/alimentation_qb" calculate="if(not(/data/debug/alimentation_qb_debug = ''), /data/debug/alimentation_qb_debug, /data/alimentation_qb_loaded)"/>
+			<bind nodeset="/data/alimentation_qc" calculate="if(not(/data/debug/alimentation_qc_debug = ''), /data/debug/alimentation_qc_debug, /data/alimentation_qc_loaded)"/>
+			<bind nodeset="/data/alimentation_qd" calculate="if(not(/data/debug/alimentation_qd_debug = ''), /data/debug/alimentation_qd_debug, /data/alimentation_qd_loaded)"/>
+			<bind nodeset="/data/alimentation_qf" calculate="if(not(/data/debug/alimentation_qf_debug = ''), /data/debug/alimentation_qf_debug, /data/alimentation_qf_loaded)"/>
+			<bind nodeset="/data/alimentation_qg" calculate="if(not(/data/debug/alimentation_qg_debug = ''), /data/debug/alimentation_qg_debug, /data/alimentation_qg_loaded)"/>
+			<bind nodeset="/data/alimentation_qh" calculate="if(not(/data/debug/alimentation_qh_debug = ''), /data/debug/alimentation_qh_debug, /data/alimentation_qh_loaded)"/>
+			<bind nodeset="/data/zscore_unrounded_wfh" calculate="if(not(/data/debug/zscore_unrounded_wfh_debug = ''), /data/debug/zscore_unrounded_wfh_debug, /data/zscore_unrounded_wfh_loaded)"/>
+			<bind nodeset="/data/has_severe_classification" calculate="if(/data/classification_infection = 'infection_grave' or /data/classification_deshydratation = 'deshydratation_severe' or /data/classification_diahree = 'diahree_persistante_grave' or /data/classification_diahree = 'sang_scelles' or /data/classification_malnutrition = 'incapable_nourrir', 'yes', 'no')"/>
+			<bind nodeset="/data/alimentation_qb_loaded"/>
+			<bind nodeset="/data/alimentation_qc_loaded"/>
+			<bind nodeset="/data/alimentation_qd_loaded"/>
+			<bind nodeset="/data/alimentation_qf_loaded"/>
+			<bind nodeset="/data/alimentation_qg_loaded"/>
+			<bind nodeset="/data/alimentation_qh_loaded"/>
+			<bind nodeset="/data/zscore_unrounded_wfh_loaded"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/classification_infection_debug-label">
+						<value>Infection DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_infection_debug-infection_grave-label">
+						<value>Possibilit&#233; d'infection bact&#233;rienne grave</value>
+					</text>
+					<text id="debug/classification_infection_debug-infection_locale-label">
+						<value>Infection bact&#233;rienne locale</value>
+					</text>
+					<text id="debug/classification_infection_debug-pas_infection-label">
+						<value>Pas d'infection bact&#233;rienne</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-label">
+						<value>D&#233;shydratation DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-deshydratation_severe-label">
+						<value>D&#233;shydratation s&#233;v&#232;re</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-signe_deshydratation-label">
+						<value>Signes &#233;vidents de d&#233;shydratation</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-pas_deshydratation-label">
+						<value>Pas de d&#233;shydratation</value>
+					</text>
+					<text id="debug/classification_diahree_debug-label">
+						<value>Diarrh&#233;e DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_diahree_debug-diahree_persistante_grave-label">
+						<value>Diarrh&#233;e persistante grave</value>
+					</text>
+					<text id="debug/classification_diahree_debug-sang_scelles-label">
+						<value>Sang dans les selles</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-label">
+						<value>Malnutrition DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-incapable_nourrir-label">
+						<value>Incapable de se nourrir / possibilit&#233; d&#8217;une infection bact&#233;rienne grave</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-probleme_alimentation-label">
+						<value>Probl&#232;me d&#8217;alimentation et/ou poids faible pour l&#8217;&#226;ge</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-pas_pb_alimentation-label">
+						<value>Pas de poids faible et/ou pas de probl&#232;me d&#8217;alimentation</value>
+					</text>
+					<text id="debug/classification_vih_debug-label">
+						<value>Infection &#224; VIH DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_possible-label">
+						<value>Infection VIH symptomatique possible</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_peu_probable-label">
+						<value>Infection VIH peu probable</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_pas_infection-label">
+						<value>Pas d'infection VIH</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_asymp_confirmee-label">
+						<value>Infection VIH asymptomatique confirm&#233;e</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_symp_confirmee-label">
+						<value>Infection VIH symptomatique confirm&#233;e</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-label">
+						<value>DEBUG: Consult: Alimentation QB</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/alimentation_qc_debug-label">
+						<value>DEBUG: Consult: Alimentation QC</value>
+					</text>
+					<text id="debug/alimentation_qd_debug-label">
+						<value>DEBUG: Consult: Alimentation QD</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-label">
+						<value>DEBUG: Consult: Alimentation QF</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-pas_prise-label">
+						<value>Pas prise</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-mauvaise_prise-label">
+						<value>Mauvaise prise</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-bonne_prise-label">
+						<value>Bonne prise</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-label">
+						<value>DEBUG: Consult: Alimentation QG</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-pas_succion-label">
+						<value>Pas succion</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-non_efficace-label">
+						<value>Non efficace</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-efficace-label">
+						<value>Efficace</value>
+					</text>
+					<text id="debug/alimentation_qh_debug-label">
+						<value>DEBUG: Consult: Alimentation QH</value>
+					</text>
+					<text id="debug/zscore_unrounded_wfh_debug-label">
+						<value>DEBUG: Consult: zscore_unrounded_wfh</value>
+					</text>
+					<text id="debug/child_age_debug-label">
+						<value>DEBUG: Quel est l'&#226;ge de l'enfant (Months)?</value>
+					</text>
+					<text id="debug/child_weight_debug-label">
+						<value>DEBUG: Poids (kg)</value>
+					</text>
+					<text id="select_treatments/infection_grave-infection_grave-label">
+						<value>Possibilit&#233; d'Infection Bact&#233;rienne Grave</value>
+					</text>
+					<text id="select_treatments/infection_grave-infection_grave_no_ref-label">
+						<value>Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible</value>
+					</text>
+					<text id="select_treatments/deshydratation_severe-deshydratation_severe_sans_infection-label">
+						<value>D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/deshydratation_severe-deshydratation_severe_infection-label">
+						<value>D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/signe_deshydratation-signe_deshydratation_sans_infection-label">
+						<value>Signes &#233;vidents de d&#233;shydratation sans autres classifications graves</value>
+					</text>
+					<text id="select_treatments/signe_deshydratation-signe_deshydratation_infection-label">
+						<value>Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/diahree_persistante_grave-diahree_persistante_grave_sans_infection-label">
+						<value>Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave</value>
+					</text>
+					<text id="select_treatments/diahree_persistante_grave-diahree_persistante_grave_infection-label">
+						<value>Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave</value>
+					</text>
+					<text id="select_meds/antibio-label">
+						<value>Choisissez un m&#233;dicament</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_title-label">
+						<value>&#9644;&#9644;&#9644;Possibilit&#233; d'Infection Bact&#233;rienne Grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Possibilit&#233; d'Infection Bact&#233;rienne Grave \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_2-label">
+						<value>&#10148; Traiter l'enfant pour pr&#233;venir l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter l'enfant pour pr&#233;venir l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_3-label">
+						<value>&#10148; Expliquer a&#768; la me&#768;re comment veiller a&#768; ce que le nourrisson n&#8217;ait pas froid sur le chemin de l&#8217;ho&#770;pital</value>
+						<value form="markdown">* Expliquer a&#768; la me&#768;re comment veiller a&#768; ce que le nourrisson n&#8217;ait pas froid sur le chemin de l&#8217;ho&#770;pital \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_4-label">
+						<value>&#10148; Transf&#233;rer d'urgence au centre de r&#233;f&#233;rence</value>
+						<value form="markdown">* Transf&#233;rer d'urgence au centre de r&#233;f&#233;rence \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_title-label">
+						<value>&#9644;&#9644;&#9644;Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Ampicilline - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Ampicilline - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Gentamicine - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Gentamicine - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_title-label">
+						<value>&#9644;&#9644;&#9644;Infection bact&#233;rienne locale&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection bact&#233;rienne locale \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_0-label">
+						<value>&#10148; Donner un antibiotique appropri&#233; par voie orale
+&#9644;&#9644;&#9644;&#8226; 1&#232;re intention : Amoxiciline Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:2:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 3 fois par jour pendant 5 jours</value>
+						<value form="markdown">* Donner un antibiotique appropri&#233; par voie orale \\n
+   * 1&#232;re intention : Amoxiciline Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:2:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 3 fois par jour pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_1-label">
+						<value>&#10148; Donner un antibiotique appropri&#233; par voie orale
+&#9644;&#9644;&#9644;&#8226; 2&#232;me intention : Erytromycine Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:3:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 4 fois par jour pendant 5 jours</value>
+						<value form="markdown">* Donner un antibiotique appropri&#233; par voie orale \\n
+   * 2&#232;me intention : Erytromycine Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:3:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 4 fois par jour pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_2-label">
+						<value>&#10148; *Apprendre &#224; la m&#232;re &#224; traiter les infections locales &#224; domicile* </value>
+						<value form="markdown">* *Apprendre &#224; la m&#232;re &#224; traiter les infections locales &#224; domicile* \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_2-help">
+						<value>&#10148; Expliquer comment et pourquoi le traitement est administr&#233;.
+&#10148; Observer la m&#232;re pendant qu&#8217;elle donne le premier traitement au dispensaire.
+&#10148; Dites lui de donner le traitement 2 fois par jour.
+&#10148; Elle doit revenir au dispensaire si l&#8217;infection s&#8217;aggrave.
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Nettoyer doucement le pus et la cro&#251;te avec de l&#8217;eau et du savon
+&#10148; S&#233;cher la zone avec un linge propre
+&#10148; Appliquer du violet de gentiane
+&#10148; Se laver les mains
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Badigeonner la muqueuse buccale et la langue avec la nystatine en suspension 2 fois / jour
+&#10148; Se laver les mains</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_3-label">
+						<value>&#10148; *Expliquer &#224; la m&#232;re comment soigner le nourrisson &#224; domicile*</value>
+						<value form="markdown">* *Expliquer &#224; la m&#232;re comment soigner le nourrisson &#224; domicile* \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_4-label">
+						<value>&#10148; Revoir apr&#232;s 2 jours</value>
+						<value form="markdown">* Revoir apr&#232;s 2 jours \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Pas d'infection bact&#233;rienne&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas d'infection bact&#233;rienne \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_0-label">
+						<value>&#10148; Donner des conseils sur l'alimentation </value>
+						<value form="markdown">* Donner des conseils sur l'alimentation \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_0-help">
+						<value>Poser des questions sur l&#8217;alimentation habituelle de l&#8217;enfant et sur son alimentation durant cette maladie. Comparer les r&#233;ponses de la m&#232;re aux Recommandations pour l&#8217;alimentation selon l&#8217;&#226;ge de l&#8217;enfant dans le cadre ci-dessous.
+
+*DEMANDER :*
+&#9644;&#9644;&#9644;&#8226; Allaitez-vous l&#8217;enfant?
+&#9644;&#9644;&#9644;&#8226; Combien de fois pendant la journ&#233;e?
+&#9644;&#9644;&#9644;&#8226; L&#8217;allaitez-vous aussi pendant la nuit?
+&#9644;&#9644;&#9644;&#8226; Est-ce que l&#8217;enfant consomme d&#8217;autres aliments ou liquides?
+&#9644;&#9644;&#9644;&#8226; Quels aliments ou liquides?
+&#9644;&#9644;&#9644;&#8226; Combien de fois par jour?
+&#9644;&#9644;&#9644;&#8226; Comment donnez-vous &#224; manger &#224; l&#8217;enfant?
+&#9644;&#9644;&#9644;&#8226; Si le poids de l&#8217;enfant est tr&#232;s faible pour son &#226;ge: Quelle quantit&#233; lui donnez-vous &#224; chaque repas? L&#8217;enfant re&#231;oit-il sa propre part? Qui nourrit l&#8217;enfant et comment le nourrissez-vous?
+&#9644;&#9644;&#9644;&#8226; Pendant cette maladie, les habitudes alimentaires de l&#8217;enfant ont-elles chang&#233;? Si oui, comment? Pourquoi?
+
+*De la naissance &#224; 4 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Ne pas donner d&#8217;autres aliments ou liquides. (pas d&#8217;eau) sauf indication m&#233;dicale
+
+*De 4 mois &#224; 6 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Si le poids de l&#8217;enfant s&#8217;infl&#233;chit ou reste stable ou si l&#8217;enfant le r&#233;clame :
+&#9644;&#9644;&#9644;&#8226; Donner des rations ad&#233;quates de bouillies &#233;paisses et enrichies (bouillie depetit mil sans grumeaux)
+&#9644;&#9644;&#9644;&#8226; Donner des aliments 3 fois par jour avec allaitement au sein ou 5 fois par jours si l&#8217;allaitement n&#8217;est pas possible. Dans ce cas, les bouilles doivent contenir du lait
+
+*De 6 mois &#224; 9 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Introduire progressivement des aliments du plat familial :
+&#9644;&#9644;&#9644;&#8226; T&#244; avec sauces, p&#226;tes, l&#233;gumes, fruits, eau ,haricots, pois de terre
+&#9644;&#9644;&#9644;&#8226; Ajouter du lait
+&#10148; Donner ces aliments cinq fois par jours
+
+*De 9 mois &#224; 2 ans :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens. T&#244;, p&#226;tes, riz sauce, gonr&#233;, haricot, pois de terre, viande, poissons, &#339;uf
+&#10148; Ajouter du lait
+&#10148; Donner aussi deux fois par jour entre les repas, des beignets (samsa, bourmasa), galettes, tourteaux d&#8217;arachides (couracoura) des fruits et de l&#8217;eau &#224; volont&#233;
+
+*2 ans et plus :*
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens&#10148; En plus donner deux fois par jour des aliments nutritifs entre les repas comme les beignets ou les galettes, fruits, l&#233;gumes et de l&#8217;eau
+&#10148; Servir l&#8217;enfant dans un bol s&#233;par&#233;
+&#10148; Aider l&#8217;enfant &#224; manger
+&#10148; Inciter l&#8217;enfant &#224; finir son repas
+
+*Tout bon r&#233;gime alimentaire doit &#234;tre ad&#233;quat en quantit&#233; et inclure des aliments riches  en &#233;nergie (par exemple, bouillie &#233;paisse de c&#233;r&#233;ales additionn&#233;e d&#8217;huile); de la viande, du poisson, des &#339;ufs ou des l&#233;gumes secs; des fruits et l&#233;gumes.*
+
+Enrichir les bouillies avec :
+&#9644;&#9644;&#9644;&#8226; Huile
+&#9644;&#9644;&#9644;&#8226; Sucre
+&#9644;&#9644;&#9644;&#8226; Jaune d&#8217;oeuf
+&#9644;&#9644;&#9644;&#8226; Farine de soja
+&#9644;&#9644;&#9644;&#8226; Poudre de poisson s&#233;ch&#233;
+&#9644;&#9644;&#9644;&#8226; Poudre de pain de singe
+&#9644;&#9644;&#9644;&#8226; Grain de baobab, soumbala, arachides grill&#233;es, tourteaux d&#8217;arachide
+&#9644;&#9644;&#9644;&#8226; Chenilles, &#233;ph&#233;m&#232;res
+&#9644;&#9644;&#9644;&#8226; Les bouillies doivent &#234;tre &#233;paisses, enrichies et pr&#233;par&#233;es juste avant d&#8217;&#234;tre donn&#233;es &#224; l&#8217;enfant
+&#9644;&#9644;&#9644;&#8226; Les c&#233;r&#233;ales et les l&#233;gumineuses doivent &#234;tre de pr&#233;f&#233;rence d&#233;cortiqu&#233;s
+&#9644;&#9644;&#9644;&#8226; Lait</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement </value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_1-help">
+						<value>Tout enfant malade doit REVENIR IMM&#201;DIATEMENT s'il :
+&#9644;&#9644;&#9644;&#8226; Est incapable de boire ou de t&#233;ter
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; D&#233;veloppe de la fi&#232;vre</value>
+					</text>
+					<text id="treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_treat_0-label">
+						<value>&#10148; Donner des liquides pour d&#233;shydratation s&#233;v&#232;re comme au Nourrisson (Plan C)</value>
+						<value form="markdown">* Donner des liquides pour d&#233;shydratation s&#233;v&#232;re comme au Nourrisson (Plan C) \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_title-label">
+						<value>&#9644;&#9644;&#9644;D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_0-label">
+						<value>&#10148; R&#233;f&#233;rer d'URGENCE &#224; l'h&#244;pital</value>
+						<value form="markdown">* R&#233;f&#233;rer d'URGENCE &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1-label">
+						<value>&#10148; Donner fr&#233;quemment des gorg&#233;es de SRO en cours de route</value>
+						<value form="markdown">* Donner fr&#233;quemment des gorg&#233;es de SRO en cours de route \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2-label">
+						<value>&#10148; Conseiller &#224; la m&#232;re de continuer l'allaitement au sein</value>
+						<value form="markdown">* Conseiller &#224; la m&#232;re de continuer l'allaitement au sein \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Signes &#233;vidents de d&#233;shydratation sans autres classifications graves&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Signes &#233;vidents de d&#233;shydratation sans autres classifications graves \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_0-label">
+						<value>&#10148; Donner des liquides et des aliments pour signes &#233;vidents de d&#233;shydratation (Plan B)</value>
+						<value form="markdown">* Donner des liquides et des aliments pour signes &#233;vidents de d&#233;shydratation (Plan B) \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_2-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_infection/signe_deshydratation_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_2-label">
+						<value>&#10148; Conseiller a&#768; la me&#768;re de continuer l'allaitement au sein et quand revenir</value>
+						<value form="markdown">* Conseiller a&#768; la me&#768;re de continuer l'allaitement au sein et quand revenir \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_title-label">
+						<value>&#9644;&#9644;&#9644;Pas de d&#233;shydratation&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas de d&#233;shydratation \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_0-label">
+						<value>&#10148; Donner des liquides pour traiter la diarrh&#233;e &#224; domicile (Plan A)</value>
+						<value form="markdown">* Donner des liquides pour traiter la diarrh&#233;e &#224; domicile (Plan A) \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+						<value form="help">help</value>
+						<value form="help-text">Tout enfant qui a la diarrh&#233;e, doit revenir IMMEDIATEMENT si :
+&#9644;&#9644;&#9644;&#8226; Les selles contiennent du sang
+&#9644;&#9644;&#9644;&#8226; L&#8217;enfant boit difficilement
+
+Conseiller &#224; la m&#232;re de revenir imm&#233;diatement si le nourrisson pr&#233;sente l&#8217;un des ces signes :
+&#9644;&#9644;&#9644;&#8226; Difficult&#233; &#224; t&#233;ter ou &#224; boire
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; A de la fi&#232;vre
+&#9644;&#9644;&#9644;&#8226; Respire rapidement
+&#9644;&#9644;&#9644;&#8226; Respire difficilement
+&#9644;&#9644;&#9644;&#8226; Sang dans les selles
+</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_1-help">
+						<value>Tout enfant qui a la diarrh&#233;e, doit revenir IMMEDIATEMENT si :
+&#9644;&#9644;&#9644;&#8226; Les selles contiennent du sang
+&#9644;&#9644;&#9644;&#8226; L&#8217;enfant boit difficilement
+
+Conseiller &#224; la m&#232;re de revenir imm&#233;diatement si le nourrisson pr&#233;sente l&#8217;un des ces signes :
+&#9644;&#9644;&#9644;&#8226; Difficult&#233; &#224; t&#233;ter ou &#224; boire
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; A de la fi&#232;vre
+&#9644;&#9644;&#9644;&#8226; Respire rapidement
+&#9644;&#9644;&#9644;&#8226; Respire difficilement
+&#9644;&#9644;&#9644;&#8226; Sang dans les selles</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_0-label">
+						<value>&#10148; Si le nourrisson est d&#233;shydrat&#233; :</value>
+						<value form="markdown">* Si le nourrisson est d&#233;shydrat&#233; :\\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_1-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Traiter la d&#233;shydratation avant le transfert</value>
+						<value form="markdown">   * Traiter la d&#233;shydratation avant le transfert \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0-label">
+						<value>&#10148; Transf&#233;rer d'urgence &#224; l'h&#244;pital</value>
+						<value form="markdown">* Transf&#233;rer d'urgence &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_title-label">
+						<value>&#9644;&#9644;&#9644;Sang dans les selles&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Sang dans les selles \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_treat_0-label">
+						<value>&#10148; Traiter pour pr&#233;venir l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter pour pr&#233;venir l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_title-label">
+						<value>&#9644;&#9644;&#9644;Incapable de se nourrir / possibilit&#233; d'une infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Incapable de se nourrir / possibilit&#233; d'une infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose d'antibiotique en intramusculaire : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (m&#233;langer avec 2.1ml d'eau distill&#233;e pour avoir 500mg/2,5ml)</value>
+						<value form="markdown">* Donner la premi&#232;re dose d'antibiotique en intramusculaire : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (m&#233;langer avec 2.1ml d'eau distill&#233;e pour avoir 500mg/2,5ml) \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose d'antibiotique en intramusculaire : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (diluer avec 6ml d'eau physiologique pour avoir 20mg/ml)</value>
+						<value form="markdown">* Donner la premi&#232;re dose d'antibiotique en intramusculaire : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (diluer avec 6ml d'eau physiologique pour avoir 20mg/ml) \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_2-label">
+						<value>&#10148; Traiter pour &#233;viter l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter pour &#233;viter l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_2-help">
+						<value>Si l&#8217;enfant est capable de t&#233;ter :
+&#8226; Demander &#224; la m&#232;re d&#8217;allaiter l&#8217;enfant.
+
+Si l&#8217;enfant est incapable de t&#233;ter mais est capable d&#8217;avaler :
+&#8226; Donner du lait exprim&#233; ou un substitut de lait maternel
+
+Si l&#8217;enfant est incapable d&#8217;avaler
+&#8226; Donner 50 ml de lait ou d&#8217;eau sucr&#233;e par sonde nasogastrique.
+&#8226; Pour faire de l&#8217;eau sucr&#233;e, dissoudre 4 carreaux de sucre (20 grammes) dans une tasse de 200 ml d&#8217;eau propre.</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_3-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid sur le chemin de l'h&#244;pital</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid sur le chemin de l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_3-help">
+						<value>R&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau :
+&#10148; Garder le b&#233;b&#233; habill&#233; avec chemise ouverte devant, bonnet, et chaussettes
+&#10148; le garder en contact peau &#224; peau avec sa m&#232;re ou l'accompagnant
+&#10148; Envelopper la m&#232;re ou l'accompagnant et le b&#233;b&#233; dans une couverture s&#232;che et douce</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_4-label">
+						<value>&#10148; Transf&#233;rer d'URGENCE &#224; l'h&#244;pital</value>
+						<value form="markdown">* Transf&#233;rer d'URGENCE &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_title-label">
+						<value>&#9644;&#9644;&#9644;Probl&#232;me d'alimentation et/ou poids faible pour l'&#226;ge&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Probl&#232;me d'alimentation et/ou poids faible pour l'&#226;ge \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_0-label">
+						<value>&#10148; Conseiller &#224; la m&#232;re d'allaiter le nourrisson au sein </value>
+						<value form="markdown">* Conseiller &#224; la m&#232;re d'allaiter le nourrisson au sein \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_0-help">
+						<value>*De la naissance &#224; 4 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Ne pas donner d&#8217;autres aliments ou liquides. (pas d&#8217;eau) sauf indication m&#233;dicale
+
+*De 4 mois &#224; 6 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Si le poids de l&#8217;enfant s&#8217;infl&#233;chit ou reste stable ou si l&#8217;enfant le r&#233;clame :
+&#9644;&#9644;&#9644;&#8226; Donner des rations ad&#233;quates de bouillies &#233;paisses et enrichies (bouillie depetit mil sans grumeaux)
+&#9644;&#9644;&#9644;&#8226; Donner des aliments 3 fois par jour avec allaitement au sein ou 5 fois par jours si l&#8217;allaitement n&#8217;est pas possible. Dans ce cas, les bouilles doivent contenir du lait
+
+*De 6 mois &#224; 9 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Introduire progressivement des aliments du plat familial :
+&#9644;&#9644;&#9644;&#8226; T&#244; avec sauces, p&#226;tes, l&#233;gumes, fruits, eau ,haricots, pois de terre
+&#9644;&#9644;&#9644;&#8226; Ajouter du lait
+&#10148; Donner ces aliments cinq fois par jours
+
+*De 9 mois &#224; 2 ans :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens. T&#244;, p&#226;tes, riz sauce, gonr&#233;, haricot, pois de terre, viande, poissons, &#339;uf
+&#10148; Ajouter du lait
+&#10148; Donner aussi deux fois par jour entre les repas, des beignets (samsa, bourmasa), galettes, tourteaux d&#8217;arachides (couracoura) des fruits et de l&#8217;eau &#224; volont&#233;
+
+*2 ans et plus :*
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens&#10148; En plus donner deux fois par jour des aliments nutritifs entre les repas comme les beignets ou les galettes, fruits, l&#233;gumes et de l&#8217;eau
+&#10148; Servir l&#8217;enfant dans un bol s&#233;par&#233;
+&#10148; Aider l&#8217;enfant &#224; manger
+&#10148; Inciter l&#8217;enfant &#224; finir son repas</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_1-label">
+						<value>&#10148; Si la prise du sein est mauvaise ou si la succion n'est pas efficace, conseiller</value>
+						<value form="markdown">* Si la prise du sein est mauvaise ou si la succion n'est pas efficace, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_1-help">
+						<value>*Montrer &#224; la m&#232;re comment tenir le nourrisson :*
+&#10148; le nourrisson doit faire face au sein, et son nez en face du mamelon
+&#10148; le corps du nourrisson doit &#234;tre proche du corps de la m&#232;re
+&#10148; la m&#232;re doit soutenir tout le corps du nourrisson, pas seulement la nuque et les &#233;paules
+
+*Montrer &#224; la m&#232;re comment aider le nourrisson &#224; prendre le sein. Elle doit :*
+&#10148; toucher les l&#232;vres du nourrisson avec son mamelon
+&#10148; attendre que la bouche du nourrisson soit grande ouverte
+&#10148; approcher rapidement le nourrisson du sein en veillant que la l&#232;vre inf&#233;rieure du nourrisson soit bien en-dessous du mamelon.
+&#10148; V&#233;rifier la bonne prise du sein et l&#8217;efficacit&#233; de la succion
+&#10148; Si la prise du sein ou la succion n'est pas correcte, r&#233;essayer.</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_2-label">
+						<value>&#10148; Si la m&#232;re allaite au sein moins de 12 fois en 24 heures, conseiller</value>
+						<value form="markdown">* Si la m&#232;re allaite au sein moins de 12 fois en 24 heures, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_2-help">
+						<value>*Si l&#8217;enfant n&#8217;est pas nourri comme indiqu&#233; ci-dessus, conseiller la m&#232;re en cons&#233;quence.*
+*En outre si la m&#232;re signale qu&#8217;elle a des difficult&#233;s &#224; allaiter au sein :*
+&#9644;&#9644;&#9644;&#8226; Evaluer l&#8217;allaitement. (Voir tableau EVALUER, CLASSER ET TRAITER LE NOURRISSON.) Si n&#233;cessaire, montrer &#224; la m&#232;re le bon positionnement pour l&#8217;allaitement et la bonne prise du sein
+
+Si l&#8217;enfant a moins de 4 mois et consomme un autre lait ou d&#8217;autres aliments :
+&#8226; Renforcer la confiance de la m&#232;re en lui assurant qu&#8217;elle peut produire tout le lait dont l&#8217;enfant a besoin.
+&#8226; Sugg&#233;rer de mettre l&#8217;enfant au sein plus fr&#233;quemment, de l&#8217;y laisser plus longtemps, le jour comme la nuit, et de r&#233;duire progressivement l&#8217;autre lait ou les aliments.
+
+Si la consommation d&#8217;un autre lait doit continuer, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; D&#8217;allaiter au sein autant que possible, y compris la nuit
+&#9644;&#9644;&#9644;&#8226; De s&#8217;assurer que l&#8217;autre lait est un lait de substitution localement appropri&#233;
+&#9644;&#9644;&#9644;&#8226; De s&#8217;assurer que l&#8217;autre lait est pr&#233;par&#233; correctement, de fa&#231;on hygi&#233;nique et est donn&#233; en quantit&#233; appropri&#233;e
+&#9644;&#9644;&#9644;&#8226; De finir, dans l&#8217;heure, le lait pr&#233;par&#233;
+
+Si la m&#232;re nourrit l&#8217;enfant au biberon :
+&#9644;&#9644;&#9644;&#8226; Recommander de remplacer le biberon par une tasse
+&#9644;&#9644;&#9644;&#8226; Montrer &#224; la m&#232;re comment utiliser une tasse pour nourrir son enfant
+
+Si l&#8217;enfant se nourrit mal, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; De s&#8217;asseoir avec l&#8217;enfant et de l&#8217;encourager &#224; manger.
+&#9644;&#9644;&#9644;&#8226; De donner &#224; l&#8217;enfant une ration ad&#233;quate dans une assiette ou dans un bol s&#233;par&#233;
+
+Si l&#8217;enfant se nourrit mal pendant une maladie, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; D&#8217;allaiter au sein plus fr&#233;quemment et plus longtemps, si possible
+&#9644;&#9644;&#9644;&#8226; D&#8217;offrir des aliments faciles &#224; manger, vari&#233;s, app&#233;tissants et pr&#233;f&#233;r&#233;s par l&#8217;enfant pour l&#8217;encourager &#224; manger le plus possible, et lui donner de fr&#233;quents petits repas
+&#9644;&#9644;&#9644;&#8226; De d&#233;sobstruer le nez de l&#8217;enfant si son nez bouch&#233; l&#8217;emp&#234;che de manger
+&#9644;&#9644;&#9644;&#8226; Dire &#224; la m&#232;re que l&#8217;app&#233;tit sera meilleur quand l&#8217;enfant ira mieux
+
+Revoir tout probl&#232;me d&#8217;alimentation dans 5 jours</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_3-label">
+						<value>&#10148; Conseiller d'allaiter plus souvent</value>
+						<value form="markdown">* Conseiller d'allaiter plus souvent \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_4-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Si le nourrisson re&#231;oit d'autres aliments ou liquides, conseiller</value>
+						<value form="markdown">   * Si le nourrisson re&#231;oit d'autres aliments ou liquides, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_5-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Si pas d&#8217;allaitement au sein r&#233;f&#233;rer pour conseils sur l&#8217;allaitement au sein et &#233;ventuellement la relactation</value>
+						<value form="markdown">   * Si pas d&#8217;allaitement au sein r&#233;f&#233;rer pour conseils sur l&#8217;allaitement au sein et &#233;ventuellement la relactation \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_6-label">
+						<value>&#9644;&#9644;&#9644;&#8226; En cas de muguete, enseigner</value>
+						<value form="markdown">   * En cas de muguete, enseigner \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_6-help">
+						<value>&#8226; Expliquer &#224; la m&#232;re le traitement et pourquoi il doit &#234;tre donn&#233;.
+&#8226; D&#233;crire les &#233;tapes du traitement &#233;num&#233;r&#233;es dans le cadre appropri&#233;.
+&#8226; Observer la m&#232;re pendant qu&#8217;elle donne le premier traitement au dispensaire (sauf les rem&#232;des pour la toux ou la douleur de gorge).
+&#8226; Expliquer &#224; la m&#232;re combien de fois le traitement doit &#234;tre administr&#233; &#224; domicile
+&#8226; Si n&#233;cessaire pour le traitement &#224; domicile, donner &#224; la m&#232;re le tube de pommade t&#233;tracycline ou un petit flacon de violet de gentiane.
+&#8226; S&#8217;assurer que la m&#232;re a bien compris les instructions avant qu&#8217;elle ne quitte le dispensaire
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Badigeonner la muqueuse buccale et la langue avec la nystatine en suspension 2 fois / jour
+&#10148; Se laver les mains</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_7-label">
+						<value>&#10148; Revoir tout probl&#232;me d'alimentation ou de muguet apr&#232;s 2 jours</value>
+						<value form="markdown">* Revoir tout probl&#232;me d'alimentation ou de muguet apr&#232;s 2 jours \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_8-label">
+						<value>&#10148; Revoir tout probl&#232;me de poids faible pour l'&#226;ge apr&#232;s 14 jours</value>
+						<value form="markdown">* Revoir tout probl&#232;me de poids faible pour l'&#226;ge apr&#232;s 14 jours \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_title-label">
+						<value>&#9644;&#9644;&#9644;Pas de poids faible et/ou pas de probl&#232;me d'alimentation&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas de poids faible et/ou pas de probl&#232;me d'alimentation \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-label">
+						<value>&#10148; Apprendre &#224; soigner le nourrisson &#224; domicile  </value>
+						<value form="markdown">* Apprendre &#224; soigner le nourrisson &#224; domicile \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-help">
+						<value>&#8226; Suivre les instructions ci-dessous pour chaque m&#233;dicament &#224; donner par voie orale &#224; domicile.
+&#8226; Suivre &#233;galement les instructions du tableau de dosage de chaque m&#233;dicament.
+&#8226; D&#233;terminer les m&#233;dicaments et doses appropri&#233;s selon l&#8217;&#226;ge ou le poids de l&#8217;enfant.
+&#8226; Expliquer &#224; la m&#232;re pourquoi l&#8217;enfant a besoin du m&#233;dicament.
+&#8226; Montrer comment mesurer une dose
+&#8226; Observer la m&#232;re pendant qu'elle mesure une dose
+&#8226; Demander &#224; la m&#232;re de donner la premi&#232;re dose &#224; l&#8217;enfant
+&#8226; Expliquer en d&#233;tails comment donner le m&#233;dicament,
+&#8226; Mettre ensuite le m&#233;dicament dans un sachet ou un cornet et inscrire le nom du m&#233;dicament sur le sachet ou le corne
+&#8226; Si plusieurs m&#233;dicaments sont donn&#233;s, rassembler, compter et mettre les m&#233;dicaments chacun dans un cornet diff&#233;rent.
+&#8226; Expliquer que tous les m&#233;dicaments (comprim&#233;s ou sirops) doivent &#234;tre pris jusqu&#8217;&#224; la fin du traitement, m&#234;me si l&#8217;enfant se porte mieux
+&#8226; S&#8217;assurer que la m&#232;re a bien compris les instructions avant qu&#8217;elle ne quitte le dispensaire
+
+*Comment r&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau :*
+&#10148; Retirer &#224; l&#8217;enfant ses v&#234;tements froids
+&#10148; Le mettre sur la poitrine de sa m&#232;re, v&#234;tu d&#8217;une chemise pr&#233;chauff&#233;e ouverte &#224; l&#8217;avant, d&#8217;une couche, d&#8217;un bonnet et de chaussettes
+&#10148; Couvrir l&#8217;enfant sur la poitrine de sa m&#232;re avec les v&#234;tements de celle-ci, ainsi qu&#8217;une couverture pr&#233;chauff&#233;e
+&#10148; V&#233;rifier la temp&#233;rature toutes les heures jusqu'&#224; ce qu&#8217;elle soit normale
+&#10148; Garder l&#8217;enfant avec sa m&#232;re
+&#10148; Demander &#224; la m&#232;re d&#8217;allaiter l&#8217;enfant fr&#233;quemment
+
+Si le contact peau &#224; peau n&#8217;est pas possible :
+&#9644;&#9644;&#9644;&#8226; Si un appareil de chauffage radiant est disponible, l&#8217;utiliser pour r&#233;chauffer le nouveau-n&#233;, ou
+&#9644;&#9644;&#9644;&#8226; R&#233;chauffer la salle avec du mat&#233;riel de chauffage ou habiller le nouveau-n&#233; avec des v&#234;tements chauds ou le couvrir avec une couverture chaude.
+
+*R&#233;&#233;valuer apr&#232;s une heure :*
+&#9644;&#9644;&#9644;&#8226; Rechercher les signes de maladie grave
+&#9644;&#9644;&#9644;&#8226; Mesurer la temp&#233;rature axillaire
+
+S&#8217;il existe un signe quelconque de maladie grave ou si la temp&#233;rature reste en dessous de 36,5&#176;C :
+&#9644;&#9644;&#9644;&#8226; Evacuer rapidement &#224; l&#8217;h&#244;pital apr&#232;s avoir fait le traitement pr&#233;-transfert pour maladie grave
+
+S&#8217;il n&#8217;existe aucun signe de maladie grave et la temp&#233;rature est &#233;gale ou sup&#233;rieure &#224; 36,5 &#176;C:
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur comment garder l&#8217;enfant au chaud &#224; la maison
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur les soins &#224; domicile
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur quand revenir imm&#233;diatement
+&#9644;&#9644;&#9644;&#8226; Revoir le nouveau n&#233; dans 2 jours
+
+&#8226; R&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau aussi souvent que possible jour et nuit
+&#9644;&#9644;&#9644;&#8226; Quand le nouveau-n&#233; n&#8217;est pas en contact peau &#224; peau, le garder habill&#233; ou couvert aussi souvent que possible &#224; tout moment.
+&#9644;&#9644;&#9644;&#8226; Habiller le nouveau-n&#233; avec chemise, bonnet, et chaussettes et le couvrir
+&#9644;&#9644;&#9644;&#8226; Le garder dans le m&#234;me lit que sa m&#232;re
+&#9644;&#9644;&#9644;&#8226; Changer les habits d&#232;s qu&#8217;ils sont mouill&#233;s
+&#9644;&#9644;&#9644;&#8226; Garder la chambre chaude</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_1-label">
+						<value>&#10148; F&#233;liciter la m&#232;re pour la bonne alimentation du nourrisson</value>
+						<value form="markdown">* F&#233;liciter la m&#232;re pour la bonne alimentation du nourrisson \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH symptomatique possible&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH symptomatique possible \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_0-label">
+						<value>&#10148; Conseiller le test se&#769;rologique a&#768; la me&#768;re</value>
+						<value form="markdown">* Conseiller le test se&#769;rologique a&#768; la me&#768;re \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_1-label">
+						<value>&#10148; Si ne&#769;cessaire faire la PCR a&#768; l'enfant</value>
+						<value form="markdown">* Si ne&#769;cessaire faire la PCR a&#768; l'enfant \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_2-label">
+						<value>&#10148; Conseiller de revenir rapidement a&#768; l'apparition de tout nouveau proble&#768;me</value>
+						<value form="markdown">* Conseiller de revenir rapidement a&#768; l'apparition de tout nouveau proble&#768;me \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_3-label">
+						<value>&#10148; Revoir dans 14 jours</value>
+						<value form="markdown">* Revoir dans 14 jours \\n</value>
+					</text>
+					<text id="treatments/vih_peu_probable/vih_peu_probable_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH peu probable&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH peu probable \\n</value>
+					</text>
+					<text id="treatments/vih_peu_probable/vih_peu_probable_treat_0-label">
+						<value>&#10148; Soigner toute autre classification trouv&#233;e</value>
+						<value form="markdown">* Soigner toute autre classification trouv&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Pas d'infection VIH&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas d'infection VIH \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_treat_0-label">
+						<value>&#10148; Soigner le nourrisson pour toute autre classification trouve&#769;e</value>
+						<value form="markdown">* Soigner le nourrisson pour toute autre classification trouve&#769;e \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_treat_1-label">
+						<value>&#10148; Conseiller la me&#768;re sur l'alimentation</value>
+						<value form="markdown">* Conseiller la me&#768;re sur l'alimentation \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH asymptomatique confirm&#233;e&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH asymptomatique confirm&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0-label">
+						<value>&#10148; Conseiller l'allaitement exclusif avec sevrage pre&#769;coce a&#768; 4 mois</value>
+						<value form="markdown">* Conseiller l'allaitement exclusif avec sevrage pre&#769;coce a&#768; 4 mois \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_1-label">
+						<value>&#10148; Si possibilite&#769; alimentation artificielle exclusivement</value>
+						<value form="markdown">* Si possibilite&#769; alimentation artificielle exclusivement \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_2-label">
+						<value>&#10148; Prophylaxie au COTRIMOXAZOLE 25mg/kg/jour</value>
+						<value form="markdown">* Prophylaxie au COTRIMOXAZOLE 25mg/kg/jour \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_3-label">
+						<value>&#10148; Surveillance du pourcentage des CD4</value>
+						<value form="markdown">* Surveillance du pourcentage des CD4 \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH symptomatique confirm&#233;e&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH symptomatique confirm&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_0-label">
+						<value>&#10148; Prise en charge couple me&#768;re enfant</value>
+						<value form="markdown">* Prise en charge couple me&#768;re enfant \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_2-label">
+						<value>&#10148; Si possibilit&#233; d'alimentation artificielle exclusivement</value>
+						<value form="markdown">* Si possibilit&#233; d'alimentation artificielle exclusivement \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_3-label">
+						<value>&#10148; Prophylaxie au COTRIMOXAZOLE 25mg/ kg/jour &#224; partir de 6 semaines</value>
+						<value form="markdown">* Prophylaxie au COTRIMOXAZOLE 25mg/ kg/jour &#224; partir de 6 semaines \\n</value>
+					</text>
+					<text id="other_treatments-label">
+						<value>Autres traitements / observations</value>
+					</text>
+				</translation>
+				<translation lang="fra">
+					<text id="debug-label">
+						<value>DEBUG</value>
+					</text>
+					<text id="debug/classification_infection_debug-label">
+						<value>Infection DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_infection_debug-infection_grave-label">
+						<value>Possibilit&#233; d'infection bact&#233;rienne grave</value>
+					</text>
+					<text id="debug/classification_infection_debug-infection_locale-label">
+						<value>Infection bact&#233;rienne locale</value>
+					</text>
+					<text id="debug/classification_infection_debug-pas_infection-label">
+						<value>Pas d'infection bact&#233;rienne</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-label">
+						<value>D&#233;shydratation DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-deshydratation_severe-label">
+						<value>D&#233;shydratation s&#233;v&#232;re</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-signe_deshydratation-label">
+						<value>Signes &#233;vidents de d&#233;shydratation</value>
+					</text>
+					<text id="debug/classification_deshydratation_debug-pas_deshydratation-label">
+						<value>Pas de d&#233;shydratation</value>
+					</text>
+					<text id="debug/classification_diahree_debug-label">
+						<value>Diarrh&#233;e DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_diahree_debug-diahree_persistante_grave-label">
+						<value>Diarrh&#233;e persistante grave</value>
+					</text>
+					<text id="debug/classification_diahree_debug-sang_scelles-label">
+						<value>Sang dans les selles</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-label">
+						<value>Malnutrition DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-incapable_nourrir-label">
+						<value>Incapable de se nourrir / possibilit&#233; d&#8217;une infection bact&#233;rienne grave</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-probleme_alimentation-label">
+						<value>Probl&#232;me d&#8217;alimentation et/ou poids faible pour l&#8217;&#226;ge</value>
+					</text>
+					<text id="debug/classification_malnutrition_debug-pas_pb_alimentation-label">
+						<value>Pas de poids faible et/ou pas de probl&#232;me d&#8217;alimentation</value>
+					</text>
+					<text id="debug/classification_vih_debug-label">
+						<value>Infection &#224; VIH DEBUG consultation:</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_possible-label">
+						<value>Infection VIH symptomatique possible</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_peu_probable-label">
+						<value>Infection VIH peu probable</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_pas_infection-label">
+						<value>Pas d'infection VIH</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_asymp_confirmee-label">
+						<value>Infection VIH asymptomatique confirm&#233;e</value>
+					</text>
+					<text id="debug/classification_vih_debug-vih_symp_confirmee-label">
+						<value>Infection VIH symptomatique confirm&#233;e</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-label">
+						<value>DEBUG: Consult: Alimentation QB</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="debug/alimentation_qb_debug-no-label">
+						<value>No</value>
+					</text>
+					<text id="debug/alimentation_qc_debug-label">
+						<value>DEBUG: Consult: Alimentation QC</value>
+					</text>
+					<text id="debug/alimentation_qd_debug-label">
+						<value>DEBUG: Consult: Alimentation QD</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-label">
+						<value>DEBUG: Consult: Alimentation QF</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-pas_prise-label">
+						<value>Pas prise</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-mauvaise_prise-label">
+						<value>Mauvaise prise</value>
+					</text>
+					<text id="debug/alimentation_qf_debug-bonne_prise-label">
+						<value>Bonne prise</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-label">
+						<value>DEBUG: Consult: Alimentation QG</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-pas_succion-label">
+						<value>Pas succion</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-non_efficace-label">
+						<value>Non efficace</value>
+					</text>
+					<text id="debug/alimentation_qg_debug-efficace-label">
+						<value>Efficace</value>
+					</text>
+					<text id="debug/alimentation_qh_debug-label">
+						<value>DEBUG: Consult: Alimentation QH</value>
+					</text>
+					<text id="debug/zscore_unrounded_wfh_debug-label">
+						<value>DEBUG: Consult: zscore_unrounded_wfh</value>
+					</text>
+					<text id="debug/child_age_debug-label">
+						<value>DEBUG: Quel est l'&#226;ge de l'enfant (Months)?</value>
+					</text>
+					<text id="debug/child_weight_debug-label">
+						<value>DEBUG: Poids (kg)</value>
+					</text>
+					<text id="select_treatments/infection_grave-infection_grave-label">
+						<value>Possibilit&#233; d'Infection Bact&#233;rienne Grave</value>
+					</text>
+					<text id="select_treatments/infection_grave-infection_grave_no_ref-label">
+						<value>Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible</value>
+					</text>
+					<text id="select_treatments/deshydratation_severe-deshydratation_severe_sans_infection-label">
+						<value>D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/deshydratation_severe-deshydratation_severe_infection-label">
+						<value>D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/signe_deshydratation-signe_deshydratation_sans_infection-label">
+						<value>Signes &#233;vidents de d&#233;shydratation sans autres classifications graves</value>
+					</text>
+					<text id="select_treatments/signe_deshydratation-signe_deshydratation_infection-label">
+						<value>Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave</value>
+					</text>
+					<text id="select_treatments/diahree_persistante_grave-diahree_persistante_grave_sans_infection-label">
+						<value>Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave</value>
+					</text>
+					<text id="select_treatments/diahree_persistante_grave-diahree_persistante_grave_infection-label">
+						<value>Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave</value>
+					</text>
+					<text id="select_meds/antibio-label">
+						<value>Choisissez un m&#233;dicament</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_title-label">
+						<value>&#9644;&#9644;&#9644;Possibilit&#233; d'Infection Bact&#233;rienne Grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Possibilit&#233; d'Infection Bact&#233;rienne Grave \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:infection_grave'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_2-label">
+						<value>&#10148; Traiter l'enfant pour pr&#233;venir l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter l'enfant pour pr&#233;venir l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_3-label">
+						<value>&#10148; Expliquer a&#768; la me&#768;re comment veiller a&#768; ce que le nourrisson n&#8217;ait pas froid sur le chemin de l&#8217;ho&#770;pital</value>
+						<value form="markdown">* Expliquer a&#768; la me&#768;re comment veiller a&#768; ce que le nourrisson n&#8217;ait pas froid sur le chemin de l&#8217;ho&#770;pital \\n</value>
+					</text>
+					<text id="treatments/infection_grave/infection_grave_treat_4-label">
+						<value>&#10148; Transf&#233;rer d'urgence au centre de r&#233;f&#233;rence</value>
+						<value form="markdown">* Transf&#233;rer d'urgence au centre de r&#233;f&#233;rence \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_title-label">
+						<value>&#9644;&#9644;&#9644;Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Possibilit&#233; d'Infection Bact&#233;rienne Grave si r&#233;f&#233;rence impossible \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Ampicilline - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Ampicilline - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_grave_no_ref/infection_grave_no_ref_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose en intramusculaire de : Gentamicine - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours</value>
+						<value form="markdown">* Donner la premi&#232;re dose en intramusculaire de : Gentamicine - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13_1:infection_grave_no_ref'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - toutes les 12h pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_title-label">
+						<value>&#9644;&#9644;&#9644;Infection bact&#233;rienne locale&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection bact&#233;rienne locale \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_0-label">
+						<value>&#10148; Donner un antibiotique appropri&#233; par voie orale
+&#9644;&#9644;&#9644;&#8226; 1&#232;re intention : Amoxiciline Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:2:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 3 fois par jour pendant 5 jours</value>
+						<value form="markdown">* Donner un antibiotique appropri&#233; par voie orale \\n
+   * 1&#232;re intention : Amoxiciline Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:2:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 3 fois par jour pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_1-label">
+						<value>&#10148; Donner un antibiotique appropri&#233; par voie orale
+&#9644;&#9644;&#9644;&#8226; 2&#232;me intention : Erytromycine Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:3:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 4 fois par jour pendant 5 jours</value>
+						<value form="markdown">* Donner un antibiotique appropri&#233; par voie orale \\n
+   * 2&#232;me intention : Erytromycine Orale - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'antibio:3:infection_locale'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg par prise - 4 fois par jour pendant 5 jours \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_2-label">
+						<value>&#10148; *Apprendre &#224; la m&#232;re &#224; traiter les infections locales &#224; domicile* </value>
+						<value form="markdown">* *Apprendre &#224; la m&#232;re &#224; traiter les infections locales &#224; domicile* \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_2-help">
+						<value>&#10148; Expliquer comment et pourquoi le traitement est administr&#233;.
+&#10148; Observer la m&#232;re pendant qu&#8217;elle donne le premier traitement au dispensaire.
+&#10148; Dites lui de donner le traitement 2 fois par jour.
+&#10148; Elle doit revenir au dispensaire si l&#8217;infection s&#8217;aggrave.
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Nettoyer doucement le pus et la cro&#251;te avec de l&#8217;eau et du savon
+&#10148; S&#233;cher la zone avec un linge propre
+&#10148; Appliquer du violet de gentiane
+&#10148; Se laver les mains
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Badigeonner la muqueuse buccale et la langue avec la nystatine en suspension 2 fois / jour
+&#10148; Se laver les mains</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_3-label">
+						<value>&#10148; *Expliquer &#224; la m&#232;re comment soigner le nourrisson &#224; domicile*</value>
+						<value form="markdown">* *Expliquer &#224; la m&#232;re comment soigner le nourrisson &#224; domicile* \\n</value>
+					</text>
+					<text id="treatments/infection_locale/infection_locale_treat_4-label">
+						<value>&#10148; Revoir apr&#232;s 2 jours</value>
+						<value form="markdown">* Revoir apr&#232;s 2 jours \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Pas d'infection bact&#233;rienne&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas d'infection bact&#233;rienne \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_0-label">
+						<value>&#10148; Donner des conseils sur l'alimentation </value>
+						<value form="markdown">* Donner des conseils sur l'alimentation \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_0-help">
+						<value>Poser des questions sur l&#8217;alimentation habituelle de l&#8217;enfant et sur son alimentation durant cette maladie. Comparer les r&#233;ponses de la m&#232;re aux Recommandations pour l&#8217;alimentation selon l&#8217;&#226;ge de l&#8217;enfant dans le cadre ci-dessous.
+
+*DEMANDER :*
+&#9644;&#9644;&#9644;&#8226; Allaitez-vous l&#8217;enfant?
+&#9644;&#9644;&#9644;&#8226; Combien de fois pendant la journ&#233;e?
+&#9644;&#9644;&#9644;&#8226; L&#8217;allaitez-vous aussi pendant la nuit?
+&#9644;&#9644;&#9644;&#8226; Est-ce que l&#8217;enfant consomme d&#8217;autres aliments ou liquides?
+&#9644;&#9644;&#9644;&#8226; Quels aliments ou liquides?
+&#9644;&#9644;&#9644;&#8226; Combien de fois par jour?
+&#9644;&#9644;&#9644;&#8226; Comment donnez-vous &#224; manger &#224; l&#8217;enfant?
+&#9644;&#9644;&#9644;&#8226; Si le poids de l&#8217;enfant est tr&#232;s faible pour son &#226;ge: Quelle quantit&#233; lui donnez-vous &#224; chaque repas? L&#8217;enfant re&#231;oit-il sa propre part? Qui nourrit l&#8217;enfant et comment le nourrissez-vous?
+&#9644;&#9644;&#9644;&#8226; Pendant cette maladie, les habitudes alimentaires de l&#8217;enfant ont-elles chang&#233;? Si oui, comment? Pourquoi?
+
+*De la naissance &#224; 4 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Ne pas donner d&#8217;autres aliments ou liquides. (pas d&#8217;eau) sauf indication m&#233;dicale
+
+*De 4 mois &#224; 6 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Si le poids de l&#8217;enfant s&#8217;infl&#233;chit ou reste stable ou si l&#8217;enfant le r&#233;clame :
+&#9644;&#9644;&#9644;&#8226; Donner des rations ad&#233;quates de bouillies &#233;paisses et enrichies (bouillie depetit mil sans grumeaux)
+&#9644;&#9644;&#9644;&#8226; Donner des aliments 3 fois par jour avec allaitement au sein ou 5 fois par jours si l&#8217;allaitement n&#8217;est pas possible. Dans ce cas, les bouilles doivent contenir du lait
+
+*De 6 mois &#224; 9 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Introduire progressivement des aliments du plat familial :
+&#9644;&#9644;&#9644;&#8226; T&#244; avec sauces, p&#226;tes, l&#233;gumes, fruits, eau ,haricots, pois de terre
+&#9644;&#9644;&#9644;&#8226; Ajouter du lait
+&#10148; Donner ces aliments cinq fois par jours
+
+*De 9 mois &#224; 2 ans :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens. T&#244;, p&#226;tes, riz sauce, gonr&#233;, haricot, pois de terre, viande, poissons, &#339;uf
+&#10148; Ajouter du lait
+&#10148; Donner aussi deux fois par jour entre les repas, des beignets (samsa, bourmasa), galettes, tourteaux d&#8217;arachides (couracoura) des fruits et de l&#8217;eau &#224; volont&#233;
+
+*2 ans et plus :*
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens&#10148; En plus donner deux fois par jour des aliments nutritifs entre les repas comme les beignets ou les galettes, fruits, l&#233;gumes et de l&#8217;eau
+&#10148; Servir l&#8217;enfant dans un bol s&#233;par&#233;
+&#10148; Aider l&#8217;enfant &#224; manger
+&#10148; Inciter l&#8217;enfant &#224; finir son repas
+
+*Tout bon r&#233;gime alimentaire doit &#234;tre ad&#233;quat en quantit&#233; et inclure des aliments riches  en &#233;nergie (par exemple, bouillie &#233;paisse de c&#233;r&#233;ales additionn&#233;e d&#8217;huile); de la viande, du poisson, des &#339;ufs ou des l&#233;gumes secs; des fruits et l&#233;gumes.*
+
+Enrichir les bouillies avec :
+&#9644;&#9644;&#9644;&#8226; Huile
+&#9644;&#9644;&#9644;&#8226; Sucre
+&#9644;&#9644;&#9644;&#8226; Jaune d&#8217;oeuf
+&#9644;&#9644;&#9644;&#8226; Farine de soja
+&#9644;&#9644;&#9644;&#8226; Poudre de poisson s&#233;ch&#233;
+&#9644;&#9644;&#9644;&#8226; Poudre de pain de singe
+&#9644;&#9644;&#9644;&#8226; Grain de baobab, soumbala, arachides grill&#233;es, tourteaux d&#8217;arachide
+&#9644;&#9644;&#9644;&#8226; Chenilles, &#233;ph&#233;m&#232;res
+&#9644;&#9644;&#9644;&#8226; Les bouillies doivent &#234;tre &#233;paisses, enrichies et pr&#233;par&#233;es juste avant d&#8217;&#234;tre donn&#233;es &#224; l&#8217;enfant
+&#9644;&#9644;&#9644;&#8226; Les c&#233;r&#233;ales et les l&#233;gumineuses doivent &#234;tre de pr&#233;f&#233;rence d&#233;cortiqu&#233;s
+&#9644;&#9644;&#9644;&#8226; Lait</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement </value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \\n</value>
+					</text>
+					<text id="treatments/pas_infection/pas_infection_treat_1-help">
+						<value>Tout enfant malade doit REVENIR IMM&#201;DIATEMENT s'il :
+&#9644;&#9644;&#9644;&#8226; Est incapable de boire ou de t&#233;ter
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; D&#233;veloppe de la fi&#232;vre</value>
+					</text>
+					<text id="treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#D&#233;shydratation s&#233;v&#232;re sans possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_treat_0-label">
+						<value>&#10148; Donner des liquides pour d&#233;shydratation s&#233;v&#232;re comme au Nourrisson (Plan C)</value>
+						<value form="markdown">* Donner des liquides pour d&#233;shydratation s&#233;v&#232;re comme au Nourrisson (Plan C) \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_title-label">
+						<value>&#9644;&#9644;&#9644;D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#D&#233;shydratation s&#233;v&#232;re avec possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_0-label">
+						<value>&#10148; R&#233;f&#233;rer d'URGENCE &#224; l'h&#244;pital</value>
+						<value form="markdown">* R&#233;f&#233;rer d'URGENCE &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1-label">
+						<value>&#10148; Donner fr&#233;quemment des gorg&#233;es de SRO en cours de route</value>
+						<value form="markdown">* Donner fr&#233;quemment des gorg&#233;es de SRO en cours de route \\n</value>
+					</text>
+					<text id="treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2-label">
+						<value>&#10148; Conseiller &#224; la m&#232;re de continuer l'allaitement au sein</value>
+						<value form="markdown">* Conseiller &#224; la m&#232;re de continuer l'allaitement au sein \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Signes &#233;vidents de d&#233;shydratation sans autres classifications graves&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Signes &#233;vidents de d&#233;shydratation sans autres classifications graves \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_0-label">
+						<value>&#10148; Donner des liquides et des aliments pour signes &#233;vidents de d&#233;shydratation (Plan B)</value>
+						<value form="markdown">* Donner des liquides et des aliments pour signes &#233;vidents de d&#233;shydratation (Plan B) \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_2-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_infection/signe_deshydratation_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Signes &#233;vidents de d&#233;shydratation avec possibilit&#233; d&#8217;infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_2-label">
+						<value>&#10148; Conseiller a&#768; la me&#768;re de continuer l'allaitement au sein et quand revenir</value>
+						<value form="markdown">* Conseiller a&#768; la me&#768;re de continuer l'allaitement au sein et quand revenir \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_title-label">
+						<value>&#9644;&#9644;&#9644;Pas de d&#233;shydratation&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas de d&#233;shydratation \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_0-label">
+						<value>&#10148; Donner des liquides pour traiter la diarrh&#233;e &#224; domicile (Plan A)</value>
+						<value form="markdown">* Donner des liquides pour traiter la diarrh&#233;e &#224; domicile (Plan A) \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement</value>
+						<value form="help">help</value>
+						<value form="help-text">Tout enfant qui a la diarrh&#233;e, doit revenir IMMEDIATEMENT si :
+&#9644;&#9644;&#9644;&#8226; Les selles contiennent du sang
+&#9644;&#9644;&#9644;&#8226; L&#8217;enfant boit difficilement
+
+Conseiller &#224; la m&#232;re de revenir imm&#233;diatement si le nourrisson pr&#233;sente l&#8217;un des ces signes :
+&#9644;&#9644;&#9644;&#8226; Difficult&#233; &#224; t&#233;ter ou &#224; boire
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; A de la fi&#232;vre
+&#9644;&#9644;&#9644;&#8226; Respire rapidement
+&#9644;&#9644;&#9644;&#8226; Respire difficilement
+&#9644;&#9644;&#9644;&#8226; Sang dans les selles
+</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re quand revenir imm&#233;diatement \\n</value>
+					</text>
+					<text id="treatments/pas_deshydratation/pas_deshydratation_treat_1-help">
+						<value>Tout enfant qui a la diarrh&#233;e, doit revenir IMMEDIATEMENT si :
+&#9644;&#9644;&#9644;&#8226; Les selles contiennent du sang
+&#9644;&#9644;&#9644;&#8226; L&#8217;enfant boit difficilement
+
+Conseiller &#224; la m&#232;re de revenir imm&#233;diatement si le nourrisson pr&#233;sente l&#8217;un des ces signes :
+&#9644;&#9644;&#9644;&#8226; Difficult&#233; &#224; t&#233;ter ou &#224; boire
+&#9644;&#9644;&#9644;&#8226; Devient plus malade
+&#9644;&#9644;&#9644;&#8226; A de la fi&#232;vre
+&#9644;&#9644;&#9644;&#8226; Respire rapidement
+&#9644;&#9644;&#9644;&#8226; Respire difficilement
+&#9644;&#9644;&#9644;&#8226; Sang dans les selles</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Diarrh&#233;e persistante grave sans possibilite d&#8217;infection bacterienne grave \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_0-label">
+						<value>&#10148; Si le nourrisson est d&#233;shydrat&#233; :</value>
+						<value form="markdown">* Si le nourrisson est d&#233;shydrat&#233; :\\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_1-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Traiter la d&#233;shydratation avant le transfert</value>
+						<value form="markdown">   * Traiter la d&#233;shydratation avant le transfert \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Diarrh&#233;e persistante grave avec possibilite d&#8217;infection bacterienne grave \\n</value>
+					</text>
+					<text id="treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0-label">
+						<value>&#10148; Transf&#233;rer d'urgence &#224; l'h&#244;pital</value>
+						<value form="markdown">* Transf&#233;rer d'urgence &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_title-label">
+						<value>&#9644;&#9644;&#9644;Sang dans les selles&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Sang dans les selles \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_treat_0-label">
+						<value>&#10148; Traiter pour pr&#233;venir l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter pour pr&#233;venir l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/sang_scelles/sang_scelles_treat_1-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_title-label">
+						<value>&#9644;&#9644;&#9644;Incapable de se nourrir / possibilit&#233; d'une infection bact&#233;rienne grave&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Incapable de se nourrir / possibilit&#233; d'une infection bact&#233;rienne grave \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_0-label">
+						<value>&#10148; Donner la premi&#232;re dose d'antibiotique en intramusculaire : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (m&#233;langer avec 2.1ml d'eau distill&#233;e pour avoir 500mg/2,5ml)</value>
+						<value form="markdown">* Donner la premi&#232;re dose d'antibiotique en intramusculaire : Ampicilline pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm12:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (m&#233;langer avec 2.1ml d'eau distill&#233;e pour avoir 500mg/2,5ml) \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_1-label">
+						<value>&#10148; Donner la premi&#232;re dose d'antibiotique en intramusculaire : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (diluer avec 6ml d'eau physiologique pour avoir 20mg/ml)</value>
+						<value form="markdown">* Donner la premi&#232;re dose d'antibiotique en intramusculaire : Gentamicine pr&#233; r&#233;f&#233;rence - <output value="int(/data/child_weight * instance('medications')/medications_list/medications[@key = 'm13:incapable_nourrir'][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]/@dose)"/> mg (diluer avec 6ml d'eau physiologique pour avoir 20mg/ml) \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_2-label">
+						<value>&#10148; Traiter pour &#233;viter l'hypoglyc&#233;mie</value>
+						<value form="markdown">* Traiter pour &#233;viter l'hypoglyc&#233;mie \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_2-help">
+						<value>Si l&#8217;enfant est capable de t&#233;ter :
+&#8226; Demander &#224; la m&#232;re d&#8217;allaiter l&#8217;enfant.
+
+Si l&#8217;enfant est incapable de t&#233;ter mais est capable d&#8217;avaler :
+&#8226; Donner du lait exprim&#233; ou un substitut de lait maternel
+
+Si l&#8217;enfant est incapable d&#8217;avaler
+&#8226; Donner 50 ml de lait ou d&#8217;eau sucr&#233;e par sonde nasogastrique.
+&#8226; Pour faire de l&#8217;eau sucr&#233;e, dissoudre 4 carreaux de sucre (20 grammes) dans une tasse de 200 ml d&#8217;eau propre.</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_3-label">
+						<value>&#10148; Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid sur le chemin de l'h&#244;pital</value>
+						<value form="markdown">* Expliquer &#224; la m&#232;re comment veiller &#224; ce que le nourrisson n'ait pas froid sur le chemin de l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_3-help">
+						<value>R&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau :
+&#10148; Garder le b&#233;b&#233; habill&#233; avec chemise ouverte devant, bonnet, et chaussettes
+&#10148; le garder en contact peau &#224; peau avec sa m&#232;re ou l'accompagnant
+&#10148; Envelopper la m&#232;re ou l'accompagnant et le b&#233;b&#233; dans une couverture s&#232;che et douce</value>
+					</text>
+					<text id="treatments/incapable_nourrir/incapable_nourrir_treat_4-label">
+						<value>&#10148; Transf&#233;rer d'URGENCE &#224; l'h&#244;pital</value>
+						<value form="markdown">* Transf&#233;rer d'URGENCE &#224; l'h&#244;pital \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_title-label">
+						<value>&#9644;&#9644;&#9644;Probl&#232;me d'alimentation et/ou poids faible pour l'&#226;ge&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Probl&#232;me d'alimentation et/ou poids faible pour l'&#226;ge \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_0-label">
+						<value>&#10148; Conseiller &#224; la m&#232;re d'allaiter le nourrisson au sein </value>
+						<value form="markdown">* Conseiller &#224; la m&#232;re d'allaiter le nourrisson au sein \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_0-help">
+						<value>*De la naissance &#224; 4 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Ne pas donner d&#8217;autres aliments ou liquides. (pas d&#8217;eau) sauf indication m&#233;dicale
+
+*De 4 mois &#224; 6 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame, jour et nuit, au moins 12 fois en 24 heures
+&#10148; Si le poids de l&#8217;enfant s&#8217;infl&#233;chit ou reste stable ou si l&#8217;enfant le r&#233;clame :
+&#9644;&#9644;&#9644;&#8226; Donner des rations ad&#233;quates de bouillies &#233;paisses et enrichies (bouillie depetit mil sans grumeaux)
+&#9644;&#9644;&#9644;&#8226; Donner des aliments 3 fois par jour avec allaitement au sein ou 5 fois par jours si l&#8217;allaitement n&#8217;est pas possible. Dans ce cas, les bouilles doivent contenir du lait
+
+*De 6 mois &#224; 9 mois :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Introduire progressivement des aliments du plat familial :
+&#9644;&#9644;&#9644;&#8226; T&#244; avec sauces, p&#226;tes, l&#233;gumes, fruits, eau ,haricots, pois de terre
+&#9644;&#9644;&#9644;&#8226; Ajouter du lait
+&#10148; Donner ces aliments cinq fois par jours
+
+*De 9 mois &#224; 2 ans :*
+&#10148; Allaiter au sein aussi souvent que l&#8217;enfant le r&#233;clame
+&#10148; Donner des rations ad&#233;quates de bouillies enrichies
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens. T&#244;, p&#226;tes, riz sauce, gonr&#233;, haricot, pois de terre, viande, poissons, &#339;uf
+&#10148; Ajouter du lait
+&#10148; Donner aussi deux fois par jour entre les repas, des beignets (samsa, bourmasa), galettes, tourteaux d&#8217;arachides (couracoura) des fruits et de l&#8217;eau &#224; volont&#233;
+
+*2 ans et plus :*
+&#10148; Donner les aliments du repas familial en 3 repas quotidiens&#10148; En plus donner deux fois par jour des aliments nutritifs entre les repas comme les beignets ou les galettes, fruits, l&#233;gumes et de l&#8217;eau
+&#10148; Servir l&#8217;enfant dans un bol s&#233;par&#233;
+&#10148; Aider l&#8217;enfant &#224; manger
+&#10148; Inciter l&#8217;enfant &#224; finir son repas</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_1-label">
+						<value>&#10148; Si la prise du sein est mauvaise ou si la succion n'est pas efficace, conseiller</value>
+						<value form="markdown">* Si la prise du sein est mauvaise ou si la succion n'est pas efficace, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_1-help">
+						<value>*Montrer &#224; la m&#232;re comment tenir le nourrisson :*
+&#10148; le nourrisson doit faire face au sein, et son nez en face du mamelon
+&#10148; le corps du nourrisson doit &#234;tre proche du corps de la m&#232;re
+&#10148; la m&#232;re doit soutenir tout le corps du nourrisson, pas seulement la nuque et les &#233;paules
+
+*Montrer &#224; la m&#232;re comment aider le nourrisson &#224; prendre le sein. Elle doit :*
+&#10148; toucher les l&#232;vres du nourrisson avec son mamelon
+&#10148; attendre que la bouche du nourrisson soit grande ouverte
+&#10148; approcher rapidement le nourrisson du sein en veillant que la l&#232;vre inf&#233;rieure du nourrisson soit bien en-dessous du mamelon.
+&#10148; V&#233;rifier la bonne prise du sein et l&#8217;efficacit&#233; de la succion
+&#10148; Si la prise du sein ou la succion n'est pas correcte, r&#233;essayer.</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_2-label">
+						<value>&#10148; Si la m&#232;re allaite au sein moins de 12 fois en 24 heures, conseiller</value>
+						<value form="markdown">* Si la m&#232;re allaite au sein moins de 12 fois en 24 heures, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_2-help">
+						<value>*Si l&#8217;enfant n&#8217;est pas nourri comme indiqu&#233; ci-dessus, conseiller la m&#232;re en cons&#233;quence.*
+*En outre si la m&#232;re signale qu&#8217;elle a des difficult&#233;s &#224; allaiter au sein :*
+&#9644;&#9644;&#9644;&#8226; Evaluer l&#8217;allaitement. (Voir tableau EVALUER, CLASSER ET TRAITER LE NOURRISSON.) Si n&#233;cessaire, montrer &#224; la m&#232;re le bon positionnement pour l&#8217;allaitement et la bonne prise du sein
+
+Si l&#8217;enfant a moins de 4 mois et consomme un autre lait ou d&#8217;autres aliments :
+&#8226; Renforcer la confiance de la m&#232;re en lui assurant qu&#8217;elle peut produire tout le lait dont l&#8217;enfant a besoin.
+&#8226; Sugg&#233;rer de mettre l&#8217;enfant au sein plus fr&#233;quemment, de l&#8217;y laisser plus longtemps, le jour comme la nuit, et de r&#233;duire progressivement l&#8217;autre lait ou les aliments.
+
+Si la consommation d&#8217;un autre lait doit continuer, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; D&#8217;allaiter au sein autant que possible, y compris la nuit
+&#9644;&#9644;&#9644;&#8226; De s&#8217;assurer que l&#8217;autre lait est un lait de substitution localement appropri&#233;
+&#9644;&#9644;&#9644;&#8226; De s&#8217;assurer que l&#8217;autre lait est pr&#233;par&#233; correctement, de fa&#231;on hygi&#233;nique et est donn&#233; en quantit&#233; appropri&#233;e
+&#9644;&#9644;&#9644;&#8226; De finir, dans l&#8217;heure, le lait pr&#233;par&#233;
+
+Si la m&#232;re nourrit l&#8217;enfant au biberon :
+&#9644;&#9644;&#9644;&#8226; Recommander de remplacer le biberon par une tasse
+&#9644;&#9644;&#9644;&#8226; Montrer &#224; la m&#232;re comment utiliser une tasse pour nourrir son enfant
+
+Si l&#8217;enfant se nourrit mal, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; De s&#8217;asseoir avec l&#8217;enfant et de l&#8217;encourager &#224; manger.
+&#9644;&#9644;&#9644;&#8226; De donner &#224; l&#8217;enfant une ration ad&#233;quate dans une assiette ou dans un bol s&#233;par&#233;
+
+Si l&#8217;enfant se nourrit mal pendant une maladie, conseiller &#224; la m&#232;re :
+&#9644;&#9644;&#9644;&#8226; D&#8217;allaiter au sein plus fr&#233;quemment et plus longtemps, si possible
+&#9644;&#9644;&#9644;&#8226; D&#8217;offrir des aliments faciles &#224; manger, vari&#233;s, app&#233;tissants et pr&#233;f&#233;r&#233;s par l&#8217;enfant pour l&#8217;encourager &#224; manger le plus possible, et lui donner de fr&#233;quents petits repas
+&#9644;&#9644;&#9644;&#8226; De d&#233;sobstruer le nez de l&#8217;enfant si son nez bouch&#233; l&#8217;emp&#234;che de manger
+&#9644;&#9644;&#9644;&#8226; Dire &#224; la m&#232;re que l&#8217;app&#233;tit sera meilleur quand l&#8217;enfant ira mieux
+
+Revoir tout probl&#232;me d&#8217;alimentation dans 5 jours</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_3-label">
+						<value>&#10148; Conseiller d'allaiter plus souvent</value>
+						<value form="markdown">* Conseiller d'allaiter plus souvent \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_4-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Si le nourrisson re&#231;oit d'autres aliments ou liquides, conseiller</value>
+						<value form="markdown">   * Si le nourrisson re&#231;oit d'autres aliments ou liquides, conseiller \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_5-label">
+						<value>&#9644;&#9644;&#9644;&#8226; Si pas d&#8217;allaitement au sein r&#233;f&#233;rer pour conseils sur l&#8217;allaitement au sein et &#233;ventuellement la relactation</value>
+						<value form="markdown">   * Si pas d&#8217;allaitement au sein r&#233;f&#233;rer pour conseils sur l&#8217;allaitement au sein et &#233;ventuellement la relactation \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_6-label">
+						<value>&#9644;&#9644;&#9644;&#8226; En cas de muguete, enseigner</value>
+						<value form="markdown">   * En cas de muguete, enseigner \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_6-help">
+						<value>&#8226; Expliquer &#224; la m&#232;re le traitement et pourquoi il doit &#234;tre donn&#233;.
+&#8226; D&#233;crire les &#233;tapes du traitement &#233;num&#233;r&#233;es dans le cadre appropri&#233;.
+&#8226; Observer la m&#232;re pendant qu&#8217;elle donne le premier traitement au dispensaire (sauf les rem&#232;des pour la toux ou la douleur de gorge).
+&#8226; Expliquer &#224; la m&#232;re combien de fois le traitement doit &#234;tre administr&#233; &#224; domicile
+&#8226; Si n&#233;cessaire pour le traitement &#224; domicile, donner &#224; la m&#232;re le tube de pommade t&#233;tracycline ou un petit flacon de violet de gentiane.
+&#8226; S&#8217;assurer que la m&#232;re a bien compris les instructions avant qu&#8217;elle ne quitte le dispensaire
+
+La m&#232;re doit :
+&#10148; Se laver les mains &#224; l&#8217;eau propre et au savon
+&#10148; Badigeonner la muqueuse buccale et la langue avec la nystatine en suspension 2 fois / jour
+&#10148; Se laver les mains</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_7-label">
+						<value>&#10148; Revoir tout probl&#232;me d'alimentation ou de muguet apr&#232;s 2 jours</value>
+						<value form="markdown">* Revoir tout probl&#232;me d'alimentation ou de muguet apr&#232;s 2 jours \\n</value>
+					</text>
+					<text id="treatments/probleme_alimentation/probleme_alimentation_treat_8-label">
+						<value>&#10148; Revoir tout probl&#232;me de poids faible pour l'&#226;ge apr&#232;s 14 jours</value>
+						<value form="markdown">* Revoir tout probl&#232;me de poids faible pour l'&#226;ge apr&#232;s 14 jours \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_title-label">
+						<value>&#9644;&#9644;&#9644;Pas de poids faible et/ou pas de probl&#232;me d'alimentation&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas de poids faible et/ou pas de probl&#232;me d'alimentation \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-label">
+						<value>&#10148; Apprendre &#224; soigner le nourrisson &#224; domicile  </value>
+						<value form="markdown">* Apprendre &#224; soigner le nourrisson &#224; domicile \\n</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-help">
+						<value>&#8226; Suivre les instructions ci-dessous pour chaque m&#233;dicament &#224; donner par voie orale &#224; domicile.
+&#8226; Suivre &#233;galement les instructions du tableau de dosage de chaque m&#233;dicament.
+&#8226; D&#233;terminer les m&#233;dicaments et doses appropri&#233;s selon l&#8217;&#226;ge ou le poids de l&#8217;enfant.
+&#8226; Expliquer &#224; la m&#232;re pourquoi l&#8217;enfant a besoin du m&#233;dicament.
+&#8226; Montrer comment mesurer une dose
+&#8226; Observer la m&#232;re pendant qu'elle mesure une dose
+&#8226; Demander &#224; la m&#232;re de donner la premi&#232;re dose &#224; l&#8217;enfant
+&#8226; Expliquer en d&#233;tails comment donner le m&#233;dicament,
+&#8226; Mettre ensuite le m&#233;dicament dans un sachet ou un cornet et inscrire le nom du m&#233;dicament sur le sachet ou le corne
+&#8226; Si plusieurs m&#233;dicaments sont donn&#233;s, rassembler, compter et mettre les m&#233;dicaments chacun dans un cornet diff&#233;rent.
+&#8226; Expliquer que tous les m&#233;dicaments (comprim&#233;s ou sirops) doivent &#234;tre pris jusqu&#8217;&#224; la fin du traitement, m&#234;me si l&#8217;enfant se porte mieux
+&#8226; S&#8217;assurer que la m&#232;re a bien compris les instructions avant qu&#8217;elle ne quitte le dispensaire
+
+*Comment r&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau :*
+&#10148; Retirer &#224; l&#8217;enfant ses v&#234;tements froids
+&#10148; Le mettre sur la poitrine de sa m&#232;re, v&#234;tu d&#8217;une chemise pr&#233;chauff&#233;e ouverte &#224; l&#8217;avant, d&#8217;une couche, d&#8217;un bonnet et de chaussettes
+&#10148; Couvrir l&#8217;enfant sur la poitrine de sa m&#232;re avec les v&#234;tements de celle-ci, ainsi qu&#8217;une couverture pr&#233;chauff&#233;e
+&#10148; V&#233;rifier la temp&#233;rature toutes les heures jusqu'&#224; ce qu&#8217;elle soit normale
+&#10148; Garder l&#8217;enfant avec sa m&#232;re
+&#10148; Demander &#224; la m&#232;re d&#8217;allaiter l&#8217;enfant fr&#233;quemment
+
+Si le contact peau &#224; peau n&#8217;est pas possible :
+&#9644;&#9644;&#9644;&#8226; Si un appareil de chauffage radiant est disponible, l&#8217;utiliser pour r&#233;chauffer le nouveau-n&#233;, ou
+&#9644;&#9644;&#9644;&#8226; R&#233;chauffer la salle avec du mat&#233;riel de chauffage ou habiller le nouveau-n&#233; avec des v&#234;tements chauds ou le couvrir avec une couverture chaude.
+
+*R&#233;&#233;valuer apr&#232;s une heure :*
+&#9644;&#9644;&#9644;&#8226; Rechercher les signes de maladie grave
+&#9644;&#9644;&#9644;&#8226; Mesurer la temp&#233;rature axillaire
+
+S&#8217;il existe un signe quelconque de maladie grave ou si la temp&#233;rature reste en dessous de 36,5&#176;C :
+&#9644;&#9644;&#9644;&#8226; Evacuer rapidement &#224; l&#8217;h&#244;pital apr&#232;s avoir fait le traitement pr&#233;-transfert pour maladie grave
+
+S&#8217;il n&#8217;existe aucun signe de maladie grave et la temp&#233;rature est &#233;gale ou sup&#233;rieure &#224; 36,5 &#176;C:
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur comment garder l&#8217;enfant au chaud &#224; la maison
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur les soins &#224; domicile
+&#9644;&#9644;&#9644;&#8226; Conseiller la m&#232;re sur quand revenir imm&#233;diatement
+&#9644;&#9644;&#9644;&#8226; Revoir le nouveau n&#233; dans 2 jours
+
+&#8226; R&#233;chauffer le nouveau-n&#233; par le contact peau &#224; peau aussi souvent que possible jour et nuit
+&#9644;&#9644;&#9644;&#8226; Quand le nouveau-n&#233; n&#8217;est pas en contact peau &#224; peau, le garder habill&#233; ou couvert aussi souvent que possible &#224; tout moment.
+&#9644;&#9644;&#9644;&#8226; Habiller le nouveau-n&#233; avec chemise, bonnet, et chaussettes et le couvrir
+&#9644;&#9644;&#9644;&#8226; Le garder dans le m&#234;me lit que sa m&#232;re
+&#9644;&#9644;&#9644;&#8226; Changer les habits d&#232;s qu&#8217;ils sont mouill&#233;s
+&#9644;&#9644;&#9644;&#8226; Garder la chambre chaude</value>
+					</text>
+					<text id="treatments/pas_pb_alimentation/pas_pb_alimentation_treat_1-label">
+						<value>&#10148; F&#233;liciter la m&#232;re pour la bonne alimentation du nourrisson</value>
+						<value form="markdown">* F&#233;liciter la m&#232;re pour la bonne alimentation du nourrisson \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH symptomatique possible&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH symptomatique possible \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_0-label">
+						<value>&#10148; Conseiller le test se&#769;rologique a&#768; la me&#768;re</value>
+						<value form="markdown">* Conseiller le test se&#769;rologique a&#768; la me&#768;re \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_1-label">
+						<value>&#10148; Si ne&#769;cessaire faire la PCR a&#768; l'enfant</value>
+						<value form="markdown">* Si ne&#769;cessaire faire la PCR a&#768; l'enfant \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_2-label">
+						<value>&#10148; Conseiller de revenir rapidement a&#768; l'apparition de tout nouveau proble&#768;me</value>
+						<value form="markdown">* Conseiller de revenir rapidement a&#768; l'apparition de tout nouveau proble&#768;me \\n</value>
+					</text>
+					<text id="treatments/vih_possible/vih_possible_treat_3-label">
+						<value>&#10148; Revoir dans 14 jours</value>
+						<value form="markdown">* Revoir dans 14 jours \\n</value>
+					</text>
+					<text id="treatments/vih_peu_probable/vih_peu_probable_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH peu probable&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH peu probable \\n</value>
+					</text>
+					<text id="treatments/vih_peu_probable/vih_peu_probable_treat_0-label">
+						<value>&#10148; Soigner toute autre classification trouv&#233;e</value>
+						<value form="markdown">* Soigner toute autre classification trouv&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_title-label">
+						<value>&#9644;&#9644;&#9644;Pas d'infection VIH&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Pas d'infection VIH \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_treat_0-label">
+						<value>&#10148; Soigner le nourrisson pour toute autre classification trouve&#769;e</value>
+						<value form="markdown">* Soigner le nourrisson pour toute autre classification trouve&#769;e \\n</value>
+					</text>
+					<text id="treatments/vih_pas_infection/vih_pas_infection_treat_1-label">
+						<value>&#10148; Conseiller la me&#768;re sur l'alimentation</value>
+						<value form="markdown">* Conseiller la me&#768;re sur l'alimentation \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH asymptomatique confirm&#233;e&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH asymptomatique confirm&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0-label">
+						<value>&#10148; Conseiller l'allaitement exclusif avec sevrage pre&#769;coce a&#768; 4 mois</value>
+						<value form="markdown">* Conseiller l'allaitement exclusif avec sevrage pre&#769;coce a&#768; 4 mois \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_1-label">
+						<value>&#10148; Si possibilite&#769; alimentation artificielle exclusivement</value>
+						<value form="markdown">* Si possibilite&#769; alimentation artificielle exclusivement \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_2-label">
+						<value>&#10148; Prophylaxie au COTRIMOXAZOLE 25mg/kg/jour</value>
+						<value form="markdown">* Prophylaxie au COTRIMOXAZOLE 25mg/kg/jour \\n</value>
+					</text>
+					<text id="treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_3-label">
+						<value>&#10148; Surveillance du pourcentage des CD4</value>
+						<value form="markdown">* Surveillance du pourcentage des CD4 \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_title-label">
+						<value>&#9644;&#9644;&#9644;Infection VIH symptomatique confirm&#233;e&#9644;&#9644;&#9644;</value>
+						<value form="markdown">#Infection VIH symptomatique confirm&#233;e \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_0-label">
+						<value>&#10148; Prise en charge couple me&#768;re enfant</value>
+						<value form="markdown">* Prise en charge couple me&#768;re enfant \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_2-label">
+						<value>&#10148; Si possibilit&#233; d'alimentation artificielle exclusivement</value>
+						<value form="markdown">* Si possibilit&#233; d'alimentation artificielle exclusivement \\n</value>
+					</text>
+					<text id="treatments/vih_symp_confirmee/vih_symp_confirmee_treat_3-label">
+						<value>&#10148; Prophylaxie au COTRIMOXAZOLE 25mg/ kg/jour &#224; partir de 6 semaines</value>
+						<value form="markdown">* Prophylaxie au COTRIMOXAZOLE 25mg/ kg/jour &#224; partir de 6 semaines \\n</value>
+					</text>
+					<text id="other_treatments-label">
+						<value>Autres traitements / observations</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/classification_malnutrition_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/classification_malnutrition"/><setvalue event="xforms-ready" ref="/data/zscore_unrounded_wfh_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/zscore_unrounded_wfh"/><setvalue event="xforms-ready" ref="/data/alimentation_qf_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qf"/><setvalue event="xforms-ready" ref="/data/child_weight_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/weight"/><setvalue event="xforms-ready" ref="/data/child_age_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/age_in_months"/><setvalue event="xforms-ready" ref="/data/classification_infection_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/classification_infection"/><setvalue event="xforms-ready" ref="/data/alimentation_qg_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qg"/><setvalue event="xforms-ready" ref="/data/alimentation_qd_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qd"/><setvalue event="xforms-ready" ref="/data/alimentation_qh_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qh"/><setvalue event="xforms-ready" ref="/data/alimentation_qb_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qb"/><setvalue event="xforms-ready" ref="/data/classification_diahree_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/classification_diahree"/><setvalue event="xforms-ready" ref="/data/alimentation_qc_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/alimentation_qc"/><setvalue event="xforms-ready" ref="/data/classification_vih_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/classification_vih"/><setvalue event="xforms-ready" ref="/data/classification_deshydratation_loaded" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_case_visit]/classification_deshydratation"/><bind calculate="/data/meta/timeEnd" nodeset="/data/case_case_visit/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case_case_visit/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id_case_visit" nodeset="/data/case_case_visit/case/@case_id"/><bind calculate="/data/treatment_complete" nodeset="/data/case_case_visit/case/update/treatment_complete" relevant="count(/data/treatment_complete) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/debug" appearance="field-list">
+			<label ref="jr:itext('debug-label')"/>
+			<select1 ref="/data/debug/classification_infection_debug">
+				<label ref="jr:itext('debug/classification_infection_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/classification_infection_debug-infection_grave-label')"/>
+					<value>infection_grave</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_infection_debug-infection_locale-label')"/>
+					<value>infection_locale</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_infection_debug-pas_infection-label')"/>
+					<value>pas_infection</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/classification_deshydratation_debug">
+				<label ref="jr:itext('debug/classification_deshydratation_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/classification_deshydratation_debug-deshydratation_severe-label')"/>
+					<value>deshydratation_severe</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_deshydratation_debug-signe_deshydratation-label')"/>
+					<value>signe_deshydratation</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_deshydratation_debug-pas_deshydratation-label')"/>
+					<value>pas_deshydratation</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/classification_diahree_debug">
+				<label ref="jr:itext('debug/classification_diahree_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/classification_diahree_debug-diahree_persistante_grave-label')"/>
+					<value>diahree_persistante_grave</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_diahree_debug-sang_scelles-label')"/>
+					<value>sang_scelles</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/classification_malnutrition_debug">
+				<label ref="jr:itext('debug/classification_malnutrition_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/classification_malnutrition_debug-incapable_nourrir-label')"/>
+					<value>incapable_nourrir</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_malnutrition_debug-probleme_alimentation-label')"/>
+					<value>probleme_alimentation</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_malnutrition_debug-pas_pb_alimentation-label')"/>
+					<value>pas_pb_alimentation</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/classification_vih_debug">
+				<label ref="jr:itext('debug/classification_vih_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/classification_vih_debug-vih_possible-label')"/>
+					<value>vih_possible</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_vih_debug-vih_peu_probable-label')"/>
+					<value>vih_peu_probable</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_vih_debug-vih_pas_infection-label')"/>
+					<value>vih_pas_infection</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_vih_debug-vih_asymp_confirmee-label')"/>
+					<value>vih_asymp_confirmee</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/classification_vih_debug-vih_symp_confirmee-label')"/>
+					<value>vih_symp_confirmee</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/alimentation_qb_debug">
+				<label ref="jr:itext('debug/alimentation_qb_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/debug/alimentation_qc_debug">
+				<label ref="jr:itext('debug/alimentation_qc_debug-label')"/>
+			</input>
+			<select1 ref="/data/debug/alimentation_qd_debug">
+				<label ref="jr:itext('debug/alimentation_qd_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/alimentation_qf_debug">
+				<label ref="jr:itext('debug/alimentation_qf_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qf_debug-pas_prise-label')"/>
+					<value>pas_prise</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qf_debug-mauvaise_prise-label')"/>
+					<value>mauvaise_prise</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qf_debug-bonne_prise-label')"/>
+					<value>bonne_prise</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/alimentation_qg_debug">
+				<label ref="jr:itext('debug/alimentation_qg_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qg_debug-pas_succion-label')"/>
+					<value>pas_succion</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qg_debug-non_efficace-label')"/>
+					<value>non_efficace</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qg_debug-efficace-label')"/>
+					<value>efficace</value>
+				</item>
+			</select1>
+			<select1 ref="/data/debug/alimentation_qh_debug">
+				<label ref="jr:itext('debug/alimentation_qh_debug-label')"/>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('debug/alimentation_qb_debug-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<input ref="/data/debug/zscore_unrounded_wfh_debug">
+				<label ref="jr:itext('debug/zscore_unrounded_wfh_debug-label')"/>
+			</input>
+			<input ref="/data/debug/child_age_debug">
+				<label ref="jr:itext('debug/child_age_debug-label')"/>
+			</input>
+			<input ref="/data/debug/child_weight_debug">
+				<label ref="jr:itext('debug/child_weight_debug-label')"/>
+			</input>
+		</group>
+		<group ref="/data/select_treatments" appearance="field-list">
+			<select1 ref="/data/select_treatments/infection_grave">
+				<label ref="jr:itext('debug/classification_infection_debug-infection_grave-label')"/>
+				<item>
+					<label ref="jr:itext('select_treatments/infection_grave-infection_grave-label')"/>
+					<value>infection_grave</value>
+				</item>
+				<item>
+					<label ref="jr:itext('select_treatments/infection_grave-infection_grave_no_ref-label')"/>
+					<value>infection_grave_no_ref</value>
+				</item>
+			</select1>
+			<select1 ref="/data/select_treatments/deshydratation_severe">
+				<label ref="jr:itext('debug/classification_deshydratation_debug-deshydratation_severe-label')"/>
+				<item>
+					<label ref="jr:itext('select_treatments/deshydratation_severe-deshydratation_severe_sans_infection-label')"/>
+					<value>deshydratation_severe_sans_infection</value>
+				</item>
+				<item>
+					<label ref="jr:itext('select_treatments/deshydratation_severe-deshydratation_severe_infection-label')"/>
+					<value>deshydratation_severe_infection</value>
+				</item>
+			</select1>
+			<select1 ref="/data/select_treatments/signe_deshydratation">
+				<label ref="jr:itext('debug/classification_deshydratation_debug-signe_deshydratation-label')"/>
+				<item>
+					<label ref="jr:itext('select_treatments/signe_deshydratation-signe_deshydratation_sans_infection-label')"/>
+					<value>signe_deshydratation_sans_infection</value>
+				</item>
+				<item>
+					<label ref="jr:itext('select_treatments/signe_deshydratation-signe_deshydratation_infection-label')"/>
+					<value>signe_deshydratation_infection</value>
+				</item>
+			</select1>
+			<select1 ref="/data/select_treatments/diahree_persistante_grave">
+				<label ref="jr:itext('debug/classification_diahree_debug-diahree_persistante_grave-label')"/>
+				<item>
+					<label ref="jr:itext('select_treatments/diahree_persistante_grave-diahree_persistante_grave_sans_infection-label')"/>
+					<value>diahree_persistante_grave_sans_infection</value>
+				</item>
+				<item>
+					<label ref="jr:itext('select_treatments/diahree_persistante_grave-diahree_persistante_grave_infection-label')"/>
+					<value>diahree_persistante_grave_infection</value>
+				</item>
+			</select1>
+		</group>
+		<group ref="/data/select_meds" appearance="field-list">
+			<select1 ref="/data/select_meds/antibio">
+				<label ref="jr:itext('select_meds/antibio-label')"/>
+				<itemset nodeset="instance('medications')/medications_list/medications[selected(/data/antibio_valid_meds, @key)][coalesce(@min_age_months, 0) &lt;= /data/child_age][coalesce(@max_age_months, 100) &gt; /data/child_age][coalesce(@min_weight, 0) &lt;= /data/child_weight][coalesce(@max_weight, 100) &gt; /data/child_weight]">
+					<label ref="@treat_name"/>
+					<value ref="@key"/>
+				</itemset>
+			</select1>
+		</group>
+		<group ref="/data/treatments">
+			<group ref="/data/treatments/infection_grave" appearance="field-list">
+				<trigger ref="/data/treatments/infection_grave/infection_grave_title" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave/infection_grave_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave/infection_grave_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave/infection_grave_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_2-label')"/>
+					<help ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_2-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave/infection_grave_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_3-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave/infection_grave_treat_4" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_4-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/infection_grave_no_ref" appearance="field-list">
+				<trigger ref="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_title" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave_no_ref/infection_grave_no_ref_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave_no_ref/infection_grave_no_ref_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave_no_ref/infection_grave_no_ref_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_grave_no_ref/infection_grave_no_ref_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_grave/infection_grave_treat_2-label')"/>
+					<help ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_2-help')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/infection_locale" appearance="field-list">
+				<trigger ref="/data/treatments/infection_locale/infection_locale_title" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_locale/infection_locale_title-label')"/>
+				</trigger>
+				<group ref="/data/treatments/infection_locale/show_antibio_2">
+					<trigger ref="/data/treatments/infection_locale/infection_locale_treat_0" appearance="minimal">
+						<label ref="jr:itext('treatments/infection_locale/infection_locale_treat_0-label')"/>
+					</trigger>
+				</group>
+				<group ref="/data/treatments/infection_locale/show_antibio_3">
+					<trigger ref="/data/treatments/infection_locale/infection_locale_treat_1" appearance="minimal">
+						<label ref="jr:itext('treatments/infection_locale/infection_locale_treat_1-label')"/>
+					</trigger>
+				</group>
+				<trigger ref="/data/treatments/infection_locale/infection_locale_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_locale/infection_locale_treat_2-label')"/>
+					<help ref="jr:itext('treatments/infection_locale/infection_locale_treat_2-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_locale/infection_locale_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_locale/infection_locale_treat_3-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/infection_locale/infection_locale_treat_4" appearance="minimal">
+					<label ref="jr:itext('treatments/infection_locale/infection_locale_treat_4-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pas_infection" appearance="field-list">
+				<trigger ref="/data/treatments/pas_infection/pas_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_infection/pas_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_infection/pas_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_infection/pas_infection_treat_0-label')"/>
+					<help ref="jr:itext('treatments/pas_infection/pas_infection_treat_0-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_infection/pas_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_infection/pas_infection_treat_1-label')"/>
+					<help ref="jr:itext('treatments/pas_infection/pas_infection_treat_1-help')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/deshydratation_severe_sans_infection" appearance="field-list">
+				<trigger ref="/data/treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_sans_infection/deshydratation_severe_sans_infection_treat_0-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/deshydratation_severe_infection" appearance="field-list">
+				<trigger ref="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/signe_deshydratation_sans_infection" appearance="field-list">
+				<trigger ref="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_2-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/signe_deshydratation_sans_infection/signe_deshydratation_sans_infection_treat_2-label')"/>
+					<help ref="jr:itext('treatments/pas_deshydratation/pas_deshydratation_treat_1-help')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/signe_deshydratation_infection" appearance="field-list">
+				<trigger ref="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/signe_deshydratation_infection/signe_deshydratation_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_4-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/deshydratation_severe_infection/deshydratation_severe_infection_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/signe_deshydratation_infection/signe_deshydratation_infection_treat_2-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pas_deshydratation" appearance="field-list">
+				<trigger ref="/data/treatments/pas_deshydratation/pas_deshydratation_title" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_deshydratation/pas_deshydratation_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_deshydratation/pas_deshydratation_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_deshydratation/pas_deshydratation_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_deshydratation/pas_deshydratation_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_deshydratation/pas_deshydratation_treat_1-label')"/>
+					<help ref="jr:itext('treatments/pas_deshydratation/pas_deshydratation_treat_1-help')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/diahree_persistante_grave_sans_infection" appearance="field-list">
+				<trigger ref="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/diahree_persistante_grave_sans_infection/diahree_persistante_grave_sans_infection_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/diahree_persistante_grave_infection" appearance="field-list">
+				<trigger ref="/data/treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/sang_scelles" appearance="field-list">
+				<trigger ref="/data/treatments/sang_scelles/sang_scelles_title" appearance="minimal">
+					<label ref="jr:itext('treatments/sang_scelles/sang_scelles_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/sang_scelles/sang_scelles_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/sang_scelles/sang_scelles_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/sang_scelles/sang_scelles_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/sang_scelles/sang_scelles_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/sang_scelles/sang_scelles_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/diahree_persistante_grave_infection/diahree_persistante_grave_infection_treat_0-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/incapable_nourrir" appearance="field-list">
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_title" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_2-label')"/>
+					<help ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_2-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_3-label')"/>
+					<help ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_3-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/incapable_nourrir/incapable_nourrir_treat_4" appearance="minimal">
+					<label ref="jr:itext('treatments/incapable_nourrir/incapable_nourrir_treat_4-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/probleme_alimentation" appearance="field-list">
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_title" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_0-label')"/>
+					<help ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_0-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_1-label')"/>
+					<help ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_1-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_2-label')"/>
+					<help ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_2-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_3-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_4" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_4-label')"/>
+					<help ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_2-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_5" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_5-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_6" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_6-label')"/>
+					<help ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_6-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_7" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_7-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/probleme_alimentation/probleme_alimentation_treat_8" appearance="minimal">
+					<label ref="jr:itext('treatments/probleme_alimentation/probleme_alimentation_treat_8-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/pas_pb_alimentation" appearance="field-list">
+				<trigger ref="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_title" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_pb_alimentation/pas_pb_alimentation_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-label')"/>
+					<help ref="jr:itext('treatments/pas_pb_alimentation/pas_pb_alimentation_treat_0-help')"/>
+				</trigger>
+				<trigger ref="/data/treatments/pas_pb_alimentation/pas_pb_alimentation_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/pas_pb_alimentation/pas_pb_alimentation_treat_1-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/vih_possible" appearance="field-list">
+				<trigger ref="/data/treatments/vih_possible/vih_possible_title" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_possible/vih_possible_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_possible/vih_possible_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_possible/vih_possible_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_possible/vih_possible_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_possible/vih_possible_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_possible/vih_possible_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_possible/vih_possible_treat_2-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_possible/vih_possible_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_possible/vih_possible_treat_3-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/vih_peu_probable" appearance="field-list">
+				<trigger ref="/data/treatments/vih_peu_probable/vih_peu_probable_title" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_peu_probable/vih_peu_probable_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_peu_probable/vih_peu_probable_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_peu_probable/vih_peu_probable_treat_0-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/vih_pas_infection" appearance="field-list">
+				<trigger ref="/data/treatments/vih_pas_infection/vih_pas_infection_title" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_pas_infection/vih_pas_infection_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_pas_infection/vih_pas_infection_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_pas_infection/vih_pas_infection_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_pas_infection/vih_pas_infection_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_pas_infection/vih_pas_infection_treat_1-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/vih_asymp_confirmee" appearance="field-list">
+				<trigger ref="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_title" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_1-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_2-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_3-label')"/>
+				</trigger>
+			</group>
+			<group ref="/data/treatments/vih_symp_confirmee" appearance="field-list">
+				<trigger ref="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_title" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_symp_confirmee/vih_symp_confirmee_title-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_0" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_symp_confirmee/vih_symp_confirmee_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_1" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_asymp_confirmee/vih_asymp_confirmee_treat_0-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_2" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_symp_confirmee/vih_symp_confirmee_treat_2-label')"/>
+				</trigger>
+				<trigger ref="/data/treatments/vih_symp_confirmee/vih_symp_confirmee_treat_3" appearance="minimal">
+					<label ref="jr:itext('treatments/vih_symp_confirmee/vih_symp_confirmee_treat_3-label')"/>
+				</trigger>
+			</group>
+		</group>
+		<input ref="/data/other_treatments">
+			<label ref="jr:itext('other_treatments-label')"/>
+		</input>
+	</h:body>
+</h:html>
