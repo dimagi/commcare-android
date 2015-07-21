@@ -68,10 +68,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @UiElement(value=R.id.entity_detail_tabs)
     TabbedDetailView mDetailView;
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
@@ -144,20 +140,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         return mEntityContext;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern
@@ -178,10 +166,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode) {
@@ -222,10 +206,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
-     */
     @Override
     protected boolean onForwardSwipe() {
         // Move along, provided we're on the last tab of tabbed case details
@@ -236,10 +216,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
-     */
     @Override
     protected boolean onBackwardSwipe() {
         // Move back, provided we're on the first screen of tabbed case details

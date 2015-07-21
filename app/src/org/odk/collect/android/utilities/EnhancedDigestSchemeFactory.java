@@ -27,10 +27,6 @@ import org.apache.http.params.HttpParams;
  */
 public class EnhancedDigestSchemeFactory implements AuthSchemeFactory {
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.http.auth.AuthSchemeFactory#newInstance(org.apache.http.params.HttpParams)
-     */
     @Override
     public AuthScheme newInstance(HttpParams params) {
         return new EnhancedDigestScheme();

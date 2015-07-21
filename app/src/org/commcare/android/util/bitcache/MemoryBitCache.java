@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util.bitcache;
 
 import java.io.ByteArrayInputStream;
@@ -10,7 +7,6 @@ import java.io.OutputStream;
 
 /**
  * @author ctsims
- *
  */
 public class MemoryBitCache implements BitCache {
     
@@ -21,24 +17,18 @@ public class MemoryBitCache implements BitCache {
         
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#initializeCache()
-     */
+    @Override
     public void initializeCache() {
         bos = new ByteArrayOutputStream();
         data = null;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
-     */
+    @Override
     public OutputStream getCacheStream() {
         return bos;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
-     */
+    @Override
     public InputStream retrieveCache() {
         if(data == null) {
             data = bos.toByteArray();
@@ -46,6 +36,7 @@ public class MemoryBitCache implements BitCache {
         }
         return new ByteArrayInputStream(data);
     }
+
     public void release() {
         bos = null;
         data = null;

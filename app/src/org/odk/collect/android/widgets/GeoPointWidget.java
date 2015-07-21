@@ -147,10 +147,6 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
@@ -160,10 +156,6 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         String s = mStringAnswer.getText().toString();
@@ -221,10 +213,6 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -234,10 +222,6 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
-     */
     @Override
     public void setBinaryData(Object answer) {
         String s = (String)answer;
@@ -257,20 +241,12 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#isWaitingForBinaryData()
-     */
     @Override
     public boolean isWaitingForBinaryData() {
         return mWaitingForData;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mViewButton.setOnLongClickListener(l);
@@ -280,10 +256,6 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

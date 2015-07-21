@@ -39,9 +39,6 @@ public class ResourceModelUpdater extends Resource {
         
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.Resource#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.recordId = ExtUtil.readInt(in);
@@ -55,10 +52,7 @@ public class ResourceModelUpdater extends Resource {
         this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out,recordId);
         ExtUtil.writeNumeric(out,version);

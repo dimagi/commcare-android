@@ -154,37 +154,27 @@ public class MenuAdapter implements ListAdapter {
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
     }
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int arg0) {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return (displayableData.length);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int i) {
         return displayableData[i];
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int i) {
 
         Object tempItem = displayableData[i];
@@ -198,10 +188,7 @@ public class MenuAdapter implements ListAdapter {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int i) {
         return 0;
     }
@@ -212,9 +199,7 @@ public class MenuAdapter implements ListAdapter {
        ,JUMP
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int i, View v, ViewGroup vg) {
         
         MenuDisplayable mObject = displayableData[i];
@@ -322,37 +307,27 @@ public class MenuAdapter implements ListAdapter {
 
 
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver arg0) {
 
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver arg0) {
 
     }

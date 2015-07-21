@@ -61,9 +61,6 @@ public class EntityMapActivity extends MapActivity {
     EntityOverlay mEntityOverlay;
     Vector<Entity<TreeReference>> entities;
     
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -130,10 +127,6 @@ public class EntityMapActivity extends MapActivity {
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.dalvik.geo.EntityOverlay#selected(org.javarosa.core.model.instance.TreeReference)
-             */
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());
@@ -275,9 +268,6 @@ public class EntityMapActivity extends MapActivity {
     }
 
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onStop()
-     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -285,9 +275,6 @@ public class EntityMapActivity extends MapActivity {
         mMyLocationOverlay.disableMyLocation();
     }
 
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();

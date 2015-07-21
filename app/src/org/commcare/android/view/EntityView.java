@@ -231,10 +231,6 @@ public class EntityView extends LinearLayout {
 
         btn.setOnClickListener(new OnClickListener(){
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 String textToRead = text;
@@ -502,10 +498,6 @@ public class EntityView extends LinearLayout {
         return widths;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

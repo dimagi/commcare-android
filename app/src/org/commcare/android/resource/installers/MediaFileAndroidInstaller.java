@@ -35,9 +35,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         this.path = path;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
-     */
+    @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         boolean success = super.uninstall(r);
         if( success == false ) { return false; }
@@ -45,9 +43,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         return FileUtil.cleanFilePath(this.localDestination, path);
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
+    @Override
     public boolean upgrade(Resource r) {
         return super.upgrade(r);
     }
@@ -56,42 +52,28 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.resource.installers.FileSystemInstaller#initialize(org.commcare.android.util.AndroidCommCarePlatform)
-     */
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         path = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(path));
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.resource.installers.FileSystemInstaller#getResourceName(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation)
-     */
     @Override
     public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         int index = loc.getLocation().lastIndexOf("/");
