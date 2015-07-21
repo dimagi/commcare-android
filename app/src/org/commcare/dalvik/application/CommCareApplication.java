@@ -1,6 +1,5 @@
 package org.commcare.dalvik.application;
 
-import java.StethoInitializer;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -64,6 +63,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.StethoInitializer;
 
 import android.annotation.SuppressLint;
 import android.app.Application;

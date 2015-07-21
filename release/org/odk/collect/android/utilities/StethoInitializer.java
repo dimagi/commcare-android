@@ -1,4 +1,4 @@
-package java;
+package org.odk.collect.android.utilities;
 import android.content.Context;
 
 /**
