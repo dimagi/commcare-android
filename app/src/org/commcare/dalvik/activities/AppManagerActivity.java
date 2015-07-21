@@ -98,11 +98,11 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                         Intent i = new Intent(this, CommCareVerificationActivity.class);
                         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
-                    } else {
-                        Toast.makeText(this, "No app was installed!", Toast.LENGTH_LONG).show();
                     }
-                    break;
+                } else {
+                        Toast.makeText(this, "No app was installed!", Toast.LENGTH_LONG).show();
                 }
+                break;
             case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
