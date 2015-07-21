@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/standard_spacer"
         android:paddingBottom="@dimen/standard_spacer"
-        android:textColor="@color/grey_medium"
+        android:textColor="@color/darkest_grey"
         android:gravity="center" />
     
     <TextView
@@ -44,7 +44,7 @@
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
          android:onClick="toggleArchived"
-         android:textColor="@color/grey_medium"
+         android:textColor="@color/darkest_grey"
          android:paddingBottom="@dimen/standard_spacer"
          android:paddingTop="@dimen/standard_spacer" />
     
@@ -67,7 +67,7 @@
         android:layout_height="wrap_content"
         android:clickable="true" 
         android:onClick="verifyResourcesClicked"
-        android:textColor="@color/grey_medium"
+        android:textColor="@color/darkest_grey"
       	android:paddingBottom="@dimen/standard_spacer"
         android:paddingTop="@dimen/standard_spacer" />
 

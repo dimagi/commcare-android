@@ -29,7 +29,7 @@
         android:paddingTop="@dimen/standard_spacer"
         android:paddingBottom="@dimen/standard_spacer"
         android:textSize="@dimen/font_size_large"
-        android:textColor="@color/grey_medium"
+        android:textColor="@color/darkest_grey"
         android:layout_centerHorizontal="true"
         android:gravity="center" />
     
@@ -42,7 +42,7 @@
          android:layout_marginTop="@dimen/standard_spacer"
          android:onClick="installAppClicked"
          android:text="@string/install_app"
-         android:textColor="@color/grey_medium"
+         android:textColor="@color/darkest_grey"
          android:textSize="@dimen/font_size_xlarger" />
     
     <ListView
