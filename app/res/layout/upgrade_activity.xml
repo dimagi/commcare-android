@@ -11,21 +11,21 @@
          style="@android:style/Widget.ProgressBar.Horizontal"
          android:layout_marginRight="5dp" />
      <Button
-         android:id="@+id/checkForUpgrade"
+         android:id="@+id/check_for_upgrade_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
             android:text="Check"
             android:layout_marginRight="5dp"/>
      <Button
-         android:id="@+id/stopUpgrade"
+         android:id="@+id/stop_upgrade_download_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
             android:text="Stop upgrade"
             android:layout_marginRight="5dp"/>
      <Button
-         android:id="@+id/installUpgrade"
+         android:id="@+id/install_upgrade_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
