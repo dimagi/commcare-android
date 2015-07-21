@@ -92,6 +92,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @UiElement(R.id.login_button)
     Button loginButton;
+
+    @UiElement(R.id.app_selection_spinner)
+    Spinner spinner;
+
+    @UiElement(R.id.welcome_msg)
+    TextView welcomeMessage;
     
     public static final int TASK_KEY_EXCHANGE = 1;
     
@@ -554,15 +560,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void refreshView() {
-        Spinner spinner = (Spinner) findViewById(R.id.app_selection_spinner);
-        TextView message = (TextView) findViewById(R.id.welcome_msg);
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
-        if (readyApps.size() <= 1) {
+        if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
-            message.setText(R.string.login_welcome_single);
+            welcomeMessage.setText(R.string.login_welcome_single);
             return;
         }
-        message.setText(R.string.login_welcome_multiple);
+        welcomeMessage.setText(R.string.login_welcome_multiple);
         ArrayList<String> appNames = new ArrayList<>();
         ArrayList<String> appIds = new ArrayList<>();
         for (ApplicationRecord r : readyApps) {
