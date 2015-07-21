@@ -35,6 +35,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -54,6 +56,7 @@ public class FormsProvider extends ContentProvider {
     private static final int FORMS = 1;
     private static final int FORM_ID = 2;
 
+    @NonNull
     private static final UriMatcher sUriMatcher;
 
     /**
@@ -71,7 +74,7 @@ public class FormsProvider extends ContentProvider {
          * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
          */
         @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(@NonNull SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + FORMS_TABLE_NAME + " (" 
                     + FormsColumns._ID + " integer primary key, " 
                     + FormsColumns.DISPLAY_NAME + " text not null, "
@@ -95,7 +98,7 @@ public class FormsProvider extends ContentProvider {
          * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
          */
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS forms");
@@ -129,7 +132,7 @@ public class FormsProvider extends ContentProvider {
      * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
      */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
@@ -164,7 +167,7 @@ public class FormsProvider extends ContentProvider {
      * @see android.content.ContentProvider#getType(android.net.Uri)
      */
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case FORMS:
                 return FormsColumns.CONTENT_TYPE;
@@ -183,7 +186,7 @@ public class FormsProvider extends ContentProvider {
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
     @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues initialValues) {
         init();
         // Validate the requested uri
         if (sUriMatcher.match(uri) != FORMS) {
@@ -264,7 +267,7 @@ public class FormsProvider extends ContentProvider {
      * files. files: form.xml, [formmd5].formdef, formname-media {directory}
      */
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
+    public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
@@ -331,7 +334,7 @@ public class FormsProvider extends ContentProvider {
      * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
      */
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(@NonNull Uri uri, @NonNull ContentValues values, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count = 0;

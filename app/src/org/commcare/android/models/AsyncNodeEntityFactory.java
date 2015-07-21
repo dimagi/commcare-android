@@ -7,6 +7,7 @@ import java.util.Vector;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.commcare.android.database.DbUtil;
@@ -52,6 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         mEntityCache = new EntityStorageCache("case");
     }
 
+    @NonNull
     @Override
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);

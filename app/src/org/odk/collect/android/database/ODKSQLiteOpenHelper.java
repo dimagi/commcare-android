@@ -17,6 +17,7 @@ package org.odk.collect.android.database;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 
@@ -46,6 +47,7 @@ public abstract class ODKSQLiteOpenHelper {
     private final CursorFactory mFactory;
     private final int mNewVersion;
 
+    @Nullable
     private SQLiteDatabase mDatabase = null;
     private boolean mIsInitializing = false;
 
@@ -84,6 +86,7 @@ public abstract class ODKSQLiteOpenHelper {
      * @throws SQLiteException if the database cannot be opened for writing
      * @return a read/write database object valid until {@link #close} is called
      */
+    @Nullable
     public synchronized SQLiteDatabase getWritableDatabase() {
         if (mDatabase != null && mDatabase.isOpen() && !mDatabase.isReadOnly()) {
             return mDatabase; // The database is already open for business
@@ -162,6 +165,7 @@ public abstract class ODKSQLiteOpenHelper {
      * @return a database object valid until {@link #getWritableDatabase} or {@link #close} is
      *         called.
      */
+    @Nullable
     public synchronized SQLiteDatabase getReadableDatabase() {
         if (mDatabase != null && mDatabase.isOpen()) {
             return mDatabase; // The database is already open for business

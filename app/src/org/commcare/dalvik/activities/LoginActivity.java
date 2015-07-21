@@ -33,6 +33,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -119,7 +121,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             this.colorAttr = colorAttr;
         }
 
-        public int getColor(Context ctx){
+        public int getColor(@NonNull Context ctx){
             int color = ctx.getResources().getColor(colorAttr);
             if (BuildConfig.DEBUG) {
                 Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
@@ -127,7 +129,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             return color;
         }
 
-        public void setStatus(LoginActivity lact){
+        public void setStatus(@NonNull LoginActivity lact){
             lact.setLoginBoxesColor(this.getColor(lact));
         }
     }
@@ -137,7 +139,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         LoginBoxesStatus.Normal.setStatus(this);
@@ -206,6 +208,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         });
     }
     
+    @Nullable
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;
@@ -232,7 +235,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult( LoginActivity receiver, Integer result) {
+                    protected void deliverResult( @NonNull LoginActivity receiver, @NonNull Integer result) {
                         switch(result) {
                         case DataPullTask.AUTH_FAILED:
                             receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
@@ -266,7 +269,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(LoginActivity receiver, Integer... update) {
+                    protected void deliverUpdate(@NonNull LoginActivity receiver, Integer... update) {
                         if(update[0] == DataPullTask.PROGRESS_STARTED) {
                             receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -290,7 +293,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError( LoginActivity receiver, Exception e) {
+                    protected void deliverError( @NonNull LoginActivity receiver, Exception e) {
                         receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                     }
         };
@@ -377,7 +380,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
-                public void keysLoginComplete(LoginActivity r) {
+                public void keysLoginComplete(@NonNull LoginActivity r) {
                     if(triggerTooManyUsers) {
                         // We've successfully pulled down new user data.
                         // Should see if the user already has a sandbox and let
@@ -389,14 +392,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 }
 
                 @Override
-                public void keysReadyForSync(LoginActivity r) {
+                public void keysReadyForSync(@NonNull LoginActivity r) {
                     // TODO: we only wanna do this on the _first_ try. Not
                     // subsequent ones (IE: On return from startOta)
                     r.startOta();
                 }
 
                 @Override
-                public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
+                public void keysDoneOther(@NonNull LoginActivity r, @NonNull HttpCalloutOutcomes outcome) {
                     switch(outcome) {
                     case AuthFailed:
                         Logger.log(AndroidLogger.TYPE_USER, "auth failed");
@@ -428,7 +431,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                 }
             }) {
                 @Override
-                protected void deliverUpdate(LoginActivity receiver, String... update) {
+                protected void deliverUpdate(@NonNull LoginActivity receiver, String... update) {
                     receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
                 }
             };
@@ -464,7 +467,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
         return true;
@@ -474,7 +477,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         boolean otherResult = super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
         case MENU_DEMO:
@@ -496,7 +499,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         raiseMessage(message, showTop);
     }
 
-    private void raiseMessage(NotificationMessage message, boolean showTop) {
+    private void raiseMessage(@NonNull NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
 
         if (showTop) {
@@ -535,6 +538,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         CustomProgressDialog dialog;

@@ -35,6 +35,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -47,6 +49,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
     private static final String STAGING_EXT = "cc_app-staging";
 
 
+    @Nullable
     String localLocation;
     String localDestination;
     String upgradeDestination;
@@ -79,7 +82,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
      * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
      */
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(@NonNull Resource r, @NonNull ResourceLocation location, @NonNull Reference ref, @NonNull ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OutputStream os;
             Reference localReference;
@@ -354,7 +357,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
     
-    public int rollback(Resource r) {
+    public int rollback(@NonNull Resource r) {
         
         //TODO: These filepath ops need to be the same for this all to work,
         //which is not super robust against changes right now.
@@ -457,7 +460,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
     }
     
     //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
-    public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+    public Pair<String, String> getResourceName(@NonNull Resource r, @NonNull ResourceLocation loc) {
         String input = loc.getLocation();
         String extension = "";
         int lastDot = input.lastIndexOf(".");
@@ -470,7 +473,8 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
     //Hate this
     private static final String validExtChars ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     
-    protected String extension(String input) {
+    @NonNull
+    protected String extension(@NonNull String input) {
         int invalid = -1;
         //we wanna go from the last "." to the next non-alphanumeric character.
         for(int i = 1 ; i <input.length(); ++i ){
@@ -483,7 +487,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         return input.substring(0, invalid);
     }
     
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> issues) {
+    public boolean verifyInstallation(Resource r, @NonNull Vector<MissingMediaException> issues) {
         try {
             Reference ref = ReferenceManager._().DeriveReference(localLocation);
             if(!ref.doesBinaryExist()) {

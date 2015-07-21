@@ -18,6 +18,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 
 import com.google.android.maps.GeoPoint;
 
@@ -58,6 +59,7 @@ public class EntityOverlayItemFactory {
         this.defDrawable = defDrawable;
     }
     
+    @Nullable
     public EntityOverlayItem generateOverlay(GeoPoint gp, Entity<TreeReference> e) {
         Drawable custom = null;
         if(imageIndex != -1) {

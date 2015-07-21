@@ -21,6 +21,7 @@ import org.odk.collect.android.logic.HierarchyElement;
 import org.odk.collect.android.views.HierarchyElementView;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -74,6 +75,7 @@ public class HierarchyListAdapter extends BaseAdapter {
      * (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
+    @Nullable
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         HierarchyElementView hev;

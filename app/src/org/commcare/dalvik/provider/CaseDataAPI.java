@@ -6,6 +6,7 @@ package org.commcare.dalvik.provider;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.support.annotation.NonNull;
 
 /**
  * This API provides the relevant interface cues for interacting with
@@ -37,7 +38,7 @@ public class CaseDataAPI {
      * @param uri
      * @return The ID of the data model which is being referenced by the URI.
      */
-    public static int UriMatch(Uri uri) {
+    public static int UriMatch(@NonNull Uri uri) {
         return sURIMatcher.match(uri);
     }
     
@@ -54,7 +55,9 @@ public class CaseDataAPI {
      *
      */
     public static final class MetadataColumns implements BaseColumns {
+        @NonNull
         public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case";
+        @NonNull
         public static String CONTENT_TYPE_ITEM = "vnd.android.cursor.item/vnd.commcare.case";
         // This class cannot be instantiated
         private MetadataColumns() {}
@@ -86,6 +89,7 @@ public class CaseDataAPI {
      */
     public static final class DataColumns implements BaseColumns {
 
+        @NonNull
         public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.data";
         // This class cannot be instantiated
         private DataColumns() {}
@@ -112,6 +116,7 @@ public class CaseDataAPI {
      *
      */
     public static final class IndexColumns implements BaseColumns {
+        @NonNull
         public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.index";
         // This class cannot be instantiated
         private IndexColumns() {}
@@ -137,6 +142,7 @@ public class CaseDataAPI {
      */
 
     public static final class AttachmentColumns implements BaseColumns {
+        @NonNull
         public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.attachment";
         // This class cannot be instantiated
         private AttachmentColumns() {}

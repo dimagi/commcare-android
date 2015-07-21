@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 
 /**
  * Util for turning URIs into a normal file path strings Needed because new
@@ -32,7 +33,7 @@ public class UriToFilePath {
      * filepath couldn't be succesfully extracted.
      */
     @SuppressLint("NewApi")
-    public static String getPathFromUri(final Context context, final Uri uri) {
+    public static String getPathFromUri(@NonNull final Context context, @NonNull final Uri uri) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
@@ -91,7 +92,7 @@ public class UriToFilePath {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    private static String getDataColumn(Context context, Uri uri, String selection,
+    private static String getDataColumn(@NonNull Context context, @NonNull Uri uri, String selection,
                                         String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
@@ -117,7 +118,7 @@ public class UriToFilePath {
      * @param uri Check this Uri's authority.
      * @return Is this Uri's authority ExternalStorageProvider?
      */
-    private static boolean isExternalStorageDocument(Uri uri) {
+    private static boolean isExternalStorageDocument(@NonNull Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -125,7 +126,7 @@ public class UriToFilePath {
      * @param uri Check this Uri's authority.
      * @return Is this Uri's authority DownloadsProvider?
      */
-    private static boolean isDownloadsDocument(Uri uri) {
+    private static boolean isDownloadsDocument(@NonNull Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -133,7 +134,7 @@ public class UriToFilePath {
      * @param uri Check this Uri's authority.
      * @return Is this Uri's authority MediaProvider?
      */
-    private static boolean isMediaDocument(Uri uri) {
+    private static boolean isMediaDocument(@NonNull Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 }

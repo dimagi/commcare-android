@@ -1,6 +1,8 @@
 package org.commcare.android.util;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -14,13 +16,15 @@ import org.javarosa.core.services.locale.Localization;
 import in.uncod.android.bypass.Bypass;
 
 public class MarkupUtil {
+    @NonNull
     static HtmlSpanner htmlspanner = new HtmlSpanner();
 
     /*
      * Developer Preference helper classes
      */
 
-    public static Spannable styleSpannable(Context c, String message){
+    @NonNull
+    public static Spannable styleSpannable(@NonNull Context c, @NonNull String message){
 
         if(DeveloperPreferences.isMarkdownEnabled()){
             returnMarkdown(c, message);
@@ -33,19 +37,23 @@ public class MarkupUtil {
         return new SpannableString(message);
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey){
+    @NonNull
+    public static Spannable localizeStyleSpannable(@NonNull Context c, String localizationKey){
         return styleSpannable(c, Localization.get(localizationKey));
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
+    @NonNull
+    public static Spannable localizeStyleSpannable(@NonNull Context c, String localizationKey, String localizationArg){
         return styleSpannable(c, Localization.get(localizationKey, localizationArg));
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
+    @NonNull
+    public static Spannable localizeStyleSpannable(@NonNull Context c, String localizationKey, String[] localizationArgs){
         return styleSpannable( c, Localization.get(localizationKey, localizationArgs));
     }
 
-    public static Spannable returnMarkdown(Context c, String message){
+    @NonNull
+    public static Spannable returnMarkdown(@NonNull Context c, @NonNull String message){
         return new SpannableString(generateMarkdown(c, message));
     }
 
@@ -59,17 +67,17 @@ public class MarkupUtil {
      * https://github.com/Uncodin/bypass
      */
 
-    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey){
+    public static CharSequence localizeGenerateMarkdown(@NonNull Context c, String localizationKey){
         CharSequence mSequence = generateMarkdown(c, new String(Localization.get(localizationKey)));
         return mSequence;
     }
 
-    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey, String[] localizationArgs){
+    public static CharSequence localizeGenerateMarkdown(@NonNull Context c, String localizationKey, String[] localizationArgs){
         CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey, localizationArgs));
         return mSequence;
     }
 
-    public static CharSequence generateMarkdown(Context c, String message){
+    public static CharSequence generateMarkdown(@NonNull Context c, @NonNull String message){
         Bypass bypass = new Bypass(c);
         CharSequence mSequence = trimTrailingWhitespace(bypass.markdownToSpannable(convertCharacterEncodings(message)));
         return mSequence;
@@ -88,7 +96,7 @@ public class MarkupUtil {
      * @return "" if source is null, otherwise string with all trailing whitespace removed
      * soruce: http://stackoverflow.com/questions/9589381/remove-extra-line-breaks-after-html-fromhtml
      */
-    public static CharSequence trimTrailingWhitespace(CharSequence source) {
+    public static CharSequence trimTrailingWhitespace(@Nullable CharSequence source) {
 
         if(source == null)
             return "";
@@ -107,7 +115,7 @@ public class MarkupUtil {
      * Perform conversions from encodings
      */
 
-    public static String convertCharacterEncodings(String input){
+    public static String convertCharacterEncodings(@NonNull String input){
         return convertNewlines(convertPoundSigns(input));
     }
 
@@ -115,7 +123,7 @@ public class MarkupUtil {
      * Convert to newline
      */
 
-    public static String convertNewlines(String input){
+    public static String convertNewlines(@NonNull String input){
         return input.replace("\\n", System.getProperty("line.separator"));
     }
 
@@ -123,7 +131,7 @@ public class MarkupUtil {
      * Convert number signs
      */
 
-    public static String convertPoundSigns(String input){
+    public static String convertPoundSigns(@NonNull String input){
 
         return input.replace("\\#", "#");
     }
@@ -160,6 +168,7 @@ public class MarkupUtil {
         }
     }
 
+    @NonNull
     public static String formatKeyVal(String key, String val){
         return "<style> #" + key + " " + val + " </style>";
     }

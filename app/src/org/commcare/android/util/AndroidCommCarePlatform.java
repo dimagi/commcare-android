@@ -15,18 +15,23 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
  */
 public class AndroidCommCarePlatform extends CommCarePlatform {
 
+    @NonNull
     private final Hashtable<String, String> xmlnstable;
     private ResourceTable global;
     private ResourceTable upgrade;
     private ResourceTable recovery;
 
+    @Nullable
     private Profile profile;
+    @NonNull
     private final Vector<Suite> installedSuites;
     private final CommCareApp app;
 
@@ -41,10 +46,12 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         xmlnstable.put(xmlns, filepath);
     }
 
+    @NonNull
     public Set<String> getInstalledForms() {
         return xmlnstable.keySet();
     }
 
+    @Nullable
     public Uri getFormContentUri(String xFormNamespace) {
         if (xmlnstable.containsKey(xFormNamespace)) {
             return Uri.parse(xmlnstable.get(xFormNamespace));
@@ -75,10 +82,12 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         return recovery;
     }
 
+    @Nullable
     public Profile getCurrentProfile() {
         return profile;
     }
 
+    @NonNull
     public Vector<Suite> getInstalledSuites() {
         return installedSuites;
     }
@@ -102,6 +111,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         super.initialize(global);
     }
 
+    @Nullable
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
         return app.getStorage("fixture", FormInstance.class);
     }

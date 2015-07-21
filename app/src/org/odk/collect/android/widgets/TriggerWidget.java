@@ -1,6 +1,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -130,6 +131,7 @@ public class TriggerWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         if (!mInteractive) {

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
@@ -76,6 +78,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private GestureDetector mGestureDetector;
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    @Nullable
     protected String lastQueryString;
 
     /*
@@ -133,7 +136,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.onBackPressed();
@@ -232,7 +235,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @see org.commcare.android.tasks.templates.CommCareTaskConnector#connectTask(org.commcare.android.tasks.templates.CommCareTask)
      */
     @Override
-    public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
+    public <A, B, C> void connectTask(@NonNull CommCareTask<A, B, C, R> task) {
         //If stateHolder is null here, it's because it is restoring itself, it doesn't need
         //this step
         wakelock();
@@ -250,6 +253,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
      */
+    @NonNull
     @Override
     public R getReceiver() {
         return (R)this;
@@ -319,7 +323,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /**
      * Handle an error in task execution.  
      */
-    protected void taskError(Exception e) {
+    protected void taskError(@NonNull Exception e) {
         //TODO: For forms with good error reporting, integrate that
         Toast.makeText(this, Localization.get("activity.task.error.generic", new String[] {e.getMessage()}), Toast.LENGTH_LONG).show();
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
@@ -330,7 +334,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @param e Exception to handle
      */
-    protected void displayException(Exception e) {
+    protected void displayException(@NonNull Exception e) {
         String mErrorMessage = e.getMessage();
         AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
@@ -408,7 +412,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     //Graphical stuff below, needs to get modularized
     
-    public void transplantStyle(TextView target, int resource) {
+    public void transplantStyle(@NonNull TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView)View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(),target.getPaddingBottom() };
@@ -426,11 +430,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * it will ever have a value it must return a blank string when one
      * isn't available.
      */
+    @Nullable
     public String getActivityTitle() {
         return null;
     }
     
-    public static String getTopLevelTitleName(Context c) {
+    public static String getTopLevelTitleName(@NonNull Context c) {
         try {
             return Localization.get("app.display.name");
         } catch(NoLocalizedTextException nlte) {
@@ -438,7 +443,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
     
-    public static String getTitle(Context c, String local) {
+    public static String getTitle(@NonNull Context c, @Nullable String local) {
         String topLevel = getTopLevelTitleName(c);
         
         String[] stepTitles = new String[0];
@@ -487,7 +492,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param activity Activity to which to attach the dialog.
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
-    public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
+    public static void createErrorDialog(@NonNull final Activity activity, String errorMsg, final boolean shouldExit) {
         AlertDialog dialog = new AlertDialog.Builder(activity).create();
         dialog.setIcon(android.R.drawable.ic_dialog_info);
         dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
@@ -571,6 +576,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * (non-Javadoc)
      * @see org.commcare.dalvik.dialogs.DialogController#getCurrentDialog()
      */
+    @NonNull
     @Override
     public CustomProgressDialog getCurrentDialog() {
         return (CustomProgressDialog) getSupportFragmentManager().
@@ -593,11 +599,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * (non-Javadoc)
      * @see org.commcare.dalvik.dialogs.DialogController#generateProgressDialog(int)
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
         return null;
     }
+    @Nullable
     public Pair<Detail, TreeReference> requestEntityContext() {
         return null;
     }
@@ -623,8 +631,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param instantiator Optional ActionBarInstantiator for additional setup
      *                     code.
      */
-    public void tryToAddActionSearchBar(Activity act, Menu menu,
-                                        ActionBarInstantiator instantiator) {
+    public void tryToAddActionSearchBar(@NonNull Activity act, @NonNull Menu menu,
+                                        @Nullable ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = act.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
@@ -668,7 +676,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @see android.app.Activity#dispatchTouchEvent(android.view.MotionEvent)
      */
     @Override
-    public boolean dispatchTouchEvent(MotionEvent mv) {
+    public boolean dispatchTouchEvent(@NonNull MotionEvent mv) {
         return !(mGestureDetector == null || !mGestureDetector.onTouchEvent(mv)) || super.dispatchTouchEvent(mv);
 
     }
@@ -687,7 +695,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
      */
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+    public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
         if (isHorizontalSwipe(this, e1, e2)) {
             if (velocityX <= 0) {
                 return onForwardSwipe();
@@ -755,7 +763,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @return True iff the movement is a definitive horizontal swipe.
      */
-    public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
+    public static boolean isHorizontalSwipe(@NonNull Activity activity, @NonNull MotionEvent e1, @NonNull MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -773,10 +781,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
 
+    @NonNull
     public Spannable localize(String key){
         return MarkupUtil.localizeStyleSpannable(this, key);
     }
     
+    @NonNull
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }

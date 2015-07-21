@@ -16,6 +16,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -32,7 +33,7 @@ public class UserDatabaseUpgrader {
         this.c = c;
     }
 
-    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         if(oldVersion == 1) {
             if(upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
@@ -70,7 +71,7 @@ public class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeOneTwo(final SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeOneTwo(@NonNull final SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -81,7 +82,7 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeTwoThree(final SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeTwoThree(@NonNull final SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -92,7 +93,7 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeThreeFour(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeThreeFour(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
             addStockTable(db);
@@ -104,7 +105,7 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeFourFive(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeFourFive(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
             db.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
@@ -115,7 +116,7 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeFiveSix(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -148,7 +149,7 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeSixSeven(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -167,13 +168,13 @@ public class UserDatabaseUpgrader {
         }
     }
     
-    private void updateIndexes(SQLiteDatabase db) {
+    private void updateIndexes(@NonNull SQLiteDatabase db) {
         db.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
         db.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
         db.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
     }
 
-    private void addStockTable(SQLiteDatabase db) {
+    private void addStockTable(@NonNull SQLiteDatabase db) {
         TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
@@ -205,7 +206,7 @@ public class UserDatabaseUpgrader {
      * @param storage
      * @return
      */
-    private <T extends Persistable> void updateModels(SqlStorage<T> storage) {
+    private <T extends Persistable> void updateModels(@NonNull SqlStorage<T> storage) {
         for(T t : storage) {
             storage.write(t);
         }

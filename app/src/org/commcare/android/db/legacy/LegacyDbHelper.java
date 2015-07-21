@@ -26,6 +26,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
 /**
@@ -50,6 +51,7 @@ public abstract class LegacyDbHelper {
     public abstract SQLiteDatabase getHandle();
     
 
+    @NonNull
     public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
         Set<String> fields = null;
         if(p instanceof IMetaData) {
@@ -99,6 +101,7 @@ public abstract class LegacyDbHelper {
         return Base64.encode(encrypted);
     }
 
+    @NonNull
     public ContentValues getContentValues(Externalizable e) {
         boolean encrypt = e instanceof EncryptedModel;
         assert(!(encrypt) || encrypter != null);

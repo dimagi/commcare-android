@@ -7,6 +7,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
@@ -72,8 +74,10 @@ public class CommCareSessionService extends Service  {
     public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
     private Timer maintenanceTimer;
+    @Nullable
     private CipherPool pool;
 
+    @Nullable
     private byte[] key = null;
 
     private boolean multimediaIsVerified=false;
@@ -82,8 +86,10 @@ public class CommCareSessionService extends Service  {
 
     private final Object lock = new Object();
 
+    @Nullable
     private User user;
 
+    @Nullable
     private SQLiteDatabase userDatabase;
 
     // Unique Identification Number for the Notification.
@@ -101,6 +107,7 @@ public class CommCareSessionService extends Service  {
 
     // Once key expiration process starts, we want to call this function to
     // save the current form if it exists.
+    @Nullable
     private FormSaveCallback formSaver;
     
     
@@ -110,6 +117,7 @@ public class CommCareSessionService extends Service  {
      * IPC.
      */
     public class LocalBinder extends Binder {
+        @NonNull
         public CommCareSessionService getService() {
             return CommCareSessionService.this;
         }
@@ -129,6 +137,7 @@ public class CommCareSessionService extends Service  {
              * (non-Javadoc)
              * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
              */
+            @Nullable
             @Override
             public Cipher generateNewCipher() {
                 synchronized(lock) {
@@ -184,6 +193,7 @@ public class CommCareSessionService extends Service  {
      * (non-Javadoc)
      * @see android.app.Service#onBind(android.content.Intent)
      */
+    @NonNull
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -196,7 +206,7 @@ public class CommCareSessionService extends Service  {
     /**
      * Show a notification while this service is running.
      */
-    private void showLoggedInNotification(User user) {
+    private void showLoggedInNotification(@Nullable User user) {
         //mNM.cancel(org.commcare.dalvik.R.string.expirenotification);
         
         CharSequence text = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
@@ -251,6 +261,7 @@ public class CommCareSessionService extends Service  {
     //Start CommCare Specific Functionality
     
     
+    @Nullable
     public SQLiteDatabase getUserDbHandle() {
         synchronized(lock){
             return userDatabase;
@@ -260,7 +271,7 @@ public class CommCareSessionService extends Service  {
     /**
      * (Re-)open user database
      */
-    public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
+    public void prepareStorage(byte[] symetricKey, @NonNull UserKeyRecord record) {
         synchronized(lock){
             this.key = symetricKey;
             pool.init();
@@ -277,7 +288,7 @@ public class CommCareSessionService extends Service  {
      *
      * @param user attach this user to the session
      */
-    public void startSession(User user) {
+    public void startSession(@Nullable User user) {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -482,6 +493,7 @@ public class CommCareSessionService extends Service  {
         }
     }
 
+    @Nullable
     public Cipher getEncrypter() throws SessionUnavailableException {
         synchronized(lock){
             if(key == null) {
@@ -511,6 +523,7 @@ public class CommCareSessionService extends Service  {
         }
     }
     
+    @Nullable
     public CipherPool getDecrypterPool() throws SessionUnavailableException{
         synchronized(lock){
             if(key == null) {
@@ -520,10 +533,12 @@ public class CommCareSessionService extends Service  {
         }
     }
     
+    @Nullable
     public SecretKey createNewSymetricKey() {
         return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
     }
     
+    @Nullable
     public User getLoggedInUser() throws SessionUnavailableException {
         if(user == null) {
             throw new SessionUnavailableException();
@@ -531,16 +546,19 @@ public class CommCareSessionService extends Service  {
         return user;
     }    
     
+    @Nullable
     public DataSubmissionListener startDataSubmissionListener() {
         return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
     }
     
+    @Nullable
     public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
         return new DataSubmissionListener() {
             // START - Submission Listening Hooks
             int totalItems = -1;
             long currentSize = -1;
             long totalSent = -1;
+            @Nullable
             Notification submissionNotification;
             
             int lastUpdate = 0;
@@ -644,10 +662,12 @@ public class CommCareSessionService extends Service  {
                 lastUpdate = 0;
             }
             
+            @NonNull
             private String getSubmissionText(int current, int total) {
                 return current + "/" + total;
             }
             
+            @NonNull
             private String getTickerText(int current, int total) {
                 return "CommCare submitting " + total +" forms";
             }

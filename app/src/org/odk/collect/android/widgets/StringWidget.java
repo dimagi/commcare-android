@@ -17,6 +17,8 @@ package org.odk.collect.android.widgets;
 import org.commcare.dalvik.R;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -51,7 +53,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     protected EditText mAnswer;
     protected boolean secret = false;
     
-    public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
+    public StringWidget(Context context, @Nullable FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
         mAnswer = (EditText) LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
@@ -105,7 +107,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
      * @return
      * @throws UnpivotableExpressionException
      */
-    protected int guessMaxStringLength(FormEntryPrompt prompt) throws UnpivotableExpressionException{
+    protected int guessMaxStringLength(@NonNull FormEntryPrompt prompt) throws UnpivotableExpressionException{
         StringLengthRangeHint hint = new StringLengthRangeHint();
         prompt.requestConstraintHint(hint);
         if(hint.getMax() != null) {
@@ -131,7 +133,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.setFilters(newFilters);
     }
 
-    protected void setTextInputType(EditText mAnswer) {
+    protected void setTextInputType(@NonNull EditText mAnswer) {
         if(secret) {
             mAnswer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -152,6 +154,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();
@@ -168,7 +171,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         
         // Put focus on text input field and display soft keyboard if appropriate.
         mAnswer.requestFocus();
@@ -195,7 +198,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
      * @see android.view.View#onKeyDown(int, android.view.KeyEvent)
      */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         if (event.isAltPressed() == true) {
             return false;
         }

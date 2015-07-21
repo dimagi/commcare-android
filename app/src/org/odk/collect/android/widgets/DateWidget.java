@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -125,6 +126,7 @@ public class DateWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @NonNull
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();

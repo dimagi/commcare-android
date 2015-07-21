@@ -3,6 +3,9 @@
  */
 package org.commcare.android.crypt;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,7 +41,8 @@ public class CryptUtil {
     
     private static final String PBE_PROVIDER = "PBEWITHSHA-256AND256BITAES-CBC-BC";
     
-    private static Cipher encodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, InvalidKeySpecException {
+    @NonNull
+    private static Cipher encodingCipher(@NonNull String password) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, InvalidKeySpecException {
         
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
@@ -50,7 +54,8 @@ public class CryptUtil {
         return cipher;
     }
     
-    private static Cipher decodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException {
+    @NonNull
+    private static Cipher decodingCipher(@NonNull String password) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException {
         
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
@@ -78,7 +83,7 @@ public class CryptUtil {
         return bos.toByteArray();
     }
     
-    public static byte[] decrypt(byte[] input, Cipher cipher) {
+    public static byte[] decrypt(byte[] input, @NonNull Cipher cipher) {
         
         try {
             return cipher.doFinal(input);
@@ -102,11 +107,12 @@ public class CryptUtil {
     }
     
     
-    public static byte[] wrapKey(SecretKey key, String password) {
+    @Nullable
+    public static byte[] wrapKey(@NonNull SecretKey key, @NonNull String password) {
         return wrapKey(key.getEncoded(), password);
     }
     
-    public static byte[] wrapKey(byte[] secretKey, String password) {
+    public static byte[] wrapKey(byte[] secretKey, @NonNull String password) {
         try{
             //SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);
             byte[] encrypted = encrypt(secretKey, encodingCipher(password));
@@ -122,7 +128,7 @@ public class CryptUtil {
         }
     }
     
-    public static byte[] unWrapKey(byte[] wrapped, String password) {
+    public static byte[] unWrapKey(byte[] wrapped, @NonNull String password) {
         try{
             Cipher cipher = decodingCipher(password);
             byte[] encoded = decrypt(wrapped, cipher);
@@ -138,7 +144,8 @@ public class CryptUtil {
         }
     }
     
-    private static byte[] append(byte[] one, byte[] two) {
+    @NonNull
+    private static byte[] append(@NonNull byte[] one, @NonNull byte[] two) {
         byte[] result = new byte[one.length + two.length];
         for(int i = 0; i < result.length; ++i) {
             if(i < one.length) {
@@ -189,6 +196,7 @@ public class CryptUtil {
         return null;
     }
 
+    @NonNull
     public static Cipher getPrivateKeyCipher(byte[] privateKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         KeySpec ks = new PKCS8EncodedKeySpec(privateKey);
@@ -199,10 +207,12 @@ public class CryptUtil {
         return c;
     }
 
+    @NonNull
     public static Cipher getAesKeyCipher(byte[] aesKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         return getAesKeyCipher(aesKey, Cipher.DECRYPT_MODE);
     }
     
+    @NonNull
     public static Cipher getAesKeyCipher(byte[] aesKey, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         SecretKeySpec spec = new SecretKeySpec(aesKey, "AES");
         Cipher decrypter = Cipher.getInstance("AES");

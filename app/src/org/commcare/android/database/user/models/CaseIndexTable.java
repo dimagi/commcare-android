@@ -17,6 +17,7 @@ import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
@@ -31,6 +32,7 @@ public class CaseIndexTable {
     public static final String COL_INDEX_TARGET = "target";
     
     
+    @NonNull
     public static String getTableDefinition() {
         String tableCreate = "CREATE TABLE " + TABLE_NAME + "(" +
                 DbUtil.ID_COL + " INTEGER PRIMARY KEY, " + 

@@ -46,6 +46,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -64,7 +66,9 @@ public class AndroidSessionWrapper {
     protected int sessionStateRecordId = -1;
     
     // These are only to be used by the local (not recoverable) session 
+    @Nullable
     private String instanceUri = null;
+    @Nullable
     private String instanceStatus = null;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
@@ -78,11 +82,12 @@ public class AndroidSessionWrapper {
      * 
      * @return
      */
+    @NonNull
     public SessionStateDescriptor getSessionStateDescriptor() {
         return new SessionStateDescriptor(this);
     }
     
-    public void loadFromStateDescription(SessionStateDescriptor descriptor) {
+    public void loadFromStateDescription(@NonNull SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
@@ -121,6 +126,7 @@ public class AndroidSessionWrapper {
      *
      * @return FormRecord or null
      */
+    @Nullable
     public FormRecord getFormRecord() {
         if (formRecordId == -1) {
             return null;
@@ -144,7 +150,7 @@ public class AndroidSessionWrapper {
      * @throws IllegalArgumentException If the cursor provided doesn't point to any records,
      * or doesn't point to the appropriate columns
      */
-    public boolean beginRecordTransaction(Uri uri, Cursor c) throws IllegalArgumentException {
+    public boolean beginRecordTransaction(@NonNull Uri uri, @NonNull Cursor c) throws IllegalArgumentException {
         if (!c.moveToFirst()) {
             throw new IllegalArgumentException("Empty query for instance record!");
         }
@@ -160,6 +166,7 @@ public class AndroidSessionWrapper {
     /**
      * Update the session's form record status and link the record to an instance.
      */
+    @NonNull
     public FormRecord commitRecordTransaction() throws InvalidStateException {
         FormRecord current = getFormRecord();
 
@@ -213,6 +220,7 @@ public class AndroidSessionWrapper {
      * form record with the same case found in the current descriptor;
      * otherwise null.
      */
+    @Nullable
     public SessionStateDescriptor getExistingIncompleteCaseDescriptor() {
         SessionStateDescriptor ssd = getSessionStateDescriptor();
 
@@ -280,7 +288,8 @@ public class AndroidSessionWrapper {
         return sessionStateRecordId;
     }
 
-    public String getHeaderTitle(Context context, AndroidCommCarePlatform platform) {
+    @NonNull
+    public String getHeaderTitle(@NonNull Context context, @NonNull AndroidCommCarePlatform platform) {
         String descriptor = context.getString(R.string.application_name);
         Hashtable<String, String> menus = new Hashtable<String, String>();
         
@@ -312,6 +321,7 @@ public class AndroidSessionWrapper {
         return descriptor.trim();
     }
     
+    @Nullable
     public String getTitle() {
         //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
         //and generalize the walking
@@ -399,7 +409,9 @@ public class AndroidSessionWrapper {
         return session.getEvaluationContext(getIIF(), commandId);
     }
     
+    @Nullable
     CommCareInstanceInitializer initializer;
+    @Nullable
     protected CommCareInstanceInitializer getIIF() {
         if(initializer == null) {
             initializer = new CommCareInstanceInitializer(session);
@@ -408,7 +420,8 @@ public class AndroidSessionWrapper {
         return initializer;
     }
 
-    public static AndroidSessionWrapper mockEasiestRoute(CommCarePlatform platform, String formNamespace, String selectedValue) {
+    @Nullable
+    public static AndroidSessionWrapper mockEasiestRoute(@NonNull CommCarePlatform platform, @NonNull String formNamespace, String selectedValue) {
         AndroidSessionWrapper wrapper = null;
         int curPredicates = -1;
         

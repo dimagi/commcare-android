@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.Shader.TileMode;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -31,7 +32,7 @@ public class ShrinkingTextView extends TextView {
     
     int mAnimatingHeight= -1;
 
-    public ShrinkingTextView(Context context, int max) {
+    public ShrinkingTextView(@NonNull Context context, int max) {
         super(context);
         this.setOnClickListener(new PanelToggler());
         updateMaxHeight(max);
@@ -84,7 +85,7 @@ public class ShrinkingTextView extends TextView {
      * @see android.widget.TextView#draw(android.graphics.Canvas)
      */
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         if(mInteractive && !mExpanded || isAnimating()) {
             Rect r = new Rect();

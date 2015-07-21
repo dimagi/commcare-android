@@ -34,6 +34,8 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,7 +51,9 @@ import android.widget.TextView;
 public class FileServerFragment extends Fragment {
 
     protected static final int CHOOSE_FILE_RESULT_CODE = 20;
+    @Nullable
     private View mContentView = null;
+    @Nullable
     ProgressDialog progressDialog = null;
 
     private static CommCareWiFiDirectActivity mActivity;
@@ -75,7 +79,7 @@ public class FileServerFragment extends Fragment {
      * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
      */
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(@NonNull Activity activity){
         super.onAttach(activity);
         try {
             mActivity = (CommCareWiFiDirectActivity) activity;
@@ -90,7 +94,7 @@ public class FileServerFragment extends Fragment {
      * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mContentView = inflater.inflate(R.layout.file_server, null);
 
@@ -153,6 +157,7 @@ public class FileServerFragment extends Fragment {
          * (non-Javadoc)
          * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
          */
+        @Nullable
         @Override
         protected String doInBackground(Void... params) {
 
@@ -213,7 +218,7 @@ public class FileServerFragment extends Fragment {
          * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
          */
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(@Nullable String result) {
             Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
             
             if(socketOccupied){

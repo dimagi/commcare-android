@@ -33,6 +33,8 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,7 +50,9 @@ import android.widget.Toast;
 @SuppressLint("NewApi")
 public class WiFiDirectManagementFragment extends Fragment implements ConnectionInfoListener, ActionListener, ChannelListener{
 
+    @Nullable
     private View mContentView = null;
+    @Nullable
     ProgressDialog progressDialog = null;
     
     private static CommCareWiFiDirectActivity mActivity;
@@ -81,7 +85,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
      * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
      */
     @Override
-    public void onAttach(Activity activity){
+    public void onAttach(@NonNull Activity activity){
         super.onAttach(activity);
         try {    
             mActivity = (CommCareWiFiDirectActivity) activity;
@@ -95,7 +99,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
      * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         mContentView = inflater.inflate(R.layout.wifi_manager, null);
         
@@ -134,7 +138,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
         }
     }
     
-    public void onThisDeviceChanged(Intent intent) {
+    public void onThisDeviceChanged(@NonNull Intent intent) {
         
         setStatusText("This device's connection status changed...");
     
@@ -192,7 +196,7 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
      * @see android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener#onConnectionInfoAvailable(android.net.wifi.p2p.WifiP2pInfo)
      */
     @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+    public void onConnectionInfoAvailable(@NonNull WifiP2pInfo info) {
         
         this.info = info;
         

@@ -3,6 +3,8 @@
  */
 package org.commcare.android.references;
 
+import android.support.annotation.NonNull;
+
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
@@ -20,18 +22,19 @@ public class JavaFileRoot implements ReferenceFactory {
         this.localRoot = localRoot;
     }
     
-    public Reference derive(String URI) throws InvalidReferenceException {
+    @NonNull
+    public Reference derive(@NonNull String URI) throws InvalidReferenceException {
         return new JavaFileReference(localRoot, URI.substring("jr://file/".length()));
     }
 
-    public Reference derive(String URI, String context) throws InvalidReferenceException {
+    public Reference derive(String URI, @NonNull String context) throws InvalidReferenceException {
         if(context.lastIndexOf('/') != -1) {
             context = context.substring(0,context.lastIndexOf('/') + 1);
         }
         return ReferenceManager._().DeriveReference(context + URI);
     }
 
-    public boolean derives(String URI) {
+    public boolean derives(@NonNull String URI) {
         return URI.toLowerCase().startsWith("jr://file/");
     }
 }

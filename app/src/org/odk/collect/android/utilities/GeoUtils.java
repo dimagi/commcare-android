@@ -11,6 +11,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
@@ -29,7 +31,7 @@ public class GeoUtils {
      * @param location
      * @return String in format "<latitude> <longitude> <altitude> <accuracy>"
      */
-    public static String locationToString(Location location) {
+    public static String locationToString(@NonNull Location location) {
         return String.format("%s %s %s %s", location.getLatitude(), location.getLongitude(), location.getAltitude(), location.getAccuracy());
     }
     
@@ -38,7 +40,8 @@ public class GeoUtils {
      * @param manager
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
-    public static Set<String> evaluateProviders(LocationManager manager) {
+    @NonNull
+    public static Set<String> evaluateProviders(@NonNull LocationManager manager) {
         HashSet<String> set = new HashSet<String>();
         
         List<String> providers = manager.getProviders(true);
@@ -59,7 +62,7 @@ public class GeoUtils {
      * @param context
      * @param onChange Listener to call when dialog button is pressed.
      */
-    public static void showNoGpsDialog(Context context, DialogInterface.OnClickListener onChange) {
+    public static void showNoGpsDialog(@NonNull Context context, DialogInterface.OnClickListener onChange) {
         showNoGpsDialog(context, onChange, null);
     }
 
@@ -69,7 +72,7 @@ public class GeoUtils {
      * @param onChange Listener to call when dialog button is pressed.
      * @param onCancel Listener to call when dialog is canceled.
      */
-    public static void showNoGpsDialog(Context context, DialogInterface.OnClickListener onChange, DialogInterface.OnCancelListener onCancel) {
+    public static void showNoGpsDialog(@NonNull Context context, DialogInterface.OnClickListener onChange, @Nullable DialogInterface.OnCancelListener onCancel) {
         AlertDialog dialog = new AlertDialog.Builder(context).create();
         dialog.setTitle(context.getString(R.string.no_gps_title));
         dialog.setMessage(context.getString(R.string.no_gps_message));

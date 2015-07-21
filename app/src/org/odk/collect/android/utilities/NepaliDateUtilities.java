@@ -4,6 +4,7 @@ import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
 
 import java.util.Date;
 
+import android.support.annotation.NonNull;
 import android.util.SparseArray;
 
 /**
@@ -203,14 +204,16 @@ public class NepaliDateUtilities {
      * @param date Gregorian Date to convert
      * @return Nepali date string in 'd MMMM yyyy' format
      */
-    public static String convertToNepaliString(String[] monthNames, Date date) {
+    @NonNull
+    public static String convertToNepaliString(String[] monthNames, @NonNull Date date) {
 
         UniversalDate dateUniv = NepaliDateUtilities.fromMillis(date.getTime());
         
         return dateUniv.day + " " + monthNames[dateUniv.month - 1] + " " + dateUniv.year;
     }
     
-    public static UniversalDate decrementMonth(UniversalDate date) {
+    @NonNull
+    public static UniversalDate decrementMonth(@NonNull UniversalDate date) {
         int year = date.year;
         int month = date.month;
         int day = date.day;
@@ -237,7 +240,8 @@ public class NepaliDateUtilities {
         );
     }
     
-    public static UniversalDate decrementYear(UniversalDate date) {
+    @NonNull
+    public static UniversalDate decrementYear(@NonNull UniversalDate date) {
         int year = date.year;
         int month = date.month;
         int day = date.day;
@@ -259,6 +263,7 @@ public class NepaliDateUtilities {
         );
     }
     
+    @NonNull
     public static UniversalDate fromMillis(long millisFromJavaEpoch) {
         long millisFromMinDay = millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
         long daysFromMinDay = millisFromMinDay / MILLIS_IN_DAY;
@@ -289,7 +294,8 @@ public class NepaliDateUtilities {
         throw new RuntimeException("Date out of bounds");
     }
     
-    public static UniversalDate incrementMonth(UniversalDate date) {
+    @NonNull
+    public static UniversalDate incrementMonth(@NonNull UniversalDate date) {
         int year = date.year;
         int month = date.month;
         int day = date.day;
@@ -316,7 +322,8 @@ public class NepaliDateUtilities {
         );
     }
     
-    public static UniversalDate incrementYear(UniversalDate date) {
+    @NonNull
+    public static UniversalDate incrementYear(@NonNull UniversalDate date) {
         int year = date.year;
         int month = date.month;
         int day = date.day;

@@ -3,6 +3,8 @@
  */
 package org.commcare.android.storage.framework;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -177,6 +179,7 @@ public class Persisted implements Persistable, IMetaData {
         throw new RuntimeException("Couldn't write persisted type " + f.getType().toString());
     }
 
+    @NonNull
     @Override
     public String[] getMetaDataFields() {
         ArrayList<String> fields = new ArrayList<String>();

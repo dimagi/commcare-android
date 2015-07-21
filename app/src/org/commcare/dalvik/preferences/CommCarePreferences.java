@@ -27,6 +27,8 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -128,7 +130,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
                 android.R.drawable.ic_menu_delete);
@@ -145,7 +147,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
         return super.onPrepareOptionsMenu(menu);
     }
@@ -158,7 +160,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 try {
@@ -276,12 +278,13 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    public void onSharedPreferenceChanged(@NonNull SharedPreferences sharedPreferences, @NonNull String key) {
         if (key.equals("cur_locale")) {
             Localization.setLocale(sharedPreferences.getString(key, "default"));
         }
     }
 
+    @Nullable
     public static String getResizeMethod() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence

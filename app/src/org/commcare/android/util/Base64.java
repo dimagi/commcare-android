@@ -30,6 +30,8 @@ package org.commcare.android.util;
  * @version 1.3
  */
 
+import android.support.annotation.NonNull;
+
 /** Base64 converter class. This code is not a full-blown MIME encoder;
  ** it simply converts binary data to base64 data and back.
  **/
@@ -241,7 +243,8 @@ public class Base64 {
    * @param source The data to convert
    * @since 1.4
    */
-  public static String encode(byte[] source) {
+  @NonNull
+  public static String encode(@NonNull byte[] source) {
     return encode(source, 0, source.length, ALPHABET, true);
   }
 
@@ -252,7 +255,8 @@ public class Base64 {
    * @param doPadding is {@code true} to pad result with '=' chars
    *        if it does not fall on 3 byte boundaries
    */
-  public static String encodeWebSafe(byte[] source, boolean doPadding) {
+  @NonNull
+  public static String encodeWebSafe(@NonNull byte[] source, boolean doPadding) {
     return encode(source, 0, source.length, WEBSAFE_ALPHABET, doPadding);
   }
 
@@ -267,6 +271,7 @@ public class Base64 {
    *        if it does not fall on 3 byte boundaries
    * @since 1.4
    */
+  @NonNull
   public static String encode(byte[] source, int off, int len, byte[] alphabet,
       boolean doPadding) {
     byte[] outBuff = encode(source, off, len, alphabet, Integer.MAX_VALUE);
@@ -294,6 +299,7 @@ public class Base64 {
    * @param maxLineLength maximum length of one line.
    * @return the BASE64-encoded byte array
    */
+  @NonNull
   public static byte[] encode(byte[] source, int off, int len, byte[] alphabet,
       int maxLineLength) {
     int lenDiv3 = (len + 2) / 3; // ceil(len / 3)
@@ -413,7 +419,8 @@ public class Base64 {
    * @return the decoded data
    * @since 1.4
    */
-  public static byte[] decode(String s) throws Base64DecoderException {
+  @NonNull
+  public static byte[] decode(@NonNull String s) throws Base64DecoderException {
     byte[] bytes = s.getBytes();
     return decode(bytes, 0, bytes.length);
   }
@@ -425,7 +432,8 @@ public class Base64 {
    * @param s the string to decode (decoded in default encoding)
    * @return the decoded data
    */
-  public static byte[] decodeWebSafe(String s) throws Base64DecoderException {
+  @NonNull
+  public static byte[] decodeWebSafe(@NonNull String s) throws Base64DecoderException {
     byte[] bytes = s.getBytes();
     return decodeWebSafe(bytes, 0, bytes.length);
   }
@@ -439,7 +447,8 @@ public class Base64 {
    * @since 1.3
    * @throws Base64DecoderException
    */
-  public static byte[] decode(byte[] source) throws Base64DecoderException {
+  @NonNull
+  public static byte[] decode(@NonNull byte[] source) throws Base64DecoderException {
     return decode(source, 0, source.length);
   }
 
@@ -451,7 +460,8 @@ public class Base64 {
    * @param source the string to decode (decoded in default encoding)
    * @return the decoded data
    */
-  public static byte[] decodeWebSafe(byte[] source)
+  @NonNull
+  public static byte[] decodeWebSafe(@NonNull byte[] source)
       throws Base64DecoderException {
     return decodeWebSafe(source, 0, source.length);
   }
@@ -467,6 +477,7 @@ public class Base64 {
    * @since 1.3
    * @throws Base64DecoderException
    */
+  @NonNull
   public static byte[] decode(byte[] source, int off, int len)
       throws Base64DecoderException {
     return decode(source, off, len, DECODABET);
@@ -482,6 +493,7 @@ public class Base64 {
    * @param len    The length of characters to decode
    * @return decoded data
    */
+  @NonNull
   public static byte[] decodeWebSafe(byte[] source, int off, int len)
       throws Base64DecoderException {
     return decode(source, off, len, WEBSAFE_DECODABET);
@@ -497,6 +509,7 @@ public class Base64 {
    * @param decodabet the decodabet for decoding Base64 content
    * @return decoded data
    */
+  @NonNull
   public static byte[] decode(byte[] source, int off, int len, byte[] decodabet)
       throws Base64DecoderException {
     int len34 = len * 3 / 4;

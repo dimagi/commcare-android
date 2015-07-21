@@ -27,6 +27,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -100,7 +102,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
+                    protected void deliverResult( @NonNull CommCareFormDumpActivity receiver, Boolean result) {
                         
                         if(result == Boolean.TRUE){
                             CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -122,7 +124,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
+                    protected void deliverUpdate(@NonNull CommCareFormDumpActivity receiver, String... update) {
                         receiver.updateProgress(update[0], BULK_SEND_ID);
                         receiver.txtInteractiveMessages.setText(update[0]);
                     }
@@ -132,7 +134,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+                    protected void deliverError(@NonNull CommCareFormDumpActivity receiver, @NonNull Exception e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "SendTask error: " + ExceptionReportTask.getStackTrace(e));
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
@@ -163,7 +165,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
+                    protected void deliverResult( @NonNull CommCareFormDumpActivity receiver, Boolean result) {
                         if(result == Boolean.TRUE){
                             Intent i = new Intent(getIntent());
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
@@ -180,7 +182,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(CommCareFormDumpActivity receiver, String... update) {
+                    protected void deliverUpdate(@NonNull CommCareFormDumpActivity receiver, String... update) {
                         receiver.updateProgress(update[0], BULK_DUMP_ID);
                         receiver.txtInteractiveMessages.setText(update[0]);
                     }
@@ -190,7 +192,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+                    protected void deliverError(@NonNull CommCareFormDumpActivity receiver, @NonNull Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -212,6 +214,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     
+    @NonNull
     private AlertDialog popupWarningMessage(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setTitle(Localization.get("bulk.form.alert.title"));
@@ -219,14 +222,14 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
             .setMessage(Localization.get("bulk.form.warning"))
             .setCancelable(false)
             .setPositiveButton("OK",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
+                public void onClick(@NonNull DialogInterface dialog,int id) {
                     acknowledgedRisk = true;
                     dialog.dismiss();
                     dialog.cancel();
                 }
               })
             .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
+                public void onClick(@NonNull DialogInterface dialog,int id) {
                     dialog.dismiss();
                     exitDump();
                 }
@@ -252,12 +255,14 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
         txtDisplayPrompt.setText(this.localize("bulk.form.prompt", new String[] {""+formsOnPhone , ""+formsOnSD}));
     }
     
+    @Nullable
     public String getFolderName(){
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH    , Localization.get("bulk.form.foldername"));
         return folderName;
     }
     
+    @Nullable
     public File getFolderPath() {
         
         String fileRoot = FileUtil.getDumpDirectory(this);
@@ -323,6 +328,7 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;

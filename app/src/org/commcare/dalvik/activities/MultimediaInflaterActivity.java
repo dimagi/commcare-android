@@ -20,6 +20,8 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -103,7 +105,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult( MultimediaInflaterActivity receiver, Boolean result) {
+                    protected void deliverResult( @NonNull MultimediaInflaterActivity receiver, Boolean result) {
                         if(result == Boolean.TRUE){
                             receiver.done = true;
                             receiver.evalState();
@@ -121,7 +123,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
+                    protected void deliverUpdate(@NonNull MultimediaInflaterActivity receiver, String... update) {
                         receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
                         receiver.txtInteractiveMessages.setText(update[0]);
                     }
@@ -131,7 +133,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
+                    protected void deliverError(@NonNull MultimediaInflaterActivity receiver, @NonNull Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -161,7 +163,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
             if(resultCode == Activity.RESULT_OK) {
                 // Android versions 4.4 and up sometimes don't return absolute
@@ -303,6 +305,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if(taskId == CommCareTask.GENERIC_TASK_ID) {

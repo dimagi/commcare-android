@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
@@ -81,6 +82,7 @@ public class CallOutActivity extends Activity {
     }
     
     
+    @Nullable
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_NUMBER_ACTION:

@@ -48,6 +48,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -113,7 +115,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         return SUCCESS;
     }
 
-    private int cleanupRecord(FormRecord r, SqlStorage<FormRecord> storage) {
+    private int cleanupRecord(@NonNull FormRecord r, @NonNull SqlStorage<FormRecord> storage) {
         try {
             FormRecord updated = getUpdatedRecord(context, platform, r, FormRecord.STATUS_SAVED);
             if(updated == null) {
@@ -167,7 +169,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * @throws UnfullfilledRequirementsException 
      * @throws XmlPullParserException 
      */
-    public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
+    @NonNull
+    public static FormRecord getUpdatedRecord(@NonNull Context context, CommCarePlatform platform, @NonNull FormRecord r, @NonNull String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         //Awful. Just... awful
         final String[] caseIDs = new String[1];
         final Date[] modified = new Date[] {new Date(0)};
@@ -176,7 +179,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         //NOTE: This does _not_ parse and process the case data. It's only for getting meta information
         //about the entry session.
         TransactionParserFactory factory = new TransactionParserFactory() {
-            public TransactionParser getParser(KXmlParser parser) {
+            @Nullable
+            public TransactionParser getParser(@NonNull KXmlParser parser) {
                 String name = parser.getName();
 
                 if (name == null) {
@@ -192,7 +196,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                              * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
                              */
                             @Override
-                            public void commit(Case parsed) throws IOException {
+                            public void commit(@NonNull Case parsed) throws IOException {
                                 String incoming = parsed.getCaseId();
                                 if(incoming != null && incoming != "") {
                                     caseIDs[0] = incoming;
@@ -203,6 +207,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                              * (non-Javadoc)
                              * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
                              */
+                            @NonNull
                             @Override
                             public ACase retrieve(String entityId) {
                                 caseIDs[0] = entityId;
@@ -220,7 +225,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                          * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
                          */
                         @Override
-                        public void commit(Hashtable<String, String> values) {
+                        public void commit(@NonNull Hashtable<String, String> values) {
                             if(values.containsKey("case_id")) {
                                 caseIDs[0] = values.get("case_id");
                             }
@@ -300,31 +305,31 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         return parsed;
     }
 
-    public static void wipeRecord(Context c,SessionStateDescriptor existing) {
+    public static void wipeRecord(@NonNull Context c, @NonNull SessionStateDescriptor existing) {
         int ssid = existing.getID();
         int formRecordId = existing.getFormRecordId();
         wipeRecord(c, ssid, formRecordId);
     }
 
-    public static void wipeRecord(Context c, AndroidSessionWrapper currentState) {
+    public static void wipeRecord(@NonNull Context c, @NonNull AndroidSessionWrapper currentState) {
         int formRecordId = currentState.getFormRecordId();
         int ssdId = currentState.getSessionDescriptorId();
         wipeRecord(c, ssdId, formRecordId);
     }
     
-    public static void wipeRecord(Context c, FormRecord record) {
+    public static void wipeRecord(@NonNull Context c, @NonNull FormRecord record) {
         wipeRecord(c, -1, record.getID());
     }
     
-    public static void wipeRecord(Context c, int formRecordId) {
+    public static void wipeRecord(@NonNull Context c, int formRecordId) {
         wipeRecord(c, -1, formRecordId);
     }
     
-    public static void wipeRecord(Context c, int sessionId, int formRecordId) {
+    public static void wipeRecord(@NonNull Context c, int sessionId, int formRecordId) {
         wipeRecord(c, sessionId, formRecordId, CommCareApplication._().getUserStorage(FormRecord.class), CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
     }
     
-    private static void wipeRecord(Context context, int sessionId, int formRecordId, SqlStorage<FormRecord> frStorage, SqlStorage<SessionStateDescriptor> ssdStorage) {
+    private static void wipeRecord(@NonNull Context context, int sessionId, int formRecordId, @NonNull SqlStorage<FormRecord> frStorage, @NonNull SqlStorage<SessionStateDescriptor> ssdStorage) {
         if(sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);

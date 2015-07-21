@@ -26,6 +26,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -40,7 +42,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     T t;
     LegacyDbHelper helper;
     
-    public LegacySqlIndexedStorageUtility(String table, Class<? extends T> ctype, LegacyDbHelper helper) {
+    public LegacySqlIndexedStorageUtility(String table, @NonNull Class<? extends T> ctype, LegacyDbHelper helper) {
         this.table = table;
         this.ctype = ctype;
         this.helper = helper;
@@ -62,11 +64,13 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
+    @NonNull
     public Vector getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
     }
     
-    public Vector getIDsForValues(String[] fieldNames, Object[] values) {
+    @NonNull
+    public Vector getIDsForValues(@NonNull String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
         if(c.getCount() == 0) {
@@ -86,7 +90,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
     }
     
-    public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
+    @NonNull
+    public Vector<T> getRecordsForValues(@NonNull String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
         if(c.getCount() == 0) {
@@ -124,7 +129,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
-    public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
+    @Nullable
+    public T getRecordForValues(@NonNull String[] rawFieldNames, @NonNull Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
         if(c.getCount() == 0) {
@@ -142,7 +148,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
-    public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+    @Nullable
+    public T getRecordForValue(String rawFieldName, @NonNull Object value) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
         String scrubbedName = TableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
@@ -160,6 +167,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return newObject(data);
     }
     
+    @Nullable
     public T newObject(byte[] data) {
         try {
             T e = (T)ctype.newInstance();
@@ -241,6 +249,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
      */
+    @Nullable
     public net.sqlcipher.database.SQLiteDatabase getAccessLock() {
         // TODO Auto-generated method stub
         return null;
@@ -285,11 +294,13 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
      */
+    @NonNull
     public SqlStorageIterator<T> iterate() {
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , null, null, null, null, DbUtil.ID_COL);
         return new SqlStorageIterator<T>(c, this);
     }
     
+    @NonNull
     public Iterator<T> iterator() {
         return iterate();
     }
@@ -297,6 +308,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
      */
+    @Nullable
     public T read(int id) {
         return newObject(readBytes(id));
     }
@@ -330,7 +342,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
      */
-    public void remove(List ids) {
+    public void remove(@NonNull List ids) {
         if(ids.size() == 0 ) { return; }
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
@@ -348,7 +360,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
      */
-    public void remove(Persistable p) {
+    public void remove(@NonNull Persistable p) {
         this.remove(p.getID());
     }
 
@@ -369,7 +381,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
-    public Vector<Integer> removeAll(EntityFilter ef) {
+    @NonNull
+    public Vector<Integer> removeAll(@NonNull EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
         for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
             int id = iterator.nextID();
@@ -435,7 +448,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
      */
-    public void write(Persistable p) throws StorageFullException {
+    public void write(@NonNull Persistable p) throws StorageFullException {
         if(p.getID() != -1) {
             update(p.getID(), p);
             return;

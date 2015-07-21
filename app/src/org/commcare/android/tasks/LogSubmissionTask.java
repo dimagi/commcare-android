@@ -37,6 +37,7 @@ import org.javarosa.core.services.Logger;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
@@ -82,6 +83,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
      */
+    @NonNull
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {

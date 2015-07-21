@@ -17,6 +17,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.provider.CallLog.Calls;
+import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,12 +33,14 @@ import android.widget.TextView;
 public class MessageRecordAdapter implements ListAdapter {
     Context context;
     Cursor cursor;
+    @NonNull
     List<Integer> enabled = new ArrayList<Integer>();
+    @NonNull
     Set<Long> seen = new HashSet<Long>();
     
     public static final int MAX = 100;
     
-    public MessageRecordAdapter(Context context, Cursor c) {
+    public MessageRecordAdapter(Context context, @NonNull Cursor c) {
         this.context = context;
         this.cursor = c;
         int counted = 0;

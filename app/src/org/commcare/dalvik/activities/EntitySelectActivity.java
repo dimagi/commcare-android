@@ -15,6 +15,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -131,14 +133,17 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     // Has a detail screen not been defined?
     boolean mNoDetailMode = false;
     
+    @Nullable
     private EntityLoaderTask loader;
     
     private boolean inAwesomeMode = false;
     FrameLayout rightFrame;
     TabbedDetailView detailView;
     
+    @Nullable
     Intent selectedIntent = null;
     
+    @NonNull
     String filterString = "";
     
     private Detail shortSelect;
@@ -151,7 +156,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         this.createDataSetObserver();
@@ -314,7 +319,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * Updates the ImageView layout that is passed in, based on the
      * new id and source
      */
-    public void setupImageLayout(View layout, final String imagePath) {
+    public void setupImageLayout(View layout, @NonNull final String imagePath) {
         ImageView iv = (ImageView)layout;
         Bitmap b;
         if (!imagePath.equals("")) {
@@ -377,6 +382,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
      */
+    @Nullable
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern
@@ -500,7 +506,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
-    protected Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
+    @Nullable
+    protected Intent getDetailIntent(TreeReference contextRef, @Nullable Intent detailIntent) {
         if (detailIntent == null) {
             detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
@@ -564,7 +571,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent intent) {
         switch(requestCode){
         case BARCODE_FETCH:
             if(resultCode == Activity.RESULT_OK) {
@@ -648,7 +655,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
-    private void returnWithResult(Intent intent) {
+    private void returnWithResult(@NonNull Intent intent) {
         Intent i = new Intent(this.getIntent());
         
         i.putExtras(intent.getExtras());
@@ -658,7 +665,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
 
-    public void afterTextChanged(Editable s) {
+    public void afterTextChanged(@NonNull Editable s) {
         if(searchbox.getText() == s) {
             filterString = s.toString();
             if(adapter != null) {
@@ -685,7 +692,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
@@ -704,7 +711,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             // again, this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+            public void onActionBarFound(@NonNull MenuItem searchItem, @NonNull SearchView searchView) {
                 EntitySelectActivity.this.searchView = searchView;
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
@@ -727,7 +734,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     }
 
                     @Override
-                    public boolean onQueryTextChange(String newText) {
+                    public boolean onQueryTextChange(@Nullable String newText) {
                         lastQueryString = newText;
                         if (BuildConfig.DEBUG) {
                             Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
@@ -757,7 +764,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         
         //only display the sort menu if we're going to be able to sort
         //(IE: not until the items have loaded)
@@ -771,7 +778,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case MENU_SORT:
                 createSortMenu();
@@ -945,7 +952,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         updateSelectedItem(chosen, forceMove);
     }
         
-    private void updateSelectedItem(TreeReference selected, boolean forceMove) {
+    private void updateSelectedItem(@Nullable TreeReference selected, boolean forceMove) {
         if(adapter == null) {return;}
         if(selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
@@ -1101,7 +1108,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
     }
 
+    @Nullable
     private Timer myTimer;
+    @NonNull
     private Object timerLock = new Object();
     boolean cancelled;
     

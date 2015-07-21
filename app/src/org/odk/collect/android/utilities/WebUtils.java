@@ -50,6 +50,8 @@ import org.kxml2.kdom.Document;
 import org.odk.collect.android.application.Collect;
 import org.xmlpull.v1.XmlPullParser;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateFormat;
 import android.util.Log;
 
@@ -72,6 +74,7 @@ public final class WebUtils {
     private static final GregorianCalendar g = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 
 
+    @NonNull
     public static final List<AuthScope> buildAuthScopes(String host) {
         List<AuthScope> asList = new ArrayList<AuthScope>();
 
@@ -122,7 +125,7 @@ public final class WebUtils {
     }
 
 
-    private static final void addCredentials(HttpContext localContext, Credentials c, String host) {
+    private static final void addCredentials(@NonNull HttpContext localContext, Credentials c, String host) {
         CredentialsProvider credsProvider =
             (CredentialsProvider) localContext.getAttribute(ClientContext.CREDS_PROVIDER);
 
@@ -133,13 +136,14 @@ public final class WebUtils {
     }
 
 
-    private static final void setOpenRosaHeaders(HttpRequest req) {
+    private static final void setOpenRosaHeaders(@NonNull HttpRequest req) {
         req.setHeader(OPEN_ROSA_VERSION_HEADER, OPEN_ROSA_VERSION);
         g.setTime(new Date());
         req.setHeader(DATE_HEADER, DateFormat.format("E, dd MMM yyyy hh:mm:ss zz", g).toString());
     }
 
 
+    @NonNull
     public static final HttpHead createOpenRosaHttpHead(URI uri) {
         HttpHead req = new HttpHead(uri);
         setOpenRosaHeaders(req);
@@ -147,11 +151,13 @@ public final class WebUtils {
     }
 
 
+    @NonNull
     public static final HttpGet createOpenRosaHttpGet(URI uri) {
         return createOpenRosaHttpGet(uri, "");
     }
 
 
+    @NonNull
     public static final HttpGet createOpenRosaHttpGet(URI uri, String auth) {
         HttpGet req = new HttpGet();
         setOpenRosaHeaders(req);
@@ -161,18 +167,20 @@ public final class WebUtils {
     }
 
 
-    public static final void setGoogleHeaders(HttpRequest req, String auth) {
+    public static final void setGoogleHeaders(@NonNull HttpRequest req, @Nullable String auth) {
         if ((auth != null) && (auth.length() > 0)) {
             req.setHeader("Authorization", "GoogleLogin auth=" + auth);
         }
     }
 
 
+    @NonNull
     public static final HttpPost createOpenRosaHttpPost(URI uri) {
         return createOpenRosaHttpPost(uri, "");
     }
 
 
+    @NonNull
     public static final HttpPost createOpenRosaHttpPost(URI uri, String auth) {
         HttpPost req = new HttpPost(uri);
         setOpenRosaHeaders(req);
@@ -181,6 +189,7 @@ public final class WebUtils {
     }
 
 
+    @NonNull
     public static final HttpClient createHttpClient(int timeout) {
         // configure connection
         HttpParams params = new BasicHttpParams();
@@ -215,8 +224,9 @@ public final class WebUtils {
      * @param httpclient
      * @return
      */
+    @Nullable
     public static DocumentFetchResult getXmlDocument(String urlString, HttpContext localContext,
-            HttpClient httpclient, String auth) {
+            @NonNull HttpClient httpclient, String auth) {
         URI u = null;
         try {
             URL url = new URL(URLDecoder.decode(urlString, "utf-8"));

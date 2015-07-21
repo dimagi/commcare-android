@@ -34,6 +34,8 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import android.app.Activity;
 import android.database.DataSetObserver;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,19 +81,22 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
+    @Nullable
     EntitySearcher mCurrentSortThread = null;
+    @NonNull
     Object mSyncLock = new Object();
     
     public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
+    @Nullable
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
     private boolean inAwesomeMode = false;
 
-    public EntityListAdapter(Activity activity, Detail detail,
+    public EntityListAdapter(Activity activity, @NonNull Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
-                             int[] sort, TextToSpeech tts,
+                             @NonNull int[] sort, TextToSpeech tts,
                              NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
@@ -144,11 +149,11 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    private void filterValues(String filterRaw) {
+    private void filterValues(@NonNull String filterRaw) {
         this.filterValues(filterRaw, false);
     }
 
-    private void filterValues(String filterRaw, boolean synchronous) {
+    private void filterValues(@NonNull String filterRaw, boolean synchronous) {
         synchronized(mSyncLock) {
             if(mCurrentSortThread != null) {
                 mCurrentSortThread.finish();
@@ -285,7 +290,7 @@ public class EntityListAdapter implements ListAdapter {
                 Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
     
                     @Override
-                    public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
+                    public int compare(@NonNull Pair<Integer, Integer> lhs, @NonNull Pair<Integer, Integer> rhs) {
                         return lhs.second - rhs.second;
                     }
     
@@ -334,7 +339,7 @@ public class EntityListAdapter implements ListAdapter {
         java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
 
 
-            public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
+            public int compare(@NonNull Entity<TreeReference> object1, @NonNull Entity<TreeReference> object2) {
                 for(int i = 0 ; i < currentSort.length ; ++i) {
                     boolean reverseLocal = (detail.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
                     int cmp =  (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
@@ -343,7 +348,7 @@ public class EntityListAdapter implements ListAdapter {
                 return 0;
             }
 
-            private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
+            private int getCmp(@NonNull Entity<TreeReference> object1, @NonNull Entity<TreeReference> object2, int index) {
 
                 int sortType = detail.getFields()[index].getSortType();
 
@@ -375,7 +380,7 @@ public class EntityListAdapter implements ListAdapter {
                 return c1.compareTo(c2);
             }
 
-            private Comparable applyType(int sortType, String value) {
+            private Comparable applyType(int sortType, @NonNull String value) {
                 try {
                     if(sortType == Constants.DATATYPE_TEXT) {
                         return value.toLowerCase();
@@ -495,6 +500,7 @@ public class EntityListAdapter implements ListAdapter {
     /* Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
      * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
      */
+    @Nullable
     public View getView(int position, View convertView, ViewGroup parent) {
         if(actionEnabled && position == actionPosition) {
             HorizontalMediaView tiav =(HorizontalMediaView)convertView;
@@ -563,7 +569,7 @@ public class EntityListAdapter implements ListAdapter {
         return getCount() > 0;
     }
 
-    public void applyFilter(String s) {
+    public void applyFilter(@NonNull String s) {
         filterValues(s);
     }
 

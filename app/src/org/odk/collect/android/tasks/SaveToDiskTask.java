@@ -50,6 +50,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -314,11 +315,13 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         return true;
     }
     
-    public OutputStream createFileOutputStream(String path) throws FileNotFoundException {
+    @NonNull
+    public OutputStream createFileOutputStream(@NonNull String path) throws FileNotFoundException {
         return createFileOutputStream(new File(path));
     }
     
-    private OutputStream createFileOutputStream(File path) throws FileNotFoundException {
+    @NonNull
+    private OutputStream createFileOutputStream(@NonNull File path) throws FileNotFoundException {
         FileOutputStream fos = new FileOutputStream(path);
         if(symetricKey == null) {
             return fos;
@@ -350,7 +353,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * @param output
      * @return
      */
-    private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
+    private boolean exportXmlFile(@NonNull ByteArrayPayload payload, @NonNull OutputStream output) {
         // create data stream
         InputStream is = payload.getPayloadStream();
         try {

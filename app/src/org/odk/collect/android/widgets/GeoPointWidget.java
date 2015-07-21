@@ -17,6 +17,8 @@ package org.odk.collect.android.widgets;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -164,6 +166,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String s = mStringAnswer.getText().toString();
@@ -193,6 +196,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
     }
 
 
+    @NonNull
     private String formatGps(double coordinates, String type) {
         String location = Double.toString(coordinates);
         String degreeSign = "\u00B0";

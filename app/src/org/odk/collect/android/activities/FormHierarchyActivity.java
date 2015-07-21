@@ -29,6 +29,8 @@ import org.odk.collect.android.logic.HierarchyElement;
 import android.app.ListActivity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -349,7 +351,8 @@ public class FormHierarchyActivity extends ListActivity {
      * @param index
      * @return index
      */
-    public FormIndex stepIndexOut(FormIndex index) {
+    @Nullable
+    public FormIndex stepIndexOut(@NonNull FormIndex index) {
         if (index.isTerminal()) {
             return null;
         } else {
@@ -363,7 +366,7 @@ public class FormHierarchyActivity extends ListActivity {
      * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
      */
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
+    protected void onListItemClick(@NonNull ListView l, View v, int position, long id) {
         HierarchyElement h = (HierarchyElement) l.getItemAtPosition(position);
         if (h.getFormIndex() == null) {
             goUpLevel();
@@ -416,7 +419,7 @@ public class FormHierarchyActivity extends ListActivity {
      * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
      */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 FormEntryActivity.mFormController.jumpToIndex(mStartIndex);

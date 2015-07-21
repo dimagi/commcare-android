@@ -1,6 +1,8 @@
 package org.commcare.android.tasks;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
@@ -26,14 +28,18 @@ import java.io.FileNotFoundException;
  *
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
+    @Nullable
     Context c;
+    @Nullable
     String url;
+    @Nullable
     Long[] results;
     
     DataSubmissionListener formSubmissionListener;
 
     File dumpDirectory;
     
+    @NonNull
     public static String MALFORMED_FILE_CATEGORY = "malformed-file";
     
     public static final int BULK_SEND_ID = 12335645;
@@ -139,7 +145,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                     publishProgress(Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}));
                 }
                 counter++;
-            } catch(SessionUnavailableException | FileNotFoundException fe){
+            } catch(@NonNull SessionUnavailableException | FileNotFoundException fe){
                 Log.e("E", Localization.get("bulk.send.file.error", new String[] {f.getAbsolutePath()}), fe);
                 publishProgress(Localization.get("bulk.send.file.error", new String[] {fe.getMessage()}));
             }

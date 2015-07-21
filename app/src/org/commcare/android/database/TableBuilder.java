@@ -15,6 +15,7 @@ import org.commcare.android.storage.framework.Table;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
 /**
@@ -29,7 +30,7 @@ public class TableBuilder {
     private Vector<String> cols;
     private Vector<String> rawCols;
     
-    public TableBuilder(Class c) {
+    public TableBuilder(@NonNull Class c) {
         this.c = c;
         Table t = (Table)c.getAnnotation(Table.class);
         this.name = t.value();        
@@ -39,7 +40,7 @@ public class TableBuilder {
         
         addData(c);
     }
-    public void addData(Class c) {
+    public void addData(@NonNull Class c) {
         cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DbUtil.ID_COL);
         
@@ -62,7 +63,7 @@ public class TableBuilder {
     }
     
     
-    private void addMetaField(MetaField mf) {
+    private void addMetaField(@NonNull MetaField mf) {
         String key = mf.value();
         String columnName = scrubName(key);
         rawCols.add(columnName);
@@ -107,8 +108,9 @@ public class TableBuilder {
     }
 
     
+    @NonNull
     HashSet<String> unique = new HashSet<String>();
-    public void setUnique(String columnName) {
+    public void setUnique(@NonNull String columnName) {
         unique.add(scrubName(columnName));
     }
     
@@ -125,7 +127,7 @@ public class TableBuilder {
         return built;
     }
     
-    public static String scrubName(String input) {
+    public static String scrubName(@NonNull String input) {
         //Scrub
         return input.replace("-", "_");
     }
@@ -133,11 +135,13 @@ public class TableBuilder {
     //TODO: Read this from SQL, not assume from context
     private static final int MAX_SQL_ARGS = 950;
     
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input) {
+    @NonNull
+    public static List<Pair<String, String[]>> sqlList(@NonNull List<Integer> input) {
         return sqlList(input, MAX_SQL_ARGS);
     }
     
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
+    @NonNull
+    public static List<Pair<String, String[]>> sqlList(@NonNull List<Integer> input, int maxArgs) {
         
         List<Pair<String, String[]>> ops = new ArrayList<Pair<String, String[]>>();
         

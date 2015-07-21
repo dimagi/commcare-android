@@ -64,6 +64,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -430,7 +432,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      * @param response
      * @throws IOException If there is an issue reading or writing the response.
      */
-    private BitCache writeResponseToCache(HttpResponse response) throws IOException {
+    @Nullable
+    private BitCache writeResponseToCache(@NonNull HttpResponse response) throws IOException {
         BitCache cache = null;
         try {
             final long dataSizeGuess = guessDataSize(response);
@@ -503,7 +506,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      * Get an estimation of how large the provided response is.
      * @return -1 for unknown.
      */
-    private long guessDataSize(HttpResponse response) {
+    private long guessDataSize(@NonNull HttpResponse response) {
         if(DEBUG_LOAD_FROM_LOCAL) {
             try {
                 //Note: this is really stupid, but apparently you can't 
@@ -526,7 +529,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
+    private int recover(@NonNull HttpRequestGenerator requestor, @NonNull CommCareTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
         
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
@@ -617,7 +620,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     //Utility method for debugging of people need to dump the response b
-    private void dumpCache(BitCache cache) {
+    private void dumpCache(@NonNull BitCache cache) {
         try{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             AndroidStreamUtil.writeFromInputToOutput(cache.retrieveCache(), baos);
@@ -676,7 +679,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
+    private String readInput(InputStream stream, @NonNull CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
         DataModelPullParser parser;
         
         factory.initCaseParser();

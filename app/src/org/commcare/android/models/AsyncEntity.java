@@ -3,6 +3,9 @@
  */
 package org.commcare.android.models;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -67,9 +70,10 @@ public class AsyncEntity extends Entity<TreeReference>{
      * Basically you should never be calling mEntityStorageCache from inside of
      * a lock that 
      */
+    @NonNull
     private Object mAsyncLock = new Object();
     
-    public AsyncEntity(DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
+    public AsyncEntity(@NonNull DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
         super(t);
         this.fields = fields;
         this.data = new Object[fields.length];
@@ -126,6 +130,7 @@ public class AsyncEntity extends Entity<TreeReference>{
      * (non-Javadoc)
      * @see org.commcare.android.models.Entity#getNormalizedField(int)
      */
+    @Nullable
     @Override
     public String getNormalizedField(int i) {
         String normalized = this.getSortField(i);
@@ -133,6 +138,7 @@ public class AsyncEntity extends Entity<TreeReference>{
         return normalized;
     }
     
+    @Nullable
     @Override
     public String getSortField(int i) {
         //Get a db handle so we can get an outer lock
@@ -270,7 +276,8 @@ public class AsyncEntity extends Entity<TreeReference>{
         }
     }
     
-    private String[] breakUpField(String input) {
+    @NonNull
+    private String[] breakUpField(@Nullable String input) {
         if(input == null ) {return new String[0];}
         else {
             //We always fuzzy match on the sort field and only if it is available

@@ -11,6 +11,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -26,6 +28,7 @@ public class EntityStorageCache {
     public static final String COL_VALUE = "value";
     public static final String COL_TIMESTAMP= "timestamp";
     
+    @NonNull
     public static String getTableDefinition() {
         String tableCreate = "CREATE TABLE " + TABLE_NAME + "(" +
                 DbUtil.ID_COL + " INTEGER PRIMARY KEY, " + 
@@ -38,7 +41,7 @@ public class EntityStorageCache {
         return tableCreate;
     }
     
-    public static void createIndexes(SQLiteDatabase db ) {
+    public static void createIndexes(@NonNull SQLiteDatabase db ) {
         //To query what 
         db.execSQL("CREATE INDEX CACHE_TIMESTAMP ON " + TABLE_NAME + " (" + COL_CACHE_NAME + ", " + COL_TIMESTAMP  + " )");
         db.execSQL("CREATE INDEX NAME_ENTITY_KEY ON " + TABLE_NAME + " (" + COL_CACHE_NAME + ", "+ COL_ENTITY_KEY + ", " + COL_CACHE_KEY  + " )");
@@ -58,6 +61,7 @@ public class EntityStorageCache {
         this.mCacheName = cacheName;
     }
     
+    @Nullable
     SQLiteDatabase db;
     String mCacheName;
     public EntityStorageCache(String cacheName, SQLiteDatabase db) {
@@ -86,6 +90,7 @@ public class EntityStorageCache {
         }
     }
     
+    @Nullable
     public String retrieveCacheValue(String entityKey, String cacheKey) {
         String whereClause = String.format("%s = ? AND %s = ? AND %s = ?", COL_CACHE_NAME, COL_ENTITY_KEY, COL_CACHE_KEY);
         
@@ -134,11 +139,12 @@ public class EntityStorageCache {
      * @param sortFieldId
      * @return
      */
+    @NonNull
     public static String getCacheKey(String detailId, String mFieldId) {
         return detailId + "_" + mFieldId;
     }
     
-    public static int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
+    public static int getSortFieldIdFromCacheKey(@NonNull String detailId, @NonNull String cacheKey) {
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
             return Integer.parseInt(intId);

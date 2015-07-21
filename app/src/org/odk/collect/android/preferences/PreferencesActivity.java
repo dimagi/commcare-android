@@ -39,6 +39,8 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.widget.Toast;
@@ -170,7 +172,7 @@ public class PreferencesActivity extends PreferenceActivity implements
                         		 * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                         		 */
                                 @Override
-                                public void onClick(DialogInterface dialog, int id) {
+                                public void onClick(@NonNull DialogInterface dialog, int id) {
                                     dialog.dismiss();
                                 }
                             });
@@ -258,7 +260,7 @@ public class PreferencesActivity extends PreferenceActivity implements
      * @see android.preference.PreferenceActivity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_CANCELED) {
             // request was canceled, so do nothing
@@ -303,7 +305,7 @@ public class PreferencesActivity extends PreferenceActivity implements
      * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
      */
     @Override
-    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
+    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, @NonNull final String key) {
         switch (key) {
             case KEY_PROTOCOL:
                 updateProtocol();
@@ -353,7 +355,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    private void validateUrl(final EditTextPreference preference) {
+    private void validateUrl(@Nullable final EditTextPreference preference) {
         if (preference != null) {
             final String url = preference.getText();
             if (UrlUtils.isValidUrl(url)) {
@@ -577,9 +579,11 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
+    @Nullable
     private InputFilter getWhitespaceFilter() {
         final InputFilter whitespaceFilter = new InputFilter() {
-            public CharSequence filter(final CharSequence source, final int start, final int end, final Spanned dest,
+            @Nullable
+            public CharSequence filter(@NonNull final CharSequence source, final int start, final int end, final Spanned dest,
                     final int dstart, final int dend) {
                 for (int i = start; i < end; i++) {
                     if (Character.isWhitespace(source.charAt(i))) {
@@ -593,9 +597,11 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
+    @Nullable
     private InputFilter getReturnFilter() {
         InputFilter returnFilter = new InputFilter() {
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest,
+            @Nullable
+            public CharSequence filter(@NonNull CharSequence source, int start, int end, Spanned dest,
                     int dstart, int dend) {
                 for (int i = start; i < end; i++) {
                     if (Character.getType((source.charAt(i))) == Character.CONTROL) {
@@ -624,7 +630,8 @@ public class PreferencesActivity extends PreferenceActivity implements
         public boolean useProgressBar() { return progress; }
     }
     
-    public static ProgressBarMode getProgressBarMode(Context context) {
+    @NonNull
+    public static ProgressBarMode getProgressBarMode(@NonNull Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
         boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
@@ -635,7 +642,7 @@ public class PreferencesActivity extends PreferenceActivity implements
     }
 
 
-    public static boolean showFirstScreen(Context context) {
+    public static boolean showFirstScreen(@NonNull Context context) {
         return !PreferencesActivity.getProgressBarMode(context).useNavigationBar() && 
                 PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PreferencesActivity.KEY_SHOW_START_SCREEN, true);
     }

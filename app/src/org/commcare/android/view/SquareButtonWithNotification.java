@@ -3,6 +3,8 @@ package org.commcare.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.AttributeSet;
@@ -25,6 +27,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     //region View parameters
 
+    @Nullable
     Drawable backgroundImg;
     int backgroundColorButton = android.R.drawable.btn_default;
     int backgroundColorNotification = android.R.color.holo_green_light;
@@ -41,11 +44,11 @@ public class SquareButtonWithNotification extends RelativeLayout {
         buttonWithText.setOnClickListener(l);
     }
 
-    public void setNotificationText(String textNotification) {
+    public void setNotificationText(@Nullable String textNotification) {
         this.setNotificationText((Spannable)(textNotification == null ? null : new SpannableString(textNotification)));
     }
     
-    public void setNotificationText(Spannable textNotification) {
+    public void setNotificationText(@Nullable Spannable textNotification) {
         if (textNotification != null && textNotification.length() != 0) {
             subText.setVisibility(VISIBLE);
             subText.setText(textNotification);
@@ -60,19 +63,19 @@ public class SquareButtonWithNotification extends RelativeLayout {
     }
 
 
-    public void setText(Spannable text) { buttonWithText.setText(text.toString()); }
+    public void setText(@NonNull Spannable text) { buttonWithText.setText(text.toString()); }
 
     //endregion
 
     //region Constructors
 
-    public SquareButtonWithNotification(Context context, AttributeSet attrs) {
+    public SquareButtonWithNotification(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
 
         setUI(context, attrs);
     }
 
-    public SquareButtonWithNotification(Context context, AttributeSet attrs, int defStyle) {
+    public SquareButtonWithNotification(@NonNull Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         setUI(context, attrs);
@@ -82,7 +85,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     //region Private methods
 
-    private void setUI(Context context, AttributeSet attrs) {
+    private void setUI(@NonNull Context context, @Nullable AttributeSet attrs) {
         View view = inflate(context, R.layout.square_button_notification, this);
         buttonWithText = (SquareButtonWithText)view.findViewById(R.id.square_button_text);
         subText = (TextView)view.findViewById(R.id.button_subtext);

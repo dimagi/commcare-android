@@ -43,6 +43,8 @@ import org.javarosa.core.services.Logger;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -63,14 +65,15 @@ public class HttpRequestGenerator {
     public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
     
     
+    @Nullable
     private Credentials credentials;
     PasswordAuthentication passwordAuthentication;
     private String username;
 
-    public HttpRequestGenerator(User user) {
+    public HttpRequestGenerator(@NonNull User user) {
         this(user.getUsername(), user.getCachedPwd());
     }
-    public HttpRequestGenerator(String username, String password) {
+    public HttpRequestGenerator(String username, @NonNull String password) {
         String domainedUsername = username; 
         
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -95,7 +98,7 @@ public class HttpRequestGenerator {
         return makeCaseFetchRequest(baseUri, true);
     }
     
-    public HttpResponse get(String uri) throws ClientProtocolException, IOException {
+    public HttpResponse get(@NonNull String uri) throws ClientProtocolException, IOException {
         HttpClient client = client();
         
         Log.d(TAG, "Fetching from: " + uri);
@@ -152,7 +155,7 @@ public class HttpRequestGenerator {
         return execute(client, request);
     }
     
-    public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
+    public HttpResponse makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
         
@@ -169,7 +172,7 @@ public class HttpRequestGenerator {
 
 
 
-    private void addHeaders(HttpRequestBase base, String lastToken){
+    private void addHeaders(@NonNull HttpRequestBase base, @Nullable String lastToken){
         //base.addHeader("Accept-Language", lang)
         base.addHeader("X-OpenRosa-Version", "1.0");
         if(lastToken != null) {
@@ -178,7 +181,8 @@ public class HttpRequestGenerator {
         base.addHeader("x-openrosa-deviceid", CommCareApplication._().getPhoneId());
     }
     
-    public String getSyncToken(String username) {
+    @Nullable
+    public String getSyncToken(@Nullable String username) {
         if(username == null) { 
             return null;
         }
@@ -213,6 +217,7 @@ public class HttpRequestGenerator {
         return execute(httpclient, httppost);
     }
     
+    @NonNull
     private HttpClient client() {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
@@ -237,7 +242,7 @@ public class HttpRequestGenerator {
      * @param request
      * @return
      */
-    private HttpResponse execute(HttpClient client, HttpUriRequest request) throws IOException {
+    private HttpResponse execute(@NonNull HttpClient client, @NonNull HttpUriRequest request) throws IOException {
         HttpContext context = new BasicHttpContext(); 
         HttpResponse response = client.execute(request, context);
         
@@ -256,7 +261,7 @@ public class HttpRequestGenerator {
         return response;
     }
     
-    public static boolean isValidRedirect(URL url, URL newUrl) {
+    public static boolean isValidRedirect(@NonNull URL url, @NonNull URL newUrl) {
         //unless it's https, don't worry about it
         if(!url.getProtocol().equals("https")) {
             return true;
@@ -281,7 +286,7 @@ public class HttpRequestGenerator {
      * @param url
      * @return a Stream to that URL 
      */
-    public InputStream simpleGet(URL url) throws IOException {
+    public InputStream simpleGet(@NonNull URL url) throws IOException {
         
          // only for versions past gingerbread use the HttpURLConnection
         if (android.os.Build.VERSION.SDK_INT > 11) {
@@ -355,7 +360,7 @@ public class HttpRequestGenerator {
      * @param con
      * @throws IOException
      */
-    private void setup(HttpURLConnection con) throws IOException {
+    private void setup(@NonNull HttpURLConnection con) throws IOException {
         con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
         con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
         con.setRequestMethod("GET");

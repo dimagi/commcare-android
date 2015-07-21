@@ -9,6 +9,7 @@ import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
 
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 /**
  * This task is responsible for validating app's installed media
@@ -16,11 +17,13 @@ import android.os.AsyncTask;
  * @author ctsims
  */
 public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<MissingMediaException>> implements TableStateListener {
+    @Nullable
     private VerificationTaskListener listener;
 
     public VerificationTask() {
     }
     
+    @Nullable
     @Override
     protected SizeBoundVector<MissingMediaException> doInBackground(String... profileRefs) {
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
@@ -50,7 +53,7 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
     }
 
     @Override
-    protected void onPostExecute(SizeBoundVector<MissingMediaException> problems) {
+    protected void onPostExecute(@Nullable SizeBoundVector<MissingMediaException> problems) {
         if(problems == null){
             listener.success();
         } else if(listener != null) {

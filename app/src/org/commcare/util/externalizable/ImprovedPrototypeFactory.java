@@ -1,5 +1,7 @@
 package org.commcare.util.externalizable;
 
+import android.support.annotation.NonNull;
+
 import java.util.Hashtable;
 
 import org.javarosa.core.util.PrefixTree;
@@ -15,6 +17,7 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
     
     PrefixTree classNames;
     
+    @NonNull
     Hashtable<Integer, Class> prototypes = new Hashtable<Integer, Class>();
     AndroidClassHasher hasher;
     
@@ -29,7 +32,7 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
      * @see org.javarosa.core.util.externalizable.PrototypeFactory#addClass(java.lang.Class)
      */
     @Override
-    public void addClass (Class c) {
+    public void addClass (@NonNull Class c) {
         if (!initialized) {
             lazyInit();
         }

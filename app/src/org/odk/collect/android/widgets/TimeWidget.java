@@ -8,6 +8,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
@@ -25,7 +26,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     private static final String TAG = TimeWidget.class.getSimpleName();
 
 
-    public TimeWidget(Context context, final FormEntryPrompt prompt) {
+    public TimeWidget(@NonNull Context context, @NonNull final FormEntryPrompt prompt) {
         super(context, prompt);
 
         mTimePicker = new TimePicker(getContext());
@@ -88,6 +89,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @NonNull
     @Override
     public IAnswerData getAnswer() {
         mTimePicker.clearFocus();
@@ -109,7 +111,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -38,6 +40,7 @@ import java.util.Vector;
 public class CaseDataContentProvider extends ContentProvider {
     
     //Valid sql selectors
+    @NonNull
     HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
     
     
@@ -46,8 +49,9 @@ public class CaseDataContentProvider extends ContentProvider {
     /* (non-Javadoc)
      * @see android.content.ContentProvider#getType(android.net.Uri)
      */
+    @Nullable
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         int match = CaseDataAPI.UriMatch(uri);
         
         switch(match) {
@@ -81,8 +85,9 @@ public class CaseDataContentProvider extends ContentProvider {
     /* (non-Javadoc)
      * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
      */
+    @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, @NonNull String[] selectionArgs, String sortOrder) {
 
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
@@ -117,7 +122,8 @@ public class CaseDataContentProvider extends ContentProvider {
 
 
     //this is the complex case. Querying the full case database for metadata.
-    private Cursor queryCaseList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    @NonNull
+    private Cursor queryCaseList(@NonNull Uri uri, String[] projection, @Nullable String selection, @NonNull String[] selectionArgs, String sortOrder) {
 
         //Not cached yet. Long term this should be a priority.
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
@@ -213,6 +219,7 @@ public class CaseDataContentProvider extends ContentProvider {
      * @return a Cursor over the multimedia attachments associated with this case
      */
 
+    @NonNull
     private Cursor queryCaseAttachments(String caseId) {
 
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
@@ -260,6 +267,7 @@ public class CaseDataContentProvider extends ContentProvider {
      * 
      * @return
      */
+    @NonNull
     private Cursor queryCaseData(String caseId) {
         //Demo only, we'll pull this out when we're doing this for real and centralize it/manage its lifecycle more carefully
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
@@ -314,6 +322,7 @@ public class CaseDataContentProvider extends ContentProvider {
     /* (non-Javadoc)
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
+    @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO Auto-generated method stub

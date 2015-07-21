@@ -19,6 +19,8 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -64,7 +66,8 @@ public class AndroidUtil {
     }
     
     public static class AndroidUnionLambda extends UnionLambda {
-        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+        @NonNull
+        public <T> Vector<T> union(@NonNull Vector<T> a, Vector<T> b) {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
             //j2me (thanks Sun!) so this is what we get.
@@ -82,7 +85,7 @@ public class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(Activity activity, ViewGroup v) {
+    public static void setClickListenersForEverything(@NonNull Activity activity, @Nullable ViewGroup v) {
         if (BuildConfig.DEBUG) {
             ViewGroup layout = v != null ? v : (ViewGroup) activity.findViewById(android.R.id.content);
             LinkedList<View> views = new LinkedList<View>();
@@ -93,7 +96,7 @@ public class AndroidUtil {
                 Log.i("GetID", "Adding onClickListener to view " + child);
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(@NonNull View v) {
                         String vid;
                         try {
                             vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
@@ -114,7 +117,7 @@ public class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(Activity act){
+    public static void setClickListenersForEverything(@NonNull Activity act){
         setClickListenersForEverything(act, (ViewGroup) act.findViewById(android.R.id.content));
     }
 
@@ -124,7 +127,8 @@ public class AndroidUtil {
      * @param attrs
      * @return
      */
-    public static int[] getThemeColorIDs(final Context context, final int[] attrs){
+    @NonNull
+    public static int[] getThemeColorIDs(@NonNull final Context context, @NonNull final int[] attrs){
         int[] colors = new int[attrs.length];
         Resources.Theme theme = context.getTheme();
         for (int i = 0; i < attrs.length; i++) {
@@ -135,7 +139,7 @@ public class AndroidUtil {
         return colors;
     }
 
-    public static boolean isNetworkAvailable(Context ctx) {
+    public static boolean isNetworkAvailable(@NonNull Context ctx) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();

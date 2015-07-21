@@ -24,6 +24,7 @@ import javax.crypto.SecretKey;
 import org.commcare.android.crypt.CryptUtil;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
@@ -52,6 +53,7 @@ public class FileBitCache implements BitCache {
     /* (non-Javadoc)
      * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
      */
+    @NonNull
     public OutputStream getCacheStream() throws IOException{
         //generate write key/cipher
         try {
@@ -80,6 +82,7 @@ public class FileBitCache implements BitCache {
     /* (non-Javadoc)
      * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
      */
+    @NonNull
     public InputStream retrieveCache() throws IOException {
         try{
             //generate read key/cipher

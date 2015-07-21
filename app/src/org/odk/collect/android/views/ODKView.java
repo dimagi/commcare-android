@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
@@ -244,6 +245,7 @@ public class ODKView extends ScrollView
     /**
      * @return a HashMap of answers entered by the user for this set of widgets
      */
+    @NonNull
     public HashMap<FormIndex, IAnswerData> getAnswers() {
         HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
         for (QuestionWidget q : widgets) {
@@ -292,6 +294,7 @@ public class ODKView extends ScrollView
     /**
      * Returns the hierarchy of groups to which the question belongs.
      */
+    @NonNull
     private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
         SpannableStringBuilder s = new SpannableStringBuilder("");
         String t = "";
@@ -330,6 +333,7 @@ public class ODKView extends ScrollView
      * Ugh, the coupling here sucks, but this returns the group label
      * to be used for this odk view. 
      */
+    @NonNull
     public SpannableStringBuilder getGroupLabel() {
         return mGroupLabel;
     }
@@ -397,6 +401,7 @@ public class ODKView extends ScrollView
         }
     }
 
+    @NonNull
     public ArrayList<QuestionWidget> getWidgets() {
         return widgets;
     }

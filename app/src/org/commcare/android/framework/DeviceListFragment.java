@@ -32,6 +32,8 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,8 +50,11 @@ import android.widget.TextView;
 @SuppressLint("NewApi")
 public class DeviceListFragment extends ListFragment implements PeerListListener {
 
+    @NonNull
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    @Nullable
     ProgressDialog progressDialog = null;
+    @Nullable
     View mContentView = null;
     private WifiP2pDevice device;
 
@@ -69,7 +74,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
         mContentView = inflater.inflate(R.layout.device_list, container);
         return mContentView;
@@ -139,7 +144,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
          * @param textViewResourceId
          * @param objects
          */
-        public WiFiPeerListAdapter(Context context, int textViewResourceId,
+        public WiFiPeerListAdapter(@NonNull Context context, int textViewResourceId,
                 List<WifiP2pDevice> objects) {
             super(context, textViewResourceId, objects);
             items = objects;
@@ -180,7 +185,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * 
      * @param device WifiP2pDevice object
      */
-    public void updateThisDevice(WifiP2pDevice device) {
+    public void updateThisDevice(@NonNull WifiP2pDevice device) {
          Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
@@ -194,7 +199,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @see android.net.wifi.p2p.WifiP2pManager.PeerListListener#onPeersAvailable(android.net.wifi.p2p.WifiP2pDeviceList)
      */
     @Override
-    public void onPeersAvailable(WifiP2pDeviceList peerList) {
+    public void onPeersAvailable(@NonNull WifiP2pDeviceList peerList) {
         Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

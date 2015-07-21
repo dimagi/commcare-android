@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util.bitcache;
 
+import android.support.annotation.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -32,6 +34,7 @@ public class MemoryBitCache implements BitCache {
     /* (non-Javadoc)
      * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
      */
+    @Nullable
     public OutputStream getCacheStream() {
         return bos;
     }
@@ -39,6 +42,7 @@ public class MemoryBitCache implements BitCache {
     /* (non-Javadoc)
      * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
      */
+    @Nullable
     public InputStream retrieveCache() {
         if(data == null) {
             data = bos.toByteArray();

@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -266,6 +267,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == UnzipTask.UNZIP_TASK_ID) {

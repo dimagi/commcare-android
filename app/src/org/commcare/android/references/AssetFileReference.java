@@ -10,6 +10,8 @@ import java.io.OutputStream;
 import org.javarosa.core.reference.Reference;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Reference to an asset file
@@ -36,14 +38,17 @@ public class AssetFileReference implements Reference {
         }
     }
 
+    @NonNull
     public InputStream getStream() throws IOException {
         return c.getAssets().open(assetURI);
     }
 
+    @NonNull
     public String getURI() {
         return "jr://asset/" + assetURI;
     }
 
+    @Nullable
     public String getLocalURI() {
         return null;
     }
@@ -53,6 +58,7 @@ public class AssetFileReference implements Reference {
         return true;
     }
 
+    @NonNull
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Asset references are read only!");
     }
@@ -62,6 +68,7 @@ public class AssetFileReference implements Reference {
         throw new IOException("Cannot remove Asset files from the Package");
     }
 
+    @Nullable
     public Reference[] probeAlternativeReferences() {
         // TODO Auto-generated method stub
         return null;

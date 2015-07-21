@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore.Audio;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -178,6 +179,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         mPlayButton.setEnabled(false);
     }
 
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {

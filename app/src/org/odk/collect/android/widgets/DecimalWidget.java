@@ -15,6 +15,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
@@ -98,6 +99,7 @@ public class DecimalWidget extends StringWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.StringWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();

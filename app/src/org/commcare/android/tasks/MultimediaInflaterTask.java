@@ -1,5 +1,7 @@
 package org.commcare.android.tasks;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -16,6 +18,7 @@ import org.javarosa.core.services.locale.Localization;
 
 public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, String, Boolean, R> {
     
+    @NonNull
     protected Boolean doTaskBackground(String... params) {
         File archive = new File(params[0]);
         File destination = new File(params[1]);

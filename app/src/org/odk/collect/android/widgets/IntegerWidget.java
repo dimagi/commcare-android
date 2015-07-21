@@ -15,6 +15,8 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
 import android.text.method.PasswordTransformationMethod;
@@ -41,7 +43,7 @@ public class IntegerWidget extends StringWidget {
     //1 for int. 0 for long?
     int number_type;
 
-    public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type) {
+    public IntegerWidget(Context context, @NonNull FormEntryPrompt prompt, boolean secret, int num_type) {
         super(context, prompt, secret);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
@@ -90,7 +92,7 @@ public class IntegerWidget extends StringWidget {
      * @see org.odk.collect.android.widgets.StringWidget#guessMaxStringLength(org.javarosa.form.api.FormEntryPrompt)
      */
     @Override
-    protected int guessMaxStringLength(FormEntryPrompt prompt) throws UnpivotableExpressionException{
+    protected int guessMaxStringLength(@NonNull FormEntryPrompt prompt) throws UnpivotableExpressionException{
         int existingGuess = Integer.MAX_VALUE;
         try {
             existingGuess = super.guessMaxStringLength(prompt);
@@ -137,7 +139,7 @@ public class IntegerWidget extends StringWidget {
      * @see org.odk.collect.android.widgets.StringWidget#setTextInputType(android.widget.EditText)
      */
     @Override
-    protected void setTextInputType(EditText mAnswer) {
+    protected void setTextInputType(@NonNull EditText mAnswer) {
         if(secret) {
             mAnswer.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
@@ -149,6 +151,7 @@ public class IntegerWidget extends StringWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.StringWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();

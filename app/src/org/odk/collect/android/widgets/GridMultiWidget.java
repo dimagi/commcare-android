@@ -4,6 +4,8 @@ package org.odk.collect.android.widgets;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -71,7 +73,7 @@ public class GridMultiWidget extends QuestionWidget {
 
 
     @SuppressWarnings("unchecked")
-    public GridMultiWidget(Context context, FormEntryPrompt prompt, int numColumns) {
+    public GridMultiWidget(@NonNull Context context, @NonNull FormEntryPrompt prompt, int numColumns) {
         super(context, prompt);
         mItems = prompt.getSelectChoices();
         mPrompt = prompt;
@@ -209,6 +211,7 @@ public class GridMultiWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<Selection>();
@@ -246,7 +249,7 @@ public class GridMultiWidget extends QuestionWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -270,6 +273,7 @@ public class GridMultiWidget extends QuestionWidget {
         }
 
 
+        @Nullable
         public Object getItem(int position) {
             return null;
         }
@@ -281,6 +285,7 @@ public class GridMultiWidget extends QuestionWidget {
 
 
         // create a new ImageView for each item referenced by the Adapter
+        @Nullable
         public View getView(int position, View convertView, ViewGroup parent) {
             String imageURI = choices[position];
 

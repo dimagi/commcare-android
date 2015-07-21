@@ -34,6 +34,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -48,6 +50,7 @@ import android.util.Pair;
 public class FormRecordProcessor {
     
     private Context c;
+    @Nullable
     SqlStorage<FormRecord> storage;
     
     public FormRecordProcessor(Context c) {
@@ -66,7 +69,7 @@ public class FormRecordProcessor {
      * @throws UnfullfilledRequirementsException
      * @throws StorageFullException
      */
-    public FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
+    public FormRecord process(@NonNull FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         String form = record.getPath(c);
         
         final File f = new File(form);
@@ -75,7 +78,8 @@ public class FormRecordProcessor {
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
         DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
-            public TransactionParser getParser(KXmlParser parser) {
+            @Nullable
+            public TransactionParser getParser(@NonNull KXmlParser parser) {
                 if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
                     return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
                 } else if("case".equalsIgnoreCase(parser.getName())) {
@@ -117,7 +121,8 @@ public class FormRecordProcessor {
      * @return A tuple whose first argument is a boolean specifying whether the record has passed the verification process.
      * The second argument is a human readable report for debugging.
      */
-    public Pair<Boolean, String> verifyFormRecordIntegrity(FormRecord r) {
+    @NonNull
+    public Pair<Boolean, String> verifyFormRecordIntegrity(@NonNull FormRecord r) {
         StringBuilder reporter = new StringBuilder();
         try {
             reporter.append("\n" + r.toString() + "\n");
@@ -161,7 +166,7 @@ public class FormRecordProcessor {
         }
     }
     
-    private boolean performLinearFileScan(FormRecord r, File recordFile, boolean useCipher, StringBuilder reporter, String label) {
+    private boolean performLinearFileScan(@NonNull FormRecord r, @NonNull File recordFile, boolean useCipher, @NonNull StringBuilder reporter, String label) {
         //Try to read the actual bytes inline
         InputStream is = null;
         byte[] buffer = new byte[512];
@@ -190,7 +195,7 @@ public class FormRecordProcessor {
         }
     }
     
-    private boolean attemptXmlScan(FormRecord r, File recordFile, StringBuilder reporter) {
+    private boolean attemptXmlScan(@NonNull FormRecord r, @NonNull File recordFile, @NonNull StringBuilder reporter) {
         KXmlParser parser = new KXmlParser();
         InputStream is = null;
         try {

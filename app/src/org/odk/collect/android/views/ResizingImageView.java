@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -46,11 +47,11 @@ public class ResizingImageView extends ImageView {
     private float scaleFactor = 1.0f;
     private float scaleFactorThreshhold = 1.2f;
 
-    public ResizingImageView(Context context) {
+    public ResizingImageView(@NonNull Context context) {
         this(context, null, null);
     }
 
-    public ResizingImageView(Context context, String imageURI, String bigImageURI){
+    public ResizingImageView(@NonNull Context context, String imageURI, String bigImageURI){
         super(context);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -63,7 +64,7 @@ public class ResizingImageView extends ImageView {
      * @see android.view.View#onTouchEvent(android.view.MotionEvent)
      */
     @Override
-    public boolean onTouchEvent(MotionEvent e) {
+    public boolean onTouchEvent(@NonNull MotionEvent e) {
         scaleGestureDetector.onTouchEvent(e);
         return gestureDetector.onTouchEvent(e);
     }
@@ -116,7 +117,7 @@ public class ResizingImageView extends ImageView {
          * @see android.view.ScaleGestureDetector.SimpleOnScaleGestureListener#onScale(android.view.ScaleGestureDetector)
          */
         @Override
-        public boolean onScale(ScaleGestureDetector detector) {
+        public boolean onScale(@NonNull ScaleGestureDetector detector) {
             scaleFactor *= detector.getScaleFactor();
 
             // don't let the object get too small or too large.
@@ -158,6 +159,7 @@ public class ResizingImageView extends ImageView {
         }
     }
 
+    @NonNull
     private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor){
 
         int maxWidth = mMaxWidth;
@@ -218,7 +220,7 @@ public class ResizingImageView extends ImageView {
         }
     }
     // helper method for algorithm above
-    public static float dipToPixels(Context context, float dipValue) {
+    public static float dipToPixels(@NonNull Context context, float dipValue) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
     }

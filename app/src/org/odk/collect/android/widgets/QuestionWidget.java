@@ -26,6 +26,8 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
@@ -73,14 +75,15 @@ public abstract class QuestionWidget extends LinearLayout {
     //requested focus yet due to having not been layed out)
     protected boolean focusPending = false;
 
+    @Nullable
     protected WidgetChangedListener widgetChangedListener;
 
 
-    public QuestionWidget(Context context, FormEntryPrompt p) {
+    public QuestionWidget(@NonNull Context context, @NonNull FormEntryPrompt p) {
         this(context, p, null);
     }
 
-    public QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
+    public QuestionWidget(@NonNull Context context, @NonNull FormEntryPrompt p, @Nullable WidgetChangedListener w){
         super(context);
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
@@ -131,7 +134,7 @@ public abstract class QuestionWidget extends LinearLayout {
     protected void acceptFocus() {
     }
 
-    private void addHelpPlaceholder(FormEntryPrompt p) {
+    private void addHelpPlaceholder(@NonNull FormEntryPrompt p) {
         if (!p.hasHelp()) {
             return;
         }
@@ -179,6 +182,7 @@ public abstract class QuestionWidget extends LinearLayout {
     }
 
     // Abstract methods
+    @Nullable
     public abstract IAnswerData getAnswer();
 
     public abstract void clearAnswer();
@@ -195,7 +199,7 @@ public abstract class QuestionWidget extends LinearLayout {
          * (non-Javadoc)
          * @see android.text.style.ClickableSpan#updateDrawState(android.text.TextPaint)
          */
-        @Override public void updateDrawState(TextPaint ds) {
+        @Override public void updateDrawState(@NonNull TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
@@ -261,7 +265,7 @@ public abstract class QuestionWidget extends LinearLayout {
      * on the screen. If this view is smaller than the viewable area available, it
      * will be fully visible in addition to the subview.
      */
-    private void requestChildViewOnScreen(View child) {
+    private void requestChildViewOnScreen(@NonNull View child) {
         //Take focus so the user can be prepared to interact with this question, since
         //they will need to be fixing the input
         acceptFocus();
@@ -346,7 +350,7 @@ public abstract class QuestionWidget extends LinearLayout {
         }
     }
 
-    private void stripUnderlines(TextView textView) {
+    private void stripUnderlines(@NonNull TextView textView) {
         Spannable s = (Spannable)textView.getText();
         URLSpan[] spans = s.getSpans(0, s.length(), URLSpan.class);
         for (URLSpan span: spans) {
@@ -364,7 +368,7 @@ public abstract class QuestionWidget extends LinearLayout {
      * To satisfy the RelativeLayout constraints, we add the audio first if it exists, then the
      * TextView to fit the rest of the space, then the image if applicable.
      */
-    protected void addQuestionText(final FormEntryPrompt p) {
+    protected void addQuestionText(@NonNull final FormEntryPrompt p) {
         String imageURI = p.getImageText();
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
@@ -416,7 +420,7 @@ public abstract class QuestionWidget extends LinearLayout {
         addView(mediaLayout, mLayout);
     }
 
-    private void fireHelpText(FormEntryPrompt prompt) {
+    private void fireHelpText(@NonNull FormEntryPrompt prompt) {
         fireHelpText(prompt, null);
     }
 
@@ -424,7 +428,7 @@ public abstract class QuestionWidget extends LinearLayout {
     * Display extra help, triggered by user request.
     * @param prompt
     */
-    private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
+    private void fireHelpText(@NonNull FormEntryPrompt prompt, @Nullable final Runnable r) {
         if (!prompt.hasHelp()) {
             return;
         }                               
@@ -445,7 +449,7 @@ public abstract class QuestionWidget extends LinearLayout {
             
             DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int i) {
+                public void onClick(@NonNull DialogInterface dialog, int i) {
                     switch (i) {
                     case DialogInterface.BUTTON1:
                         dialog.cancel();
@@ -472,7 +476,8 @@ public abstract class QuestionWidget extends LinearLayout {
      * @param prompt
      * @return
      */
-    private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
+    @NonNull
+    private MediaLayout createHelpLayout(@NonNull FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());
 
         String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
@@ -501,7 +506,7 @@ public abstract class QuestionWidget extends LinearLayout {
         return helpLayout;
     }
 
-    public static void expand(final View v) {
+    public static void expand(@NonNull final View v) {
         v.measure(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         final int targetHeight = v.getMeasuredHeight();
 
@@ -528,7 +533,7 @@ public abstract class QuestionWidget extends LinearLayout {
         v.startAnimation(a);
     }
 
-    public static void collapse(final View v) {
+    public static void collapse(@NonNull final View v) {
         final int initialHeight = v.getMeasuredHeight();
 
         Animation a = new Animation()
@@ -565,7 +570,7 @@ public abstract class QuestionWidget extends LinearLayout {
     /**
      * Add a TextView containing the help text.
      */
-    private void addHintText(FormEntryPrompt p) {
+    private void addHintText(@NonNull FormEntryPrompt p) {
         String s = p.getHintText();
 
         if (s != null && !s.equals("")) {
@@ -599,6 +604,7 @@ public abstract class QuestionWidget extends LinearLayout {
         }
     }
 
+    @Nullable
     protected IAnswerData getCurrentAnswer() {
         IAnswerData current = mPrompt.getAnswerValue();
         if(current == null) { return null; }
@@ -639,7 +645,7 @@ public abstract class QuestionWidget extends LinearLayout {
         }
     }
 
-    public void checkFileSize(String filepath){
+    public void checkFileSize(@NonNull String filepath){
         checkFileSize(new File(filepath));
     }
 

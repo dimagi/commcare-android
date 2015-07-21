@@ -1,5 +1,8 @@
 package org.commcare.android.cases;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -28,6 +31,7 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         primaryIdMapping = null;
     }
     
+    @Nullable
     @Override
     protected Hashtable<String, Integer> getKeyMapping(String keyId) {
         if(keyId.equals(Ledger.INDEX_ENTITY_ID) && primaryIdMapping != null) {
@@ -61,6 +65,7 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
      * (non-Javadoc)
      * @see org.commcare.cases.util.StorageBackedTreeRoot#union(java.util.Vector, java.util.Vector)
      */
+    @NonNull
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         //This is kind of (ok, so really) awkward looking, but we can't use sets in 

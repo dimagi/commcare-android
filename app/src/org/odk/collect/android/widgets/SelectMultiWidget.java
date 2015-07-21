@@ -15,6 +15,8 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -49,7 +51,7 @@ public class SelectMultiWidget extends QuestionWidget {
 
 
     @SuppressWarnings("unchecked")
-    public SelectMultiWidget(Context context, FormEntryPrompt prompt) {
+    public SelectMultiWidget(@NonNull Context context, @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
         mPrompt = prompt;
         mCheckboxes = new Vector<CheckBox>();
@@ -98,7 +100,7 @@ public class SelectMultiWidget extends QuestionWidget {
                      * @see android.widget.CompoundButton.OnCheckedChangeListener#onCheckedChanged(android.widget.CompoundButton, boolean)
                      */
                     @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
                         if (!mCheckboxInit && mPrompt.isReadOnly()) {
                             if (buttonView.isChecked()) {
                                 buttonView.setChecked(false);
@@ -178,6 +180,7 @@ public class SelectMultiWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<Selection>();
@@ -203,7 +206,7 @@ public class SelectMultiWidget extends QuestionWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);

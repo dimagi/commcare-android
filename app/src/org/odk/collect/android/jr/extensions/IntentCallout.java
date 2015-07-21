@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.javarosa.core.model.Constants;
@@ -76,6 +77,7 @@ public class IntentCallout implements Externalizable {
         this.form = form;
     }
     
+    @NonNull
     public Intent generate(EvaluationContext ec) {
         Intent i = new Intent();
         if(className != null){

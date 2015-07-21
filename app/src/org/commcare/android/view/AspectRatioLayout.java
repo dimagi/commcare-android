@@ -1,6 +1,7 @@
 package org.commcare.android.view;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -16,12 +17,12 @@ public class AspectRatioLayout extends FrameLayout {
         super(context);
     }
 
-    public AspectRatioLayout(Context context, AttributeSet attrs) {
+    public AspectRatioLayout(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         initializeRatio(context, attrs);
     }
 
-    public AspectRatioLayout(Context context, AttributeSet attrs, int defStyle) {
+    public AspectRatioLayout(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initializeRatio(context, attrs);
     }
@@ -36,7 +37,7 @@ public class AspectRatioLayout extends FrameLayout {
         mRatioHeight = ratioHeight;
     }
     
-    private void initializeRatio(Context context, AttributeSet attrs) {
+    private void initializeRatio(Context context, @NonNull AttributeSet attrs) {
         if(!isInEditMode()) {
             String namespace = "http://schemas.android.com/apk/lib/" + this.getClass().getPackage().getName();
             mRatioWidth = attrs.getAttributeFloatValue(namespace, "ratio_width", 1);

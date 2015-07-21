@@ -12,6 +12,7 @@ import org.odk.collect.android.utilities.EthiopianDateHelper;
 import org.odk.collect.android.utilities.NepaliDateUtilities;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
@@ -28,6 +29,7 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
          * (non-Javadoc)
          * @see org.javarosa.core.model.condition.IFunctionHandler#getName()
          */
+        @NonNull
         @Override
         public String getName() {
             return "format-date-for-calendar";
@@ -37,6 +39,7 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
          * (non-Javadoc)
          * @see org.javarosa.core.model.condition.IFunctionHandler#getPrototypes()
          */
+        @NonNull
         @Override
         public Vector getPrototypes() {
             Vector v = new Vector();

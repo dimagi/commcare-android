@@ -3,6 +3,7 @@ package org.commcare.android.cases;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
@@ -158,6 +159,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     }
     
     
+    @Nullable
     public String getCacheIndex(TreeReference ref) {
         //NOTE: there's no evaluation here as to whether the ref is suitable
         //we only follow one pattern for now and it's evaluated below. 
@@ -203,6 +205,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
      * ](non-Javadoc)
      * @see org.javarosa.core.model.utils.CacheHost#guessCachePrimer()
      */
+    @Nullable
     @Override
     public String[][] getCachePrimeGuess() { 
         return mMostRecentBatchFetch;

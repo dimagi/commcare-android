@@ -22,6 +22,7 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -112,6 +113,7 @@ public class CallInPhoneListener extends PhoneStateListener {
              * (non-Javadoc)
              * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
              */
+            @Nullable
             @Override
             protected Void doInBackground(Void... params) {
                     synchronized(cachedNumbers) {
@@ -218,6 +220,7 @@ public class CallInPhoneListener extends PhoneStateListener {
         loader.execute();
     }
 
+    @Nullable
     public String getCaller(String incomingNumber) {
         synchronized(cachedNumbers) {
             for(String number : cachedNumbers.keySet()) {
@@ -229,6 +232,7 @@ public class CallInPhoneListener extends PhoneStateListener {
         return null;
     }
 
+    @Nullable
     public Intent getDetailIntent(Context context, String incomingNumber) {
         //        synchronized(cachedNumbers) {
         //            for(String number : cachedNumbers.keySet()) {

@@ -6,6 +6,7 @@ import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -40,6 +41,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
      * (non-Javadoc)
      * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
      */
+    @NonNull
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment = new EntityDetailFragment();

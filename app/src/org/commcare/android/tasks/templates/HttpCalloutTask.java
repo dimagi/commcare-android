@@ -4,6 +4,8 @@
 package org.commcare.android.tasks.templates;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -52,6 +54,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     }
     
     
+    @Nullable
     @Override
     protected HttpCalloutOutcomes doTaskBackground(Object... params) {
         HttpCalloutOutcomes preHttpOutcome = doSetupTaskBeforeRequest();
@@ -123,13 +126,15 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
      * 
      * @return
      */
+    @Nullable
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         return null;
     }
     
     protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
     
-    protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
+    @NonNull
+    protected HttpCalloutOutcomes doResponseSuccess(@NonNull HttpResponse response) throws IOException {
         beginResponseHandling(response);
         
         InputStream input = cacheResponseOpenHandle(response);
@@ -162,7 +167,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     
     protected abstract TransactionParserFactory getTransactionParserFactory();
     
-    protected InputStream cacheResponseOpenHandle(HttpResponse response) throws IOException {
+    protected InputStream cacheResponseOpenHandle(@NonNull HttpResponse response) throws IOException {
         int dataSizeGuess = -1;
         if(response.containsHeader("Content-Length")) {
             String length = response.getFirstHeader("Content-Length").getValue();
@@ -187,6 +192,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         //Nothing unless required
     }
     
+    @NonNull
     protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
         return HttpCalloutOutcomes.AuthFailed;
     }

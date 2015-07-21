@@ -2,6 +2,7 @@ package org.commcare.android.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,6 +100,7 @@ public class SetupEnterURLFragment extends Fragment {
      * Returns the chosen URL in the UI, prefixing it with http:// if not set.
      * @return The current URL
      */
+    @NonNull
     public String getURL(){
         int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();

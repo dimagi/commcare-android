@@ -24,6 +24,8 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +50,7 @@ public class SpinnerWidget extends QuestionWidget {
     String[] choices;
 
 
-    public SpinnerWidget(Context context, FormEntryPrompt prompt) {
+    public SpinnerWidget(@NonNull Context context, @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
 
         mItems = prompt.getSelectChoices();
@@ -117,6 +119,7 @@ public class SpinnerWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         int i = spinner.getSelectedItemPosition();
@@ -147,7 +150,7 @@ public class SpinnerWidget extends QuestionWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -163,7 +166,7 @@ public class SpinnerWidget extends QuestionWidget {
         float textSize;
 
 
-        public SpinnerAdapter(final Context context, final int textViewResourceId,
+        public SpinnerAdapter(@NonNull final Context context, final int textViewResourceId,
                 final String[] objects, int textUnit, float textSize) {
             super(context, textViewResourceId, objects);
             this.items = objects;
@@ -177,9 +180,10 @@ public class SpinnerWidget extends QuestionWidget {
          * (non-Javadoc)
          * @see android.widget.ArrayAdapter#getDropDownView(int, android.view.View, android.view.ViewGroup)
          */
+        @Nullable
         @Override
         // Defines the text view parameters for the drop down list entries
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        public View getDropDownView(int position, @Nullable View convertView, ViewGroup parent) {
 
             if (convertView == null) {
                 LayoutInflater inflater = LayoutInflater.from(context);
@@ -198,8 +202,9 @@ public class SpinnerWidget extends QuestionWidget {
          * (non-Javadoc)
          * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
          */
+        @Nullable
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, @Nullable View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = LayoutInflater.from(context);
                 convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);

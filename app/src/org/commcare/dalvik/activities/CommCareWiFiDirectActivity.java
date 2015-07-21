@@ -16,6 +16,8 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
@@ -97,8 +99,10 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
     public static final int FILE_SERVER_TASK_ID = 129123;
 
+    @NonNull
     public wdState mState = wdState.send;
 
+    @Nullable
     public FormRecord[] cachedRecords;
 
     /*
@@ -261,7 +265,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         mManager.createGroup(mChannel, fragment);
     }
 
-    public void showDialog(Activity activity, String title, CharSequence message) {
+    public void showDialog(@NonNull Activity activity, @Nullable String title, CharSequence message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         if (title != null)
             builder.setTitle(title);
@@ -424,7 +428,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver,
+            protected void deliverResult(@NonNull CommCareWiFiDirectActivity receiver,
                     Boolean result) {
                 receiver.onCleanSuccessful();
             }
@@ -434,7 +438,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+            protected void deliverUpdate(@NonNull CommCareWiFiDirectActivity receiver, String... update) {
                 receiver.updateProgress(update[0], WipeTask.WIPE_TASK_ID);
                 receiver.myStatusText.setText(update[0]);
             }
@@ -444,7 +448,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+            protected void deliverError(@NonNull CommCareWiFiDirectActivity receiver, @NonNull Exception e) {
                 receiver.myStatusText.setText("Error wiping forms: " + e.getMessage());
                 receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
@@ -504,7 +508,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
+            protected void deliverResult(@NonNull CommCareWiFiDirectActivity receiver, Boolean result) {
                 if(result == Boolean.TRUE){
                     Intent i = new Intent(getIntent());
                     i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
@@ -521,7 +525,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+            protected void deliverUpdate(@NonNull CommCareWiFiDirectActivity receiver, String... update) {
                 receiver.updateProgress(update[0], BULK_SEND_ID);
                 receiver.myStatusText.setText(update[0]);
             }
@@ -531,7 +535,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+            protected void deliverError(@NonNull CommCareWiFiDirectActivity receiver, @NonNull Exception e) {
                 Logger.log(TAG, "Error submitting forms in wi-fi direct");
                 receiver.myStatusText.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                 receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -575,7 +579,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult( CommCareWiFiDirectActivity receiver, Integer result) {
+            protected void deliverResult( @NonNull CommCareWiFiDirectActivity receiver, @NonNull Integer result) {
                 Log.d(TAG, "delivering unzip result");
                 if(result > 0){
                     receiver.onUnzipSuccessful(result);
@@ -591,7 +595,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+            protected void deliverUpdate(@NonNull CommCareWiFiDirectActivity receiver, String... update) {
                 Log.d(TAG, "delivering unzip upate");
                 receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
                 receiver.myStatusText.setText(update[0]);
@@ -602,7 +606,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+            protected void deliverError(@NonNull CommCareWiFiDirectActivity receiver, @NonNull Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.myStatusText.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
                 receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -809,7 +813,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
     }
 
-    public static void deleteIfExists(String filePath){
+    public static void deleteIfExists(@NonNull String filePath){
         File toDelete = new File(filePath);
         if(toDelete.exists()){
             toDelete.delete();
@@ -833,7 +837,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         zipFiles();
     }
 
-    public void onZipSuccesful(FormRecord[] records){
+    public void onZipSuccesful(@NonNull FormRecord[] records){
         Logger.log(TAG, "successfully zipped files of size: " + records.length);
         Log.d(CommCareWiFiDirectActivity.TAG, "Zip successful, attempting to send");
         myStatusText.setText("Zip successful, attempting to send files...");
@@ -851,7 +855,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
     }
 
-    public void onUnzipSuccessful(Integer result){
+    public void onUnzipSuccessful(@NonNull Integer result){
         Logger.log(TAG, "Successfully unzipped files");
 
         Toast.makeText(CommCareWiFiDirectActivity.this, "Received " + result.toString() + " Files Successfully!",
@@ -875,7 +879,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+            protected void deliverUpdate(@NonNull CommCareWiFiDirectActivity receiver, String... update) {
                 receiver.updateProgress(update[0], taskId);
                 receiver.myStatusText.setText(update[0]);
             }
@@ -885,7 +889,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+            protected void deliverError(@NonNull CommCareWiFiDirectActivity receiver, Exception e) {
                 receiver.myStatusText.setText("Error zipping files");
                 receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
             }
@@ -895,7 +899,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, FormRecord[] result) {
+            protected void deliverResult(@NonNull CommCareWiFiDirectActivity receiver, @Nullable FormRecord[] result) {
                 if(result != null){
                     receiver.onZipSuccesful(result);
                     return;
@@ -928,7 +932,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver,
+            protected void deliverResult(@NonNull CommCareWiFiDirectActivity receiver,
                     Boolean result) {
                 if(result == Boolean.TRUE){
                     receiver.onSendSuccessful();
@@ -946,7 +950,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareWiFiDirectActivity receiver,
+            protected void deliverUpdate(@NonNull CommCareWiFiDirectActivity receiver,
                     String... update) {
                 receiver.updateProgress(update[0], taskId);
                 receiver.myStatusText.setText(update[0]);
@@ -957,8 +961,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareWiFiDirectActivity receiver,
-                    Exception e) {
+            protected void deliverError(@NonNull CommCareWiFiDirectActivity receiver,
+                    @NonNull Exception e) {
                 receiver.myStatusText.setText("Error sending files with exception: " + e.getMessage());
                 receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
 
@@ -1022,7 +1026,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
     }
 
-    public static boolean copyFile(InputStream inputStream, OutputStream out) {
+    public static boolean copyFile(@Nullable InputStream inputStream, @NonNull OutputStream out) {
         Logger.log(TAG, "File server copying file");
         Log.d(CommCareWiFiDirectActivity.TAG, "Copying file");
         if(inputStream == null){
@@ -1091,6 +1095,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;

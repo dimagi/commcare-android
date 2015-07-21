@@ -15,6 +15,8 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -66,11 +68,13 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(value=5, nullable=true)
     @MetaField(META_UUID)
     private String uuid;
+    @Nullable
     @Persisting(6)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
     
     //Placeholder
+    @Nullable
     private Hashtable<String, String> metadata = null;
     
     public FormRecord() { }
@@ -84,7 +88,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * @param entityId
      * @param status
      */
-    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
+    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, @Nullable Date lastModified) {
         this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
@@ -99,12 +103,14 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * Create a copy of the current form record, with an updated instance uri
      * and status.
      */
+    @NonNull
     public FormRecord updateStatus(String instanceURI, String newStatus) {
         FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
         fr.recordId = this.recordId;
         return fr;
     }
     
+    @Nullable
     public Uri getInstanceURI() {
         if("".equals(instanceURI)) { return null; }
         return Uri.parse(instanceURI);
@@ -122,6 +128,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return uuid;
     }
     
+    @Nullable
     public Date lastModified() {
         return lastModified;
     }
@@ -150,7 +157,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * @return A string containing the location of the encrypted XML instance for this form
      * @throws FileNotFoundException If there isn't a record available defining a path for this form
      */
-    public String getPath(Context context) throws FileNotFoundException {
+    public String getPath(@NonNull Context context) throws FileNotFoundException {
         Uri uri = getInstanceURI();
         if(uri == null) { throw new FileNotFoundException("No form instance URI exists for formrecord " + recordId); }
         

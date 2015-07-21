@@ -17,6 +17,8 @@
 package org.commcare.android.util;
 
 
+import android.support.annotation.NonNull;
+
 /**
  * Calculates the direction of a gesture/fling. Used by {@link GestureDetector}
  * 
@@ -61,6 +63,7 @@ public class GestureDirection {
     }
 
 
+    @NonNull
     public UserGesture getDirection() {
         float dx = mEndX - mStartX;
         float dy = mEndY - mStartY;

@@ -3,6 +3,8 @@ package org.commcare.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -22,6 +24,7 @@ public class SquareButtonWithText extends RelativeLayout {
     @UiElement(R.id.text_view)
     TextView textView;
 
+    @Nullable
     Drawable backgroundImg;
     int backgroundColor = android.R.drawable.btn_default;
     String text = "";
@@ -29,17 +32,17 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Constructors
 
-    public SquareButtonWithText(Context context) {
+    public SquareButtonWithText(@NonNull Context context) {
         super(context);
     }
 
-    public SquareButtonWithText(Context context, AttributeSet attrs) {
+    public SquareButtonWithText(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
 
         inflateAndExtractCustomParams(context, attrs);
     }
 
-    public SquareButtonWithText(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SquareButtonWithText(@NonNull Context context, @NonNull AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         inflateAndExtractCustomParams(context, attrs);
@@ -49,7 +52,7 @@ public class SquareButtonWithText extends RelativeLayout {
 
     //region Custom parameter processing
 
-    private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
+    private void inflateAndExtractCustomParams(@NonNull Context context, @NonNull AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);

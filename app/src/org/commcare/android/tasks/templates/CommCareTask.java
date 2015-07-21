@@ -1,6 +1,8 @@
 package org.commcare.android.tasks.templates;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -10,7 +12,9 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     
     public static final int GENERIC_TASK_ID = 32;
     
+    @NonNull
     private Object connectorLock = new Object();
+    @Nullable
     private CommCareTaskConnector<R> connector;
     
     private boolean isLostOrphan = false;
@@ -125,9 +129,11 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     private int allowableDelay = 2000;
     
     
+    @Nullable
     protected CommCareTaskConnector<R> getConnector() {
         return getConnector(true);
     }
+    @Nullable
     protected CommCareTaskConnector<R> getConnector(boolean required) {
         //So there might have been some transfer of ownership happening.
         //We wanna hold off on anything that requires the connector

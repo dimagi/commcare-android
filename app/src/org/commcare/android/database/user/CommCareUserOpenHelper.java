@@ -22,6 +22,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * The central db point for 
@@ -55,6 +56,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         this.mUserId = userId;
     }
     
+    @NonNull
     public static String getDbName(String sandboxId) {
         return USER_DB_LOCATOR + sandboxId;
     }
@@ -63,7 +65,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
      */
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(@NonNull SQLiteDatabase database) {
 
         try {
             database.beginTransaction();
@@ -124,7 +126,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         }
     }
     
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase(@NonNull String key) {
         try{ 
             return super.getWritableDatabase(key);
         } catch(SQLiteException sqle) {
@@ -137,7 +139,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
      */
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%

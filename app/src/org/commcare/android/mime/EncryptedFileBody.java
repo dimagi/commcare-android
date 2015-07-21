@@ -1,5 +1,7 @@
 package org.commcare.android.mime;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,17 +29,19 @@ public class EncryptedFileBody extends AbstractContentBody {
     Cipher cipher;
     String contentType;
     
-    public EncryptedFileBody(File file, Cipher cipher, String contentType) {
+    public EncryptedFileBody(File file, Cipher cipher, @NonNull String contentType) {
         super(contentType);
         this.file = file;
         this.cipher = cipher;
         this.contentType = contentType;
     }
 
+    @NonNull
     public String getFilename() {
         return file.getName();
     }
 
+    @NonNull
     public String getCharset() {
         return MIME.DEFAULT_CHARSET.name();
     }

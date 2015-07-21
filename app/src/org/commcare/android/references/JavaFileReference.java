@@ -1,5 +1,7 @@
 package org.commcare.android.references;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,6 +30,7 @@ public class JavaFileReference implements Reference {
         return file().exists();
     }
 
+    @NonNull
     public OutputStream getOutputStream() throws IOException {
         File f = file();
         FileUtil.ensureFilePathExists(f);
@@ -35,6 +38,7 @@ public class JavaFileReference implements Reference {
         return new FileOutputStream(f);
     }
     
+    @NonNull
     public InputStream getStream() throws IOException {
         File file = file();
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
@@ -44,6 +48,7 @@ public class JavaFileReference implements Reference {
         return new FileInputStream(file);
     }
 
+    @NonNull
     public String getURI() {
         return "jr://file/" + uri;
     }
@@ -59,14 +64,17 @@ public class JavaFileReference implements Reference {
         }
     }
     
+    @NonNull
     private File file() {
         return new File(getLocalURI());
     }
 
+    @NonNull
     public String getLocalURI() {
         return new File(localPart + File.separator + uri).getAbsolutePath();
     }
     
+    @NonNull
     public Reference[] probeAlternativeReferences() {
         return new Reference [0];
     }

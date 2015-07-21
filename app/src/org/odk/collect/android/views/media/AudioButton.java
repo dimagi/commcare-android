@@ -10,6 +10,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +47,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
     /**
      * Used by media inflater.
      */
-    public AudioButton(Context context, AttributeSet attrs) {
+    public AudioButton(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnClickListener(this);
     }
@@ -54,7 +55,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
     /**
      * @param URI audio to load when play button pressed
      */
-    public AudioButton(Context context, final String URI, boolean visible) {
+    public AudioButton(@NonNull Context context, final String URI, boolean visible) {
         this(context, URI, null, visible);
     }
 
@@ -63,7 +64,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
      * @param viewId  Id for the ListAdapter view that contains this button
      * @param visible Should the button be visible?
      */
-    public AudioButton(Context context, String URI,
+    public AudioButton(@NonNull Context context, String URI,
                        ViewId viewId, boolean visible) {
         super(context);
         setOnClickListener(this);

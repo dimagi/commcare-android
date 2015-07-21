@@ -3,6 +3,8 @@
  */
 package org.commcare.android.references;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,10 +35,12 @@ public class ArchiveFileReference implements Reference {
         return false;
     }
 
+    @NonNull
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Archive references are read only!");
     }
 
+    @NonNull
     public InputStream getStream() throws IOException {
         File file = new File(getLocalURI());
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
@@ -47,6 +51,7 @@ public class ArchiveFileReference implements Reference {
 
     }
 
+    @NonNull
     public String getURI() {
         return "jr://archive/" + GUID + "/" + archiveURI;
     }
@@ -59,10 +64,12 @@ public class ArchiveFileReference implements Reference {
         throw new IOException("Cannot remove files from the archive");
     }
 
+    @NonNull
     public String getLocalURI() {
         return localroot +"/"+ archiveURI;
     }
 
+    @NonNull
     public Reference[] probeAlternativeReferences() {
         return new Reference [0];
     }

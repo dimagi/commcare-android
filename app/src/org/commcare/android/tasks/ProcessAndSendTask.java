@@ -31,14 +31,19 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
+    @Nullable
     Context c;
+    @Nullable
     String url;
+    @Nullable
     Long[] results;
     
     int sendTaskId;
@@ -82,6 +87,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     
     private static int SUBMISSION_ATTEMPTS = 2;
     
+    @NonNull
     static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
     
     public ProcessAndSendTask(Context c, String url) {
@@ -104,7 +110,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     /* (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
-    protected Integer doTaskBackground(FormRecord... records) {
+    @NonNull
+    protected Integer doTaskBackground(@NonNull FormRecord... records) {
         boolean needToSendLogs = false;
 
         // Don't try to sync if logging out is occuring
@@ -345,7 +352,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     /* (non-Javadoc)
      * @see android.os.AsyncTask#onProgressUpdate(Progress[])
      */
-    protected void onProgressUpdate(Long... values) {
+    protected void onProgressUpdate(@NonNull Long... values) {
         if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
@@ -417,7 +424,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.publishProgress(SUBMISSION_DONE);
     }
     
-    private String getExceptionText (Exception e) {
+    private String getExceptionText (@NonNull Exception e) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(bos));

@@ -58,6 +58,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -73,6 +75,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
 
     private FormLoaderListener mStateListener;
+    @Nullable
     private String mErrorMsg;
     private SecretKeySpec mSymetricKey;
     private boolean mReadOnly;
@@ -90,6 +93,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
     }
 
     protected class FECWrapper {
+        @Nullable
         FormController controller;
 
 
@@ -98,6 +102,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         }
 
 
+        @Nullable
         protected FormController getController() {
             return controller;
         }
@@ -108,6 +113,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         }
     }
 
+    @Nullable
     FECWrapper data;
 
 
@@ -118,6 +124,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
+    @Nullable
     @Override
     protected FECWrapper doInBackground(Uri... form) {
         FormEntryController fec = null;
@@ -267,7 +274,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
     }
 
 
-    public boolean importData(String filePath, FormEntryController fec) {
+    public boolean importData(@NonNull String filePath, @NonNull FormEntryController fec) {
         // convert files into a byte array
         byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath), mSymetricKey);
 
@@ -309,7 +316,8 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * @param formDef serialized FormDef file
      * @return {@link FormDef} object
      */
-    public FormDef deserializeFormDef(File formDef) {
+    @Nullable
+    public FormDef deserializeFormDef(@NonNull File formDef) {
 
         // TODO: any way to remove reliance on jrsp?
 
@@ -351,7 +359,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * @throws IOException 
      */
     @SuppressWarnings("resource")
-    public void serializeFormDef(FormDef fd, String filepath) throws IOException {
+    public void serializeFormDef(@NonNull FormDef fd, @NonNull String filepath) throws IOException {
         // calculate unique md5 identifier for this form
         String hash = FileUtils.getMd5Hash(new File(filepath));
         File formDef = new File(Collect.CACHE_PATH + "/" + hash + ".formdef");
@@ -387,7 +395,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
      * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
      */
     @Override
-    protected void onPostExecute(FECWrapper wrapper) {
+    protected void onPostExecute(@Nullable FECWrapper wrapper) {
         synchronized (this) {
             if (mStateListener != null) {
                 if (wrapper == null) {

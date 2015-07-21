@@ -27,6 +27,8 @@ import org.javarosa.core.util.PropertyUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -37,7 +39,7 @@ public class FileUtil {
     
     public static final String LOG_TOKEN = "cc-file-util";
 
-    public static boolean createFolder(String path) {
+    public static boolean createFolder(@NonNull String path) {
             boolean made = true;
             File dir = new File(path);
             if (!dir.exists()) {
@@ -46,7 +48,7 @@ public class FileUtil {
             return made;
     }
     
-    public static boolean deleteFile(File f) {
+    public static boolean deleteFile(@NonNull File f) {
         if(!f.exists()) { return true; }
         if(!f.isDirectory()) {
             return f.delete();
@@ -60,7 +62,7 @@ public class FileUtil {
         }
     }
 
-    public static boolean cleanFilePath(String fullPath, String extendedPath) {
+    public static boolean cleanFilePath(@NonNull String fullPath, @Nullable String extendedPath) {
         //There are actually a few things that can go wrong here, should be careful
         
         //No extended path, life is good.
@@ -91,7 +93,7 @@ public class FileUtil {
         return true;
     }
     
-     public static void deleteFileOrDir(String fileName) {
+     public static void deleteFileOrDir(@NonNull String fileName) {
             File file = new File(fileName);
             if (file.exists()) {
                 if (file.isDirectory()) {
@@ -109,7 +111,7 @@ public class FileUtil {
             }
         }
      
-        public static String getMd5Hash(File file) {
+        public static String getMd5Hash(@NonNull File file) {
             try {
                 // CTS (6/15/2010) : stream file through digest instead of handing it the byte[]
                 MessageDigest md = MessageDigest.getInstance("MD5");
@@ -172,11 +174,11 @@ public class FileUtil {
             return input;
         }
         
-        public static void copyFile(File oldPath, File newPath) throws IOException {
+        public static void copyFile(@NonNull File oldPath, @NonNull File newPath) throws IOException {
             copyFile(oldPath, newPath, null, null);
         }
         
-        public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
+        public static void copyFile(@NonNull File oldPath, @NonNull File newPath, @Nullable Cipher oldRead, @Nullable Cipher newWrite) throws IOException {
             
             if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file @ " + newPath.toString()); }
             
@@ -224,7 +226,8 @@ public class FileUtil {
          * 
          * @return A new file location which does not reference an existing file.
          */
-        public static File getNewFileLocation(File f, String slug, boolean removeExisting) {
+        @Nullable
+        public static File getNewFileLocation(@NonNull File f, @Nullable String slug, boolean removeExisting) {
             if(slug == null) {
                 slug = PropertyUtils.genGUID(5);
             }
@@ -251,7 +254,7 @@ public class FileUtil {
             return newLocation;
         }
 
-        public static void copyFileDeep(File oldFolder, File newFolder) throws IOException {
+        public static void copyFileDeep(@NonNull File oldFolder, @NonNull File newFolder) throws IOException {
             //Create the new folder
             newFolder.mkdir();
             
@@ -275,6 +278,7 @@ public class FileUtil {
          * Returns a list of available mounts; for our purposes, we just use the first
          */
         
+        @NonNull
         public static ArrayList<String> getExternalMounts() {
             final ArrayList<String> out = new ArrayList<String>();
             String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
@@ -289,7 +293,7 @@ public class FileUtil {
                     s = s + new String(buffer);
                 }
                 is.close();
-            } catch (final Exception e) {
+            } catch (@NonNull final Exception e) {
                 e.printStackTrace();
             }
 
@@ -317,11 +321,12 @@ public class FileUtil {
          * @param fileLocation
          * @return
          */
+        @NonNull
         public static String getGlobalStringUri(String fileLocation) {
             return "file://" + fileLocation;
         }
         
-        public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException{
+        public static void checkReferenceURI(Resource r, String URI, @NonNull Vector<MissingMediaException> problems) throws IOException{
             try{
                 Reference mRef = ReferenceManager._().DeriveReference(URI);
                 
@@ -341,7 +346,7 @@ public class FileUtil {
          * 
          * @param f
          */
-        public static void ensureFilePathExists(File f) {
+        public static void ensureFilePathExists(@NonNull File f) {
             File folder = f.getParentFile();
             if(folder != null) {
                 //Don't worry about return value
@@ -355,7 +360,7 @@ public class FileUtil {
          * specific path that we're allowed to write to
          */
         @SuppressLint("NewApi")
-        private static String getExternalDirectoryKitKat(Context c){
+        private static String getExternalDirectoryKitKat(@NonNull Context c){
             File[] extMounts = c.getExternalFilesDirs(null);
             // first entry is emualted storage. Second if it exists is secondary (real) SD.
             
@@ -384,7 +389,7 @@ public class FileUtil {
         /*
          * If we're on KitKat use the new OS path
          */
-        public static String getDumpDirectory(Context c){
+        public static String getDumpDirectory(@NonNull Context c){
             if (android.os.Build.VERSION.SDK_INT>=19){
                 return getExternalDirectoryKitKat(c);
             } else{

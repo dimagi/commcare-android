@@ -3,6 +3,8 @@ package org.commcare.dalvik.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -79,7 +81,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                 @Override
                     //<R> receiver, <C> result. 
                     //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
-                    protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) 
+                    protected void deliverResult(@NonNull ConnectionDiagnosticActivity receiver, @Nullable ConnectionDiagnosticTask.Test failedTest)
                     {
                         //user-caused connection issues
                         if(failedTest == ConnectionDiagnosticTask.Test.isOnline ||
@@ -123,7 +125,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) 
+                    protected void deliverUpdate(@NonNull ConnectionDiagnosticActivity receiver, String... update)
                     {
                         receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
                     }
@@ -133,7 +135,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e)
+                    protected void deliverError(@NonNull ConnectionDiagnosticActivity receiver, Exception e)
                     {
                         receiver.txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
@@ -208,6 +210,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == ConnectionDiagnosticTask.CONNECTION_ID) {

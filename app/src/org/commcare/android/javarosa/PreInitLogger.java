@@ -3,6 +3,9 @@
  */
 package org.commcare.android.javarosa;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +22,7 @@ import org.javarosa.core.services.Logger;
  *
  */
 public class PreInitLogger implements ILogger {
+    @NonNull
     private ArrayList<AndroidLogEntry> logs = new ArrayList<AndroidLogEntry>();
     
     public PreInitLogger() {
@@ -52,6 +56,7 @@ public class PreInitLogger implements ILogger {
     /* (non-Javadoc)
      * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.IFullLogSerializer)
      */
+    @Nullable
     @Override
     public <T> T serializeLogs(IFullLogSerializer<T> serializer) {
         return null;

@@ -3,6 +3,8 @@
  */
 package org.commcare.android.models;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.android.util.SessionUnavailableException;
 
 /**
@@ -11,6 +13,7 @@ import org.commcare.android.util.SessionUnavailableException;
  */
 public abstract class EntityFactory<T> {
     
+    @NonNull
     public abstract Entity<T> getEntity(T data) throws SessionUnavailableException;
 
 }

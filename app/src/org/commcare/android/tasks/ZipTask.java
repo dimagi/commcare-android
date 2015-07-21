@@ -35,6 +35,8 @@ import org.javarosa.core.services.storage.StorageFullException;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -43,7 +45,9 @@ import android.util.Log;
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity>{
     private static final String TAG = ZipTask.class.getSimpleName();
 
+    @Nullable
     Context c;
+    @Nullable
     Long[] results;
     File dumpFolder;
     
@@ -95,7 +99,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
     
-    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException {
+    private long dumpInstance(@NonNull File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException {
         File[] files = folder.listFiles();
         
         File myDir = new File(dumpFolder, folder.getName());
@@ -159,7 +163,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         return FormUploadUtil.FULL_SUCCESS;
     }
     
-    private boolean zipTargetFolder(File targetFilePath, String zipFile) throws IOException{
+    private boolean zipTargetFolder(@NonNull File targetFilePath, @NonNull String zipFile) throws IOException{
         
         Log.d(CommCareWiFiDirectActivity.TAG, "827 zipTarggetFolder with tfp: " + targetFilePath.toString()+ ", zipFile: "+ zipFile);
         
@@ -183,7 +187,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         return false;
     }
     
-    private boolean zipFolder(File[] files, String zipFile, ZipOutputStream zos) throws IOException {
+    private boolean zipFolder(@NonNull File[] files, String zipFile, @NonNull ZipOutputStream zos) throws IOException {
         Log.d(TAG, "827 zipping folder with files: " +files[0]+ ", zipFile: " + zipFile);
         int BUFFER_SIZE = 1024;
         BufferedInputStream origin = null;
@@ -227,6 +231,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
      */
+    @Nullable
     @Override
     protected FormRecord[] doTaskBackground(String... params) {
         
@@ -385,7 +390,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         }
     }
 
-    private String getExceptionText (Exception e) {
+    private String getExceptionText (@NonNull Exception e) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(bos));

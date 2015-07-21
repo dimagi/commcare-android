@@ -22,6 +22,8 @@ import java.net.URLDecoder;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class UrlUtils {
 
@@ -38,7 +40,8 @@ public class UrlUtils {
 
     }
     
-    public static String getPathFromUri(Uri uri, Context context) {
+    @Nullable
+    public static String getPathFromUri(@NonNull Uri uri, @NonNull Context context) {
         if (uri.toString().startsWith("file")) {
             return uri.toString().substring(6);
         } else {

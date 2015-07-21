@@ -2,6 +2,8 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,9 +32,13 @@ import java.io.File;
 public class HorizontalMediaView extends RelativeLayout {
     private static final String t = "AVTLayout";
 
+    @Nullable
     private TextView mTextView;
+    @Nullable
     private AudioButton mAudioButton;
+    @Nullable
     private ImageView mImageView;
+    @Nullable
     private TextView mMissingImage;
     private final int iconDimension;
     private final int fontSize = 20;
@@ -45,11 +51,11 @@ public class HorizontalMediaView extends RelativeLayout {
     private EvaluationContext ec;
 
     
-    public HorizontalMediaView(Context c) {
+    public HorizontalMediaView(@NonNull Context c) {
         this(c, null);
     }
 
-    public HorizontalMediaView(Context c, EvaluationContext ec) {
+    public HorizontalMediaView(@NonNull Context c, EvaluationContext ec) {
         super(c);
         mTextView = null;
         mAudioButton = null;
@@ -62,7 +68,7 @@ public class HorizontalMediaView extends RelativeLayout {
     }
     
 
-    public void setDisplay(DisplayUnit display) {
+    public void setDisplay(@NonNull DisplayUnit display) {
         DisplayData mData = display.evaluate(ec);
         setAVT(Localizer.processArguments(mData.getName(), new String[] {""}).trim(), mData.getAudioURI(), mData.getImageURI());
     }
@@ -72,7 +78,7 @@ public class HorizontalMediaView extends RelativeLayout {
     }
     
     //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
-    public void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
+    public void setAVT(String displayText, @Nullable String audioURI, @Nullable String imageURI, int navStyle) {
         this.removeAllViews();
         
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -169,7 +175,7 @@ public class HorizontalMediaView extends RelativeLayout {
      * 
      * @param v
      */
-    public void addDivider(ImageView v) {
+    public void addDivider(@NonNull ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
             new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         if (mImageView != null) {

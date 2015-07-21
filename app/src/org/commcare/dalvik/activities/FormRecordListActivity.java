@@ -9,6 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -284,7 +286,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
      */
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)adapter.getView(info.position, null, null);
         menu.setHeaderTitle(ifrv.mPrimaryTextView.getText() + " (" + ifrv.mRightTextView.getText() + ")");
@@ -306,7 +308,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         try {
           AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
           switch(item.getItemId()) {
@@ -339,7 +341,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
     }
 
-    private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
+    private void createFormRecordScanResultDialog(@NonNull Pair<Boolean, String> result) {
         AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(result.first ? R.drawable.checkmark : R.drawable.redx);
         mAlertDialog.setTitle(result.first ? Localization.get("app.workflow.forms.scan.title.valid") : Localization.get("app.workflow.forms.scan.title.invalid"));
@@ -368,13 +370,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+            public void onActionBarFound(@NonNull MenuItem searchItem, @NonNull SearchView searchView) {
                 FormRecordListActivity.this.searchView = searchView;
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -422,7 +424,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
         if(quarantine != null) {
@@ -443,7 +445,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -468,7 +470,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult(FormRecordListActivity receiver, Integer status) {
+                    protected void deliverResult(@NonNull FormRecordListActivity receiver, @NonNull Integer status) {
                         switch(status) {
                         case DataPullTask.DOWNLOAD_SUCCESS:                            
                             FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(FormRecordListActivity.this, platform,CLEANUP_ID) {
@@ -478,7 +480,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                                  * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                                  */
                                 @Override
-                                protected void deliverResult( FormRecordListActivity receiver, Integer result) {
+                                protected void deliverResult( @NonNull FormRecordListActivity receiver, Integer result) {
                                     receiver.refreshView();
                                     
                                 }
@@ -488,7 +490,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                                  * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                                  */
                                 @Override
-                                protected void deliverUpdate( FormRecordListActivity receiver, Integer... values) {
+                                protected void deliverUpdate( @NonNull FormRecordListActivity receiver, Integer... values) {
                                     if(values[0] < 0) {
                                         if(values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
                                             receiver.updateProgress("Forms Processed. "
@@ -507,7 +509,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                                  * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                                  */
                                 @Override
-                                protected void deliverError( FormRecordListActivity receiver, Exception e) {
+                                protected void deliverError( @NonNull FormRecordListActivity receiver, Exception e) {
                                     receiver.taskError(e);
                                 }
                                 
@@ -542,7 +544,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
                      */
                     @Override
-                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
+                    protected void deliverUpdate(@NonNull FormRecordListActivity receiver, Integer... update) {
                         switch(update[0]){
                         case DataPullTask.PROGRESS_AUTHED:
                             receiver.updateProgress("Authed with server, downloading forms" + 
@@ -557,7 +559,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
+                    protected void deliverError(@NonNull FormRecordListActivity receiver, Exception e) {
                         receiver.taskError(e);
                     }
                 };
@@ -607,7 +609,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
     
-    public void afterTextChanged(Editable s) {
+    public void afterTextChanged(@NonNull Editable s) {
         if (searchbox.getText() == s) {
             adapter.applyTextFilter(s.toString());
         }
@@ -641,6 +643,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;

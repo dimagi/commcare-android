@@ -33,6 +33,8 @@ import org.javarosa.core.services.storage.StorageFullException;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.TextView;
 
 /**
@@ -41,7 +43,9 @@ import android.widget.TextView;
  */
 public abstract class DumpTask extends CommCareTask<String, String, Boolean, CommCareFormDumpActivity>{
 
+    @Nullable
     Context c;
+    @Nullable
     Long[] results;
     File dumpFolder;
         
@@ -92,7 +96,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
     
-    private long dumpInstance(int submissionNumber, File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException{
+    private long dumpInstance(int submissionNumber, @NonNull File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException{
         File[] files = folder.listFiles();
         
         File myDir = new File(dumpFolder, folder.getName());
@@ -159,6 +163,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
      */
+    @NonNull
     @SuppressLint("NewApi")
     @Override
     protected Boolean doTaskBackground(String... params) {
@@ -311,7 +316,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         }
     }
 
-    private String getExceptionText (Exception e) {
+    private String getExceptionText (@NonNull Exception e) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(bos));

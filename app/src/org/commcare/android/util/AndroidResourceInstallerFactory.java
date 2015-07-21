@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.resource.installers.LocaleAndroidInstaller;
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
@@ -29,6 +31,7 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
      * (non-Javadoc)
      * @see org.commcare.resources.model.InstallerFactory#getXFormInstaller()
      */
+    @NonNull
     @Override
     public ResourceInstaller getXFormInstaller() {
         return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
@@ -38,6 +41,7 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
      * (non-Javadoc)
      * @see org.commcare.resources.model.InstallerFactory#getProfileInstaller(boolean)
      */
+    @NonNull
     @Override
     public ResourceInstaller getProfileInstaller(boolean forceInstall) {
         return new ProfileAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
@@ -47,6 +51,7 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
      * (non-Javadoc)
      * @see org.commcare.resources.model.InstallerFactory#getSuiteInstaller()
      */
+    @NonNull
     @Override
     public ResourceInstaller getSuiteInstaller() {
         return new SuiteAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
@@ -56,6 +61,7 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
      * (non-Javadoc)
      * @see org.commcare.resources.model.InstallerFactory#getLocaleFileInstaller(java.lang.String)
      */
+    @NonNull
     @Override
     public ResourceInstaller getLocaleFileInstaller(String locale) {
         return new LocaleAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF, locale);
@@ -65,6 +71,7 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
      * (non-Javadoc)
      * @see org.commcare.resources.model.InstallerFactory#getMediaInstaller(java.lang.String)
      */
+    @NonNull
     @Override
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaFileAndroidInstaller(GlobalConstants.MEDIA_REF, GlobalConstants.UPGRADE_REF, path);

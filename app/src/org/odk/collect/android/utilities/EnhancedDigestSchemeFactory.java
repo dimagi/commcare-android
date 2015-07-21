@@ -14,6 +14,8 @@
 
 package org.odk.collect.android.utilities;
 
+import android.support.annotation.NonNull;
+
 import org.apache.http.auth.AuthScheme;
 import org.apache.http.auth.AuthSchemeFactory;
 import org.apache.http.params.HttpParams;
@@ -31,6 +33,7 @@ public class EnhancedDigestSchemeFactory implements AuthSchemeFactory {
      * (non-Javadoc)
      * @see org.apache.http.auth.AuthSchemeFactory#newInstance(org.apache.http.params.HttpParams)
      */
+    @NonNull
     @Override
     public AuthScheme newInstance(HttpParams params) {
         return new EnhancedDigestScheme();

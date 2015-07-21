@@ -29,6 +29,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -49,11 +50,14 @@ public class Collect extends Application {
 
     public static final String DEFAULT_FONTSIZE = "21";
 
+    @Nullable
     private HttpContext localContext = null;
+    @Nullable
     private static Collect singleton = null;
 
     private static Context context;
 
+    @Nullable
     public static Collect getInstance() {
         return singleton;
     }
@@ -104,6 +108,7 @@ public class Collect extends Application {
      * Shared HttpContext so a user doesn't have to re-enter login information
      * @return
      */
+    @Nullable
     public synchronized HttpContext getHttpContext() {
         if (localContext == null) {
             // set up one context for all HTTP requests so that authentication

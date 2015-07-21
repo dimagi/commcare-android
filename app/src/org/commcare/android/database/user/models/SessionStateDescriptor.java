@@ -3,6 +3,9 @@
  */
 package org.commcare.android.database.user.models;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.storage.framework.MetaField;
@@ -32,6 +35,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
     @MetaField(value=META_FORM_RECORD_ID, unique=true)
     private int formRecordId = -1;
     
+    @Nullable
     @Persisting(2)
     private String sessionDescriptor = null;
     
@@ -45,7 +49,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         
     }
     
-    public SessionStateDescriptor(AndroidSessionWrapper state) {
+    public SessionStateDescriptor(@NonNull AndroidSessionWrapper state) {
         this.formRecordId = state.getFormRecordId();
         sessionDescriptor = this.createSessionDescriptor(state.getSession());
     }
@@ -64,6 +68,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return formRecordId;
     }
     
+    @NonNull
     public SessionStateDescriptor reMapFormRecordId(int idForNewRecord) {
         SessionStateDescriptor copy = new SessionStateDescriptor();
         copy.formRecordId = idForNewRecord;
@@ -75,6 +80,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         this.sessionDescriptor = serializedDescriptor;
     }
     
+    @Nullable
     public String getSessionDescriptor() {
         return this.sessionDescriptor;
     }
@@ -91,7 +97,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
      * @param session
      * @return
      */
-    private String createSessionDescriptor(CommCareSession session) {
+    private String createSessionDescriptor(@NonNull CommCareSession session) {
         //TODO: Serialize into something more useful. I dunno. JSON/XML/Something
         String descriptor = "";
         for(StackFrameStep step : session.getFrame().getSteps()) {
@@ -105,7 +111,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         return descriptor.trim();
     }
     
-    public void loadSession(CommCareSession session) {
+    public void loadSession(@NonNull CommCareSession session) {
         String[] tokenStream = sessionDescriptor.split(" ");
         
         int current = 0;

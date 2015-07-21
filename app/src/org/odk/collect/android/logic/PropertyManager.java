@@ -22,6 +22,8 @@ import org.javarosa.core.services.properties.IPropertyRules;
 
 import android.content.Context;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -33,6 +35,7 @@ import android.util.Log;
 
 public class PropertyManager implements IPropertyManager {
 
+    @NonNull
     private String t = "PropertyManager";
 
     private Context mContext;
@@ -46,6 +49,7 @@ public class PropertyManager implements IPropertyManager {
     private final static String PHONE_NUMBER_PROPERTY = "phonenumber";
 
 
+    @NonNull
     public String getName() {
         return "Property Manager";
     }
@@ -76,6 +80,7 @@ public class PropertyManager implements IPropertyManager {
      * (non-Javadoc)
      * @see org.javarosa.core.services.IPropertyManager#getProperty(java.lang.String)
      */
+    @Nullable
     @Override
     public Vector<String> getProperty(String propertyName) {
         return null;
@@ -87,7 +92,7 @@ public class PropertyManager implements IPropertyManager {
      * @see org.javarosa.core.services.IPropertyManager#getSingularProperty(java.lang.String)
      */
     @Override
-    public String getSingularProperty(String propertyName) {
+    public String getSingularProperty(@NonNull String propertyName) {
         return mProperties.get(propertyName.toLowerCase());
     }
 
@@ -125,6 +130,7 @@ public class PropertyManager implements IPropertyManager {
      * (non-Javadoc)
      * @see org.javarosa.core.services.IPropertyManager#getRules()
      */
+    @Nullable
     @Override
     public Vector<IPropertyRules> getRules() {
         return null;

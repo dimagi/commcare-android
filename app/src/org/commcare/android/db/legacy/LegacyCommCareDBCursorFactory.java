@@ -15,6 +15,8 @@ import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -39,6 +41,7 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
     /* (non-Javadoc)
      * @see android.database.sqlite.SQLiteDatabase.CursorFactory#newCursor(android.database.sqlite.SQLiteDatabase, android.database.sqlite.SQLiteCursorDriver, java.lang.String, android.database.sqlite.SQLiteQuery)
      */
+    @NonNull
     public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
         if(models == null || !models.containsKey(editTable)) {
             return new SQLiteCursor(db, masterQuery, editTable, query);
@@ -48,6 +51,7 @@ public class LegacyCommCareDBCursorFactory implements CursorFactory {
         }
     } 
     
+    @Nullable
     protected CipherPool getCipherPool() {
         return null;
     }

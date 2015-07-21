@@ -35,6 +35,8 @@ import org.odk.collect.android.views.media.AudioButton;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,9 +58,10 @@ public class MenuAdapter implements ListAdapter {
     protected Context context;
     protected MenuDisplayable[] displayableData;
     
+    @Nullable
     private String menuTitle = null;
     
-    public MenuAdapter(Context context, CommCarePlatform platform, String menuID){
+    public MenuAdapter(@NonNull Context context, @NonNull CommCarePlatform platform, @NonNull String menuID){
         
         this.mPlatform = platform;
         this.context = context;
@@ -316,7 +319,7 @@ public class MenuAdapter implements ListAdapter {
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    public String textViewHelper(MenuDisplayable e){
+    public String textViewHelper(@NonNull MenuDisplayable e){
         return e.getDisplayText();
     }
 

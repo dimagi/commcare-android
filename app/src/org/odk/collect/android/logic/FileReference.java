@@ -4,6 +4,9 @@
 
 package org.odk.collect.android.logic;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +30,7 @@ public class FileReference implements Reference {
     }
 
 
+    @NonNull
     private String getInternalURI() {
         return "/" + localPart + referencePart;
     }
@@ -46,6 +50,7 @@ public class FileReference implements Reference {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#getStream()
      */
+    @NonNull
     @Override
     public InputStream getStream() throws IOException {
         return new FileInputStream(getInternalURI());
@@ -56,6 +61,7 @@ public class FileReference implements Reference {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#getURI()
      */
+    @NonNull
     @Override
     public String getURI() {
         return "jr://file" + referencePart;
@@ -76,6 +82,7 @@ public class FileReference implements Reference {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#getOutputStream()
      */
+    @NonNull
     @Override
     public OutputStream getOutputStream() throws IOException {
         return new FileOutputStream(getInternalURI());
@@ -97,6 +104,7 @@ public class FileReference implements Reference {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#getLocalURI()
      */
+    @NonNull
     @Override
     public String getLocalURI() {
         return getInternalURI();
@@ -107,6 +115,7 @@ public class FileReference implements Reference {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#probeAlternativeReferences()
      */
+    @Nullable
     @Override
     public Reference[] probeAlternativeReferences() {
         // TODO Auto-generated method stub

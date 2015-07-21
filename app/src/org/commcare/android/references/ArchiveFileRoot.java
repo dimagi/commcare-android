@@ -3,6 +3,8 @@
  */
 package org.commcare.android.references;
 
+import android.support.annotation.NonNull;
+
 import java.util.HashMap;
 
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -21,6 +23,7 @@ import org.javarosa.core.util.PropertyUtils;
  */
 public class ArchiveFileRoot implements ReferenceFactory {
     
+    @NonNull
     private HashMap<String, String> guidToFolderMap = new HashMap<String, String>();
     
     private final int guidLength = 10;
@@ -28,34 +31,38 @@ public class ArchiveFileRoot implements ReferenceFactory {
     public ArchiveFileRoot() {
     }
     
-    public Reference derive(String guidPath) throws InvalidReferenceException {
+    @NonNull
+    public Reference derive(@NonNull String guidPath) throws InvalidReferenceException {
         return new ArchiveFileReference(guidToFolderMap.get(getGUID(guidPath)),getGUID(guidPath), getPath(guidPath));
     }
 
-    public Reference derive(String URI, String context) throws InvalidReferenceException {
+    public Reference derive(String URI, @NonNull String context) throws InvalidReferenceException {
         if(context.lastIndexOf('/') != -1) {
             context = context.substring(0,context.lastIndexOf('/') + 1);
         }
         return ReferenceManager._().DeriveReference(context + URI);
     }
 
-    public boolean derives(String URI) {
+    public boolean derives(@NonNull String URI) {
         return URI.toLowerCase().startsWith("jr://archive/");
     }
     
+    @NonNull
     public String addArchiveFile(String filepath){
         String mGUID = PropertyUtils.genGUID(guidLength);
         guidToFolderMap.put(mGUID, filepath);
         return mGUID;
     }
     
-    public String getGUID(String jrpath){
+    @NonNull
+    public String getGUID(@NonNull String jrpath){
         String prependRemoved = jrpath.substring("jr://archive/".length());
         int slashindex = prependRemoved.indexOf("/");
         return prependRemoved.substring(0, slashindex);
     }
     
-    public String getPath(String jrpath){
+    @NonNull
+    public String getPath(@NonNull String jrpath){
         String mGUID = getGUID(jrpath);
         int mIndex = jrpath.indexOf(mGUID);
         return jrpath.substring(mIndex + mGUID.length());

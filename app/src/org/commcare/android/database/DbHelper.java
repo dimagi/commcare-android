@@ -20,6 +20,8 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -34,10 +36,12 @@ public abstract class DbHelper {
         this.c = c;
     }
     
+    @Nullable
     public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
     
 
-    public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
+    @NonNull
+    public Pair<String, String[]> createWhere(@NonNull String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
         Set<String> fields = null;
         if(p instanceof IMetaData) {
             IMetaData m = (IMetaData)p;
@@ -77,6 +81,7 @@ public abstract class DbHelper {
         return new Pair<String, String[]>(ret, arguments);
     }
     
+    @NonNull
     public ContentValues getContentValues(Externalizable e) {
         boolean encrypt = e instanceof EncryptedModel;
         

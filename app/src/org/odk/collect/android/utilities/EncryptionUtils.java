@@ -55,6 +55,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -96,19 +98,26 @@ public class EncryptionUtils {
 
     public static final class EncryptedFormInformation {
         public final String formId;
+        @Nullable
         public final Integer modelVersion;
+        @Nullable
         public final Integer uiVersion;
+        @NonNull
         public final InstanceMetadata instanceMetadata;
         public final PublicKey rsaPublicKey;
+        @NonNull
         public final String base64RsaEncryptedSymmetricKey;
+        @NonNull
         public final SecretKeySpec symmetricKey;
+        @NonNull
         public final byte[] ivSeedArray;
         private int ivCounter = 0;
         public final StringBuilder elementSignatureSource = new StringBuilder();
+        @NonNull
         public final Base64Wrapper wrapper;
 
-        EncryptedFormInformation(String formId, Integer modelVersion,
-                Integer uiVersion, InstanceMetadata instanceMetadata, PublicKey rsaPublicKey, Base64Wrapper wrapper) {
+        EncryptedFormInformation(String formId, @Nullable Integer modelVersion,
+                @Nullable Integer uiVersion, @NonNull InstanceMetadata instanceMetadata, PublicKey rsaPublicKey, @NonNull Base64Wrapper wrapper) {
             this.formId = formId;
             this.modelVersion = modelVersion;
             this.uiVersion = uiVersion;
@@ -196,11 +205,12 @@ public class EncryptionUtils {
             elementSignatureSource.append(value).append("\n");
         }
 
-        public void appendFileSignatureSource(File file) {
+        public void appendFileSignatureSource(@NonNull File file) {
             String md5Hash = FileUtils.getMd5Hash(file);
             appendElementSignatureSource(file.getName()+"::"+md5Hash);
         }
         
+        @NonNull
         public String getBase64EncryptedElementSignature() {
             // Step 0: construct the text of the elements in elementSignatureSource (done)
             //         Where...
@@ -265,6 +275,7 @@ public class EncryptionUtils {
             }
         }
         
+        @NonNull
         public Cipher getCipher() throws InvalidKeyException,
                 InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException {
             ++ivSeedArray[ivCounter % ivSeedArray.length];
@@ -283,7 +294,7 @@ public class EncryptionUtils {
      * @param instanceMetadata 
      * @return
      */
-    public static EncryptedFormInformation getEncryptedFormInformation(Uri mUri, InstanceMetadata instanceMetadata, Context context, Uri instanceContentUri) {
+    public static EncryptedFormInformation getEncryptedFormInformation(@NonNull Uri mUri, @NonNull InstanceMetadata instanceMetadata, @NonNull Context context, @NonNull Uri instanceContentUri) {
         
         ContentResolver cr = context.getContentResolver();
         
@@ -404,7 +415,7 @@ public class EncryptionUtils {
                 pk, wrapper);
     }
 
-    private static void encryptFile(File file, EncryptedFormInformation formInfo)
+    private static void encryptFile(@NonNull File file, @NonNull EncryptedFormInformation formInfo)
             throws IOException, NoSuchAlgorithmException,
             NoSuchPaddingException, InvalidKeyException,
             InvalidAlgorithmParameterException {
@@ -462,7 +473,7 @@ public class EncryptionUtils {
         }
     }
 
-    public static boolean deletePlaintextFiles(File instanceXml) {
+    public static boolean deletePlaintextFiles(@NonNull File instanceXml) {
         // NOTE: assume the directory containing the instanceXml contains ONLY
         // files related to this one instance.
         File instanceDir = instanceXml.getParentFile();
@@ -485,8 +496,8 @@ public class EncryptionUtils {
         return allSuccessful;
     }
 
-    private static List<File> encryptSubmissionFiles(File instanceXml,
-            File submissionXml, EncryptedFormInformation formInfo) {
+    private static List<File> encryptSubmissionFiles(@NonNull File instanceXml,
+            @NonNull File submissionXml, @NonNull EncryptedFormInformation formInfo) {
         // NOTE: assume the directory containing the instanceXml contains ONLY
         // files related to this one instance.
         File instanceDir = instanceXml.getParentFile();
@@ -556,8 +567,8 @@ public class EncryptionUtils {
      * @param formInfo
      * @return
      */
-    public static boolean generateEncryptedSubmission(File instanceXml,
-            File submissionXml, EncryptedFormInformation formInfo) {
+    public static boolean generateEncryptedSubmission(@NonNull File instanceXml,
+            @NonNull File submissionXml, @NonNull EncryptedFormInformation formInfo) {
         // submissionXml is the submission data to be published to Aggregate
         if (!submissionXml.exists() || !submissionXml.isFile()) {
             Log.e(t, "No submission.xml found");
@@ -582,8 +593,8 @@ public class EncryptionUtils {
     }
     
     private static boolean writeSubmissionManifest(
-            EncryptedFormInformation formInfo,
-            File submissionXml, List<File> mediaFiles) {
+            @NonNull EncryptedFormInformation formInfo,
+            @NonNull File submissionXml, @NonNull List<File> mediaFiles) {
 
         Document d = new Document();
         d.setStandalone(true);

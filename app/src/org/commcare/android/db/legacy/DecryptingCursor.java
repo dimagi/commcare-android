@@ -11,6 +11,9 @@ import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQuery;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * @author ctsims
  *
@@ -20,7 +23,7 @@ public class DecryptingCursor extends SQLiteCursor {
     EncryptedModel model;
     CipherPool pool;
 
-    public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, CipherPool pool) {
+    public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, @NonNull CipherPool pool) {
         super(db, driver, editTable, query);
         this.model = model;
         this.pool = pool;
@@ -31,6 +34,7 @@ public class DecryptingCursor extends SQLiteCursor {
      * (non-Javadoc)
      * @see android.database.AbstractWindowedCursor#getBlob(int)
      */
+    @NonNull
     @Override
     public byte[] getBlob(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -109,6 +113,7 @@ public class DecryptingCursor extends SQLiteCursor {
      * (non-Javadoc)
      * @see android.database.AbstractWindowedCursor#getString(int)
      */
+    @NonNull
     @Override
     public String getString(int columnIndex) {
         if(!isEncrypted(columnIndex)) {
@@ -165,6 +170,7 @@ public class DecryptingCursor extends SQLiteCursor {
         return false;
     }
     
+    @Nullable
     private byte[] decrypt(int columnIndex) {
         byte[] data = super.getBlob(columnIndex);
         return CryptUtil.decrypt(data, cipher);

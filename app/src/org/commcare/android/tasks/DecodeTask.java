@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 /***
@@ -26,6 +27,7 @@ public class DecodeTask extends AsyncTask<String, Void, Bitmap> {
 		mImageView = iv;
 	}
 
+	@Nullable
 	protected Bitmap doInBackground(String... params) {
 		BitmapFactory.Options opt = new BitmapFactory.Options();
 		opt.inPurgeable = true;

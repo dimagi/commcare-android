@@ -31,6 +31,8 @@ import org.commcare.util.SessionFrame;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -93,6 +95,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
      */
+    @Nullable
     @Override
     public String getActivityTitle() {
         //return adapter.getMenuTitle();
@@ -115,7 +118,7 @@ public class MenuList extends CommCareActivity implements OnItemClickListener {
      * Stores the path of selected form and finishes.
      */
     @Override
-    public void onItemClick(AdapterView listView, View view, int position, long id) {
+    public void onItemClick(@NonNull AdapterView listView, View view, int position, long id) {
         String commandId;
         Object value = listView.getAdapter().getItem(position);
         // if value is null, probably it means that we clicked on the header view, so we just ignore it

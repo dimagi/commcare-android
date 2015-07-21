@@ -14,6 +14,9 @@
 
 package org.odk.collect.android.logic;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -497,6 +500,7 @@ public class FormController {
      * @return Array of FormEntryPrompt objects
      * @throws RuntimeException
      */
+    @NonNull
     public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
         return getQuestionPrompts(mFormEntryController.getModel().getFormIndex());
     }
@@ -508,6 +512,7 @@ public class FormController {
      * 
      * @return
      */
+    @NonNull
     public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
         
         IFormElement element = mFormEntryController.getModel().getForm().getChild(currentIndex);
@@ -564,6 +569,7 @@ public class FormController {
      * 
      * @return
      */
+    @NonNull
     public FormEntryCaption[] getGroupsForCurrentIndex() {
         // return an empty array if you ask for something impossible
         if (!(mFormEntryController.getModel().getEvent() == FormEntryController.EVENT_QUESTION
@@ -627,6 +633,7 @@ public class FormController {
     /**
      * The name of the closest group that repeats or null.
      */
+    @Nullable
     public String getLastRepeatedGroupName() {
         FormEntryCaption[] groups = mFormEntryController.getModel().getCaptionHierarchy();
         // no change
@@ -670,6 +677,7 @@ public class FormController {
     /**
      * The text of closest group the prompt belongs to.
      */
+    @Nullable
     public String getLastGroupText() {
         if (getLastGroup() != null) {
             return getLastGroup().getLongText();
@@ -714,6 +722,7 @@ public class FormController {
      * @return
      * @throws IOException
      */
+    @NonNull
     public ByteArrayPayload getSubmissionXml() throws IOException {
         FormInstance instance = getInstance();
         XFormSerializingVisitor serializer = new XFormSerializingVisitor();
@@ -730,7 +739,7 @@ public class FormController {
      * @param name
      * @return
      */
-    private TreeElement findDepthFirst(TreeElement parent, String name) {
+    private TreeElement findDepthFirst(@NonNull TreeElement parent, @NonNull String name) {
         int len = parent.getNumChildren();
         for ( int i = 0; i < len ; ++i ) {
             TreeElement e = parent.getChildAt(i);
@@ -748,6 +757,7 @@ public class FormController {
      * Get the OpenRosa required metadata of the portion of the form beng submitted
      * @return
      */
+    @Nullable
     public InstanceMetadata getSubmissionMetadata() {
         FormDef formDef = mFormEntryController.getModel().getForm();
         TreeElement rootElement = formDef.getInstance().getRoot();
@@ -787,6 +797,7 @@ public class FormController {
 
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
     //this ended up in the "logic" division. 
+    @NonNull
     public WidgetFactory getWidgetFactory() {
         return new WidgetFactory(mFormEntryController.getModel().getForm());
     }

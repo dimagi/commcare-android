@@ -3,6 +3,8 @@ package org.commcare.android.framework;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,7 +52,7 @@ public class EntityDetailFragment extends Fragment {
     public static final String MODIFIER_KEY = "modifier";
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if(modifier instanceof Parcelable) {
             outState.putParcelable(MODIFIER_KEY, (Parcelable)modifier);
@@ -64,7 +66,7 @@ public class EntityDetailFragment extends Fragment {
          * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
          */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(savedInstanceState != null){
             this.modifier = savedInstanceState.getParcelable(MODIFIER_KEY);
         }

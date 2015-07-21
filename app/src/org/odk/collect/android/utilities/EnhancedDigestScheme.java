@@ -48,6 +48,9 @@ package org.odk.collect.android.utilities;
  *
  */
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -113,8 +116,11 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
 
     private String lastNonce;
     private long nounceCount;
+    @Nullable
     private String cnonce;
+    @Nullable
     private String a1;
+    @Nullable
     private String a2;
 
     /**
@@ -171,6 +177,7 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
      * 
      * @return <code>digest</code>
      */
+    @NonNull
     public String getSchemeName() {
         return "digest";
     }
@@ -206,8 +213,9 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
      * 
      * @return a digest authorization string
      */
-    public Header authenticate(final Credentials credentials,
-            final HttpRequest request) throws AuthenticationException {
+    @NonNull
+    public Header authenticate(@Nullable final Credentials credentials,
+            @Nullable final HttpRequest request) throws AuthenticationException {
 
         if (credentials == null) {
             throw new IllegalArgumentException("Credentials may not be null");
@@ -246,7 +254,8 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
      * 
      * @return The digest-response as String.
      */
-    private Header createDigestHeader(final Credentials credentials)
+    @NonNull
+    private Header createDigestHeader(@NonNull final Credentials credentials)
             throws AuthenticationException {
         String uri = getParameter("uri");
         String realm = getParameter("realm");
@@ -430,14 +439,17 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
         return new BufferedHeader(buffer);
     }
 
+    @Nullable
     String getCnonce() {
         return cnonce;
     }
 
+    @Nullable
     String getA1() {
         return a1;
     }
 
+    @Nullable
     String getA2() {
         return a2;
     }
@@ -450,7 +462,8 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
      *            array containing the digest
      * @return encoded MD5, or <CODE>null</CODE> if encoding failed
      */
-    private static String encode(byte[] binaryData) {
+    @NonNull
+    private static String encode(@NonNull byte[] binaryData) {
         int n = binaryData.length;
         char[] buffer = new char[n * 2];
         for (int i = 0; i < n; i++) {
@@ -468,6 +481,7 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
      * 
      * @return The cnonce value as String.
      */
+    @NonNull
     public static String createCnonce() {
         SecureRandom rnd = new SecureRandom();
         byte[] tmp = new byte[8];

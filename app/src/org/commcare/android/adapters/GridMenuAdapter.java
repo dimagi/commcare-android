@@ -1,6 +1,7 @@
 package org.commcare.android.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -18,14 +19,15 @@ import org.javarosa.core.services.locale.Localizer;
 
 public class GridMenuAdapter extends MenuAdapter {
 
-    public GridMenuAdapter(Context context, CommCarePlatform platform,
-            String menuID) {
+    public GridMenuAdapter(@NonNull Context context, @NonNull CommCarePlatform platform,
+            @NonNull String menuID) {
         super(context, platform, menuID);
     }
 
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
+    @NonNull
     @Override
     public View getView(int i, View v, ViewGroup vg) {
 

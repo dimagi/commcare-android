@@ -28,6 +28,8 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -50,6 +52,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     CommCareApp app;
     
+    @Nullable
     String keyServerUrl;
     
     ArrayList<UserKeyRecord> keyRecords;
@@ -61,9 +64,10 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
     
+    @Nullable
     User loggedIn = null;
     
-    public ManageKeyRecordTask(Context c, int taskId, String username, String password, CommCareApp app, ManageKeyRecordListener<R> listener) {
+    public ManageKeyRecordTask(Context c, int taskId, String username, String password, @NonNull CommCareApp app, ManageKeyRecordListener<R> listener) {
         super(c);
         this.username = username;
         this.password = password;
@@ -128,7 +132,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         listener.keysDoneOther(receiver, result);
     }
     
-    protected void deliverError(R receiver, Exception e) {
+    protected void deliverError(R receiver, @NonNull Exception e) {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
         listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnkownError);
     }
@@ -137,6 +141,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     /* (non-Javadoc)
      * @see org.commcare.android.tasks.templates.HttpCalloutTask#doSetupTaskBeforeRequest()
      */
+    @Nullable
     @Override
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         //This step needs to determine three things
@@ -260,6 +265,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     /* (non-Javadoc)
      * @see org.commcare.android.tasks.templates.HttpCalloutTask#getTransactionParserFactory()
      */
+    @Nullable
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
         TransactionParserFactory factory = new TransactionParserFactory() {
@@ -268,8 +274,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
              * (non-Javadoc)
              * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
              */
+            @Nullable
             @Override
-            public TransactionParser getParser(KXmlParser parser) {
+            public TransactionParser getParser(@NonNull KXmlParser parser) {
                 String name = parser.getName();
                 if("auth_keys".equals(name)) {
                     return new KeyRecordParser(parser, username, password, keyRecords) {
@@ -355,6 +362,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.HttpCalloutTask#doPostCalloutTask(boolean)
      */
+    @NonNull
     @Override
     protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
         //Now we need to complete our login 
@@ -426,7 +434,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return HttpCalloutTask.HttpCalloutOutcomes.Success;
     }
     
-    private UserKeyRecord getInUseSandbox(String username, SqlStorage<UserKeyRecord> storage) {
+    @Nullable
+    private UserKeyRecord getInUseSandbox(String username, @NonNull SqlStorage<UserKeyRecord> storage) {
         UserKeyRecord oldSandboxToMigrate = null;
         
         for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
@@ -456,7 +465,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
     //TODO: This can be its own method/process somewhere
-    private boolean lookForAndMigrateOldSandbox(UserKeyRecord newRecord) {
+    private boolean lookForAndMigrateOldSandbox(@NonNull UserKeyRecord newRecord) {
         //So we have a new record here. We want to look through our old records now and see if we can
         //(A) Migrate over any of their old data to this new sandbox.
         //(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
@@ -500,7 +509,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
     //TODO: this shouldn't go here. Where should it go?
-    public static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String password, boolean acceptExpired) {
+    public static UserKeyRecord getCurrentValidRecord(@NonNull CommCareApp app, String username, String password, boolean acceptExpired) {
         UserKeyRecord validIsh = null;
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
 
@@ -525,6 +534,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     /* (non-Javadoc)
      * @see org.commcare.android.tasks.templates.HttpCalloutTask#doResponseOther(org.apache.http.HttpResponse)
      */
+    @NonNull
     @Override
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;

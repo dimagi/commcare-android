@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.LruCache;
 import android.widget.ImageView;
 /**
@@ -23,7 +25,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
     private int scaleFactor;                    // how much to degrade the quality of the image to ensure no heap overflow
     private final int CACHE_DIVISOR =2 ;
 
-    public CachingAsyncImageLoader(Context context, int mScaleFactor) {
+    public CachingAsyncImageLoader(@NonNull Context context, int mScaleFactor) {
         ActivityManager am = (ActivityManager) context.getSystemService(
                 Context.ACTIVITY_SERVICE);
         int memoryClass = (am.getMemoryClass() * 1024 * 1024)/CACHE_DIVISOR;        //basically, set the heap to be everything we can get
@@ -31,7 +33,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         scaleFactor = mScaleFactor;
     }
 
-    public void display(String url, ImageView imageview, int defaultresource) {
+    public void display(String url, @NonNull ImageView imageview, int defaultresource) {
         imageview.setImageResource(defaultresource);
         Bitmap image;
         synchronized(cache) {
@@ -59,23 +61,26 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
      *
      */
     private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Nullable
         private ImageView mImageView = null;
 
         public SetImageTask(ImageView imageView) {
             mImageView = imageView;
         }
 
-        protected Bitmap doInBackground(String... file) { 
+        @Nullable
+        protected Bitmap doInBackground(String... file) {
             return getImageBitmap(file[0]);
         }
 
-        protected void onPostExecute(Bitmap result) {
+        protected void onPostExecute(@Nullable Bitmap result) {
 
             if (result != null && mImageView != null) {
                 mImageView.setImageBitmap(result);
             }
         }
 
+        @Nullable
         public Bitmap getImageBitmap(String file){
             Bitmap bitmap = null;
             bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);

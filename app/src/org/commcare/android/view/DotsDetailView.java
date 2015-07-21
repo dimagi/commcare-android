@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -36,6 +37,7 @@ public class DotsDetailView {
     private static final String DOSE_UNKNOWN = "Dose";
     
     
+    @NonNull
     static String[] labelMap = new String [] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING, DOSE_BEDTIME};
     
     //For unnamed labels, these are the defaults.
@@ -61,7 +63,7 @@ public class DotsDetailView {
         
     }
 
-    public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, int dose, final DotsEditListener listener) {
+    public View LoadDotsDetailView(@NonNull Context context, @NonNull DotsDay day, int index, Date date, int dose, @NonNull final DotsEditListener listener) {
         this.day = day;
         this.index = index;
         this.dose = dose;
@@ -154,7 +156,7 @@ public class DotsDetailView {
             for(int id : ids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
                 toggle.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
+                    public void onClick(@NonNull View v) {
                         for(int id : ids) {
                             if(v.getId() == id) {
                                 ((ToggleButton)v).setChecked(true);
@@ -178,7 +180,7 @@ public class DotsDetailView {
             for(int id : typeids) {
                 ToggleButton toggle = (ToggleButton)details.findViewById(id);
                 toggle.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
+                    public void onClick(@NonNull View v) {
                         for(int id : typeids) {
                             if(v.getId() == id) {
                                 ((ToggleButton)v).setChecked(true);
@@ -225,6 +227,7 @@ public class DotsDetailView {
         return view;
     }
     
+    @NonNull
     public DotsDay getDay() {
         
         int[] regIndices = day.getRegIndexes(dose);

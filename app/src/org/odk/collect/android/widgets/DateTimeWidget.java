@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -157,6 +158,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @NonNull
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();

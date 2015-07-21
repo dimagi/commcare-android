@@ -1,5 +1,7 @@
 package org.commcare.xml;
 
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 
 import org.commcare.data.xml.TransactionParser;
@@ -31,6 +33,7 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
      * (non-Javadoc)
      * @see org.javarosa.xml.ElementParser#parse()
      */
+    @Nullable
     @Override
     public String[] parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("meta");

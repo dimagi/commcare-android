@@ -22,6 +22,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -59,7 +61,7 @@ public class EntityView extends LinearLayout {
     /*
      * Constructor for row/column contents
      */
-    public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+    public EntityView(Context context, @NonNull Detail d, Entity e, TextToSpeech tts,
             String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
@@ -93,7 +95,7 @@ public class EntityView extends LinearLayout {
     /*
      * Constructor for row/column headers
      */
-    public EntityView(Context context, Detail d, String[] headerText, Integer textColor) {
+    public EntityView(Context context, @NonNull Detail d, @NonNull String[] headerText, @Nullable Integer textColor) {
         super(context);
         this.context = context;
         this.views = new View[headerText.length];
@@ -157,7 +159,7 @@ public class EntityView extends LinearLayout {
     }
     
 
-    public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
+    public void refreshViewsForNewEntity(@NonNull Entity e, boolean currentlySelected, long rowId) {
         for (int i = 0; i < e.getNumFields() ; ++i) {
             Object field = e.getField(i);
             View view = views[i];
@@ -209,7 +211,7 @@ public class EntityView extends LinearLayout {
      * Updates the AudioButton layout that is passed in, based on the
      * new id and source
      */
-    private void setupAudioLayout(View layout, String source, ViewId uniqueId) {
+    private void setupAudioLayout(View layout, @Nullable String source, ViewId uniqueId) {
         AudioButton b = (AudioButton)layout;
         if (source != null && source.length() > 0) {
             b.modifyButtonForNewView(uniqueId, source, true);
@@ -222,7 +224,7 @@ public class EntityView extends LinearLayout {
     /*
      * Updates the text layout that is passed in, based on the new text
      */
-    private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
+    private void setupTextAndTTSLayout(@NonNull View layout, @Nullable final String text, String searchField) {
         TextView tv = (TextView)layout.findViewById(R.id.component_audio_text_txt);
         tv.setVisibility(View.VISIBLE);
         tv.setText(highlightSearches(this.getContext(), searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
@@ -259,7 +261,7 @@ public class EntityView extends LinearLayout {
      * Updates the ImageView layout that is passed in, based on the  
      * new id and source
      */
-    public void setupImageLayout(View layout, final String source) {
+    public void setupImageLayout(View layout, @NonNull final String source) {
         ImageView iv = (ImageView) layout;
         Bitmap b;
         if (!source.equals("")) {
@@ -302,7 +304,8 @@ public class EntityView extends LinearLayout {
      * @param strictMode
      * @return
      */
-    public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
+    @NonNull
+    public static Spannable highlightSearches(@NonNull Context context, @Nullable String[] searchTerms, @NonNull Spannable raw, @Nullable String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }
@@ -429,7 +432,7 @@ public class EntityView extends LinearLayout {
      * Removes all background color spans from the Spannable
      * @param raw Spannable to remove background colors from
      */
-    private static void removeSpans(Spannable raw) {
+    private static void removeSpans(@NonNull Spannable raw) {
         //Zero out the existing spans
         BackgroundColorSpan[] spans=raw.getSpans(0,raw.length(), BackgroundColorSpan.class);
         for (BackgroundColorSpan span : spans) {
@@ -448,6 +451,7 @@ public class EntityView extends LinearLayout {
      * @return Array of integers, each corresponding to a child view,
      * representing the desired width, in pixels, of that view.
      */
+    @NonNull
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
         int[] widths = new int[mHints.length];

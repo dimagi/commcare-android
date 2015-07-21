@@ -14,6 +14,8 @@
 
 package org.odk.collect.android.utilities;
 
+import android.support.annotation.NonNull;
+
 import org.apache.http.auth.AuthSchemeRegistry;
 import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.impl.auth.BasicSchemeFactory;
@@ -36,6 +38,7 @@ public class EnhancedHttpClient extends DefaultHttpClient {
      * (non-Javadoc)
      * @see org.apache.http.impl.client.DefaultHttpClient#createAuthSchemeRegistry()
      */
+    @NonNull
     @Override
     protected AuthSchemeRegistry createAuthSchemeRegistry() {
         AuthSchemeRegistry registry = new AuthSchemeRegistry();

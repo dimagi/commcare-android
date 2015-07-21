@@ -21,6 +21,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -53,19 +55,24 @@ import java.io.File;
 public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
 
+    @NonNull
     private final Button mCaptureButton;
+    @NonNull
     private final Button mChooseButton;
     private ImageView mImageView;
 
+    @Nullable
     private String mBinaryName;
 
+    @NonNull
     private final String mInstanceFolder;
     private boolean mWaitingForData;
 
+    @NonNull
     private final TextView mErrorTextView;
 
 
-    public ImageWidget(Context context, FormEntryPrompt prompt) {
+    public ImageWidget(@NonNull Context context, @NonNull FormEntryPrompt prompt) {
         super(context, prompt);
 
         mWaitingForData = false;
@@ -264,6 +271,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
@@ -297,7 +305,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);

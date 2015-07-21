@@ -19,6 +19,7 @@ import org.odk.collect.android.utilities.UniversalDate;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -346,6 +347,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      * Return the date for storing in ODK 
      */
+    @NonNull
     @Override
     public IAnswerData getAnswer() {
         Date date = getDateAsGregorian();
@@ -478,6 +480,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Get the current widget date in Gregorian chronology
      * @return
      */
+    @NonNull
     private Date getDateAsGregorian(){
         Date dtGregorian = new Date(getCurrentMillis());
         return dtGregorian;

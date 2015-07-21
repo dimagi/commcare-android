@@ -1,6 +1,8 @@
 package org.commcare.android.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +49,7 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     private Context context;
 
+    @NonNull
     private boolean[] hiddenButtons = new boolean[buttonsResources.length];
     private boolean isInitialized = false;
 
@@ -128,8 +131,9 @@ public class HomeScreenAdapter extends BaseAdapter {
         return buttonsResources[position];
     }
 
+    @Nullable
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, @Nullable View convertView, ViewGroup parent) {
         if (position < 0 || position >= getCount()) {
             return null;
         }

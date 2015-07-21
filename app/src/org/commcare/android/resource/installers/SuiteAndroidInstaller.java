@@ -7,6 +7,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -53,7 +55,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
      */
-    public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(@NonNull final AndroidCommCarePlatform instance) throws ResourceInitializationException {
         
         try {
             if(localLocation == null) {
@@ -66,6 +68,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                  * (non-Javadoc)
                  * @see org.commcare.xml.SuiteParser#getFixtureStorage()
                  */
+                @Nullable
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -97,7 +100,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
     
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
+    public boolean install(@NonNull Resource r, @NonNull ResourceLocation location, @NonNull Reference ref, @NonNull ResourceTable table, @NonNull final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
         try {
@@ -108,6 +111,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                  * (non-Javadoc)
                  * @see org.commcare.xml.SuiteParser#getFixtureStorage()
                  */
+                @Nullable
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -164,7 +168,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         super.writeExternal(out);
     }
     
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, @NonNull Vector<MissingMediaException> problems) {
         try{
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
@@ -172,6 +176,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                  * (non-Javadoc)
                  * @see org.commcare.xml.SuiteParser#getFixtureStorage()
                  */
+                @Nullable
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     //shouldn't be necessary

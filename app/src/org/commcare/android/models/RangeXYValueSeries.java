@@ -1,5 +1,7 @@
 package org.commcare.android.models;
 
+import android.support.annotation.Nullable;
+
 import org.achartengine.model.XYValueSeries;
 
 /**
@@ -11,6 +13,7 @@ import org.achartengine.model.XYValueSeries;
  *
  */
 public class RangeXYValueSeries extends XYValueSeries {
+    @Nullable
     private Double max = null;
 
     public RangeXYValueSeries(String title) {

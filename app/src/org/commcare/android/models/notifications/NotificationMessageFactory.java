@@ -3,6 +3,9 @@
  */
 package org.commcare.android.models.notifications;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Date;
 
 import org.javarosa.core.services.locale.Localization;
@@ -85,19 +88,23 @@ public class NotificationMessageFactory {
         
     }
     
-    public static NotificationMessage message(MessageTag message) {
+    @Nullable
+    public static NotificationMessage message(@NonNull MessageTag message) {
         return message(message, new String[3]);
     }
     
-    public static NotificationMessage message(MessageTag message, String customCategory){
+    @Nullable
+    public static NotificationMessage message(@NonNull MessageTag message, String customCategory){
         return message(message, new String[3], customCategory);
     }
     
-    public static NotificationMessage message(MessageTag message, String[] parameters) {
+    @Nullable
+    public static NotificationMessage message(@NonNull MessageTag message, String[] parameters) {
         return message(message, parameters, message.getCategory());
     }
 
-    public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
+    @Nullable
+    public static NotificationMessage message(@NonNull MessageTag message, String[] parameters, String customCategory) {
         
         String base = message.getLocaleKeyBase();
         if(base == null) { throw new NullPointerException("No Locale Key base for message tag!"); }

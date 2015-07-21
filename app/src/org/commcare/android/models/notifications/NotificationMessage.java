@@ -4,6 +4,8 @@ import java.util.Date;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Notification messages are messages which are intended to be displayed to end
@@ -15,7 +17,9 @@ import android.os.Parcelable;
  */
 public class NotificationMessage implements Parcelable {
     
+    @Nullable
     private String category, title, details, actions;
+    @Nullable
     private Date date;
 
     /*
@@ -32,7 +36,7 @@ public class NotificationMessage implements Parcelable {
      * @see android.os.Parcelable#writeToParcel(android.os.Parcel, int)
      */
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeStringArray(new String[] {category, title, details, actions});
         dest.writeLong(date.getTime());
     }
@@ -43,8 +47,9 @@ public class NotificationMessage implements Parcelable {
          * (non-Javadoc)
          * @see android.os.Parcelable.Creator#createFromParcel(android.os.Parcel)
          */
+        @NonNull
         @Override
-        public NotificationMessage createFromParcel(Parcel source) {
+        public NotificationMessage createFromParcel(@NonNull Parcel source) {
             String[] array = new String[3];
             source.readStringArray(array);
             Date date = new Date(source.readLong());
@@ -56,6 +61,7 @@ public class NotificationMessage implements Parcelable {
          * (non-Javadoc)
          * @see android.os.Parcelable.Creator#newArray(int)
          */
+        @NonNull
         @Override
         public NotificationMessage[] newArray(int size) {
             return new NotificationMessage[size]; 
@@ -63,7 +69,7 @@ public class NotificationMessage implements Parcelable {
         
     };
     
-    public NotificationMessage(String context, String title, String details, String action, Date date) {
+    public NotificationMessage(@Nullable String context, @Nullable String title, @Nullable String details, String action, @Nullable Date date) {
         if(context == null || title == null || details == null || date == null) { 
             throw new NullPointerException("None of the arguments for creating a NotificationMessage may be null except for action");
         }
@@ -74,14 +80,17 @@ public class NotificationMessage implements Parcelable {
         this.date = date;
     }
 
+    @Nullable
     public String getTitle() {
         return title;
     }
 
+    @Nullable
     public String getCategory() {
         return category;
     }
 
+    @Nullable
     public String getDetails() {
         return details;
     }
@@ -106,6 +115,7 @@ public class NotificationMessage implements Parcelable {
         return true;
     }
 
+    @Nullable
     public Date getDate() {
         return date;
     }

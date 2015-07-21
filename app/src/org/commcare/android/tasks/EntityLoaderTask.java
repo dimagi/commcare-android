@@ -14,6 +14,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 
@@ -23,16 +25,18 @@ import android.util.Pair;
  */
 public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
     
+    @Nullable
     private static EntityLoaderTask pending[] = {null};
     
     NodeEntityFactory factory;
     EvaluationContext ec;
     EntityLoaderListener listener;
+    @Nullable
     Exception mException = null;
     
     private long waitingTime; 
 
-    public EntityLoaderTask(Detail d, EvaluationContext ec) {
+    public EntityLoaderTask(@NonNull Detail d, EvaluationContext ec) {
         if(d.useAsyncStrategy()) {
             this.factory = new AsyncNodeEntityFactory(d, ec);
         } else {
@@ -41,7 +45,7 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
         this.ec = ec;
     }
     
-    public void attachListener(EntityLoaderListener listener){ 
+    public void attachListener(@NonNull EntityLoaderListener listener){
         this.listener = listener;
         listener.attach(this);
     }
@@ -59,7 +63,7 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
      * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
      */
     @Override
-    protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
+    protected void onPostExecute(@NonNull Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
         super.onPostExecute(result);
         
         waitingTime = System.currentTimeMillis();
@@ -108,6 +112,7 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
      */
+    @Nullable
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
 
@@ -147,7 +152,7 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
         }
     }
     
-    public static boolean attachToActivity(EntityLoaderListener listener) {
+    public static boolean attachToActivity(@NonNull EntityLoaderListener listener) {
         synchronized(pending) {
             if(pending[0] == null) {
                 return false;

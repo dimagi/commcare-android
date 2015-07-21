@@ -6,6 +6,8 @@ package org.commcare.android.database;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * A index spanning iterator is a special kind of iterator that is used on densely packed tables
@@ -168,6 +170,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
      */
+    @Nullable
     public T nextRecord() {
         T t = storage.read(this.peekID());
         nextID();
@@ -186,6 +189,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         return hasMore();
     }
 
+    @Nullable
     public T next() {
         return nextRecord();
     }
@@ -198,10 +202,12 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         return current;
     }
 
+    @NonNull
     private Cursor getRawCursor() {
         throw new RuntimeException("Raw cursor unavailable for cover index iterator");
     }
     
+    @NonNull
     public String getPrimaryId() {
         throw new RuntimeException("Primary ID Not requested by this iterator");
     }

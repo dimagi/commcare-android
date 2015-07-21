@@ -4,6 +4,7 @@
 package org.commcare.dalvik.geo;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;
@@ -13,6 +14,7 @@ import com.google.android.maps.OverlayItem;
  *
  */
 public class EntityOverlayItem extends OverlayItem {
+    @Nullable
     Drawable custom = null;
     public EntityOverlayItem(GeoPoint gp, String big, String small, Drawable custom) {
         super(gp, big, small);
@@ -21,6 +23,7 @@ public class EntityOverlayItem extends OverlayItem {
     /* (non-Javadoc)
      * @see com.google.android.maps.OverlayItem#getMarker(int)
      */
+    @Nullable
     @Override
     public Drawable getMarker(int stateBitset) {
         if(custom == null) {

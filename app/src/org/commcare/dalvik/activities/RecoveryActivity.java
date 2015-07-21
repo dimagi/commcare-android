@@ -21,6 +21,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -94,7 +95,7 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
                      */
                     @Override
-                    protected void deliverResult(RecoveryActivity receiver, Integer result) {
+                    protected void deliverResult(@NonNull RecoveryActivity receiver, Integer result) {
                          if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
                             receiver.displayMessage("Log-in expired during send. Please press back and log in again");
                             return;
@@ -126,7 +127,7 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
                      * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
                      */
                     @Override
-                    protected void deliverError(RecoveryActivity receiver,Exception e) {
+                    protected void deliverError(@NonNull RecoveryActivity receiver, @NonNull Exception e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,"Error in recovery form send: " + ExceptionReportTask.getStackTrace(e));
                         receiver.displayMessage("Error while sending : " + e.getMessage());
                     }

@@ -4,6 +4,8 @@
 
 package org.odk.collect.android.logic;
 
+import android.support.annotation.NonNull;
+
 import org.javarosa.core.reference.PrefixedRootFactory;
 import org.javarosa.core.reference.Reference;
 
@@ -27,6 +29,7 @@ public class FileReferenceFactory extends PrefixedRootFactory {
      * (non-Javadoc)
      * @see org.javarosa.core.reference.PrefixedRootFactory#factory(java.lang.String, java.lang.String)
      */
+    @NonNull
     @Override
     protected Reference factory(String terminal, String URI) {
         return new FileReference(localRoot, terminal);

@@ -53,6 +53,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -70,7 +72,7 @@ public class FileUtils {
     public static int WARNING_SIZE = 3000;
 
     
-    public static boolean createFolder(String path) {
+    public static boolean createFolder(@NonNull String path) {
         boolean made = true;
         File dir = new File(path);
         if (!dir.exists()) {
@@ -80,11 +82,12 @@ public class FileUtils {
     }
 
     
-    public static byte[] getFileAsBytes(File file) {
+    @Nullable
+    public static byte[] getFileAsBytes(@NonNull File file) {
         return getFileAsBytes(file, null);
     }
 
-    public static byte[] getFileAsBytes(File file, SecretKeySpec symetricKey) {
+    public static byte[] getFileAsBytes(@NonNull File file, @Nullable SecretKeySpec symetricKey) {
         byte[] bytes = null;
         InputStream is = null;
         try {
@@ -144,7 +147,7 @@ public class FileUtils {
     }
 
 
-    public static String getMd5Hash(File file) {
+    public static String getMd5Hash(@NonNull File file) {
         try {
             // CTS (6/15/2010) : stream file through digest instead of handing it the byte[]
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -200,7 +203,7 @@ public class FileUtils {
     }
 
 
-    public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
+    public static Bitmap getBitmapScaledToDisplay(@NonNull File f, int screenHeight, int screenWidth) {
         // Determine image size of f
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -234,7 +237,7 @@ public class FileUtils {
      * @param destFile Either a file or directory. If a directory, the
      * file name will be taken from the source file 
      */
-    public static void copyFile(File sourceFile, File destFile) {
+    public static void copyFile(@NonNull File sourceFile, @NonNull File destFile) {
         if (sourceFile.exists()) {
             if(destFile.isDirectory()) {
                 destFile = new File(destFile, sourceFile.getName());
@@ -260,14 +263,21 @@ public class FileUtils {
 
     }
 
+    @NonNull
     public static String FORMID = "formid";
+    @NonNull
     public static String UI = "uiversion";
+    @NonNull
     public static String MODEL = "modelversion";
+    @NonNull
     public static String TITLE = "title";
+    @NonNull
     public static String SUBMISSIONURI = "submission";
+    @NonNull
     public static String BASE64_RSA_PUBLIC_KEY = "base64RsaPublicKey";
     
-    public static HashMap<String, String> parseXML(File xmlFile) {
+    @NonNull
+    public static HashMap<String, String> parseXML(@NonNull File xmlFile) {
         HashMap<String, String> fields = new HashMap<String, String>();
         InputStream is;
         try {
@@ -354,7 +364,8 @@ public class FileUtils {
     }
 
     // needed because element.getelement fails when there are attributes
-    private static Element getChildElement(Element parent, String childName) {
+    @Nullable
+    private static Element getChildElement(@NonNull Element parent, String childName) {
         Element e = null;
         int c = parent.getChildCount();
         int i = 0;
@@ -368,12 +379,12 @@ public class FileUtils {
         return e;
     }
     
-    public static boolean isFileOversized(File mf){
+    public static boolean isFileOversized(@NonNull File mf){
         double length = getFileSize(mf);
         return length > WARNING_SIZE;
     }
     
-    public static double getFileSize(File mf){
+    public static double getFileSize(@NonNull File mf){
         return mf.length()/(1024);
     }
 
@@ -386,7 +397,7 @@ public class FileUtils {
      * 
      */
     @SuppressLint("NewApi")
-    public static String getPath(final Context context, final Uri uri) {
+    public static String getPath(@NonNull final Context context, @NonNull final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
@@ -463,7 +474,7 @@ public class FileUtils {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
+    public static String getDataColumn(@NonNull Context context, @NonNull Uri uri, String selection,
             String[] selectionArgs) {
 
         Cursor cursor = null;
@@ -491,7 +502,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
+    public static boolean isExternalStorageDocument(@NonNull Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -499,7 +510,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
+    public static boolean isDownloadsDocument(@NonNull Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -507,7 +518,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public static boolean isMediaDocument(Uri uri) {
+    public static boolean isMediaDocument(@NonNull Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
@@ -515,7 +526,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public static boolean isGooglePhotosUri(Uri uri) {
+    public static boolean isGooglePhotosUri(@NonNull Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 }

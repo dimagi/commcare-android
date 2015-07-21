@@ -12,6 +12,7 @@ import org.commcare.android.database.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.support.annotation.NonNull;
 import android.util.Pair;
 
 /**
@@ -59,8 +60,9 @@ public class LegacyTableBuilder {
         rawCols.add(DbUtil.DATA_COL);
     }
     
+    @NonNull
     HashSet<String> unique = new HashSet<String>();
-    public void setUnique(String columnName) {
+    public void setUnique(@NonNull String columnName) {
         unique.add(scrubName(columnName));
     }
     
@@ -77,12 +79,13 @@ public class LegacyTableBuilder {
         return built;
     }
     
-    public static String scrubName(String input) {
+    public static String scrubName(@NonNull String input) {
         //Scrub
         return input.replace("-", "_");
     }
     
-    public static Pair<String, String[]> sqlList(Collection<Integer> input) {
+    @NonNull
+    public static Pair<String, String[]> sqlList(@NonNull Collection<Integer> input) {
         //I want list comprehensions so bad right now.
         String ret = "(";
         for(int i : input) {

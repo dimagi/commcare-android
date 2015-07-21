@@ -17,6 +17,7 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 public class UserXmlParser extends TransactionParser<User> {
 
@@ -30,6 +31,7 @@ public class UserXmlParser extends TransactionParser<User> {
         this.wrappedKey = wrappedKey;
     }
 
+    @Nullable
     public User parse() throws InvalidStructureException, IOException, XmlPullParserException {
         this.checkNode("registration");
         
@@ -106,6 +108,7 @@ public class UserXmlParser extends TransactionParser<User> {
         }
     }
 
+    @Nullable
     public User retrieve(String entityId) throws SessionUnavailableException {
         try {
             return (User)cachedStorage().getRecordForValue(User.META_UID, entityId);

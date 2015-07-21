@@ -30,6 +30,8 @@ import org.javarosa.core.services.Logger;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -110,6 +112,7 @@ public abstract class ResourceEngineTask<R>
      */
     private static final long STATUS_UPDATE_WAIT_TIME = 1000;
 
+    @Nullable
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
@@ -139,6 +142,7 @@ public abstract class ResourceEngineTask<R>
     /* (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(Params[])
      */
+    @NonNull
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
         AndroidCommCarePlatform platform = app.getCommCarePlatform();

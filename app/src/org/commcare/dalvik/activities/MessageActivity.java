@@ -12,6 +12,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +37,7 @@ public class MessageActivity extends ListActivity {
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null && savedInstanceState.containsKey(KEY_MESSAGES)) {
             messages = savedInstanceState.getParcelableArrayList(KEY_MESSAGES);
@@ -48,7 +50,7 @@ public class MessageActivity extends ListActivity {
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_MESSAGES, messages);
     }
@@ -65,8 +67,9 @@ public class MessageActivity extends ListActivity {
             /* (non-Javadoc)
              * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
              */
+            @Nullable
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
+            public View getView(int position, @Nullable View convertView, ViewGroup parent) {
                 View messageView = convertView;
                 if(convertView == null) {
                     messageView = LayoutInflater.from(MessageActivity.this).inflate(R.layout.layout_note_msg, parent, false);

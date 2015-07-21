@@ -14,6 +14,7 @@ import org.commcare.util.CommCareSession;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -42,7 +43,7 @@ public class EntityDetailAdapter implements ListAdapter {
 
     EntityDetailViewModifier modifier;
 
-    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
+    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, @NonNull Entity entity,
             DetailCalloutListener listener, int detailIndex) {
         this.context = context;
         this.session = session;
@@ -103,6 +104,7 @@ public class EntityDetailAdapter implements ListAdapter {
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
+    @NonNull
     public View getView(int position, View convertView, ViewGroup parent) {
         EntityDetailView dv =(EntityDetailView)convertView;
         if (dv == null) {

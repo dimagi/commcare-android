@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -46,7 +47,7 @@ public class GraphView {
     private XYMultipleSeriesDataset mDataset;
     private XYMultipleSeriesRenderer mRenderer; 
     
-    public GraphView(Context context, String title) {
+    public GraphView(@NonNull Context context, String title) {
         mContext = context;
         mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
@@ -88,7 +89,7 @@ public class GraphView {
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
     
-    private void render(GraphData data) throws InvalidStateException {
+    private void render(@NonNull GraphData data) throws InvalidStateException {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
@@ -101,7 +102,7 @@ public class GraphView {
         setMargins();        
     }
         
-    public Intent getIntent(GraphData data) throws InvalidStateException {
+    public Intent getIntent(@NonNull GraphData data) throws InvalidStateException {
         render(data);
         
         String title = mRenderer.getChartTitle();
@@ -121,7 +122,7 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
-    public View getView(GraphData data) throws InvalidStateException {
+    public View getView(@NonNull GraphData data) throws InvalidStateException {
         render(data);
         
         // Graph will not render correctly unless it has data, so
@@ -175,7 +176,7 @@ public class GraphView {
     /*
      * Set up a single series.
      */
-    private void renderSeries(SeriesData s) throws InvalidStateException {
+    private void renderSeries(@NonNull SeriesData s) throws InvalidStateException {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
         configureSeries(s, currentRenderer);
@@ -248,6 +249,7 @@ public class GraphView {
      * Get layout params for this graph, which assume that graph will fill parent
      * unless dimensions have been provided via setWidth and/or setHeight.
      */
+    @NonNull
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
@@ -271,6 +273,7 @@ public class GraphView {
      * Create series appropriate to the current graph type.
      * @return An XYSeries-derived object.
      */
+    @NonNull
     private XYSeries createSeries() {
         return createSeries(0);
     }
@@ -280,6 +283,7 @@ public class GraphView {
      * @param scaleIndex
      * @return An XYSeries-derived object.
      */
+    @NonNull
     private XYSeries createSeries(int scaleIndex) {
         // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
         // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
@@ -324,7 +328,7 @@ public class GraphView {
     /*
      * Apply any user-requested look and feel changes to graph.
      */
-    private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
+    private void configureSeries(@NonNull SeriesData s, @NonNull XYSeriesRenderer currentRenderer) {
         // Default to circular points, but allow other shapes or no points at all
         String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
         if (!pointStyle.equals("none")) {
@@ -359,7 +363,7 @@ public class GraphView {
     /*
      * Helper function for setting up color fills above or below a series.
      */
-    private void fillOutsideLine(SeriesData s, XYSeriesRenderer currentRenderer, String property, XYSeriesRenderer.FillOutsideLine.Type type) {
+    private void fillOutsideLine(@NonNull SeriesData s, @NonNull XYSeriesRenderer currentRenderer, String property, XYSeriesRenderer.FillOutsideLine.Type type) {
         property = s.getConfiguration(property);
         if (property != null) {
             XYSeriesRenderer.FillOutsideLine fill = new XYSeriesRenderer.FillOutsideLine(type);
@@ -460,6 +464,7 @@ public class GraphView {
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
+    @NonNull
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (Graph.TYPE_TIME.equals(mData.getType())) {
             Date parsed = DateUtils.parseDateTime(value);
@@ -479,6 +484,7 @@ public class GraphView {
      * @return
      * @throws InvalidStateException 
      */
+    @NonNull
     private Double parseYValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
@@ -489,6 +495,7 @@ public class GraphView {
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return
      */
+    @NonNull
     private Double parseRadiusValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
@@ -500,6 +507,7 @@ public class GraphView {
      * @return
      * @throws InvalidStateException
      */
+    @NonNull
     private Double parseDouble(String value, String description) throws InvalidStateException {
         try {
             Double numeric = Double.valueOf(value);
@@ -518,7 +526,7 @@ public class GraphView {
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @return True iff axis has any labels at all
      */
-    private boolean configureLabels(String key) throws InvalidStateException {
+    private boolean configureLabels(@NonNull String key) throws InvalidStateException {
         boolean hasLabels = true;
         
         // The labels setting might be a JSON array of numbers, 
@@ -570,7 +578,7 @@ public class GraphView {
      * @param location Point on axis to add label
      * @param text String for label
      */
-    private void addTextLabel(String key, Double location, String text) {
+    private void addTextLabel(@NonNull String key, Double location, String text) {
         if (isXKey(key)) {
             mRenderer.addXTextLabel(location, text);
         } else {
@@ -588,7 +596,7 @@ public class GraphView {
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @param value Number of labels
      */
-    private void setLabelCount(String key, int value) {
+    private void setLabelCount(@NonNull String key, int value) {
         if (isXKey(key)) {
             mRenderer.setXLabels(value);
         } else {
@@ -601,7 +609,7 @@ public class GraphView {
      * @param key Something like "x-labels" or "y-secondary-labels"
      * @return Index for passing to AChartEngine functions that accept a scale
      */
-    private int getScaleIndex(String key) {
+    private int getScaleIndex(@NonNull String key) {
         return key.contains("secondary") ? 1 : 0;
     }
     
@@ -610,7 +618,7 @@ public class GraphView {
      * @param key Something like "x-min" or "y-labels"
      * @return True iff key is relevant to x axis
      */
-    private boolean isXKey(String key) {
+    private boolean isXKey(@NonNull String key) {
         return key.startsWith("x-");
     }
     
@@ -620,7 +628,7 @@ public class GraphView {
      */
     private class NumericPointComparator implements Comparator<XYPointData> {
         @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
+        public int compare(@NonNull XYPointData lhs, @NonNull XYPointData rhs) {
             try {
                 return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
             } catch (InvalidStateException e) {
@@ -636,7 +644,7 @@ public class GraphView {
      */
     private class StringPointComparator implements Comparator<XYPointData> {
         @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
+        public int compare(@NonNull XYPointData lhs, @NonNull XYPointData rhs) {
             return lhs.getX().compareTo(rhs.getX());
         }
     }
@@ -648,7 +656,7 @@ public class GraphView {
      */
     private class AscendingValuePointComparator implements Comparator<XYPointData> {
         @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
+        public int compare(@NonNull XYPointData lhs, @NonNull XYPointData rhs) {
             try {
                 return parseXValue(lhs.getY(), "").compareTo(parseXValue(rhs.getY(), ""));
             } catch (InvalidStateException e) {
@@ -664,7 +672,7 @@ public class GraphView {
      */
     private class DescendingValuePointComparator implements Comparator<XYPointData> {
         @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
+        public int compare(@NonNull XYPointData lhs, @NonNull XYPointData rhs) {
             try {
                 return parseXValue(rhs.getY(), "").compareTo(parseXValue(lhs.getY(), ""));
             } catch (InvalidStateException e) {

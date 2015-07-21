@@ -32,6 +32,8 @@ import org.kxml2.io.KXmlParser;
 
 import android.net.ParseException;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -120,6 +122,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * (non-Javadoc)
      * @see org.commcare.xml.CaseXmlParser#processAttachment(java.lang.String, java.lang.String, java.lang.String, org.kxml2.io.KXmlParser)
      */
+    @Nullable
     @Override
     protected String processAttachment(String src, String from, String name, KXmlParser parser) {
         if(!processAttachments) { return null;}
@@ -204,6 +207,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * @param source the full path of the source of the attachment.
      * @return
      */
+    @NonNull
     private Pair<File, String> getDestination(String source) {
         File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
         String dest = PropertyUtils.genUUID().replace("-", "");
@@ -224,6 +228,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     /* (non-Javadoc)
      * @see org.commcare.xml.CaseXmlParser#CreateCase(java.lang.String, java.lang.String)
      */
+    @NonNull
     @Override
     protected Case CreateCase(String name, String typeId) {
         return new ACase(name, typeId);

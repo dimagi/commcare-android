@@ -17,6 +17,9 @@
 package org.commcare.android.database.user.models;
 
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -53,20 +56,22 @@ public class User implements Persistable, IMetaData
     private byte[] wrappedKey;
     
     private boolean rememberMe = false;
+    @Nullable
     private String syncToken = null;
     
     /** String -> String **/
-    private Hashtable<String,String> properties = new Hashtable<String,String>(); 
+    @NonNull
+    private Hashtable<String,String> properties = new Hashtable<String,String>();
 
     public User () {
         setUserType(TYPE_STANDARD);
     }
 
-    public User(String name, String passw, String uniqueID) {
+    public User(@NonNull String name, String passw, String uniqueID) {
         this(name, passw, uniqueID, TYPE_STANDARD);
     }
     
-    public User(String name, String passw, String uniqueID, String userType) {
+    public User(@NonNull String name, String passw, String uniqueID, String userType) {
         username = name.toLowerCase();
         password = passw;
         uniqueId = uniqueID;
@@ -117,6 +122,7 @@ public class User implements Persistable, IMetaData
         return recordId;
     }
 
+    @Nullable
     public String getUserType() {
         if(properties.containsKey(KEY_USER_TYPE)) {
             return properties.get(KEY_USER_TYPE);
@@ -129,7 +135,7 @@ public class User implements Persistable, IMetaData
         properties.put(KEY_USER_TYPE,userType);
     }
 
-    public void setUsername(String username) {
+    public void setUsername(@NonNull String username) {
         this.username = username.toLowerCase();
     }
 
@@ -161,6 +167,7 @@ public class User implements Persistable, IMetaData
         return wrappedKey;
     }
     
+    @NonNull
     public Hashtable<String, String> getProperties() {
         return this.properties;
     }
@@ -169,10 +176,12 @@ public class User implements Persistable, IMetaData
         this.properties.put(key, val);
     } 
     
+    @NonNull
     public String getProperty(String key) {
         return (String)this.properties.get(key);
     }
 
+    @NonNull
     public Hashtable getMetaData() {
         Hashtable ret = new Hashtable();
         for(String name : getMetaDataFields()) {
@@ -185,6 +194,7 @@ public class User implements Persistable, IMetaData
         this.syncToken = syncToken;
     }
     
+    @Nullable
     public String getSyncToken() {
         return syncToken;
     }
@@ -204,6 +214,7 @@ public class User implements Persistable, IMetaData
         throw new IllegalArgumentException("No metadata field " + fieldName  + " for User Models");
     }
 
+    @NonNull
     public String[] getMetaDataFields() {
         return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY, META_SYNC_TOKEN};
     }

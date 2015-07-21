@@ -42,6 +42,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -66,7 +67,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     /* (non-Javadoc)
      * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
      */
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(@NonNull AndroidCommCarePlatform instance) throws ResourceInitializationException {
         instance.registerXmlns(namespace, contentUri);
         return true;
     }
@@ -76,7 +77,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
      * @see org.commcare.android.resource.installers.FileSystemInstaller#customInstall(org.commcare.resources.model.Resource, org.javarosa.core.reference.Reference, boolean)
      */
     @Override
-    protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
+    protected int customInstall(Resource r, @NonNull Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
         XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
@@ -192,7 +193,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         return updateFilePath();
     }
     
-    public int rollback(Resource r) {
+    public int rollback(@NonNull Resource r) {
         int newStatus = super.rollback(r);
         if(newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
             if(updateFilePath()) {
@@ -232,7 +233,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
     }
     
-    public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
+    public boolean verifyInstallation(Resource r, @NonNull Vector<MissingMediaException> problems) {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {

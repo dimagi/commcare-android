@@ -1,5 +1,8 @@
 package org.odk.collect.android.views.media;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 /**
  * Used to represent the unique id of each view in a ListAdapter
  * 
@@ -19,6 +22,7 @@ public class ViewId {
         this.isDetail = isDetail;
     }
     
+    @NonNull
     @Override
     public String toString() {
         return "(" + getRow() + "," + getCol() + "," + getDetailBool() + ")";  
@@ -48,7 +52,7 @@ public class ViewId {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (this == obj)
             return true;
         if (obj == null)

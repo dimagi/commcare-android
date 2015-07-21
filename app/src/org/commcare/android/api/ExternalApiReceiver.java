@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import org.commcare.android.crypt.CryptUtil;
@@ -44,6 +46,7 @@ import java.util.Vector;
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
     
+    @NonNull
     CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
         /*
@@ -90,6 +93,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
          * (non-Javadoc)
          * @see org.commcare.android.tasks.templates.CommCareTaskConnector#getReceiver()
          */
+        @Nullable
         @Override
         public Object getReceiver() {
             // TODO Auto-generated method stub
@@ -122,7 +126,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
      * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
      */
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         if(!intent.hasExtra(AndroidSharedKeyRecord.EXTRA_KEY_ID)) {
             return;
         }
@@ -142,7 +146,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         performAction(context, b);
     }
 
-    private void performAction(final Context context, Bundle b) {
+    private void performAction(@NonNull final Context context, @NonNull Bundle b) {
         if(b.getString("commcareaction").equals("login")) {
             String username = b.getString("username");
             String password = b.getString("password");
@@ -161,7 +165,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
     
     
-    protected boolean checkAndStartUnsentTask(final Context context) {
+    protected boolean checkAndStartUnsentTask(@NonNull final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         
         //Get all forms which are either unsent or unprocessed
@@ -228,7 +232,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-    private void syncData(final Context c) {
+    private void syncData(@NonNull final Context c) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -280,7 +284,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     
-    private boolean tryLocalLogin(Context context, String uname, String password) {
+    private boolean tryLocalLogin(@NonNull Context context, String uname, String password) {
         try{
             UserKeyRecord matchingRecord = null;
             for(UserKeyRecord record : CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {

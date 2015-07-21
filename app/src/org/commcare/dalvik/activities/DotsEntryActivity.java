@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateFormat;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -61,6 +63,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     
     private int curday = -1;
     private int curdose = -1;
+    @Nullable
     private DotsDay d;
     private DotsDetailView ddv;
     private GestureDetector mGestureDetector;
@@ -73,7 +76,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         if(savedInstanceState != null) {
@@ -151,7 +154,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(DOTS_DATA,dotsData.SerializeDotsData());
         outState.putInt(DOTS_EDITING, curday);
@@ -166,7 +169,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
      * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         dotsData = DotsData.DeserializeDotsData(savedInstanceState.getString(DOTS_DATA));
         curday = savedInstanceState.getInt(DOTS_EDITING);
@@ -176,6 +179,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
+    @NonNull
     private DotsHomeView home() {
         setTitle(getString(R.string.application_name) + " > " + " DOTS");
         return new DotsHomeView(this, dotsData, this);
@@ -200,14 +204,14 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         finish();
     }
 
-    public void editDotsDay(int i, Rect rect) {
+    public void editDotsDay(int i, @NonNull Rect rect) {
         zX = rect.centerX();
         zY = rect.centerY();
         
         edit(i, AnimationType.zoomin);
     }
     
-    private void edit(int i, AnimationType anim) {
+    private void edit(int i, @NonNull AnimationType anim) {
         curday = i;
         //ddv = new DotsDetailView();
         Date date = DateUtils.dateAdd(dotsData.anchor(),  i - dotsData.days().length + 1);
@@ -225,11 +229,11 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     View mCurrentView;
     View mNextView;
     
-    private void showView(View next, AnimationType anim) {
+    private void showView(@NonNull View next, @NonNull AnimationType anim) {
         showView(next,anim, null);
     }
     
-    private void showView(View next, AnimationType anim, View target) {
+    private void showView(@NonNull View next, @NonNull AnimationType anim, @Nullable View target) {
         if(target != null) {
             next.buildDrawingCache();
             Rect targetRect = new Rect(0,0,target.getWidth(), target.getHeight());
@@ -333,7 +337,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
      * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
      */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 if(curday != -1) {
@@ -410,6 +414,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
 
+    @NonNull
     private View curday() {
         final ViewGroup dayView = (ViewGroup)View.inflate(this, R.layout.dotsdoses, null);
         TableRow[] rows = new TableRow[4];
@@ -431,7 +436,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             
             doseView.setOnClickListener(new OnClickListener() {
 
-                public void onClick(View v) {
+                public void onClick(@NonNull View v) {
                     Rect hitRect = new Rect();
                     if(v.getParent() instanceof View) {
                         v.getHitRect(hitRect);
@@ -484,7 +489,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         return dayView;
     }
     
-    private ViewGroup getDoseView(DotsDay d, int dayIndex, int regimenIndex) {
+    private ViewGroup getDoseView(@NonNull DotsDay d, int dayIndex, int regimenIndex) {
         
         int[] boxes = d.getRegIndexes(regimenIndex);
         boolean empty = true;

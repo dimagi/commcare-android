@@ -3,6 +3,9 @@
  */
 package org.commcare.android.database.app.models;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -138,6 +141,7 @@ public class UserKeyRecord extends Persisted {
      *
      * @return SHA-1 hashed password
      */
+    @NonNull
     public static String generatePwdHash(String pwd) {
         return generatePwdHash(pwd, PropertyUtils.genGUID(DEFAULT_SALT_LENGTH).toLowerCase());
     }
@@ -150,7 +154,7 @@ public class UserKeyRecord extends Persisted {
      *
      * @return salt String out of a hashed password
      */
-    public static String extractSalt(String pwdString) {
+    public static String extractSalt(@NonNull String pwdString) {
         Matcher m = HASH_STRING_PATTERN.matcher(pwdString);
         if (m.matches()) {
             // grab the salt segment out of the hashed password
@@ -169,6 +173,7 @@ public class UserKeyRecord extends Persisted {
      *
      * @return SHA-1 hashed password
      */
+    @NonNull
     public static String generatePwdHash(String pwd, String salt) {
         String alg = "sha1";
         int hashLength = 41;
@@ -204,7 +209,8 @@ public class UserKeyRecord extends Persisted {
                 hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash))));
     }
 
-    public byte[] unWrapKey(String password) {
+    @Nullable
+    public byte[] unWrapKey(@NonNull String password) {
         if(isPasswordValid(password)) {
             return CryptUtil.unWrapKey(getEncryptedKey(), password);
         } else {

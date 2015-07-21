@@ -88,6 +88,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings.Secure;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -131,7 +133,9 @@ public class CommCareApplication extends Application {
     //
     // A bound service is created out of the CommCareSessionService to ensure
     // it stays in memory.
+    @Nullable
     private CommCareSessionService mBoundService;
+    @Nullable
     private ServiceConnection mConnection;
     private final Object serviceLock = new Object();
     // Has the CommCareSessionService been bound?
@@ -190,7 +194,7 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch(SessionUnavailableException | StorageFullException sfe) {
+        } catch(@NonNull SessionUnavailableException | StorageFullException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
@@ -204,11 +208,11 @@ public class CommCareApplication extends Application {
         resourceState = initializeAppResources();
     }
 
-    public void triggerHandledAppExit(Context c, String message) {
+    public void triggerHandledAppExit(@NonNull Context c, String message) {
         triggerHandledAppExit(c, message, Localization.get("app.handled.error.title"));
     }
 
-    public void triggerHandledAppExit(Context c, String message, String title) {
+    public void triggerHandledAppExit(@NonNull Context c, String message, String title) {
         Intent i = new Intent(c, UnrecoverableErrorActivity.class);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
@@ -237,7 +241,7 @@ public class CommCareApplication extends Application {
     /**
      * Start commcare login session.
      */
-    public void logIn(byte[] symetricKey, UserKeyRecord record) {
+    public void logIn(byte[] symetricKey, @NonNull UserKeyRecord record) {
         synchronized(serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
@@ -248,10 +252,12 @@ public class CommCareApplication extends Application {
         }
     }
 
+    @Nullable
     public SecretKey createNewSymetricKey() throws SessionUnavailableException {
         return getSession().createNewSymetricKey();
     }
 
+    @Nullable
     private CallInPhoneListener listener = null;
 
     private void attachCallListener() {
@@ -263,6 +269,7 @@ public class CommCareApplication extends Application {
         tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
     }
 
+    @Nullable
     public CallInPhoneListener getCallListener() {
         return listener;
     }
@@ -271,6 +278,7 @@ public class CommCareApplication extends Application {
         return this.getResources().getIntArray(R.array.commcare_version);
     }
 
+    @NonNull
     public AndroidCommCarePlatform getCommCarePlatform() {
         if (this.currentApp == null) {
             throw new RuntimeException("No App installed!!!");
@@ -389,14 +397,17 @@ public class CommCareApplication extends Application {
         }
     }
 
+    @Nullable
     public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
         return this.getSession().getUserDbHandle();
     }
 
-    public <T extends Persistable> SqlStorage<T> getGlobalStorage(Class<T> c) {
+    @Nullable
+    public <T extends Persistable> SqlStorage<T> getGlobalStorage(@NonNull Class<T> c) {
         return getGlobalStorage(c.getAnnotation(Table.class).value(), c);
     }
 
+    @Nullable
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
         return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()) {
             /*
@@ -415,24 +426,29 @@ public class CommCareApplication extends Application {
         });
     }
 
-    public <T extends Persistable> SqlStorage<T> getAppStorage(Class<T> c) {
+    @Nullable
+    public <T extends Persistable> SqlStorage<T> getAppStorage(@NonNull Class<T> c) {
         return getAppStorage(c.getAnnotation(Table.class).value(), c);
     }
 
+    @Nullable
     public <T extends Persistable> SqlStorage<T> getAppStorage(String name, Class<T> c) {
         return currentApp.getStorage(name, c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) {
+    @Nullable
+    public <T extends Persistable> SqlStorage<T> getUserStorage(@NonNull Class<T> c) {
         return getUserStorage(c.getAnnotation(Table.class).value(), c);
     }
 
+    @Nullable
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
             /*
              * (non-Javadoc)
              * @see org.commcare.android.database.DbHelper#getHandle()
              */
+            @Nullable
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -444,12 +460,14 @@ public class CommCareApplication extends Application {
         });
     }
 
-    public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
+    @NonNull
+    public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, @NonNull final SQLiteDatabase handle) {
         return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
             /*
              * (non-Javadoc)
              * @see org.commcare.android.database.DbHelper#getHandle()
              */
+            @NonNull
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;
@@ -497,7 +515,7 @@ public class CommCareApplication extends Application {
              * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
              */
             @Override
-            public boolean matches(UserKeyRecord ukr) {
+            public boolean matches(@NonNull UserKeyRecord ukr) {
                 if (ukr.getUsername().equalsIgnoreCase(username.toLowerCase())) {
                     dbIdsToRemove.add(ukr.getUuid());
                     return true;
@@ -577,9 +595,9 @@ public class CommCareApplication extends Application {
         }
     }
     
-    void doBindService(final byte[] key, final UserKeyRecord record) {
+    void doBindService(final byte[] key, @NonNull final UserKeyRecord record) {
         mConnection = new ServiceConnection() {
-            public void onServiceConnected(ComponentName className, IBinder service) {
+            public void onServiceConnected(ComponentName className, @NonNull IBinder service) {
                 // This is called when the connection with the service has been
                 // established, giving us the service object we can use to
                 // interact with the service.  Because we have bound to a explicit
@@ -711,7 +729,7 @@ public class CommCareApplication extends Application {
      *
      * @param app  The current app
      */
-    private void performArchivedFormPurge(CommCareApp app) {
+    private void performArchivedFormPurge(@NonNull CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
         try {
@@ -845,6 +863,7 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
+    @Nullable
     public CommCareSessionService getSession() throws SessionUnavailableException {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
@@ -870,6 +889,7 @@ public class CommCareApplication extends Application {
      * incomplete form counts. If the user storage isn't open, return 0 vals
      * for unsent/incomplete forms.
      */
+    @NonNull
     public Pair<Long, int[]> getSyncDisplayParameters() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long lastSync = prefs.getLong("last-succesful-sync", 0);
@@ -951,6 +971,7 @@ public class CommCareApplication extends Application {
 
     }
 
+    @NonNull
     public ArrayList<NotificationMessage> purgeNotifications() {
         synchronized (pendingMessages) {
             this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
@@ -960,7 +981,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void clearNotifications(String category) {
+    public void clearNotifications(@Nullable String category) {
         synchronized (pendingMessages) {
             NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             Vector<NotificationMessage> toRemove = new Vector<NotificationMessage>();
@@ -1051,10 +1072,12 @@ public class CommCareApplication extends Application {
         doReportMaintenance(true);
     }
 
+    @NonNull
     public String getAndroidFsRoot() {
         return Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getPackageName() + "/files/";
     }
 
+    @NonNull
     public String getAndroidFsTemp() {
         return Environment.getExternalStorageDirectory().toString() + "/Android/data/" + getPackageName() + "/temp/";
     }
@@ -1064,6 +1087,7 @@ public class CommCareApplication extends Application {
      * temporarily and will be cleaned up as part of CommCare's application
      * lifecycle
      */
+    @NonNull
     public String getTempFilePath() {
         return getAndroidFsTemp() + PropertyUtils.genUUID();
     }
@@ -1080,6 +1104,7 @@ public class CommCareApplication extends Application {
          * Reference to the context used to show pop-ups (the parent class).
          * Reference is weak to avoid memory leaks.
          */
+        @NonNull
         private final WeakReference<CommCareApplication> mActivity;
 
         /**
@@ -1095,7 +1120,7 @@ public class CommCareApplication extends Application {
          * @param m Has a 'message' parcel storing pop-up message text
          */
         @Override
-        public void handleMessage(Message m) {
+        public void handleMessage(@NonNull Message m) {
             NotificationMessage message = m.getData().getParcelable("message");
 
             CommCareApplication activity = mActivity.get();

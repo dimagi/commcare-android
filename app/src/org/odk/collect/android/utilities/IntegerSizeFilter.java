@@ -1,5 +1,7 @@
 package org.odk.collect.android.utilities;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.InputFilter;
 import android.text.Spanned;
 
@@ -18,9 +20,10 @@ public class IntegerSizeFilter implements InputFilter {
      * (non-Javadoc)
      * @see android.text.InputFilter#filter(java.lang.CharSequence, int, int, android.text.Spanned, int, int)
      */
+    @Nullable
     @Override
-    public CharSequence filter(CharSequence source, int start, int end,
-            Spanned dest, int dstart, int dend) {
+    public CharSequence filter(@NonNull CharSequence source, int start, int end,
+            @NonNull Spanned dest, int dstart, int dend) {
         String destString = dest.toString();
         if (source.equals("") || destString.equals("")) {
             return null; //If the source or destination strings are empty, can leave as is

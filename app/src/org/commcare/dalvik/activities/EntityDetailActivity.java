@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -140,6 +141,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         mDetailView.setDetail(factory.getDetail());
     }
     
+    @Nullable
     public Pair<Detail, TreeReference> requestEntityContext() {
         return mEntityContext;
     }
@@ -158,6 +160,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
      */
+    @Nullable
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern

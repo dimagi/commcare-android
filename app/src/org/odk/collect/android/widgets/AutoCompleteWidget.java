@@ -12,6 +12,8 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -37,15 +39,19 @@ public class AutoCompleteWidget extends QuestionWidget {
     Vector<SelectChoice> mItems;
 
     // Defines which filter to use to display autocomplete possibilities
+    @Nullable
     String filterType;
 
     // The various filter types
+    @NonNull
     String match_substring = "substring";
+    @NonNull
     String match_prefix = "prefix";
+    @NonNull
     String match_chars = "chars";
 
 
-    public AutoCompleteWidget(Context context, FormEntryPrompt prompt, String filterType) {
+    public AutoCompleteWidget(@NonNull Context context, @NonNull FormEntryPrompt prompt, @Nullable String filterType) {
         super(context, prompt);
         mItems = prompt.getSelectChoices();
         mPrompt = prompt;
@@ -92,6 +98,7 @@ public class AutoCompleteWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String response = autocomplete.getText().toString();
@@ -128,7 +135,7 @@ public class AutoCompleteWidget extends QuestionWidget {
      * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
      */
     @Override
-    public void setFocus(Context context) {
+    public void setFocus(@NonNull Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -142,7 +149,7 @@ public class AutoCompleteWidget extends QuestionWidget {
         public ArrayList<String> mItems;
 
 
-        public AutoCompleteAdapter(Context context, int textViewResourceId) {
+        public AutoCompleteAdapter(@NonNull Context context, int textViewResourceId) {
             super(context, textViewResourceId);
             mItems = new ArrayList<String>();
         }
@@ -207,10 +214,11 @@ public class AutoCompleteWidget extends QuestionWidget {
         }
 
         private class ItemsFilter extends Filter {
+            @NonNull
             final ArrayList<String> mItemsArray;
 
 
-            public ItemsFilter(ArrayList<String> list) {
+            public ItemsFilter(@Nullable ArrayList<String> list) {
                 if (list == null) {
                     mItemsArray = new ArrayList<String>();
                 } else {
@@ -223,8 +231,9 @@ public class AutoCompleteWidget extends QuestionWidget {
              * (non-Javadoc)
              * @see android.widget.Filter#performFiltering(java.lang.CharSequence)
              */
+            @NonNull
             @Override
-            protected FilterResults performFiltering(CharSequence prefix) {
+            protected FilterResults performFiltering(@Nullable CharSequence prefix) {
                 // Initiate our results object
                 FilterResults results = new FilterResults();
 
@@ -302,7 +311,7 @@ public class AutoCompleteWidget extends QuestionWidget {
              */
             @SuppressWarnings("unchecked")
             @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
+            protected void publishResults(CharSequence constraint, @NonNull FilterResults results) {
                 mItems = (ArrayList<String>) results.values;
                 // Let the adapter know about the updated list
                 if (results.count > 0) {

@@ -23,6 +23,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 
@@ -38,8 +40,9 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
      */
+    @Nullable
     @Override
-    protected String doInBackground(Throwable... values) {
+    protected String doInBackground(@NonNull Throwable... values) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         
         //TODO: This is ridiculous. Just do the normal log submission process
@@ -96,6 +99,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
                  * (non-Javadoc)
                  * @see org.apache.http.entity.mime.content.StringBody#getFilename()
                  */
+                @NonNull
                 @Override
                 public String getFilename() {
                     return "exceptionreport.xml";
@@ -139,12 +143,14 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
         return null;
     }
     
-    public static String getStackTrace(Throwable e) {
+    @NonNull
+    public static String getStackTrace(@NonNull Throwable e) {
         return getStackTrace(e, false);
     }
     
     
-    public static String getStackTrace(Throwable e, boolean fullContext) {
+    @NonNull
+    public static String getStackTrace(@NonNull Throwable e, boolean fullContext) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         e.printStackTrace(new PrintStream(bos));
         String retString = new String(bos.toByteArray());

@@ -29,6 +29,8 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
@@ -84,7 +86,7 @@ public class BreadcrumbBarFragment extends Fragment {
      * reference to the newly created Activity after each configuration change.
      */
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         
         breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
@@ -100,7 +102,7 @@ public class BreadcrumbBarFragment extends Fragment {
         this.tile = findAndLoadCaseTile(activity);
     }     
         
-    private void configureSimpleNav(Activity activity, ActionBar actionBar) {
+    private void configureSimpleNav(Activity activity, @NonNull ActionBar actionBar) {
         String title = null;
         String local = null;
         if(activity instanceof CommCareActivity) {
@@ -127,7 +129,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
 
 
-    private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
+    private void attachBreadcrumbBar(Activity activity, @NonNull ActionBar actionBar) {
         String title = null;
         
         //make sure we're in the right mode
@@ -150,7 +152,7 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setDisplayShowHomeEnabled(false);
     }
     
-    public static void expand(Activity activity, final View v) {
+    public static void expand(@NonNull Activity activity, @NonNull final View v) {
         Display display = activity.getWindowManager().getDefaultDisplay();
         
         int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
@@ -190,7 +192,7 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
 
-    public static void collapse(final View v, final Runnable postExecuteLambda) {
+    public static void collapse(@NonNull final View v, @NonNull final Runnable postExecuteLambda) {
         final int initialHeight = v.getMeasuredHeight();
         
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
@@ -224,9 +226,10 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
     
+    @Nullable
     private TabbedDetailView mInternalDetailView = null;
     
-    private View findAndLoadCaseTile(final Activity activity) {
+    private View findAndLoadCaseTile(@NonNull final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
         View tile = tileData == null ? null : tileData.first;
@@ -351,7 +354,8 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
     
-    public static String getBestTitle(Activity activity) {
+    @Nullable
+    public static String getBestTitle(@NonNull Activity activity) {
         String bestTitle = null;
         AndroidSessionWrapper asw;
 
@@ -383,7 +387,8 @@ public class BreadcrumbBarFragment extends Fragment {
         return defaultTitle(bestTitle, activity);
     }
 
-    private static String defaultTitle(String currentTitle, Activity activity) {
+    @Nullable
+    private static String defaultTitle(@Nullable String currentTitle, @NonNull Activity activity) {
         if(currentTitle == null || "".equals(currentTitle)) {
             currentTitle = CommCareActivity.getTopLevelTitleName(activity);
         }
@@ -403,7 +408,8 @@ public class BreadcrumbBarFragment extends Fragment {
      * @param local
      * @return
      */
-        public View getTitleView(final Activity activity, String local) {
+        @NonNull
+        public View getTitleView(@NonNull final Activity activity, @Nullable String local) {
             
             RelativeLayout layout = new RelativeLayout(activity);
             HorizontalScrollView scroller = new HorizontalScrollView(activity) {
@@ -579,9 +585,11 @@ public class BreadcrumbBarFragment extends Fragment {
             return fullTopBar;
         }
         
+        @Nullable
         View tile;
         
-        private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
+        @Nullable
+        private Pair<View, TreeReference> buildContextTile(@Nullable StackFrameStep stepToFrame, @NonNull AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
             //check to make sure we can look up this child
@@ -601,7 +609,7 @@ public class BreadcrumbBarFragment extends Fragment {
             return r;
         }
 
-        private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+        private Pair<View, TreeReference> buildContextTile(@NonNull Detail detail, TreeReference ref, @NonNull AndroidSessionWrapper asw) {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
             
             Entity entity = nef.getEntity(ref);
@@ -615,7 +623,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
 
 
-        private int addElementToTitle(LayoutInflater inflater, RelativeLayout title, String element, int type, int peer, OnClickListener action) {
+        private int addElementToTitle(@NonNull LayoutInflater inflater, @NonNull RelativeLayout title, @Nullable String element, int type, int peer, @Nullable OnClickListener action) {
             int newViewId = org.commcare.dalvik.R.id.component_title_breadcrumb_text + title.getChildCount() + 1;
             if(element != null) {
                 View titleBreadcrumb = inflater.inflate(type, title, true);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -39,7 +40,7 @@ public class TabbedDetailView extends RelativeLayout {
 
     private int mAlternateId = -1;
 
-    public TabbedDetailView(Context context) {
+    public TabbedDetailView(@NonNull Context context) {
         this(context, -1);
     }
     
@@ -51,20 +52,20 @@ public class TabbedDetailView extends RelativeLayout {
      * @param context
      * @param alternateId
      */
-    public TabbedDetailView(Context context, int alternateId) {
+    public TabbedDetailView(@NonNull Context context, int alternateId) {
         super(context);
         mContext = (FragmentActivity) context;
         this.mAlternateId = alternateId;
     }
 
-    public TabbedDetailView(Context context, AttributeSet attrs) {
+    public TabbedDetailView(@NonNull Context context, AttributeSet attrs) {
         super(context, attrs);
         if(isInEditMode()) return;
         mContext = (FragmentActivity) context;
     }
     
     @SuppressLint("NewApi")
-    public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
+    public TabbedDetailView(@NonNull Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mContext = (FragmentActivity) context;
     }
@@ -72,7 +73,7 @@ public class TabbedDetailView extends RelativeLayout {
     /*
      * Attach this view to a layout.
      */
-    public void setRoot(ViewGroup root) {
+    public void setRoot(@NonNull ViewGroup root) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
@@ -153,7 +154,7 @@ public class TabbedDetailView extends RelativeLayout {
         }
 
         @Override
-        public void modifyEntityDetailView(EntityDetailView edv) {
+        public void modifyEntityDetailView(@NonNull EntityDetailView edv) {
             edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
         }
 

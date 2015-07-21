@@ -4,6 +4,7 @@ package org.odk.collect.android.widgets;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -343,6 +344,7 @@ public class GridWidget extends QuestionWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         for (int i = 0; i < choices.length; ++i) {
@@ -398,6 +400,7 @@ public class GridWidget extends QuestionWidget {
         }
 
 
+        @Nullable
         public Object getItem(int position) {
             return null;
         }
@@ -409,6 +412,7 @@ public class GridWidget extends QuestionWidget {
 
 
         // create a new ImageView for each item referenced by the Adapter
+        @Nullable
         public View getView(int position, View convertView, ViewGroup parent) {
             String imageURI = choices[position];
 

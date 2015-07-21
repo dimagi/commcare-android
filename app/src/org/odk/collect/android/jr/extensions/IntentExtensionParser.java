@@ -1,6 +1,8 @@
 package org.odk.collect.android.jr.extensions;
 
 import java.util.Hashtable;
+
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.javarosa.core.model.FormDef;
@@ -19,7 +21,9 @@ import org.kxml2.kdom.Element;
 public class IntentExtensionParser implements IElementHandler {
 
     private static final String TAG = IntentExtensionParser.class.getSimpleName();
+    @NonNull
     private static String RESPONSE = "response";
+    @NonNull
     private static String EXTRA = "extra";
 
     /*
@@ -27,7 +31,7 @@ public class IntentExtensionParser implements IElementHandler {
      * @see org.javarosa.xform.parse.IElementHandler#handle(org.javarosa.xform.parse.XFormParser, org.kxml2.kdom.Element, java.lang.Object)
      */
     @Override
-    public void handle(XFormParser p, Element e, Object parent) {
+    public void handle(XFormParser p, @NonNull Element e, Object parent) {
         if(!(parent instanceof FormDef)) {
             throw new RuntimeException("Intent extension improperly registered.");
         }

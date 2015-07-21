@@ -15,6 +15,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -36,13 +38,18 @@ import android.widget.Toast;
 public class MediaLayout extends RelativeLayout {
     private static final String t = "AVTLayout";
 
+    @Nullable
     private TextView mView_Text;
+    @Nullable
     private AudioButton mAudioButton;
+    @Nullable
     private ImageButton mVideoButton;
+    @Nullable
     private ResizingImageView mImageView;
+    @Nullable
     private TextView mMissingImage;
 
-    public MediaLayout(Context c) {
+    public MediaLayout(@NonNull Context c) {
         super(c);
 
         mView_Text = null;
@@ -57,9 +64,9 @@ public class MediaLayout extends RelativeLayout {
         setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null);
     }
 
-    public void setAVT(TextView text, String audioURI, String imageURI,
-                       final String videoURI, final String bigImageURI,
-                       final String qrCodeContent) {
+    public void setAVT(TextView text, @Nullable String audioURI, @Nullable String imageURI,
+                       @Nullable final String videoURI, final String bigImageURI,
+                       @Nullable final String qrCodeContent) {
         mView_Text = text;
 
         // Layout configurations for our elements in the relative layout
@@ -288,7 +295,7 @@ public class MediaLayout extends RelativeLayout {
      * This adds a divider at the bottom of this layout. Used to separate
      * fields in lists.
      */
-    public void addDivider(ImageView v) {
+    public void addDivider(@NonNull ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         if (mImageView != null) {

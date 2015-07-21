@@ -38,6 +38,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -70,6 +71,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
+    @Nullable
     public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom

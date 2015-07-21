@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -65,6 +66,7 @@ public final class ViewUtil {
      * @param jrUri The image to inflate
      * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
      */
+    @Nullable
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
         //TODO: Cache?
         

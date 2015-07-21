@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -64,7 +65,7 @@ public class DeveloperPreferences extends PreferenceActivity {
      * @param matchingValue compare this to key lookup or defaultValue
      * @return boolean
      */
-    private static boolean doesPropertyMatch(String key, String defaultValue, String matchingValue) {
+    private static boolean doesPropertyMatch(String key, @NonNull String defaultValue, String matchingValue) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app == null) {
             return defaultValue.equals(matchingValue);

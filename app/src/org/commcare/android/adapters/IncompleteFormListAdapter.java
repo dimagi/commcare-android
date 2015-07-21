@@ -24,6 +24,8 @@ import org.commcare.suite.model.Text;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.AsyncTask.Status;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -38,8 +40,10 @@ import android.widget.BaseAdapter;
 public class IncompleteFormListAdapter extends BaseAdapter implements FormRecordLoadListener {
     private final Context context;
     
+    @NonNull
     private final List<DataSetObserver> observers;
     
+    @Nullable
     private FormRecordFilter filter;
 
     /**
@@ -62,11 +66,13 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /**
      * The last query made, used to filter forms.
      */
+    @NonNull
     private String query = "";
 
     /**
      * The current query split up by spaces. Used for filtering forms.
      */
+    @NonNull
     private String [] queryPieces = new String[0];
 
     private FormRecordLoaderTask loader;
@@ -76,9 +82,10 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * (entry-point text). Needed because FormRecords don't have form title
      * info, but do have the namespace.
      */
+    @NonNull
     private final Hashtable<String, Text> names;
 
-    public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
+    public IncompleteFormListAdapter(Context context, @NonNull AndroidCommCarePlatform platform, @NonNull FormRecordLoaderTask loader) throws SessionUnavailableException{
         this.context = context;
         this.filter = null;
         this.loader = loader;
@@ -106,7 +113,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * query.
      */
     @Override
-    public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
+    public void notifyPriorityLoaded(@NonNull FormRecord record, boolean isLoaded) {
         if (isLoaded && satisfiesQuery(record)) {
             current.add(record);
         }
@@ -126,7 +133,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      *
      * @param newFilter update the internal FormFilter to this value
      */
-    public void setFilterAndResetRecords(FormRecordFilter newFilter) {
+    public void setFilterAndResetRecords(@NonNull FormRecordFilter newFilter) {
         if (!newFilter.equals(this.filter)) {
             setFormFilter(newFilter);
             resetRecords();
@@ -162,7 +169,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         // Sort FormRecords by modification time, most recent first.
         Collections.sort(records, new Comparator<FormRecord>() {
-            public int compare(FormRecord left, FormRecord right) {
+            public int compare(@NonNull FormRecord left, @NonNull FormRecord right) {
                 long leftModTime = left.lastModified().getTime();
                 long rightModTime = right.lastModified().getTime();
 
@@ -266,6 +273,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /* (non-Javadoc)
      * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
      */
+    @NonNull
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
@@ -314,6 +322,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         this.filter = filter;
     }
     
+    @Nullable
     public FormRecordFilter getFilter() {
         return this.filter;
     }
@@ -355,7 +364,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * @return Did the text corresponding to the form record argument contain
      * any of the query segments?
      */
-    private boolean satisfiesQuery(FormRecord r) {
+    private boolean satisfiesQuery(@NonNull FormRecord r) {
         if (queryPieces.length == 0) {
             // empty queries always pass
             return true;
@@ -376,7 +385,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      *
      * @param newQuery set the current query to this value.
      */
-    public void applyTextFilter(String newQuery) {
+    public void applyTextFilter(@NonNull String newQuery) {
         if (this.query.trim().equals(newQuery.trim())) {
             // don't perform filtering if old and new queries are same, modulo
             // whitespace

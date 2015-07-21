@@ -26,6 +26,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -143,6 +144,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         int i = getCheckedId();

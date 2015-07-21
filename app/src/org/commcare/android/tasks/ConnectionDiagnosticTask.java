@@ -16,6 +16,8 @@ import org.javarosa.core.services.Logger;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
@@ -89,6 +91,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
      * 
      * doTaskBackground(<A>) returns <C>
      */
+    @Nullable
     @Override
     protected Test doTaskBackground(Void... params) 
     {    
@@ -109,7 +112,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     }
     
     //checks if the network is connected or not.
-    private boolean isOnline(Context context) 
+    private boolean isOnline(@NonNull Context context)
     {
         ConnectivityManager conManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = conManager.getActiveNetworkInfo();

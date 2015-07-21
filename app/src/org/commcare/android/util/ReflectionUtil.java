@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import android.os.Environment;
+import android.support.annotation.NonNull;
 
 /**
  * @author wspride
@@ -48,7 +49,7 @@ public class ReflectionUtil {
                /* unexpected checked exception; wrap and re-throw */
                 throw new RuntimeException(ite);
             }
-        } catch (IllegalAccessException | ClassCastException ie) {
+        } catch (@NonNull IllegalAccessException | ClassCastException ie) {
             System.err.println("unexpected " + ie);
             throw new RuntimeException(ie);
         }

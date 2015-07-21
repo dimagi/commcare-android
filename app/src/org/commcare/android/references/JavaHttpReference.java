@@ -3,6 +3,8 @@
  */
 package org.commcare.android.references;
 
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +39,7 @@ public class JavaHttpReference implements Reference {
     /* (non-Javadoc)
      * @see org.javarosa.core.reference.Reference#getOutputStream()
      */
+    @NonNull
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Http references are read only!");
     }
@@ -75,6 +78,7 @@ public class JavaHttpReference implements Reference {
         return uri;
     }
 
+    @NonNull
     public Reference[] probeAlternativeReferences() {
         return new Reference [0];
     }

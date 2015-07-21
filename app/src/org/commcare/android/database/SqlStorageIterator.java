@@ -10,6 +10,8 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -31,7 +33,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         
     }
     
-    public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {
+    public SqlStorageIterator(@NonNull Cursor c, SqlStorage<T> storage) {
         this(c, storage, null);
     }
 
@@ -43,7 +45,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
      * @param primaryId An optional key index for a primary id that is part
      * of the returned iterator
      */
-    public SqlStorageIterator(Cursor c, SqlStorage<T> storage, String primaryId) {
+    public SqlStorageIterator(@NonNull Cursor c, SqlStorage<T> storage, String primaryId) {
         this.c = c;
         this.storage = storage;
         this.primaryId = primaryId;
@@ -89,6 +91,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
      */
+    @Nullable
     public T nextRecord() {
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
         
@@ -108,6 +111,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         return hasMore();
     }
 
+    @Nullable
     public T next() {
         return nextRecord();
     }

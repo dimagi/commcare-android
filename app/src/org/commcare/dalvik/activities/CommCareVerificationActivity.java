@@ -18,6 +18,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -97,7 +99,7 @@ public class CommCareVerificationActivity
     }
 
     @Override
-    public void onFinished(SizeBoundVector<MissingMediaException> problems) {
+    public void onFinished(@NonNull SizeBoundVector<MissingMediaException> problems) {
         dismissProgressDialog();
         if(problems.size() > 0 ) {
             String message = Localization.get("verification.fail.message");
@@ -184,21 +186,21 @@ public class CommCareVerificationActivity
     }
     
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (v.getId() == R.id.screen_multimedia_retry) {
             verifyResourceInstall();
         }
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_UNZIP, 0, "Install Multimedia").setIcon(android.R.drawable.ic_menu_gallery);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case MENU_UNZIP:
                 Intent i = new Intent(this, MultimediaInflaterActivity.class);
@@ -214,6 +216,7 @@ public class CommCareVerificationActivity
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == DIALOG_VERIFY_PROGRESS) {
@@ -227,7 +230,8 @@ public class CommCareVerificationActivity
         return null;
     }
 
-    private String prettyString(String rawString){
+    @NonNull
+    private String prettyString(@NonNull String rawString){
         int marker = rawString.indexOf("/sdcard");
         if(marker<0){return rawString;}
         else{return rawString.substring(marker);}

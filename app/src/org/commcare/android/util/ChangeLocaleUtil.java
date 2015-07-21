@@ -1,12 +1,15 @@
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 public class ChangeLocaleUtil{
     
-    public static String[] removeDefault(String[] raw){
+    @NonNull
+    public static String[] removeDefault(@NonNull String[] raw){
         String[] output = new String[raw.length -1];
         int index = 0;
         for(int i=0; i<raw.length; i++){
@@ -19,7 +22,8 @@ public class ChangeLocaleUtil{
         return output;
     }
     
-    public static String[] translateLocales(String[] raw){
+    @NonNull
+    public static String[] translateLocales(@NonNull String[] raw){
         String[] translated = new String[raw.length];
         for(int i=0;i<raw.length;i++){
             try{
@@ -31,6 +35,7 @@ public class ChangeLocaleUtil{
         return translated;
     }
     
+    @NonNull
     public static String[] getLocaleCodes(){
         Localizer lizer = Localization.getGlobalLocalizerAdvanced();
         String[] rawLocales = lizer.getAvailableLocales();
@@ -38,6 +43,7 @@ public class ChangeLocaleUtil{
         return rawDefaultRemoved;
     }
     
+    @NonNull
     public static String[] getLocaleNames(){
         String[] rawDefaultRemoved = getLocaleCodes();
         String[] localeNames = translateLocales(rawDefaultRemoved);

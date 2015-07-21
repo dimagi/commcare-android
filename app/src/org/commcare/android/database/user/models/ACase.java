@@ -19,6 +19,8 @@
  */
 package org.commcare.android.database.user.models;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.android.database.EncryptedModel;
 import org.commcare.cases.model.Case;
 
@@ -46,7 +48,7 @@ public class ACase extends Case implements EncryptedModel {
         return true;
     }
 
-    public boolean isEncrypted(String data) {
+    public boolean isEncrypted(@NonNull String data) {
         if (data.equals("casetype")) {
             return true;
         } else if (data.equals("externalid")) {

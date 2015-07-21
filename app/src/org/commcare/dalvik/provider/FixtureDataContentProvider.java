@@ -17,6 +17,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * The fixture content provider defines the interface for external applications
@@ -44,6 +46,7 @@ public class FixtureDataContentProvider extends ContentProvider {
         return true;
     }
 
+    @NonNull
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
             String[] selectionArgs, String sortOrder) {
@@ -60,6 +63,7 @@ public class FixtureDataContentProvider extends ContentProvider {
         throw new IllegalArgumentException("URI: " + uri.toString() +" is not a valid content path for CommCare Case Data");
     }
 
+    @Nullable
     @Override
     public String getType(Uri uri) {
 
@@ -79,6 +83,7 @@ public class FixtureDataContentProvider extends ContentProvider {
      * Return a cursor over the list of all fixture IDs and names
      */
 
+    @NonNull
     public Cursor getFixtureNames(){
 
         MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
@@ -99,6 +104,7 @@ public class FixtureDataContentProvider extends ContentProvider {
      * Return a cursor to the fixture associated with this id
      */
     
+    @NonNull
     public Cursor getFixtureForId(String instanceId){
 
         MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
@@ -161,6 +167,7 @@ public class FixtureDataContentProvider extends ContentProvider {
     /* (non-Javadoc)
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
+    @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         // TODO Auto-generated method stub

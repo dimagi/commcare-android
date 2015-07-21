@@ -10,6 +10,7 @@ import org.joda.time.chrono.EthiopicChronology;
 import org.joda.time.chrono.GregorianChronology;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * Ethiopian Date Helper.
@@ -21,6 +22,7 @@ public class EthiopianDateHelper {
 
     private final static String TAG = EthiopianDateHelper.class.getSimpleName();
     
+    @NonNull
     public static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay){
         Chronology chron_eth = EthiopicChronology.getInstance();
         Chronology chron_greg = GregorianChronology.getInstance();
@@ -34,6 +36,7 @@ public class EthiopianDateHelper {
         return dateInEthiopian;
     }
 
+    @NonNull
     public static Object ConvertToEthiopian(Context context, Date d) {
         Calendar c = Calendar.getInstance();
         c.setTime(d);

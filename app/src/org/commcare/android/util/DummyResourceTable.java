@@ -1,5 +1,8 @@
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -38,33 +41,41 @@ public class DummyResourceTable extends ResourceTable {
      * (non-Javadoc)
      * @see org.commcare.resources.model.ResourceTable#getInstallers()
      */
+    @NonNull
     @Override
     public InstallerFactory getInstallers() {
         return new InstallerFactory() {
+            @NonNull
             public ResourceInstaller getProfileInstaller(boolean forceInstall) {
                 return getDummyInstaller();
             }
             
+            @NonNull
             public ResourceInstaller getXFormInstaller() {
                 return getDummyInstaller();
             }
             
+            @NonNull
             public ResourceInstaller getSuiteInstaller() {
                 return getDummyInstaller();
             }
             
+            @NonNull
             public ResourceInstaller getLocaleFileInstaller(String locale) {
                 return getDummyInstaller();
             }
             
+            @NonNull
             public ResourceInstaller getLoginImageInstaller() {
                 return getDummyInstaller();
             }
             
+            @NonNull
             public ResourceInstaller getMediaInstaller(String path) {
                 return getDummyInstaller();
             }
             
+            @NonNull
             private ResourceInstaller getDummyInstaller() {
                 return new ResourceInstaller() {
 
@@ -202,6 +213,7 @@ public class DummyResourceTable extends ResourceTable {
      * (non-Javadoc)
      * @see org.commcare.resources.model.ResourceTable#getResourcesForParent(java.lang.String)
      */
+    @NonNull
     @Override
     public Vector<Resource> getResourcesForParent(String parent) {
         return new Vector<Resource>();
@@ -211,6 +223,7 @@ public class DummyResourceTable extends ResourceTable {
      * (non-Javadoc)
      * @see org.commcare.resources.model.ResourceTable#getResourceWithId(java.lang.String)
      */
+    @Nullable
     @Override
     public Resource getResourceWithId(String id) {
         return null;
@@ -220,6 +233,7 @@ public class DummyResourceTable extends ResourceTable {
      * (non-Javadoc)
      * @see org.commcare.resources.model.ResourceTable#getResourceWithGuid(java.lang.String)
      */
+    @Nullable
     @Override
     public Resource getResourceWithGuid(String guid) {
         return null;
@@ -282,6 +296,7 @@ public class DummyResourceTable extends ResourceTable {
      * (non-Javadoc)
      * @see org.commcare.resources.model.ResourceTable#toString()
      */
+    @NonNull
     @Override
     public String toString() {
         return "Dummy Table";

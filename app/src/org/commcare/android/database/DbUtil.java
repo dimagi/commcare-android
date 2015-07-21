@@ -20,19 +20,22 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import dalvik.system.DexFile;
 
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     
+    @NonNull
     public static String ID_COL = "commcare_sql_id";
+    @NonNull
     public static String DATA_COL = "commcare_sql_record";
     
     private static PrototypeFactory factory;
 
 
-    public static PrototypeFactory getPrototypeFactory(Context c) {
+    public static PrototypeFactory getPrototypeFactory(@NonNull Context c) {
         if(factory != null) {
             return factory;
         }
@@ -61,8 +64,9 @@ public class DbUtil {
     * @throws ClassNotFoundException
     * @throws IOException
     */
+   @NonNull
    @SuppressWarnings("unchecked")
-    private static List<String> getClasses(String[] packageNames, Context c)
+    private static List<String> getClasses(@NonNull String[] packageNames, @NonNull Context c)
            throws IOException 
    {
        ArrayList<String> classNames = new ArrayList<String>();
@@ -130,7 +134,7 @@ public class DbUtil {
     * @param dbName
     * @return
     */
-   public static void trySqlCipherDbUpdate(String key, Context context, String dbName) {
+   public static void trySqlCipherDbUpdate(@NonNull String key, @NonNull Context context, String dbName) {
        //There's no clear way how to tell whether this call is the invalid db version
        //because SqlLite didn't actually provide that info (thanks!), but we can 
        //test manually
@@ -140,7 +144,7 @@ public class DbUtil {
 
            public void preKey(SQLiteDatabase database) {}
 
-           public void postKey(SQLiteDatabase database) {
+           public void postKey(@NonNull SQLiteDatabase database) {
                database.rawExecSQL("PRAGMA cipher_migrate;");
            }
        };
@@ -154,7 +158,7 @@ public class DbUtil {
        oldDb.close();
    }
    
-   public static void createNumbersTable(SQLiteDatabase db) {
+   public static void createNumbersTable(@NonNull SQLiteDatabase db) {
        //Virtual Table
        String dropStatement = "DROP TABLE IF EXISTS integers;";
        db.execSQL(dropStatement);
@@ -166,7 +170,7 @@ public class DbUtil {
        }
    }
 
-    public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
+    public static void explainSql(@NonNull SQLiteDatabase handle, String sql, String[] args) {
         Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);

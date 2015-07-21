@@ -3,6 +3,8 @@
  */
 package org.commcare.android.database.user.models;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -57,6 +59,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this.lastQueried = queried;
     }
     
+    @NonNull
     public static GeocodeCacheModel NoHitRecord(String val) {
         GeocodeCacheModel model = new GeocodeCacheModel();
         model.location = val;
@@ -66,7 +69,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     }
     
 
-    public boolean isEncrypted(String data) {
+    public boolean isEncrypted(@NonNull String data) {
         if(data.equals(META_LAST_QUERY) || data.equals(META_HIT)) {
             return false;
         }
@@ -97,6 +100,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
     }
     
+    @NonNull
     public GeoPoint getGeoPoint() {
         return new GeoPoint(lat,lon);
     }
@@ -109,6 +113,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         return recordId;
     }
 
+    @NonNull
     public String[] getMetaDataFields() {
         return new String[] {META_LAST_QUERY, META_LOCATION, META_HIT};
     }

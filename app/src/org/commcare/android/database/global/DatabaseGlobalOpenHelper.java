@@ -14,6 +14,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -43,7 +44,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
      */
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(@NonNull SQLiteDatabase database) {
         
         try {
             database.beginTransaction();
@@ -69,7 +70,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         }
     }
     
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase(@NonNull String key) {
         try{ 
             return super.getWritableDatabase(key);
         } catch(SQLiteException sqle) {
@@ -84,7 +85,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
      */
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         new GlobalDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
     }
 

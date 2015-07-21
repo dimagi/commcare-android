@@ -12,6 +12,8 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 public abstract class FormTransferTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
@@ -36,6 +38,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         this.port = port;
     }
     
+    @Nullable
     public InputStream getFormInputStream(String fPath) throws FileNotFoundException{
         Log.d(CommCareWiFiDirectActivity.TAG, "Getting form input stream");
         InputStream is = null;
@@ -50,6 +53,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
      */
+    @NonNull
     @Override
     protected Boolean doTaskBackground(String... params) {
         

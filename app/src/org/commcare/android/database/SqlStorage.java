@@ -29,6 +29,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -51,7 +53,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     
     protected SqlStorage() {}
     
-    public SqlStorage(String table, Class<? extends T> ctype, DbHelper helper) {
+    public SqlStorage(String table, @NonNull Class<? extends T> ctype, DbHelper helper) {
         this.table = table;
         this.ctype = ctype;
         this.helper = helper;
@@ -61,7 +63,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if(e instanceof EncryptedModel) {
                 em = (EncryptedModel)e;
             }
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (@NonNull InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -69,12 +71,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
      */
+    @NonNull
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
     }
     
-    public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
+    @NonNull
+    public Vector<Integer> getIDsForValues(@NonNull String[] fieldNames, Object[] values) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -92,7 +96,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return fillIdWindow(c, DbUtil.ID_COL);
     }
     
-    public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
+    @NonNull
+    public static Vector<Integer> fillIdWindow(@NonNull Cursor c, String columnName) {
         if(c.getCount() == 0) {
             c.close();
             return new Vector<Integer>();
@@ -110,11 +115,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    @NonNull
     public Vector<T> getRecordsForValue(String fieldName, Object value) {
         return getRecordsForValues(new String[] {fieldName}, new Object[] {value});
     }
     
-    public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
+    @NonNull
+    public Vector<T> getRecordsForValues(@NonNull String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
 
         Cursor c;
@@ -160,7 +167,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     }
     
-    public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
+    @Nullable
+    public T getRecordForValues(@NonNull String[] rawFieldNames, @NonNull Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
         Cursor c;
         try {
@@ -183,8 +191,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
      */
+    @Nullable
     @Override
-    public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
+    public T getRecordForValue(String rawFieldName, @NonNull Object value) throws NoSuchElementException, InvalidIndexException {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -215,6 +224,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return newObject(data);
     }
     
+    @Nullable
     public T newObject(byte[] data) {
         try {
             T e = (T)ctype.newInstance();
@@ -232,6 +242,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
     
+    @NonNull
     private RuntimeException logAndWrap(Exception e, String message) {
         RuntimeException re = new RuntimeException(message + " while inflating type " + ctype.getName());
         re.initCause(e);
@@ -312,6 +323,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
      */
+    @Nullable
     public SQLiteDatabase getAccessLock() {
         try {
             return helper.getHandle();
@@ -364,6 +376,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
      */
+    @NonNull
     public SqlStorageIterator<T> iterate() {
         return iterate(true);
     }
@@ -377,6 +390,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * 
      * @param includeData True to return an iterator with all records. False to return only the index.
      */
+    @NonNull
     public SqlStorageIterator<T> iterate(boolean includeData) {
         SQLiteDatabase db;
         try {
@@ -438,6 +452,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param includeData True to return an iterator with all records. False to return only the index.
      * @param primaryId a metadata index that 
      */
+    @NonNull
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
         String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[] {DbUtil.ID_COL,  TableBuilder.scrubName(primaryId)};
         Cursor c;
@@ -449,6 +464,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return new SqlStorageIterator<T>(c, this, TableBuilder.scrubName(primaryId));
     }
     
+    @NonNull
     public Iterator<T> iterator() {
         return iterate();
     }
@@ -456,6 +472,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
      */
+    @Nullable
     public T read(int id) {
         return newObject(readBytes(id));
     }
@@ -497,7 +514,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }    
     }
     
-    public void remove(List<Integer> ids) {
+    public void remove(@NonNull List<Integer> ids) {
         if(ids.size() == 0 ) { return; }
         SQLiteDatabase db;
         try {
@@ -521,7 +538,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
      */
     @Override
-    public void remove(Persistable p) {
+    public void remove(@NonNull Persistable p) {
         this.remove(p.getID());
     }
 
@@ -548,8 +565,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
      */
+    @NonNull
     @Override
-    public Vector<Integer> removeAll(EntityFilter ef) {
+    public Vector<Integer> removeAll(@NonNull EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
         for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
             int id = iterator.nextID();
@@ -629,7 +647,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
      */
     @Override
-    public void write(Persistable p) throws StorageFullException {
+    public void write(@NonNull Persistable p) throws StorageFullException {
         if(p.getID() != -1) {
             update(p.getID(), p);
             return;
@@ -670,11 +688,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         // TODO Auto-generated method stub
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
+    @NonNull
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(@NonNull SqlStorage<T> from, @NonNull SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
+    @NonNull
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(@NonNull SqlStorage<T> from, @NonNull SqlStorage<T> to, @Nullable CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try{
@@ -701,7 +721,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    private SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
+    @NonNull
+    private SqlStorageIterator<T> getCoveringIndexIterator(@NonNull SQLiteDatabase db, int minValue, int maxValue, int countValue) {
 
         //So here's what we're doing: 
         //Build a select statement that has all of the numbers from 1 to 100k

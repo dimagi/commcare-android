@@ -35,6 +35,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -270,6 +271,7 @@ public class EntityMapActivity extends MapActivity {
         return entityContext;
     }
     
+    @NonNull
     private CommCareInstanceInitializer getInstanceInit() {
         return new CommCareInstanceInitializer(session);
     }

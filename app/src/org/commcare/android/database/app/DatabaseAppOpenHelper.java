@@ -14,6 +14,7 @@ import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -46,6 +47,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         this.context = context;
     }
     
+    @NonNull
     private static String getDbName(String appId) {
         return DB_LOCATOR_PREF_APP + appId;
     }
@@ -54,7 +56,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
      */
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(@NonNull SQLiteDatabase database) {
         try {
             database.beginTransaction();
             TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
@@ -89,7 +91,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         }
     }
     
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase(@NonNull String key) {
         try{ 
             return super.getWritableDatabase(key);
         } catch(SQLiteException sqle) {
@@ -103,7 +105,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
      */
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
     }
 

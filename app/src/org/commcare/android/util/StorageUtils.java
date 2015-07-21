@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +27,7 @@ import org.javarosa.core.services.Logger;
  *
  */
 public class StorageUtils {
+    @NonNull
     @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code

@@ -5,6 +5,8 @@ import java.util.Stack;
 
 import javax.crypto.Cipher;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -15,7 +17,9 @@ public abstract class CipherPool {
     
     private static final int GROWTH_FACTOR = 5;
     
+    @NonNull
     HashSet<Cipher> issued = new HashSet<Cipher>();
+    @NonNull
     Stack<Cipher> free = new Stack<Cipher>();
     
     //TODO: Pass in factory and finalize all API's rather than
@@ -49,6 +53,7 @@ public abstract class CipherPool {
         }
     }
 
+    @Nullable
     protected abstract Cipher generateNewCipher();
 
     public synchronized final void expire() {

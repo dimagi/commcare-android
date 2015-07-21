@@ -27,6 +27,8 @@ import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -40,6 +42,7 @@ public class CommCareApp {
     private final ApplicationRecord record;
 
     private JavaFileRoot fileRoot;
+    @NonNull
     private final AndroidCommCarePlatform platform;
 
     private static final String TAG = CommCareApp.class.getSimpleName();
@@ -51,7 +54,8 @@ public class CommCareApp {
     public static CommCareApp currentSandbox;
 
     private final Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase; 
+    @Nullable
+    private SQLiteDatabase appDatabase;
     
     private static Stylizer mStylizer;
     
@@ -69,6 +73,7 @@ public class CommCareApp {
         return mStylizer;
     }
     
+    @NonNull
     public String storageRoot() {
         // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
         // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
@@ -90,6 +95,7 @@ public class CommCareApp {
         }
     }
 
+    @NonNull
     public String fsPath(String relative) {
         return storageRoot() + relative;
     }
@@ -218,20 +224,24 @@ public class CommCareApp {
         }
     }
 
+    @NonNull
     public AndroidCommCarePlatform getCommCarePlatform() {
         return platform;
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) {
+    @Nullable
+    public <T extends Persistable> SqlStorage<T> getStorage(@NonNull Class<T> c) {
         return getStorage(c.getAnnotation(Table.class).value(), c);
     }
 
+    @Nullable
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
         return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
             /*
              * (non-Javadoc)
              * @see org.commcare.android.database.DbHelper#getHandle()
              */
+            @Nullable
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {

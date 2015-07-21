@@ -1,5 +1,7 @@
 package org.commcare.android.tasks.templates;
 
+import android.support.annotation.Nullable;
+
 /**
  * @author ctsims
  */
@@ -30,6 +32,7 @@ public interface CommCareTaskConnector<R> {
 
     public void taskCancelled(int id);
 
+    @Nullable
     public R getReceiver();
 
     /**

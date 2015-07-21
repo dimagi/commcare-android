@@ -18,6 +18,7 @@ import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 /**
  * This class generates and serializes a device report to either a byte array
@@ -35,10 +36,11 @@ public class DeviceReportWriter {
     OutputStream os;
     StreamLogSerializer logSerializer;
     
+    @NonNull
     ArrayList<DeviceReportElement> elements = new ArrayList<DeviceReportElement>();
 
     
-    public DeviceReportWriter(DeviceReportRecord record) throws IOException {
+    public DeviceReportWriter(@NonNull DeviceReportRecord record) throws IOException {
         this(record.openOutputStream());
     }
     
@@ -117,7 +119,7 @@ public class DeviceReportWriter {
         
     }
     
-    private void writeUser(User user) throws IllegalArgumentException, IllegalStateException, IOException {
+    private void writeUser(@NonNull User user) throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(XMLNS, "user");
 
         try{

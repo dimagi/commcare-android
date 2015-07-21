@@ -17,6 +17,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -74,7 +75,7 @@ public class CommCareUtil {
      * @param reference
      * @return
      */
-    public static int countPreds(TreeReference reference) {
+    public static int countPreds(@NonNull TreeReference reference) {
         int preds = 0;
         for(int i =0 ; i < reference.size(); ++i) {
             Vector<XPathExpression> predicates = reference.getPredicate(i);
@@ -98,7 +99,7 @@ public class CommCareUtil {
         }
     }
 
-    public static void triggerLogSubmission(Context c) {
+    public static void triggerLogSubmission(@NonNull Context c) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         String url = settings.getString("PostURL", null);
         

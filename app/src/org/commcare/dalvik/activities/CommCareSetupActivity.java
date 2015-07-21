@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -107,6 +109,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         upgrade
     }
 
+    @NonNull
     private UiState uiState = UiState.basic;
     
     public static final int MODE_BASIC = Menu.FIRST;
@@ -120,6 +123,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private boolean startAllowed = true;
     private boolean inUpgradeMode = false;
     
+    @Nullable
     private String incomingRef;
 
     private CommCareApp ccApp;
@@ -143,7 +147,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     //endregion
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
@@ -276,7 +280,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("advanced", uiState.toString());
         outState.putString("profileref", incomingRef);
@@ -287,7 +291,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
         switch(requestCode) {
@@ -323,6 +327,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    @Nullable
     private String getRef(){
         return incomingRef;
     }
@@ -404,7 +409,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 @Override
-                protected void deliverResult(CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
+                protected void deliverResult(@NonNull CommCareSetupActivity receiver, org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes result) {
                     boolean startOverInstall;
                     if(result == ResourceEngineOutcomes.StatusInstalled){
                         startOverInstall = false;
@@ -455,13 +460,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
 
                 @Override
-                protected void deliverUpdate(CommCareSetupActivity receiver,
+                protected void deliverUpdate(@NonNull CommCareSetupActivity receiver,
                                              int[]... update) {
                     receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
                 }
 
                 @Override
-                protected void deliverError(CommCareSetupActivity receiver,
+                protected void deliverError(@NonNull CommCareSetupActivity receiver,
                                             Exception e) {
                     receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
                 }
@@ -475,7 +480,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
@@ -489,7 +494,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
         case MODE_ARCHIVE:
              Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
@@ -524,7 +529,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Raise failure message and return to the home activity
      */
-    void fail(NotificationMessage message, boolean alwaysNotify) {
+    void fail(@NonNull NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
         if (isAuto || alwaysNotify) {
@@ -551,7 +556,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
+    public void failMissingResource(@NonNull UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
     }
 
@@ -599,6 +604,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Implementation of generateProgressDialog() for DialogController --
      * all other methods handled entirely in CommCareActivity
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_INSTALL_PROGRESS) {

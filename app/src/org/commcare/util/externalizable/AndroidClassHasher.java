@@ -1,5 +1,6 @@
 package org.commcare.util.externalizable;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.security.MessageDigest;
@@ -29,8 +30,9 @@ public class AndroidClassHasher implements Hasher {
         PrototypeFactory.setStaticHasher(new AndroidClassHasher());
     }
 
+    @NonNull
     @Override
-    public byte[] getClassHashValue(Class type) {
+    public byte[] getClassHashValue(@NonNull Class type) {
         byte[] hash = new byte[PrototypeFactory.CLASS_HASH_SIZE];
         
         byte[] md5;

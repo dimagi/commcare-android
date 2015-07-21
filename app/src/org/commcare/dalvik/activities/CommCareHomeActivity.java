@@ -17,6 +17,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -180,7 +182,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
          * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
          */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //This is a workaround required by Android Bug #2373, which is that Apps are launched from the
@@ -379,7 +381,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         goToFormArchive(incomplete, null);
     }
 
-    private void goToFormArchive(boolean incomplete, FormRecord record) {
+    private void goToFormArchive(boolean incomplete, @Nullable FormRecord record) {
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
             i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
@@ -417,7 +419,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+            protected void deliverResult(@NonNull CommCareHomeActivity receiver, @NonNull Integer result) {
                 receiver.refreshView();
 
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
@@ -453,7 +455,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
              */
             @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
+            protected void deliverUpdate(@NonNull CommCareHomeActivity receiver, Integer... update) {
                 if (update[0] == DataPullTask.PROGRESS_STARTED) {
                     receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -477,7 +479,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareHomeActivity receiver,
+            protected void deliverError(@NonNull CommCareHomeActivity receiver,
                                         Exception e) {
                 receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
             }
@@ -495,7 +497,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("was_external", wasExternal);
     }
@@ -506,7 +508,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onRestoreInstanceState(Bundle inState) {
+    protected void onRestoreInstanceState(@NonNull Bundle inState) {
         super.onRestoreInstanceState(inState);
         if (inState.containsKey("was_external")) {
             wasExternal = inState.getBoolean("was_external");
@@ -518,7 +520,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent intent) {
         if(resultCode == RESULT_RESTART) {
             try {
                 startNextFetch();
@@ -754,7 +756,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * the session to launch. If false then caller should exit or spawn home
      * activity.
      */
-    private boolean processReturnFromFormEntry(int resultCode, Intent intent) throws SessionUnavailableException {
+    private boolean processReturnFromFormEntry(int resultCode, @Nullable Intent intent) throws SessionUnavailableException {
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
@@ -876,7 +878,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * clear local state in session session, and finish if was external is set,
      * otherwise refesh the view.
      */
-    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+    private void clearSessionAndExit(@NonNull AndroidSessionWrapper currentState) {
         currentState.reset();
         if (wasExternal) {
             this.finish();
@@ -1019,7 +1021,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      *
      * @param state Needed for FormRecord manipulations
      */
-    private void startFormEntry(AndroidSessionWrapper state) throws SessionUnavailableException {
+    private void startFormEntry(@NonNull AndroidSessionWrapper state) throws SessionUnavailableException {
             if (state.getFormRecordId() == -1) {
                 if (CommCarePreferences.isIncompleteFormsEnabled()) {
                     // Are existing (incomplete) forms using the same case?
@@ -1078,11 +1080,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return false;
     }
 
-    private void formEntry(Uri formUri, FormRecord r) throws SessionUnavailableException {
+    private void formEntry(Uri formUri, @NonNull FormRecord r) throws SessionUnavailableException {
         formEntry(formUri, r, null);
     }
 
-    private void formEntry(Uri formUri, FormRecord r, String headerTitle) throws SessionUnavailableException {
+    private void formEntry(Uri formUri, @NonNull FormRecord r, @Nullable String headerTitle) throws SessionUnavailableException {
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
 
@@ -1138,6 +1140,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
+    @Nullable
     private String getFormPostURL() {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         return settings.getString("PostURL", this.getString(R.string.PostURL));
@@ -1156,7 +1159,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
              */
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+            protected void deliverResult(@NonNull CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
                     returnToLogin(Localization.get("app.workflow.login.lost"));
                     return;
@@ -1197,7 +1200,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
              * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
              */
             @Override
-            protected void deliverError(CommCareHomeActivity receiver, Exception e) {
+            protected void deliverError(@NonNull CommCareHomeActivity receiver, Exception e) {
                 //TODO: Display somewhere useful
                 receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
             }
@@ -1325,7 +1328,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         returnToLogin(Localization.get("app.workflow.login.lost"));
     }
 
-    private void returnToLogin(String message) {
+    private void returnToLogin(@Nullable String message) {
         //Not yet.
         if (message != null) {
             //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -1339,7 +1342,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
     }
 
-    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
+    private void createAskUseOldDialog(@NonNull final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
         mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
@@ -1500,7 +1503,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     }
 
-    private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
+    private void setSyncButtonText(@NonNull Pair<Long, int[]> syncDetails, @Nullable String syncTextKey) {
         if (syncTextKey == null) {
             syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
         }
@@ -1513,7 +1516,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-    private void setIncompleteFormsText(Pair<Long, int[]> syncDetails) {
+    private void setIncompleteFormsText(@NonNull Pair<Long, int[]> syncDetails) {
         if (syncDetails.second[1] > 0) {
             Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
             Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[]{String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
@@ -1548,7 +1551,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
@@ -1576,7 +1579,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //In Holo theme this gets called on startup
         try {
@@ -1600,7 +1603,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * @see org.commcare.android.framework.CommCareActivity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
@@ -1649,7 +1652,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         createPreferencesMenu(this);
     }
 
-    public static void createPreferencesMenu(Activity activity) {
+    public static void createPreferencesMenu(@NonNull Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
@@ -1708,6 +1711,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
     }
 
+    @Nullable
     protected Dialog onCreateDialog(int id) {
         if (id == DIALOG_CORRUPTED) {
             return createAskFixDialog();
@@ -1751,6 +1755,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
      */
+    @Nullable
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;

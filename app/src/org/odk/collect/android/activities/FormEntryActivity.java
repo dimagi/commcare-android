@@ -39,6 +39,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -212,21 +214,28 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private String mFormPath;
     // Path to a particular form instance
+    @Nullable
     public static String mInstancePath;
     private String mInstanceDestination;
     private GestureDetector mGestureDetector;
     
+    @Nullable
     private SecretKeySpec symetricKey = null;
 
+    @Nullable
     public static FormController mFormController;
 
+    @Nullable
     private Animation mInAnimation;
+    @Nullable
     private Animation mOutAnimation;
 
     private ViewGroup mViewPane;
+    @Nullable
     private View mCurrentView;
 
     private AlertDialog mRepeatDialog;
+    @Nullable
     private AlertDialog mAlertDialog;
     private ProgressDialog mProgressDialog;
     private String mErrorMessage;
@@ -236,7 +245,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
 
+    @Nullable
     private FormLoaderTask mFormLoaderTask;
+    @Nullable
     private SaveToDiskTask mSaveToDiskTask;
     
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
@@ -265,7 +276,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     @SuppressLint("NewApi")
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);        
 
         try {
@@ -551,7 +562,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // See if this form needs GPS to be turned on
         mNoGPSReceiver = new BroadcastReceiver() {
             @Override
-            public void onReceive(Context context, Intent intent) {
+            public void onReceive(@NonNull Context context, Intent intent) {
                 context.removeStickyBroadcast(intent);
                 LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
                 Set<String> providers = GeoUtils.evaluateProviders(manager);
@@ -584,7 +595,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(@NonNull View v) {
                 if (!"done".equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
@@ -595,7 +606,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         prevButton.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(@NonNull View v) {
                 if (!"quit".equals(v.getTag())) {
                     FormEntryActivity.this.showPreviousView();
                 } else {
@@ -621,7 +632,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(NEWFORM, false);
@@ -649,7 +660,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int, android.content.Intent)
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, @NonNull Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (resultCode == RESULT_CANCELED) {
@@ -891,12 +902,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         public int requiredOnScreen = 0;
         
         public int relevantAfterCurrentScreen = 0;
+        @Nullable
         public FormIndex currentScreenExit = null;
 
 		
 	}
 	
-	private NavigationDetails calculateNavigationStatus() {
+	@NonNull
+    private NavigationDetails calculateNavigationStatus() {
 		NavigationDetails details = new NavigationDetails();
 
         FormIndex userFormIndex = mFormController.getFormIndex();
@@ -1216,7 +1229,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param prompt
      * @return
      */
-    private FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt, ODKView view) {
+    private FormEntryPrompt getOnScreenPrompt(@NonNull FormEntryPrompt prompt, @NonNull ODKView view) {
     	FormIndex index = prompt.getIndex();
     	for(QuestionWidget widget : view.getWidgets()) {
     		if(widget.getFormId().equals(index)) {
@@ -1273,7 +1286,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
      */
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(@NonNull Menu menu) {
         menu.removeItem(MENU_LANGUAGES);
         menu.removeItem(MENU_HIERARCHY_VIEW);
         menu.removeItem(MENU_SAVE);
@@ -1304,7 +1317,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
                 createLanguageDialog();
@@ -1376,7 +1389,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 indexKeys.addAll(answers.keySet());
                 Collections.sort(indexKeys, new Comparator<FormIndex>() {
                     @Override
-                    public int compare(FormIndex arg0, FormIndex arg1) {
+                    public int compare(@NonNull FormIndex arg0, FormIndex arg1) {
                         return arg0.compareTo(arg1);
                     }
                 });
@@ -1418,7 +1431,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Clears the answer on the screen.
      */
-    private void clearAnswer(QuestionWidget qw) {
+    private void clearAnswer(@NonNull QuestionWidget qw) {
         qw.clearAnswer();
     }
 
@@ -1428,7 +1441,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
      */
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
         menu.setHeaderTitle(StringUtils.getStringSpannableRobust(this, R.string.edit_prompt));
@@ -1440,7 +1453,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
      */
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         // We don't have the right view here, so we store the View's ID as the
         // item ID and loop through the possible views to find the one the user
         // clicked on.
@@ -1460,6 +1473,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * 
      * If we're loading, then we pass the loading thread to our next instance.
      */
+    @Nullable
     @Override
     public Object onRetainCustomNonConfigurationInstance() {
         // if a form is loading, pass the loader task
@@ -1578,7 +1592,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 // disallow carriage returns in the name
                 InputFilter returnFilter = new InputFilter() {
-                    public CharSequence filter(CharSequence source, int start, int end,
+                    @Nullable
+                    public CharSequence filter(@NonNull CharSequence source, int start, int end,
                             Spanned dest, int dstart, int dend) {
                         for (int i = start; i < end; i++) {
                             if (Character.getType((source.charAt(i))) == Character.CONTROL) {
@@ -1682,7 +1697,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @SuppressLint("NewApi")
     @Override
-    public boolean dispatchTouchEvent(MotionEvent mv) {
+    public boolean dispatchTouchEvent(@NonNull MotionEvent mv) {
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -1863,8 +1878,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Displays the View specified by the parameter 'next', animating both the current view and next
      * appropriately given the AnimationType. Also updates the progress bar.
      */
-    public void showView(View next, AnimationType from) { showView(next, from, true); }
-    public void showView(View next, AnimationType from, boolean animateLastView) {
+    public void showView(View next, @NonNull AnimationType from) { showView(next, from, true); }
+    public void showView(View next, @NonNull AnimationType from, boolean animateLastView) {
         switch (from) {
             case RIGHT:
                 mInAnimation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
@@ -1935,7 +1950,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
-    private void createConstraintToast(FormIndex index, String constraintText, int saveStatus, boolean requestFocus) {
+    private void createConstraintToast(@NonNull FormIndex index, @Nullable String constraintText, int saveStatus, boolean requestFocus) {
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -2180,7 +2195,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                              * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                              */
                             @Override
-                            public void onClick(DialogInterface dialog, int id) {
+                            public void onClick(@NonNull DialogInterface dialog, int id) {
 
                                 dialog.cancel();
 
@@ -2359,7 +2374,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     /**
      * Confirm clear answer dialog
      */
-    private void createClearDialog(final QuestionWidget qw) {
+    private void createClearDialog(@NonNull final QuestionWidget qw) {
         mAlertDialog = new AlertDialog.Builder(this).create();
         mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
 
@@ -2421,7 +2436,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                              * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                              */
                             @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
+                            public void onClick(@NonNull DialogInterface dialog, int whichButton) {
                                 // Update the language in the content provider when selecting a new
                                 // language
                                 ContentValues values = new ContentValues();
@@ -2465,6 +2480,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * 
      * We use Android's dialog management for loading/saving progress dialogs
      */
+    @Nullable
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
@@ -2477,7 +2493,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                      * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                      */
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(@NonNull DialogInterface dialog, int which) {
                             dialog.dismiss();
                             mFormLoaderTask.setFormLoaderListener(null);
                             mFormLoaderTask.cancel(true);
@@ -2501,7 +2517,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                          * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
                          */
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onClick(@NonNull DialogInterface dialog, int which) {
                             dialog.dismiss();
                             mSaveToDiskTask.setFormSavedListener(null);
                             mSaveToDiskTask.cancel(true);
@@ -2651,7 +2667,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
             	triggerUserQuitInput();
@@ -2743,7 +2759,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @SuppressLint("NewApi")
     @Override
-    public void loadingComplete(FormController fc) {
+    public void loadingComplete(@NonNull FormController fc) {
         dismissDialog(PROGRESS_DIALOG);
 
         mFormController = fc;
@@ -2806,7 +2822,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * called by the FormLoaderTask if something goes wrong.
      */
     @Override
-    public void loadingError(String errorMsg) {
+    public void loadingError(@Nullable String errorMsg) {
         dismissDialog(PROGRESS_DIALOG);
         if (errorMsg != null) {
             CommCareActivity.createErrorDialog(this, errorMsg, EXIT);

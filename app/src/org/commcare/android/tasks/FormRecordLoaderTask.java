@@ -16,6 +16,8 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.suite.model.Text;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -38,17 +40,21 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     // Functions to call when some or all of the data has been loaded.  Data
     // can be loaded normally, or be given precedence (priority), determining
     // which callback is dispatched to the listeners.
+    @NonNull
     private ArrayList<FormRecordLoadListener> listeners = new ArrayList<FormRecordLoadListener>();
 
     // These are all synchronized together
+    @Nullable
     private Queue<FormRecord> priorityQueue;
 
     // The IDs of FormRecords that have been loaded
+    @Nullable
     private HashSet<Integer> loaded;
 
     // Maps form namespace (unique id for forms) to their form title
     // (entry-point text). Needed because FormRecords don't have form title
     // info, but do have the namespace.
+    @Nullable
     private Hashtable<String, Text> formNames;
 
     // Is the background task done loading all the FormRecord information?
@@ -68,6 +74,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     /**
      * Create a copy of this loader task.
      */
+    @NonNull
     public FormRecordLoaderTask spawn() {
         FormRecordLoaderTask task = new FormRecordLoaderTask(context, descriptorStorage, descriptorCache, platform);
         task.setListeners(listeners);
@@ -115,8 +122,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
      * (non-Javadoc)
      * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
      */
+    @NonNull
     @Override
-    protected Integer doInBackground(FormRecord... params) {
+    protected Integer doInBackground(@NonNull FormRecord... params) {
         int loadedFormCount = 0;
 
         // Load text information for every FormRecord passed in, unless task is
@@ -261,7 +269,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         }
     }
 
-    public boolean registerPriority(FormRecord record) {
+    public boolean registerPriority(@NonNull FormRecord record) {
         synchronized(priorityQueue) {
             if(loaded.contains(record.getID())) {
                 return false;

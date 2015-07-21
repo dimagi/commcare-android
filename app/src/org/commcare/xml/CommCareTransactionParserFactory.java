@@ -20,6 +20,8 @@ import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * The CommCare Transaction Parser Factory wraps all of the current
@@ -41,10 +43,14 @@ import android.content.Context;
 public class CommCareTransactionParserFactory implements TransactionParserFactory {
 
     private Context context;
+    @Nullable
     private TransactionParserFactory userParser;
+    @Nullable
     private TransactionParserFactory caseParser;
     private TransactionParserFactory stockParser;
+    @Nullable
     private TransactionParserFactory formInstanceParser;
+    @Nullable
     private TransactionParserFactory fixtureParser;
 
     /**
@@ -61,8 +67,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.context = context;
         this.generator = generator;
         fixtureParser = new TransactionParserFactory() {
+            @Nullable
             FixtureXmlParser created = null;
 
+            @Nullable
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
@@ -93,7 +101,8 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     /* (non-Javadoc)
      * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
      */
-    public TransactionParser getParser(KXmlParser parser) {
+    @Nullable
+    public TransactionParser getParser(@NonNull KXmlParser parser) {
         String name = parser.getName();
         String namespace = parser.getNamespace();
         if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
@@ -163,8 +172,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     
     public void initUserParser(final byte[] wrappedKey) {
         userParser = new TransactionParserFactory() {
+            @Nullable
             UserXmlParser created = null;
 
+            @Nullable
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if(created == null) {
@@ -179,8 +190,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public void initCaseParser() {
         final int[] tallies = new int[3];
         caseParser = new TransactionParserFactory() {
+            @Nullable
             CaseXmlParser created = null;
 
+            @Nullable
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if(created == null) {
@@ -195,6 +208,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
     public void initStockParser() {
         stockParser = new TransactionParserFactory() {
             
+            @NonNull
             public TransactionParser<Ledger[]> getParser(KXmlParser parser) {
                 return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
             }
@@ -208,8 +222,10 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         this.formInstanceNamespaces = namespaces;
 
         formInstanceParser = new TransactionParserFactory() {
+            @Nullable
             FormInstanceXmlParser created = null;
 
+            @Nullable
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 if (created == null) {

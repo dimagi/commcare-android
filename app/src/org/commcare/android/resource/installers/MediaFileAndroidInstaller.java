@@ -15,6 +15,8 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
 /**
@@ -23,13 +25,14 @@ import android.util.Pair;
  */
 public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
+    @Nullable
     String path;
     
     public MediaFileAndroidInstaller() {
         
     }
     
-    public MediaFileAndroidInstaller(String destination, String upgradeDestination, String path) {
+    public MediaFileAndroidInstaller(String destination, String upgradeDestination, @Nullable String path) {
         super(destination + (path == null ? "" : "/" + path), upgradeDestination + (path == null ? "" : "/" + path));
         //establish whether dir structure needs to be extended?
         this.path = path;
@@ -92,8 +95,9 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
      * (non-Javadoc)
      * @see org.commcare.android.resource.installers.FileSystemInstaller#getResourceName(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation)
      */
+    @NonNull
     @Override
-    public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+    public Pair<String, String> getResourceName(Resource r, @NonNull ResourceLocation loc) {
         int index = loc.getLocation().lastIndexOf("/");
         if(index == -1 ) { return new Pair<String,String>(loc.getLocation(), ".dat"); }
         String fileName = loc.getLocation().substring(index);

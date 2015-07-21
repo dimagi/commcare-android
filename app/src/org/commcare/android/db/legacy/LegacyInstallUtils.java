@@ -59,6 +59,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.TelephonyManager;
 import android.util.Pair;
 
@@ -71,7 +73,7 @@ public class LegacyInstallUtils {
     public static final String LEGACY_UPGRADE_PROGRESS = "legacy_upgrade_progress";
     public static final String UPGRADE_COMPLETE = "complete";
 
-    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException, SessionUnavailableException {
+    public static void checkForLegacyInstall(@NonNull Context c, @NonNull SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException, SessionUnavailableException {
         SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         if(globalPreferences.getString(LEGACY_UPGRADE_PROGRESS, "").equals(UPGRADE_COMPLETE)) { return; }
         //Check to see if the legacy database exists on this system
@@ -368,16 +370,18 @@ public class LegacyInstallUtils {
         app.teardownSandbox();
     }
     
+    @NonNull
     private static String getOldFileSystemRoot() {
         String filesystemHome = CommCareApplication._().getAndroidFsRoot();
         return filesystemHome + "commcare/";
     }
 
-    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException {
+    public static void transitionLegacyUserStorage(@NonNull final Context c, @NonNull CommCareApp app, final byte[] oldKey, @NonNull UserKeyRecord ukr) throws StorageFullException {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
         
         try {
             final CipherPool pool = new CipherPool() {
+                @NonNull
                 Object lock = new Object();
                 byte[] key = oldKey;
     
@@ -385,6 +389,7 @@ public class LegacyInstallUtils {
                  * (non-Javadoc)
                  * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
                  */
+                @Nullable
                 @Override
                 public Cipher generateNewCipher() {
                     synchronized(lock) {
@@ -415,6 +420,7 @@ public class LegacyInstallUtils {
             
             //get the legacy storage
             final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
+                @Nullable
                 protected CipherPool getCipherPool() {
                     return pool;
                 }
@@ -501,8 +507,9 @@ public class LegacyInstallUtils {
             final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh),
                     new SqlStorage<FormRecord>("FORMRECORDS", FormRecord.class, newDbHelper), new CopyMapper<FormRecord>() {
     
+                        @NonNull
                         @Override
-                        public FormRecord transform(FormRecord t) {
+                        public FormRecord transform(@NonNull FormRecord t) {
                             String formRecordPath;
                             try {
                                 formRecordPath = t.getPath(c);
@@ -529,7 +536,7 @@ public class LegacyInstallUtils {
                     new SqlStorage<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, newDbHelper), new CopyMapper<SessionStateDescriptor>() {
     
                         @Override
-                        public SessionStateDescriptor transform(SessionStateDescriptor t) {
+                        public SessionStateDescriptor transform(@NonNull SessionStateDescriptor t) {
                             return t.reMapFormRecordId(formRecordMapping.get(t.getFormRecordId()));
                         }
                 
@@ -543,8 +550,9 @@ public class LegacyInstallUtils {
             
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh),
                         new SqlStorage<DeviceReportRecord>("log_records", DeviceReportRecord.class, newDbHelper), new CopyMapper<DeviceReportRecord>() {
+                        @NonNull
                         @Override
-                        public DeviceReportRecord transform(DeviceReportRecord t) {
+                        public DeviceReportRecord transform(@NonNull DeviceReportRecord t) {
                             return new DeviceReportRecord(replaceOldRoot(t.getFilePath(), oldRoot, newFileSystemRoot), t.getKey());
                         }
                 
@@ -555,7 +563,7 @@ public class LegacyInstallUtils {
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
                     new SqlStorage<FormInstance>("fixture", FormInstance.class, newDbHelper));
             
-            } catch(SessionUnavailableException | StorageFullException sfe) {
+            } catch(@NonNull SessionUnavailableException | StorageFullException sfe) {
                 throw new RuntimeException(sfe);
             }
             
@@ -582,7 +590,7 @@ public class LegacyInstallUtils {
         }
     }
     
-    protected static String replaceOldRoot(String filePath, String oldRoot, String newFileSystemRoot) {
+    protected static String replaceOldRoot(String filePath, String oldRoot, @NonNull String newFileSystemRoot) {
         try{
             //TODO: It's really bad if these don't cannonicalize the same.
             oldRoot = new File(oldRoot).getCanonicalPath();
@@ -598,6 +606,7 @@ public class LegacyInstallUtils {
         }
     }
 
+    @NonNull
     private static Hashtable<String, EncryptedModel> getLegacyEncryptedModels() {
         Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
         models.put(ACase.STORAGE_KEY, new ACase());
@@ -611,7 +620,7 @@ public class LegacyInstallUtils {
         public T transform(T t);
     }
 
-    private static SecretKeySpec generateOldTestKey(Context c) {
+    private static SecretKeySpec generateOldTestKey(@NonNull Context c) {
         KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");
@@ -624,7 +633,7 @@ public class LegacyInstallUtils {
         return null;
     }
     
-    public static String getPhoneIdOld(Context c) {
+    public static String getPhoneIdOld(@NonNull Context c) {
         TelephonyManager manager = (TelephonyManager)c.getSystemService(c.TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if(imei == null) {

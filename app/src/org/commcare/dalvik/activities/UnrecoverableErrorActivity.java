@@ -11,6 +11,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
@@ -39,6 +40,7 @@ public class UnrecoverableErrorActivity extends Activity {
     /* (non-Javadoc)
      * @see android.app.Activity#onCreateDialog(int)
      */
+    @NonNull
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();

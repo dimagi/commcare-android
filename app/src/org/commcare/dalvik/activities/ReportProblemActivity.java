@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -49,6 +50,7 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         finish();
     }
     
+    @NonNull
     public String buildMessage(String userInput){
         
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();

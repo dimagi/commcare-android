@@ -3,6 +3,8 @@
  */
 package org.commcare.android.javarosa;
 
+import android.support.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -93,6 +95,7 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     /* (non-Javadoc)
      * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
      */
+    @NonNull
     @Override
     public String[] getMetaDataFields() {
         return new String[] {META_TYPE, META_DATE};

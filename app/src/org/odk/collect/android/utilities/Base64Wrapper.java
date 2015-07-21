@@ -14,6 +14,8 @@
 
 package org.odk.collect.android.utilities;
 
+import android.support.annotation.NonNull;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,6 +38,7 @@ public class Base64Wrapper {
                 .loadClass("android.util.Base64");
     }
 
+    @NonNull
     public String encodeToString(byte[] ba) {
         Class<?>[] argClassList = new Class[]{byte[].class, int.class};
         try {
@@ -63,6 +66,7 @@ public class Base64Wrapper {
         }
     }
 
+    @NonNull
     public byte[] decode(String base64String) {
         Class<?>[] argClassList = new Class[]{String.class, int.class};
         Object o;

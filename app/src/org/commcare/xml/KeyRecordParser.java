@@ -1,5 +1,7 @@
 package org.commcare.xml;
 
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -82,7 +84,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
     }
     
     
-    protected Date parseDateTime(String dateValue) {
+    protected Date parseDateTime(@NonNull String dateValue) {
         return ISODateTimeFormat.dateTimeNoMillis().parseDateTime(dateValue).toDate();
     }
 

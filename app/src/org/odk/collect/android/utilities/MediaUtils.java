@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Audio;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 
@@ -84,7 +85,7 @@ public class MediaUtils {
     }
 
     
-    public static final int deleteImageFileFromMediaProvider(String imageFile) {
+    public static final int deleteImageFileFromMediaProvider(@NonNull String imageFile) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // images
         int count = 0;
@@ -129,7 +130,7 @@ public class MediaUtils {
         return count;
     }
 
-    public static final int deleteImagesInFolderFromMediaProvider(File folder) {
+    public static final int deleteImagesInFolderFromMediaProvider(@NonNull File folder) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // images
         int count = 0;
@@ -199,7 +200,7 @@ public class MediaUtils {
         }
     }
 
-    public static final int deleteAudioFileFromMediaProvider(String audioFile) {
+    public static final int deleteAudioFileFromMediaProvider(@NonNull String audioFile) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // audio
         int count = 0;
@@ -244,7 +245,7 @@ public class MediaUtils {
         return count;
     }
 
-    public static final int deleteAudioInFolderFromMediaProvider(File folder) {
+    public static final int deleteAudioInFolderFromMediaProvider(@NonNull File folder) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // audio
         int count = 0;
@@ -314,7 +315,7 @@ public class MediaUtils {
         }
     }
 
-    public static final int deleteVideoFileFromMediaProvider(String videoFile) {
+    public static final int deleteVideoFileFromMediaProvider(@NonNull String videoFile) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // video
         int count = 0;
@@ -359,7 +360,7 @@ public class MediaUtils {
         return count;
     }
 
-    public static final int deleteVideoInFolderFromMediaProvider(File folder) {
+    public static final int deleteVideoInFolderFromMediaProvider(@NonNull File folder) {
         ContentResolver cr = Collect.getInstance().getContentResolver();
         // video
         int count = 0;
@@ -407,7 +408,7 @@ public class MediaUtils {
      * @return Whether the Uri authority is ExternalStorageProvider.
      * @author paulburke
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
+    public static boolean isExternalStorageDocument(@NonNull Uri uri) {
         return "com.android.externalstorage.documents".equals(uri
                 .getAuthority());
     }
@@ -418,7 +419,7 @@ public class MediaUtils {
      * @return Whether the Uri authority is DownloadsProvider.
      * @author paulburke
      */
-    public static boolean isDownloadsDocument(Uri uri) {
+    public static boolean isDownloadsDocument(@NonNull Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri
                 .getAuthority());
     }
@@ -429,7 +430,7 @@ public class MediaUtils {
      * @return Whether the Uri authority is MediaProvider.
      * @author paulburke
      */
-    public static boolean isMediaDocument(Uri uri) {
+    public static boolean isMediaDocument(@NonNull Uri uri) {
         return "com.android.providers.media.documents".equals(uri
                 .getAuthority());
     }
@@ -439,7 +440,7 @@ public class MediaUtils {
      *            The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public static boolean isGooglePhotosUri(Uri uri) {
+    public static boolean isGooglePhotosUri(@NonNull Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri
                 .getAuthority());
     }
@@ -459,7 +460,7 @@ public class MediaUtils {
      * @return The value of the _data column, which is typically a file path.
      * @author paulburke
      */
-    public static String getDataColumn(Context context, Uri uri,
+    public static String getDataColumn(@NonNull Context context, @NonNull Uri uri,
             String selection, String[] selectionArgs) {
 
         Cursor cursor = null;

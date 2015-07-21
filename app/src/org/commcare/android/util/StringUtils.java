@@ -6,6 +6,7 @@ package org.commcare.android.util;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.Spannable;
 import android.util.Pair;
@@ -37,7 +38,7 @@ public class StringUtils {
      * like accents. 
      */
     @SuppressLint("NewApi")
-    public synchronized static String normalize(String input) {
+    public synchronized static String normalize(@NonNull String input) {
         if(normalizationCache == null) {
             normalizationCache = new LruCache<String, String>(cacheSize);
 
@@ -83,7 +84,7 @@ public class StringUtils {
      * 
      * @return 
      */
-    public static int LevenshteinDistance (String s0, String s1) {
+    public static int LevenshteinDistance (@NonNull String s0, @NonNull String s1) {
         int len0 = s0.length()+1;
         int len1 = s1.length()+1;
      
@@ -136,7 +137,7 @@ public class StringUtils {
      * meet CommCare's fuzzy match definition, false otherwise. Second value is the actual string
      * distance that was matched, in order to be able to rank or otherwise interpret results.
      */
-    public static Pair<Boolean, Integer> fuzzyMatch(String a, String b) {
+    public static Pair<Boolean, Integer> fuzzyMatch(@NonNull String a, @NonNull String b) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
@@ -150,11 +151,11 @@ public class StringUtils {
         return Pair.create(false, -1);
     }
 
-    public static String getStringRobust(Context c, int resId) {
+    public static String getStringRobust(@NonNull Context c, int resId) {
         return getStringRobust(c, resId, "");
     }
 
-    public static String getStringRobust(Context c, int resId, String args) {
+    public static String getStringRobust(@NonNull Context c, int resId, String args) {
         String resourceName = c.getResources().getResourceEntryName(resId);
         try {
             return Localization.get("odk_" + resourceName, new String[]{args});
@@ -163,7 +164,7 @@ public class StringUtils {
         }
     }
 
-    public static String getStringRobust(Context c, int resId, String[] args) {
+    public static String getStringRobust(@NonNull Context c, int resId, String[] args) {
         String resourceName = c.getResources().getResourceEntryName(resId);
         try {
             return Localization.get("odk_" + resourceName, args);
@@ -172,11 +173,13 @@ public class StringUtils {
         }
     }
 
-    public static Spannable getStringSpannableRobust(Context c, int resId) {
+    @NonNull
+    public static Spannable getStringSpannableRobust(@NonNull Context c, int resId) {
         return getStringSpannableRobust(c, resId, "");
     }
 
-    public static Spannable getStringSpannableRobust(Context c, int resId, String args) {
+    @NonNull
+    public static Spannable getStringSpannableRobust(@NonNull Context c, int resId, String args) {
         String resourceName = c.getResources().getResourceEntryName(resId);
         String ret = "";
         try {

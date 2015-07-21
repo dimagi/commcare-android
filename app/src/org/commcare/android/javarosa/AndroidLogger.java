@@ -1,5 +1,7 @@
 package org.commcare.android.javarosa;
 
+import android.support.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -104,7 +106,7 @@ public class AndroidLogger implements ILogger {
                      * @see org.javarosa.core.services.storage.EntityFilter#matches(java.lang.Object)
                      */
                     @Override
-                    public boolean matches(AndroidLogEntry e) {
+                    public boolean matches(@NonNull AndroidLogEntry e) {
                         if(e.getID() <= lastEntry) {
                             return true;
                         } else {
@@ -122,7 +124,7 @@ public class AndroidLogger implements ILogger {
      * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.IFullLogSerializer)
      */
     @Override
-    public <T> T serializeLogs(IFullLogSerializer<T> serializer) {
+    public <T> T serializeLogs(@NonNull IFullLogSerializer<T> serializer) {
         ArrayList<LogEntry> logs = new ArrayList<LogEntry>(); 
         for(AndroidLogEntry entry : storage) {
             logs.add(entry);
@@ -140,7 +142,7 @@ public class AndroidLogger implements ILogger {
      * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.StreamLogSerializer)
      */
     @Override
-    public void serializeLogs(StreamLogSerializer serializer) throws IOException {
+    public void serializeLogs(@NonNull StreamLogSerializer serializer) throws IOException {
         for(AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);
             if(serializing) {
@@ -156,7 +158,7 @@ public class AndroidLogger implements ILogger {
      * @see org.javarosa.core.api.ILogger#serializeLogs(org.javarosa.core.log.StreamLogSerializer, int)
      */
     @Override
-    public void serializeLogs(StreamLogSerializer serializer, int limit) throws IOException {
+    public void serializeLogs(@NonNull StreamLogSerializer serializer, int limit) throws IOException {
         int count = 0;
         for(AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -96,8 +97,8 @@ public class EntityDetailView extends FrameLayout {
     private int oddRowColor;
     private int evenRowColor;
 
-    public EntityDetailView(Context context, CommCareSession session, Detail d,
-                            Entity e, int index, int detailNumber) {
+    public EntityDetailView(@NonNull Context context, CommCareSession session, @NonNull Detail d,
+                            @NonNull Entity e, int index, int detailNumber) {
         super(context);
 
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -167,7 +168,7 @@ public class EntityDetailView extends FrameLayout {
         this.listener = listener;
     }
 
-    public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
+    public void setParams(CommCareSession session, @NonNull Detail d, @NonNull Entity e, int index, int detailNumber) {
         String labelText = d.getFields()[index].getHeader().evaluate();
         label.setText(labelText);
         spacer.setText(labelText);
@@ -332,7 +333,7 @@ public class EntityDetailView extends FrameLayout {
                 });
                 graphView.setOnTouchListener(new OnTouchListener() {
                     @Override
-                    public boolean onTouch(View view, MotionEvent event) {
+                    public boolean onTouch(View view, @NonNull MotionEvent event) {
                         return detector.onTouchEvent(event);
                     }
                 });
@@ -414,7 +415,7 @@ public class EntityDetailView extends FrameLayout {
     /*
      * Appropriately set current & currentView.
      */
-    private void updateCurrentView(int newCurrent, View newView) {
+    private void updateCurrentView(int newCurrent, @NonNull View newView) {
         if (newCurrent != current) {
             currentView.setVisibility(View.GONE);
             newView.setVisibility(View.VISIBLE);

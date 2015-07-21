@@ -22,6 +22,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -94,7 +96,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail
 	 * @param entity
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity) {
+	public GridEntityView(@NonNull Context context, @NonNull Detail detail, Entity entity) {
 	    this(context, detail, entity, new String[0],  new CachingAsyncImageLoader(context, 1), false);
 	}
 	
@@ -109,7 +111,7 @@ public class GridEntityView extends GridLayout {
 	 * @param mLoader
 	 * @param fuzzySearchEnabled
 	 */
-	public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
+	public GridEntityView(@NonNull Context context, @NonNull Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
 		super(context);
 		this.searchTerms = searchTerms;
 		this.mIsAsynchronous = entity instanceof AsyncEntity;
@@ -181,7 +183,7 @@ public class GridEntityView extends GridLayout {
 	 * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
 	 * @param context
 	 */
-	public void addBuffers(Context context){
+	public void addBuffers(@NonNull Context context){
 		
 		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
 			
@@ -215,7 +217,7 @@ public class GridEntityView extends GridLayout {
 	
 	// get the maximum height of this grid
 	
-	public int getMaxRows(Detail detail){
+	public int getMaxRows(@NonNull Detail detail){
 	    
 	    GridCoordinate[] coordinates = detail.getGridCoordinates();
 	    int currentMaxHeight = 0;
@@ -238,7 +240,7 @@ public class GridEntityView extends GridLayout {
 	 * @param detail - the Detail describing how to display each entry
 	 * @param entity - the Entity describing the actual data of each entry
 	 */
-	public void setViews(Context context, Detail detail, Entity entity){
+	public void setViews(@NonNull Context context, @NonNull Detail detail, @NonNull Entity entity){
 		
 		// clear all previous entries in this grid
 		this.removeAllViews();
@@ -347,7 +349,7 @@ public class GridEntityView extends GridLayout {
      * @param searchField
 	 * @return
 	 */
-	private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+	private View getView(@NonNull Context context, @NonNull String multimediaType, @NonNull String horzAlign, @NonNull String vertAlign, @NonNull String textsize, @Nullable String rowData, ViewId uniqueId, @Nullable String cssid, @Nullable String searchField) {
 		View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:

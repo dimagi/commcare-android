@@ -15,6 +15,8 @@ import org.javarosa.core.services.Logger;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -24,7 +26,8 @@ public class MediaUtil {
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
-	public static Bitmap getScaledImageFromReference(String jrReference) {
+	@Nullable
+    public static Bitmap getScaledImageFromReference(String jrReference) {
 		return getScaledImageFromReference(jrReference, 1);
 	}
 	
@@ -98,6 +101,7 @@ public class MediaUtil {
      * @param rawInput
      * @return
      */
+    @NonNull
     public static String getGeoIntentURI(String rawInput){
         try{
             GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
@@ -110,7 +114,8 @@ public class MediaUtil {
         }
     }
 	
-	public static String stripArguments(String input){
+	@NonNull
+    public static String stripArguments(String input){
 		if(input.contains("{") && input.contains("}")){
 			String replaced = input.substring(input.indexOf("{")-1, input.indexOf("}")+1);
 			return input.replace(replaced, "").trim();

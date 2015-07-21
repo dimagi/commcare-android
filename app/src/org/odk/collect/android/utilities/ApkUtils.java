@@ -15,6 +15,8 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+
 import dalvik.system.DexFile;
 
 /**
@@ -67,6 +69,7 @@ public class ApkUtils {
     * @throws ClassNotFoundException
     * @throws IOException
     */
+   @NonNull
    @SuppressWarnings("unchecked")
     private static List<String> getClasses(String packageName, Context c)
            throws IOException 

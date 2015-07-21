@@ -3,6 +3,9 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
@@ -27,6 +30,7 @@ import org.javarosa.core.model.instance.TreeElement;
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     CommCareSession session;
     AndroidCaseInstanceTreeElement casebase;
+    @Nullable
     LedgerInstanceTreeElement stockbase;
     
     public CommCareInstanceInitializer(){ 
@@ -36,7 +40,8 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
         this.session = session;
     }
     
-    public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+    @Nullable
+    public AbstractTreeElement generateRoot(@NonNull ExternalDataInstance instance) {
         CommCareApplication app = CommCareApplication._();
         String ref = instance.getReference();
         if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {

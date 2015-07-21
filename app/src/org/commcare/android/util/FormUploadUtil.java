@@ -29,6 +29,8 @@ import org.javarosa.core.services.Logger;
 
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 public class FormUploadUtil {
@@ -98,12 +100,12 @@ public class FormUploadUtil {
         return null;
     }
     
-    public static long sendInstance(int submissionNumber, File folder, String url, User user) throws FileNotFoundException {
+    public static long sendInstance(int submissionNumber, @NonNull File folder, String url, @NonNull User user) throws FileNotFoundException {
         return FormUploadUtil.sendInstance(submissionNumber, folder, null, url, null, user);
     }
     
     
-    public static long sendInstance(int submissionNumber, File folder, SecretKeySpec key, String url, AsyncTask listener, User user) throws FileNotFoundException {
+    public static long sendInstance(int submissionNumber, @NonNull File folder, @Nullable SecretKeySpec key, String url, AsyncTask listener, @NonNull User user) throws FileNotFoundException {
         
         boolean hasListener = false;
         DataSubmissionListener myListener = null;
@@ -303,7 +305,7 @@ public class FormUploadUtil {
      * @return
      * @throws FileNotFoundException 
      */
-    public static boolean validateSubmissionFile(File f, Cipher decryptCipher) throws FileNotFoundException {
+    public static boolean validateSubmissionFile(@NonNull File f, Cipher decryptCipher) throws FileNotFoundException {
         if(!f.exists()) {
             throw new FileNotFoundException("Submission file: " + f.getAbsolutePath());
         }

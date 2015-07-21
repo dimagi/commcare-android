@@ -19,6 +19,8 @@ package org.commcare.dalvik.activities;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -95,6 +97,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
      * (non-Javadoc)
      * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
      */
+    @Nullable
     @Override
     public String getActivityTitle() {
         //return adapter.getMenuTitle();
@@ -117,7 +120,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
      * Stores the path of selected form and finishes.
      */
     @Override
-    public void onItemClick(AdapterView listView, View view, int position, long id) {
+    public void onItemClick(@NonNull AdapterView listView, View view, int position, long id) {
         String commandId;
         Object value = listView.getAdapter().getItem(position);
         if(value instanceof Entry) {
@@ -135,7 +138,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view,
+    public boolean onItemLongClick(@NonNull AdapterView<?> parent, View view,
             int position, long id) {
         MenuDisplayable value = (MenuDisplayable)parent.getAdapter().getItem(position);
         String audioURI = value.getAudioURI();

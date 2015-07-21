@@ -1,6 +1,7 @@
 package org.odk.collect.android.views.media;
 
 import android.media.MediaPlayer;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -22,6 +23,7 @@ public enum AudioController {
     /**
      * Only one audio entity should be playing at once, this is that entity.
      */
+    @Nullable
     private MediaEntity currentEntity;
 
     /**

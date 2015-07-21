@@ -3,6 +3,8 @@
  */
 package org.commcare.android.models;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.android.util.StringUtils;
 
 
@@ -39,6 +41,7 @@ public class Entity<T> {
      * Same as getField, but guaranteed to return a string.
      * If field is not already a string, will return blank string.
      */
+    @NonNull
     public String getFieldString(int i) {
         Object field = getField(i);
         if (field instanceof String) {
@@ -97,6 +100,7 @@ public class Entity<T> {
         }
 	}
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

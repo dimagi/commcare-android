@@ -3,6 +3,9 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,7 +21,7 @@ public class AndroidStreamUtil {
      * @param is
      * @param os
      */
-    public static void writeFromInputToOutput(InputStream is, OutputStream os) throws IOException {
+    public static void writeFromInputToOutput(@NonNull InputStream is, @NonNull OutputStream os) throws IOException {
         writeFromInputToOutput(is, os, null);
     }
     
@@ -27,7 +30,7 @@ public class AndroidStreamUtil {
      * @param is
      * @param os
      */
-    public static void writeFromInputToOutput(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
+    public static void writeFromInputToOutput(@NonNull InputStream is, @NonNull OutputStream os, @Nullable StreamReadObserver observer) throws IOException {
         byte[] buffer = new byte[8192];
         long counter = 0;
         

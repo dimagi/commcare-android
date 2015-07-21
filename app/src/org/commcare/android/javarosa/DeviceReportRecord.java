@@ -1,5 +1,7 @@
 package org.commcare.android.javarosa;
 
+import android.support.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,6 +60,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel{
         this.aesKey = aesKey;
     }
     
+    @NonNull
     public static DeviceReportRecord generateNewRecordStub() throws SessionUnavailableException {
         DeviceReportRecord slr = new DeviceReportRecord();
         slr.fileName = new File(CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
@@ -91,6 +94,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel{
         return fileName;
     }
 
+    @NonNull
     public final OutputStream openOutputStream() throws FileNotFoundException, IOException {
         try {
             String path = getFilePath();

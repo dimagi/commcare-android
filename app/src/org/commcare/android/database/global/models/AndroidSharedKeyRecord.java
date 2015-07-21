@@ -20,6 +20,8 @@ import org.javarosa.core.util.PropertyUtils;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * This is a record of a key that CommCare ODK has shared with another app
@@ -81,7 +83,7 @@ public class AndroidSharedKeyRecord extends Persisted {
     public final static String EXTRA_KEY_ID = "commcare_sharing_key_id";
     public final static String EXTRA_KEY_PAYLOAD = "commcare_sharing_key_payload";
 
-    public void writeResponseToIntent(Intent response) {
+    public void writeResponseToIntent(@NonNull Intent response) {
         response.putExtra(EXTRA_KEY_ID, this.getKeyId());
         response.putExtra(EXTRA_KEY_PAYLOAD, this.publicKey);
     }
@@ -89,7 +91,8 @@ public class AndroidSharedKeyRecord extends Persisted {
     public final static String EXTRA_KEY_CALLOUT = "commcare_sharing_key_callout";
     public final static String EXTRA_KEY_CALLOUT_SYMETRIC_KEY = "commcare_sharing_key_symetric";
     
-    public Bundle getIncomingCallout(Intent incoming) {
+    @Nullable
+    public Bundle getIncomingCallout(@NonNull Intent incoming) {
         byte[] incomingCallout = incoming.getByteArrayExtra(EXTRA_KEY_CALLOUT);
         byte[] incomingKey = incoming.getByteArrayExtra(EXTRA_KEY_CALLOUT_SYMETRIC_KEY);
         Parcel p = Parcel.obtain();

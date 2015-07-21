@@ -11,6 +11,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 /**
@@ -19,7 +21,9 @@ import android.util.Log;
  */
 public abstract class WipeTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
 
+    @Nullable
     Context c;
+    @Nullable
     Long[] results;
     File dumpFolder;
     
@@ -63,6 +67,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
      * (non-Javadoc)
      * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
      */
+    @NonNull
     @Override
     protected Boolean doTaskBackground(String... params) {
         

@@ -3,6 +3,8 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.Nullable;
+
 import java.util.Vector;
 
 import org.javarosa.core.services.IPropertyManager;
@@ -25,6 +27,7 @@ public class ODKPropertyManager implements IPropertyManager {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.IPropertyManager#getProperty(java.lang.String)
      */
+    @Nullable
     public Vector getProperty(String propertyName) {
         // TODO Auto-generated method stub
         return null;
@@ -33,6 +36,7 @@ public class ODKPropertyManager implements IPropertyManager {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.IPropertyManager#getRules()
      */
+    @Nullable
     public Vector getRules() {
         // TODO Auto-generated method stub
         return null;
@@ -41,6 +45,7 @@ public class ODKPropertyManager implements IPropertyManager {
     /* (non-Javadoc)
      * @see org.javarosa.core.services.IPropertyManager#getSingularProperty(java.lang.String)
      */
+    @Nullable
     public String getSingularProperty(String propertyName) {
         // TODO Auto-generated method stub
         return null;

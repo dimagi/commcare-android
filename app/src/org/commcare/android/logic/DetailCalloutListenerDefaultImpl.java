@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import org.commcare.dalvik.activities.CallOutActivity;
@@ -21,27 +22,27 @@ public class DetailCalloutListenerDefaultImpl {
     //   due to EntitySelectActivity not implementing DetailCalloutListener.
     public static final int CALL_OUT = 0;
 
-    public static void callRequested(Activity act, String phoneNumber) {
+    public static void callRequested(@NonNull Activity act, String phoneNumber) {
         Intent intent = new Intent(act, CallOutActivity.class);
         intent.putExtra(CallOutActivity.PHONE_NUMBER, phoneNumber);
         act.startActivityForResult(intent, CALL_OUT);
     }
 
 
-    public static void addressRequested(Activity act, String address) {
+    public static void addressRequested(@NonNull Activity act, String address) {
         Intent call;
         call = new Intent(Intent.ACTION_VIEW, Uri.parse(address));
         act.startActivity(call);
     }
 
-    public static void playVideo(Activity act, String videoRef) {
+    public static void playVideo(@NonNull Activity act, String videoRef) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.parse(videoRef), "video/*");
         act.startActivity(intent);
     }
 
-    public static void performCallout(Activity act, CalloutData callout, int id) {
+    public static void performCallout(@NonNull Activity act, @NonNull CalloutData callout, int id) {
         Intent i = new Intent(callout.getActionName());
 
         Hashtable<String, String> extras = callout.getExtras();

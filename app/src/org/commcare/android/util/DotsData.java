@@ -3,6 +3,9 @@
  */
 package org.commcare.android.util;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Date;
 
 import org.javarosa.core.model.utils.DateUtils;
@@ -79,6 +82,7 @@ public class DotsData {
             return doseLabel;
         }
                 
+        @Nullable
         public static DotsBox deserialize(String box){
             try {
                 return DotsBox.deserialize(new JSONArray(new JSONTokener(box)));
@@ -87,7 +91,8 @@ public class DotsData {
             }
         }
         
-        public static DotsBox deserialize(JSONArray box) throws JSONException {
+        @Nullable
+        public static DotsBox deserialize(@NonNull JSONArray box) throws JSONException {
             String missed = null;
             if(box.length() > 2) {
                 missed= box.getString(2);
@@ -102,6 +107,7 @@ public class DotsData {
             return new DotsBox(MedStatus.valueOf(status), ReportType.valueOf(type), missed, label); 
         }
         
+        @NonNull
         public JSONArray serialize() {
             JSONArray ser = new JSONArray();
             ser.put(status.toString());
@@ -115,7 +121,8 @@ public class DotsData {
             return ser;
         }
 
-        public DotsBox update(DotsBox deserialize) {
+        @NonNull
+        public DotsBox update(@NonNull DotsBox deserialize) {
             return new DotsBox(deserialize.status,deserialize.type, 
                     deserialize.missedMeds == null? this.missedMeds : deserialize.missedMeds,
                     deserialize.doseLabel == -1 ? this.doseLabel : deserialize.doseLabel);
@@ -152,6 +159,7 @@ public class DotsData {
             return true;
         }
         
+        @NonNull
         public JSONArray serialize() {
             JSONArray day = new JSONArray();
             for(int i = 0; i < boxes.length ; ++i) {
@@ -164,6 +172,7 @@ public class DotsData {
             return day;
         }
         
+        @NonNull
         public static DotsDay deserialize(String day) {
             try { 
                 return deserialize(new JSONArray(new JSONTokener(day)));
@@ -172,7 +181,8 @@ public class DotsData {
             }
         }
         
-        public static DotsDay deserialize(JSONArray day) throws JSONException {
+        @NonNull
+        public static DotsDay deserialize(@NonNull JSONArray day) throws JSONException {
             DotsBox[][] fullDay = new DotsBox[day.length()][];
             for(int i = 0 ; i < day.length() ; ++i) {
                 JSONArray regimen = day.getJSONArray(i);
@@ -207,6 +217,7 @@ public class DotsData {
          * 
          * @return
          */
+        @NonNull
         public int[] getRegIndexes(int regimenIndex) {
             int max = this.getMaxReg();
             int[] retVal = new int[boxes.length];
@@ -242,6 +253,7 @@ public class DotsData {
             return retVal;
         }
 
+        @NonNull
         public DotsDay updateDose(int dose, DotsBox[] newboxes) {
             int[] indices = getRegIndexes(dose);
             for(int i = 0 ; i < boxes.length; ++i) {
@@ -254,6 +266,7 @@ public class DotsData {
             return this;
         }
 
+        @Nullable
         public MedStatus status() {
             MedStatus ret = null;
             for(int i = 0 ; i < boxes.length; ++i) {
@@ -358,6 +371,7 @@ public class DotsData {
         }
     }
     
+    @Nullable
     public static DotsData DeserializeDotsData(String dots) {
         
         try {
@@ -404,7 +418,8 @@ public class DotsData {
 
     }
     
-    public static DotsData CreateDotsData(int[] regType, Date anchor) {
+    @Nullable
+    public static DotsData CreateDotsData(@NonNull int[] regType, Date anchor) {
         DotsDay[] days = new DotsDay[21];
         for(int j = 0 ; j <  days.length ; ++j ) {
             days[j] = new DotsDay(emptyBoxes(regType, null));
@@ -414,7 +429,8 @@ public class DotsData {
         return data;
     }
     
-    public static DotsBox[][] emptyBoxes(int[] lengths, int[][] regLabels) {
+    @NonNull
+    public static DotsBox[][] emptyBoxes(@NonNull int[] lengths, @Nullable int[][] regLabels) {
         DotsBox[][] boxes = new DotsBox[lengths.length][];
         for(int i = 0 ; i < lengths.length; ++i ) {
             boxes[i] = new DotsBox[lengths[i]];

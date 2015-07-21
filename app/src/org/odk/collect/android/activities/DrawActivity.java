@@ -36,6 +36,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -68,9 +70,13 @@ public class DrawActivity extends Activity {
     // restore
 
     // incoming options...
+    @Nullable
     private String loadOption = null;
+    @Nullable
     private File refImage = null;
+    @Nullable
     private File output = null;
+    @Nullable
     private File savepointImage = null;
 
     private Button btnFinished;
@@ -78,6 +84,7 @@ public class DrawActivity extends Activity {
     private Button btnCancel;
     private Paint paint;
     private Paint pointPaint;
+    @Nullable
     private DrawView drawView;
     private String alertTitleString;
     private AlertDialog alertDialog;
@@ -87,7 +94,7 @@ public class DrawActivity extends Activity {
      * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         try {
             saveFile(savepointImage);
@@ -252,7 +259,7 @@ public class DrawActivity extends Activity {
         this.finish();
     }
 
-    private void saveFile(File f) throws FileNotFoundException {
+    private void saveFile(@NonNull File f) throws FileNotFoundException {
         if ( drawView.getWidth() == 0 || drawView.getHeight() == 0 ) {
             // apparently on 4.x, the orientation change notification can occur
             // sometime before the view is rendered. In that case, the view
@@ -305,7 +312,7 @@ public class DrawActivity extends Activity {
      * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
      */
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
 
@@ -348,7 +355,7 @@ public class DrawActivity extends Activity {
              * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
              */
             @Override
-            public void onClick(DialogInterface dialog, int id) {
+            public void onClick(@NonNull DialogInterface dialog, int id) {
 
 
                 dialog.cancel();
@@ -446,7 +453,7 @@ public class DrawActivity extends Activity {
          * @see android.view.View#onDraw(android.graphics.Canvas)
          */
         @Override
-        protected void onDraw(Canvas canvas) {
+        protected void onDraw(@NonNull Canvas canvas) {
             canvas.drawColor(R.color.grey);
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.drawPath(mCurrentPath, paint);
@@ -489,7 +496,7 @@ public class DrawActivity extends Activity {
          * @see android.view.View#onTouchEvent(android.view.MotionEvent)
          */
         @Override
-        public boolean onTouchEvent(MotionEvent event) {
+        public boolean onTouchEvent(@NonNull MotionEvent event) {
             float x = event.getX();
             float y = event.getY();
 

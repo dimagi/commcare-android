@@ -26,6 +26,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -41,6 +43,7 @@ public class InstanceProvider extends ContentProvider {
     private static final int INSTANCES = 1;
     private static final int INSTANCE_ID = 2;
 
+    @NonNull
     private static final UriMatcher sUriMatcher;
 
     /**
@@ -57,7 +60,7 @@ public class InstanceProvider extends ContentProvider {
          * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
          */
         @Override
-        public void onCreate(SQLiteDatabase db) {            
+        public void onCreate(@NonNull SQLiteDatabase db) {
            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
                + InstanceColumns._ID + " integer primary key, " 
                + InstanceColumns.DISPLAY_NAME + " text not null, "
@@ -76,7 +79,7 @@ public class InstanceProvider extends ContentProvider {
          * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
          */
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
                     + ", which will destroy all old data");
             db.execSQL("DROP TABLE IF EXISTS instances");
@@ -111,7 +114,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
      */
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
@@ -145,7 +148,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#getType(android.net.Uri)
      */
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 return InstanceColumns.CONTENT_TYPE;
@@ -166,7 +169,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
     @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
+    public Uri insert(@NonNull Uri uri, @Nullable ContentValues initialValues) {
         // Validate the requested uri
         if (sUriMatcher.match(uri) != INSTANCES) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -222,7 +225,8 @@ public class InstanceProvider extends ContentProvider {
      *
      * @param state is the status column of an instance entry
      */
-    private String getDisplaySubtext(String state) {
+    @NonNull
+    private String getDisplaySubtext(@Nullable String state) {
         String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(new Date());
 
         if (state == null) {
@@ -240,7 +244,7 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-    private void deleteFileOrDir(String fileName ) {
+    private void deleteFileOrDir(@NonNull String fileName ) {
         File file = new File(fileName);
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -264,7 +268,7 @@ public class InstanceProvider extends ContentProvider {
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
+    public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
@@ -330,7 +334,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
      */
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(@NonNull Uri uri, @NonNull ContentValues values, String where, String[] whereArgs) {
         int count;
 
         init();
@@ -399,7 +403,7 @@ public class InstanceProvider extends ContentProvider {
      * @return URI pointing to a row in the instance table, either the one passed
      * in or built from a query using the method arguments.
      */
-    private Uri getInstanceRowUri(Uri potentialUri, String selection, String[] selectionArgs) {
+    private Uri getInstanceRowUri(@NonNull Uri potentialUri, String selection, String[] selectionArgs) {
         switch (sUriMatcher.match(potentialUri)) {
             case INSTANCES:
                 // the potential URI points to the instance table, so use the
@@ -433,7 +437,7 @@ public class InstanceProvider extends ContentProvider {
      *
      * @param instanceUri points to a concrete instance we want to register
      */
-    private void linkToSessionFormRecord(Uri instanceUri) {
+    private void linkToSessionFormRecord(@NonNull Uri instanceUri) {
         if (getType(instanceUri) != InstanceColumns.CONTENT_ITEM_TYPE) {
             Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
                     "to a concrete instance.");
@@ -521,7 +525,7 @@ public class InstanceProvider extends ContentProvider {
      * @param loggerText String sent to javarosa logger
      * @param currentState session to be cleared
      */
-    private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) throws RuntimeException {
+    private void raiseFormEntryError(String loggerText, @NonNull AndroidSessionWrapper currentState) throws RuntimeException {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, loggerText);
 
         currentState.reset();

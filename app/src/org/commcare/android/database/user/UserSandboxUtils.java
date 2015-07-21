@@ -23,13 +23,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 /**
  * @author ctsims
  */
 public class UserSandboxUtils {
 
-    public static void migrateData(Context c, CommCareApp app, UserKeyRecord incomingSandbox, byte[] unwrappedOldKey, UserKeyRecord newSandbox, byte[] unwrappedNewKey) throws IOException {
+    public static void migrateData(@NonNull Context c, @NonNull CommCareApp app, @NonNull UserKeyRecord incomingSandbox, @NonNull byte[] unwrappedOldKey, @NonNull UserKeyRecord newSandbox, @NonNull byte[] unwrappedNewKey) throws IOException {
         //Step one: Make a copy of the incoming sandbox's database and re-key it to use the new key.
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Migrating an existing user sandbox for " + newSandbox.getUsername());
         
@@ -170,7 +171,8 @@ public class UserSandboxUtils {
     }
     
 
-    public static String getSqlCipherEncodedKey(byte[] bytes) {
+    @NonNull
+    public static String getSqlCipherEncodedKey(@NonNull byte[] bytes) {
         String hexString = "x\"";
         for (int i = 0; i < bytes.length; i++) {
             String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();
@@ -184,7 +186,7 @@ public class UserSandboxUtils {
     }
 
 
-    public static void purgeSandbox(Context context, CommCareApp app, UserKeyRecord sandbox, byte[] key) {
+    public static void purgeSandbox(@NonNull Context context, @NonNull CommCareApp app, @NonNull UserKeyRecord sandbox, @NonNull byte[] key) {
         
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Wiping sandbox " + sandbox.getUuid());
         

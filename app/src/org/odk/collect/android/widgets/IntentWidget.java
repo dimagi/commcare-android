@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -175,6 +176,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
      * (non-Javadoc)
      * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
      */
+    @Nullable
     @Override
     public IAnswerData getAnswer() {
         String s = mStringAnswer.getText().toString();

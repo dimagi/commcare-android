@@ -17,6 +17,8 @@ import org.commcare.dalvik.R;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -63,6 +65,7 @@ public class CustomProgressDialog extends DialogFragment {
     private int progressBarProgress;
     private int progressBarMax;
         
+    @NonNull
     public static CustomProgressDialog newInstance(String title, String message, int taskId) {
         CustomProgressDialog frag = new CustomProgressDialog();
         frag.setTitle(title);
@@ -117,7 +120,7 @@ public class CustomProgressDialog extends DialogFragment {
         restoreFields(savedInstanceState);
     }
     
-    private void restoreFields(Bundle savedInstanceState) {
+    private void restoreFields(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             this.title = savedInstanceState.getString(KEY_TITLE);
             this.message = savedInstanceState.getString(KEY_MESSAGE);
@@ -143,6 +146,7 @@ public class CustomProgressDialog extends DialogFragment {
 
 
     /* Creates the dialog that will reside within the fragment */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         restoreFields(savedInstanceState);
@@ -164,7 +168,7 @@ public class CustomProgressDialog extends DialogFragment {
             cb.setOnClickListener(new OnClickListener() {
 
                 @Override
-                public void onClick(View v) {
+                public void onClick(@NonNull View v) {
                     isChecked = ((CheckBox)v).isChecked();                    
                 }
 
@@ -215,7 +219,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
     
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_TITLE, this.title);
         outState.putString(KEY_MESSAGE, this.message);
