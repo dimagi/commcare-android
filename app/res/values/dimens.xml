@@ -19,6 +19,7 @@
     <dimen name="tab_gradient_radius">300dp</dimen>
     
     <dimen name="spacer_small">5dp</dimen>
+    <dimen name="standard_spacer">8dp</dimen>
     <dimen name="spacer">10dp</dimen>
     
     <dimen name="spacer_large">50dp</dimen>

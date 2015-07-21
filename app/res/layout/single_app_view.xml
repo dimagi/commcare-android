@@ -10,8 +10,8 @@
         android:textSize="@dimen/font_size_xlargest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="10sp"
-        android:paddingBottom="5sp"
+        android:paddingTop="@dimen/standard_spacer"
+        android:paddingBottom="@dimen/standard_spacer"
         android:textColor="@color/grey_medium"
         android:gravity="center" />
     
@@ -32,9 +32,9 @@
          android:layout_height="wrap_content"
          android:onClick="rebootAlertDialog"
          android:textColor="@color/blue" 
-         android:layout_marginTop="10sp"
-         android:paddingTop="5sp"
-         android:paddingBottom="5sp" />
+         android:layout_marginTop="@dimen/standard_spacer"
+         android:paddingTop="@dimen/standard_spacer"
+         android:paddingBottom="@dimen/standard_spacer" />
                 
     <Button
          android:id="@+id/archive_button"
@@ -44,8 +44,8 @@
          android:layout_height="wrap_content"
          android:onClick="toggleArchived"
          android:textColor="@color/grey_medium"
-         android:paddingBottom="5sp"
-         android:paddingTop="5sp" />
+         android:paddingBottom="@dimen/standard_spacer"
+         android:paddingTop="@dimen/standard_spacer" />
     
     <Button
         android:id="@+id/update_button"
@@ -55,8 +55,8 @@
         android:layout_height="wrap_content"
         android:onClick="updateClicked"
         android:textColor="@color/blue"
-        android:paddingBottom="5sp"
-        android:paddingTop="5sp" />
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer" />
      
     <Button
         android:id="@+id/verify_button"
@@ -67,7 +67,7 @@
         android:clickable="true" 
         android:onClick="verifyResourcesClicked"
         android:textColor="@color/grey_medium"
-      	android:paddingBottom="5sp"
-        android:paddingTop="5sp" />
+      	android:paddingBottom="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer" />
 
 </LinearLayout>
