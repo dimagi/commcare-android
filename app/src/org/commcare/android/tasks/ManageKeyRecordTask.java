@@ -324,6 +324,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         UserKeyRecord current = getCurrentValidRecord(app, username, password, acceptExpiredCredentials);
         
         if (current == null)  {
+            // existance of username and validity of password have already
+            // been checked, so this means the user record isn't valid.
             return HttpCalloutOutcomes.BadCertificate;
         }
 
