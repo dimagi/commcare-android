@@ -103,11 +103,18 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final int GET_INCOMPLETE_FORM = 16;
     private static final int UPGRADE_APP = 32;
     private static final int REPORT_PROBLEM_ACTIVITY = 64;
+
+    /**
+     * Request code for automatically validating media from home dispatch.
+     * Should signal a return from CommCareVerificationActivity.
+    */
+
     private static final int MISSING_MEDIA_ACTIVITY=256;
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
     private static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
+
 
     /**
      * Request code for launching media validator manually (Settings ->
