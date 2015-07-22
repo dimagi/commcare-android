@@ -82,6 +82,7 @@
                     android:textSize="@dimen/text_medium"
                     android:prompt="@string/select_app_prompt"
                     android:layout_gravity="center"
+                    android:gravity="center"
                     android:layout_marginBottom="@dimen/cell_padding_vertical"
                     android:visibility="gone" />
 
