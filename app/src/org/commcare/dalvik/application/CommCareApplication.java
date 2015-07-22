@@ -117,6 +117,8 @@ public class CommCareApplication extends Application {
     public static final int STATE_CORRUPTED = 4;
 
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
+    public static final String USER_SESSION_EXPIRED =
+        "org.commcare.dalvik.application.user_session_expired";
 
     private int dbState;
     private int resourceState;
@@ -250,19 +252,7 @@ public class CommCareApplication extends Application {
             doUnbindService();
 
             if (sessionExpired) {
-                // Re-direct to the home screen
-                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
-                // TODO: instead of launching here, which will pop-up the login
-                // screen even if CommCare isn't in the foreground, we should
-                // broadcast an intent, which CommCareActivity can receive if
-                // in focus and dispatch the login activity. Will also need to
-                // extend CommCareActivity's onResume to check if we need to
-                // re-login when we bring CommCare back into the foreground, so
-                // that the user can't just continue doing work while logged
-                // out. -- PLM
-                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
+                sendBroadcast(new Intent(USER_SESSION_EXPIRED));
             }
         }
     }
@@ -486,7 +476,7 @@ public class CommCareApplication extends Application {
      * It makes no attempt to make sure this is a safe operation when called, so
      * it shouldn't be used lightly.
      */
-    public void clearUserData() throws SessionUnavailableException {
+    public void clearUserData() {
 //        //First clear anything that will require the user's key, since we're going to wipe it out!
 //        getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 //
@@ -504,7 +494,12 @@ public class CommCareApplication extends Application {
 //
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
-        final String username = this.getSession().getLoggedInUser().getUsername();
+        final String username;
+        try {
+            username = this.getSession().getLoggedInUser().getUsername();
+        } catch (SessionUnavailableException e) {
+            return;
+        }
 
         final Set<String> dbIdsToRemove = new HashSet<String>();
 

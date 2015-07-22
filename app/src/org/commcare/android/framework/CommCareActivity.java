@@ -2,8 +2,11 @@ package org.commcare.android.framework;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +36,8 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
@@ -64,6 +69,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
+    protected static final int LOGIN_USER_RESULT_CODE = 0;
+
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
 
@@ -77,6 +84,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
+
+    private static BroadcastReceiver userSessionExpiredReceiver = null;
+    private boolean wasLoggedInOnLastResume;
 
     @Override
     @TargetApi(14)
@@ -114,6 +124,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
         
         mGestureDetector = new GestureDetector(this, this);
+
+        buildAndSetBroadcaseReceivers();
     }
 
     protected void restoreLastQueryString(String key) {
@@ -199,17 +211,24 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onResume() {
         super.onResume();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // In honeycomb and above the fragment takes care of this
-            this.setTitle(getTitle(this, getActivityTitle()));
-        }
+        if (!returnToLoginIfExpired()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                // In honeycomb and above the fragment takes care of this
+                this.setTitle(getTitle(this, getActivityTitle()));
+            }
 
-        AudioController.INSTANCE.playPreviousAudio();
+            registerReceiver(userSessionExpiredReceiver,
+                    new IntentFilter(CommCareApplication.USER_SESSION_EXPIRED));
+
+            AudioController.INSTANCE.playPreviousAudio();
+        }
     }
     
     @Override
     protected void onPause() {
         super.onPause();
+
+        unregisterReceiver(userSessionExpiredReceiver);
 
         AudioController.INSTANCE.systemInducedPause();
     }
@@ -691,5 +710,38 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
+
+    private void buildAndSetBroadcaseReceivers() {
+        if (userSessionExpiredReceiver == null) {
+            userSessionExpiredReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    returnToLogin();
+                }
+            };
+        }
+    }
+
+    protected void returnToLogin() {
+        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivityForResult(i, LOGIN_USER_RESULT_CODE);
+    }
+
+    private boolean returnToLoginIfExpired() {
+        return false;
+        /*
+        try {
+            if (!CommCareApplication._().getSession().isActive()) {
+                returnToLogin();
+                return true;
+            }
+        } catch (SessionUnavailableException e) {
+            returnToLogin();
+            return true;
+        }
+        return false;
+        */
     }
 }

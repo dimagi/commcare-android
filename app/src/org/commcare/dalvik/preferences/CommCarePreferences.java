@@ -149,10 +149,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                try {
-                    CommCareApplication._().clearUserData();
-                } catch (SessionUnavailableException e) {
-                }
+                CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:

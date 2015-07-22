@@ -294,9 +294,7 @@ public class CommCareSessionService extends Service  {
         long currentTime = new Date().getTime();
 
         // If logout process started and has taken longer than the logout
-        // timeout then wrap-up the process. This is especially necessary since
-        // if the FormEntryActivity isn't active then it will never launch
-        // closeUserSession upon receiving the KEY_SESSION_ENDING broadcast
+        // timeout then wrap-up the process.
         if (logoutStartedAt != -1 &&
                 currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             // Try and grab the logout lock, aborting if synchronization is in
