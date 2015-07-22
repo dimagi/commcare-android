@@ -67,6 +67,7 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setArchiveStatus(false);
                 newRecord.setUniqueId("");
                 newRecord.setDisplayName("");
+                newRecord.setVersionNumber(-1);
                 newRecord.setConvertedByDbUpgrader(true);
                 newRecord.setPreMultipleAppsProfile(true);
                 storage.write(newRecord);

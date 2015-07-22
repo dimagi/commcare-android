@@ -3,20 +3,10 @@
  */
 package org.commcare.android.database.global.models;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
-
-import android.content.Context;
 
 /**
  * An Application Record tracks an individual CommCare app on the current
@@ -60,6 +50,8 @@ public class ApplicationRecord extends Persisted {
     private boolean convertedViaDbUpgrader;
     @Persisting(8)
     private boolean preMultipleAppsProfile;
+    @Persisting(9)
+    private int versionNumber;
     
     /**
      * Deserialization only
@@ -71,6 +63,8 @@ public class ApplicationRecord extends Persisted {
     public ApplicationRecord(String applicationId, int status) {
         this.applicationId = applicationId;
         this.status = status;
+        // initialize to -1 so we know when it has not yet been set from the profile
+        this.versionNumber = -1;
     }
     
     public String getApplicationId() {
@@ -99,6 +93,14 @@ public class ApplicationRecord extends Persisted {
 
     public void setDisplayName(String appName) {
         this.displayName = appName;
+    }
+
+    public int getVersionNumber() {
+        return this.versionNumber;
+    }
+
+    public void setVersionNumber(int version) {
+        this.versionNumber = version;
     }
 
     public void setArchiveStatus(boolean b) {

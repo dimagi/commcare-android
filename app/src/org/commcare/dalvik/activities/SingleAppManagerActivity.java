@@ -38,20 +38,27 @@ public class SingleAppManagerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
+
         // Try to retrieve the app record at the indicated position
         int position = getIntent().getIntExtra("position", -1);
         appRecord = CommCareApplication._().getAppAtIndex(position);
-        // Implies that this appRecord has been uninstalled since last we launched
-        // SingleAppManagerActivity, so redirect to AppManagerActivity
         if (appRecord == null) {
+            // Implies that this appRecord has been uninstalled since last we launched
+            // SingleAppManagerActivity, so redirect to AppManagerActivity
             Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
             startActivity(i);
             finish();
         }
+
         //Set app name
         String appName = appRecord.getDisplayName();
         TextView tv = (TextView)findViewById(R.id.app_name);
         tv.setText(appName);
+
+        //Set app version
+        int appVersion = appRecord.getVersionNumber();
+        tv = (TextView)findViewById(R.id.app_version);
+        tv.setText("App Version: " + appVersion);
     }
 
     @Override
