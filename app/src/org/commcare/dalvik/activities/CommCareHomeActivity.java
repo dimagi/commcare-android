@@ -1133,8 +1133,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void dispatchHomeScreen() {
         try {
             //First make sure nothing catastrophic has happened
-            if (CommCareApplication._().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED ||
-                    CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
+            CommCareApp currApp = CommCareApplication._().getCurrentApp();
+            boolean resourcesCorrupted = currApp != null &&
+                    currApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
+            if (resourcesCorrupted || CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
                 if (!CommCareApplication._().isStorageAvailable()) {
                     createNoStorageDialog();
                 } else {
