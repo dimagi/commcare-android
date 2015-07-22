@@ -88,21 +88,7 @@ public class StorageUtils {
             records[i] = storage.read(ids.elementAt(i).intValue());
         }
 
-        return filterByCurrentApp(records);
-    }
-
-    /**
-     * Filter the given list of forms down to only those that are part of the currently seated app
-     */
-    private static FormRecord[] filterByCurrentApp(FormRecord[] forms) {
-        String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
-        ArrayList<FormRecord> relevant = new ArrayList<>();
-        for (FormRecord form : forms) {
-            if (form.getAppId().equals(currAppId)) {
-                relevant.add(form);
-            }
-        }
-        return (FormRecord[]) relevant.toArray();
+        return records;
     }
 
 }
