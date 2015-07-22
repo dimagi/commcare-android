@@ -7,6 +7,9 @@ import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.suite.model.Profile;
+import org.javarosa.core.services.locale.Localization;
+
 
 /**
  * An Application Record tracks an individual CommCare app on the current
@@ -148,6 +151,21 @@ public class ApplicationRecord extends Persisted {
 
     public void setConvertedByDbUpgrader(boolean b) {
         this.convertedViaDbUpgrader = b;
+    }
+
+    /**
+     * Used when this record is first installed or upgraded from an old version, to set all
+     * properties of the record that come from its profile file
+     */
+    public void setPropertiesFromProfile(Profile p) {
+        this.uniqueId = p.getUniqueId();
+        this.displayName = p.getDisplayName();
+        if ("".equals(displayName)) {
+            // If this profile didn't have a display name, get it from Localization strings instead
+            displayName = Localization.get("app.display.name");
+        }
+        this.versionNumber = p.getVersion();
+        this.preMultipleAppsProfile = p.isOldVersion();
     }
 
 }
