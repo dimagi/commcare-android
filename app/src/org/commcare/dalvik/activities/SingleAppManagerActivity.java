@@ -54,11 +54,6 @@ public class SingleAppManagerActivity extends Activity {
         String appName = appRecord.getDisplayName();
         TextView tv = (TextView)findViewById(R.id.app_name);
         tv.setText(appName);
-
-        //Set app version
-        int appVersion = appRecord.getVersionNumber();
-        tv = (TextView)findViewById(R.id.app_version);
-        tv.setText("App Version: " + appVersion);
     }
 
     @Override
@@ -95,6 +90,11 @@ public class SingleAppManagerActivity extends Activity {
         } else {
             archiveButton.setText(R.string.archive_app);
         }
+
+        // Sets the app version
+        int appVersion = appRecord.getVersionNumber();
+        TextView tv = (TextView)findViewById(R.id.app_version);
+        tv.setText("App Version: " + appVersion);
     }
 
     @Override
