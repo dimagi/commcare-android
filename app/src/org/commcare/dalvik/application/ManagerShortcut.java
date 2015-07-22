@@ -18,7 +18,7 @@ public class ManagerShortcut extends Activity {
         
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "App Manager");
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.manager_activity_name);
         Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this,  R.drawable.icon);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
         
