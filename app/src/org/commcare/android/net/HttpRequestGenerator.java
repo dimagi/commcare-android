@@ -62,7 +62,6 @@ public class HttpRequestGenerator {
     /** No Authentication will be possible, there isn't a user account to authenticate this request */
     public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
     
-    
     private Credentials credentials;
     PasswordAuthentication passwordAuthentication;
     private String username;
@@ -91,10 +90,6 @@ public class HttpRequestGenerator {
         //No authentication possible
     }
 
-    public HttpResponse makeCaseFetchRequest(String baseUri) throws ClientProtocolException, IOException {
-        return makeCaseFetchRequest(baseUri, true);
-    }
-    
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
         HttpClient client = client();
         
@@ -166,8 +161,6 @@ public class HttpRequestGenerator {
         
         return execute(client, get);
     }
-
-
 
     private void addHeaders(HttpRequestBase base, String lastToken){
         //base.addHeader("Accept-Language", lang)

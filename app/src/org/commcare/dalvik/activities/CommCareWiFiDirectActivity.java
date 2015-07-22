@@ -455,7 +455,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), settings.getString("PostURL", url), receiveFolder){
+        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(),
+                settings.getString("PostURL", url), receiveFolder){
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {

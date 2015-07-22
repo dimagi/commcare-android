@@ -669,6 +669,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
+    
+    /**
+     * Rebuild the activity's menu options based on the current state of the activity.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void rebuildMenus() {
+        // CommCare-159047: this method call rebuilds the options menu
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
+        } else {
+            supportInvalidateOptionsMenu();
+        }
+    }
 
     public Spannable localize(String key){
         return MarkupUtil.localizeStyleSpannable(this, key);
