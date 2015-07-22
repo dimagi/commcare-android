@@ -50,6 +50,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
@@ -184,6 +185,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
+        ACRAUtil.addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
+        ACRAUtil.addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
+        ACRAUtil.addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
+
         setContentView(R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
         View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
@@ -208,7 +213,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 configUi();
             }
         });
-
     }
 
     @SuppressLint("NewApi")
