@@ -4,7 +4,6 @@
 package org.commcare.android.util;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -15,7 +14,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -82,13 +80,11 @@ public class StorageUtils {
             }
         });
         
-        //The records should now be in order and we can pass to the next phase
+        //The records should now be in order and we can pass to the next phase 
         FormRecord[] records = new FormRecord[ids.size()];
         for(int i = 0 ; i < ids.size() ; ++i) {
             records[i] = storage.read(ids.elementAt(i).intValue());
         }
-
         return records;
     }
-
 }

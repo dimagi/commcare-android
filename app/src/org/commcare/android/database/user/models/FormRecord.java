@@ -78,25 +78,29 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
+     * 
+     * @param xmlns
+     * @param path
+     * @param entityId
+     * @param status
      */
-    public FormRecord(String instanceURI, String status, String xmlns,
-                      byte[] aesKey, String uuid, Date lastModified) {
+    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
         this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
         this.aesKey = aesKey;
+        
         this.uuid = uuid;
         this.lastModified = lastModified;
         if(lastModified == null) { lastModified = new Date(); }
     }
-
+    
     /**
      * Create a copy of the current form record, with an updated instance uri
      * and status.
      */
     public FormRecord updateStatus(String instanceURI, String newStatus) {
-        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey,
-                uuid, lastModified);
+        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
         fr.recordId = this.recordId;
         return fr;
     }
@@ -105,7 +109,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         if("".equals(instanceURI)) { return null; }
         return Uri.parse(instanceURI);
     }
-
+    
     public byte[] getAesKey() {
         return aesKey;
     }
