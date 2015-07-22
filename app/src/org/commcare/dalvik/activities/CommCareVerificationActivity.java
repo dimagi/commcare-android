@@ -121,7 +121,7 @@ public class CommCareVerificationActivity
         task = new VerificationTask();
         task.setListener(this);
         showProgressDialog(DIALOG_VERIFY_PROGRESS);
-        task.execute((String[]) null);
+        task.execute((String[])null);
     }
 
     @Override
