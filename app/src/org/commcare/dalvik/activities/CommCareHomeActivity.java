@@ -630,8 +630,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (platform == null &&
-                            CommCareApplication._().getCurrentApp() != null) {
+                    if (CommCareApplication._().getCurrentApp() != null) {
                         platform = CommCareApplication._().getCommCarePlatform();
                     }
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
@@ -966,8 +965,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             FormRecord record = state.getFormRecord();
 
-            if (platform == null &&
-                    CommCareApplication._().getCurrentApp() != null) {
+            if (CommCareApplication._().getCurrentApp() != null) {
                 platform = CommCareApplication._().getCommCarePlatform();
             }
 
@@ -1124,7 +1122,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        if (platform == null && CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
         dispatchHomeScreen();
