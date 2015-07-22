@@ -226,30 +226,22 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    /**
-     * Close down the commcare session and login session.
-     */
-    public void logout() {
+    public void wipeCommCareSessionAndUnbindLoginService() {
         synchronized(serviceLock) {
-            if(this.sessionWrapper != null) {
-                // clear out commcare session
+            if (this.sessionWrapper != null) {
                 sessionWrapper.reset();
             }
-            
-            // close down the commcare login session
+
             doUnbindService();
         }
     }
-    
-    /**
-     * Start commcare login session.
-     */
-    public void logIn(byte[] symetricKey, UserKeyRecord record) {
+
+    public void startLoginSessionService(byte[] symetricKey, UserKeyRecord record) {
         synchronized(serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if(this.mIsBound) {
-                logout();
+                wipeCommCareSessionAndUnbindLoginService();
             }
             doBindService(symetricKey, record);
         }
@@ -498,8 +490,6 @@ public class CommCareApplication extends Application {
         });
 
         //TODO: We can just delete the db entirely. 
-        //Should be good to go. The app'll log us out now that there's no user details in memory
-        logout();
 
         Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
 
@@ -512,6 +502,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
+        CommCareApplication._().getSession().closeSession(false);
     }
 
     public void prepareTemporaryStorage() {

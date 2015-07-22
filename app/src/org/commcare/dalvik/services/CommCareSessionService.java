@@ -164,8 +164,6 @@ public class CommCareSessionService extends Service  {
     public void onDestroy() {
         // Cancel the persistent notification.
         this.stopForeground(true);
-        
-        // TODO: Create a notification which the user can click to restart the session 
     }
 
     @Override
@@ -230,11 +228,8 @@ public class CommCareSessionService extends Service  {
 
     }
     
- 
-    
     //Start CommCare Specific Functionality
-    
-    
+
     public SQLiteDatabase getUserDbHandle() {
         synchronized(lock){
             return userDatabase;
@@ -296,7 +291,6 @@ public class CommCareSessionService extends Service  {
      * progess then don't do anything.
      */
     private void timeToExpireSession() {
-
         long currentTime = new Date().getTime();
 
         // If logout process started and has taken longer than the logout
@@ -380,7 +374,6 @@ public class CommCareSessionService extends Service  {
         }
     }
 
-
     /**
      * Closes the key pool and user database. Performs CommCareApplication
      * logout to unbind its connection to this object.
@@ -429,10 +422,10 @@ public class CommCareSessionService extends Service  {
             }
             logoutStartedAt = -1;
 
-            CommCareApplication._().logout();
 
             pool.expire();
-            this.stopForeground(true);
+
+            CommCareApplication._().wipeCommCareSessionAndUnbindLoginService();
 
             if (sessionExpired) {
                 // Re-direct to the home screen

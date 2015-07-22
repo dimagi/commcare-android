@@ -2,7 +2,6 @@ package org.commcare.android.tasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.apache.http.HttpResponse;
@@ -372,7 +371,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().logIn(current.unWrapKey(password), current);
+        CommCareApplication._().startLoginSessionService(current.unWrapKey(password), current);
         
         //So we may have logged in a key record but not a user (if we just received the
         //key, but not the user's data, for instance). 

@@ -262,7 +262,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().logIn(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
+                        CommCareApplication._().startLoginSessionService(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
                         wasKeyLoggedIn = true;
                     }
                     

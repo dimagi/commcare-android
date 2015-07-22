@@ -18,7 +18,6 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ProcessTaskListener;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
@@ -261,7 +260,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
             //TODO: See if it worked first?
             
-            CommCareApplication._().logIn(key, matchingRecord);
+            CommCareApplication._().startLoginSessionService(key, matchingRecord);
             ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
                 @Override
