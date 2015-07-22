@@ -68,6 +68,7 @@ import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -108,7 +109,7 @@ import javax.crypto.SecretKey;
         formUriBasicAuthPassword="your_password"
 )
 public class CommCareApplication extends Application {
-
+    private static final String TAG = CommCareApplication.class.getSimpleName();
 
     public static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
@@ -205,7 +206,7 @@ public class CommCareApplication extends Application {
 
         intializeDefaultLocalizerData();
 
-        //The fallback in case the db isn't installed 
+        //The fallback in case the db isn't installed
         resourceState = initializeAppResources();
 
         ACRAUtil.initACRA(this);
@@ -226,22 +227,52 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    public void wipeCommCareSessionAndUnbindLoginService() {
+    /**
+     * Performs CommCareApplication logout to unbind its connection to this
+     * object.
+     *
+     * @param sessionExpired should the user be redirected to the login screen
+     *                       upon closing this session?
+     */
+    public void closeUserSession(boolean sessionExpired) {
         synchronized(serviceLock) {
+            try {
+                CommCareApplication._().getSession().closeServiceResources();
+            } catch (SessionUnavailableException e) {
+                Log.w(TAG, "User's session services have unexpectedly already " +
+                        "been closed down. Proceeding to close the session.");
+            }
+
             if (this.sessionWrapper != null) {
                 sessionWrapper.reset();
             }
 
             doUnbindService();
+
+            if (sessionExpired) {
+                // Re-direct to the home screen
+                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
+                // TODO: instead of launching here, which will pop-up the login
+                // screen even if CommCare isn't in the foreground, we should
+                // broadcast an intent, which CommCareActivity can receive if
+                // in focus and dispatch the login activity. Will also need to
+                // extend CommCareActivity's onResume to check if we need to
+                // re-login when we bring CommCare back into the foreground, so
+                // that the user can't just continue doing work while logged
+                // out. -- PLM
+                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(loginIntent);
+            }
         }
     }
 
-    public void startLoginSessionService(byte[] symetricKey, UserKeyRecord record) {
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
         synchronized(serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if(this.mIsBound) {
-                wipeCommCareSessionAndUnbindLoginService();
+                closeUserSession(false);
             }
             doBindService(symetricKey, record);
         }
@@ -458,19 +489,19 @@ public class CommCareApplication extends Application {
     public void clearUserData() throws SessionUnavailableException {
 //        //First clear anything that will require the user's key, since we're going to wipe it out!
 //        getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
-//        
+//
 //        //TODO: We should really be wiping out the _stored_ instances here, too
 //        getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
-//        
+//
 //        //Also, any of the sessions we've got saved
 //        getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
-//        
+//
 //        //Now we wipe out the user entirely
 //        getStorage(User.STORAGE_KEY, User.class).removeAll();
-//        
+//
 //        //Get rid of any user fixtures
 //        getStorage("fixture", FormInstance.class).removeAll();
-//        
+//
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
         final String username = this.getSession().getLoggedInUser().getUsername();
@@ -489,7 +520,7 @@ public class CommCareApplication extends Application {
             }
         });
 
-        //TODO: We can just delete the db entirely. 
+        //TODO: We can just delete the db entirely.
 
         Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
 
@@ -502,7 +533,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
-        CommCareApplication._().getSession().closeSession(false);
+        CommCareApplication._().closeUserSession(false);
     }
 
     public void prepareTemporaryStorage() {
@@ -558,7 +589,7 @@ public class CommCareApplication extends Application {
             this.mCurrentServiceBindTimeout = timeout;
         }
     }
-    
+
     void doBindService(final byte[] key, final UserKeyRecord record) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
@@ -757,9 +788,9 @@ public class CommCareApplication extends Application {
         Calendar lastRestoreCalendar = Calendar.getInstance();
         lastRestoreCalendar.setTimeInMillis(last);
 
-        //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior, 
+        //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
         //you still sync, so people can get into the cycle of doing it once in the morning, which
-        //is more valuable than syncing mid-day.        
+        //is more valuable than syncing mid-day.
         if (period == DateUtils.DAY_IN_MILLIS &&
                 (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
             return true;
@@ -1002,7 +1033,7 @@ public class CommCareApplication extends Application {
         if (areAutomatedActionsInvalid()) {
             return false;
         }
-        //We only set this to true occasionally, but in theory it could be set to false 
+        //We only set this to true occasionally, but in theory it could be set to false
         //from other factors, so turn it off if it is.
         if (!getPendingSyncStatus()) {
             syncPending = false;

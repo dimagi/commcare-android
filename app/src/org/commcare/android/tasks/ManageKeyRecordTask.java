@@ -91,11 +91,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // if the session isn't available, we don't need to logout
-                }
+                CommCareApplication._().closeUserSession(false);
                 listener.keysReadyForSync(receiver);
                 return;
             } else {
@@ -110,12 +106,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
 
         //For any other result make sure we're logged out. 
-        try {
-            CommCareApplication._().getSession().closeSession(false);
-        } catch (SessionUnavailableException e) {
-            // if the session isn't available, we don't need to logout
-        }
-        
+        CommCareApplication._().closeUserSession(false);
+
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
         listener.keysDoneOther(receiver, result);
@@ -371,7 +363,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().startLoginSessionService(current.unWrapKey(password), current);
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current);
         
         //So we may have logged in a key record but not a user (if we just received the
         //key, but not the user's data, for instance). 

@@ -7,7 +7,7 @@ package org.odk.collect.android.listeners;
 public interface FormSaveCallback {
     /**
      * Starts a task to save the current form being editted. Is expected to
-     * eventually call CommCareSessionService.closeSession(true)
+     * eventually call CommCareApplication.closeUserSession(true)
      */
     void formSaveCallback();
 }

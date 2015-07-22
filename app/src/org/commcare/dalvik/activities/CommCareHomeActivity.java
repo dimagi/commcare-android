@@ -267,12 +267,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // session expired, so re-login's probably been triggered
-                    return;
-                }
+                CommCareApplication._().closeUserSession(false);
                 returnToLogin();
             }
         };
@@ -489,11 +484,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().closeUserSession(false);
                     }
                     return;
                 }
