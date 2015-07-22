@@ -18,4 +18,7 @@ This resources file should not be edited unless you really know what you're doin
     <!--@BUILDDATE@--><string name="app_build_date">UNKNOWN_DATE</string><!--@ENDBUILDDATE-->
     <!--@BUILDNUMBER@--><string name="app_build_number">CUSTOM_BUILD</string><!--@BUILDNUMBER-->
     <!--@MAPKEY@--><string name="maps_api_key">MAPS_KEY</string><!--@MAPKEY-->
+        <!--@ACRA USERNAME@--><string name="acra_user">ACRA_USER</string><!--@ACRA USERNAME-->
+    <!--@ACRA PASSWORD@--><string name="acra_password">ACRA_PASSWORD</string><!--@ACRA PASSWORD-->
+    <!--@ACRA URL@--><string name="acra_url">ACRA_URL</string><!--@ACRA URL-->
 </resources>
