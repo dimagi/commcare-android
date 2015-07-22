@@ -53,6 +53,8 @@ public class CommCareApp {
     private SQLiteDatabase appDatabase; 
     
     private static Stylizer mStylizer;
+
+    private int resourceState;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -159,7 +161,7 @@ public class CommCareApp {
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
 
         // The default value this field was set to may be incorrect, so check it
-        record.setResourcesStatus(areResourcesValidated());
+        record.setResourcesStatus(areMMResourcesValidated());
 
         // Set this to false so we don't try to update this app record every time we seat it
         record.setConvertedByDbUpgrader(false);
@@ -222,18 +224,26 @@ public class CommCareApp {
         return false;
     }
 
-    public boolean areResourcesValidated() {
+    public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
                 appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES));
     }
 
-    public void setResourcesValidated() {
+    public void setMMResourcesValidated() {
         SharedPreferences.Editor editor = getAppPreferences().edit();
         editor.putBoolean("isValidated", true);
         editor.commit();
         record.setResourcesStatus(true);
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+
+    public int getAppResourceState() {
+        return resourceState;
+    }
+
+    public void setAppResourceState(int resourceState) {
+        this.resourceState = resourceState;
     }
 
     public void teardownSandbox() {
@@ -278,7 +288,7 @@ public class CommCareApp {
      */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
-        record.setResourcesStatus(areResourcesValidated());
+        record.setResourcesStatus(areMMResourcesValidated());
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
         try {
             CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
@@ -289,19 +299,6 @@ public class CommCareApp {
     
     public String getPreferencesFilename() {
         return record.getApplicationId();
-    }
-
-    /**
-     * @return the uniqueId assigned to this app from HQ
-     */
-    public String getUniqueId() {
-        //If this record has already been assigned the unique id, pull it from there
-        String id = record.getUniqueId();
-        if (id == null || id.equals("")) {
-            //Otherwise, trying pulling it from the profile file
-            id = getCommCarePlatform().getCurrentProfile().getUniqueId();
-        }
-        return id;
     }
 
     public ApplicationRecord getAppRecord() {

@@ -115,7 +115,6 @@ public class CommCareApplication extends Application {
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
-    private int resourceState;
 
     private static CommCareApplication app;
 
@@ -203,7 +202,7 @@ public class CommCareApplication extends Application {
         intializeDefaultLocalizerData();
 
         //The fallback in case the db isn't installed 
-        resourceState = initializeAppResources();
+        initializeAppResourcesOnStartup();
     }
 
     public void triggerHandledAppExit(Context c, String message) {
@@ -306,17 +305,9 @@ public class CommCareApplication extends Application {
         return dbState;
     }
 
-    public int getAppResourceState() {
-        return resourceState;
-    }
-
-    public void setAppResourceState(int resourceState) {
-        this.resourceState = resourceState;
-    }
-
     public void initializeGlobalResources(CommCareApp app) {
         if (dbState != STATE_UNINSTALLED) {
-            resourceState = initializeAppResources(app);
+            initializeAppResources(app);
         }
     }
 
@@ -353,7 +344,11 @@ public class CommCareApplication extends Application {
         ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/", GlobalConstants.MEDIA_REF));
     }
 
-    private int initializeAppResources() {
+    /**
+     * Performs the appropriate initialization of an application when this CommCareApplication is
+     * first launched
+     */
+    private void initializeAppResourcesOnStartup() {
 
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
@@ -375,42 +370,41 @@ public class CommCareApplication extends Application {
             if (lastApp == null) {
                 // This app record could be null if it has since been uninstalled, archived, etc.
                 // In this case, just revert to picking the first app
-                return initFirstAppRecord();
+                initFirstAppRecord();
             } else {
-                return initializeAppResources(new CommCareApp(lastApp));
+                initializeAppResources(new CommCareApp(lastApp));
             }
         }
 
         // Otherwise, just pick the first app in the list to initialize
-        return initFirstAppRecord();
-    }
-
-    private int initFirstAppRecord() {
-
-        for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
-            if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                return initializeAppResources(new CommCareApp(record));
-            }
-        }
-
-        // There are no installed apps
-        return STATE_UNINSTALLED;
+        initFirstAppRecord();
     }
 
     /**
-     * Initialize all of the given app's resources
+     * Initializes the first application from the list of globally installed app records
+     */
+    private void initFirstAppRecord() {
+        for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
+            if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                initializeAppResources(new CommCareApp(record));
+            }
+        }
+    }
+
+    /**
+     * Initialize all of the given app's resources, and set the state of its resources accordingly
      *
      * @param app the CC app to initialize
-     * @return the state in which the app's resources were left after initialization
      */
-    public int initializeAppResources(CommCareApp app) {
+    public void initializeAppResources(CommCareApp app) {
+        int resourceState;
         try {
             currentApp = app;
             if (currentApp.initializeApplication()) {
-                return STATE_READY;
+                resourceState = STATE_READY;
             } else {
                 //????
-                return STATE_CORRUPTED;
+                resourceState = STATE_CORRUPTED;
             }
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
@@ -418,8 +412,9 @@ public class CommCareApplication extends Application {
             e.printStackTrace();
             ExceptionReportTask ert = new ExceptionReportTask();
             ert.execute(e);
-            return STATE_CORRUPTED;
+            resourceState = STATE_CORRUPTED;
         }
+        app.setAppResourceState(resourceState);
     }
 
     /**
@@ -530,7 +525,7 @@ public class CommCareApplication extends Application {
         initializeAppResources(app);
 
         //1) Set status to delete requested so we know if we have left the app in a bad state later
-        setAppResourceState(CommCareApplication.STATE_DELETE_REQUESTED);
+        app.setAppResourceState(STATE_DELETE_REQUESTED);
         record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
         getGlobalStorage(ApplicationRecord.class).write(record);
 
@@ -557,8 +552,8 @@ public class CommCareApplication extends Application {
         //5) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
 
-        //6) Reset the appResourceState in CCApplication
-        setAppResourceState(CommCareApplication.STATE_UNINSTALLED);
+        //6) Reset the appResourceState in CCApp
+        app.setAppResourceState(STATE_UNINSTALLED);
     }
 
     private int initGlobalDb() {
@@ -568,7 +563,7 @@ public class CommCareApplication extends Application {
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
-            //Only thrown in DB isn't there
+            //Only thrown if DB isn't there
             return STATE_UNINSTALLED;
         }
     }

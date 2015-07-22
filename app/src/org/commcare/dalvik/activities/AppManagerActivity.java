@@ -94,7 +94,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 if (resultCode == RESULT_OK && !installFailed) {
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
-                    if (!CommCareApplication._().getCurrentApp().areResourcesValidated()) {
+                    if (!CommCareApplication._().getCurrentApp().areMMResourcesValidated()) {
                         Intent i = new Intent(this, CommCareVerificationActivity.class);
                         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
                         this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);

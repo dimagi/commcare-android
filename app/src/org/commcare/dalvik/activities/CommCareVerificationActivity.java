@@ -189,7 +189,7 @@ public class CommCareVerificationActivity
 
     @Override
     public void success() {
-        CommCareApplication._().getCurrentApp().setResourcesValidated();
+        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
