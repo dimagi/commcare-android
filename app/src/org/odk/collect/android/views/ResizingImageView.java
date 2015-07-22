@@ -135,7 +135,6 @@ public class ResizingImageView extends ImageView {
     }
 
     private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor){
-
         int maxWidth = mMaxWidth;
         int maxHeight = mMaxHeight;
 

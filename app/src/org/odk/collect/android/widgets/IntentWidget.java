@@ -138,7 +138,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
             
             ((Activity) getContext()).startActivityForResult(intent,
                 calloutId);
-
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
