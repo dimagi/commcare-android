@@ -1,4 +1,4 @@
-#new localizations should be added above the comment "Add new localization strings here" in this string
+#new localizations should be added above the comment "Add new localization strings here" in this file
 
 option.yes=Yes
 option.no=No
@@ -17,7 +17,7 @@ verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
-modules.m0=pregenancy
+modules.m0=pregnancy
 
 install.barcode=Welcome to CommCare! Please choose an installation method below 
 install.manual=Please enter the URL
@@ -246,6 +246,7 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.detail.confirm=Continue
+select.address.show=Show Address
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
@@ -454,3 +455,5 @@ archive.install.button=Install App
 wifi.direct.transfer.forms=Transfer Forms
 wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
+
+form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.

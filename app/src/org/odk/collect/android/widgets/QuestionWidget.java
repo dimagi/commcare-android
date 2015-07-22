@@ -242,10 +242,6 @@ public abstract class QuestionWidget extends LinearLayout {
         notifyOnScreen(text, false);
     }
 
-    public void notifyInvalid(String text) {
-        notifyOnScreen(text, true);
-    }
-    
     public void notifyInvalid(String text, boolean requestFocus) {
         notifyOnScreen(text, true, requestFocus);
     }
@@ -633,10 +629,6 @@ public abstract class QuestionWidget extends LinearLayout {
         if(FileUtils.isFileOversized(file)){
             this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
-    }
-
-    public void checkFileSize(String filepath){
-        checkFileSize(new File(filepath));
     }
 
     /*

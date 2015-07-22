@@ -12,64 +12,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-
-import org.commcare.android.database.DbHelper;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.User;
-import org.commcare.android.db.legacy.LegacyInstallUtils;
-import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.javarosa.PreInitLogger;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.notifications.NotificationClearReceiver;
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.android.references.ArchiveFileRoot;
-import org.commcare.android.references.AssetFileRoot;
-import org.commcare.android.references.JavaHttpRoot;
-import org.commcare.android.storage.framework.Table;
-import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CallInPhoneListener;
-import org.commcare.android.util.CommCareExceptionHandler;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.ODKPropertyManager;
-import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.LoginActivity;
-import org.commcare.dalvik.activities.MessageActivity;
-import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.services.CommCareSessionService;
-import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.externalizable.AndroidClassHasher;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.RootTranslator;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.PropertyManager;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.core.util.PropertyUtils;
-import org.odk.collect.android.application.Collect;
-
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -100,9 +42,76 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
+import net.sqlcipher.database.SQLiteDatabase;
+import net.sqlcipher.database.SQLiteException;
+
+import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.User;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.javarosa.PreInitLogger;
+import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.notifications.NotificationClearReceiver;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.references.ArchiveFileRoot;
+import org.commcare.android.references.AssetFileRoot;
+import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.storage.framework.Table;
+import org.commcare.android.tasks.DataSubmissionListener;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.util.ACRAUtil;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.CallInPhoneListener;
+import org.commcare.android.util.CommCareExceptionHandler;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.ODKPropertyManager;
+import org.commcare.android.util.SessionStateUninitException;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.activities.MessageActivity;
+import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.suite.model.Profile;
+import org.commcare.util.CommCareSession;
+import org.commcare.util.externalizable.AndroidClassHasher;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.RootTranslator;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.PropertyManager;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.core.util.PropertyUtils;
+import org.odk.collect.android.application.Collect;
+
+import org.acra.annotation.ReportsCrashes;
+
 /**
  * @author ctsims
  */
+@ReportsCrashes(
+        formUri = "https://your/cloudant/report",
+        reportType = org.acra.sender.HttpSender.Type.JSON,
+        httpMethod = org.acra.sender.HttpSender.Method.PUT,
+        formUriBasicAuthLogin="your_username",
+        formUriBasicAuthPassword="your_password"
+)
 public class CommCareApplication extends Application {
 
 
@@ -203,6 +212,7 @@ public class CommCareApplication extends Application {
 
         //The fallback in case the db isn't installed 
         initializeAppResourcesOnStartup();
+        ACRAUtil.initACRA(this);
     }
 
     public void triggerHandledAppExit(Context c, String message) {
