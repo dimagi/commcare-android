@@ -396,15 +396,4 @@ public class FileUtil {
                 return null;
             }
         }
-
-    public static Properties loadProperties(Context c) throws IOException {
-        String filePath = "local.properties" ;
-        Properties prop = new Properties();
-        try (InputStream fileStream = c.getAssets().open(filePath)) {
-                prop.load(fileStream);
-            }  catch (FileNotFoundException e) {
-                // no local properties present
-            }
-        return prop;
-    }
 }

@@ -107,7 +107,7 @@ import javax.crypto.SecretKey;
         formUriBasicAuthLogin="your_username",
         formUriBasicAuthPassword="your_password"
 )
-public class    CommCareApplication extends Application {
+public class CommCareApplication extends Application {
 
 
     public static final int STATE_UNINSTALLED = 0;

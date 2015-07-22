@@ -14,7 +14,6 @@ import android.widget.Toast;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -41,11 +40,16 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         finish();
     }
 
+    /*
+     * Helper methods for ACRA and user reporting. Catch broad exception so we never crash
+     * when trying to file a bug.
+     */
+
     public static String getDomain(){
         try {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(NullPointerException e){
+        } catch(Exception e){
             return "Domain not set.";
         }
     }
@@ -54,7 +58,7 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         try{
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(NullPointerException e){
+        } catch(Exception e){
             return "PostURL not set.";
         }
     }
@@ -62,7 +66,7 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
     public static String getUser(){
         try{
             return CommCareApplication._().getSession().getLoggedInUser().getUsername();
-        } catch(SessionUnavailableException e){
+        } catch(Exception e){
             return "User not logged in.";
         }
     }
@@ -70,7 +74,7 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
     public static String getVersion(){
         try {
             return CommCareApplication._().getCurrentVersionString();
-        } catch(NullPointerException e){
+        } catch(Exception e){
             return "Version not set.";
         }
     }

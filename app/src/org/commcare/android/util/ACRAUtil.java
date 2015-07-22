@@ -5,11 +5,7 @@ import android.app.Application;
 import org.acra.ACRA;
 import org.acra.ACRAConfiguration;
 import org.acra.ErrorReporter;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.javarosa.core.services.Logger;
-
-import java.io.IOException;
-import java.util.Properties;
+import org.commcare.dalvik.R;
 
 /**
  * Contains constants and methods used in ACRA reporting.
@@ -25,8 +21,6 @@ public class ACRAUtil {
 
     /**
      * Add debugging value to the ACRA report bundle. Only most recent value stored for each key.
-     * @param key
-     * @param value
      */
     public static void addCustomData(String key, String value){
         ErrorReporter mReporter = ACRA.getErrorReporter();
@@ -36,17 +30,12 @@ public class ACRAUtil {
     public static void initACRA(Application app){
 
         ACRA.init(app);
+        ACRAConfiguration acraConfig = ACRA.getConfig();
+        acraConfig.setFormUriBasicAuthLogin(app.getString(R.string.acra_user));
+        acraConfig.setFormUriBasicAuthPassword(app.getString(R.string.acra_password));
+        acraConfig.setFormUri(app.getString(R.string.acra_url));
+        ACRA.setConfig(acraConfig);
 
-        try {
-            Properties properties = FileUtil.loadProperties(app);
-            ACRAConfiguration acraConfig = ACRA.getConfig();
-            acraConfig.setFormUriBasicAuthLogin(properties.getProperty("ACRA_USER"));
-            acraConfig.setFormUriBasicAuthPassword(properties.getProperty("ACRA_PASSWORD"));
-            acraConfig.setFormUri(properties.getProperty("ACRA_URL"));
-            ACRA.setConfig(acraConfig);
-        } catch (IOException e){
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't load ACRA credentials.");
-        }
     }
 
 }
