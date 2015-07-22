@@ -71,7 +71,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     }
 
     /**
-     * Logs the user out and takes them to the app installation activitiy.
+     * Logs the user out and takes them to the app installation activity.
      */
     private void installApp() {
         try {
