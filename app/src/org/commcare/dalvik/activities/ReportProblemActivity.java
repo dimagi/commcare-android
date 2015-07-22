@@ -75,7 +75,7 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
         }
     }
 
-    public static String buildMessage(String userInput){
+    private static String buildMessage(String userInput){
 
         String domain = ReportProblemActivity.getDomain();
         String postURL = ReportProblemActivity.getPostURL();

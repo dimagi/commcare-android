@@ -32,8 +32,6 @@ import android.widget.Toast;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.ACRA;
-import org.acra.ACRAConfiguration;
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
@@ -60,6 +58,7 @@ import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CallInPhoneListener;
@@ -88,13 +87,11 @@ import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
@@ -211,21 +208,7 @@ public class    CommCareApplication extends Application {
         //The fallback in case the db isn't installed 
         resourceState = initializeAppResources();
 
-        ACRA.init(this);
-        this.initACRA();
-    }
-
-    public void initACRA(){
-        try {
-            Properties properties = FileUtil.loadProperties(this);
-            ACRAConfiguration mAcraConfig = ACRA.getConfig();
-            mAcraConfig.setFormUriBasicAuthLogin(properties.getProperty("ACRA_USER"));
-            mAcraConfig.setFormUriBasicAuthPassword(properties.getProperty("ACRA_PASSWORD"));
-            mAcraConfig.setFormUri(properties.getProperty("ACRA_URL"));
-            ACRA.setConfig(mAcraConfig);
-        } catch (IOException e){
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Couldn't load ACRA credentials.");
-        }
+        ACRAUtil.initACRA(this);
     }
 
     public void triggerHandledAppExit(Context c, String message) {
