@@ -94,8 +94,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
-import com.facebook.stetho.Stetho;
-
 /**
  * @author ctsims
  */
