@@ -41,17 +41,25 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 
-    compile project(':libraries:mapballoons')
-    compile fileTree(dir: 'app/libs', include: '*.jar')
-    compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
+    compileDebug project(':libraries:mapballoons')
+    compileDebug fileTree(dir: 'libs', include: '*.jar')
+    compileDebug fileTree(dir: 'app/libs', include: '*.jar')
+    compileDebug 'in.srain.cube:grid-view-with-header-footer:1.0.12'
     // this includes the .so files from native-libs.jar
-    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
-    compile 'com.android.support:support-v4:22.1.1'
+    compileDebug fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
+    compileDebug 'com.android.support:support-v4:22.1.1'
 
-    // The Release build type expects javarosa and commcare jars to be in
-    // app/libs
     compileDebug project(':javarosa')
     compileDebug project(':commcare')
+
+
+    compileRelease project(':libraries:mapballoons')
+    compileRelease fileTree(dir: 'libs', include: '*.jar')
+    compileRelease fileTree(dir: 'app/libs', include: '*.jar')
+    compileRelease 'in.srain.cube:grid-view-with-header-footer:1.0.12'
+    // this includes the .so files from native-libs.jar
+    compileRelease fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
+    compileRelease 'com.android.support:support-v4:22.1.1'
 }
 
 project.ext {
