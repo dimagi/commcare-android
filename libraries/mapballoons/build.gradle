@@ -1,0 +1,34 @@
+// only need this because I'm calling build.gradle from the directory above
+def basedirprefix='android-mapviewballoons/'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion "Google Inc.:Google APIs:21"
+  buildToolsVersion "21.1.2"
+
+  defaultConfig {
+    minSdkVersion 7
+    targetSdkVersion 21
+  }
+  sourceSets {
+    main {
+      manifest.srcFile basedirprefix + 'AndroidManifest.xml'
+      java.srcDirs = [basedirprefix + 'src']
+      resources.srcDirs = [basedirprefix + 'src']
+      aidl.srcDirs = [basedirprefix + 'src']
+      renderscript.srcDirs = [basedirprefix + 'src']
+      res.srcDirs = [basedirprefix + 'res']
+      assets.srcDirs = [basedirprefix + 'assets']
+    }
+  }
+}

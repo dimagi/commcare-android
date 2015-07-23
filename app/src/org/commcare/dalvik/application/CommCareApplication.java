@@ -99,6 +99,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.StethoInitializer;
 
 import org.acra.annotation.ReportsCrashes;
 
@@ -107,11 +108,10 @@ import org.acra.annotation.ReportsCrashes;
  */
 @ReportsCrashes(
         formUri = "https://your/cloudant/report",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT,
         formUriBasicAuthLogin="your_username",
-        formUriBasicAuthPassword="your_password"
-)
+        formUriBasicAuthPassword="your_password",
+        reportType = org.acra.sender.HttpSender.Type.JSON,
+        httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
 
 
@@ -162,6 +162,7 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        StethoInitializer.initStetho(this);
         Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
