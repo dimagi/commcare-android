@@ -9,6 +9,11 @@ import android.support.v4.app.FragmentActivity;
 
 import org.commcare.dalvik.activities.LoginActivity;
 
+/**
+ * Manage redirection to login screen when session expiration occurs.
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
+ */
 public abstract class SessionAwareFragmentActivity extends FragmentActivity {
     private static BroadcastReceiver userSessionExpiredReceiver = null;
     private static boolean unredirectedSessionExpiration;
@@ -49,6 +54,10 @@ public abstract class SessionAwareFragmentActivity extends FragmentActivity {
         startActivity(i);
     }
 
+    /**
+     * Register session expiration in case the app is in the background and
+     * doesn't receive the broadcast. To be acted upon in onResume.
+     */
     public static void registerSessionExpiration() {
         unredirectedSessionExpiration = true;
     }
@@ -58,6 +67,7 @@ public abstract class SessionAwareFragmentActivity extends FragmentActivity {
             userSessionExpiredReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
+                    unredirectedSessionExpiration = false;
                     returnToLogin();
                 }
             };
