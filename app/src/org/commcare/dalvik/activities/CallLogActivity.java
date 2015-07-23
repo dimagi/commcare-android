@@ -34,10 +34,6 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
     
     boolean isMessages = false;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,24 +44,13 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
         
         refreshView();
     }
-    
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EXTRA_MESSAGES,isMessages);
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onRestoreInstanceState(Bundle inState) {
         super.onRestoreInstanceState(inState);
@@ -100,10 +85,7 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
         this.setListAdapter(adapter);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
-     * 
+    /**
      * Stores the path of selected form and finishes.
      */
     @Override

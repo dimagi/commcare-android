@@ -61,19 +61,11 @@ public class FileServerFragment extends Fragment {
 
     private FileServerAsyncTask mFileServer;
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
-     */
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
@@ -85,10 +77,6 @@ public class FileServerFragment extends Fragment {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -149,10 +137,6 @@ public class FileServerFragment extends Fragment {
 
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-         */
         @Override
         protected String doInBackground(Void... params) {
 
@@ -208,10 +192,6 @@ public class FileServerFragment extends Fragment {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-         */
         @Override
         protected void onPostExecute(String result) {
             Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
@@ -228,20 +208,12 @@ public class FileServerFragment extends Fragment {
             mListener.startServer(receiveZipDirectory);
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
         @Override
         protected void onPreExecute() {
             Logger.log(CommCareWiFiDirectActivity.TAG, "pre-execute of file server launch");
             // statusText.setText("Opening a server socket");
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.os.AsyncTask#onPreExecute()
-         */
         @Override
         protected void onProgressUpdate(String ... params){
             mStatusText.setText(params[0]);

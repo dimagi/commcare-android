@@ -71,10 +71,6 @@ public class VerificationTask extends AsyncTask<String, int[], SizeBoundVector<M
         this.publishProgress(new int[] {complete, total});
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.TableStateListener#resourceStateUpdated(org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public void resourceStateUpdated(ResourceTable table) {
         // TODO Auto-generated method stub

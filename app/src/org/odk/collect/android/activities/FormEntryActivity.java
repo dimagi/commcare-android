@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -81,14 +80,17 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -104,8 +106,8 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
+import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
@@ -259,10 +261,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onCreate(android.os.Bundle)
-     */
     @Override
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
@@ -443,78 +441,75 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 switch (contentType) {
                     case InstanceColumns.CONTENT_ITEM_TYPE:
+                        Cursor instanceCursor = null;
+                        Cursor formCursor = null;
+                        try {
+                            instanceCursor = getContentResolver().query(uri, null, null, null, null);
+                            if (instanceCursor.getCount() != 1) {
+                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                return;
+                            } else {
+                                instanceCursor.moveToFirst();
+                                mInstancePath =
+                                        instanceCursor.getString(instanceCursor
+                                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 
-                        final Cursor instanceCursor;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            instanceCursor = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                        } else {
-                            instanceCursor = this.managedQuery(uri, null, null, null, null);
-                        }
-                        if (instanceCursor.getCount() != 1) {
-                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                            return;
-                        } else {
-                            instanceCursor.moveToFirst();
-                            mInstancePath =
-                                    instanceCursor.getString(instanceCursor
-                                            .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-
-                            final String jrFormId =
-                                    instanceCursor.getString(instanceCursor
-                                            .getColumnIndex(InstanceColumns.JR_FORM_ID));
+                                final String jrFormId =
+                                        instanceCursor.getString(instanceCursor
+                                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
 
 
-                            //If this form is both already completed
-                            if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                                if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                                    readOnly = true;
+                                //If this form is both already completed
+                                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
+                                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
+                                        readOnly = true;
+                                    }
+                                }
+                                final String[] selectionArgs = {
+                                        jrFormId
+                                };
+                                final String selection = FormsColumns.JR_FORM_ID + " like ?";
+
+                                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
+                                if (formCursor.getCount() == 1) {
+                                    formCursor.moveToFirst();
+                                    mFormPath =
+                                            formCursor.getString(formCursor
+                                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
+                                } else if (formCursor.getCount() < 1) {
+                                    CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
+                                    return;
+                                } else if (formCursor.getCount() > 1) {
+                                    CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
+                                    return;
                                 }
                             }
-
-
-                            final String[] selectionArgs = {
-                                    jrFormId
-                            };
-                            final String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-
-                            final Cursor formCursor;
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                formCursor = new CursorLoader(this, formProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-                            } else {
-                                formCursor = managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
+                        } finally {
+                            if (instanceCursor != null) {
+                                instanceCursor.close();
                             }
-                            if (formCursor.getCount() == 1) {
-                                formCursor.moveToFirst();
-                                mFormPath =
-                                        formCursor.getString(formCursor
-                                                .getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                                formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                            } else if (formCursor.getCount() < 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
-                                return;
-                            } else if (formCursor.getCount() > 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
-                                return;
+                            if (formCursor != null) {
+                                formCursor.close();
                             }
-
                         }
-
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
-                        final Cursor c;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            c = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                        } else {
-                            c = this.managedQuery(uri, null, null, null, null);
-                        }
-                        if (c.getCount() != 1) {
-                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                            return;
-                        } else {
-                            c.moveToFirst();
-                            mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                            formUri = uri;
+                        Cursor c = null;
+                        try {
+                            c = getContentResolver().query(uri, null, null, null, null);
+                            if (c.getCount() != 1) {
+                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                return;
+                            } else {
+                                c.moveToFirst();
+                                mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                formUri = uri;
+                            }
+                        } finally {
+                            if (c != null) {
+                                c.close();
+                            }
                         }
                         break;
                     default:
@@ -533,6 +528,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 showDialog(PROGRESS_DIALOG);
             }
         }
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        /*
+         * EventLog accepts only proper Strings as input, but prior to this version,
+         * Android would try to send SpannedStrings to it, thus crashing the app.
+         * This makes sure the title is actually a String.
+         * This fixes bug 174626.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+                && item.getTitleCondensed() != null) {
+            if (BuildConfig.DEBUG) {
+                Log.v(t, "Selected item is: " + item);
+            }
+            item.setTitleCondensed(item.getTitleCondensed().toString());
+        }
+
+        return super.onMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -616,10 +630,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -644,10 +654,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -768,7 +774,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // For audio/video capture/chooser, we get the URI from the content provider
                 // then the widget copies the file and makes a new entry in the content provider.
                 Uri media = intent.getData();
-                ((ODKView) mCurrentView).setBinaryData(media);
+                String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+                if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+                    // don't let the user select a file that won't be included in the
+                    // upload to the server
+                    ((ODKView) mCurrentView).clearAnswer();
+                    Toast.makeText(FormEntryActivity.this,
+                            Localization.get("form.attachment.invalid"),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    ((ODKView) mCurrentView).setBinaryData(media);
+                }
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 refreshCurrentView();
                 break;
@@ -781,7 +797,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // We may have jumped to a new index in hierarchy activity, so refresh
                 refreshCurrentView(false);
                 break;
-
         }
     }
     
@@ -1268,10 +1283,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPrepareOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.removeItem(MENU_LANGUAGES);
@@ -1299,10 +1310,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -1423,10 +1430,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo)
-     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -1435,10 +1438,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         // We don't have the right view here, so we store the View's ID as the
@@ -1454,10 +1453,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onRetainCustomNonConfigurationInstance()
-     * 
+    /**
      * If we're loading, then we pass the loading thread to our next instance.
      */
     @Override
@@ -1517,19 +1513,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     mFormPath
                 };
 
-                Cursor c;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    c = new CursorLoader(this, formProviderContentURI, projection, selection, selectionArgs, null).loadInBackground();
-                } else {
-                    c = managedQuery(formProviderContentURI, projection, selection, selectionArgs, null);
-                }
+                Cursor c = null;
                 String mediaDir = null;
-                if (c.getCount() < 1) {
-                    CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
-                    return new View(this);
-                } else {
-                    c.moveToFirst();
-                    mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                try {
+                    c = getContentResolver().query(formProviderContentURI, projection, selection, selectionArgs, null);
+                    if (c.getCount() < 1) {
+                        CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
+                        return new View(this);
+                    } else {
+                        c.moveToFirst();
+                        mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
                 }
 
                 BitmapDrawable bitImage = null;
@@ -1562,8 +1560,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
                 instanceComplete.setText(StringUtils.getStringSpannableRobust(this, R.string.mark_finished));
 
-                        //If incomplete is not enabled, make sure this box is checked.
-                        instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
+                //If incomplete is not enabled, make sure this box is checked.
+                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
                 
                 if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
                     instanceComplete.setVisibility(View.GONE);
@@ -1614,10 +1612,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 } else {
                     button.setText(StringUtils.getStringSpannableRobust(this, R.string.quit_entry));
                             button.setOnClickListener(new OnClickListener() {
-                                /*
-                                 * (non-Javadoc)
-                                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                                 */
                                 @Override
                                 public void onClick(View v) {
                                     // Form is marked as 'saved' here.
@@ -1676,10 +1670,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#dispatchTouchEvent(android.view.MotionEvent)
-     */
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
@@ -2175,10 +2165,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                         .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
                                                 .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
                         new DialogInterface.OnClickListener() {
-                            /*
-                             * (non-Javadoc)
-                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                             */
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
 
@@ -2186,10 +2172,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                             }
                         }).setItems(items, new DialogInterface.OnClickListener() {
-                        /*
-                         * (non-Javadoc)
-                         * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                         */
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
@@ -2220,16 +2202,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
                     + mInstancePath + "'";
-
-        Cursor c;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            c = new CursorLoader(this, instanceProviderContentURI, null, selection, null, null).loadInBackground();
-        } else {
-            c = FormEntryActivity.this.managedQuery(instanceProviderContentURI, null, selection, null, null);
+        Cursor c = null;
+        int instanceCount = 0;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
+            instanceCount = c.getCount();
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
         // if it's not already saved, erase everything
-        if (c.getCount() < 1) {
+        if (instanceCount < 1) {
             int images = 0;
             int audio = 0;
             int video = 0;
@@ -2375,10 +2360,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
-                    /*
-                     * (non-Javadoc)
-                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                     */
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         switch (i) {
@@ -2416,10 +2397,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             new AlertDialog.Builder(this)
                     .setSingleChoiceItems(languages, selected,
                         new DialogInterface.OnClickListener() {
-                            /*
-                             * (non-Javadoc)
-                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                             */
                             @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 // Update the language in the content provider when selecting a new
@@ -2447,10 +2424,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
                     .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
                         new DialogInterface.OnClickListener() {
-                            /*
-                             * (non-Javadoc)
-                             * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                             */
                             @Override
                             public void onClick(DialogInterface dialog, int whichButton) {
                             }
@@ -2459,10 +2432,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateDialog(int)
-     * 
+    /**
      * We use Android's dialog management for loading/saving progress dialogs
      */
     @Override
@@ -2472,10 +2442,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mProgressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener loadingButtonListener =
                     new DialogInterface.OnClickListener() {
-                    /*
-                     * (non-Javadoc)
-                     * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                     */
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -2496,10 +2462,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mProgressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener savingButtonListener =
                     new DialogInterface.OnClickListener() {
-                        /*
-                         * (non-Javadoc)
-                         * @see android.content.DialogInterface.OnClickListener#onClick(android.content.DialogInterface, int)
-                         */
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -2534,10 +2496,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -2554,10 +2512,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -2627,17 +2581,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (getContentResolver().getType(getIntent().getData()) == InstanceColumns.CONTENT_ITEM_TYPE) {
             Uri instanceUri = getIntent().getData();
 
-            Cursor instance;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                instance = new CursorLoader(this, instanceUri, null, null, null, null).loadInBackground();
-            } else {
-                instance = managedQuery(instanceUri, null, null, null, null);
-            }
-            if (instance.getCount() == 1) {
-                instance.moveToFirst();
-                saveName =
-                    instance.getString(instance
-                            .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+            Cursor instance = null;
+            try {
+                instance = getContentResolver().query(instanceUri, null, null, null, null);
+                if (instance.getCount() == 1) {
+                    instance.moveToFirst();
+                    saveName =
+                        instance.getString(instance
+                                .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (instance != null) {
+                    instance.close();
+                }
             }
         }
         return saveName;
@@ -2675,10 +2631,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentActivity#onDestroy()
-     */
     @Override
     protected void onDestroy() {
         if (mFormLoaderTask != null) {
@@ -2705,40 +2657,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.animation.Animation.AnimationListener#onAnimationEnd(android.view.animation.Animation)
-     */
     @Override
     public void onAnimationEnd(Animation arg0) {
         mBeenSwiped = false;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.animation.Animation.AnimationListener#onAnimationRepeat(android.view.animation.Animation)
-     */
     @Override
     public void onAnimationRepeat(Animation animation) {
         // Added by AnimationListener interface.
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.animation.Animation.AnimationListener#onAnimationStart(android.view.animation.Animation)
-     */
     @Override
     public void onAnimationStart(Animation animation) {
         // Added by AnimationListener interface.
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.FormLoaderListener#loadingComplete(org.odk.collect.android.logic.FormController)
-     * 
+    /**
      * loadingComplete() is called by FormLoaderTask once it has finished loading a form.
      */
     @SuppressLint("NewApi")
@@ -2799,10 +2736,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.FormLoaderListener#loadingError(java.lang.String)
-     * 
+    /**
      * called by the FormLoaderTask if something goes wrong.
      */
     @Override
@@ -2882,6 +2816,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return status as determined in FormEntryController
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
+
         try {
             if (evaluateConstraints) {
                 return mFormController.answerQuestion(index, answer);
@@ -2922,15 +2857,20 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String[] selectionArgs = {
             mInstancePath
         };
-        Cursor c =
-            getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs,
-                null);
-        startManagingCursor(c);
-        if (c != null && c.getCount() > 0) {
-            c.moveToFirst();
-            String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
-            if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                complete = true;
+
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
+                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
+                    complete = true;
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
         return complete;
@@ -2965,25 +2905,27 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mInstancePath
             };
 
-            Cursor c;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-            } else {
-                c = managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
-            }
-            if (c.getCount() > 0) {
-                // should only be one...
-                c.moveToFirst();
-                String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
-                Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+                if (c.getCount() > 0) {
+                    // should only be one...
+                    c.moveToFirst();
+                    String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
+                    Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
 
-                Intent formReturnIntent = new Intent();
-                formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
+                    Intent formReturnIntent = new Intent();
+                    formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
 
-                if(reportSaved || hasSaved) {
-                    setResult(RESULT_OK, formReturnIntent.setData(instance));
-                } else {
-                    setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    if (reportSaved || hasSaved) {
+                        setResult(RESULT_OK, formReturnIntent.setData(instance));
+                    } else {
+                        setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    }
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
                 }
             }
         }
@@ -2999,19 +2941,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onDown(android.view.MotionEvent)
-     */
     @Override
     public boolean onDown(MotionEvent e) {
         return false;
     }
 
-    /*
+    /**
      * Looks for user swipes. If the user has swiped, move to the appropriate screen.
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onFling(android.view.MotionEvent, android.view.MotionEvent, float, float)
      */
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -3033,19 +2969,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onLongPress(android.view.MotionEvent)
-     */
     @Override
     public void onLongPress(MotionEvent e) {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onScroll(android.view.MotionEvent, android.view.MotionEvent, float, float)
-     */
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         // The onFling() captures the 'up' event so our view thinks it gets long pressed.
@@ -3055,39 +2983,23 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onShowPress(android.view.MotionEvent)
-     */
     @Override
     public void onShowPress(MotionEvent e) {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.GestureDetector.OnGestureListener#onSingleTapUp(android.view.MotionEvent)
-     */
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.AdvanceToNextListener#advance()
-     */
     @Override
     public void advance() {
         next();
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.WidgetChangedListener#widgetEntryChanged()
-     */
     @Override
     public void widgetEntryChanged() {
         updateFormRelevencies();

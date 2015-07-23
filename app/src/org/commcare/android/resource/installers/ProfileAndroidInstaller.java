@@ -47,9 +47,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
+    @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         try {
         
@@ -126,9 +124,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         editor.commit();
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
+    @Override
     public boolean upgrade(Resource r) {
         if(!super.upgrade(r)) {
             return false;
@@ -169,26 +165,18 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
     }
-
-
 }

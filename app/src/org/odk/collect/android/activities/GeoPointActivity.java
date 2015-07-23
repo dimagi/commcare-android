@@ -46,10 +46,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
     private ODKTimer mTimer;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,10 +71,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -93,20 +85,12 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
         mProviders = GeoUtils.evaluateProviders(mLocationManager);
         if (mProviders.isEmpty()) {
             DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
-                /*
-                 * (non-Javadoc)
-                 * @see android.content.DialogInterface.OnCancelListener#onCancel(android.content.DialogInterface)
-                 */
                 @Override
                 public void onCancel(DialogInterface dialog) {
                     mLocation = null;
@@ -146,10 +130,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         // dialog displayed while fetching gps location
         
         OnClickListener cancelButtonListener = new OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v){
                 mLocation = null;
@@ -187,10 +167,6 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onLocationChanged(android.location.Location)
-     */
     @Override
     public void onLocationChanged(Location location) {
         mLocation = location;
@@ -220,30 +196,18 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onProviderDisabled(java.lang.String)
-     */
     @Override
     public void onProviderDisabled(String provider) {
 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onProviderEnabled(java.lang.String)
-     */
     @Override
     public void onProviderEnabled(String provider) {
 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onStatusChanged(java.lang.String, int, android.os.Bundle)
-     */
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
         switch (status) {
@@ -260,19 +224,11 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.listeners.TimerListener#notifyTimerFinished()
-     */
     @Override
     public void notifyTimerFinished() {
         onLocationChanged(mLocation);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putLong("millisRemaining",mTimer.getMillisUntilFinished());

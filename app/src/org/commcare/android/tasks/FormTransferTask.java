@@ -34,6 +34,8 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         this.host = host;
         this.filepath = filepath;
         this.port = port;
+
+        TAG = FormTransferTask.class.getSimpleName();
     }
     
     public InputStream getFormInputStream(String fPath) throws FileNotFoundException{
@@ -46,10 +48,6 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Boolean doTaskBackground(String... params) {
         

@@ -59,10 +59,6 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
     @UiElement(R.id.grid_menu_grid)
     private GridView grid;
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,20 +77,11 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
        grid.setOnItemLongClickListener(this);
     }
 
-
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
     @Override
     public String getActivityTitle() {
         //return adapter.getMenuTitle();
@@ -110,10 +97,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
-     * 
+    /**
      * Stores the path of selected form and finishes.
      */
     @Override
@@ -163,10 +147,7 @@ public class MenuGrid extends CommCareActivity implements OnItemClickListener, O
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
-     */
+    @Override
     protected boolean onBackwardSwipe() {
         onBackPressed();
         return true;

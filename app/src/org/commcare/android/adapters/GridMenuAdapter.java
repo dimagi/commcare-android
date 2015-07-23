@@ -23,9 +23,6 @@ public class GridMenuAdapter extends MenuAdapter {
         super(context, platform, menuID);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
     @Override
     public View getView(int i, View v, ViewGroup vg) {
 

@@ -36,10 +36,6 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.modifier = modifier;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.FragmentStatePagerAdapter#getItem(int)
-     */
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment = new EntityDetailFragment();
@@ -60,10 +56,6 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         return (detail.isCompound() ? detail.getDetails()[position] : detail).getTitle().getText().evaluate();
     }
 
-    /*
-         * (non-Javadoc)
-         * @see android.support.v4.view.PagerAdapter#getCount()
-         */
     @Override
     public int getCount() {
         return detail.isCompound() ? detail.getDetails().length : 1;

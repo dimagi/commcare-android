@@ -31,9 +31,6 @@ public class Persisted implements Persistable, IMetaData {
     
     protected int recordId = -1; 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
@@ -81,9 +78,6 @@ public class Persisted implements Persistable, IMetaData {
         
     };
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
@@ -96,17 +90,11 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
     @Override
     public void setID(int ID) {
         recordId = ID;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
     @Override
     public int getID() {
         return recordId;

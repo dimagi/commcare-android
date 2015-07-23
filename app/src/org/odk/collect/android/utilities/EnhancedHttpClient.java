@@ -32,10 +32,6 @@ public class EnhancedHttpClient extends DefaultHttpClient {
         super(params);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.http.impl.client.DefaultHttpClient#createAuthSchemeRegistry()
-     */
     @Override
     protected AuthSchemeRegistry createAuthSchemeRegistry() {
         AuthSchemeRegistry registry = new AuthSchemeRegistry();
