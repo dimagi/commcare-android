@@ -21,7 +21,7 @@ public class ACRAUtil {
     public static final String DOMAIN = "domain";
     public static final String USERNAME = "username";
 
-    private static boolean acraSetup = false;
+    private static boolean isAcraConfigured = false;
 
     /**
      * Add debugging value to the ACRA report bundle. Only most recent value
@@ -41,12 +41,12 @@ public class ACRAUtil {
             acraConfig.setFormUriBasicAuthPassword(app.getString(R.string.acra_password));
             acraConfig.setFormUri(url);
             ACRA.setConfig(acraConfig);
-            acraSetup = true;
+            isAcraConfigured = true;
         }
     }
 
     public static void registerAppData() {
-        if (acraSetup) {
+        if (isAcraConfigured) {
             addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
             addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
             addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
@@ -54,7 +54,7 @@ public class ACRAUtil {
     }
 
     public static void registerUserData() {
-        if (acraSetup) {
+        if (isAcraConfigured) {
             ACRAUtil.addCustomData(ACRAUtil.USERNAME, ReportProblemActivity.getUser());
         }
     }
