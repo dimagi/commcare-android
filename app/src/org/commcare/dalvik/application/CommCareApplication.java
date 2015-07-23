@@ -102,11 +102,10 @@ import javax.crypto.SecretKey;
  */
 @ReportsCrashes(
         formUri = "https://your/cloudant/report",
-        reportType = org.acra.sender.HttpSender.Type.JSON,
-        httpMethod = org.acra.sender.HttpSender.Method.PUT,
         formUriBasicAuthLogin="your_username",
-        formUriBasicAuthPassword="your_password"
-)
+        formUriBasicAuthPassword="your_password",
+        reportType = org.acra.sender.HttpSender.Type.JSON,
+        httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
 
 
