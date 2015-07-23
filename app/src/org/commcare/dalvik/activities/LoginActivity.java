@@ -9,6 +9,7 @@ import java.util.Map;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -27,7 +28,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -327,7 +328,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         //If we arrived at LoginActivity from clicking the regular app icon, and there
         //are no longer any available apps, we want to redirect to CCHomeActivity
-        if (CommCareApplication._().getReadyAppRecords().size() == 0) {
+        if (CommCareApplication._().getUsableAppRecords().size() == 0) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
@@ -562,7 +563,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void refreshView() {
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getReadyAppRecords();
+        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
             welcomeMessage.setText(R.string.login_welcome_single);
@@ -595,19 +596,34 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
         spinner.setSelection(position);
         spinner.setVisibility(View.VISIBLE);
+
+        // Refresh the breadcrumb bar in case the seated app has changed
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshBreadcrumbBar();
+        }
     }
     
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // Retrieve the app record corresponding to the app selected
         String selected = (String) parent.getItemAtPosition(position);
         ApplicationRecord r = namesToRecords.get(selected);
+
         // Set the id of the last selected app
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
-        CommCareApplication._().initializeAppResources(new CommCareApp(r));
+
         // Refresh UI for potential new language
         loadFields(false);
+
+        // Initialize the selected app
+        CommCareApplication._().initializeAppResources(new CommCareApp(r));
+
+        // Refresh the breadcrumb bar accordingly
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshBreadcrumbBar();
+        }
     }
 
     @Override

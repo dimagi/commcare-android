@@ -31,6 +31,7 @@ public class ApplicationRecord extends Persisted {
     public static final int STATUS_UNINITIALIZED = 0;
     public static final int STATUS_INSTALLED = 1;
     public static final int STATUS_DELETE_REQUESTED = 2;
+
     /**
      * The app needs to be upgraded from an old version
      */
@@ -114,17 +115,28 @@ public class ApplicationRecord extends Persisted {
         return this.isArchived;
     }
 
-    @Override
-    public String toString() {
-        return this.displayName;
-    }
-
     public void setResourcesStatus(boolean b) {
         this.resourcesValidated = b;
     }
 
     public boolean resourcesValidated() {
         return this.resourcesValidated;
+    }
+
+    // A 'visible' app record has status installed and is not archived
+    public boolean isVisible() {
+        return status == STATUS_INSTALLED && !isArchived;
+    }
+
+    // A 'usable' app record is one that will actually get shown to a user -- is visible and has
+    // its MM resources validated
+    public boolean isUsable() {
+        return isVisible() && resourcesValidated;
+    }
+
+    @Override
+    public String toString() {
+        return this.displayName;
     }
 
     /**

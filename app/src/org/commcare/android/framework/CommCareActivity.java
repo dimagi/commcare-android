@@ -30,7 +30,6 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -697,5 +696,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void refreshBreadcrumbBar() {
+        FragmentManager fm = this.getSupportFragmentManager();
+        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+        bar.refresh(this);
     }
 }

@@ -79,7 +79,10 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        
+        refresh(activity);
+    }
+
+    public void refresh(Activity activity) {
         breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
         ActionBar actionBar = activity.getActionBar();
@@ -89,9 +92,9 @@ public class BreadcrumbBarFragment extends Fragment {
         } else {
             attachBreadcrumbBar(activity, actionBar);
         }
-        
+
         this.tile = findAndLoadCaseTile(activity);
-    }     
+    }
         
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
         String title = null;

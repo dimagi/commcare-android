@@ -296,6 +296,10 @@ public class CommCareApp {
             throw new RuntimeException(e);
         }
     }
+
+    public String getUniqueId() {
+        return this.record.getUniqueId();
+    }
     
     public String getPreferencesFilename() {
         return record.getApplicationId();

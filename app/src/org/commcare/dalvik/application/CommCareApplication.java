@@ -380,24 +380,22 @@ public class CommCareApplication extends Application {
             if (lastApp == null) {
                 // This app record could be null if it has since been uninstalled, archived, etc.
                 // In this case, just revert to picking the first app
-                initFirstAppRecord();
+                initFirstUsableAppRecord();
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
         }
 
         // Otherwise, just pick the first app in the list to initialize
-        initFirstAppRecord();
+        initFirstUsableAppRecord();
     }
 
     /**
-     * Initializes the first application from the list of globally installed app records
+     * Initializes the first "usable" application from the list of globally installed app records
      */
-    private void initFirstAppRecord() {
-        for(ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
-            if(record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                initializeAppResources(new CommCareApp(record));
-            }
+    public void initFirstUsableAppRecord() {
+        for(ApplicationRecord record : getUsableAppRecords()) {
+            initializeAppResources(new CommCareApp(record));
         }
     }
 
@@ -428,7 +426,7 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * @return all installed ApplicationRecords, in alphabetical order
+     * @return all ApplicationRecords in storage, regardless of their status, in alphabetical order
      */
     public ArrayList<ApplicationRecord> getInstalledAppRecords() {
         ArrayList<ApplicationRecord> records = new ArrayList<>();
@@ -447,12 +445,12 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * @return all ApplicationRecords that are installed and NOT archived
+     * @return all ApplicationRecords that have status installed and are NOT archived
      */
     public ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (!r.isArchived()) {
+            if (r.isVisible()) {
                 visible.add(r);
             }
         }
@@ -462,10 +460,10 @@ public class CommCareApplication extends Application {
     /**
      * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
-    public ArrayList<ApplicationRecord> getReadyAppRecords() {
+    public ArrayList<ApplicationRecord> getUsableAppRecords() {
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : getVisibleAppRecords()) {
-            if (r.resourcesValidated()) {
+        for (ApplicationRecord r : getInstalledAppRecords()) {
+            if (r.isUsable()) {
                 ready.add(r);
             }
         }
@@ -479,7 +477,7 @@ public class CommCareApplication extends Application {
      */
     public boolean shouldSeeMMVerification() {
         return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getReadyAppRecords().size() == 0);
+                CommCareApplication._().getUsableAppRecords().size() == 0);
     }
 
     public boolean visibleAppsPresent() {
@@ -515,11 +513,11 @@ public class CommCareApplication extends Application {
 
     /**
      * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, IF and only if it is a "ready"
+     * @return the ApplicationRecord corresponding to the given id, IF and only if it is a "usable"
      * app. Otherwise, return null
      */
     private ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getReadyAppRecords()) {
+        for (ApplicationRecord r : getUsableAppRecords()) {
             if (r.getUniqueId().equals(uniqueId)) {
                 return r;
             }

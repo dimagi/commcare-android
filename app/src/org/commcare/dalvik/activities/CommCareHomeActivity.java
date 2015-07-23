@@ -1122,6 +1122,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
+        refreshBreadcrumbBar();
         dispatchHomeScreen();
     }
 
@@ -1218,7 +1219,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         // 2) If there are multiple apps installed and none have MM verified, display an error
         // message and then close the app
         else if (CommCareApplication._().getVisibleAppRecords().size() > 1 
-                && CommCareApplication._().getReadyAppRecords().size() == 0) {
+                && CommCareApplication._().getUsableAppRecords().size() == 0) {
             CommCareApplication._().triggerHandledAppExit(this, 
                     Localization.get("multiple.apps.unverified.message"), 
                     Localization.get("multiple.apps.unverified.title"));
