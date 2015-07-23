@@ -427,7 +427,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     private void done() {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
-        ACRAUtil.addCustomData(ACRAUtil.USERNAME, ReportProblemActivity.getUser());
+
+        ACRAUtil.registerUserData();
+
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         finish();
     }

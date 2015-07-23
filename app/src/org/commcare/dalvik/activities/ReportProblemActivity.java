@@ -45,47 +45,46 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
      * when trying to file a bug.
      */
 
-    public static String getDomain(){
+    public static String getDomain() {
         try {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(Exception e){
+        } catch (Exception e) {
             return "Domain not set.";
         }
     }
 
-    public static String getPostURL(){
-        try{
+    public static String getPostURL() {
+        try {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch(Exception e){
+        } catch (Exception e) {
             return "PostURL not set.";
         }
     }
 
-    public static String getUser(){
-        try{
+    public static String getUser() {
+        try {
             return CommCareApplication._().getSession().getLoggedInUser().getUsername();
-        } catch(Exception e){
+        } catch (Exception e) {
             return "User not logged in.";
         }
     }
 
-    public static String getVersion(){
+    public static String getVersion() {
         try {
             return CommCareApplication._().getCurrentVersionString();
-        } catch(Exception e){
+        } catch (Exception e) {
             return "Version not set.";
         }
     }
 
-    private static String buildMessage(String userInput){
-
+    private static String buildMessage(String userInput) {
         String domain = ReportProblemActivity.getDomain();
         String postURL = ReportProblemActivity.getPostURL();
-        String version= ReportProblemActivity.getVersion();
+        String version = ReportProblemActivity.getVersion();
         String username = ReportProblemActivity.getUser();
-        
+
         return "Problem reported via CommCareODK. " +
                 "\n User: " + username +
                 "\n Domain: " + domain +
@@ -97,12 +96,12 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
                 "\n Message: " + userInput;
     }
 
-    public void sendReportEmail(String report){
+    public void sendReportEmail(String report) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
-        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"commcarehq-support@dimagi.com"});
-        i.putExtra(Intent.EXTRA_TEXT, this.buildMessage(report));
-        i.putExtra(Intent.EXTRA_SUBJECT   , "Mobile Error Report");
+        i.putExtra(Intent.EXTRA_EMAIL, new String[]{"commcarehq-support@dimagi.com"});
+        i.putExtra(Intent.EXTRA_TEXT, ReportProblemActivity.buildMessage(report));
+        i.putExtra(Intent.EXTRA_SUBJECT, "Mobile Error Report");
 
         try {
             startActivity(Intent.createChooser(i, "Send mail..."));
@@ -110,5 +109,4 @@ public class ReportProblemActivity extends CommCareActivity<ReportProblemActivit
             Toast.makeText(ReportProblemActivity.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
