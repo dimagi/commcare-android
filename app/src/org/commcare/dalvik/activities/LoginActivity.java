@@ -436,9 +436,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         } else {
             Intent i = new Intent();
             setResult(RESULT_OK, i);
-
-            finish();
         }
+        finish();
     }
     
     private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
