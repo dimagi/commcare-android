@@ -42,12 +42,16 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 
     compile project(':libraries:mapballoons')
-    compile fileTree(dir: 'libs', include: '*.jar')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
     // this includes the .so files from native-libs.jar
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
     compile 'com.android.support:support-v4:22.1.1'
+
+    // The Release build type expects javarosa and commcare jars to be in
+    // app/libs
+    compileDebug project(':javarosa')
+    compileDebug project(':commcare')
 }
 
 project.ext {
