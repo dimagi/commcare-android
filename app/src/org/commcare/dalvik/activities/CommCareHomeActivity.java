@@ -97,6 +97,7 @@ import in.srain.cube.views.GridViewWithHeaderAndFooter;
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
+    private static final int LOGIN_USER = 0;
     private static final int GET_COMMAND = 1;
     private static final int GET_CASE = 2;
     private static final int MODEL_RESULT = 4;
@@ -561,7 +562,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     refreshView();
                     return;    
                 }
-            case LOGIN_USER_RESULT_CODE:
+            case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
                     //quit somehow.
                     this.finish();

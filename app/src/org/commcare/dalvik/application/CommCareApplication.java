@@ -43,6 +43,7 @@ import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.framework.SessionAwareFragmentActivity;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.PreInitLogger;
@@ -117,8 +118,6 @@ public class CommCareApplication extends Application {
     public static final int STATE_CORRUPTED = 4;
 
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
-    public static final String USER_SESSION_EXPIRED =
-        "org.commcare.dalvik.application.user_session_expired";
 
     private int dbState;
     private int resourceState;
@@ -252,7 +251,8 @@ public class CommCareApplication extends Application {
             doUnbindService();
 
             if (sessionExpired) {
-                sendBroadcast(new Intent(USER_SESSION_EXPIRED));
+                SessionAwareFragmentActivity.registerSessionExpiration();
+                sendBroadcast(new Intent(SessionAwareFragmentActivity.USER_SESSION_EXPIRED));
             }
         }
     }

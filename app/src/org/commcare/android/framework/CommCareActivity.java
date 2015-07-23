@@ -63,13 +63,11 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
-
-    protected static final int LOGIN_USER_RESULT_CODE = 0;
 
     protected final static int DIALOG_PROGRESS = 32;
     protected final static String DIALOG_TEXT = "cca_dialog_text";
@@ -84,9 +82,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
-
-    private static BroadcastReceiver userSessionExpiredReceiver = null;
-    private boolean wasLoggedInOnLastResume;
 
     @Override
     @TargetApi(14)
@@ -124,8 +119,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
         
         mGestureDetector = new GestureDetector(this, this);
-
-        buildAndSetBroadcaseReceivers();
     }
 
     protected void restoreLastQueryString(String key) {
@@ -211,24 +204,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onResume() {
         super.onResume();
 
-        if (!returnToLoginIfExpired()) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                // In honeycomb and above the fragment takes care of this
-                this.setTitle(getTitle(this, getActivityTitle()));
-            }
-
-            registerReceiver(userSessionExpiredReceiver,
-                    new IntentFilter(CommCareApplication.USER_SESSION_EXPIRED));
-
-            AudioController.INSTANCE.playPreviousAudio();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // In honeycomb and above the fragment takes care of this
+            this.setTitle(getTitle(this, getActivityTitle()));
         }
+
+        AudioController.INSTANCE.playPreviousAudio();
     }
     
     @Override
     protected void onPause() {
         super.onPause();
-
-        unregisterReceiver(userSessionExpiredReceiver);
 
         AudioController.INSTANCE.systemInducedPause();
     }
@@ -710,38 +696,5 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
-    }
-
-    private void buildAndSetBroadcaseReceivers() {
-        if (userSessionExpiredReceiver == null) {
-            userSessionExpiredReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    returnToLogin();
-                }
-            };
-        }
-    }
-
-    protected void returnToLogin() {
-        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i, LOGIN_USER_RESULT_CODE);
-    }
-
-    private boolean returnToLoginIfExpired() {
-        return false;
-        /*
-        try {
-            if (!CommCareApplication._().getSession().isActive()) {
-                returnToLogin();
-                return true;
-            }
-        } catch (SessionUnavailableException e) {
-            returnToLogin();
-            return true;
-        }
-        return false;
-        */
     }
 }
