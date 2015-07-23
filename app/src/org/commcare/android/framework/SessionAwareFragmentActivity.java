@@ -35,10 +35,9 @@ public abstract class SessionAwareFragmentActivity extends FragmentActivity {
         if (unredirectedSessionExpiration) {
             unredirectedSessionExpiration = false;
             returnToLogin();
-        } else {
-            registerReceiver(userSessionExpiredReceiver,
-                    new IntentFilter(SessionAwareFragmentActivity.USER_SESSION_EXPIRED));
         }
+        registerReceiver(userSessionExpiredReceiver,
+                new IntentFilter(SessionAwareFragmentActivity.USER_SESSION_EXPIRED));
     }
 
     @Override
@@ -51,6 +50,7 @@ public abstract class SessionAwareFragmentActivity extends FragmentActivity {
     protected void returnToLogin() {
         Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.putExtra(LoginActivity.REDIRECT_TO_HOMESCREEN, true);
         startActivity(i);
     }
 
