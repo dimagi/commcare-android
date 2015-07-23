@@ -174,7 +174,6 @@ public class SingleAppManagerActivity extends Activity {
         // app (guaranteed not to re-seat this app because an archived record is not "Usable")
         if (appRecord.isArchived() &&
                 CommCareApplication._().getCurrentApp().getUniqueId().equals(appRecord.getUniqueId())) {
-            Log.i("7/23/15", "seating a new app in toggleArchived");
             CommCareApplication._().initFirstUsableAppRecord();
         }
 

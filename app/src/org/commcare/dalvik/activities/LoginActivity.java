@@ -563,6 +563,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void refreshView() {
+        // Refresh the breadcrumb bar in case the seated app has changed
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshBreadcrumbBar();
+        }
+
+        // Decide whether or not to show the app selection spinner, and configure it if so
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
@@ -596,11 +602,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
         spinner.setSelection(position);
         spinner.setVisibility(View.VISIBLE);
-
-        // Refresh the breadcrumb bar in case the seated app has changed
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshBreadcrumbBar();
-        }
     }
     
 
