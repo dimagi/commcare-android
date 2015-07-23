@@ -49,19 +49,28 @@ dependencies {
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
 }
 
-// subproject(':libraries:mapballoons') {
-//     compileSdkVersion project.ext.compileSdkVersion
-//     buildToolsVersion project.ext.buildToolsVersion
-// }
-
-ext {
+project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:21"
     buildToolsVersion = "21.1.2"
 }
 
+project(':libraries:mapballoons') {
+  android{
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
+}
+
+project(':javarosa') {
+  android{
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
+}
+
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     lintOptions {
       abortOnError false
