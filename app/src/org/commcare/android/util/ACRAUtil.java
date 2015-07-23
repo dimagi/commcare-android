@@ -1,11 +1,13 @@
 package org.commcare.android.util;
 
 import android.app.Application;
+import android.webkit.URLUtil;
 
 import org.acra.ACRA;
 import org.acra.ACRAConfiguration;
 import org.acra.ErrorReporter;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.ReportProblemActivity;
 
 /**
  * Contains constants and methods used in ACRA reporting.
@@ -19,23 +21,41 @@ public class ACRAUtil {
     public static final String DOMAIN = "domain";
     public static final String USERNAME = "username";
 
+    private static boolean acraSetup = false;
+
     /**
-     * Add debugging value to the ACRA report bundle. Only most recent value stored for each key.
+     * Add debugging value to the ACRA report bundle. Only most recent value
+     * stored for each key.
      */
-    public static void addCustomData(String key, String value){
+    public static void addCustomData(String key, String value) {
         ErrorReporter mReporter = ACRA.getErrorReporter();
         mReporter.putCustomData(key, value);
     }
 
-    public static void initACRA(Application app){
-
-        ACRA.init(app);
-        ACRAConfiguration acraConfig = ACRA.getConfig();
-        acraConfig.setFormUriBasicAuthLogin(app.getString(R.string.acra_user));
-        acraConfig.setFormUriBasicAuthPassword(app.getString(R.string.acra_password));
-        acraConfig.setFormUri(app.getString(R.string.acra_url));
-        ACRA.setConfig(acraConfig);
-
+    public static void initACRA(Application app) {
+        String url = app.getString(R.string.acra_url);
+        if (URLUtil.isValidUrl(url)) {
+            ACRA.init(app);
+            ACRAConfiguration acraConfig = ACRA.getConfig();
+            acraConfig.setFormUriBasicAuthLogin(app.getString(R.string.acra_user));
+            acraConfig.setFormUriBasicAuthPassword(app.getString(R.string.acra_password));
+            acraConfig.setFormUri(url);
+            ACRA.setConfig(acraConfig);
+            acraSetup = true;
+        }
     }
 
+    public static void registerAppData() {
+        if (acraSetup) {
+            addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
+            addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
+            addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
+        }
+    }
+
+    public static void registerUserData() {
+        if (acraSetup) {
+            ACRAUtil.addCustomData(ACRAUtil.USERNAME, ReportProblemActivity.getUser());
+        }
+    }
 }
