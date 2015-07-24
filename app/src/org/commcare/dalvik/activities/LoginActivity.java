@@ -574,10 +574,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
-            welcomeMessage.setText(R.string.login_welcome_single);
+            welcomeMessage.setText(Localization.get("login.welcome.single"));
             return;
         }
-        welcomeMessage.setText(R.string.login_welcome_multiple);
+        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
         ArrayList<String> appNames = new ArrayList<>();
         ArrayList<String> appIds = new ArrayList<>();
         for (ApplicationRecord r : readyApps) {

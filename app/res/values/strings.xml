@@ -14,15 +14,15 @@
     <string name="your_comment">Your comment</string>
 
     <!-- region: All strings for multiple apps -->
+
     <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install An App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
+    <string name="update_canceled">Your update did not complete</string>
     <string name="verify_resources">Validate Multimedia</string>
-    <string name="select_app_prompt">Select an app to install</string>
-    <string name="resources_warning">Warning: Multimedia resources for this app have not been validated</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
     <string name="skipped_verification_warning">You did not validate multimedia resources for the app that was just
@@ -39,9 +39,7 @@
     <string name="media_not_verified">Media Not Verified</string>
     <string name="media_verified">Media Validated!</string>
     <string name="no_installation">No app was installed!</string>
-    <string name="update_canceled">Your update did not complete</string>
-    <string name="login_welcome_single">Welcome back! Please log in.</string>
-    <string name="login_welcome_multiple">Welcome back! Please select an app and log in.</string>
+
     <!-- endregion -->
 
     <integer-array name="commcare_version">
