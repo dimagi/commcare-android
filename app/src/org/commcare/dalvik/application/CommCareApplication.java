@@ -505,20 +505,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * @param index an index into the global table of installed apps
-     * @return the ApplicationRecord that corresponds to the given index in the global list of
-     * installed apps
-     */
-    public ApplicationRecord getAppAtIndex(int index) {
-        ArrayList<ApplicationRecord> currentApps = getInstalledAppRecords();
-        if (index < 0 || index >= currentApps.size()) {
-            return null;
-        } else {
-            return currentApps.get(index);
-        }
-    }
-
-    /**
      * @param uniqueId - the uniqueId of the ApplicationRecord being sought
      * @return the ApplicationRecord corresponding to the given id, IF and only if it is a "usable"
      * app. Otherwise, return null

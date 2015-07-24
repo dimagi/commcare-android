@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 /**
  * The activity launched when the user clicks on a specific app within the app manager. From
  * this screen, the selected app can be archived/unarchived, uninstalled, updated, or have its
@@ -40,9 +42,9 @@ public class SingleAppManagerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
 
-        // Try to retrieve the app record at the indicated position
+        // Retrieve the app record that should be represented by this activity
         int position = getIntent().getIntExtra("position", -1);
-        appRecord = CommCareApplication._().getAppAtIndex(position);
+        appRecord = getAppForPosition(position);
         if (appRecord == null) {
             // Implies that this appRecord has been uninstalled since last we launched
             // SingleAppManagerActivity, so redirect to AppManagerActivity
@@ -61,6 +63,22 @@ public class SingleAppManagerActivity extends Activity {
     public void onResume() {
         super.onResume();
         refresh();
+    }
+
+    /**
+     *
+     * @param position the position in AppManagerActivity's list view that was clicked to trigger
+     *                 this activity
+     * @return the ApplicationRecord corresponding to the app that should be displayed in this
+     * activity, based upon the position
+     */
+    private ApplicationRecord getAppForPosition(int position) {
+        ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
+        if (position < 0 || position >= currentApps.length) {
+            return null;
+        } else {
+            return currentApps[position];
+        }
     }
 
     /**
