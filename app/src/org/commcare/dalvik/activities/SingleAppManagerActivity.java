@@ -184,9 +184,10 @@ public class SingleAppManagerActivity extends Activity {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
 
-        // If this record is now archived and was the seated app, unseat it by seating a different
+        // If this record is now archived and was the seated app, unseat it and seat a different
         // app (guaranteed not to re-seat this app because an archived record is not "Usable")
         if (appRecord.isArchived() && CommCareApplication._().isSeated(appRecord)) {
+            CommCareApplication._().unseat(appRecord);
             CommCareApplication._().initFirstUsableAppRecord();
         }
 

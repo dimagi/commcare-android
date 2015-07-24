@@ -310,7 +310,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onResume() {
         super.onResume();
-        
+
         try {
             //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
             if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
@@ -327,13 +327,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         //If we arrived at LoginActivity from clicking the regular app icon, and there
-        //are no longer any available apps, we want to redirect to CCHomeActivity
-        if (CommCareApplication._().getUsableAppRecords().size() == 0) {
+        //is no longer a seated app, we want to redirect to CCHomeActivity
+        if (CommCareApplication._().getCurrentApp() == null) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
+            return;
         }
 
-        // Otherwise, update the login screen
+        // Otherwise, refresh the login screen for current conditions
         refreshView();
     }
 
@@ -595,23 +596,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            // The unique of id of the last app that was selected in the drop-down menu
-            String lastApp = prefs.getString(KEY_LAST_APP, "");
-            int position = 0;
-            // If there is a last app, set the spinner selection to be that app
-            if (!"".equals(lastApp)) {
-                position = appIds.indexOf(lastApp);
-                // If this last app has since been deleted, set the position to 0
-                if (position == -1) {
-                    position = 0;
-                }
-            }
+            // Set the spinner's selection to match whatever the currently seated app is
+            String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+            int position = appIds.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
         }
     }
-    
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

@@ -398,7 +398,8 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Initializes the first "usable" application from the list of globally installed app records
+     * Initializes the first "usable" application from the list of globally installed app records,
+     * if there is one
      */
     public void initFirstUsableAppRecord() {
         for(ApplicationRecord record : getUsableAppRecords()) {
@@ -524,6 +525,16 @@ public class CommCareApplication extends Application {
      */
     public boolean isSeated(ApplicationRecord record) {
         return currentApp != null && currentApp.getUniqueId().equals(record.getUniqueId());
+    }
+
+    /**
+     * If the given record is the currently seated app, unseat it
+     */
+    public void unseat(ApplicationRecord record) {
+        if (isSeated(record)) {
+            this.currentApp.teardownSandbox();
+            this.currentApp = null;
+        }
     }
 
     /**
