@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.acra.ACRA;
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -180,14 +181,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
 
-
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
-        ACRAUtil.addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
-        ACRAUtil.addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
-        ACRAUtil.addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
+        ACRAUtil.registerAppData();
 
         setContentView(R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
