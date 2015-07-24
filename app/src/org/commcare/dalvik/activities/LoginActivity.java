@@ -17,6 +17,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -132,10 +133,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,10 +172,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
         final View activityRootView = findViewById(R.id.screen_login_main);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.ViewTreeObserver.OnGlobalLayoutListener#onGlobalLayout()
-             */
             @Override
             public void onGlobalLayout() {
                 int hideAll = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
@@ -262,10 +255,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(LoginActivity receiver, Integer... update) {
                         if(update[0] == DataPullTask.PROGRESS_STARTED) {
@@ -286,10 +275,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError( LoginActivity receiver, Exception e) {
                         receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
@@ -300,11 +285,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         dataPuller.execute();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -447,6 +427,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     private void done() {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
+
+        ACRAUtil.registerUserData();
+
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         finish();
     }
@@ -461,9 +444,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     public void finished(int status) {
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -471,9 +451,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean otherResult = super.onOptionsItemSelected(item);
@@ -529,10 +506,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
+    /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
@@ -558,10 +532,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         return dialog;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isBackEnabled()
-     */
     @Override
     public boolean isBackEnabled() {
         return false;

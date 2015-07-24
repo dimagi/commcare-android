@@ -66,9 +66,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getIDsForValue(java.lang.String, java.lang.Object)
-     */
     @Override
     public Vector<Integer> getIDsForValue(String fieldName, Object value) {
         return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
@@ -180,9 +177,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return newObject(data);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtilityIndexed#getRecordForValue(java.lang.String, java.lang.Object)
-     */
     @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         SQLiteDatabase db;
@@ -239,9 +233,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return re;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#add(org.javarosa.core.util.externalizable.Externalizable)
-     */
+    @Override
     public int add(Externalizable e) throws StorageFullException {
         SQLiteDatabase db;
         try {
@@ -268,9 +260,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return i;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#close()
-     */
+    @Override
     public void close() {
         try {
             helper.getHandle().close();
@@ -279,16 +269,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#destroy()
-     */
+    @Override
     public void destroy() {
         //nothing;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#exists(int)
-     */
+    @Override
     public boolean exists(int id) {
         Cursor c;
         try {
@@ -309,9 +295,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getAccessLock()
-     */
+    @Override
     public SQLiteDatabase getAccessLock() {
         try {
             return helper.getHandle();
@@ -320,9 +304,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getNumRecords()
-     */
+    @Override
     public int getNumRecords() {
         Cursor c;
         try {
@@ -335,25 +317,19 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return records;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getRecordSize(int)
-     */
+    @Override
     public int getRecordSize(int id) {
         //serialize and test blah blah.
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#getTotalSize()
-     */
+    @Override
     public int getTotalSize() {
         //serialize and test blah blah.
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         if(getNumRecords() == 0) {
             return true;
@@ -361,9 +337,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#iterate()
-     */
+    @Override
     public SqlStorageIterator<T> iterate() {
         return iterate(true);
     }
@@ -453,16 +427,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return iterate();
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#read(int)
-     */
+    @Override
     public T read(int id) {
         return newObject(readBytes(id));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#readBytes(int)
-     */
+    @Override
     public byte[] readBytes(int id) {
         Cursor c;
         try {
@@ -477,9 +447,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return blob;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(int)
-     */
     @Override
     public void remove(int id) {
         SQLiteDatabase db;
@@ -517,17 +484,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }    
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#remove(org.javarosa.core.services.storage.Persistable)
-     */
     @Override
     public void remove(Persistable p) {
         this.remove(p.getID());
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll()
-     */
     @Override
     public void removeAll() {
         SQLiteDatabase db;
@@ -545,9 +506,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#removeAll(org.javarosa.core.services.storage.EntityFilter)
-     */
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
@@ -589,25 +547,16 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return removed;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repack()
-     */
     @Override
     public void repack() {
         //Unecessary!
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#repair()
-     */
     @Override
     public void repair() {
         //Unecessary!
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#update(int, org.javarosa.core.util.externalizable.Externalizable)
-     */
     @Override
     public void update(int id, Externalizable e) throws StorageFullException {
         SQLiteDatabase db;
@@ -625,9 +574,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageUtility#write(org.javarosa.core.services.storage.Persistable)
-     */
     @Override
     public void write(Persistable p) throws StorageFullException {
         if(p.getID() != -1) {

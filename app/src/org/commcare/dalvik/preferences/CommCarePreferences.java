@@ -108,11 +108,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
     private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
-     */
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,10 +188,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         dialogBuilder.show();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -222,10 +214,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
 
     int mDeveloperModeClicks = 0;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -321,10 +309,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -333,10 +317,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .registerOnSharedPreferenceChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();

@@ -231,10 +231,6 @@ public class EntityView extends LinearLayout {
 
         btn.setOnClickListener(new OnClickListener(){
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 String textToRead = text;
@@ -436,7 +432,6 @@ public class EntityView extends LinearLayout {
             raw.removeSpan(span);
         }
     }
-
     /**
      * Determine width of each child view, based on mHints, the suite's size hints.
      * mHints contains a width hint for each child view, each one of
@@ -502,14 +497,12 @@ public class EntityView extends LinearLayout {
         return widths;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // calculate the view and its childrens default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
+
+        // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
@@ -518,7 +511,9 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
-
+        
+        // Re-calculate the view's measurements based on the percentage
+        // adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

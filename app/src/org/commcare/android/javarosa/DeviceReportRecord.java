@@ -65,19 +65,11 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel{
         return slr;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.database.EncryptedModel#isEncrypted(java.lang.String)
-     */
     @Override
     public boolean isEncrypted(String data) {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.database.EncryptedModel#isBlobEncrypted()
-     */
     @Override
     public boolean isBlobEncrypted() {
         return true;

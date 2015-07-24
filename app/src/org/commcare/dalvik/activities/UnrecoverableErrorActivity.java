@@ -24,10 +24,6 @@ public class UnrecoverableErrorActivity extends Activity {
     String title;
     String message;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +32,6 @@ public class UnrecoverableErrorActivity extends Activity {
         this.showDialog(0);
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateDialog(int)
-     */
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();

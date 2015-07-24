@@ -62,7 +62,6 @@ public class HttpRequestGenerator {
     /** No Authentication will be possible, there isn't a user account to authenticate this request */
     public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
     
-    
     private Credentials credentials;
     PasswordAuthentication passwordAuthentication;
     private String username;
@@ -91,10 +90,6 @@ public class HttpRequestGenerator {
         //No authentication possible
     }
 
-    public HttpResponse makeCaseFetchRequest(String baseUri) throws ClientProtocolException, IOException {
-        return makeCaseFetchRequest(baseUri, true);
-    }
-    
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
         HttpClient client = client();
         
@@ -167,8 +162,6 @@ public class HttpRequestGenerator {
         return execute(client, get);
     }
 
-
-
     private void addHeaders(HttpRequestBase base, String lastToken){
         //base.addHeader("Accept-Language", lang)
         base.addHeader("X-OpenRosa-Version", "1.0");
@@ -232,10 +225,6 @@ public class HttpRequestGenerator {
      * with redirects. We don't want to just accept any redirect, though, since we may be directed
      * away from a secure connection. For now we'll only accept redirects from HTTP -> * servers,
      * or HTTPS -> HTTPS severs on the same domain
-     * 
-     * @param client
-     * @param request
-     * @return
      */
     private HttpResponse execute(HttpClient client, HttpUriRequest request) throws IOException {
         HttpContext context = new BasicHttpContext(); 
@@ -278,8 +267,7 @@ public class HttpRequestGenerator {
      * but this generates an input stream for a URL using the best package for your
      * application
      * 
-     * @param url
-     * @return a Stream to that URL 
+     * @return a Stream to that URL
      */
     public InputStream simpleGet(URL url) throws IOException {
         
@@ -288,10 +276,6 @@ public class HttpRequestGenerator {
             
             if(passwordAuthentication != null) {
                  Authenticator.setDefault(new Authenticator() {
-                     /*
-                      * (non-Javadoc)
-                      * @see java.net.Authenticator#getPasswordAuthentication()
-                      */
                        @Override
                       protected PasswordAuthentication getPasswordAuthentication() {
                           return passwordAuthentication;
@@ -350,11 +334,6 @@ public class HttpRequestGenerator {
         return get.getEntity().getContent();        
     }
     
-
-    /**
-     * @param con
-     * @throws IOException
-     */
     private void setup(HttpURLConnection con) throws IOException {
         con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
         con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);

@@ -184,10 +184,6 @@ public class IntentCallout implements Externalizable {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         className = ExtUtil.readString(in);
@@ -198,10 +194,6 @@ public class IntentCallout implements Externalizable {
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, className);

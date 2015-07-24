@@ -80,9 +80,6 @@ public class ShrinkingTextView extends TextView {
     }
 
     
-    /* (non-Javadoc)
-     * @see android.widget.TextView#draw(android.graphics.Canvas)
-     */
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
@@ -109,9 +106,6 @@ public class ShrinkingTextView extends TextView {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.TextView#setText(java.lang.CharSequence, android.widget.TextView.BufferType)
-     */
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
@@ -141,9 +135,6 @@ public class ShrinkingTextView extends TextView {
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.widget.TextView#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -187,10 +178,6 @@ public class ShrinkingTextView extends TextView {
             mDeltaHeight = endHeight - startHeight;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.view.animation.Animation#applyTransformation(float, android.view.animation.Transformation)
-         */
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation t) {
             //ShrinkingTextView.this.setHeight((int) (mStartHeight + mDeltaHeight * interpolatedTime));
@@ -198,10 +185,6 @@ public class ShrinkingTextView extends TextView {
             ShrinkingTextView.this.requestLayout();
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.view.animation.Animation#willChangeBounds()
-         */
         @Override
         public boolean willChangeBounds() {
             return true;

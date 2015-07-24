@@ -24,19 +24,11 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
     public CalendaredDateFormatHandler(Context context) {
         this.context = context;
     }
-        /*
-         * (non-Javadoc)
-         * @see org.javarosa.core.model.condition.IFunctionHandler#getName()
-         */
         @Override
         public String getName() {
             return "format-date-for-calendar";
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.javarosa.core.model.condition.IFunctionHandler#getPrototypes()
-         */
         @Override
         public Vector getPrototypes() {
             Vector v = new Vector();
@@ -44,28 +36,16 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
             return v;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.javarosa.core.model.condition.IFunctionHandler#rawArgs()
-         */
         @Override
         public boolean rawArgs() {
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.javarosa.core.model.condition.IFunctionHandler#realTime()
-         */
         @Override
         public boolean realTime() {
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.javarosa.core.model.condition.IFunctionHandler#eval(java.lang.Object[], org.javarosa.core.model.condition.EvaluationContext)
-         */
         @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             if("".equals(args[0])) { return "";}
