@@ -44,6 +44,7 @@ dependencies {
     compile project(':libraries:mapballoons')
     compile project(':javarosa')
     compile project(':commcare')
+    compile project(':commcare-utils')
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar') //... and this includes the .so files from native-libs.jar
     testCompile group: 'junit', name: 'junit', version: '4.+'
     compile 'com.android.support:support-v4:22.1.1'
@@ -76,6 +77,12 @@ project(':commcare') {
   }
 }
 
+project(':commcare-utils') {
+    android{
+        compileSdkVersion rootProject.ext.compileSdkVersion
+        buildToolsVersion rootProject.ext.buildToolsVersion
+    }
+}
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
