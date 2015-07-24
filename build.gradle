@@ -65,21 +65,6 @@ project(':libraries:mapballoons') {
   }
 }
 
-project(':javarosa') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
-project(':commcare') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
