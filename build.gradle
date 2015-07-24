@@ -39,20 +39,23 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile fileTree(dir: 'app/libs', include: '*.jar')
-    compile project(':libraries:mapballoons')
-    compile project(':javarosa')
-    compile project(':commcare')
-    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar') //... and this includes the .so files from native-libs.jar
     testCompile group: 'junit', name: 'junit', version: '4.+'
-    compile 'com.android.support:support-v4:22.1.1'
+
+    compile project(':libraries:mapballoons')
+    compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
+    // this includes the .so files from native-libs.jar
+    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
+    compile 'com.android.support:support-v4:22.1.1'
+
+    // release build type expects javarosa and commcare jars to be in app/libs
+    debugCompile project(':javarosa')
+    debugCompile project(':commcare')
 }
 
 project.ext {
-    compileSdkVersion = "Google Inc.:Google APIs:21"
-    buildToolsVersion = "21.1.2"
+    compileSdkVersion = "Google Inc.:Google APIs:22"
+    buildToolsVersion = "22.0.1"
 }
 
 project(':libraries:mapballoons') {
@@ -61,21 +64,6 @@ project(':libraries:mapballoons') {
     buildToolsVersion rootProject.ext.buildToolsVersion
   }
 }
-
-project(':javarosa') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
-project(':commcare') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -86,12 +74,12 @@ android {
     }
 
     packagingOptions {
-	    exclude 'META-INF/LICENSE'
-	    exclude 'META-INF/LICENSE.txt'
+      exclude 'META-INF/LICENSE'
+      exclude 'META-INF/LICENSE.txt'
       exclude 'META-INF/DEPENDENCIES'
       exclude 'META-INF/NOTICE'
       exclude 'META-INF/NOTICE.txt'
-	  }
+    }
 
     dexOptions {
       preDexLibraries = true
@@ -99,7 +87,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 22
     }
 
     compileOptions {
@@ -108,7 +96,6 @@ android {
     }
 
     def sourceLocations = ['app/src'
-                           // , '../javarosa/core/src'
                            , 'libraries/achartengine/achartengine/src'
                           ]
 
@@ -129,6 +116,7 @@ android {
 
             dependencies {
               debugCompile 'com.facebook.stetho:stetho:1.1.1'
+
             }
           }
           release {
