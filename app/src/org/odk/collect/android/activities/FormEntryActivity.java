@@ -78,6 +78,7 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -88,6 +89,7 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -277,8 +279,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-
-        // TODO: can this be moved into setupUI?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
             if(fragmentClass != null) {
@@ -446,83 +446,84 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 
                 Uri formUri = null;
 
-                if (contentType.equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
-                    Cursor instanceCursor ;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                    {
-                        instanceCursor = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                    } else {
-                        instanceCursor = this.managedQuery(uri, null, null, null, null);
-                    }
-                    if (instanceCursor.getCount() != 1) {
-                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                        return;
-                    } else {
-                        instanceCursor.moveToFirst();
-                        mInstancePath =
-                            instanceCursor.getString(instanceCursor
-                                    .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                switch (contentType) {
+                    case InstanceColumns.CONTENT_ITEM_TYPE:
+                        Cursor instanceCursor = null;
+                        Cursor formCursor = null;
+                        try {
+                            instanceCursor = getContentResolver().query(uri, null, null, null, null);
+                            if (instanceCursor.getCount() != 1) {
+                                CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                return;
+                            } else {
+                                instanceCursor.moveToFirst();
+                                mInstancePath =
+                                        instanceCursor.getString(instanceCursor
+                                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
 
-                        String jrFormId =
-                            instanceCursor.getString(instanceCursor
-                                    .getColumnIndex(InstanceColumns.JR_FORM_ID));
-                        
-                        
-                        //If this form is both already completed 
-                        if(InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                            if(!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                                readOnly = true;
+                                final String jrFormId =
+                                        instanceCursor.getString(instanceCursor
+                                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
+
+                                //If this form is both already completed
+                                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
+                                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
+                                        readOnly = true;
+                                    }
+                                }
+                                final String[] selectionArgs = {
+                                        jrFormId
+                                };
+                                final String selection = FormsColumns.JR_FORM_ID + " like ?";
+
+                                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
+                                if (formCursor.getCount() == 1) {
+                                    formCursor.moveToFirst();
+                                    mFormPath =
+                                            formCursor.getString(formCursor
+                                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
+                                } else if (formCursor.getCount() < 1) {
+                                    CommCareActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
+                                    return;
+                                } else if (formCursor.getCount() > 1) {
+                                    CommCareActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
+                                    return;
+                                }
+                            }
+                        } finally {
+                            if (instanceCursor != null) {
+                                instanceCursor.close();
+                            }
+                            if (formCursor != null) {
+                                formCursor.close();
                             }
                         }
-                        
-
-                        String[] selectionArgs = {
-                            jrFormId
-                        };
-                        String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-                        Cursor formCursor ;
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            formCursor = new CursorLoader(this, formProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-                        } else {
-                            formCursor = managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
+                        break;
+                    case FormsColumns.CONTENT_ITEM_TYPE:
+                        Cursor c = null;
+                        try {
+                            c = getContentResolver().query(uri, null, null, null, null);
+                            if (c.getCount() != 1) {
+                                CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                                return;
+                            } else {
+                                c.moveToFirst();
+                                mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                                formUri = uri;
+                            }
+                        } finally {
+                            if (c != null) {
+                                c.close();
+                            }
                         }
-                        if (formCursor.getCount() == 1) {
-                            formCursor.moveToFirst();
-                            mFormPath =
-                                formCursor.getString(formCursor
-                                        .getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                            formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                        } else if (formCursor.getCount() < 1) {
-                            CommCareActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
-                            return;
-                        } else if (formCursor.getCount() > 1) {
-                            CommCareActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
-                            return;
-                        }
-
-                    }
-
-                } else if (contentType.equals(FormsColumns.CONTENT_ITEM_TYPE)) {
-                    Cursor c;
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        c = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                    } else {
-                        c = this.managedQuery(uri, null, null, null, null);
-                    }
-                    if (c.getCount() != 1) {
-                        CommCareActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
+                        break;
+                    default:
+                        Log.e(t, "unrecognized URI");
+                        CommCareActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                         return;
-                    } else {
-                        c.moveToFirst();
-                        mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                        formUri = uri;
-                    }
-                } else {
-                    Log.e(t, "unrecognized URI");
-                    CommCareActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
-                    return;
                 }
+
                 if(formUri == null) {
                     Log.e(t, "unrecognized URI");
                     CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
@@ -534,6 +535,25 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 showDialog(PROGRESS_DIALOG);
             }
         }
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        /*
+         * EventLog accepts only proper Strings as input, but prior to this version,
+         * Android would try to send SpannedStrings to it, thus crashing the app.
+         * This makes sure the title is actually a String.
+         * This fixes bug 174626.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+                && item.getTitleCondensed() != null) {
+            if (BuildConfig.DEBUG) {
+                Log.v(t, "Selected item is: " + item);
+            }
+            item.setTitleCondensed(item.getTitleCondensed().toString());
+        }
+
+        return super.onMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -769,7 +789,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // For audio/video capture/chooser, we get the URI from the content provider
                 // then the widget copies the file and makes a new entry in the content provider.
                 Uri media = intent.getData();
-                ((ODKView) mCurrentView).setBinaryData(media);
+                String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+                if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+                    // don't let the user select a file that won't be included in the
+                    // upload to the server
+                    ((ODKView) mCurrentView).clearAnswer();
+                    Toast.makeText(FormEntryActivity.this,
+                            Localization.get("form.attachment.invalid"),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    ((ODKView) mCurrentView).setBinaryData(media);
+                }
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 refreshCurrentView();
                 break;
@@ -782,7 +812,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // We may have jumped to a new index in hierarchy activity, so refresh
                 refreshCurrentView(false);
                 break;
-
         }
     }
     
@@ -1511,20 +1540,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 String[] selectionArgs = {
                     mFormPath
                 };
-                Cursor c;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                {
-                    c = new CursorLoader(this, formProviderContentURI, projection, selection, selectionArgs, null).loadInBackground();
-                } else {
-                    c = managedQuery(formProviderContentURI, projection, selection, selectionArgs, null);
-                }
+
+                Cursor c = null;
                 String mediaDir = null;
-                if (c.getCount() < 1) {
-                    CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
-                    return new View(this);
-                } else {
-                    c.moveToFirst();
-                    mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                try {
+                    c = getContentResolver().query(formProviderContentURI, projection, selection, selectionArgs, null);
+                    if (c.getCount() < 1) {
+                        CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
+                        return new View(this);
+                    } else {
+                        c.moveToFirst();
+                        mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
                 }
 
                 BitmapDrawable bitImage = null;
@@ -1557,8 +1588,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
                 instanceComplete.setText(StringUtils.getStringSpannableRobust(this, R.string.mark_finished));
 
-                        //If incomplete is not enabled, make sure this box is checked.
-                        instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
+                //If incomplete is not enabled, make sure this box is checked.
+                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
                 
                 if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
                     instanceComplete.setVisibility(View.GONE);
@@ -2201,16 +2232,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
                     + mInstancePath + "'";
-        Cursor c;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-        {
-            c = new CursorLoader(this,  instanceProviderContentURI, null, selection, null, null).loadInBackground();
-        } else {
-            c = FormEntryActivity.this.managedQuery( instanceProviderContentURI, null, selection, null, null);
+        Cursor c = null;
+        int instanceCount = 0;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
+            instanceCount = c.getCount();
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
         // if it's not already saved, erase everything
-        if (c.getCount() < 1) {
+        if (instanceCount < 1) {
             int images = 0;
             int audio = 0;
             int video = 0;
@@ -2608,17 +2642,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (getContentResolver().getType(getIntent().getData()) == InstanceColumns.CONTENT_ITEM_TYPE) {
             Uri instanceUri = getIntent().getData();
 
-            Cursor instance;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                instance = new CursorLoader(this, instanceUri, null, null, null, null).loadInBackground();
-            } else {
-                instance = managedQuery(instanceUri, null, null, null, null);
-            }
-            if (instance.getCount() == 1) {
-                instance.moveToFirst();
-                saveName =
-                    instance.getString(instance
-                            .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+            Cursor instance = null;
+            try {
+                instance = getContentResolver().query(instanceUri, null, null, null, null);
+                if (instance.getCount() == 1) {
+                    instance.moveToFirst();
+                    saveName =
+                        instance.getString(instance
+                                .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (instance != null) {
+                    instance.close();
+                }
             }
         }
         return saveName;
@@ -2903,15 +2939,20 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String[] selectionArgs = {
             mInstancePath
         };
-        Cursor c =
-            getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs,
-                null);
-        startManagingCursor(c);
-        if (c != null && c.getCount() > 0) {
-            c.moveToFirst();
-            String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
-            if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                complete = true;
+
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
+                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
+                    complete = true;
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
         return complete;
@@ -2946,25 +2987,27 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mInstancePath
             };
 
-            Cursor c;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-            } else {
-                c = managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
-            }
-            if (c.getCount() > 0) {
-                // should only be one...
-                c.moveToFirst();
-                String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
-                Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+                if (c.getCount() > 0) {
+                    // should only be one...
+                    c.moveToFirst();
+                    String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
+                    Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
 
-                Intent formReturnIntent = new Intent();
-                formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
+                    Intent formReturnIntent = new Intent();
+                    formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
 
-                if(reportSaved || hasSaved) {
-                    setResult(RESULT_OK, formReturnIntent.setData(instance));
-                } else {
-                    setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    if (reportSaved || hasSaved) {
+                        setResult(RESULT_OK, formReturnIntent.setData(instance));
+                    } else {
+                        setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    }
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
                 }
             }
         }

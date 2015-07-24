@@ -28,65 +28,74 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ccbanner" />
 
-            <LinearLayout
-                android:id="@+id/home.left.inner"
-                style="@style/MainSidePaneLeft"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_below="@id/main_top_banner"
-                android:layout_centerVertical="false"
-                android:layout_weight="1"
-                android:orientation="vertical" >
-
-                <Button
-                    android:id="@+id/home.start"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableLeft="@drawable/pencil"
-                    android:text="Start" />
-
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/main_top_banner" >
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:orientation="vertical" android:paddingTop="3dp" android:id="@+id/home.formspanel" android:layout_height="wrap_content">
+                    android:id="@+id/home.left.inner"
+                    style="@style/MainSidePaneLeft"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_below="@id/main_top_banner"
+                    android:layout_centerVertical="false"
+                    android:layout_weight="1"
+                    android:orientation="vertical" >
 
-                    <TextView
-                        android:id="@+id/home.formrecords.label"
+                    <Button
+                        android:id="@+id/home.start"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:text="Form Records"
-                        android:textAppearance="?android:attr/textAppearanceMedium" android:gravity="center_horizontal"/>
+                        android:drawableLeft="@drawable/pencil"
+                        android:text="Start" />
+
 
                     <LinearLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal" >
+                        android:layout_width="match_parent"
+                        android:orientation="vertical" android:paddingTop="3dp" android:id="@+id/home.formspanel" android:layout_height="wrap_content">
 
-                        <Button
-                            android:id="@+id/home.forms.incomplete"
+                        <TextView
+                            android:id="@+id/home.formrecords.label"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:drawableTop="@drawable/notebook_incomplete"
-                            android:text="Incomplete" />
+                            android:text="Form Records"
+                            android:textAppearance="?android:attr/textAppearanceMedium" android:gravity="center_horizontal"/>
 
-                        <Button
-                            android:id="@+id/home.forms.old"
+                        <LinearLayout
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:drawableTop="@drawable/notebook_full"
-                            android:text="Saved" />
+                            android:orientation="horizontal" >
+
+                            <Button
+                                android:id="@+id/home.forms.incomplete"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:drawableTop="@drawable/notebook_incomplete"
+                                android:text="Incomplete" />
+
+                            <Button
+                                android:id="@+id/home.forms.old"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:drawableTop="@drawable/notebook_full"
+                                android:text="Saved" />
+                        </LinearLayout>
                     </LinearLayout>
+                    <!-- empty view with weight 1 to ensure str_version is bottom-aligned -->
+                    <View
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+                    <TextView
+                        android:id="@+id/str_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
                 </LinearLayout>
+            </ScrollView>
 
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/str_version"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
 
         </RelativeLayout>
 

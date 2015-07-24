@@ -193,7 +193,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         configUi();
     }
     
-    @SuppressLint("NewApi")
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         version.setText(CommCareApplication._().getCurrentVersionString());
@@ -277,14 +276,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
         });
-
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        }
-        else {
-            supportInvalidateOptionsMenu();
-        }
+        rebuildMenus();
     }
 
     private boolean isOnline() {
