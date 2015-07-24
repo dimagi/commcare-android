@@ -93,7 +93,7 @@ import java.util.Vector;
 
 import android.text.Spannable;
 
-import in.srain.cube.views.GridViewWithHeaderAndFooter;
+import com.etsy.android.grid.StaggeredGridView;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
@@ -161,9 +161,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private SquareButtonWithNotification syncButton;
 
     private HomeScreenAdapter adapter;
-    private GridViewWithHeaderAndFooter gridView;
+    private StaggeredGridView gridView;
     private ImageView topBannerImageView;
 
+    /*
+         * (non-Javadoc)
+         * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
+         */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,7 +195,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         adapter = new HomeScreenAdapter(this);
         View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
-        gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+        gridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
         gridView.addHeaderView(topBanner);
         gridView.setAdapter(adapter);
         gridView.requestLayout();

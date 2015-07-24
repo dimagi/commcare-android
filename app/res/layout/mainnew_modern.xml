@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
     <!-- the top banner is going to be added as a header view to this element -->
-    <in.srain.cube.views.GridViewWithHeaderAndFooter
+    <com.etsy.android.grid.StaggeredGridView
         android:id="@+id/home_gridview_buttons"
         android:numColumns="2"
         android:layout_marginStart="@dimen/content_start"
