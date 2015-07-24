@@ -17,6 +17,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -425,6 +426,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     private void done() {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
+
+        ACRAUtil.registerUserData();
+
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         finish();
     }
