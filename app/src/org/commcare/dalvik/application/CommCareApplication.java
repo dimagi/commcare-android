@@ -403,6 +403,7 @@ public class CommCareApplication extends Application {
     public void initFirstUsableAppRecord() {
         for(ApplicationRecord record : getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
+            break;
         }
     }
 
