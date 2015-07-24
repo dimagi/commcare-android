@@ -570,40 +570,46 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             refreshBreadcrumbBar();
         }
 
-        // Decide whether or not to show the app selection spinner, and configure it if so
+        // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
             welcomeMessage.setText(Localization.get("login.welcome.single"));
-            return;
+            // Set this app as the last selected app, for use in choosing what about to initialize
+            // on first startup
+            ApplicationRecord r = readyApps.get(0);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
         }
-        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-        ArrayList<String> appNames = new ArrayList<>();
-        ArrayList<String> appIds = new ArrayList<>();
-        for (ApplicationRecord r : readyApps) {
-            String name = r.getDisplayName();
-            appNames.add(name);
-            appIds.add(r.getUniqueId());
-            namesToRecords.put(name, r);
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        // The unique of id of the last app that was selected in the drop-down menu
-        String lastApp = prefs.getString(KEY_LAST_APP,"");
-        int position = 0;
-        // If there is a last app, set the spinner selection to be that app
-        if (!"".equals(lastApp)) {
-            position = appIds.indexOf(lastApp);
-            // If this last app has since been deleted, set the position to 0
-            if (position == -1) {
-                position = 0;
+        else {
+            welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+            ArrayList<String> appNames = new ArrayList<>();
+            ArrayList<String> appIds = new ArrayList<>();
+            for (ApplicationRecord r : readyApps) {
+                String name = r.getDisplayName();
+                appNames.add(name);
+                appIds.add(r.getUniqueId());
+                namesToRecords.put(name, r);
             }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(this);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            // The unique of id of the last app that was selected in the drop-down menu
+            String lastApp = prefs.getString(KEY_LAST_APP, "");
+            int position = 0;
+            // If there is a last app, set the spinner selection to be that app
+            if (!"".equals(lastApp)) {
+                position = appIds.indexOf(lastApp);
+                // If this last app has since been deleted, set the position to 0
+                if (position == -1) {
+                    position = 0;
+                }
+            }
+            spinner.setSelection(position);
+            spinner.setVisibility(View.VISIBLE);
         }
-        spinner.setSelection(position);
-        spinner.setVisibility(View.VISIBLE);
     }
     
 
