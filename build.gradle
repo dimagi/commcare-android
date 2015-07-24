@@ -52,7 +52,6 @@ dependencies {
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
     debugCompile project(':commcare')
-    debugCompile project(':commcare-utils')
 }
 
 project.ext {
