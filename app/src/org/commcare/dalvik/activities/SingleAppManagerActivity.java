@@ -157,14 +157,6 @@ public class SingleAppManagerActivity extends Activity {
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
-                break;
-            case CommCareHomeActivity.RESTART_APP:
-                Log.i("7/24/15", "in SingleAppManager.onActivityResult case for RESTART_APP");
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
-                startActivity(i);
         }
     }
 

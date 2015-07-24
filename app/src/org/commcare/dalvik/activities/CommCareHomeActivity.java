@@ -126,11 +126,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
-    /**
-     * Request code for rebooting CommCare after an app has been uninstalled
-     */
-    public static final int RESTART_APP=16384;
-
 
     private static final int DIALOG_CORRUPTED = 1;
 
