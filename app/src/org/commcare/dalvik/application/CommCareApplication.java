@@ -102,6 +102,7 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
 
 import org.acra.annotation.ReportsCrashes;
+import org.odk.collect.android.utilities.FileUtils;
 
 /**
  * @author ctsims
@@ -360,12 +361,17 @@ public class CommCareApplication extends Application {
      * first launched
      */
     private void initializeAppResourcesOnStartup() {
-
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
-                uninstall(record);
+                try {
+                    uninstall(record);
+                }
+                catch (RuntimeException e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
+                            "during startup that was previously left partially-deleted");
+                }
             }
         }
 
@@ -527,42 +533,61 @@ public class CommCareApplication extends Application {
     }
 
     /**
+     * @return if the given ApplicationRecord is the currently seated one
+     */
+    public boolean isSeated(ApplicationRecord record) {
+        return currentApp != null && currentApp.getUniqueId().equals(record.getUniqueId());
+    }
+
+    /**
      * Completes a full uninstall of the CC app that the given ApplicationRecord represents
      */
     public void uninstall(ApplicationRecord record) {
         CommCareApp app = new CommCareApp(record);
-        initializeAppResources(app);
 
-        //1) Set status to delete requested so we know if we have left the app in a bad state later
-        app.setAppResourceState(STATE_DELETE_REQUESTED);
+        // 1) If the app we are uninstalling is the currently-seated app, tear down its sandbox
+        if (isSeated(record)) {
+            getCurrentApp().teardownSandbox();
+        }
+
+        // 2) Set record's status to delete requested, so we know if we have left it in a bad
+        // state later
         record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
         getGlobalStorage(ApplicationRecord.class).write(record);
 
-        //2) Tear down the sandbox for this app
-        app.teardownSandbox();
+        // 3) Delete the directory containing all of this app's resources
+        FileUtil.deleteFileOrDir(app.storageRoot());
 
-        //3) Delete all the user databases associated with this app
-        SqlStorage<UserKeyRecord> userDatabase = getAppStorage(UserKeyRecord.class);
+        // 3) Delete all the user databases associated with this app
+        SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
-            boolean deleted = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid())).delete();
-            if (!deleted) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was not properly deleted" +
-                        "during app uninstall");
+            File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
+            if (f.exists()) {
+                boolean deleted = f.delete();
+                if (!deleted) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
+                            "deleted during app uninstall. Aborting uninstall process for now.");
+                    // If we failed to delete a file, it is likely because there is an open pointer
+                    // to that db still in use, so stop the uninstall for now, and rely on it to
+                    // complete the next time the app starts up
+                    return;
+                }
             }
         }
 
-        //4) Delete the app database
-        boolean deleted = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId())).delete();
-        if (!deleted) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was not properly deleted" +
-                    "during app uninstall");
+        // 4) Delete the app database
+        File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
+        if (f.exists()) {
+            boolean deleted = f.delete();
+            if (!deleted) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
+                        "during app uninstall. Aborting uninstall process for now.");
+                return;
+            }
         }
 
-        //5) Delete the ApplicationRecord
+        // 5) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
-
-        //6) Reset the appResourceState in CCApp
-        app.setAppResourceState(STATE_UNINSTALLED);
     }
 
     private int initGlobalDb() {

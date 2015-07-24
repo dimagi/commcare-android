@@ -172,8 +172,7 @@ public class SingleAppManagerActivity extends Activity {
 
         // If this record is now archived and was the seated app, unseat it by seating a different
         // app (guaranteed not to re-seat this app because an archived record is not "Usable")
-        if (appRecord.isArchived() &&
-                CommCareApplication._().getCurrentApp().getUniqueId().equals(appRecord.getUniqueId())) {
+        if (appRecord.isArchived() && CommCareApplication._().isSeated(appRecord)) {
             CommCareApplication._().initFirstUsableAppRecord();
         }
 
