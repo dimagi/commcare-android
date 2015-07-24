@@ -47,6 +47,17 @@ dependencies {
     // this includes the .so files from native-libs.jar
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
     compile 'com.android.support:support-v4:22.1.1'
+
+    // release build type expects javarosa and commcare jars to be in app/libs
+//  debugCompile project(':javarosa')
+//  debugCompile project(':commcare')
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleDebug') {
+        task.dependsOn project(':javarosa')
+        task.dependsOn project(':commcare')
+    }
 }
 
 project.ext {
@@ -112,13 +123,11 @@ android {
 
             dependencies {
               compile 'com.facebook.stetho:stetho:1.1.1'
-              compile project(':javarosa')
-              compile project(':commcare')
+
             }
           }
           release {
             java.srcDirs = sourceLocations + ['release']
-            // expects javarosa and commcare jars to be in app/libs
           }
         }
       }
