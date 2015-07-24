@@ -1,0 +1,6 @@
+include ':libraries:mapballoons'
+include ':javarosa'
+project(':javarosa').projectDir = new File('../javarosa/core')
+
+include ':commcare'
+project(':commcare').projectDir = new File('../commcare')

@@ -91,7 +91,9 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 }
                 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(), settings.getString("PostURL", url), getFolderPath()){
+
+                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(),
+                        settings.getString("PostURL", url), getFolderPath()){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
                         

@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.acra.ACRA;
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -50,6 +51,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
@@ -179,10 +181,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
 
-
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
+
+        ACRAUtil.registerAppData();
 
         setContentView(R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
@@ -208,10 +211,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 configUi();
             }
         });
-
     }
 
-    @SuppressLint("NewApi")
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
         if (version != null) version.setText(CommCareApplication._().getCurrentVersionString());
@@ -334,13 +335,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         };
         adapter.setOnClickListenerForButton(R.layout.home_sync_button, false, syncButtonListener);
 
-
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        } else {
-            supportInvalidateOptionsMenu();
-        }
+        rebuildMenus();
     }
 
     private boolean isNetworkNotConnected() {
