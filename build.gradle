@@ -49,15 +49,8 @@ dependencies {
     compile 'com.android.support:support-v4:22.1.1'
 
     // release build type expects javarosa and commcare jars to be in app/libs
-//  debugCompile project(':javarosa')
-//  debugCompile project(':commcare')
-}
-
-tasks.whenTaskAdded { task ->
-    if (task.name == 'assembleDebug') {
-        task.dependsOn project(':javarosa')
-        task.dependsOn project(':commcare')
-    }
+    debugCompile project(':javarosa')
+    debugCompile project(':commcare')
 }
 
 project.ext {
