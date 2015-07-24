@@ -102,7 +102,6 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
 
 import org.acra.annotation.ReportsCrashes;
-import org.odk.collect.android.utilities.FileUtils;
 
 /**
  * @author ctsims
