@@ -287,6 +287,18 @@ notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
 notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
 
+no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
+print.error=There was an error while printing. Please try again.
+print.io.error=There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance
+print.not.supported=This device does not support printing at this time.
+printjob.not.started=No print job was started
+printing.done=Printing done successfully
+template.warning=A print template must have extension .html. Please choose a different file
+template.invalid=The template file set for your print job is invalid. Please ask a supervisor for assistance.
+template.not.set=No template file was set
+template.success=Template set successfully!
+missing.template.file=No template file has been set for your print job. Please ask a supervisor to assist you in setting one.
+template.malformed=The template file set for your print job has improperly-formed content. Please ask a supervisor for assistance.
 
 #Add new localization strings here
 

@@ -13,6 +13,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -71,13 +72,13 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            showErrorDialog(R.string.print_not_supported);
+            showErrorDialog(Localization.get("print.not.supported"));
         }
 
         Bundle data = getIntent().getExtras();
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
-            showErrorDialog(R.string.no_data);
+            showErrorDialog(Localization.get("no.print.data"));
         }
 
         this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
@@ -90,14 +91,14 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 path = ReferenceManager._().DeriveReference(path).getLocalURI();
                 preparePrintDoc(path);
             } catch (InvalidReferenceException e) {
-                showErrorDialog(getString(R.string.template_invalid, path));
+                showErrorDialog(Localization.get("template.invalid"));
             }
         } else {
             //Try to use the document location that was set in Settings menu
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
-                showErrorDialog(R.string.template_not_set);
+                showErrorDialog(Localization.get("missing.template.file"));
             } else {
                 preparePrintDoc(path);
             }
@@ -116,7 +117,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                     this
             ).execute();
         } else {
-            showErrorDialog(getString(R.string.template_invalid, inputPath));
+            showErrorDialog(Localization.get("template.invalid"));
         }
     }
 
@@ -142,9 +143,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     @Override
     public void onError(int errorType) {
         if (errorType ==  TemplatePrinterTask.IO_ERROR) {
-            showErrorDialog(R.string.print_io_error);
+            showErrorDialog(Localization.get("print.io.error"));
         } else {
-            showErrorDialog(R.string.template_malformed);
+            showErrorDialog(Localization.get("template.malformed"));
         }
     }
 
@@ -235,7 +236,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
             mWebView = webView;
         } catch (IOException e) {
-            showErrorDialog(R.string.print_io_error);
+            showErrorDialog(Localization.get("print.io.error"));
         }
 
     }
@@ -279,11 +280,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private void reportJobResult() {
         if (printJob.isCompleted()) {
-            showAlertDialog(getString(R.string.printing_done));
+            showAlertDialog(Localization.get("printing.done"));
         } else if (printJob.isFailed()) {
-            showAlertDialog(getString(R.string.print_error));
+            showAlertDialog(Localization.get("print.error"));
         } else {
-            showAlertDialog(getString(R.string.printjob_not_started));
+            showAlertDialog(Localization.get("printjob.not.started"));
         }
     }
 

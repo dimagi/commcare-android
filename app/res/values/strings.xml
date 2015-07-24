@@ -197,8 +197,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="noselect_error">Sorry, you have not selected any forms!</string>
     <string name="no_capture">Nothing recorded yet.</string>
     <string name="no_connection">No network connection available</string>
-    <string name="no_data">No data has been provided for your print activity. Please see a
-        supervisor to fix this.</string>
     <string name="no_items_display">Nothing available to display.</string>
     <string name="no_items_display_forms">Nothing available to display.\n\nTry getting and filling out a blank form.</string>
     <string name="no_items_display_instances">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
@@ -214,11 +212,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="play_video">Play Video</string>
     <string name="please_wait">Please wait a few moments.</string>
     <string name="please_wait_long">Please wait. This could take a few minutes.</string>
-    <string name="print_error">There was an error while printing. Please try again.</string>
-     <string name="print_io_error">There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance</string>
-    <string name="print_not_supported">This device does not support printing at this time.</string>
-    <string name="printjob_not_started">No print job was started</string>
-    <string name="printing_done">"Printing done successfully"</string>
     <string name="quit_application">Exit %s</string>
     <string name="quit_entry">Save Form and Exit</string>
     <string name="refresh">Refresh</string>
@@ -245,9 +238,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="server_requires_auth">Server Requires Authentication</string>
     <string name="server_url">URL</string>
     <string name="server_preferences">Server</string>
-    <string name="template_invalid">The template file set for your print job is invalid. Please ask a supervisor for assistance.</string>
-    <string name="template_not_set">No template file has been set for your print job. Please ask a supervisor to assist you in setting one.</string>
-    <string name="template_malformed">"The template file set for your print job has improperly-formed content. Please ask a supervisor for assistance."</string>
     <string name="toggle_selected">Toggle All</string>
     <string name="trigger">OK. Please continue.</string>
     <string name="uploading_data">Sending Form</string>

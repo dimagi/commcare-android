@@ -156,14 +156,13 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                             getAppPreferences().edit();
                     editor.putString(PRINT_DOC_LOCATION, filePath);
                     editor.commit();
-                    Toast.makeText(this, "Template set successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
                 } else {
-                    showAlertDialog("No template file was set", "A print template must have " +
-                            "extension .html. Please choose a different file");
+                    showAlertDialog(Localization.get("template.not.set"), Localization.get("template.warning"));
                 }
             } else {
                 //No file selected
-                Toast.makeText(this, "No template file was set.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
             }
         }
 
