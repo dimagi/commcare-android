@@ -16,7 +16,6 @@
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
-        <item name="searchbox_action_bar_color">@color/white</item>
         <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
