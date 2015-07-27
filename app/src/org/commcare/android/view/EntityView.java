@@ -436,7 +436,7 @@ public class EntityView extends LinearLayout {
             raw.removeSpan(span);
         }
     }
-
+    
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels
         int[] hints = new int[mHints.length];
@@ -487,5 +487,8 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
+        
+        // Use children's new widths
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
