@@ -23,6 +23,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
+import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
@@ -55,12 +58,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * collected before the print job is created
      */
     private WebView mWebView;
-
-    /**
-     * Indicates whether a print job has been started, used to determine if this activity should
-     * finish under certain conditions
-     */
-    private boolean jobStarted;
 
     private PrintJob printJob;
 
@@ -249,36 +246,46 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
 
         // Get a print adapter instance
-        PrintDocumentAdapter printAdapter = v.createPrintDocumentAdapter();
+        PrintDocumentAdapter printAdapter = new PrintDocumentAdapterWrapper(v.createPrintDocumentAdapter());
 
         // Create a print job with name and adapter instance
-        printJob = printManager.print(jobName, printAdapter,
-                new PrintAttributes.Builder().build());
-        jobStarted = true;
+        printJob = printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (jobStarted) {
-            reportJobResult();
-        }
-    }
-
-    /**
-     * If we have reached onResume after a job was started, that means that the external
-     * Android print dialog has closed, either because the user pressed 'back' or because the
-     * job actually finished. We therefore want to check the status of the job and report back
-     * on it with an alert (activity will finish when AlertDialog closes)
-     */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void reportJobResult() {
-        if (printJob.isCompleted()) {
-            showAlertDialog(Localization.get("printing.done"));
-        } else if (printJob.isFailed()) {
-            showAlertDialog(Localization.get("print.error"));
-        } else {
-            showAlertDialog(Localization.get("printjob.not.started"));
+    class PrintDocumentAdapterWrapper extends PrintDocumentAdapter{
+
+        private final PrintDocumentAdapter delegate;
+
+        public PrintDocumentAdapterWrapper(PrintDocumentAdapter adapter){
+            super();
+            this.delegate = adapter;
+        }
+
+        @Override
+        public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes,
+                             CancellationSignal cancellationSignal,
+                             PrintDocumentAdapter.LayoutResultCallback callback, Bundle extras) {
+            delegate.onLayout(oldAttributes, newAttributes, cancellationSignal, callback, extras);
+        }
+
+        @Override
+        public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
+                             CancellationSignal cancellationSignal,
+                             PrintDocumentAdapter.WriteResultCallback callback) {
+            delegate.onWrite(pages, destination, cancellationSignal, callback);
+        }
+
+        @Override
+        public void onFinish(){
+            delegate.onFinish();
+            if (printJob.isCompleted()) {
+                showAlertDialog(Localization.get("printing.done"));
+            } else if (printJob.isFailed()) {
+                showAlertDialog(Localization.get("print.error"));
+            } else {
+                showAlertDialog(Localization.get("printjob.not.started"));
+            }
         }
     }
 
