@@ -148,7 +148,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
-    private static final String t = "FormEntryActivity";
+    private static final String TAG = FormEntryActivity.class.getSimpleName();
 
     // Defines for FormEntryActivity
     private static final boolean EXIT = true;
@@ -276,28 +276,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
-            if(fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                //Add breadcrumb bar                
-                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                // If the state holder is null, create a new one for this activity
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-                        //the bar will set this up for us again if we need.
-
-                        getActionBar().setDisplayShowCustomEnabled(true);
-                        getActionBar().setDisplayShowTitleEnabled(false);
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w("odk-collect", "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
-            }
-        }
+        addBreadCrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -513,12 +492,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }
                         break;
                     default:
-                        Log.e(t, "unrecognized URI");
+                        Log.e(TAG, "unrecognized URI");
                         CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                         return;
                 }
                 if(formUri == null) {
-                    Log.e(t, "unrecognized URI");
+                    Log.e(TAG, "unrecognized URI");
                     CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
                     return;
                 }
@@ -526,6 +505,27 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mFormLoaderTask = new FormLoaderTask(this, symetricKey, readOnly);
                 mFormLoaderTask.execute(formUri);
                 showDialog(PROGRESS_DIALOG);
+            }
+        }
+    }
+    private void addBreadCrumbBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            if (fragmentClass != null) {
+                final FragmentManager fm = this.getSupportFragmentManager();
+
+                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
+                if (bar == null) {
+                    try {
+                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
+
+                        getActionBar().setDisplayShowCustomEnabled(true);
+                        getActionBar().setDisplayShowTitleEnabled(false);
+                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
+                    } catch(Exception e) {
+                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
+                    }
+                }
             }
         }
     }
@@ -541,7 +541,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
                 && item.getTitleCondensed() != null) {
             if (BuildConfig.DEBUG) {
-                Log.v(t, "Selected item is: " + item);
+                Log.v(TAG, "Selected item is: " + item);
             }
             item.setTitleCondensed(item.getTitleCondensed().toString());
         }
@@ -701,9 +701,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 File nf = new File(s);
                 if (!fi.renameTo(nf)) {
-                    Log.e(t, "Failed to rename " + fi.getAbsolutePath());
+                    Log.e(TAG, "Failed to rename " + fi.getAbsolutePath());
                 } else {
-                    Log.i(t, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
+                    Log.i(TAG, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
                 }
 
                 // Add the new image to the Media content provider so that the
@@ -716,7 +716,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 values.put(Images.Media.DATA, nf.getAbsolutePath());
 
                 imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                Log.i(t, "Inserting image returned uri = " + imageURI.toString());
+                Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
                 ((ODKView) mCurrentView).setBinaryData(imageURI);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -758,12 +758,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                     imageURI =
                         getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                    Log.i(t, "Inserting image returned uri = " + imageURI.toString());
+                    Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
                     ((ODKView) mCurrentView).setBinaryData(imageURI);
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 } else {
-                    Log.e(t, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
+                    Log.e(TAG, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
                 }
                 refreshCurrentView();
                 break;
@@ -1403,7 +1403,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             success = false;
                         }
                     } else {
-                        Log.w(t,
+                        Log.w(TAG,
                                 "Attempted to save an index referencing something other than a question: "
                                         + index.getReference());
                     }
@@ -1415,7 +1415,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 } else {
                     viewType = mCurrentView.getClass().toString();
                 }
-                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + viewType);
+                Log.w(TAG, "Unknown view type rendered while current event was question or group! View type: " + viewType);
             }
         }
         return success;
@@ -1639,7 +1639,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         new ODKView(this, mFormController.getQuestionPrompts(),
                                 mFormController.getGroupsForCurrentIndex(),
                                 mFormController.getWidgetFactory(), this);
-                    Log.i(t, "created view for group");
+                    Log.i(TAG, "created view for group");
                 } catch (RuntimeException e) {
                     Logger.exception(e);
                     CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
@@ -1664,7 +1664,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 
                 return odkv;
             default:
-                Log.e(t, "Attempted to create a view that does not exist.");
+                Log.e(TAG, "Attempted to create a view that does not exist.");
                 return null;
         }
     }
@@ -1761,16 +1761,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         // otherwise it's not a field-list group, so just skip it
                         break;
                     case FormEntryController.EVENT_REPEAT:
-                        Log.i(t, "repeat: " + mFormController.getFormIndex().getReference());
+                        Log.i(TAG, "repeat: " + mFormController.getFormIndex().getReference());
                         // skip repeats
                         break;
                     case FormEntryController.EVENT_REPEAT_JUNCTURE:
-                        Log.i(t, "repeat juncture: "
+                        Log.i(TAG, "repeat juncture: "
                                 + mFormController.getFormIndex().getReference());
                         // skip repeat junctures until we implement them
                         break;
                     default:
-                        Log.w(t,
+                        Log.w(TAG,
                             "JavaRosa added a new EVENT type and didn't tell us... shame on them.");
                         break;
                 }
@@ -2222,7 +2222,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             String instanceFolder =
                 mInstancePath.substring(0,
                     mInstancePath.lastIndexOf("/") + 1);
-            Log.i(t, "attempting to delete: " + instanceFolder);
+            Log.i(TAG, "attempting to delete: " + instanceFolder);
 
             String where =
                 Images.Media.DATA + " like '" + instanceFolder + "%'";
@@ -2244,7 +2244,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -2275,7 +2275,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -2306,7 +2306,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -2324,13 +2324,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             }
 
-            Log.i(t, "removed from content providers: " + images
+            Log.i(TAG, "removed from content providers: " + images
                     + " image files, " + audio + " audio files,"
                     + " and " + video + " video files.");
             File f = new File(instanceFolder);
             if (f.exists() && f.isDirectory()) {
                 for (File del : f.listFiles()) {
-                    Log.i(t, "deleting file: " + del.getAbsolutePath());
+                    Log.i(TAG, "deleting file: " + del.getAbsolutePath());
                     del.delete();
                 }
                 f.delete();
@@ -2410,7 +2410,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 int updated =
                                     getContentResolver().update(formProviderContentURI, values,
                                         selection, selectArgs);
-                                Log.i(t, "Updated language to: " + languages[whichButton] + " in "
+                                Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
                                         + updated + " rows");
 
                                 mFormController.setLanguage(languages[whichButton]);
