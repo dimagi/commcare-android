@@ -252,6 +252,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         printJob = printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
     }
 
+    /**
+     * A wrapper for the default print document adapter generated for a web view, to enable
+     * implementation of a custom callback when onFinish() is called
+     *
+     * Source: http://stackoverflow.com/questions/30742051/android-printmanager-get-callback
+     */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     class PrintDocumentAdapterWrapper extends PrintDocumentAdapter{
 
