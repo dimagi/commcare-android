@@ -41,6 +41,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -227,7 +228,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession(false);
-                returnToLogin();
+                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
             }
         });
         
@@ -992,7 +993,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
                     return;
                 }
                 receiver.refreshView();
@@ -1068,7 +1069,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         showDialog(DIALOG_CORRUPTED);
                     } catch (SessionUnavailableException sue) {
                         //otherwise, log in first
-                        returnToLogin();
+                        SessionActivityRegistration.returnToLogin(this);
                     }
                 }
             }
@@ -1089,7 +1090,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 
             } else if(!CommCareApplication._().getSession().isActive()) {
                 //We got brought back to this point despite 
-                returnToLogin();
+                SessionActivityRegistration.returnToLogin(this);
             } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                 wasExternal = true;
                 String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
@@ -1136,7 +1137,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         } catch (SessionUnavailableException sue) {
             //TODO: See how much context we have, and go login
-            returnToLogin();
+            SessionActivityRegistration.returnToLogin(this);
         }
     }
 
@@ -1207,7 +1208,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            returnToLogin();
+            SessionActivityRegistration.returnToLogin(this);
             return;
         }
 

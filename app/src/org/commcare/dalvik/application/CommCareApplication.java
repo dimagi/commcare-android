@@ -43,7 +43,7 @@ import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
-import org.commcare.android.framework.SessionAwareFragmentActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.PreInitLogger;
@@ -260,8 +260,8 @@ public class CommCareApplication extends Application {
             releaseUserResourcesAndServices();
 
             if (sessionExpired) {
-                SessionAwareFragmentActivity.registerSessionExpiration();
-                sendBroadcast(new Intent(SessionAwareFragmentActivity.USER_SESSION_EXPIRED));
+                SessionActivityRegistration.registerSessionExpiration();
+                sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
             }
         }
     }

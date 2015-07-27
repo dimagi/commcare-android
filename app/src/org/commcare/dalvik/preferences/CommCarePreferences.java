@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -240,6 +241,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     @Override
     protected void onResume() {
         super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+
         // Set up a listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
@@ -248,6 +252,9 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     @Override
     protected void onPause() {
         super.onPause();
+
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+
         // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
