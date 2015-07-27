@@ -319,14 +319,16 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         
         //First, check for consistency in our key records
         cleanupUserKeyRecords();
-        
-        boolean acceptExpiredCredentials = !HttpCalloutNeeded() || (calloutFailed && !HttpCalloutRequired());
-        UserKeyRecord current = getCurrentValidRecord(app, username, password, acceptExpiredCredentials);
-        
+
+        // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
+        // true. Eventually we will enforce user key record expiration, but
+        // can't do so until we proactively refresh records that are going to
+        // expire in the next few months. Otherwise, devices that haven't
+        // accessed the internet in a while won't be able to perform logins.
+        UserKeyRecord current = getCurrentValidRecord(app, username, password, true);
+
         if (current == null)  {
-            // existance of username and validity of password have already
-            // been checked, so this means the user record isn't valid.
-            return HttpCalloutOutcomes.BadCertificate;
+            return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
         }
 
         //Now, see if we need to do anything to process our new record. 
