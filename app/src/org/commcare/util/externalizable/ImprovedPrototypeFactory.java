@@ -1,11 +1,9 @@
 package org.commcare.util.externalizable;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.util.PrefixTree;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -13,39 +11,16 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
  */
 public class ImprovedPrototypeFactory extends PrototypeFactory {
     
-    PrefixTree classNames;
-    
-    Hashtable<Integer, Class> prototypes = new Hashtable<Integer, Class>();
-    AndroidClassHasher hasher;
+    Hashtable<Integer, Class> prototypes;
     
     public ImprovedPrototypeFactory (PrefixTree classNames) {
         super(classNames);
-        this.classNames = classNames;
-        hasher = new AndroidClassHasher();
+        setStaticHasher(new AndroidClassHasher());
     }
 
-    @Override
-    public void addClass (Class c) {
-        if (!initialized) {
-            lazyInit();
-        }
-        
-        //this is used as a bulk operation, so we custom implement it, the android hash is way faster
-        //than the j2me compatible one.
-        byte[] hash = hasher.getClassHashValue(c);
-        
-        if (compareHash(hash, ExtWrapTagged.WRAPPER_TAG)) {
-            throw new Error("Hash collision! " + c.getName() + " and reserved wrapper tag");
-        }
-        
-        Class d = getClass(hash);
-        if (d != null && d != c) {
-            int one = getHash(hash);
-            int two = getHash(getClassHash(d));
-            throw new Error("Hash collision! " + one + c.getName() + ExtUtil.printBytes(hash) +" and " + d.getName() + ExtUtil.printBytes(getClassHash(d)));
-        }
-        
-        prototypes.put(getHash(hash), c);
+    protected void lazyInit() {
+        initialized = true;
+        prototypes = new Hashtable<Integer, Class>();
     }
     
     private Integer getHash(byte[] hash) {
@@ -58,6 +33,10 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
             lazyInit();
         }
         return prototypes.get(getHash(hash));
+    }
+
+    public void storeHash(Class c, byte[] hash){
+        prototypes.put(getHash(hash), c);
     }
 
 }
