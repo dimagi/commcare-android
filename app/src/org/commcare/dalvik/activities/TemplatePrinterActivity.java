@@ -137,10 +137,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     /**
      * Called when TemplatePrinterTask finishes, with a result code indicating what happened. If
      * a .html file of the filled-out template has been created and saved successfully, proceeds
-     * with printing. Otherwise, displays the correct error message.
+     * with printing. Otherwise, displays the appropriate error message.
      */
     @Override
-    public void onFinished(int result) {
+    public void onFinished(int result, String problemString) {
         switch(result) {
             case TemplatePrinterTask.SUCCESS:
                 doHtmlPrint();
@@ -148,8 +148,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             case TemplatePrinterTask.IO_ERROR:
                 showErrorDialog(Localization.get("print.io.error"));
                 break;
-            case TemplatePrinterTask.VALIDATION_ERROR:
-                showErrorDialog(Localization.get("template.malformed"));
+            case TemplatePrinterTask.VALIDATION_ERROR_MUSTACHE:
+                showErrorDialog(Localization.get("template.malformed.mustache", new String[]{problemString}));
+                break;
+            case TemplatePrinterTask.VALIDATION_ERROR_CHEVRON:
+                showErrorDialog(Localization.get("template.malformed.chevron", new String[]{problemString}));
         }
     }
 

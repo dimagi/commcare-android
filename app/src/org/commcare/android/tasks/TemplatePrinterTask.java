@@ -18,11 +18,22 @@ import org.commcare.android.util.TemplatePrinterUtils;
 public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
 
     /**
-     * The 3 result codes that can be sent back by this task
+     * The 4 result codes that can be sent back by this task
      */
     public static final int SUCCESS = 0;
     public static final int IO_ERROR = 1;
-    public static final int VALIDATION_ERROR = 2;
+    public static final int VALIDATION_ERROR_MUSTACHE = 2;
+    public static final int VALIDATION_ERROR_CHEVRON = 3;
+
+    /**
+     * Used to track which type of error (2 or 3 above) was encountered in validateString
+     */
+    private static int validationErrorType;
+
+    /**
+     * Used to track the string in the template file where a validation error was encountered
+     */
+    private String problemString;
 
     /**
      * The template file for this print action
@@ -62,7 +73,8 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
         } catch (IOException e) {
             return IO_ERROR;
         } catch (RuntimeException e) {
-            return VALIDATION_ERROR;
+            problemString = e.getMessage();
+            return validationErrorType;
         }
     }
 
@@ -71,7 +83,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      */
     @Override
     protected void onPostExecute(Integer result) {
-        listener.onFinished(result);
+        listener.onFinished(result, problemString);
     }
 
     /**
@@ -158,7 +170,8 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
     /**
      * Validates the input string for well-formed {{ }} and < > pairs.
      * If malformed, throws a RuntimeException which will be caught by
-     * doInBackground() and passed to the attached PopulateListener.onError()
+     * doInBackground(), and trigger the appropriate result code to be
+     * sent back to the attached PopulateListener
      * 
      * @param input String to validate
      */
@@ -166,19 +179,26 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
 
         boolean isBetweenMustaches = false;
         boolean isBetweenChevrons = false;
-        boolean isWellFormed = true;
+        StringBuilder recentString = new StringBuilder();
 
         for (int i = 0; i < input.length(); i++) {
             char c = input.charAt(i);
+            recentString.append(c);
+
+            if (recentString.length() > 40) {
+                recentString.deleteCharAt(0);
+            }
 
             if (c == '{') {
                 if (isBetweenMustaches) {
-                    isWellFormed = false;
-                    break;
+                    validationErrorType = VALIDATION_ERROR_MUSTACHE;
+                    throw new RuntimeException(recentString.toString());
                 } else {
                     i++;
-                    if (input.charAt(i) == '{') {
+                    c = input.charAt(i);
+                    if (c == '{') {
                         isBetweenMustaches = true;
+                        recentString.append(c);
                     } else {
                         isBetweenMustaches = false;
                     }
@@ -186,17 +206,19 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
             } else if (c == '}') {
                 if (isBetweenMustaches) {
                     i++;
-                    if (input.charAt(i) != '}') {
-                        isWellFormed = false;
-                        break;
+                    c = input.charAt(i);
+                    if (c != '}') {
+                        validationErrorType = VALIDATION_ERROR_MUSTACHE;
+                        recentString.append(c);
+                        throw new RuntimeException(recentString.toString());
                     } else {
                         isBetweenMustaches = false;
                     }
                 }
             } else if (c == '<') {
                 if (isBetweenChevrons) {
-                    isWellFormed = false;
-                    break;
+                    validationErrorType = VALIDATION_ERROR_CHEVRON;
+                    throw new RuntimeException(recentString.toString());
                 } else {
                     isBetweenChevrons = true;
                 }
@@ -204,14 +226,19 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
                 if (isBetweenChevrons) {
                     isBetweenChevrons = false;
                 } else {
-                    isWellFormed = false;
-                    break;
+                    validationErrorType = VALIDATION_ERROR_CHEVRON;
+                    throw new RuntimeException(recentString.toString());
                 }
             }
         }
 
-        if (!isWellFormed) {
-            throw new RuntimeException();
+        // If we reach the end of the string and are in between either type, should also throw error
+        if (isBetweenChevrons) {
+            validationErrorType = VALIDATION_ERROR_CHEVRON;
+            throw new RuntimeException(recentString.toString());
+        } else if (isBetweenMustaches) {
+            validationErrorType = VALIDATION_ERROR_MUSTACHE;
+            throw new RuntimeException(recentString.toString());
         }
 
     }
@@ -220,6 +247,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      * A listener for this task, implemented by TemplatePrinterActivity
      */
     public interface PopulateListener {
-        void onFinished(int result);
+        void onFinished(int result, String problemString);
     }
+
 }
