@@ -63,6 +63,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.StethoInitializer;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -150,6 +151,7 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        StethoInitializer.initStetho(this);
         Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
