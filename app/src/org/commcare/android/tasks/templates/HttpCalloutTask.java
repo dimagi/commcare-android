@@ -35,7 +35,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         NetworkFailure,
         BadResponse,
         AuthFailed,
-        UnkownError,
+        UnknownError,
         BadCertificate,
         Success,
         NetworkFailureBadPassword

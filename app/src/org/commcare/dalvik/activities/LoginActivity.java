@@ -399,7 +399,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                         break;
-                    case UnkownError:
+                    case UnknownError:
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;

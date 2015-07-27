@@ -2,7 +2,6 @@ package org.commcare.android.tasks;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 
 import org.apache.http.HttpResponse;
@@ -119,7 +118,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     @Override
     protected void deliverError(R receiver, Exception e) {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
-        listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnkownError);
+        listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
 
 
@@ -328,7 +327,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         UserKeyRecord current = getCurrentValidRecord(app, username, password, true);
 
         if (current == null)  {
-            return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
         }
 
         //Now, see if we need to do anything to process our new record. 
@@ -346,7 +345,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return HttpCalloutTask.HttpCalloutOutcomes.UnkownError; 
+                        return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                     }
                     
                     //otherwise we're now keyed up with the old DB and we should be fine to log in
@@ -364,7 +363,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Or just leave the old one?
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
                     //For now, fail.
-                    return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+                    return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                 }
             }
         }
