@@ -129,11 +129,9 @@ public class CommCareApplication extends Application {
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
-    // Generalize
     private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
 
-    //Kind of an odd way to do this
     private boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
@@ -150,6 +148,13 @@ public class CommCareApplication extends Application {
     // Has CommCareSessionService initilization finished?
     // Important so we don't use the service before the db is initialized.
     private boolean mIsBinding = false;
+
+    //Milliseconds to wait for bind
+    private static final int MAX_BIND_TIMEOUT = 5000;
+
+    private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
+
+    private CallInPhoneListener listener = null;
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -223,10 +228,22 @@ public class CommCareApplication extends Application {
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
 
-        //start a new stack and forget where we were (so we don't restart the app from there)
+        // start a new stack and forget where we were (so we don't restart the
+        // app from there)
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         c.startActivity(i);
+    }
+
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
+        synchronized(serviceLock) {
+            // if we already have a connection established to
+            // CommCareSessionService, close it and open a new one
+            if(this.mIsBound) {
+                closeUserSession(false);
+            }
+            bindUserSessionService(symetricKey, record);
+        }
     }
 
     /**
@@ -260,22 +277,9 @@ public class CommCareApplication extends Application {
         unbindUserSessionService();
     }
 
-    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
-        synchronized(serviceLock) {
-            // if we already have a connection established to
-            // CommCareSessionService, close it and open a new one
-            if(this.mIsBound) {
-                closeUserSession(false);
-            }
-            bindUserSessionService(symetricKey, record);
-        }
-    }
-
     public SecretKey createNewSymetricKey() throws SessionUnavailableException {
         return getSession().createNewSymetricKey();
     }
-
-    private CallInPhoneListener listener = null;
 
     private void attachCallListener() {
         TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
@@ -348,7 +352,8 @@ public class CommCareApplication extends Application {
 
     public void intializeDefaultLocalizerData() {
         Localization.init(true);
-        Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
+        Localization.registerLanguageReference("default",
+                "jr://asset/locales/messages_ccodk_default.txt");
         Localization.setDefaultLocale("default");
 
         //For now. Possibly handle this better in the future
@@ -367,7 +372,8 @@ public class CommCareApplication extends Application {
         ReferenceManager._().addReferenceFactory(http);
         ReferenceManager._().addReferenceFactory(afr);
         ReferenceManager._().addReferenceFactory(arfr);
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/", GlobalConstants.MEDIA_REF));
+        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",
+                    GlobalConstants.MEDIA_REF));
     }
 
     private int initializeAppResources() {
@@ -848,11 +854,6 @@ public class CommCareApplication extends Application {
         }
     }
 
-    //Milliseconds to wait for bind
-    private static final int MAX_BIND_TIMEOUT = 5000;
-
-    private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
-
     public CommCareSessionService getSession() throws SessionUnavailableException {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
@@ -989,12 +990,10 @@ public class CommCareApplication extends Application {
         }
     }
 
-    // End - Error Message Hooks
-
     private boolean syncPending = false;
 
     /**
-     * @return True if there is a sync action pending. False otherwise.
+     * @return True if there is a sync action pending.
      */
     private boolean getPendingSyncStatus() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -1052,8 +1051,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Notify the application that something has occurred which has been logged, and which should
-     * cause log submission to occur as soon as possible.
+     * Notify the application that something has occurred which has been
+     * logged, and which should cause log submission to occur as soon as
+     * possible.
      */
     public void notifyLogsPending() {
         doReportMaintenance(true);
@@ -1116,5 +1116,4 @@ public class CommCareApplication extends Application {
             }
         }
     }
-
 }
