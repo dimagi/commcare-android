@@ -15,19 +15,14 @@ import org.commcare.android.util.TemplatePrinterUtils;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
+public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
 
     /**
-     * If an error occurs, stores which type the error was, to be passed back to
-     * TemplatePrinterActivity through the PopulateListener's onError method
+     * The 3 result codes that can be sent back by this task
      */
-    private int errorType;
-
-    /**
-     * The 2 types of errors that can be encountered in this task
-     */
-    public static final int IO_ERROR = 0;
-    private static final int VALIDATION_ERROR = 1;
+    public static final int SUCCESS = 0;
+    public static final int IO_ERROR = 1;
+    public static final int VALIDATION_ERROR = 2;
 
     /**
      * The template file for this print action
@@ -60,16 +55,14 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
      * if encountering an error.
      */
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Integer doInBackground(Void... params) {
         try {
             populateHtml(inputFile, values);
-            return true;
+            return SUCCESS;
         } catch (IOException e) {
-            errorType = IO_ERROR;
-            return false;
+            return IO_ERROR;
         } catch (RuntimeException e) {
-            errorType = VALIDATION_ERROR;
-            return false;
+            return VALIDATION_ERROR;
         }
     }
 
@@ -77,12 +70,8 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
      * Receives the return value from doInBackground and proceeds accordingly
      */
     @Override
-    protected void onPostExecute(Boolean success) {
-        if (success) {
-            listener.onFinished();
-        } else {
-            listener.onError(errorType);
-        }
+    protected void onPostExecute(Integer result) {
+        listener.onFinished(result);
     }
 
     /**
@@ -231,9 +220,6 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Boolean> {
      * A listener for this task, implemented by TemplatePrinterActivity
      */
     public interface PopulateListener {
-
-        void onError(int errorType);
-        void onFinished();
-
+        void onFinished(int result);
     }
 }

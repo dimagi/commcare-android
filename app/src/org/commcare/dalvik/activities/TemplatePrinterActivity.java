@@ -135,31 +135,22 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     /**
-     * Called when TemplatePrinterTask encounters an error and displays the correct error message
-     * depending on the type of error that was encountered
-     *
-     * @param errorType indicates the type of error encountered in TemplatePrinterTask
+     * Called when TemplatePrinterTask finishes, with a result code indicating what happened. If
+     * a .html file of the filled-out template has been created and saved successfully, proceeds
+     * with printing. Otherwise, displays the correct error message.
      */
     @Override
-    public void onError(int errorType) {
-        if (errorType ==  TemplatePrinterTask.IO_ERROR) {
-            showErrorDialog(Localization.get("print.io.error"));
-        } else {
-            showErrorDialog(Localization.get("template.malformed"));
+    public void onFinished(int result) {
+        switch(result) {
+            case TemplatePrinterTask.SUCCESS:
+                doHtmlPrint();
+                break;
+            case TemplatePrinterTask.IO_ERROR:
+                showErrorDialog(Localization.get("print.io.error"));
+                break;
+            case TemplatePrinterTask.VALIDATION_ERROR:
+                showErrorDialog(Localization.get("template.malformed"));
         }
-    }
-
-    /**
-     * Called when TemplatePrinterTask finishes successfully, meaning a .html file of the
-     * filled-out template has been created and saved successfully
-     */
-    @Override
-    public void onFinished() {
-        doHtmlPrint();
-    }
-
-    private void showErrorDialog(int messageResId) {
-        showErrorDialog(getString(messageResId));
     }
 
     /**
