@@ -24,16 +24,8 @@
 		</copy>
 		<echo>Today: ${TODAY_TIMESTAMP}</echo>
 		<echo>Version: ${version.code}</echo>
-		<echo>Key: ${maps.api.key}</echo>
-        <echo>ACRA User: ${ACRA_USER}</echo>
-        <echo>ACRA Pass: ${ACRA_PASSWORD}</echo>
-        <echo>ACRA Url: ${ACRA_URL}</echo>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
 		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
-    	<replace file="${custom.dir.resource}/values/external_strings.xml" token="MAPS_KEY" value="${maps.api.key}"/>
-        <replace file="${custom.dir.resource}/values/external_strings.xml" token="ACRA_USER" value="${ACRA_USER}"/>
-        <replace file="${custom.dir.resource}/values/external_strings.xml" token="ACRA_PASSWORD" value="${ACRA_PASSWORD}"/>
-        <replace file="${custom.dir.resource}/values/external_strings.xml" token="ACRA_URL" value="${ACRA_URL}"/>
     </target>
 	
 	<target name="build-from-source" if="build.source">
