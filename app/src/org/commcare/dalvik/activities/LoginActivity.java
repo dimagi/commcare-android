@@ -62,6 +62,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
 
     /**
      * Determines if this should launch the home activity upon completion
+     * instead of returning to the previous activity.
      */
     public static final String REDIRECT_TO_HOMESCREEN = "redirect_to_homescreen";
 
