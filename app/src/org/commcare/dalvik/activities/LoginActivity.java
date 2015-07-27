@@ -424,14 +424,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     
     private void done() {
         Intent parentIntent = getIntent();
-        boolean redirectHome =
+        boolean redirectHomeIgnoringLastActivity =
             parentIntent.getBooleanExtra(LoginActivity.REDIRECT_TO_HOMESCREEN, false);
 
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
-        if (redirectHome) {
+        if (redirectHomeIgnoringLastActivity) {
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             startActivity(i);
         } else {
