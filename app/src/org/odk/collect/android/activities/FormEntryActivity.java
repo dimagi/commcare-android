@@ -276,7 +276,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-        addBreadCrumbBar();
+        addBreadcrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -296,50 +296,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        Boolean newForm = true;
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
-            }
-            if (savedInstanceState.containsKey(NEWFORM)) {
-                newForm = savedInstanceState.getBoolean(NEWFORM, true);
-            }
-            if (savedInstanceState.containsKey(KEY_ERROR)) {
-                mErrorMessage = savedInstanceState.getString(KEY_ERROR);
-            }
-            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
-                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
-                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-            } 
-            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
-                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
-            }
-            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
-                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
-            }
-            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
-                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
-                 try {
-                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                    symetricKey = new SecretKeySpec(storageKey, "AES");
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Base64 encoding not available on this platform");
-                }
-            }
-            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
-                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
-            }
-            
-            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
-                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
-            }
-           
-        }
+        boolean newForm = processSavedBundle(savedInstanceState);
 
         // If a parse error message is showing then nothing else is loaded
         // Dialogs mid form just disappear on rotation.
@@ -505,27 +462,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mFormLoaderTask = new FormLoaderTask(this, symetricKey, readOnly);
                 mFormLoaderTask.execute(formUri);
                 showDialog(PROGRESS_DIALOG);
-            }
-        }
-    }
-    private void addBreadCrumbBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
-            if (fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-
-                        getActionBar().setDisplayShowCustomEnabled(true);
-                        getActionBar().setDisplayShowTitleEnabled(false);
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
             }
         }
     }
@@ -3011,5 +2947,73 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean formHasLoaded() {
         return mFormController != null;
+    }
+
+    private void addBreadcrumbBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            if (fragmentClass != null) {
+                final FragmentManager fm = this.getSupportFragmentManager();
+
+                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
+                if (bar == null) {
+                    try {
+                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
+
+                        getActionBar().setDisplayShowCustomEnabled(true);
+                        getActionBar().setDisplayShowTitleEnabled(false);
+                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
+                    } catch(Exception e) {
+                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean processSavedBundle(Bundle savedInstanceState) {
+        boolean newForm = true;
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
+                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
+            }
+            if (savedInstanceState.containsKey(NEWFORM)) {
+                newForm = savedInstanceState.getBoolean(NEWFORM, true);
+            }
+            if (savedInstanceState.containsKey(KEY_ERROR)) {
+                mErrorMessage = savedInstanceState.getString(KEY_ERROR);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
+                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
+                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
+                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
+            } 
+            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
+                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
+            }
+            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
+                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
+            }
+            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
+                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
+                 try {
+                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                    symetricKey = new SecretKeySpec(storageKey, "AES");
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Base64 encoding not available on this platform");
+                }
+            }
+            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
+                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
+            }
+            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
+                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
+            }
+        }
+        return newForm;
     }
 }
