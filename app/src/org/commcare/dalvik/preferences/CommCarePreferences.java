@@ -17,6 +17,7 @@
 package org.commcare.dalvik.preferences;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -361,7 +362,13 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                 .setAction(Intent.ACTION_GET_CONTENT)
                 .setType("file/*")
                 .addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
+        try {
+            startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
+        } catch (ActivityNotFoundException e) {
+            // Means that there is no file browser installed on the device
+            showAlertDialog(Localization.get("cannot.set.template"),
+                    Localization.get("no.file.browser"));
+        }
     }
 
 }
