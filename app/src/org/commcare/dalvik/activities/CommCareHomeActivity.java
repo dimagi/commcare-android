@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -32,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.acra.ACRA;
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -189,8 +189,30 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         ACRAUtil.registerAppData();
 
-        setContentView(R.layout.mainnew);
-        configOldUi();
+        setContentView(R.layout.mainnew_modern);
+        adapter = new HomeScreenAdapter(this);
+        final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+        this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
+        gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+        gridView.addHeaderView(topBanner);
+        gridView.setAdapter(adapter);
+        gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public void onGlobalLayout() {
+                if (adapter.getItem(0) == null) {
+                    Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
+                }
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                gridView.requestLayout();
+                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                configUi();
+            }
+        });
     }
 
     private void configOldUi() {
