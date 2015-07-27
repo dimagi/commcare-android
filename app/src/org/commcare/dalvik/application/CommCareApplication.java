@@ -230,32 +230,34 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Performs CommCareApplication logout to unbind its connection to this
-     * object.
+     * Closes down the user service, resources, and background tasks.
      *
-     * @param sessionExpired should the user be redirected to the login screen
+     * @param sessionExpired Should the user be redirected to the login screen
      *                       upon closing this session?
      */
     public void closeUserSession(boolean sessionExpired) {
         synchronized(serviceLock) {
-            try {
-                CommCareApplication._().getSession().closeServiceResources();
-            } catch (SessionUnavailableException e) {
-                Log.w(TAG, "User's session services have unexpectedly already " +
-                        "been closed down. Proceeding to close the session.");
-            }
+            // Cancel any running tasks before closing down the user databse.
+            ManagedAsyncTask.cancelTasks();
 
-            if (this.sessionWrapper != null) {
-                sessionWrapper.reset();
-            }
-
-            doUnbindService();
+            releaseUserResourcesAndServices();
 
             if (sessionExpired) {
                 SessionAwareFragmentActivity.registerSessionExpiration();
                 sendBroadcast(new Intent(SessionAwareFragmentActivity.USER_SESSION_EXPIRED));
             }
         }
+    }
+
+    public void releaseUserResourcesAndServices() {
+        try {
+            CommCareApplication._().getSession().closeServiceResources();
+        } catch (SessionUnavailableException e) {
+            Log.w(TAG, "User's session services have unexpectedly already " +
+                    "been closed down. Proceeding to close the session.");
+        }
+
+        unbindUserSessionService();
     }
 
     public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
@@ -265,7 +267,7 @@ public class CommCareApplication extends Application {
             if(this.mIsBound) {
                 closeUserSession(false);
             }
-            doBindService(symetricKey, record);
+            bindUserSessionService(symetricKey, record);
         }
     }
 
@@ -586,7 +588,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    void doBindService(final byte[] key, final UserKeyRecord record) {
+    private void bindUserSessionService(final byte[] key, final UserKeyRecord record) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 // This is called when the connection with the service has been
@@ -835,13 +837,10 @@ public class CommCareApplication extends Application {
         return updatePending;
     }
 
-    /**
-     * Logout of commcare login session and close down connection to the bound
-     * service.
-     */
-    void doUnbindService() {
+    private void unbindUserSessionService() {
         synchronized (serviceLock) {
             if (mIsBound) {
+                sessionWrapper.reset();
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
@@ -860,7 +859,7 @@ public class CommCareApplication extends Application {
         while (mIsBinding) {
             if (System.currentTimeMillis() - started > mCurrentServiceBindTimeout) {
                 //Something bad happened
-                doUnbindService();
+                unbindUserSessionService();
                 throw new SessionUnavailableException("Timeout binding to session service");
             }
         }

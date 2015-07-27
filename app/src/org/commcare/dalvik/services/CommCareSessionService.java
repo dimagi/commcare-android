@@ -383,9 +383,6 @@ public class CommCareSessionService extends Service  {
                 return;
             }
 
-            // Cancel any running tasks before closing down the user databse.
-            ManagedAsyncTask.cancelTasks();
-
             key = null;
             String msg = "Logging out service login";
 
