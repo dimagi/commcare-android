@@ -129,7 +129,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     protected void onCancelled() {
         super.onCancelled();
         if(wasKeyLoggedIn) {
-            CommCareApplication._().closeUserSession(false);
+            CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
     
@@ -245,7 +245,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 if(responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
-                        CommCareApplication._().closeUserSession(false);
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return AUTH_FAILED;
@@ -320,7 +320,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().closeUserSession(false);
+                            CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
@@ -330,18 +330,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            CommCareApplication._().closeUserSession(false);
+                            CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
                     }
                     
                     if(loginNeeded) {
-                        CommCareApplication._().closeUserSession(false);
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                 } else if(responseCode == 500) {
                     if(loginNeeded) {
-                        CommCareApplication._().closeUserSession(false);
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return SERVER_ERROR;
@@ -373,7 +373,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 sue.printStackTrace();
             }
             if(loginNeeded) {
-                CommCareApplication._().closeUserSession(false);
+                CommCareApplication._().releaseUserResourcesAndServices();
             }
             this.publishProgress(PROGRESS_DONE);
             return responseError;

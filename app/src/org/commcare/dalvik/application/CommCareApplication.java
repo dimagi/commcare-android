@@ -59,6 +59,7 @@ import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
@@ -69,7 +70,6 @@ import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -240,7 +240,7 @@ public class CommCareApplication extends Application {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if(this.mIsBound) {
-                closeUserSession(false);
+                releaseUserResourcesAndServices();
             }
             bindUserSessionService(symetricKey, record);
         }
