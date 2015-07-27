@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -41,7 +42,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class CommCarePreferences extends SessionAwarePreferenceActivity implements OnSharedPreferenceChangeListener {
 
     //So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
     //out cleanly?
@@ -242,8 +243,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     protected void onResume() {
         super.onResume();
 
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
-
         // Set up a listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
@@ -252,8 +251,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     @Override
     protected void onPause() {
         super.onPause();
-
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
 
         // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()

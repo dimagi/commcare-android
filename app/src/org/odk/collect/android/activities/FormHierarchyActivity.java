@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.commcare.dalvik.R;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
@@ -39,8 +40,7 @@ import android.widget.TextView;
 
 public class FormHierarchyActivity extends ListActivity {
 
-    private static final String t = "FormHierarchyActivity";
-    int state;
+    private static final String TAG = FormHierarchyActivity.class.getSimpleName();
 
     private static final int CHILD = 1;
     private static final int EXPANDED = 2;
@@ -116,6 +116,20 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
 
@@ -360,7 +374,7 @@ public class FormHierarchyActivity extends ListActivity {
                 h.setType(EXPANDED);
                 ArrayList<HierarchyElement> children1 = h.getChildren();
                 for (int i = 0; i < children1.size(); i++) {
-                    Log.i(t, "adding child: " + children1.get(i).getFormIndex());
+                    Log.i(TAG, "adding child: " + children1.get(i).getFormIndex());
                     formList.add(position + 1 + i, children1.get(i));
 
                 }
