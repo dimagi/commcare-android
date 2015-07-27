@@ -248,21 +248,26 @@ public class CommCareApplication extends Application {
 
     /**
      * Closes down the user service, resources, and background tasks.
-     *
-     * @param sessionExpired Should the user be redirected to the login screen
-     *                       upon closing this session?
      */
-    public void closeUserSession(boolean sessionExpired) {
+    public void closeUserSession() {
         synchronized(serviceLock) {
             // Cancel any running tasks before closing down the user databse.
             ManagedAsyncTask.cancelTasks();
 
             releaseUserResourcesAndServices();
+        }
+    }
 
-            if (sessionExpired) {
-                SessionActivityRegistration.registerSessionExpiration();
-                sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
-            }
+    /**
+     * Closes down the user service, resources, and background tasks,
+     * broadcasting an intent to redirect the user to the login screen.
+     */
+    public void expireUserSession() {
+        synchronized(serviceLock) {
+            closeUserSession();
+
+            SessionActivityRegistration.registerSessionExpiration();
+            sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
         }
     }
 
@@ -537,7 +542,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
-        CommCareApplication._().closeUserSession(false);
+        CommCareApplication._().closeUserSession();
     }
 
     public void prepareTemporaryStorage() {

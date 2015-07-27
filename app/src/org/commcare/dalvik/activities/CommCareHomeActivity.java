@@ -227,7 +227,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         logoutButton.setText(Localization.get("home.logout"));
         logoutButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication._().closeUserSession(false);
+                CommCareApplication._().closeUserSession();
                 SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
             }
         });
@@ -429,7 +429,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().closeUserSession(false);
+                        CommCareApplication._().closeUserSession();
                     }
                     return;
                 }

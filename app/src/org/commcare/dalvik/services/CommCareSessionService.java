@@ -302,7 +302,7 @@ public class CommCareSessionService extends Service  {
                 return;
             }
             try {
-                CommCareApplication._().closeUserSession(true);
+                CommCareApplication._().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
             }
@@ -344,7 +344,7 @@ public class CommCareSessionService extends Service  {
             if (formSaver != null) {
                 formSaver.formSaveCallback();
             } else {
-                CommCareApplication._().closeUserSession(true);
+                CommCareApplication._().expireUserSession();
             }
         }
     }

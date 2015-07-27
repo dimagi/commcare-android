@@ -2773,7 +2773,7 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            CommCareApplication._().closeUserSession(true);
+            CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:
