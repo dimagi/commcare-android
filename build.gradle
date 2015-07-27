@@ -54,6 +54,8 @@ dependencies {
     // this includes the .so files from native-libs.jar
     compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
     compile 'com.android.support:support-v4:22.1.1'
+
+    debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }
 
 project.ext {
@@ -112,7 +114,8 @@ android {
     }
 
     dexOptions {
-      preDexLibraries = true
+        preDexLibraries = true
+        incremental true
     }
 
     defaultConfig {
@@ -154,9 +157,6 @@ android {
             java.srcDirs = sourceLocations + ['debug']
             // applicationIdSuffix ".debug"
 
-            dependencies {
-              debugCompile 'com.facebook.stetho:stetho:1.1.1'
-            }
             buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
             buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
             buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
@@ -169,6 +169,8 @@ android {
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
             signingConfig signingConfigs.release
             java.srcDirs = sourceLocations + ['release']
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
         }
       }
