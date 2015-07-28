@@ -20,20 +20,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-// this packs the .so files into native-libs.jar in the build directory...
-task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
-    destinationDir file("$buildDir/native-libs")
-    baseName 'native-libs'
-    extension 'jar'
-    from fileTree(dir: 'app/libs', include: '**/*.so')
-    into 'lib/'
-}
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn(nativeLibsToJar)
-}
-
-// we need mavenCentral to fetch eventual dependencies
+// we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
 }
@@ -41,15 +28,19 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 
-    compile project(':libraries:mapballoons')
-    compile fileTree(dir: 'app/libs', include: '*.jar')
-    // this includes the .so files from native-libs.jar
-    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
-    compile 'com.android.support:support-v4:22.1.1'
-
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
     debugCompile project(':commcare')
+
+    compile project(':javarosa')
+    compile project(':commcare')
+
+    compile project(':libraries:mapballoons')
+    compile fileTree(dir: 'app/libs', include: '*.jar')
+    compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
+    compile 'com.android.support:support-v4:22.1.1'
+
+    debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }
 
 project.ext {
@@ -62,6 +53,30 @@ project(':libraries:mapballoons') {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
   }
+}
+
+project(':commcare') {
+  android{
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
+}
+
+project(':javarosa') {
+  android{
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
+}
+
+ext {
+  // Obtained from ~/.gradle/gradle.properites on build server or load default
+  // empty strings.
+  MAPS_API_KEY = project.properties['MAPS_API_KEY'] ?: ""
+  RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: "."
+  RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
+  RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
+  RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
 }
 
 android {
@@ -81,7 +96,7 @@ android {
     }
 
     dexOptions {
-      preDexLibraries = true
+        preDexLibraries = true
     }
 
     defaultConfig {
@@ -100,6 +115,7 @@ android {
 
     sourceSets {
       main {
+        jniLibs.srcDirs = ['app/libs']
         manifest.srcFile 'app/AndroidManifest.xml'
         java.srcDirs = sourceLocations
         resources.srcDirs = ['app/src']
@@ -107,19 +123,30 @@ android {
         renderscript.srcDirs = ['app/src']
         res.srcDirs = ['app/res']
         assets.srcDirs = ['app/assets']
+        signingConfigs {
+           release {
+               storeFile file(project.ext.RELEASE_STORE_FILE)
+               storePassword project.ext.RELEASE_STORE_PASSWORD
+               keyAlias project.ext.RELEASE_KEY_ALIAS
+               keyPassword project.ext.RELEASE_KEY_PASSWORD
+           }
+        }
+
         buildTypes {
+
           debug {
             debuggable true
             java.srcDirs = sourceLocations + ['debug']
             // applicationIdSuffix ".debug"
 
-            dependencies {
-              debugCompile 'com.facebook.stetho:stetho:1.1.1'
-
-            }
+            buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
           release {
+            buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
+            signingConfig signingConfigs.release
             java.srcDirs = sourceLocations + ['release']
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
         }
       }
