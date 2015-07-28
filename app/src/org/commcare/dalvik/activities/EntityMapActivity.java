@@ -1,5 +1,7 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.dalvik.BuildConfig;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -247,7 +249,7 @@ public class EntityMapActivity extends MapActivity {
         //If there's a defined debug key in the local environment, use that.
         int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
         if(debugId == 0) { 
-            debugId = R.string.maps_api_key;
+            return BuildConfig.MAPS_API_KEY;
         }
         return this.getString(debugId);
     }
