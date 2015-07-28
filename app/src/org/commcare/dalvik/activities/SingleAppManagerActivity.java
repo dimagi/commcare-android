@@ -182,7 +182,9 @@ public class SingleAppManagerActivity extends Activity {
     public void toggleArchived(View v) {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
-        CommCareApplication._().getCurrentApp().refreshAppRecord();
+        if (CommCareApplication._().isSeated(appRecord)) {
+            CommCareApplication._().getCurrentApp().refreshAppRecord();
+        }
         refresh();
     }
 
