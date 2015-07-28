@@ -467,8 +467,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             switch(requestCode) {
             case INIT_APP:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
-                    this.finish();
+                    // app install failed, take user back to installation view
+                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                    this.startActivityForResult(i, INIT_APP);
                     return;
                 } else if(resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
