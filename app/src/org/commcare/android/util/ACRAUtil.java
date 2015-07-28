@@ -6,6 +6,7 @@ import android.webkit.URLUtil;
 import org.acra.ACRA;
 import org.acra.ACRAConfiguration;
 import org.acra.ErrorReporter;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.ReportProblemActivity;
 
@@ -33,12 +34,12 @@ public class ACRAUtil {
     }
 
     public static void initACRA(Application app) {
-        String url = app.getString(R.string.acra_url);
+        String url = BuildConfig.ACRA_URL;
         if (URLUtil.isValidUrl(url)) {
             ACRA.init(app);
             ACRAConfiguration acraConfig = ACRA.getConfig();
-            acraConfig.setFormUriBasicAuthLogin(app.getString(R.string.acra_user));
-            acraConfig.setFormUriBasicAuthPassword(app.getString(R.string.acra_password));
+            acraConfig.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
+            acraConfig.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
             acraConfig.setFormUri(url);
             ACRA.setConfig(acraConfig);
             isAcraConfigured = true;

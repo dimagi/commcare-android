@@ -9,6 +9,7 @@ import com.facebook.stetho.Stetho;
  */
 public class StethoInitializer {
     public static void initStetho(Context context){
+        Log.v("stetho", "Running debug Stetho initializer!");
         Stetho.initialize(
                 Stetho.newInitializerBuilder(context)
                         .enableDumpapp(
