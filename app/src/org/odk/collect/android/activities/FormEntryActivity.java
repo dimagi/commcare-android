@@ -316,7 +316,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 refreshCurrentView();
                 return;
             }
-            boolean readOnly = false;
+            boolean isInstanceReadOnly = false;
 
             // Not a restart from a screen orientation change (or other).
             mFormController = null;
@@ -324,8 +324,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
             Intent intent = getIntent();
             if (intent != null) {
-                Uri uri = intent.getData();
-                
                 if(intent.hasExtra(KEY_FORM_CONTENT_URI)) {
                     this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
                 }
@@ -370,96 +368,39 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 //csims@dimagi.com - Jan 24, 2012
                 //Since these are parceled across the content resolver, there's no guarantee of reference equality.
                 //We need to manually check value equality on the type 
-                
+                Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
                 
                 Uri formUri = null;
 
-                switch (contentType) {
-                    case InstanceColumns.CONTENT_ITEM_TYPE:
-                        Cursor instanceCursor = null;
-                        Cursor formCursor = null;
-                        try {
-                            instanceCursor = getContentResolver().query(uri, null, null, null, null);
-                            if (instanceCursor.getCount() != 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                                return;
-                            } else {
-                                instanceCursor.moveToFirst();
-                                mInstancePath =
-                                        instanceCursor.getString(instanceCursor
-                                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-
-                                final String jrFormId =
-                                        instanceCursor.getString(instanceCursor
-                                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
-
-
-                                //If this form is both already completed
-                                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                                        readOnly = true;
-                                    }
-                                }
-                                final String[] selectionArgs = {
-                                        jrFormId
-                                };
-                                final String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-                                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                                if (formCursor.getCount() == 1) {
-                                    formCursor.moveToFirst();
-                                    mFormPath =
-                                            formCursor.getString(formCursor
-                                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                                } else if (formCursor.getCount() < 1) {
-                                    CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
-                                    return;
-                                } else if (formCursor.getCount() > 1) {
-                                    CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
-                                    return;
-                                }
-                            }
-                        } finally {
-                            if (instanceCursor != null) {
-                                instanceCursor.close();
-                            }
-                            if (formCursor != null) {
-                                formCursor.close();
-                            }
-                        }
-                        break;
-                    case FormsColumns.CONTENT_ITEM_TYPE:
-                        Cursor c = null;
-                        try {
-                            c = getContentResolver().query(uri, null, null, null, null);
-                            if (c.getCount() != 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                                return;
-                            } else {
-                                c.moveToFirst();
-                                mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                                formUri = uri;
-                            }
-                        } finally {
-                            if (c != null) {
-                                c.close();
-                            }
-                        }
-                        break;
-                    default:
-                        Log.e(TAG, "unrecognized URI");
-                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
-                        return;
+                try {
+                    switch (contentType) {
+                        case InstanceColumns.CONTENT_ITEM_TYPE:
+                            Pair<Uri, Boolean> instanceAndStatus = getInstanceUri(uri);
+                            formUri = instanceAndStatus.first;
+                            isInstanceReadOnly = instanceAndStatus.second;
+                            break;
+                        case FormsColumns.CONTENT_ITEM_TYPE:
+                            formUri = uri;
+                            mFormPath = getFormPath(uri);
+                            break;
+                        default:
+                            Log.e(TAG, "unrecognized URI");
+                            CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
+                            return;
+                    }
+                } catch (FormQueryException e) {
+                    CommCareHomeActivity.createErrorDialog(this, e.getMessage(), EXIT);
+                    return;
                 }
+
                 if(formUri == null) {
                     Log.e(TAG, "unrecognized URI");
                     CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
                     return;
                 }
 
-                mFormLoaderTask = new FormLoaderTask(this, symetricKey, readOnly);
+                mFormLoaderTask = new FormLoaderTask(this, symetricKey, isInstanceReadOnly);
                 mFormLoaderTask.execute(formUri);
                 showDialog(PROGRESS_DIALOG);
             }
@@ -3015,5 +2956,82 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
         return newForm;
+    }
+
+    private String getFormPath(Uri uri) throws FormQueryException {
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(uri, null, null, null, null);
+            if (c.getCount() != 1) {
+                throw new FormQueryException("Bad URI: " + uri);
+            } else {
+                c.moveToFirst();
+                return c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    private Pair<Uri, Boolean> getInstanceUri(Uri uri) throws FormQueryException {
+        Cursor instanceCursor = null;
+        Cursor formCursor = null;
+        Boolean isInstanceReadOnly = false;
+        Uri formUri = null;
+        try {
+            instanceCursor = getContentResolver().query(uri, null, null, null, null);
+            if (instanceCursor.getCount() != 1) {
+                throw new FormQueryException("Bad URI: " + uri);
+            } else {
+                instanceCursor.moveToFirst();
+                mInstancePath =
+                        instanceCursor.getString(instanceCursor
+                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+
+                final String jrFormId =
+                        instanceCursor.getString(instanceCursor
+                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
+
+
+                //If this form is both already completed
+                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
+                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
+                        isInstanceReadOnly = true;
+                    }
+                }
+                final String[] selectionArgs = {
+                        jrFormId
+                };
+                final String selection = FormsColumns.JR_FORM_ID + " like ?";
+
+                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
+                if (formCursor.getCount() == 1) {
+                    formCursor.moveToFirst();
+                    mFormPath =
+                            formCursor.getString(formCursor
+                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
+                } else if (formCursor.getCount() < 1) {
+                    throw new FormQueryException("Parent form does not exist");
+                } else if (formCursor.getCount() > 1) {
+                    throw new FormQueryException("More than one possible parent form");
+                }
+            }
+        } finally {
+            if (instanceCursor != null) {
+                instanceCursor.close();
+            }
+            if (formCursor != null) {
+                formCursor.close();
+            }
+        }
+        return new Pair<>(formUri, isInstanceReadOnly);
+    }
+    private class FormQueryException extends Exception {
+        FormQueryException(String msg) {
+            super(msg);
+        }
     }
 }
