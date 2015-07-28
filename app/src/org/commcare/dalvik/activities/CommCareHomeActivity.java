@@ -219,11 +219,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
-        if (version != null) version.setText(CommCareApplication._().getCurrentVersionString());
+        if (version != null) {
+            version.setText(CommCareApplication._().getCurrentVersionString());
+        }
 
-        // enter data button. expects a result.
-
-        startButton = adapter.getButton(R.layout.home_start_button, false);
+        startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton == null) {
             Log.d("buttons", "startButton is null! Crashing!");
         }
@@ -242,11 +242,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 startActivityForResult(i, GET_COMMAND);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_start_button, false, startListener);
+        adapter.setOnClickListenerForButton(R.layout.home_start_button, startListener);
 
-
-        // enter data button. expects a result.
-        viewIncomplete = adapter.getButton(R.layout.home_incompleteforms_button, false);
+        viewIncomplete = adapter.getButton(R.layout.home_incompleteforms_button);
 
         if (viewIncomplete != null) {
             setIncompleteFormsText(CommCareApplication._().getSyncDisplayParameters());
@@ -256,10 +254,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 goToFormArchive(true);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, false, viewIncompleteListener);
+        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, viewIncompleteListener);
 
 
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button, false);
+        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
         if (logoutButton == null) {
             Log.d("buttons", "logoutButton is null! Crashing!");
         }
@@ -278,7 +276,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 returnToLogin();
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
+        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
         if (logoutButton != null) {
             logoutButton.setNotificationText(getActivityTitle());
             adapter.notifyDataSetChanged();
@@ -290,7 +288,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             formGroupLabel.setText(Localization.get("home.forms"));
         }
 
-        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button, false);
+        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
         if (viewOldForms == null) {
             Log.d("buttons", "viewOldForms is null! Crashing!");
         }
@@ -303,10 +301,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 goToFormArchive(false);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, false, viewOldFormsListener);
+        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, viewOldFormsListener);
 
 
-        syncButton = adapter.getButton(R.layout.home_sync_button, false);
+        syncButton = adapter.getButton(R.layout.home_sync_button);
         if (syncButton == null) {
             Log.d("buttons", "syncButton is null! Crashing!");
         }
@@ -337,7 +335,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_sync_button, false, syncButtonListener);
+        adapter.setOnClickListenerForButton(R.layout.home_sync_button, syncButtonListener);
 
         rebuildMenus();
     }
@@ -373,7 +371,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
         if(User.TYPE_DEMO.equals(u.getUserType())) {
-            //Remind the user that there's no syncing in demo mode.0
+            //Remind the user that there's no syncing in demo mode.
             if (formsToSend) {
                 displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
             } else {
@@ -473,8 +471,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             switch(requestCode) {
             case INIT_APP:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
-                    this.finish();
+                    // app install failed, take user back to installation view
+                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                    this.startActivityForResult(i, INIT_APP);
                     return;
                 } else if(resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
@@ -1353,12 +1352,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
 
-        adapter.setNotificationTextForButton(R.layout.home_sync_button, false, message);
+        adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
     }
 
     private void refreshView() {
         TextView version = (TextView)findViewById(R.id.str_version);
-        if (version == null) return;
+        if (version == null) {
+            return;
+        }
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
 
@@ -1392,9 +1393,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (!"".equals(customBannerURI)) {
             Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
             if (bitmap != null) {
-                if (topBannerImageView != null) topBannerImageView.setImageBitmap(bitmap);
-                else Log.i("TopBanner", "TopBanner is null!");
-
+                if (topBannerImageView != null) {
+                    topBannerImageView.setImageBitmap(bitmap);
+                } else {
+                    Log.i("TopBanner", "TopBanner is null!");
+                }
             }
         }
 
@@ -1447,8 +1450,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         //Make sure that the review button is properly enabled.
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            adapter.setButtonVisibility(R.layout.home_savedforms_button, false, false);
-
+            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
         }
 
         // set adapter to hide the buttons...
@@ -1457,11 +1459,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         Log.i("ShowForms", "ShowSavedForms: " + showSavedForms + " | ShowIncompleteForms: " + showIncompleteForms);
 
-        adapter.setButtonVisibility(R.layout.home_savedforms_button, false, !showSavedForms);
-        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, false, !showIncompleteForms);
+        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
+        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
 
         adapter.notifyDataSetChanged();
-
     }
 
     private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
@@ -1485,8 +1486,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         } else {
             Log.i("syncDetails", "SyncDetails has no count");
-            if (viewIncomplete != null)
+            if (viewIncomplete != null) {
                 viewIncomplete.setText(this.localize("home.forms.incomplete"));
+            }
         }
     }
 
