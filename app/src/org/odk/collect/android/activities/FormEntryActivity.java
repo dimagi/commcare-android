@@ -260,11 +260,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         LEFT, RIGHT, FADE
     }
 
-
     @Override
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
+        super.onCreate(savedInstanceState);
 
         try {
             // CommCareSessionService will call this.formSaveCallback when the
@@ -316,8 +315,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 refreshCurrentView();
                 return;
             }
-            boolean isInstanceReadOnly = false;
-
             // Not a restart from a screen orientation change (or other).
             mFormController = null;
             mInstancePath = null;
@@ -325,18 +322,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Intent intent = getIntent();
             if (intent != null) {
                 loadIntentFormData(intent);
-                
-                if(mHeaderString != null) {
-                    setTitle(mHeaderString);
-                } else {
-                    setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
-                }
+
+                setTitleToLoading();
 
                 Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
 
                 Uri formUri = null;
 
+                boolean isInstanceReadOnly = false;
                 try {
                     switch (contentType) {
                         case InstanceColumns.CONTENT_ITEM_TYPE:
@@ -3025,6 +3019,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
             ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
+        }
+    }
+
+    private setTitleToLoading() {
+        if(mHeaderString != null) {
+            setTitle(mHeaderString);
+        } else {
+            setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
         }
     }
 
