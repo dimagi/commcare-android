@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -181,14 +182,7 @@ public class SingleAppManagerActivity extends Activity {
     public void toggleArchived(View v) {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
-
-        // If this record is now archived and was the seated app, unseat it and seat a different
-        // app (guaranteed not to re-seat this app because an archived record is not "Usable")
-        if (appRecord.isArchived() && CommCareApplication._().isSeated(appRecord)) {
-            CommCareApplication._().unseat(appRecord);
-            CommCareApplication._().initFirstUsableAppRecord();
-        }
-
+        CommCareApplication._().getCurrentApp().refreshAppRecord();
         refresh();
     }
 

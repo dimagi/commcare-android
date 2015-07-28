@@ -36,7 +36,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class CommCareApp {
-    private final ApplicationRecord record;
+    private ApplicationRecord record;
 
     private JavaFileRoot fileRoot;
     private final AndroidCommCarePlatform platform;
@@ -307,5 +307,14 @@ public class CommCareApp {
 
     public ApplicationRecord getAppRecord() {
         return this.record;
+    }
+
+    /**
+     * Refreshes this CommCareApp's ApplicationRecord pointer to be to whatever version is
+     * currently sitting in the db -- should be called whenever an ApplicationRecord is updated
+     * while its associated app is seated, so that the 2 are not out of sync
+     */
+    public void refreshAppRecord() {
+        this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
     }
 }
