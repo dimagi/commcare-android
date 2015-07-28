@@ -100,7 +100,6 @@ android {
 
     dexOptions {
         preDexLibraries = true
-        incremental true
     }
 
     defaultConfig {
