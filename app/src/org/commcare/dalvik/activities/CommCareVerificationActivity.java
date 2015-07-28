@@ -93,7 +93,8 @@ public class CommCareVerificationActivity
         // the manager, or if the state of installed apps calls for it
         boolean shouldBeHere = fromManager || CommCareApplication._().shouldSeeMMVerification();
         if (!shouldBeHere) {
-            finish();
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
         }
     }
     
