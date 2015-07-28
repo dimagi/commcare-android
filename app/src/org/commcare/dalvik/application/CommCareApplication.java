@@ -383,9 +383,10 @@ public class CommCareApplication extends Application {
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
         if (!"".equals(lastAppId)){
             ApplicationRecord lastApp = getAppById(lastAppId);
-            if (lastApp == null) {
-                // This app record could be null if it has since been uninstalled, archived, etc.
-                // In this case, just revert to picking the first app
+            if (lastApp == null || !lastApp.isUsable()) {
+                // This app record could be null if it has since been uninstalled, or unusable if
+                // it has since been archived, etc. In either case, just revert to picking the
+                // first app
                 initFirstUsableAppRecord();
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
@@ -469,6 +470,7 @@ public class CommCareApplication extends Application {
      * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
     public ArrayList<ApplicationRecord> getUsableAppRecords() {
+        Log.i("7/28", "--- in getUsableAppRecords()");
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
             if (r.isUsable()) {
@@ -507,11 +509,11 @@ public class CommCareApplication extends Application {
 
     /**
      * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, IF and only if it is a "usable"
-     * app. Otherwise, return null
+     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
+     * return null
      */
-    private ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getUsableAppRecords()) {
+    public ApplicationRecord getAppById(String uniqueId) {
+        for (ApplicationRecord r : getInstalledAppRecords()) {
             if (r.getUniqueId().equals(uniqueId)) {
                 return r;
             }
