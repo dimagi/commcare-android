@@ -324,53 +324,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
             Intent intent = getIntent();
             if (intent != null) {
-                if(intent.hasExtra(KEY_FORM_CONTENT_URI)) {
-                    this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
-                }
-                if(intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
-                    this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
-                }
-                if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
-                    this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
-                } else {
-                    mInstanceDestination = Collect.INSTANCES_PATH;
-                }
-                if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
-                    String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
-                    try {
-                        byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                        symetricKey = new SecretKeySpec(storageKey, "AES");
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Base64 encoding not available on this platform");
-                    }
-                    
-                }
-                if(intent.hasExtra(KEY_HEADER_STRING)) {
-                    this.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
-                }
-                
-                if(intent.hasExtra(KEY_INCOMPLETE_ENABLED)) {
-                    this.mIncompleteEnabled = intent.getBooleanExtra(KEY_INCOMPLETE_ENABLED, true);
-                }
-                
-                if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
-                    ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
-                    
-                }
+                loadIntentFormData(intent);
                 
                 if(mHeaderString != null) {
                     setTitle(mHeaderString);
                 } else {
                     setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
                 }
-                
-                
-                //csims@dimagi.com - Jan 24, 2012
-                //Since these are parceled across the content resolver, there's no guarantee of reference equality.
-                //We need to manually check value equality on the type 
+
                 Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
-                
+
                 Uri formUri = null;
 
                 try {
@@ -3029,6 +2993,41 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         return new Pair<>(formUri, isInstanceReadOnly);
     }
+
+    private void loadIntentFormData(Intent intent) {
+        if(intent.hasExtra(KEY_FORM_CONTENT_URI)) {
+            this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
+        }
+        if(intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
+            this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
+        }
+        if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
+            this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
+        } else {
+            mInstanceDestination = Collect.INSTANCES_PATH;
+        }
+        if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
+            String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
+            try {
+                byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                symetricKey = new SecretKeySpec(storageKey, "AES");
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Base64 encoding not available on this platform");
+            }
+        }
+        if(intent.hasExtra(KEY_HEADER_STRING)) {
+            this.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
+        }
+
+        if(intent.hasExtra(KEY_INCOMPLETE_ENABLED)) {
+            this.mIncompleteEnabled = intent.getBooleanExtra(KEY_INCOMPLETE_ENABLED, true);
+        }
+
+        if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
+            ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
+        }
+    }
+
     private class FormQueryException extends Exception {
         FormQueryException(String msg) {
             super(msg);
