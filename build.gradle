@@ -72,9 +72,6 @@ project(':javarosa') {
 ext {
   // Obtained from ~/.gradle/gradle.properites on build server or load default
   // empty strings.
-  ACRA_USER = project.properties['ACRA_USER'] ?: ""
-  ACRA_PASSWORD = project.properties['ACRA_PASSWORD'] ?: ""
-  ACRA_URL = project.properties['ACRA_URL'] ?: ""
   MAPS_API_KEY = project.properties['MAPS_API_KEY'] ?: ""
   RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: "."
   RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
@@ -142,16 +139,10 @@ android {
             java.srcDirs = sourceLocations + ['debug']
             // applicationIdSuffix ".debug"
 
-            buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-            buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-            buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
           release {
-            buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-            buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-            buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
             signingConfig signingConfigs.release
             java.srcDirs = sourceLocations + ['release']
