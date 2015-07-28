@@ -279,7 +279,7 @@ public class EntityView extends LinearLayout {
             }
         }
         else {
-            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
         }
     }
     
