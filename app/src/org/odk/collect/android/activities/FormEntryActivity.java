@@ -295,7 +295,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        boolean newForm = processSavedBundle(savedInstanceState);
+        boolean isNewForm = loadStateFromBundle(savedInstanceState);
 
         // If a parse error message is showing then nothing else is loaded
         // Dialogs mid form just disappear on rotation.
@@ -311,7 +311,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
         } else if (data == null) {
-            if (!newForm) {
+            if (!isNewForm) {
                 refreshCurrentView();
                 return;
             }
@@ -2870,14 +2870,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    private boolean processSavedBundle(Bundle savedInstanceState) {
-        boolean newForm = true;
+    private boolean loadStateFromBundle(Bundle savedInstanceState) {
+        boolean isNewForm = true;
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(KEY_FORMPATH)) {
                 mFormPath = savedInstanceState.getString(KEY_FORMPATH);
             }
             if (savedInstanceState.containsKey(NEWFORM)) {
-                newForm = savedInstanceState.getBoolean(NEWFORM, true);
+                isNewForm = savedInstanceState.getBoolean(NEWFORM, true);
             }
             if (savedInstanceState.containsKey(KEY_ERROR)) {
                 mErrorMessage = savedInstanceState.getString(KEY_ERROR);
@@ -2913,7 +2913,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
         }
-        return newForm;
+        return isNewForm;
     }
 
     private String getFormPath(Uri uri) throws FormQueryException {
@@ -3022,7 +3022,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    private setTitleToLoading() {
+    private void setTitleToLoading() {
         if(mHeaderString != null) {
             setTitle(mHeaderString);
         } else {
