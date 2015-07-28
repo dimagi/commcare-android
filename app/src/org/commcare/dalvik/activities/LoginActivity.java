@@ -329,8 +329,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         //If we arrived at LoginActivity from clicking the regular app icon, and there
         //is no longer a seated app, we want to redirect to CCHomeActivity
         if (CommCareApplication._().getCurrentApp() == null) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
-            startActivity(i);
+            finish();
             return;
         }
 
