@@ -310,7 +310,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onResume() {
         super.onResume();
-
         try {
             //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
             if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
@@ -326,10 +325,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             // Nothing, we're logging in here anyway
         }
 
-        //If we arrived at LoginActivity from clicking the regular app icon, and there
-        //is no longer a seated app, we want to redirect to CCHomeActivity
-        if (CommCareApplication._().getCurrentApp() == null) {
-            finish();
+        // It is possible that we left off at the LoginActivity last time we were on the main CC
+        // screen, but have since done something in the app manager to either leave no seated app
+        // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
+        // either case
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
             return;
         }
 

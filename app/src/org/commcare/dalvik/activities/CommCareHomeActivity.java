@@ -1127,15 +1127,21 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (currentApp != null) {
             boolean appResourcesCorrupted = currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
             boolean dbCorrupted = CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED;
+            ApplicationRecord currentRecord = currentApp.getAppRecord();
 
             // Note that the order in which these conditions are checked matters!!
             try {
                 if (appResourcesCorrupted || dbCorrupted) {
                     // Path 1a: The seated app is damaged or corrupted
                     handleDamagedApp();
-                } else if (!currentApp.areMMResourcesValidated()) {
-                    // Path 1b: The seated app doesn't have its MM resources validated
-                    handleUnvalidatedApp();
+                } else if (!currentRecord.isUsable()) {
+                    // Path 1b: The seated app is unusable (means either it is archived or is
+                    // missing its MM or both)
+                    boolean unseated = handleUnusableApp(currentRecord);
+                    if (unseated) {
+                        // Recurse in order to make the correct decision based on the new state
+                        dispatchHomeScreen();
+                    }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
                     returnToLogin();
@@ -1162,7 +1168,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         // Path 2: There is no seated app, so launch CommCareSetupActivity
         else {
-            if (CommCareApplication._().getUsableAppRecords().size() > 0) {
+            if (CommCareApplication._().usableAppsPresent()) {
                 // This is BAD -- means we ended up at home screen with no seated app, but there
                 // are other usable apps available. Should not be able to happen.
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
@@ -1192,22 +1198,48 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
+    /**
+     *
+     * @param record the ApplicationRecord corresponding to the seated, unusable app
+     * @return if the unusable app was unseated by this method
+     */
+    private boolean handleUnusableApp(ApplicationRecord record) {
+        if (record.isArchived()) {
+            // If the app is archived, unseat it and try to seat another one
+            CommCareApplication._().unseat(record);
+            CommCareApplication._().initFirstUsableAppRecord();
+            return true;
+        }
+        else {
+            // This app has unvalidated MM
+            if (CommCareApplication._().usableAppsPresent()) {
+                // If there are other usable apps, unseat it and seat another one
+                CommCareApplication._().unseat(record);
+                CommCareApplication._().initFirstUsableAppRecord();
+                return true;
+            } else {
+                handleUnvalidatedApp();
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Handles the case where the seated app is unvalidated and there are no other usable apps
+     * to seat instead -- Either calls out to verification activity or quits out of the app
+     */
     private void handleUnvalidatedApp() {
         if (CommCareApplication._().shouldSeeMMVerification()) {
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-        } else if (CommCareApplication._().getVisibleAppRecords().size() > 1
-                && CommCareApplication._().getUsableAppRecords().size() == 0) {
+        } else {
+            // Means that there are no usable apps, but there are multiple apps who all don't have
+            // MM verified -- show an error message and shut down
             CommCareApplication._().triggerHandledAppExit(this,
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
-        } else {
-            // This is BAD - means somehow we have seated an app that doesn't have its
-            // MM verified, but there are other apps installed that DO have MM. Should not
-            // be able to happen
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "The seated app is missing its MM, but there" +
-                    "are other apps installed with validated MM");
         }
+
     }
 
     private void handleExternalLaunch() {

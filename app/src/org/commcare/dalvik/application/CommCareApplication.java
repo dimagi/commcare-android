@@ -489,8 +489,8 @@ public class CommCareApplication extends Application {
                 CommCareApplication._().getUsableAppRecords().size() == 0);
     }
 
-    public boolean visibleAppsPresent() {
-        return getVisibleAppRecords().size() > 0;
+    public boolean usableAppsPresent() {
+        return getUsableAppRecords().size() > 0;
     }
 
     /**
