@@ -20,19 +20,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-// this packs the .so files into native-libs.jar in the build directory...
-task nativeLibsToJar(type: Zip, description: 'create a jar archive of the native libs') {
-    destinationDir file("$buildDir/native-libs")
-    baseName 'native-libs'
-    extension 'jar'
-    from fileTree(dir: 'app/libs', include: '**/*.so')
-    into 'lib/'
-}
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn(nativeLibsToJar)
-}
-
 // we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
@@ -51,8 +38,6 @@ dependencies {
     compile project(':libraries:mapballoons')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
-    // this includes the .so files from native-libs.jar
-    compile fileTree(dir: "$buildDir/native-libs", include: 'native-libs.jar')
     compile 'com.android.support:support-v4:22.1.1'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
@@ -134,6 +119,7 @@ android {
 
     sourceSets {
       main {
+        jniLibs.srcDirs = ['app/libs']
         manifest.srcFile 'app/AndroidManifest.xml'
         java.srcDirs = sourceLocations
         resources.srcDirs = ['app/src']
@@ -161,6 +147,7 @@ android {
             buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
             buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
           release {
             buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
@@ -169,7 +156,7 @@ android {
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
             signingConfig signingConfigs.release
             java.srcDirs = sourceLocations + ['release']
-            minifyEnabled true
+            // minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
         }
