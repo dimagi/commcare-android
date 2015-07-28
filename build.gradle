@@ -156,7 +156,6 @@ android {
             buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
             signingConfig signingConfigs.release
             java.srcDirs = sourceLocations + ['release']
-            // minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
           }
         }
