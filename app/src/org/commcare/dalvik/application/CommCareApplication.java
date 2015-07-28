@@ -470,7 +470,6 @@ public class CommCareApplication extends Application {
      * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
     public ArrayList<ApplicationRecord> getUsableAppRecords() {
-        Log.i("7/28", "--- in getUsableAppRecords()");
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
             if (r.isUsable()) {
