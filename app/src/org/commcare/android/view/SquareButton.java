@@ -27,9 +27,9 @@ public class SquareButton extends ImageButton {
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int h = MeasureSpec.getSize(heightMeasureSpec);
 
-        w = Math.min(w, h);
+        w = Math.max(w, h);
         h = w;
 
-        setMeasuredDimension(w, h);
+        setMeasuredDimension(w,w);
     }
 }
