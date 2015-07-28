@@ -27,7 +27,12 @@ public class SquareButton extends ImageButton {
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int h = MeasureSpec.getSize(heightMeasureSpec);
 
-        w = Math.max(w, h);
+        if(w == 0 || h == 0) { // this can happen in the home screen gridView, and then we'll have an invisible view
+            w = Math.max(w, h);
+        } else {
+            w = Math.min(w, h);
+        }
+
         h = w;
 
         setMeasuredDimension(w,w);
