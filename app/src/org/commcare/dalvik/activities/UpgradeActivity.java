@@ -195,6 +195,7 @@ public class UpgradeActivity extends CommCareActivity {
             upgradeTask.connect(this);
             upgradeTask.execute(incomingRef);
         }
+        currentUiState = UpgradeUiState.checking;
         setDownloadingButtonState();
     }
 

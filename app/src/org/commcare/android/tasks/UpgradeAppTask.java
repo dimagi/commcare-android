@@ -35,6 +35,7 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     @Override
     protected Boolean doTaskBackground(String... profileRefs) {
         SystemClock.sleep(2000);
+        return false;
     }
 
     public static UpgradeAppTask getSingleRunningTask() {
