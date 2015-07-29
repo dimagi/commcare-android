@@ -35,7 +35,22 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     @Override
     protected Boolean doTaskBackground(String... profileRefs) {
         SystemClock.sleep(2000);
+        publishProgress(new int[]{0, 100});
         return false;
+    }
+
+    @Override
+    protected void deliverResult(UpgradeActivity receiver, Boolean result) {
+    }
+
+    @Override
+    protected void deliverUpdate(UpgradeActivity receiver, int[]... update) {
+        receiver.updateProgress("text", taskId)
+        receiver.updateProgressBar(done, total, taskId);
+    }
+
+    @Override
+    protected void deliverError(UpgradeActivity receiver, Exception e) {
     }
 
     public static UpgradeAppTask getSingleRunningTask() {
@@ -49,4 +64,6 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     public UpgradeTaskState getUprgradeState() {
         return taskState;
     }
+
+
 }
