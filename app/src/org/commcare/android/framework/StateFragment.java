@@ -64,7 +64,7 @@ public class StateFragment extends Fragment {
         if (currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
             currentTask.disconnect();
-            unlock();
+            releaseWakeLock();
         }
     }
 
@@ -74,7 +74,7 @@ public class StateFragment extends Fragment {
         }
     }
 
-    public synchronized void wakelock(int lockLevel) {
+    public synchronized void acquireWakeLock(int lockLevel) {
         if (wakelock != null) {
             if (wakelock.isHeld()) {
                 wakelock.release();
@@ -86,7 +86,7 @@ public class StateFragment extends Fragment {
         wakelock.acquire();
     }
 
-    public synchronized void unlock() {
+    public synchronized void releaseWakeLock() {
         if (wakelock != null) {
             wakelock.release();
             wakelock = null;
