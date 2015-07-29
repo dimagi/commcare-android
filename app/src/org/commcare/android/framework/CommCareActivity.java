@@ -64,9 +64,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
-    protected final static int DIALOG_PROGRESS = 32;
-    protected final static String DIALOG_TEXT = "cca_dialog_text";
-
     StateFragment stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
