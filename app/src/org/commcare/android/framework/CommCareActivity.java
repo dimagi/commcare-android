@@ -227,11 +227,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    @Override
-    public R getReceiver() {
-        return (R)this;
+    private void wakelock() {
+        int lockLevel = getWakeLockingLevel();
+        if(lockLevel == -1) { return;}
+
+        stateHolder.acquireWakeLock(lockLevel);
     }
-    
+
+    /**
+     * @return The WakeLock flags that should be used for this activity's tasks. -1
+     * if this activity should not acquire/use the wakelock for tasks
+     */
+    protected int getWakeLockingLevel() {
+        return -1;
+    }
+
     /**
      * Override these to control the UI for your task
      */
@@ -259,7 +269,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         stateHolder.releaseWakeLock();
     }
-    
+
+    @Override
+    public R getReceiver() {
+        return (R)this;
+    }
+
     @Override
     public void startTaskTransition() {
         inTaskTransition = true;
@@ -341,21 +356,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    private void wakelock() {
-        int lockLevel = getWakeLockingLevel();
-        if(lockLevel == -1) { return;}
-        
-        stateHolder.acquireWakeLock(lockLevel);
-    }
-    
-    /**
-     * @return The WakeLock flags that should be used for this activity's tasks. -1
-     * if this activity should not acquire/use the wakelock for tasks
-     */
-    protected int getWakeLockingLevel() {
-        return -1;
-    }
-    
     //Graphical stuff below, needs to get modularized
     
     public void transplantStyle(TextView target, int resource) {
