@@ -603,13 +603,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
         fail(NotificationMessageFactory.message(statusfailstate), true);
     }
-    
-    /**
-     * {@inheritDoc}
-     *
-     * Implementation of generateProgressDialog() for DialogController --
-     * all other methods handled entirely in CommCareActivity
-     */
+
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_INSTALL_PROGRESS) {
