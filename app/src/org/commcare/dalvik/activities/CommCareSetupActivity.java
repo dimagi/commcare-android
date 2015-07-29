@@ -531,15 +531,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * Raise failure message and return to the home activity
+     * Raise failure message and return to the home activity with cancel code
      */
     void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
-            done(false);
         }
+        Intent i = new Intent(getIntent());
+        setResult(RESULT_CANCELED, i);
+        finish();
     }
     
     // All final paths from the Update are handled here (Important! Some

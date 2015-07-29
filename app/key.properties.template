@@ -1,7 +1,0 @@
-## Set the following properties to enable application signing using a java keystore
-## as part of your automated ANT build process.
- 
-#key.store=
-#key.alias=
-#key.store.password=
-#key.alias.password=

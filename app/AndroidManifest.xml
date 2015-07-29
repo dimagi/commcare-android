@@ -34,8 +34,6 @@
         </activity>
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
-        <activity android:name=".activities.ReferenceDetailActivity" >
-        </activity>
 
         <provider
             android:name=".odk.provider.FormsProvider"
@@ -188,8 +186,6 @@
             android:name=".activities.PhoneLogActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name="org.achartengine.GraphicalActivity" >
-        </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"
@@ -219,10 +215,7 @@
             android:name="org.commcare.dalvik.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity
-            android:name="org.odk.collect.android.views.FullScreenImage"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
+
         <activity android:name=".activities.EntityMapActivity" >
         </activity>
 
@@ -288,39 +281,6 @@
         </activity>
 
         <!-- Start Collect Manifest -->
-        <activity
-            android:name=".activities.MainMenuActivity"
-            android:configChanges="orientation"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".activities.DrawActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormEntryActivity"
-            android:configChanges="orientation"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.item/vnd.odk.form" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.odk.instance" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.AccountList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.AccountInfo"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceChooserList"
-            android:label="@string/app_name" />
 
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
@@ -331,67 +291,6 @@
             <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance" />
         </intent-filter>
 
-        <activity
-            android:name=".activities.InstanceChooserTabs"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormChooserList"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/vnd.odk.form" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.FormManagerList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormDownloadList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.DataManagerList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FileManagerTabs"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceUploaderList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceUploaderActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".preferences.PreferencesActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormHierarchyActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.GeoPointActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.GeoPointMapActivity"
-            android:label="@string/app_name" />
-        <!-- Enable Shortcuts for Command Actions -->
-        <activity
-            android:name=".activities.AndroidShortcuts"
-            android:label="ODK Form"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <uses-library
-            android:name="com.google.android.maps"
-            android:required="false" />
     </application>
 
     <uses-feature
@@ -415,33 +314,16 @@
         android:name="android.permission.INTERNET" />
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- Start COllect Permissions -->
 
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.GET_ACCOUNTS" />
