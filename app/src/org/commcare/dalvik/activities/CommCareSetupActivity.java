@@ -278,7 +278,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected int getWakeLockingLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

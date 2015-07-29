@@ -74,16 +74,19 @@ public class StateFragment extends Fragment {
         }
     }
 
-    public synchronized void acquireWakeLock(int lockLevel) {
-        if (wakelock != null) {
-            if (wakelock.isHeld()) {
-                wakelock.release();
+    private synchronized void acquireWakeLock() {
+        int lockLevel = boundActivity.getWakeLockingLevel();
+        if (lockLevel != CommCareTask.DONT_WAKELOCK) {
+            if (wakelock != null) {
+                if (wakelock.isHeld()) {
+                    wakelock.release();
+                }
             }
-        }
 
-        PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
-        wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
-        wakelock.acquire();
+            PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
+            wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
+            wakelock.acquire();
+        }
     }
 
     public synchronized void releaseWakeLock() {
@@ -98,6 +101,7 @@ public class StateFragment extends Fragment {
     }
 
     public void connectTask(CommCareTask task) {
+        acquireWakeLock();
         this.currentTask = task;
     }
 }
