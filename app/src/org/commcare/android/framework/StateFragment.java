@@ -28,6 +28,13 @@ public class StateFragment extends Fragment {
     private WakeLock wakelock;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setRetainInstance(true);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -44,13 +51,6 @@ public class StateFragment extends Fragment {
     private boolean isCurrentTaskRunning() {
         return this.currentTask != null &&
                 this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setRetainInstance(true);
     }
 
     @Override
