@@ -37,12 +37,12 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
         SystemClock.sleep(2000);
     }
 
-    public static UpgradeTaskState registerActivityWithRunningTask(CommCareTaskConnector connector) {
+    public static UpgradeAppTask getSingleRunningTask() {
         if (latestRunningTask != null && latestRunningTask.getStatus() == Status.RUNNING) {
-            latestRunningTask.connect(connector);
-            return latestRunningTask.getUprgradeState();
+            return latestRunningTask;
+        } else {
+            return null;
         }
-        return UpgradeTaskState.notRunning;
     }
 
     public UpgradeTaskState getUprgradeState() {

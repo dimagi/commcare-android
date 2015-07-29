@@ -43,6 +43,8 @@ public class UpgradeActivity extends CommCareActivity {
     }
     private UpgradeUiState currentUiState;
 
+    private UpgradeAppTask upgradeTask;
+
     @UiElement(R.id.check_for_upgrade_button)
     Button checkUpgradeButton;
 
@@ -60,9 +62,13 @@ public class UpgradeActivity extends CommCareActivity {
         mProgress = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();
 
-        UpgradeAppTask.UpgradeTaskState upgradeTaskState =
-            UpgradeAppTask.registerActivityWithRunningTask(this);
-        setUiStateFromRunningTask(upgradeTaskState);
+        upgradeTask = UpgradeAppTask.getSingleRunningTask();
+        if (upgradeTask != null) {
+            upgradeTask.connect(this);
+            setUiStateFromRunningTask(upgradeTask.getUprgradeState());
+        } else {
+            setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState.notRunning);
+        }
 
         // update UI based on current state
         setupButtonState();
@@ -87,6 +93,10 @@ public class UpgradeActivity extends CommCareActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        if (upgradeTask != null) {
+            upgradeTask.disconnect();
+        }
     }
 
     @Override
@@ -144,35 +154,58 @@ public class UpgradeActivity extends CommCareActivity {
     private void setupButtonState() {
         switch (currentUiState) {
             case idle:
-                checkUpgradeButton.setEnabled(true);
-                stopUpgradeButton.setEnabled(false);
-                installUpgradeButton.setEnabled(false);
+                setIdleButtonState();
                 break;
             case checking:
+                setDownloadingButtonState();
+                break;
             case downloading:
-                checkUpgradeButton.setEnabled(false);
-                stopUpgradeButton.setEnabled(true);
-                installUpgradeButton.setEnabled(false);
+                setDownloadingButtonState();
                 break;
             case unappliedInstall:
-                checkUpgradeButton.setEnabled(true);
-                stopUpgradeButton.setEnabled(false);
-                installUpgradeButton.setEnabled(true);
+                setUnappliedInstallButtonState();
                 break;
             default:
-                checkUpgradeButton.setEnabled(false);
-                stopUpgradeButton.setEnabled(false);
-                installUpgradeButton.setEnabled(false);
+                setIdleButtonState();
         }
     }
 
+    private void setIdleButtonState() {
+        checkUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(false);
+    }
+
+    private void setDownloadingButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(true);
+        installUpgradeButton.setEnabled(false);
+    }
+
+    private void setUnappliedInstallButtonState() {
+        checkUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(true);
+    }
+
+
     private void startUpgradeCheck() {
         if (currentUiState == UpgradeUiState.idle) {
-            UpgradeAppTask upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp(), false);
+            upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp(), false);
             upgradeTask.connect(this);
             upgradeTask.execute(incomingRef);
         }
+        setDownloadingButtonState();
     }
+
+    private void stopUpgradeCheck() {
+        if (upgradeTask != null) {
+            upgradeTask.cancel(true);
+        }
+        currentUiState = UpgradeUiState.idle;
+        setIdleButtonState();
+    }
+
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
