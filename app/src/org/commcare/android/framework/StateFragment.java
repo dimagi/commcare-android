@@ -34,17 +34,22 @@ public class StateFragment extends Fragment {
         if (activity instanceof CommCareActivity) {
             this.boundActivity = (CommCareActivity)activity;
             this.boundActivity.stateHolder = this;
-            if (this.currentTask != null && this.currentTask.getStatus() == AsyncTask.Status.RUNNING) {
+
+            if (isCurrentTaskRunning()) {
                 this.currentTask.connect(boundActivity);
             }
         }
+    }
+
+    private boolean isCurrentTaskRunning() {
+        return this.currentTask != null &&
+                this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Retain this fragment across configuration changes.
         setRetainInstance(true);
     }
 
@@ -75,6 +80,7 @@ public class StateFragment extends Fragment {
                 wakelock.release();
             }
         }
+
         PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
         wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
         wakelock.acquire();
@@ -94,5 +100,4 @@ public class StateFragment extends Fragment {
     public void connectTask(CommCareTask task) {
         this.currentTask = task;
     }
-
 }
