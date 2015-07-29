@@ -35,6 +35,14 @@ public class UpgradeActivity extends CommCareActivity {
 
     private Handler mHandler = new Handler();
 
+    private enum UpgradeUiState {
+        idle,
+        checking,
+        downloading,
+        unappliedInstall
+    }
+    private UpgradeUiState currentUiState;
+
     @UiElement(R.id.check_for_upgrade_button)
     Button checkUpgradeButton;
 
@@ -54,6 +62,7 @@ public class UpgradeActivity extends CommCareActivity {
         setupButtonListeners();
 
         // attempt to attach to auto-update task
+        setStateFromRunningTask();
 
         // update UI based on current state
         setupButtonState();
@@ -136,7 +145,7 @@ public class UpgradeActivity extends CommCareActivity {
     }
 
     private void startUpgradeCheck() {
-        if (!UpgradeAppTask.registerActivityWithRunningTask(this)) {
+        if (currentUiState == UpgradeUiState.idle) {
             UpgradeAppTask upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp(), false);
             upgradeTask.connect(this);
             upgradeTask.execute(incomingRef);
@@ -161,5 +170,35 @@ public class UpgradeActivity extends CommCareActivity {
         dialog.addCheckbox(checkboxText, isChecked);
         dialog.addProgressBar();
         return dialog;
+    }
+
+    private void setStateFromRunningTask() {
+        UpgradeAppTask.UpgradeTaskState upgradeTaskState =
+            UpgradeAppTask.registerActivityWithRunningTask(this);
+        switch (upgradeTaskState) {
+            case checking:
+                currentUiState = UpgradeUiState.checking;
+                break;
+            case downloading:
+                currentUiState = UpgradeUiState.downloading;
+                break;
+            case notRunning:
+                currentUiState = pendingUpgradeOrIdle();
+                break;
+            default:
+                currentUiState = pendingUpgradeOrIdle();
+        }
+    }
+
+    private UpgradeUiState pendingUpgradeOrIdle() {
+        if (downloadedUpgradePresent()) {
+            return UpgradeUiState.unappliedInstall;
+        } else {
+            return UpgradeUiState.idle;
+        }
+    }
+
+    private boolean downloadedUpgradePresent() {
+        return false;
     }
 }

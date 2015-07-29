@@ -13,6 +13,13 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     private final CommCareApp commCareApp;
     private static UpgradeAppTask latestRunningTask = null;
 
+    public enum UpgradeTaskState {
+        notRunning,
+        checking,
+        downloading
+    }
+    private UpgradeTaskState taskState;
+
     public UpgradeAppTask(CommCareApp app, boolean startInBackground) {
         commCareApp = app;
 
@@ -30,11 +37,15 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
         SystemClock.sleep(2000);
     }
 
-    public static boolean registerActivityWithRunningTask(CommCareTaskConnector connector) {
+    public static UpgradeTaskState registerActivityWithRunningTask(CommCareTaskConnector connector) {
         if (latestRunningTask != null && latestRunningTask.getStatus() == Status.RUNNING) {
             latestRunningTask.connect(connector);
-            return true;
+            return latestRunningTask.getUprgradeState();
         }
-        return false;
+        return UpgradeTaskState.notRunning;
+    }
+
+    public UpgradeTaskState getUprgradeState() {
+        return taskState;
     }
 }
