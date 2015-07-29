@@ -191,7 +191,7 @@ public class UpgradeActivity extends CommCareActivity {
 
     private void startUpgradeCheck() {
         if (currentUiState == UpgradeUiState.idle) {
-            upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp(), false);
+            upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp());
             upgradeTask.connect(this);
             upgradeTask.execute(incomingRef);
         }

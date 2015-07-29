@@ -1,15 +1,13 @@
 package org.commcare.android.tasks;
 
-import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.dalvik.application.CommCareApp;
 
-public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Boolean, R> {
-    private static final int DIALOG_ID = 1;
+public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
+    private static final String TAG = UpgradeAppTask.class.getSimpleName();
+
     private final CommCareApp commCareApp;
     private static UpgradeAppTask latestRunningTask = null;
 
@@ -20,37 +18,25 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     }
     private UpgradeTaskState taskState;
 
-    public UpgradeAppTask(CommCareApp app, boolean startInBackground) {
+    public UpgradeAppTask(CommCareApp app) {
         commCareApp = app;
-
-        if (startInBackground) {
-            taskId = -1;
-        } else {
-            taskId = DIALOG_ID;
-        }
-
-        TAG = UpgradeAppTask.class.getSimpleName();
     }
 
     @Override
-    protected Boolean doTaskBackground(String... profileRefs) {
+    protected final Boolean doInBackground(String... params) {
         SystemClock.sleep(2000);
         publishProgress(new int[]{0, 100});
         return false;
     }
 
     @Override
-    protected void deliverResult(UpgradeActivity receiver, Boolean result) {
+    protected void onProgressUpdate(int[]... values) {
+        super.onProgressUpdate(values);
     }
 
     @Override
-    protected void deliverUpdate(UpgradeActivity receiver, int[]... update) {
-        receiver.updateProgress("text", taskId)
-        receiver.updateProgressBar(done, total, taskId);
-    }
-
-    @Override
-    protected void deliverError(UpgradeActivity receiver, Exception e) {
+    protected void onCancelled() {
+        super.onCancelled();
     }
 
     public static UpgradeAppTask getSingleRunningTask() {
@@ -64,6 +50,4 @@ public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Bool
     public UpgradeTaskState getUprgradeState() {
         return taskState;
     }
-
-
 }
