@@ -7,8 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.locale.Localization;
 
 import static java.lang.Thread.sleep;
 
@@ -20,11 +23,12 @@ import static java.lang.Thread.sleep;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeActivity extends Activity {
+public class UpgradeActivity extends CommCareActivity {
     private static final String TAG = UpgradeActivity.class.getSimpleName();
 
     private ProgressBar mProgress;
     private int mProgressStatus = 0;
+    private boolean areResourcesInitialized = false;
 
     private Handler mHandler = new Handler();
 
@@ -125,5 +129,25 @@ public class UpgradeActivity extends Activity {
     }
 
     private void setupButtonState() {
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        if (areResourcesInitialized) {
+            title = Localization.get("updates.title");
+            message = Localization.get("updates.checking");
+        } else {
+            title = Localization.get("updates.resources.initialization");
+            message = Localization.get("updates.resources.profile");
+        }
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        dialog.setCancelable(false);
+        String checkboxText = Localization.get("updates.keep.trying");
+        CustomProgressDialog lastDialog = getCurrentDialog();
+        boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
+        dialog.addCheckbox(checkboxText, isChecked);
+        dialog.addProgressBar();
+        return dialog;
     }
 }
