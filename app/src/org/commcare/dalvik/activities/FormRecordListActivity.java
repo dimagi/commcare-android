@@ -532,7 +532,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     @Override
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
     

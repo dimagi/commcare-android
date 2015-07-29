@@ -75,7 +75,7 @@ public class StateFragment extends Fragment {
     }
 
     private synchronized void acquireWakeLock() {
-        int lockLevel = boundActivity.getWakeLockingLevel();
+        int lockLevel = boundActivity.getWakeLockLevel();
         if (lockLevel != CommCareTask.DONT_WAKELOCK) {
             if (wakelock != null) {
                 if (wakelock.isHeld()) {

@@ -275,7 +275,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
 

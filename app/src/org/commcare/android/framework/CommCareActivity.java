@@ -229,7 +229,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @return wakelock level for an activity with a running task attached to
      * it; defaults to not using wakelocks.
      */
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return CommCareTask.DONT_WAKELOCK;
     }
 
