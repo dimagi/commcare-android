@@ -38,6 +38,7 @@ public class SingleAppManagerActivity extends Activity {
     private AlertDialog dialog;
     private static final int LOGOUT_FOR_UPDATE = 0;
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
+    private static final int LOGOUT_FOR_ARCHIVE = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -173,13 +174,30 @@ public class SingleAppManagerActivity extends Activity {
     }
 
     /**
-     * onClick method for Archive button. If the app is not archived, sets it to
-     * archived (i.e. still installed but not visible to users).
-     * If it is archived, sets it to unarchived
+     * onClick method for Archive button. If the app is not archived, sets it to archived
+     * (i.e. still installed but not visible to users). If it is archived, sets it to unarchived
      *
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
-    public void toggleArchived(View v) {
+    public void toggleArchiveClicked(View v) {
+        if (CommCareApplication._().isSeated(appRecord)) {
+            try {
+                CommCareSessionService s = CommCareApplication._().getSession();
+                if (s.isActive()) {
+                    triggerLogoutWarning(LOGOUT_FOR_ARCHIVE);
+                } else {
+                    toggleArchived();
+                }
+            } catch (SessionUnavailableException e) {
+                toggleArchived();
+            }
+        } else {
+            toggleArchived();
+        }
+
+    }
+
+    private void toggleArchived() {
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
         if (CommCareApplication._().isSeated(appRecord)) {
@@ -320,6 +338,8 @@ public class SingleAppManagerActivity extends Activity {
                             case LOGOUT_FOR_VERIFY_MM:
                                 verifyResources();
                                 break;
+                            case LOGOUT_FOR_ARCHIVE:
+                                toggleArchived();
                         }
                     }
 

@@ -51,7 +51,7 @@
          android:textSize="@dimen/font_size_xlargest"           
          android:layout_width="fill_parent"
          android:layout_height="wrap_content"
-         android:onClick="toggleArchived"
+         android:onClick="toggleArchiveClicked"
          android:textColor="@color/darkest_grey"
          android:paddingBottom="@dimen/standard_spacer"
          android:paddingTop="@dimen/standard_spacer" />
