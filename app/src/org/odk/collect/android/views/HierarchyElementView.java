@@ -52,39 +52,6 @@ public class HierarchyElementView extends RelativeLayout {
             Log.i("HEVTYPE", "Type of HEV (" + hashCode() + ") is " + it.getType());
             Log.i("HEVTYPE", "Icon of HEV (" + hashCode() + ") is " + (it.getIcon() == null ? "null" : it.getIcon().toString()));
         }
-
-//        setColor(it.getColor());
-//        mIcon = new ImageView(context);
-//        mIcon.setImageDrawable(it.getIcon());
-//        mIcon.setId(1);
-//        mIcon.setPadding(0, 0, dipToPx(4), 0);
-//
-//        addView(mIcon, new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-//                LayoutParams.WRAP_CONTENT));
-//
-//        mPrimaryTextView = new TextView(context);
-//        mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
-//        mPrimaryTextView.setText(it.getPrimaryText());
-//        mPrimaryTextView.setId(2);
-//        mPrimaryTextView.setGravity(Gravity.CENTER_VERTICAL);
-//        LayoutParams l =
-//            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-//        l.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
-//        addView(mPrimaryTextView, l);
-//
-//        mSecondaryTextView = new TextView(context);
-//        mSecondaryTextView.setText(it.getSecondaryText());
-//        mSecondaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Small);
-//        mSecondaryTextView.setGravity(Gravity.CENTER_VERTICAL);
-//
-//        LayoutParams lp =
-//            new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-//        lp.addRule(RelativeLayout.BELOW, mPrimaryTextView.getId());
-//        lp.addRule(RelativeLayout.RIGHT_OF, mIcon.getId());
-//        addView(mSecondaryTextView, lp);
-//
-//        setPadding(dipToPx(8), dipToPx(4), dipToPx(8), dipToPx(8));
-
     }
 
 

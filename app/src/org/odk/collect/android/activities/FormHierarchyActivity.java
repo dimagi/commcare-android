@@ -348,16 +348,11 @@ public class FormHierarchyActivity extends ListActivity {
                 return R.drawable.avatar_vellum_question_list;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 return R.drawable.avatar_search;
-            //break;
             case Constants.CONTROL_RANGE:
-                //break;
             case Constants.CONTROL_UPLOAD:
-                //break;
             case Constants.CONTROL_SUBMIT:
-                //break;
             case Constants.CONTROL_INPUT:
                 return getDrawableIDFor(fep);
-                //break;
         }
         return -1;
     }
