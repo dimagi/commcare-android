@@ -9,7 +9,9 @@ import android.widget.ProgressBar;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.UpgradeAppTask;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -29,6 +31,7 @@ public class UpgradeActivity extends CommCareActivity {
     private ProgressBar mProgress;
     private int mProgressStatus = 0;
     private boolean areResourcesInitialized = false;
+    private String incomingRef;
 
     private Handler mHandler = new Handler();
 
@@ -110,6 +113,7 @@ public class UpgradeActivity extends CommCareActivity {
         checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startUpgradeCheck();
             }
         });
 
@@ -129,6 +133,14 @@ public class UpgradeActivity extends CommCareActivity {
     }
 
     private void setupButtonState() {
+    }
+
+    private void startUpgradeCheck() {
+        if (!UpgradeAppTask.registerActivityWithRunningTask(this)) {
+            UpgradeAppTask upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp(), false);
+            upgradeTask.connect(this);
+            upgradeTask.execute(incomingRef);
+        }
     }
 
     @Override

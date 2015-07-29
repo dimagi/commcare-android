@@ -1,23 +1,40 @@
 package org.commcare.android.tasks;
 
-public abstract class UpgraddAppTask<R> extends CommCareTask<String, int[], Boolean, R> {
-    private static final DIALOG_ID = 1;
-    private final CommCareApp commCareApp;
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.os.SystemClock;
 
-    public UpgraddAppTask(CommCareApp app, boolean startInBackground) {
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.dalvik.application.CommCareApp;
+
+public abstract class UpgradeAppTask<R> extends CommCareTask<String, int[], Boolean, R> {
+    private static final int DIALOG_ID = 1;
+    private final CommCareApp commCareApp;
+    private static UpgradeAppTask latestRunningTask = null;
+
+    public UpgradeAppTask(CommCareApp app, boolean startInBackground) {
         commCareApp = app;
 
         if (startInBackground) {
-            taskId = -1
+            taskId = -1;
         } else {
-            taskId = DIALOG_ID
+            taskId = DIALOG_ID;
         }
 
-        TAG = UpgraddAppTask.class.getSimpleName();
+        TAG = UpgradeAppTask.class.getSimpleName();
     }
 
     @Override
     protected Boolean doTaskBackground(String... profileRefs) {
         SystemClock.sleep(2000);
+    }
+
+    public static boolean registerActivityWithRunningTask(CommCareTaskConnector connector) {
+        if (latestRunningTask != null && latestRunningTask.getStatus() == Status.RUNNING) {
+            latestRunningTask.connect(connector);
+            return true;
+        }
+        return false;
     }
 }
