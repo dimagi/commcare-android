@@ -325,11 +325,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void cancelCurrentTask() {
         stateHolder.cancelTask();
     }
-    
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
 
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
