@@ -467,7 +467,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
     
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
         stopTimer();
         saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);

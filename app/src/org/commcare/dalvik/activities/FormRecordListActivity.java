@@ -195,7 +195,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
 
         saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
