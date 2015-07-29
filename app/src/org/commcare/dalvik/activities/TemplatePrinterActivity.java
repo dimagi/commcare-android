@@ -29,6 +29,7 @@ import android.print.PageRange;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
+import android.print.PrintJobInfo;
 import android.print.PrintManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -259,11 +260,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * Source: http://stackoverflow.com/questions/30742051/android-printmanager-get-callback
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    class PrintDocumentAdapterWrapper extends PrintDocumentAdapter{
+    class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
 
         private final PrintDocumentAdapter delegate;
 
-        public PrintDocumentAdapterWrapper(PrintDocumentAdapter adapter){
+        public PrintDocumentAdapterWrapper(PrintDocumentAdapter adapter) {
             super();
             this.delegate = adapter;
         }
@@ -283,14 +284,25 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         }
 
         @Override
-        public void onFinish(){
+        public void onFinish() {
             delegate.onFinish();
-            if (printJob.isCompleted()) {
-                showAlertDialog(Localization.get("printing.done"));
-            } else if (printJob.isFailed()) {
-                showAlertDialog(Localization.get("print.error"));
-            } else {
-                showAlertDialog(Localization.get("printjob.not.started"));
+            switch(printJob.getInfo().getState()) {
+                case PrintJobInfo.STATE_BLOCKED:
+                    showAlertDialog(Localization.get("printjob.blocked"));
+                    break;
+                case PrintJobInfo.STATE_CANCELED:
+                    showAlertDialog(Localization.get("printjob.not.started"));
+                    break;
+                case PrintJobInfo.STATE_COMPLETED:
+                    showAlertDialog(Localization.get("printing.done"));
+                    break;
+                case PrintJobInfo.STATE_FAILED:
+                    showAlertDialog(Localization.get("print.error"));
+                    break;
+                case PrintJobInfo.STATE_CREATED:
+                case PrintJobInfo.STATE_QUEUED:
+                case PrintJobInfo.STATE_STARTED:
+                    showAlertDialog(Localization.get("printjob.started"));
             }
         }
     }
