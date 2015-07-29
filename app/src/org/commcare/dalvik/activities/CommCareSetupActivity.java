@@ -38,6 +38,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import java.util.List;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
@@ -225,7 +227,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void uiStateScreenTransition() {
-        Fragment fragment;
+        Fragment fragment = null;
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
@@ -244,7 +246,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
 
             default:
-                fragment = installFragment;
+                List<Fragment> fgmts = fm.getFragments();
+                int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
+                if(lastIndex > -1) {
+                    fragment = fgmts.get(lastIndex);
+                    if (BuildConfig.DEBUG) {
+                        Log.v(TAG, "Last fragment: " + fragment);
+                    }
+                }
+                if(!(fragment instanceof SetupEnterURLFragment)){
+                    fragment = installFragment;
+                } else {
+                    // we restore the state of the SetupEnterURLFragment if it is our last fragment
+                }
                 break;
         }
 
