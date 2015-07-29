@@ -27,61 +27,61 @@ public class StateFragment extends Fragment {
 
     private WakeLock wakelock;
 
-      @Override
-      public void onAttach(Activity activity) {
+    @Override
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(activity instanceof CommCareActivity) {
+        if (activity instanceof CommCareActivity) {
             this.boundActivity = (CommCareActivity)activity;
             this.boundActivity.stateHolder = this;
-            if(this.currentTask != null && this.currentTask.getStatus() == AsyncTask.Status.RUNNING) {
+            if (this.currentTask != null && this.currentTask.getStatus() == AsyncTask.Status.RUNNING) {
                 this.currentTask.connect(boundActivity);
             }
         }
-      }
+    }
 
-      @Override
-      public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Retain this fragment across configuration changes.
         setRetainInstance(true);
-      }
+    }
 
-      @Override
-      public void onDetach() {
+    @Override
+    public void onDetach() {
         super.onDetach();
 
-        if(this.boundActivity != null) {
+        if (this.boundActivity != null) {
             lastActivity = boundActivity;
         }
 
-        if(currentTask != null) {
+        if (currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
             currentTask.disconnect();
             unlock();
         }
-      }
+    }
 
     public void cancelTask() {
-        if(currentTask != null) {
+        if (currentTask != null) {
             currentTask.cancel(false);
         }
     }
 
     public synchronized void wakelock(int lockLevel) {
-        if(wakelock != null) {
-            if(wakelock.isHeld()) {
+        if (wakelock != null) {
+            if (wakelock.isHeld()) {
                 wakelock.release();
             }
         }
-        PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
         wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
         wakelock.acquire();
     }
 
     public synchronized void unlock() {
-        if(wakelock != null) {
+        if (wakelock != null) {
             wakelock.release();
             wakelock = null;
         }
