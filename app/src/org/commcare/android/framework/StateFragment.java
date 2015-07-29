@@ -20,10 +20,10 @@ import android.util.Log;
  * @author ctsims
  */
 public class StateFragment extends Fragment {
-    CommCareActivity boundActivity;
-    CommCareActivity lastActivity;
+    private CommCareActivity boundActivity;
+    private CommCareActivity lastActivity;
 
-    CommCareTask currentTask;
+    private CommCareTask currentTask;
 
     private WakeLock wakelock;
 
