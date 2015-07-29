@@ -56,13 +56,13 @@ public class UpgradeActivity extends CommCareActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // setup UI
         setContentView(R.layout.upgrade_activity);
         mProgress = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();
 
-        // attempt to attach to auto-update task
-        setStateFromRunningTask();
+        UpgradeAppTask.UpgradeTaskState upgradeTaskState =
+            UpgradeAppTask.registerActivityWithRunningTask(this);
+        setUiStateFromRunningTask(upgradeTaskState);
 
         // update UI based on current state
         setupButtonState();
@@ -142,6 +142,28 @@ public class UpgradeActivity extends CommCareActivity {
     }
 
     private void setupButtonState() {
+        switch (currentUiState) {
+            case idle:
+                checkUpgradeButton.setEnabled(true);
+                stopUpgradeButton.setEnabled(false);
+                installUpgradeButton.setEnabled(false);
+                break;
+            case checking:
+            case downloading:
+                checkUpgradeButton.setEnabled(false);
+                stopUpgradeButton.setEnabled(true);
+                installUpgradeButton.setEnabled(false);
+                break;
+            case unappliedInstall:
+                checkUpgradeButton.setEnabled(true);
+                stopUpgradeButton.setEnabled(false);
+                installUpgradeButton.setEnabled(true);
+                break;
+            default:
+                checkUpgradeButton.setEnabled(false);
+                stopUpgradeButton.setEnabled(false);
+                installUpgradeButton.setEnabled(false);
+        }
     }
 
     private void startUpgradeCheck() {
@@ -172,9 +194,7 @@ public class UpgradeActivity extends CommCareActivity {
         return dialog;
     }
 
-    private void setStateFromRunningTask() {
-        UpgradeAppTask.UpgradeTaskState upgradeTaskState =
-            UpgradeAppTask.registerActivityWithRunningTask(this);
+    private void setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState upgradeTaskState) {
         switch (upgradeTaskState) {
             case checking:
                 currentUiState = UpgradeUiState.checking;
