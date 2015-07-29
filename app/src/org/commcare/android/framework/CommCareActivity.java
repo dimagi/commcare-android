@@ -256,7 +256,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 dismissProgressDialog();
             }
         }
-        unlock();
+
+        stateHolder.releaseWakeLock();
     }
     
     @Override
@@ -345,10 +346,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if(lockLevel == -1) { return;}
         
         stateHolder.acquireWakeLock(lockLevel);
-    }
-    
-    private void unlock() {
-        stateHolder.releaseWakeLock();
     }
     
     /**
