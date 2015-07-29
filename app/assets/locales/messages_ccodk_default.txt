@@ -17,8 +17,6 @@ verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
-modules.m0=pregnancy
-
 install.barcode=Welcome to CommCare! Please choose an installation method below 
 install.manual=Please enter the URL
 install.ready=Almost there! Press the button below to install your app.
