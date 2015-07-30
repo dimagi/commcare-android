@@ -27,7 +27,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     Drawable backgroundImg;
     int backgroundColorButton = android.R.drawable.btn_default;
-    int backgroundColorNotification = android.R.color.holo_green_light;
+    int backgroundColorNotification = R.color.solid_green;
     String subtitleButton = "";
     String textNotification = "";
     private int colorButtonText = R.color.white;

@@ -11,7 +11,6 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -19,11 +18,9 @@ import java.util.LinkedList;
  * Created by dancluna on 3/19/15.
  */
 public class HomeScreenAdapter extends BaseAdapter {
-    public static final String TAG = "HomeScrnAdpt";
+    private static final String TAG = HomeScreenAdapter.class.getSimpleName();
 
-    //region Buttons
-
-    static final int[] buttonsResources = new int[]{
+    private static final int[] buttonsResources = new int[]{
             R.layout.home_start_button,
             R.layout.home_savedforms_button,
             R.layout.home_incompleteforms_button,
@@ -31,63 +28,38 @@ public class HomeScreenAdapter extends BaseAdapter {
             R.layout.home_disconnect_button,
     };
 
-    static final HashMap<Integer, Integer> buttonsIDsToResources = new HashMap<Integer, Integer>() {{
-        put(R.id.home_start_sqbn, R.layout.home_start_button);
-        put(R.id.home_savedforms_sqbn, R.layout.home_savedforms_button);
-        put(R.id.home_sync_sqbn, R.layout.home_sync_button);
-        put(R.id.home_disconnect_sqbn, R.layout.home_disconnect_button);
-        put(R.id.home_incompleteforms_sqbn, R.layout.home_incompleteforms_button);
-    }};
+    private final SquareButtonWithNotification[] buttons =
+            new SquareButtonWithNotification[buttonsResources.length];
 
-    //endregion
+    private final boolean[] hiddenButtons = new boolean[buttonsResources.length];
 
-    //region Private variables
-
-    final SquareButtonWithNotification[] buttons = new SquareButtonWithNotification[buttonsResources.length];
-
-    private Context context;
-
-    private boolean[] hiddenButtons = new boolean[buttonsResources.length];
-    private boolean isInitialized = false;
-
-    private LinkedList<SquareButtonWithNotification> visibleButtons;
-
-    //endregion
-
-    //region Constructors
+    private final LinkedList<SquareButtonWithNotification> visibleButtons;
 
     public HomeScreenAdapter(Context c) {
-        this.context = c;
         visibleButtons = new LinkedList<SquareButtonWithNotification>();
+        LayoutInflater inflater = LayoutInflater.from(c);
         for (int i = 0; i < buttons.length; i++) {
-            if (buttons[i] != null) {
-                continue;
-            }
-            SquareButtonWithNotification button = (SquareButtonWithNotification)LayoutInflater.from(context)
-                    .inflate(buttonsResources[i], null, false);
-            buttons[i] = button;
-            Log.i(TAG, "Added button " + button + "to position " + i);
+            if (buttons[i] == null) {
+                SquareButtonWithNotification button =
+                        (SquareButtonWithNotification)inflater.inflate(buttonsResources[i], null, false);
+                buttons[i] = button;
+                Log.i(TAG, "Added button " + button + "to position " + i);
 
-            if (!hiddenButtons[i]) {
-                visibleButtons.add(button);
+                if (!hiddenButtons[i]) {
+                    visibleButtons.add(button);
+                }
             }
         }
-        isInitialized = true;
     }
-
-    //endregion
-
-    //region Public API
 
     /**
      * Sets the onClickListener for the given button
      *
      * @param resourceCode Android resource code (R.id.$button or R.layout.$button)
-     * @param lookupID     If set, will search for the button with the given R.id
      * @param listener     OnClickListener for the button
      */
-    public void setOnClickListenerForButton(int resourceCode, boolean lookupID, View.OnClickListener listener) {
-        int buttonIndex = getButtonIndex(resourceCode, lookupID);
+    public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
+        int buttonIndex = getButtonIndex(resourceCode);
         SquareButtonWithNotification button = (SquareButtonWithNotification)getItem(buttonIndex);
         if (button != null) {
             if (BuildConfig.DEBUG) {
@@ -101,12 +73,12 @@ public class HomeScreenAdapter extends BaseAdapter {
         }
     }
 
-    public SquareButtonWithNotification getButton(int resourceCode, boolean lookupID) {
-        return buttons[getButtonIndex(resourceCode, lookupID)];
+    public SquareButtonWithNotification getButton(int resourceCode) {
+        return buttons[getButtonIndex(resourceCode)];
     }
 
-    public void setNotificationTextForButton(int resourceCode, boolean lookupID, String notificationText) {
-        SquareButtonWithNotification button = getButton(resourceCode, lookupID);
+    public void setNotificationTextForButton(int resourceCode, String notificationText) {
+        SquareButtonWithNotification button = getButton(resourceCode);
         if (button != null) {
             button.setNotificationText(notificationText);
             notifyDataSetChanged();
@@ -150,57 +122,32 @@ public class HomeScreenAdapter extends BaseAdapter {
      * Sets visibility for the button with the given resource code
      *
      * @param resourceCode   Android resource code (R.id.$button or R.layout.$button)
-     * @param lookupID       If set, will search for the button with the given R.id
      * @param isButtonHidden Button visibility state (true for hidden, false for visible)
      */
-    public void setButtonVisibility(int resourceCode, boolean lookupID, boolean isButtonHidden) {
-        int index = getButtonIndex(resourceCode, lookupID);
-        boolean toggled = isButtonHidden ^ hiddenButtons[index]; // checking if the button visibility was changed in this call
+    public void setButtonVisibility(int resourceCode, boolean isButtonHidden) {
+        int index = getButtonIndex(resourceCode);
+        boolean hasVisibilityChanged = isButtonHidden ^ hiddenButtons[index];
         hiddenButtons[index] = isButtonHidden;
-        if (!toggled) {
-            return;
-        } // if the visibility was not changed, we don't need to do anything
-        if (isButtonHidden) { // if the visibility was changed, we add/remove the button from the visible buttons' list
-            visibleButtons.remove(buttons[index]);
-        } else {
-            visibleButtons.add(index, buttons[index]);
-        }
-    }
-
-    //endregion
-
-    //region Private methods
-
-
-    /**
-     * Returns the index of the button with the given resource code. If lookupID is set, will search for the button with the given R.id; if not, will search for the button with the given R.layout code.
-     *
-     * @param resourceCode
-     * @param lookupID
-     * @return
-     * @throws java.lang.IllegalArgumentException If the given resourceCode is not found
-     */
-    private int getButtonIndex(int resourceCode, boolean lookupID) {
-        int code = resourceCode;
-        // if lookupID is set, we are mapping from an int in R.id to one in R.layout
-        if (lookupID) {
-            Integer layoutCode = buttonsIDsToResources.get(resourceCode);
-            if (layoutCode == null)
-                throw new IllegalArgumentException("ID code not found: " + resourceCode);
-            code = layoutCode;
-        }
-        Integer buttonIndex = null;
-        for (int i = 0; i < buttonsResources.length; i++) {
-            if (code == buttonsResources[i]) {
-                buttonIndex = i;
-                break;
+        if (hasVisibilityChanged) {
+            if (isButtonHidden) {
+                visibleButtons.remove(buttons[index]);
+            } else {
+                visibleButtons.add(index, buttons[index]);
             }
         }
-        if (buttonIndex == null) {
-            throw new IllegalArgumentException("Layout code not found: " + code);
-        }
-        return buttonIndex;
     }
 
-    //endregion
+    /**
+     * Returns the index of the button with the given resource code.
+     *
+     * @throws IllegalArgumentException If the given resourceCode is not found
+     */
+    private int getButtonIndex(int resourceCode) {
+        for (int i = 0; i < buttonsResources.length; i++) {
+            if (resourceCode == buttonsResources[i]) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Layout code not found: " + resourceCode);
+    }
 }

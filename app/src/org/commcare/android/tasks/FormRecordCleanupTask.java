@@ -23,7 +23,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;

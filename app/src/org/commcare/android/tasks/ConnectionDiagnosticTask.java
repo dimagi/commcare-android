@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
@@ -21,8 +20,6 @@ import android.net.NetworkInfo;
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
  * @author srengesh
  */
-
-
 
 //CommCareTask<A, B, C, R>
 public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R>

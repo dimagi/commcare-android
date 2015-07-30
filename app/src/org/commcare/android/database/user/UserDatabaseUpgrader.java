@@ -201,9 +201,6 @@ public class UserDatabaseUpgrader {
     /**
      * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
      * format
-     *  
-     * @param storage
-     * @return
      */
     private <T extends Persistable> void updateModels(SqlStorage<T> storage) {
         for(T t : storage) {

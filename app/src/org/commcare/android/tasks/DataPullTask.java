@@ -415,7 +415,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      * local cache. Notifies listeners of progress through the download if its
      * size is available.
      *
-     * @param response
      * @throws IOException If there is an issue reading or writing the response.
      */
     private BitCache writeResponseToCache(HttpResponse response) throws IOException {

@@ -75,8 +75,6 @@ public class AndroidSessionWrapper {
     /**
      * Serialize the state of this session so it can be restored 
      * at a later time. 
-     * 
-     * @return
      */
     public SessionStateDescriptor getSessionStateDescriptor() {
         return new SessionStateDescriptor(this);

@@ -1,16 +1,3 @@
-/*
- * Copyright (C) 2011 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
 package org.odk.collect.android.application;
 
 import java.io.File;
@@ -102,7 +89,6 @@ public class Collect extends Application {
 
     /**
      * Shared HttpContext so a user doesn't have to re-enter login information
-     * @return
      */
     public synchronized HttpContext getHttpContext() {
         if (localContext == null) {
@@ -133,16 +119,11 @@ public class Collect extends Application {
      * Set application context. While Collect is itself a subclass of Context,
      * in a static context, onCreate may never have been called, making it useless for
      * actions like starting activities.
-     * @param c
      */
     public static void setStaticApplicationContext(Context c) {
         context = c;
     }
 
-    /**
-     * Get application context.
-     * @return
-     */
     public static Context getStaticApplicationContext() {
         return context;
     }

@@ -32,7 +32,6 @@ import javax.crypto.CipherOutputStream;
 
 /**
  * @author ctsims
- *
  */
 public class FileUtil {
     
@@ -314,9 +313,6 @@ public class FileUtil {
         /**
          * Turn a filepath into a global android URI that can be passed
          * to an intent. 
-         * 
-         * @param fileLocation
-         * @return
          */
         public static String getGlobalStringUri(String fileLocation) {
             return "file://" + fileLocation;
@@ -339,8 +335,6 @@ public class FileUtil {
         /**
          * Ensure that everything between "localpart" and f exists
          * and create it if not.
-         * 
-         * @param f
          */
         public static void ensureFilePathExists(File f) {
             File folder = f.getParentFile();

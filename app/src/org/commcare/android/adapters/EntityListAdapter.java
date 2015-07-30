@@ -134,8 +134,6 @@ public class EntityListAdapter implements ListAdapter {
     
     /**
      * Set the current display set for this adapter
-     * 
-     * @param arrayList
      */
     private void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
