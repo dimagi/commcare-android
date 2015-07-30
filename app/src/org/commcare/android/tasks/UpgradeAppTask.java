@@ -15,12 +15,12 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
     private UpgradeAppTask() {
     }
 
-    public static UpgradeAppTask getInstance() {
-        if (singletonRunningInstance == null ||
-                singletonRunningInstance.getStatus() == Status.FINISHED) {
+    public static UpgradeAppTask getNewInstance() {
+        if (singletonRunningInstance == null) {
             singletonRunningInstance = new UpgradeAppTask();
+        } else {
+            throw new RuntimeException("There is a " + TAG + " instance.");
         }
-        return singletonRunningInstance;
     }
 
     public static UpgradeAppTask getRunningInstance() {

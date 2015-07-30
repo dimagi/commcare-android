@@ -24,22 +24,7 @@ import org.commcare.dalvik.R;
  */
 public class UpgradeActivity extends CommCareActivity implements TaskListener<int[], Boolean> {
     private static final String TAG = UpgradeActivity.class.getSimpleName();
-
-    private ProgressBar progressBar;
-    private String incomingRef = "";
-
-    private enum UpgradeUiState {
-        idle,
-        checking,
-        downloading,
-        cancelling,
-        unappliedInstall,
-        error
-    }
     private static final String UI_STATE_KEY = "ui_state";
-    private UpgradeUiState currentUiState;
-
-    private UpgradeAppTask upgradeTask;
 
     @UiElement(R.id.check_for_upgrade_button)
     Button checkUpgradeButton;
@@ -49,6 +34,20 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
 
     @UiElement(R.id.install_upgrade_button)
     Button installUpgradeButton;
+
+    private enum UpgradeUiState {
+        idle,
+        downloading,
+        cancelling,
+        unappliedInstall,
+        error
+    }
+    private UpgradeUiState currentUiState;
+
+    private UpgradeAppTask upgradeTask;
+
+    private ProgressBar progressBar;
+    private String incomingRef = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +77,7 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         }
 
         // update UI based on current state
-        setupButtonState();
+        updateButtonState();
     }
 
     @Override
@@ -128,13 +127,10 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         });
     }
 
-    private void setupButtonState() {
+    private void updateButtonState() {
         switch (currentUiState) {
             case idle:
                 setIdleButtonState();
-                break;
-            case checking:
-                setDownloadingButtonState();
                 break;
             case downloading:
                 setDownloadingButtonState();
@@ -188,23 +184,20 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         installUpgradeButton.setEnabled(false);
     }
 
-
     private void startUpgradeCheck() {
-        if (currentUiState == UpgradeUiState.idle) {
-            upgradeTask = UpgradeAppTask.getInstance();
-            try {
-                upgradeTask.registerTaskListener(this);
-            } catch (TaskListenerException e) {
-                Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
-                currentUiState = UpgradeUiState.error;
-                setupButtonState();
-                return;
-            }
-            upgradeTask.execute(incomingRef);
+        upgradeTask = UpgradeAppTask.getNewInstance();
+        try {
+            upgradeTask.registerTaskListener(this);
+        } catch (TaskListenerException e) {
+            Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
+            currentUiState = UpgradeUiState.error;
+            updateButtonState();
+            return;
         }
+        upgradeTask.execute(incomingRef);
         progressBar.setProgress(0);
-        currentUiState = UpgradeUiState.checking;
-        setDownloadingButtonState();
+        currentUiState = UpgradeUiState.downloading;
+        updateButtonState();
     }
 
     private void stopUpgradeCheck() {
@@ -212,13 +205,13 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             upgradeTask.cancel(true);
         }
         currentUiState = UpgradeUiState.cancelling;
-        setCancellingButtonState();
+        updateButtonState();
     }
 
     private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
-                currentUiState = UpgradeUiState.checking;
+                currentUiState = UpgradeUiState.downloading;
                 break;
             case PENDING:
                 currentUiState = pendingUpgradeOrIdle();
@@ -262,6 +255,13 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
 
     @Override
     public void processTaskResult(Boolean result) {
+        if (result) {
+            currentUiState = UpgradeUiState.unappliedInstall;
+        } else {
+            currentUiState = UpgradeUiState.idle;
+        }
+
+        updateButtonState()
         unregisterTask();
     }
 
@@ -270,7 +270,8 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         unregisterTask();
 
         currentUiState = UpgradeUiState.idle;
+        updateButtonState()
+
         progressBar.setProgress(0);
-        setIdleButtonState();
     }
 }
