@@ -55,6 +55,7 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -1507,6 +1508,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return true;
             case MENU_ABOUT:
                 final String commcareVersion = CommCareApplication._().getCurrentVersionString();
+                final int commcareColor = AndroidUtil.getThemeColorIDs(this, new int[] {R.attr.version_snackbar_text_color})[0];
                 Snackbar.make(findViewById(android.R.id.content), commcareVersion, Snackbar.LENGTH_LONG)
                         .setAction(Localization.get("home.version.copy"), new OnClickListener() {
                             @Override
@@ -1515,7 +1517,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                                 clipboard.setText(commcareVersion);
                             }
                         })
-                        .setActionTextColor(getResources().getColor(R.color.cc_brand_bg))
+                        .setActionTextColor(commcareColor)
                         .show();
                 return true;
         }

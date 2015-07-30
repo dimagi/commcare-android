@@ -13,6 +13,7 @@
     <attr name="drawer_pulldown_odd_row_color" format="reference"></attr>
     <attr name="menu_tile_title_text_color" format="reference"></attr>
     <attr name="entity_select_title_text_color" format="reference"></attr>
+    <attr name="version_snackbar_text_color" format="reference"></attr>
     <declare-styleable name="SquareButtonWithText">
         <attr name="backgroundcolor" format="reference|color" />
         <attr name="sqb_subtitle" format="string" />

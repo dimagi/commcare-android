@@ -22,6 +22,7 @@
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
+        <item name="version_snackbar_text_color">@color/cc_brand_bg</item>
     </style>
     
         <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
@@ -87,7 +88,4 @@
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
 	</style>
-    
-    
-
 </resources>
