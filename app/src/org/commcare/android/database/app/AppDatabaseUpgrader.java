@@ -1,21 +1,15 @@
-/**
- * 
- */
 package org.commcare.android.database.app;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.resources.model.Resource;
-import org.javarosa.core.services.storage.Persistable;
 
 import android.content.Context;
 
 /**
  * @author ctsims
- *
  */
 public class AppDatabaseUpgrader {
     private Context c;

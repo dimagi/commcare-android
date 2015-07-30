@@ -24,7 +24,6 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -151,17 +150,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Parses out a formrecord and fills in the various parse-able details (UUID, date modified, etc), and updates
      * it to the provided status.
      * 
-     * @param context
-     * @param r
-     * @param newStatus
      * @return The new form record containing relevant details about this form
-     * @throws InvalidKeyException 
-     * @throws NoSuchPaddingException 
-     * @throws NoSuchAlgorithmException 
-     * @throws IOException 
-     * @throws InvalidStructureException 
-     * @throws UnfullfilledRequirementsException 
-     * @throws XmlPullParserException 
      */
     public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         //Awful. Just... awful

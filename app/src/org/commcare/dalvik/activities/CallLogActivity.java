@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.CallRecordAdapter;
 import org.commcare.android.adapters.MessageRecordAdapter;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
@@ -22,7 +21,6 @@ import android.widget.ListView;
 
 /**
  * @author ctsims
- *
  */
 public class CallLogActivity<T extends Persistable> extends ListActivity {
     
@@ -69,17 +67,18 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
             }
             adapter = messages;
         } else {
-            if(calls == null) {
-
-                Cursor callCursor;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    callCursor = new CursorLoader(this, android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC").loadInBackground();
-                } else {
-                    callCursor = managedQuery(android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC");
+            if (calls == null) {
+                Cursor callCursor = null;
+                try {
+                    callCursor = getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC");
+                    calls = new CallRecordAdapter(this, callCursor);
+                } finally {
+                    if (callCursor != null && !callCursor.isClosed()) {
+                        callCursor.close();
+                    }
                 }
-                calls = new CallRecordAdapter(this, callCursor);
             }
-            adapter =calls;
+            adapter = calls;
         }
 
         this.setListAdapter(adapter);

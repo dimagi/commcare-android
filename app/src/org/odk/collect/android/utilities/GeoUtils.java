@@ -26,7 +26,6 @@ public class GeoUtils {
 
     /**
      * Format location in a string for user display.
-     * @param location
      * @return String in format "<latitude> <longitude> <altitude> <accuracy>"
      */
     public static String locationToString(Location location) {
@@ -35,7 +34,6 @@ public class GeoUtils {
     
     /**
      * Get a LocationManager's providers, and trim the list down to providers we care about: GPS and network.
-     * @param manager
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     public static Set<String> evaluateProviders(LocationManager manager) {
@@ -56,7 +54,6 @@ public class GeoUtils {
     
     /**
      * Display a non-cancel-able dialog asking user if they want to turn on their GPS.
-     * @param context
      * @param onChange Listener to call when dialog button is pressed.
      */
     public static void showNoGpsDialog(Context context, DialogInterface.OnClickListener onChange) {
@@ -65,7 +62,6 @@ public class GeoUtils {
 
     /**
      * Display a cancel-able dialog asking user if they want to turn on their GPS.
-     * @param context
      * @param onChange Listener to call when dialog button is pressed.
      * @param onCancel Listener to call when dialog is canceled.
      */

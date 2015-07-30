@@ -469,7 +469,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 @Override
                 protected void deliverUpdate(CommCareSetupActivity receiver,
                                              int[]... update) {
-                    receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
+                    receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
                 }
 
                 @Override
@@ -531,15 +531,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * Raise failure message and return to the home activity
+     * Raise failure message and return to the home activity with cancel code
      */
     void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
-            done(false);
         }
+        Intent i = new Intent(getIntent());
+        setResult(RESULT_CANCELED, i);
+        finish();
     }
     
     // All final paths from the Update are handled here (Important! Some
@@ -584,7 +586,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     @Override
-    public void updateProgress(int done, int total, int phase) {
+    public void updateResourceProgress(int done, int total, int phase) {
         if(inUpgradeMode) {       
             if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
                 updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);

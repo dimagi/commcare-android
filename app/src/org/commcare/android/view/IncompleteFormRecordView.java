@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.view;
 
 import android.content.Context;
@@ -13,7 +10,6 @@ import android.widget.TextView;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Text;
 
@@ -23,7 +19,6 @@ import java.util.Hashtable;
 
 /**
  * @author ctsims
- *
  */
 public class IncompleteFormRecordView extends LinearLayout {
     

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.provider;
 
 import android.content.UriMatcher;
@@ -34,7 +31,6 @@ public class CaseDataAPI {
      * Determine which (if any) defined API tables are being referenced by the provided URI.
      * NOTE: The Match ID's are defined within the table definitions themselves.
      * 
-     * @param uri
      * @return The ID of the data model which is being referenced by the URI.
      */
     public static int UriMatch(Uri uri) {
