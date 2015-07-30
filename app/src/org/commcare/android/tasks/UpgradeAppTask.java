@@ -9,40 +9,36 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
 
     private TaskListener<int[], Boolean> taskListener = null;
 
-    public enum UpgradeTaskState {
-        notRunning,
-        checking,
-        downloading
-    }
-    private UpgradeTaskState taskState;
-
-    private static UpgradeAppTask latestRunningTask = null;
+    private static UpgradeAppTask singletonRunningInstance = null;
     private int progress = 0;
 
     private UpgradeAppTask() {
-        taskState = UpgradeTaskState.notRunning;
     }
 
     public static UpgradeAppTask getInstance() {
-        if (latestRunningTask == null ||
-                latestRunningTask.getStatus() == Status.FINISHED) {
-            latestRunningTask = new UpgradeAppTask();
+        if (singletonRunningInstance == null ||
+                singletonRunningInstance.getStatus() == Status.FINISHED) {
+            singletonRunningInstance = new UpgradeAppTask();
         }
-        return latestRunningTask;
+        return singletonRunningInstance;
     }
 
     public static UpgradeAppTask getRunningInstance() {
-        if (latestRunningTask != null &&
-                latestRunningTask.getStatus() == Status.RUNNING) {
-            return latestRunningTask;
+        if (singletonRunningInstance != null &&
+                singletonRunningInstance.getStatus() == Status.RUNNING) {
+            return singletonRunningInstance;
         }
         return null;
     }
 
     @Override
     protected final Boolean doInBackground(String... params) {
-        taskState = UpgradeTaskState.checking;
         while (progress < 101) {
+            if (isCancelled()) {
+                SystemClock.sleep(3000);
+                return false;
+            }
+
             SystemClock.sleep(500);
             publishProgress(new int[]{progress++, 100});
         }
@@ -66,18 +62,22 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
             taskListener.processTaskResult(result);
         }
 
-        latestRunningTask = null;
+        singletonRunningInstance = null;
     }
 
     @Override
-    protected void onCancelled() {
-        super.onCancelled();
+    protected void onCancelled(Boolean result) {
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            super.onCancelled(result);
+        } else {
+            super.onCancelled();
+        }
 
-        latestRunningTask = null;
-    }
+        if (taskListener != null) {
+            taskListener.processTaskCancel(result);
+        }
 
-    public UpgradeTaskState getUprgradeState() {
-        return taskState;
+        singletonRunningInstance = null;
     }
 
     public void registerTaskListener(TaskListener<int[], Boolean> listener) throws TaskListenerException {
@@ -92,5 +92,9 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
             throw new TaskListenerException("The provided listener wasn't registered with this " + TAG);
         }
         taskListener = null;
+    }
+
+    public int getProgress() {
+        return progress;
     }
 }

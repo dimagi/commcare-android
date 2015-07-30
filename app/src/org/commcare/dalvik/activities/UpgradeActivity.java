@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +13,6 @@ import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeAppTask;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.locale.Localization;
 
 /**
  * Allow user to manage app upgrading:
@@ -33,9 +32,11 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         idle,
         checking,
         downloading,
+        cancelling,
         unappliedInstall,
         error
     }
+    private static final String UI_STATE_KEY = "ui_state";
     private UpgradeUiState currentUiState;
 
     private UpgradeAppTask upgradeTask;
@@ -53,20 +54,26 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        loadSaveInstanceState(savedInstanceState);
+
         setContentView(R.layout.upgrade_activity);
         progressBar = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();
 
         upgradeTask = UpgradeAppTask.getRunningInstance();
-
         try {
             if (upgradeTask != null) {
                 upgradeTask.registerTaskListener(this);
-                setUiStateFromRunningTask(upgradeTask.getUprgradeState());
+                if (currentUiState != UpgradeUiState.cancelling) {
+                    setUiStateFromRunningTask(upgradeTask.getStatus());
+                }
+                progressBar.setProgress(upgradeTask.getProgress());
             } else {
-                setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState.notRunning);
+                progressBar.setProgress(0);
+                currentUiState = pendingUpgradeOrIdle();
             }
         } catch (TaskListenerException e) {
+            Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
             currentUiState = UpgradeUiState.error;
         }
 
@@ -75,36 +82,25 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
-        if (upgradeTask != null) {
-            try {
-                upgradeTask.unregisterTaskListener(this);
-            } catch (TaskListenerException e) {
-                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
+        outState.putSerializable(UI_STATE_KEY, currentUiState);
+    }
+
+    private void loadSaveInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(UI_STATE_KEY)) {
+                currentUiState = (UpgradeUiState)savedInstanceState.get(UI_STATE_KEY);
             }
         }
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-    }
+    public void onDestroy() {
+        super.onDestroy();
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+        unregisterTask();
     }
 
     private void setupButtonListeners() {
@@ -146,6 +142,9 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             case unappliedInstall:
                 setUnappliedInstallButtonState();
                 break;
+            case cancelling:
+                setCancellingButtonState();
+                break;
             case error:
                 setErrorButtonState();
                 break;
@@ -157,24 +156,35 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     private void setIdleButtonState() {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
     }
 
     private void setDownloadingButtonState() {
         checkUpgradeButton.setEnabled(false);
         stopUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
     }
 
     private void setUnappliedInstallButtonState() {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(true);
+    }
+
+    private void setCancellingButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Cancelling task");
+        installUpgradeButton.setEnabled(false);
     }
 
     private void setErrorButtonState() {
         checkUpgradeButton.setEnabled(false);
         stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
     }
 
@@ -185,12 +195,14 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             try {
                 upgradeTask.registerTaskListener(this);
             } catch (TaskListenerException e) {
+                Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
                 currentUiState = UpgradeUiState.error;
                 setupButtonState();
                 return;
             }
             upgradeTask.execute(incomingRef);
         }
+        progressBar.setProgress(0);
         currentUiState = UpgradeUiState.checking;
         setDownloadingButtonState();
     }
@@ -199,20 +211,20 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         if (upgradeTask != null) {
             upgradeTask.cancel(true);
         }
-        currentUiState = UpgradeUiState.idle;
-        setIdleButtonState();
+        currentUiState = UpgradeUiState.cancelling;
+        setCancellingButtonState();
     }
 
-    private void setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState upgradeTaskState) {
-        switch (upgradeTaskState) {
-            case checking:
+    private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+        switch (taskStatus) {
+            case RUNNING:
                 currentUiState = UpgradeUiState.checking;
                 break;
-            case downloading:
-                currentUiState = UpgradeUiState.downloading;
-                break;
-            case notRunning:
+            case PENDING:
                 currentUiState = pendingUpgradeOrIdle();
+                break;
+            case FINISHED:
+                currentUiState = UpgradeUiState.error;
                 break;
             default:
                 currentUiState = UpgradeUiState.error;
@@ -231,6 +243,17 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         return false;
     }
 
+    private void unregisterTask() {
+        if (upgradeTask != null) {
+            try {
+                upgradeTask.unregisterTaskListener(this);
+            } catch (TaskListenerException e) {
+                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
+            }
+            upgradeTask = null;
+        }
+    }
+
     @Override
     public void processTaskUpdate(int[]... vals) {
         int progress = vals[0][0];
@@ -239,5 +262,15 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
 
     @Override
     public void processTaskResult(Boolean result) {
+        unregisterTask();
+    }
+
+    @Override
+    public void processTaskCancel(Boolean result) {
+        unregisterTask();
+
+        currentUiState = UpgradeUiState.idle;
+        progressBar.setProgress(0);
+        setIdleButtonState();
     }
 }
