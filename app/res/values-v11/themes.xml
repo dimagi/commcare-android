@@ -3,7 +3,7 @@
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
         <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
@@ -15,7 +15,9 @@
         <item name="drawer_pulldown_even_row_color">@color/cc_brand_bg</item>
         <item name="drawer_pulldown_odd_row_color">@color/drawer_pulldown_odd_row_color</item>
         <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="actionBarStyle">@style/ActionBar</item>
         <item name="android:actionOverflowButtonStyle">@style/OverflowButton</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowButton</item>
         <item name="android:textViewStyle">@style/AppTheme.Widget.TextView</item>
         <item name="android:textSize">@dimen/text_medium</item>
         <item name="menu_tile_title_text_color">@color/cc_brand_bg</item>
@@ -30,12 +32,19 @@
         <item name="android:textSize">@dimen/text_medium</item>
     </style>
 
-    <style name="ActionBar" parent="android:Widget.Holo.Light.ActionBar">
+    <style name="ActionBar" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/cc_brand_color</item>
         <item name="android:titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="android:logo">@drawable/actionbar_modern_spacing</item>
+        <item name="android:icon">@drawable/actionbar_modern_spacing</item>
         <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="background">@color/cc_brand_color</item>
+        <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
+        <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
+        <item name="icon">@drawable/actionbar_modern_spacing</item>
+        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="android:displayOptions">showHome|showTitle</item>
+        <item name="displayOptions">showHome|showTitle</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">

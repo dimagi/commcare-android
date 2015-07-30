@@ -1,5 +1,6 @@
 package org.commcare.android.framework;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -58,7 +60,7 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+public abstract class CommCareActivity<R> extends AppCompatActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
@@ -101,7 +103,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             loadFields();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getActionBar().setDisplayShowCustomEnabled(true);
+            // the actionBar can be null when using the AppCompatActivity as a CommCareActivity superclass
+            ActionBar actionBar = getActionBar();
+            if(actionBar != null) {
+                actionBar.setDisplayShowCustomEnabled(true);
+            }
 
             // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");

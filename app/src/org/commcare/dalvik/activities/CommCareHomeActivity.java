@@ -17,6 +17,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
+import android.content.ClipboardManager;
 import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
@@ -135,6 +137,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
+    private static final int MENU_ABOUT = Menu.FIRST + 9;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -1433,6 +1436,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
                 R.drawable.notebook_full);
+        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.version")).setIcon(
+                R.drawable.icon_addfolder_lightcool);
         return true;
     }
 
@@ -1451,6 +1456,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
         } catch (SessionUnavailableException sue) {
             //Nothing
         }
@@ -1498,6 +1504,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
+                return true;
+            case MENU_ABOUT:
+                final String commcareVersion = CommCareApplication._().getCurrentVersionString();
+                Snackbar.make(findViewById(android.R.id.content), commcareVersion, Snackbar.LENGTH_LONG)
+                        .setAction(Localization.get("home.version.copy"), new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                clipboard.setText(commcareVersion);
+                            }
+                        })
+                        .setActionTextColor(getResources().getColor(R.color.cc_brand_bg))
+                        .show();
                 return true;
         }
         return super.onOptionsItemSelected(item);

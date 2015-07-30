@@ -15,7 +15,7 @@
     <attr name="entity_select_title_text_color" format="reference"></attr>
     <declare-styleable name="SquareButtonWithText">
         <attr name="backgroundcolor" format="reference|color" />
-        <attr name="subtitle" format="string" />
+        <attr name="sqb_subtitle" format="string" />
         <attr name="img" format="reference" />
         <attr name="colorText" format="reference|color" />
     </declare-styleable>
