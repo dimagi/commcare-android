@@ -82,11 +82,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         }
     }
     
-    /**
-     * Constructor method
-     * @param context
-     * @param prompt
-     */
     public AbstractUniversalDateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
         
@@ -284,10 +279,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Translate the given date in the custom calendar system to
      * standard milliseconds from Java epoch.
      * 
-     * @param year
-     * @param month
-     * @param day
-     * @param millisOffset
      * @return Milliseconds since Java epoch
      */
     protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
@@ -327,8 +318,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     /**
      * Start Updater, for when using long press to increment/decrement date without repeated pressing on the buttons
-     * @param inc
-     * @param mHandler
      */
     private void startUpdating(boolean inc, Handler mHandler) {
         if (mUpdater != null) {
@@ -428,7 +417,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     /**
      * Get the current widget date in Gregorian chronology
-     * @return
      */
     private Date getDateAsGregorian(){
         Date dtGregorian = new Date(getCurrentMillis());
@@ -437,7 +425,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     /**
      * Get the current widget date in milliseconds since Java epoch
-     * @return
      */
     private long getCurrentMillis(){
         int day = Integer.parseInt(txtDay.getText().toString());
@@ -448,7 +435,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     /**
      * Update the widget date to display the amended date
-     * @param dtGreg
      */
     private void updateDateDisplay(long millisFromJavaEpoch){
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
@@ -460,7 +446,6 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     /**
      * Update the widget helper date text (useful for those who don't know the other calendar)
-     * @param dtGreg
      */
     private void updateGregorianDateHelperDisplay(){
         DateTime dtLMDGreg = new DateTime(getCurrentMillis());

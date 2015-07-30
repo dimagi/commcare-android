@@ -13,7 +13,6 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.Stylizer;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;

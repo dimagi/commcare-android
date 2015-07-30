@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.tasks.templates;
 
 import android.content.Context;
@@ -27,7 +24,6 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * @author ctsims
- *
  */
 public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R>{
     
@@ -121,10 +117,6 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         return true;
     }
 
-    /**
-     * 
-     * @return
-     */
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         return null;
     }

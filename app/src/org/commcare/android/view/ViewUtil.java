@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.view;
 
 import org.commcare.dalvik.BuildConfig;
@@ -61,7 +58,6 @@ public final class ViewUtil {
     /**
      * Attempts to inflate an image from a <display> or other CommCare UI definition source.
      *  
-     * @param context 
      * @param jrUri The image to inflate
      * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
      */

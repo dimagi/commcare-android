@@ -414,7 +414,6 @@ public abstract class QuestionWidget extends LinearLayout {
 
     /**
     * Display extra help, triggered by user request.
-    * @param prompt
     */
     private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
@@ -461,8 +460,6 @@ public abstract class QuestionWidget extends LinearLayout {
     
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
-     * @param prompt
-     * @return
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());
