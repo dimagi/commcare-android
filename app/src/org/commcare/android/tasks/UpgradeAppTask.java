@@ -42,9 +42,11 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
     @Override
     protected final Boolean doInBackground(String... params) {
         taskState = UpgradeTaskState.checking;
-        SystemClock.sleep(2000);
-        publishProgress(new int[]{progress++, 100});
-        return false;
+        while (progress < 101) {
+            SystemClock.sleep(500);
+            publishProgress(new int[]{progress++, 100});
+        }
+        return true;
     }
 
     @Override

@@ -15,8 +15,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Allow user to manage app upgrading:
  *  - Check and downloading new latest upgrade
@@ -29,7 +27,6 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     private static final String TAG = UpgradeActivity.class.getSimpleName();
 
     private ProgressBar progressBar;
-    private boolean areResourcesInitialized = false;
     private String incomingRef = "";
 
     private enum UpgradeUiState {
@@ -185,6 +182,13 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     private void startUpgradeCheck() {
         if (currentUiState == UpgradeUiState.idle) {
             upgradeTask = UpgradeAppTask.getInstance();
+            try {
+                upgradeTask.registerTaskListener(this);
+            } catch (TaskListenerException e) {
+                currentUiState = UpgradeUiState.error;
+                setupButtonState();
+                return;
+            }
             upgradeTask.execute(incomingRef);
         }
         currentUiState = UpgradeUiState.checking;
@@ -197,26 +201,6 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         }
         currentUiState = UpgradeUiState.idle;
         setIdleButtonState();
-    }
-
-    @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        if (areResourcesInitialized) {
-            title = Localization.get("updates.title");
-            message = Localization.get("updates.checking");
-        } else {
-            title = Localization.get("updates.resources.initialization");
-            message = Localization.get("updates.resources.profile");
-        }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
-        String checkboxText = Localization.get("updates.keep.trying");
-        CustomProgressDialog lastDialog = getCurrentDialog();
-        boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
-        dialog.addCheckbox(checkboxText, isChecked);
-        dialog.addProgressBar();
-        return dialog;
     }
 
     private void setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState upgradeTaskState) {
