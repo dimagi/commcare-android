@@ -1,5 +1,7 @@
 package org.commcare.dalvik.activities;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
@@ -16,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * The activity that starts up when a user launches into the app manager.
@@ -29,6 +32,7 @@ import android.widget.Toast;
 public class AppManagerActivity extends Activity implements OnItemClickListener {
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
+    private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,25 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         super.onResume();
         refreshView();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(android.R.drawable.ic_menu_preferences);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case MENU_CONNECTION_DIAGNOSTIC:
+                Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+                startActivityForResult(i, CommCareHomeActivity.CONNECTION_DIAGNOSTIC_ACTIVITY);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     /**
      * Refresh the list of installed apps
@@ -123,6 +146,8 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 break;
+            case CommCareHomeActivity.CONNECTION_DIAGNOSTIC_ACTIVITY:
+                return;
         }
     }
 

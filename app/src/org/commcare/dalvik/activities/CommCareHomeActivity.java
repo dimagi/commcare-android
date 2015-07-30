@@ -117,7 +117,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     public static final int MISSING_MEDIA_ACTIVITY=256;
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
-    private static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
+    public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
     /**
