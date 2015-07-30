@@ -27,13 +27,13 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     private static final String UI_STATE_KEY = "ui_state";
 
     @UiElement(R.id.check_for_upgrade_button)
-    Button checkUpgradeButton;
+    private Button checkUpgradeButton;
 
     @UiElement(R.id.stop_upgrade_download_button)
-    Button stopUpgradeButton;
+    private Button stopUpgradeButton;
 
     @UiElement(R.id.install_upgrade_button)
-    Button installUpgradeButton;
+    private Button installUpgradeButton;
 
     private enum UpgradeUiState {
         idle,
@@ -47,7 +47,6 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
     private UpgradeAppTask upgradeTask;
 
     private ProgressBar progressBar;
-    private String incomingRef = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,7 +109,7 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             updateButtonState();
             return;
         }
-        upgradeTask.execute(incomingRef);
+        upgradeTask.execute("");
         progressBar.setProgress(0);
         currentUiState = UpgradeUiState.downloading;
         updateButtonState();
@@ -269,7 +268,7 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             currentUiState = UpgradeUiState.idle;
         }
 
-        updateButtonState()
+        updateButtonState();
         unregisterTask();
     }
 
@@ -278,7 +277,7 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         unregisterTask();
 
         currentUiState = UpgradeUiState.idle;
-        updateButtonState()
+        updateButtonState();
 
         progressBar.setProgress(0);
     }
