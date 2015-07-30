@@ -269,7 +269,6 @@ public class EntityMapActivity extends MapActivity {
         return new CommCareInstanceInitializer(session);
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
