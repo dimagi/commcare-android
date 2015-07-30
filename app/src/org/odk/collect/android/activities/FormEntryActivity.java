@@ -176,10 +176,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-    public static final String KEY_INSTANCES = "instances";
-    public static final String KEY_SUCCESS = "success";
-    public static final String KEY_ERROR = "error";
-    
+
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     
@@ -231,8 +228,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     private AlertDialog mRepeatDialog;
     private AlertDialog mAlertDialog;
     private ProgressDialog mProgressDialog;
-    private String mErrorMessage;
-    
+
     private boolean mIncompleteEnabled = true;
 
     // used to limit forward/backward swipes to one per question
@@ -296,13 +292,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 getApplicationContext()));
 
         boolean isNewForm = loadStateFromBundle(savedInstanceState);
-
-        // If a parse error message is showing then nothing else is loaded
-        // Dialogs mid form just disappear on rotation.
-        if (mErrorMessage != null) {
-            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
-            return;
-        }
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
@@ -470,7 +459,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(NEWFORM, false);
-        outState.putString(KEY_ERROR, mErrorMessage);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -2363,10 +2351,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (mSaveToDiskTask != null) {
             mSaveToDiskTask.setFormSavedListener(this);
         }
-        if (mErrorMessage != null && (mAlertDialog != null && !mAlertDialog.isShowing())) {
-            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
-            return;
-        }
 
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
         //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
@@ -2878,9 +2862,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
             if (savedInstanceState.containsKey(NEWFORM)) {
                 isNewForm = savedInstanceState.getBoolean(NEWFORM, true);
-            }
-            if (savedInstanceState.containsKey(KEY_ERROR)) {
-                mErrorMessage = savedInstanceState.getString(KEY_ERROR);
             }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));

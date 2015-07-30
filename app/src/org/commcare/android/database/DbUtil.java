@@ -9,9 +9,7 @@ import java.util.List;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
-import net.sqlcipher.database.SQLiteStatement;
 
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.externalizable.ImprovedPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -124,11 +122,6 @@ public class DbUtil {
     * one any time the method would have crashed anyway.
     * 
     * Will crash if this update doesn't work, so no return is needed
-    * 
-    * @param key
-    * @param context
-    * @param dbName
-    * @return
     */
    public static void trySqlCipherDbUpdate(String key, Context context, String dbName) {
        //There's no clear way how to tell whether this call is the invalid db version

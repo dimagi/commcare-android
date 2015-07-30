@@ -147,8 +147,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     /**
      * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
      * just changing where the provider points.
-     * 
-     * @return
      */
     private boolean updateFilePath() {
         String localRawUri;
@@ -276,6 +274,4 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if(problems.size() == 0 ) { return false;}
         return true;
     }
-
-
 }

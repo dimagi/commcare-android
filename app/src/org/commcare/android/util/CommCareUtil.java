@@ -70,9 +70,6 @@ public class CommCareUtil {
 
     /**
      * Used around to count up the degree of specificity for this reference
-     * 
-     * @param reference
-     * @return
      */
     public static int countPreds(TreeReference reference) {
         int preds = 0;
