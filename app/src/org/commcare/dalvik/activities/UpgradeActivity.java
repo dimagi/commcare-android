@@ -55,36 +55,11 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
 
         loadSaveInstanceState(savedInstanceState);
 
-        setContentView(R.layout.upgrade_activity);
-        progressBar = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
-        setupButtonListeners();
+        setupUi();
 
-        upgradeTask = UpgradeAppTask.getRunningInstance();
-        try {
-            if (upgradeTask != null) {
-                upgradeTask.registerTaskListener(this);
-                if (currentUiState != UpgradeUiState.cancelling) {
-                    setUiStateFromRunningTask(upgradeTask.getStatus());
-                }
-                progressBar.setProgress(upgradeTask.getProgress());
-            } else {
-                progressBar.setProgress(0);
-                currentUiState = pendingUpgradeOrIdle();
-            }
-        } catch (TaskListenerException e) {
-            Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
-            currentUiState = UpgradeUiState.error;
-        }
+        setupUpgradeTask();
 
-        // update UI based on current state
-        updateButtonState();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putSerializable(UI_STATE_KEY, currentUiState);
+        updateUi();
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -94,12 +69,10 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             }
         }
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        unregisterTask();
+    private void setupUi() {
+        setContentView(R.layout.upgrade_activity);
+        progressBar = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
+        setupButtonListeners();
     }
 
     private void setupButtonListeners() {
@@ -125,6 +98,30 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
             public void onClick(View v) {
             }
         });
+    }
+
+    private void startUpgradeCheck() {
+        upgradeTask = UpgradeAppTask.getNewInstance();
+        try {
+            upgradeTask.registerTaskListener(this);
+        } catch (TaskListenerException e) {
+            Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
+            currentUiState = UpgradeUiState.error;
+            updateButtonState();
+            return;
+        }
+        upgradeTask.execute(incomingRef);
+        progressBar.setProgress(0);
+        currentUiState = UpgradeUiState.downloading;
+        updateButtonState();
+    }
+
+    private void stopUpgradeCheck() {
+        if (upgradeTask != null) {
+            upgradeTask.cancel(true);
+        }
+        currentUiState = UpgradeUiState.cancelling;
+        updateButtonState();
     }
 
     private void updateButtonState() {
@@ -184,28 +181,22 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         installUpgradeButton.setEnabled(false);
     }
 
-    private void startUpgradeCheck() {
-        upgradeTask = UpgradeAppTask.getNewInstance();
+    private void setupUpgradeTask() {
+        upgradeTask = UpgradeAppTask.getRunningInstance();
+
         try {
-            upgradeTask.registerTaskListener(this);
+            if (upgradeTask != null) {
+                upgradeTask.registerTaskListener(this);
+                if (currentUiState != UpgradeUiState.cancelling) {
+                    setUiStateFromRunningTask(upgradeTask.getStatus());
+                }
+            } else {
+                currentUiState = pendingUpgradeOrIdle();
+            }
         } catch (TaskListenerException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already registered task.");
             currentUiState = UpgradeUiState.error;
-            updateButtonState();
-            return;
         }
-        upgradeTask.execute(incomingRef);
-        progressBar.setProgress(0);
-        currentUiState = UpgradeUiState.downloading;
-        updateButtonState();
-    }
-
-    private void stopUpgradeCheck() {
-        if (upgradeTask != null) {
-            upgradeTask.cancel(true);
-        }
-        currentUiState = UpgradeUiState.cancelling;
-        updateButtonState();
     }
 
     private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
@@ -236,15 +227,32 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         return false;
     }
 
-    private void unregisterTask() {
+
+    private void updateProgressBar() {
         if (upgradeTask != null) {
-            try {
-                upgradeTask.unregisterTaskListener(this);
-            } catch (TaskListenerException e) {
-                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
-            }
-            upgradeTask = null;
+            progressBar.setProgress(upgradeTask.getProgress());
+        } else {
+            progressBar.setProgress(0);
         }
+    }
+
+    private void updateUi() {
+        updateProgressBar();
+        updateButtonState();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(UI_STATE_KEY, currentUiState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        unregisterTask();
     }
 
     @Override
@@ -273,5 +281,16 @@ public class UpgradeActivity extends CommCareActivity implements TaskListener<in
         updateButtonState()
 
         progressBar.setProgress(0);
+    }
+
+    private void unregisterTask() {
+        if (upgradeTask != null) {
+            try {
+                upgradeTask.unregisterTaskListener(this);
+            } catch (TaskListenerException e) {
+                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
+            }
+            upgradeTask = null;
+        }
     }
 }
