@@ -1,17 +1,17 @@
 package org.commcare.dalvik.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.TaskListener;
+import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeAppTask;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -25,21 +25,19 @@ import static java.lang.Thread.sleep;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeActivity extends CommCareActivity {
+public class UpgradeActivity extends CommCareActivity implements TaskListener<int[], Boolean> {
     private static final String TAG = UpgradeActivity.class.getSimpleName();
 
-    private ProgressBar mProgress;
-    private int mProgressStatus = 0;
+    private ProgressBar progressBar;
     private boolean areResourcesInitialized = false;
-    private String incomingRef;
-
-    private Handler mHandler = new Handler();
+    private String incomingRef = "";
 
     private enum UpgradeUiState {
         idle,
         checking,
         downloading,
-        unappliedInstall
+        unappliedInstall,
+        error
     }
     private UpgradeUiState currentUiState;
 
@@ -59,35 +57,24 @@ public class UpgradeActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.upgrade_activity);
-        mProgress = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
+        progressBar = (ProgressBar)findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();
 
-        upgradeTask = UpgradeAppTask.getSingleRunningTask();
-        if (upgradeTask != null) {
-            upgradeTask.connect(this);
-            setUiStateFromRunningTask(upgradeTask.getUprgradeState());
-        } else {
-            setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState.notRunning);
+        upgradeTask = UpgradeAppTask.getRunningInstance();
+
+        try {
+            if (upgradeTask != null) {
+                upgradeTask.registerTaskListener(this);
+                setUiStateFromRunningTask(upgradeTask.getUprgradeState());
+            } else {
+                setUiStateFromRunningTask(UpgradeAppTask.UpgradeTaskState.notRunning);
+            }
+        } catch (TaskListenerException e) {
+            currentUiState = UpgradeUiState.error;
         }
 
         // update UI based on current state
         setupButtonState();
-
-        // Start lengthy operation in a background thread
-        new Thread(new Runnable() {
-            public void run() {
-                while (mProgressStatus < 100) {
-                    mProgressStatus = doWork();
-
-                    // Update the progress bar
-                    mHandler.post(new Runnable() {
-                        public void run() {
-                            mProgress.setProgress(mProgressStatus);
-                        }
-                    });
-                }
-            }
-        }).start();
     }
 
     @Override
@@ -95,7 +82,11 @@ public class UpgradeActivity extends CommCareActivity {
         super.onDestroy();
 
         if (upgradeTask != null) {
-            upgradeTask.disconnect();
+            try {
+                upgradeTask.unregisterTaskListener(this);
+            } catch (TaskListenerException e) {
+                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
+            }
         }
     }
 
@@ -119,14 +110,6 @@ public class UpgradeActivity extends CommCareActivity {
         super.onPause();
     }
 
-    public int doWork() {
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-        }
-        return mProgressStatus + 1;
-    }
-
     private void setupButtonListeners() {
         checkUpgradeButton = (Button)findViewById(R.id.check_for_upgrade_button);
         checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
@@ -140,6 +123,7 @@ public class UpgradeActivity extends CommCareActivity {
         stopUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                stopUpgradeCheck();
             }
         });
 
@@ -165,8 +149,11 @@ public class UpgradeActivity extends CommCareActivity {
             case unappliedInstall:
                 setUnappliedInstallButtonState();
                 break;
+            case error:
+                setErrorButtonState();
+                break;
             default:
-                setIdleButtonState();
+                setErrorButtonState();
         }
     }
 
@@ -188,11 +175,16 @@ public class UpgradeActivity extends CommCareActivity {
         installUpgradeButton.setEnabled(true);
     }
 
+    private void setErrorButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(false);
+    }
+
 
     private void startUpgradeCheck() {
         if (currentUiState == UpgradeUiState.idle) {
-            upgradeTask = new UpgradeAppTask(CommCareApplication._().getCurrentApp());
-            upgradeTask.connect(this);
+            upgradeTask = UpgradeAppTask.getInstance();
             upgradeTask.execute(incomingRef);
         }
         currentUiState = UpgradeUiState.checking;
@@ -206,7 +198,6 @@ public class UpgradeActivity extends CommCareActivity {
         currentUiState = UpgradeUiState.idle;
         setIdleButtonState();
     }
-
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
@@ -240,7 +231,7 @@ public class UpgradeActivity extends CommCareActivity {
                 currentUiState = pendingUpgradeOrIdle();
                 break;
             default:
-                currentUiState = pendingUpgradeOrIdle();
+                currentUiState = UpgradeUiState.error;
         }
     }
 
@@ -254,5 +245,15 @@ public class UpgradeActivity extends CommCareActivity {
 
     private boolean downloadedUpgradePresent() {
         return false;
+    }
+
+    @Override
+    public void processTaskUpdate(int[]... vals) {
+        int progress = vals[0][0];
+        progressBar.setProgress(progress);
+    }
+
+    @Override
+    public void processTaskResult(Boolean result) {
     }
 }
