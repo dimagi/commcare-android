@@ -40,3 +40,4 @@ test-app/test-app.iml
 app/libs/commcare-libraries.jar
 app/libs/javarosa-libraries.jar
 **/local.properties
+.gradle/*
