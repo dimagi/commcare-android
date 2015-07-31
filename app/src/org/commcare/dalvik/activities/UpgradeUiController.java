@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -56,21 +57,54 @@ class UpgradeUiController {
         });
     }
 
-    protected void updateButtonState(UpgradeActivity.UpgradeUiState uiState) {
-        switch (uiState) {
-            case idle:
-                setIdleButtonState();
-                break;
-            case downloading:
+    protected void setIdleButtonState() {
+        checkUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
+        installUpgradeButton.setEnabled(false);
+    }
+
+    protected void setDownloadingButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setText("Stop upgrade");
+        installUpgradeButton.setEnabled(false);
+    }
+
+    protected void setUnappliedInstallButtonState() {
+        checkUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
+        installUpgradeButton.setEnabled(true);
+    }
+
+    protected void setCancellingButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Cancelling task");
+        installUpgradeButton.setEnabled(false);
+    }
+
+    protected void setErrorButtonState() {
+        checkUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setEnabled(false);
+        stopUpgradeButton.setText("Stop upgrade");
+        installUpgradeButton.setEnabled(false);
+    }
+
+    protected void updateProgressBar(int currentProgress) {
+        progressBar.setProgress(currentProgress);
+    }
+
+    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+        switch (taskStatus) {
+            case RUNNING:
                 setDownloadingButtonState();
                 break;
-            case unappliedInstall:
-                setUnappliedInstallButtonState();
+            case PENDING:
+                pendingUpgradeOrIdle();
                 break;
-            case cancelling:
-                setCancellingButtonState();
-                break;
-            case error:
+            case FINISHED:
                 setErrorButtonState();
                 break;
             default:
@@ -78,47 +112,16 @@ class UpgradeUiController {
         }
     }
 
-    private void setIdleButtonState() {
-        checkUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Stop upgrade");
-        installUpgradeButton.setEnabled(false);
+    protected void pendingUpgradeOrIdle() {
+        if (downloadedUpgradePresent()) {
+            setUnappliedInstallButtonState();
+        } else {
+            setIdleButtonState();
+        }
     }
 
-    private void setDownloadingButtonState() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setText("Stop upgrade");
-        installUpgradeButton.setEnabled(false);
+    private boolean downloadedUpgradePresent() {
+        return false;
     }
 
-    private void setUnappliedInstallButtonState() {
-        checkUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Stop upgrade");
-        installUpgradeButton.setEnabled(true);
-    }
-
-    private void setCancellingButtonState() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Cancelling task");
-        installUpgradeButton.setEnabled(false);
-    }
-
-    private void setErrorButtonState() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Stop upgrade");
-        installUpgradeButton.setEnabled(false);
-    }
-
-    protected void updateUi(int currentProgress, UpgradeActivity.UpgradeUiState uiState) {
-        updateProgressBar(currentProgress);
-        updateButtonState(uiState);
-    }
-
-    protected void updateProgressBar(int currentProgress) {
-        progressBar.setProgress(currentProgress);
-    }
 }
