@@ -9,7 +9,6 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
@@ -391,10 +390,6 @@ public class BreadcrumbBarFragment extends Fragment {
      * Get the breadcrumb bar view
      * 
      * Sunsetting this soon.
-     * 
-     * @param activity
-     * @param local
-     * @return
      */
         public View getTitleView(final Activity activity, String local) {
             

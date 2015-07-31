@@ -489,7 +489,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 @Override
                 protected void deliverUpdate(CommCareSetupActivity receiver,
                                              int[]... update) {
-                    receiver.updateProgress(update[0][0], update[0][1], update[0][2]);
+                    receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
                 }
 
                 @Override
@@ -608,7 +608,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
     
     @Override
-    public void updateProgress(int done, int total, int phase) {
+    public void updateResourceProgress(int done, int total, int phase) {
         if(inUpgradeMode) {       
             if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
                 updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);

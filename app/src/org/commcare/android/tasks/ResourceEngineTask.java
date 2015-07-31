@@ -169,7 +169,7 @@ public abstract class ResourceEngineTask<R>
             ResourceTable global = platform.getGlobalResourceTable();
 
             // Ok, should figure out what the state of this bad boy is.
-            Resource profile = global.getResourceWithId("commcare-application-profile");
+            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -219,7 +219,7 @@ public abstract class ResourceEngineTask<R>
                 // profile is not a newer version, statgeUpgradeTable doesn't
                 // actually pull in all the new references
                 platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
-                Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
+                Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
                 if (!newProfile.isNewer(profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                     return ResourceEngineOutcomes.StatusUpToDate;

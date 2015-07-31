@@ -35,7 +35,6 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -62,9 +61,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
-
-    protected final static int DIALOG_PROGRESS = 32;
-    protected final static String DIALOG_TEXT = "cca_dialog_text";
 
     StateFragment stateHolder;
 
@@ -329,11 +325,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     public void cancelCurrentTask() {
         stateHolder.cancelTask();
-    }
-    
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     protected void saveLastQueryString(String key) {

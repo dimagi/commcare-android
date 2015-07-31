@@ -763,8 +763,6 @@ public class CommCareApplication extends Application {
     /**
      * Allows something within the current service binding to update the app to let it
      * know that the bind may take longer than the current timeout can allow
-     *
-     * @param timeout
      */
     public void setCustomServiceBindTimeout(int timeout) {
         synchronized (serviceLock) {
@@ -995,8 +993,6 @@ public class CommCareApplication extends Application {
     /**
      * Whether automated stuff like auto-updates/syncing are valid and should
      * be triggered.
-     *
-     * @return
      */
     private boolean areAutomatedActionsInvalid() {
         try {

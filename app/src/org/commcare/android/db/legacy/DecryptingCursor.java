@@ -11,9 +11,9 @@ import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQuery;
+
 /**
  * @author ctsims
- *
  */
 public class DecryptingCursor extends SQLiteCursor {
     Cipher cipher;
