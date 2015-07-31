@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import android.annotation.SuppressLint;
@@ -18,7 +15,6 @@ import java.util.regex.Pattern;
 
 /**
  * @author ctsims
- *
  */
 public class StringUtils {
     
@@ -77,11 +73,6 @@ public class StringUtils {
      * http://creativecommons.org/licenses/by-sa/3.0/
      * 
      * TODO: re-implement for efficiency/licensing possibly.
-     * 
-     * @param s0
-     * @param s1
-     * 
-     * @return 
      */
     public static int LevenshteinDistance (String s0, String s1) {
         int len0 = s0.length()+1;
@@ -130,9 +121,7 @@ public class StringUtils {
      * intended to be the same string. Fuzzy matching is only performed on strings that are
      * longer than a certain size.
      * 
-     * @param a 
-     * @param b
-     * @return A pair with two values. First value represents a match: true if the two strings 
+     * @return A pair with two values. First value represents a match: true if the two strings
      * meet CommCare's fuzzy match definition, false otherwise. Second value is the actual string
      * distance that was matched, in order to be able to rank or otherwise interpret results.
      */

@@ -220,12 +220,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         startButton = adapter.getButton(R.layout.home_start_button);
-        if (startButton == null) {
-            Log.d("buttons", "startButton is null! Crashing!");
-        }
-
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
+        } else {
+            Log.d("buttons", "startButton is null! Crashing!");
         }
         View.OnClickListener startListener = new OnClickListener() {
             public void onClick(View v) {
@@ -254,12 +252,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
 
         logoutButton = adapter.getButton(R.layout.home_disconnect_button);
-        if (logoutButton == null) {
-            Log.d("buttons", "logoutButton is null! Crashing!");
-        }
-
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
+        } else {
+            Log.d("buttons", "logoutButton is null! Crashing!");
         }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
@@ -285,12 +281,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
 
         SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
-        if (viewOldForms == null) {
-            Log.d("buttons", "viewOldForms is null! Crashing!");
-        }
-
         if (viewOldForms != null) {
             viewOldForms.setText(Localization.get("home.forms.saved"));
+        } else {
+            Log.d("buttons", "viewOldForms is null! Crashing!");
         }
         View.OnClickListener viewOldFormsListener = new OnClickListener() {
             public void onClick(View v) {
@@ -299,14 +293,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         };
         adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, viewOldFormsListener);
 
-
         syncButton = adapter.getButton(R.layout.home_sync_button);
-        if (syncButton == null) {
+        if (syncButton != null) {
+            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
+        } else {
             Log.d("buttons", "syncButton is null! Crashing!");
         }
-
-        if (syncButton != null)
-            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (isNetworkNotConnected()) {
@@ -1393,7 +1385,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (syncDetails.second[1] > 0) {
             Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
             Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[]{String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
-            if (viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
+            if (viewIncomplete != null) {
+                viewIncomplete.setText(incompleteIndicator);
+            }
 
         } else {
             Log.i("syncDetails", "SyncDetails has no count");

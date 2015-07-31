@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.provider;
 
 import android.content.UriMatcher;
@@ -12,7 +9,6 @@ import android.provider.BaseColumns;
  * the Fixture Data Content Provider.
  * 
  * @author wspride
- *
  */
 public class FixtureDataAPI {
     
@@ -30,7 +26,6 @@ public class FixtureDataAPI {
      * Determine which (if any) defined API tables are being referenced by the provided URI.
      * NOTE: The Match ID's are defined within the table definitions themselves.
      * 
-     * @param uri
      * @return The ID of the data model which is being referenced by the URI.
      */
     public static int UriMatch(Uri uri) {
@@ -47,7 +42,6 @@ public class FixtureDataAPI {
      * Projections and Filtering are unsupported for this type
      * 
      * @author ctsims
-     *
      */
     public static final class MetadataColumns implements BaseColumns {
         // This class cannot be instantiated
@@ -63,5 +57,4 @@ public class FixtureDataAPI {
         public static final String USER_ID = "user_id";
         
     }
-    
 }

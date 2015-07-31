@@ -1,17 +1,12 @@
-/**
- * 
- */
 package org.commcare.android.tasks;
 
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 
 /**
  * @author ctsims
- *
  */
 public interface ManageKeyRecordListener<R> {
-    
-    
+
     /**
      * This signals that a login was completed successfully with
      * a user and data in the sandbox. 
@@ -27,8 +22,6 @@ public interface ManageKeyRecordListener<R> {
     /**
      * This signals any unsuccessful outcome which is passed as an
      * argument. 
-     * 
-     * @param outcome
      */
     public void keysDoneOther(R r, HttpCalloutOutcomes outcome);
 }
