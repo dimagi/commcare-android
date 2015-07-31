@@ -296,7 +296,6 @@
             <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance" />
         </intent-filter>
 
-
     </application>
 
     <uses-feature

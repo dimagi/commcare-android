@@ -159,7 +159,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
                     editor.commit();
                     Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
                 } else {
-                    showAlertDialog(Localization.get("template.not.set"), Localization.get("template.warning"));
+                    TemplatePrinterUtils.showAlertDialog(this, Localization.get("template.not.set"),
+                            Localization.get("template.warning"), false);
                 }
             } else {
                 //No file selected
@@ -167,25 +168,6 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             }
         }
 
-    }
-
-    private void showAlertDialog(String title, String message) {
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(
-                        R.string.ok,
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }
-                );
-        dialogBuilder.show();
     }
 
     @Override
