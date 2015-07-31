@@ -158,11 +158,11 @@ public abstract class TemplatePrinterUtils {
     }
 
     /**
-     *
-     *
-     * @param msg String message that should be shown on the alert
+     * Shows a pop-up dialog from the given activity that can optionally finish the activity when
+     * it is dismissed by the user
      */
-    public static void showAlertDialog(final Activity activity, String title, String msg, final boolean finishActivity) {
+    public static void showAlertDialog(final Activity activity, String title, String msg,
+                                       final boolean finishActivity) {
         AlertDialog.Builder alert = new AlertDialog.Builder(activity);
         alert.setTitle(title);
         alert.setMessage(msg);
@@ -176,9 +176,7 @@ public abstract class TemplatePrinterUtils {
                 }
             }
         });
-
         alert.show();
     }
-
 
 }

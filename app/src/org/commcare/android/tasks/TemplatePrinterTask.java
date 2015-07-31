@@ -18,41 +18,29 @@ import org.commcare.android.util.TemplatePrinterUtils;
  */
 public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTask.PrintTaskResult> {
 
-    /**
-     * The 4 result codes that can be sent back by this task
-     */
-
     public enum PrintTaskResult {
         SUCCESS, IO_ERROR, VALIDATION_ERROR_MUSTACHE, VALIDATION_ERROR_CHEVRON
     }
 
     /**
-     * Used to track the string in the template file where a validation error was encountered
+     * Used to track the region in the template file where a validation error was encountered
      */
     private String problemString;
-
-    /**
-     * The template file for this print action
-     */
-    private final File inputFile;
-
-    /**
-     * The path where the populated template should be saved to
-     */
-    private final String outputPath;
 
     /**
      * The mapping from keywords to case property values to be used in populating the template
      */
     private final Bundle templatePopulationMapping;
 
+    private final File templateFile;
+    private final String populatedFilepath;
     private final PopulateListener listener;
 
 
     public TemplatePrinterTask(File input, String outputPath, Bundle values,
                                PopulateListener listener) {
-        this.inputFile = input;
-        this.outputPath = outputPath;
+        this.templateFile = input;
+        this.populatedFilepath = outputPath;
         this.templatePopulationMapping = values;
         this.listener = listener;
     }
@@ -63,7 +51,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
         try {
-            populateAndSaveHtml(inputFile, templatePopulationMapping, outputPath);
+            populateAndSaveHtml(templateFile, templatePopulationMapping, populatedFilepath);
             return PrintTaskResult.SUCCESS;
         } catch (IOException e) {
             return PrintTaskResult.IO_ERROR;

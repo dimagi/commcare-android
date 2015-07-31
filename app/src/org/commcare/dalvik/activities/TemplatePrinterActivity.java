@@ -149,30 +149,8 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         }
     }
 
-    /**
-     * Displays an error dialog with the specified message.
-     * Activity will quit upon exiting the dialog.
-     *
-     * @param message Error message
-     */
     private void showErrorDialog(String message) {
-
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this)
-                .setTitle(R.string.error_occured)
-                .setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton(
-                        R.string.ok,
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                finish();
-                            }
-                        }
-                );
-        dialogBuilder.show();
+        TemplatePrinterUtils.showAlertDialog(this, getString(R.string.error_occured), message, true);
     }
 
     /**
