@@ -4,27 +4,27 @@ import android.os.SystemClock;
 
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 
-public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
-    private static final String TAG = UpgradeAppTask.class.getSimpleName();
+public class UpgradeTask extends ManagedAsyncTask<String, int[], Boolean> {
+    private static final String TAG = UpgradeTask.class.getSimpleName();
 
     private TaskListener<int[], Boolean> taskListener = null;
 
-    private static UpgradeAppTask singletonRunningInstance = null;
+    private static UpgradeTask singletonRunningInstance = null;
     private int progress = 0;
 
-    private UpgradeAppTask() {
+    private UpgradeTask() {
     }
 
-    public static UpgradeAppTask getNewInstance() {
+    public static UpgradeTask getNewInstance() {
         if (singletonRunningInstance == null) {
-            singletonRunningInstance = new UpgradeAppTask();
+            singletonRunningInstance = new UpgradeTask();
             return singletonRunningInstance;
         } else {
             throw new IllegalStateException("There is a " + TAG + " instance.");
         }
     }
 
-    public static UpgradeAppTask getRunningInstance() {
+    public static UpgradeTask getRunningInstance() {
         if (singletonRunningInstance != null &&
                 singletonRunningInstance.getStatus() == Status.RUNNING) {
             return singletonRunningInstance;
@@ -81,16 +81,20 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
         singletonRunningInstance = null;
     }
 
-    public void registerTaskListener(TaskListener<int[], Boolean> listener) throws TaskListenerException {
+    public void registerTaskListener(TaskListener<int[], Boolean> listener)
+            throws TaskListenerException {
         if (taskListener != null) {
-            throw new TaskListenerException("This " + TAG + " was already registered with a TaskListener");
+            throw new TaskListenerException("This " + TAG +
+                    " was already registered with a TaskListener");
         }
         taskListener = listener;
     }
 
-    public void unregisterTaskListener(TaskListener<int[], Boolean> listener) throws TaskListenerException {
+    public void unregisterTaskListener(TaskListener<int[], Boolean> listener)
+            throws TaskListenerException {
         if (listener != taskListener) {
-            throw new TaskListenerException("The provided listener wasn't registered with this " + TAG);
+            throw new TaskListenerException("The provided listener wasn't " +
+                    "registered with this " + TAG);
         }
         taskListener = null;
     }

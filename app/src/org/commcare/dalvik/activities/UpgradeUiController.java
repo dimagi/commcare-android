@@ -24,9 +24,11 @@ class UpgradeUiController {
 
     public UpgradeUiController(UpgradeActivity upgradeActivity) {
         activity = upgradeActivity;
+
+        setupUi();
     }
 
-    public void setupUi() {
+    private void setupUi() {
         activity.setContentView(R.layout.upgrade_activity);
         progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();
@@ -55,6 +57,34 @@ class UpgradeUiController {
             public void onClick(View v) {
             }
         });
+    }
+
+    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+        switch (taskStatus) {
+            case RUNNING:
+                setDownloadingButtonState();
+                break;
+            case PENDING:
+                pendingUpgradeOrIdle();
+                break;
+            case FINISHED:
+                setErrorButtonState();
+                break;
+            default:
+                setErrorButtonState();
+        }
+    }
+
+    protected void pendingUpgradeOrIdle() {
+        if (downloadedUpgradePresent()) {
+            setUnappliedInstallButtonState();
+        } else {
+            setIdleButtonState();
+        }
+    }
+
+    private boolean downloadedUpgradePresent() {
+        return false;
     }
 
     protected void setIdleButtonState() {
@@ -95,33 +125,4 @@ class UpgradeUiController {
     protected void updateProgressBar(int currentProgress) {
         progressBar.setProgress(currentProgress);
     }
-
-    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
-        switch (taskStatus) {
-            case RUNNING:
-                setDownloadingButtonState();
-                break;
-            case PENDING:
-                pendingUpgradeOrIdle();
-                break;
-            case FINISHED:
-                setErrorButtonState();
-                break;
-            default:
-                setErrorButtonState();
-        }
-    }
-
-    protected void pendingUpgradeOrIdle() {
-        if (downloadedUpgradePresent()) {
-            setUnappliedInstallButtonState();
-        } else {
-            setIdleButtonState();
-        }
-    }
-
-    private boolean downloadedUpgradePresent() {
-        return false;
-    }
-
 }

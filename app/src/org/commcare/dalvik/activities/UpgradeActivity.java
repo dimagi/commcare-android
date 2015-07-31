@@ -1,24 +1,18 @@
 package org.commcare.dalvik.activities;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
-import org.commcare.android.tasks.UpgradeAppTask;
-import org.commcare.dalvik.R;
+import org.commcare.android.tasks.UpgradeTask;
 
 /**
  * Allow user to manage app upgrading:
- *  - Check and downloading new latest upgrade
- *  - Stop an upgrade download
- *  - Apply a downloaded upgrade
+ * - Check and downloading new latest upgrade
+ * - Stop an upgrade download
+ * - Apply a downloaded upgrade
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -30,7 +24,7 @@ public class UpgradeActivity extends CommCareActivity
 
     private boolean taskIsCancelling;
 
-    private UpgradeAppTask upgradeTask;
+    private UpgradeTask upgradeTask;
 
     private UpgradeUiController uiController;
 
@@ -42,52 +36,18 @@ public class UpgradeActivity extends CommCareActivity
 
         loadSaveInstanceState(savedInstanceState);
 
-        uiController.setupUi();
-
         setupUpgradeTask();
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             taskIsCancelling =
-                savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
-        }
-    }
-
-    protected void startUpgradeCheck() {
-        try {
-            upgradeTask = UpgradeAppTask.getNewInstance();
-            upgradeTask.registerTaskListener(this);
-        } catch (IllegalStateException e) {
-            enterErrorState("There is already an existing upgrade task instance.");
-            return;
-        } catch (TaskListenerException e) {
-            enterErrorState("Attempting to register a TaskListener to an " +
-                    "already registered task.");
-            return;
-        }
-        upgradeTask.execute("");
-        uiController.setDownloadingButtonState();
-        uiController.updateProgressBar(0);
-    }
-
-    private void enterErrorState(String errorMsg) {
-        Log.e(TAG, errorMsg);
-        uiController.setErrorButtonState();
-    }
-
-    public void stopUpgradeCheck() {
-        if (upgradeTask != null) {
-            upgradeTask.cancel(true);
-            taskIsCancelling = true;
-            uiController.setCancellingButtonState();
-        } else {
-            uiController.setIdleButtonState();
+                    savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
         }
     }
 
     public void setupUpgradeTask() {
-        upgradeTask = UpgradeAppTask.getRunningInstance();
+        upgradeTask = UpgradeTask.getRunningInstance();
 
         try {
             if (upgradeTask != null) {
@@ -95,7 +55,7 @@ public class UpgradeActivity extends CommCareActivity
             }
         } catch (TaskListenerException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
-                            "registered task.");
+                    "registered task.");
             uiController.setErrorButtonState();
         }
     }
@@ -119,17 +79,29 @@ public class UpgradeActivity extends CommCareActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
 
         unregisterTask();
+    }
+
+    private void unregisterTask() {
+        if (upgradeTask != null) {
+            try {
+                upgradeTask.unregisterTaskListener(this);
+            } catch (TaskListenerException e) {
+                Log.e(TAG, "Attempting to unregister a not previously " +
+                        "registered TaskListener.");
+            }
+            upgradeTask = null;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
     }
 
     @Override
@@ -157,14 +129,35 @@ public class UpgradeActivity extends CommCareActivity
         uiController.updateProgressBar(0);
     }
 
-    private void unregisterTask() {
+    protected void startUpgradeCheck() {
+        try {
+            upgradeTask = UpgradeTask.getNewInstance();
+            upgradeTask.registerTaskListener(this);
+        } catch (IllegalStateException e) {
+            enterErrorState("There is already an existing upgrade task instance.");
+            return;
+        } catch (TaskListenerException e) {
+            enterErrorState("Attempting to register a TaskListener to an " +
+                    "already registered task.");
+            return;
+        }
+        upgradeTask.execute("");
+        uiController.setDownloadingButtonState();
+        uiController.updateProgressBar(0);
+    }
+
+    private void enterErrorState(String errorMsg) {
+        Log.e(TAG, errorMsg);
+        uiController.setErrorButtonState();
+    }
+
+    public void stopUpgradeCheck() {
         if (upgradeTask != null) {
-            try {
-                upgradeTask.unregisterTaskListener(this);
-            } catch (TaskListenerException e) {
-                Log.e(TAG, "Attempting to unregister a not previously registered TaskListener.");
-            }
-            upgradeTask = null;
+            upgradeTask.cancel(true);
+            taskIsCancelling = true;
+            uiController.setCancellingButtonState();
+        } else {
+            uiController.setIdleButtonState();
         }
     }
 }
