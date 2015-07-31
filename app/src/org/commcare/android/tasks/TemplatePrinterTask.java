@@ -97,7 +97,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
     private void populateHtml(File input, Bundle values) throws IOException {
         // Read from input file
         // throws IOException
-        String fileText = TemplatePrinterUtils.docToString(input);
+        String fileText = TemplatePrinterUtils.docToString(input).toLowerCase();
 
         // Check if <body></body> section of html string is properly formed
         // throws RuntimeException
