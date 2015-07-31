@@ -13,7 +13,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.geo.EntityOverlay;
@@ -47,7 +46,6 @@ import com.google.android.maps.OverlayItem;
 
 /**
  * @author ctsims
- *
  */
 public class EntityMapActivity extends MapActivity {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
@@ -269,7 +267,6 @@ public class EntityMapActivity extends MapActivity {
         return new CommCareInstanceInitializer(session);
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -287,5 +284,4 @@ public class EntityMapActivity extends MapActivity {
     protected boolean isRouteDisplayed() {
         return false;
     }
-
 }

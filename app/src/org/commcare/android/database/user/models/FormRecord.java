@@ -78,11 +78,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
-     * 
-     * @param xmlns
-     * @param path
-     * @param entityId
-     * @param status
      */
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
         this.instanceURI = instanceURI;

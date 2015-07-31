@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.io.IOException;
@@ -15,8 +12,6 @@ public class AndroidStreamUtil {
     
     /**
      * Write is to os and close both
-     * @param is
-     * @param os
      */
     public static void writeFromInputToOutput(InputStream is, OutputStream os) throws IOException {
         writeFromInputToOutput(is, os, null);
@@ -24,8 +19,6 @@ public class AndroidStreamUtil {
     
     /**
      * Write is to os and close both
-     * @param is
-     * @param os
      */
     public static void writeFromInputToOutput(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
         byte[] buffer = new byte[8192];
