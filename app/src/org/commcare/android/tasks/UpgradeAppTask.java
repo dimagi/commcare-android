@@ -18,8 +18,9 @@ public class UpgradeAppTask extends ManagedAsyncTask<String, int[], Boolean> {
     public static UpgradeAppTask getNewInstance() {
         if (singletonRunningInstance == null) {
             singletonRunningInstance = new UpgradeAppTask();
+            return singletonRunningInstance;
         } else {
-            throw new RuntimeException("There is a " + TAG + " instance.");
+            throw new IllegalStateException("There is a " + TAG + " instance.");
         }
     }
 
