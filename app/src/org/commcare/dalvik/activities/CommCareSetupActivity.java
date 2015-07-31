@@ -2,6 +2,8 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.Fragment;
@@ -24,8 +26,8 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.android.util.AndroidUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -42,10 +44,10 @@ import org.javarosa.core.util.PropertyUtils;
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- * 
+ *
  * If the startup activity identifies that the app is installed properly it
- * should not ever require interaction or be visible to the user. 
- * 
+ * should not ever require interaction or be visible to the user.
+ *
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
@@ -58,6 +60,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
+
+    public static final String COMMCAREHQ_PHONE_NUMBER = "6173062055";
 
     /**
      * Should the user be logged out when this activity is done?
@@ -108,18 +112,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private UiState uiState = UiState.basic;
-    
+
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
     private static final int MODE_ARCHIVE = Menu.FIRST + 2;
-    
+    private static final int MODE_SMS = Menu.FIRST + 3;
+
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
     private static final int DIALOG_INSTALL_PROGRESS = 4;
 
     private boolean startAllowed = true;
     private boolean inUpgradeMode = false;
-    
+
     private String incomingRef;
 
     private CommCareApp ccApp;
@@ -145,11 +150,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
 
     //endregion
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
 
         //Retrieve instance state
@@ -205,13 +210,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.ccApp = oldActivity.ccApp;
         }
 
-        Log.v("UiState","Current vars: " +
+        Log.v("UiState", "Current vars: " +
                         "UIState is: " + this.uiState + " " +
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
         );
 
         uiStateScreenTransition();
+        performSMSInstall(false);
     }
 
     @Override
@@ -257,13 +263,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onDestroy() {
         super.onDestroy();
     }
-    
+
     @Override
     protected void onStart() {
         super.onStart();
         uiStateScreenTransition();
         // upgrade app if needed
-        if(uiState == UiState.upgrade && 
+        if(uiState == UiState.upgrade &&
                 incomingRef != null && incomingRef.length() != 0) {
             if(AndroidUtil.isNetworkAvailable(this)){
                 startResourceInstall(true);
@@ -278,7 +284,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected int getWakeLockingLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -289,7 +295,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
         Log.v("UiState","Saving instance state: " + outState);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -361,7 +367,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startResourceInstall(ccApp.getAppPreferences().getBoolean(KEY_START_OVER, true));
         }
     }
-    
+
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
@@ -401,7 +407,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              // sleep before it starts, set based on whether we are currently
              // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
-            
+
             ResourceEngineTask<CommCareSetupActivity> task =
                 new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
                         app, startOverUpgrade,
@@ -460,7 +466,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     ResourceTable temporary =
                         receiver.ccApp.getCommCarePlatform().getUpgradeResourceTable();
 
-                    if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
+                    if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL &&
                             receiver.resourceTableWasFresh) {
                         receiver.ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
                     }
@@ -490,21 +496,66 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.ic_menu_upload);
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         return true;
     }
-    
+
+    /**
+     * Scan SMS messages for texts with profile references.
+     * @param installAutomatically install automatically if reference is found
+     */
+    public void performSMSInstall(boolean installAutomatically){
+        String profileLink = this.scanSMSLinks();
+        if(profileLink != null){
+            Log.v("install", "Performing SMS install with link : " + incomingRef);
+            incomingRef = profileLink;
+            if(installAutomatically) {
+                startResourceInstall();
+            } else{
+                uiState = UiState.ready;
+                Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+            }
+        } else{
+            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    // http://stackoverflow.com/questions/11301046/search-sms-inbox
+    public String scanSMSLinks(){
+        String installLink = null;
+        final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "address = ?",
+                new String[] {CommCareSetupActivity.COMMCAREHQ_PHONE_NUMBER}, "date desc limit 1");
+        if(cursor.moveToFirst()) {
+            // Do something
+            Log.v("Body", cursor.getString(cursor.getColumnIndex("body")));
+            String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+            int startIndex = textMessageBody.indexOf('{');
+            int endIndex = textMessageBody.indexOf('}');
+            if(startIndex > 0 && endIndex > startIndex){
+                installLink = textMessageBody.substring(startIndex + 1, endIndex);
+            }
+        }
+        cursor.close();
+        return installLink;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MODE_ARCHIVE) {
              Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
              startActivityForResult(i, ARCHIVE_INSTALL);
+        }
+        if (item.getItemId() == MODE_SMS) {
+            performSMSInstall(true);
         }
         return true;
     }

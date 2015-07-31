@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:name=".application.CommCareApplication"
@@ -127,6 +129,7 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
+
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
