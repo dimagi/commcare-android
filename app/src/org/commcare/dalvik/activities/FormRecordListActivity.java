@@ -336,6 +336,14 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         mAlertDialog.show();
     }
 
+    /**
+     * Checks if the action bar view is active
+     * @return
+     */
+    public boolean isUsingActionBar(){
+        return searchView != null;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
@@ -350,7 +358,11 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                     {
                         searchItem.expandActionView();
                     }
-                    searchView.setQuery(lastQueryString, false);
+                    if (isUsingActionBar()) {
+                        searchView.setQuery(lastQueryString, false);
+                    } else {
+                        searchbox.setText(lastQueryString);
+                    }
                     if (BuildConfig.DEBUG) {
                         Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
                     }
