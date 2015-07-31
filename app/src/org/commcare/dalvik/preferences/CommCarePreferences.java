@@ -366,8 +366,8 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
             startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
         } catch (ActivityNotFoundException e) {
             // Means that there is no file browser installed on the device
-            showAlertDialog(Localization.get("cannot.set.template"),
-                    Localization.get("no.file.browser"));
+            TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
+                    Localization.get("no.file.browser"), false);
         }
     }
 

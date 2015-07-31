@@ -52,7 +52,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     /**
      * Unique name to use for the print job name
      */
-    private static String jobName;
+    private String jobName;
 
     private PrintJob printJob;
 
@@ -64,12 +64,14 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             showErrorDialog(Localization.get("print.not.supported"));
+            return;
         }
 
         Bundle data = getIntent().getExtras();
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));
+            return;
         }
 
         this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
@@ -131,7 +133,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * with printing. Otherwise, displays the appropriate error message.
      */
     @Override
-    public void onFinished(TemplatePrinterTask.PrintTaskResult result, String problemString) {
+    public void onPopulationFinished(TemplatePrinterTask.PrintTaskResult result, String problemString) {
         switch(result) {
             case SUCCESS:
                 doHtmlPrint();
@@ -171,27 +173,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                         }
                 );
         dialogBuilder.show();
-    }
-
-    /**
-     * Shows an alert dialog about the status of the print job.
-     * Activity will quit upon exiting the dialog.
-     *
-     * @param msg String message that should be shown on the alert
-     */
-    private void showAlertDialog(String msg) {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle(msg);
-        alert.setCancelable(false);
-        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-
-        alert.show();
     }
 
     /**
@@ -237,7 +218,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
 
         // Get a print adapter instance
-        PrintDocumentAdapter printAdapter = new PrintDocumentAdapterWrapper(v.createPrintDocumentAdapter());
+        PrintDocumentAdapter printAdapter = new PrintDocumentAdapterWrapper(this, v.createPrintDocumentAdapter());
 
         // Create a print job with name and adapter instance
         printJob = printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
@@ -253,9 +234,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
 
         private final PrintDocumentAdapter delegate;
+        private Activity activity;
 
-        public PrintDocumentAdapterWrapper(PrintDocumentAdapter adapter) {
+        public PrintDocumentAdapterWrapper(Activity activity, PrintDocumentAdapter adapter) {
             super();
+            this.activity = activity;
             this.delegate = adapter;
         }
 
@@ -268,32 +251,35 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         @Override
         public void onWrite(PageRange[] pages, ParcelFileDescriptor destination,
-                             CancellationSignal cancellationSignal,
-                             PrintDocumentAdapter.WriteResultCallback callback) {
+                            CancellationSignal cancellationSignal,
+                            PrintDocumentAdapter.WriteResultCallback callback) {
             delegate.onWrite(pages, destination, cancellationSignal, callback);
         }
 
         @Override
         public void onFinish() {
             delegate.onFinish();
-            switch(printJob.getInfo().getState()) {
+            String printDialogTitle = Localization.get("print.dialog.title");
+            String msg = "";
+            switch (printJob.getInfo().getState()) {
                 case PrintJobInfo.STATE_BLOCKED:
-                    showAlertDialog(Localization.get("printjob.blocked"));
+                    msg = Localization.get("printjob.blocked");
                     break;
                 case PrintJobInfo.STATE_CANCELED:
-                    showAlertDialog(Localization.get("printjob.not.started"));
+                    msg = Localization.get("printjob.not.started");
                     break;
                 case PrintJobInfo.STATE_COMPLETED:
-                    showAlertDialog(Localization.get("printing.done"));
+                    msg = Localization.get("printing.done");
                     break;
                 case PrintJobInfo.STATE_FAILED:
-                    showAlertDialog(Localization.get("print.error"));
+                    msg = Localization.get("print.error");
                     break;
                 case PrintJobInfo.STATE_CREATED:
                 case PrintJobInfo.STATE_QUEUED:
                 case PrintJobInfo.STATE_STARTED:
-                    showAlertDialog(Localization.get("printjob.started"));
+                    msg = Localization.get("printjob.started");
             }
+            TemplatePrinterUtils.showAlertDialog(activity, printDialogTitle, msg, true);
         }
     }
 

@@ -294,6 +294,7 @@ printjob.queued=Your print job is queued
 printjob.not.started=No print job was started
 printjob.blocked=Your print job is currently blocked. Please wait or check the printer, and try again.
 printing.done=Printing done successfully
+print.dialog.title=Print Job Status
 template.warning=A print template must have extension .html. Please choose a different file
 template.invalid=The template file set for your print job is invalid. Please ask a supervisor for assistance.
 template.not.set=No template file was set

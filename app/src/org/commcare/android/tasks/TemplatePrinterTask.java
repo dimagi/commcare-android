@@ -44,7 +44,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
     /**
      * The mapping from keywords to case property values to be used in populating the template
      */
-    private final Bundle values;
+    private final Bundle templatePopulationMapping;
 
     private final PopulateListener listener;
 
@@ -53,18 +53,17 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
                                PopulateListener listener) {
         this.inputFile = input;
         this.outputPath = outputPath;
-        this.values = values;
+        this.templatePopulationMapping = values;
         this.listener = listener;
     }
 
     /**
-     * Attempts to perform population of the template file, and throws the appropriate exception
-     * if encountering an error.
+     * Attempts to perform population of the template file
      */
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
         try {
-            populateHtml(inputFile, values);
+            populateAndSaveHtml(inputFile, templatePopulationMapping, outputPath);
             return PrintTaskResult.SUCCESS;
         } catch (IOException e) {
             return PrintTaskResult.IO_ERROR;
@@ -79,7 +78,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      */
     @Override
     protected void onPostExecute(PrintTaskResult result) {
-        listener.onFinished(result, problemString);
+        listener.onPopulationFinished(result, problemString);
     }
 
     /**
@@ -87,27 +86,25 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * and save the newly-populated template to a temp location
      *
      * @param input the html print template
-     * @param values the mapping of keywords to case property values
+     * @param mapping the mapping of keywords to case property values
      * @throws IOException, PrintValidationException
      */
-    private void populateHtml(File input, Bundle values)
+    private static void populateAndSaveHtml(File input, Bundle mapping, String outputPath)
             throws IOException, PrintValidationException {
+
         // Read from input file
-        // throws IOException
         String fileText = TemplatePrinterUtils.docToString(input).toLowerCase();
 
         // Check if <body></body> section of html string is properly formed
-        // throws PrintValidationException
         int startBodyIndex = fileText.indexOf("<body");
         String beforeBodySection = fileText.substring(0, startBodyIndex);
         String bodySection = fileText.substring(startBodyIndex);
         validateString(bodySection);
 
         // Swap out place-holder keywords for case property values within <body></body> section
-        bodySection = replace(bodySection, values);
+        bodySection = replace(bodySection, mapping);
 
         // Write the new HTML to the desired  temp file location
-        // throws IOException
         TemplatePrinterUtils.writeStringToFile(beforeBodySection + bodySection, outputPath);
     }
 
@@ -116,10 +113,10 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * values.
      *
      * @param input String input
-     * @param values Bundle of String attribute key-value mappings
+     * @param mapping Bundle of key-value mappings with which to complete replacements
      * @return The populated String
      */
-    private static String replace(String input, Bundle values) {
+    private static String replace(String input, Bundle mapping) {
         // Split input into tokens bounded by {{ and }}
         String[] tokens = TemplatePrinterUtils.splitKeepDelimiter(input, "\\{{2}", "\\}{2}");
         for (int i=0; i<tokens.length; i++) {
@@ -141,7 +138,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
                         // Remove whitespace from key
                         String key = TemplatePrinterUtils.remove(tokenSplit, " ");
 
-                        if (values.containsKey(key) && (key = values.getString(key)) != null) {
+                        if (mapping.containsKey(key) && (key = mapping.getString(key)) != null) {
                             // Populate with value
                             tokenSplits[j] = key;
                         } else {
@@ -245,7 +242,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * A listener for this task, implemented by TemplatePrinterActivity
      */
     public interface PopulateListener {
-        void onFinished(PrintTaskResult result, String problemString);
+        void onPopulationFinished(PrintTaskResult result, String problemString);
     }
 
 }
