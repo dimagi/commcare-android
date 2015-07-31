@@ -8,6 +8,11 @@ import android.widget.ProgressBar;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
+/**
+ * Controls the UI for the upgrade activity.
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
+ */
 class UpgradeUiController {
     @UiElement(R.id.check_for_upgrade_button)
     private Button checkUpgradeButton;
@@ -35,7 +40,8 @@ class UpgradeUiController {
     }
 
     private void setupButtonListeners() {
-        checkUpgradeButton = (Button)activity.findViewById(R.id.check_for_upgrade_button);
+        checkUpgradeButton =
+            (Button)activity.findViewById(R.id.check_for_upgrade_button);
         checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,7 +49,8 @@ class UpgradeUiController {
             }
         });
 
-        stopUpgradeButton = (Button)activity.findViewById(R.id.stop_upgrade_download_button);
+        stopUpgradeButton =
+            (Button)activity.findViewById(R.id.stop_upgrade_download_button);
         stopUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,7 +58,8 @@ class UpgradeUiController {
             }
         });
 
-        installUpgradeButton = (Button)activity.findViewById(R.id.install_upgrade_button);
+        installUpgradeButton =
+            (Button)activity.findViewById(R.id.install_upgrade_button);
         installUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -4,6 +4,13 @@ import android.os.SystemClock;
 
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 
+/**
+ * Upgrades the seated app in the background. If the user opens the Upgrade
+ * activity, this task will report its progress to that activity. Enforces the
+ * constraint that only one instance is ever running.
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
+ */
 public class UpgradeTask extends ManagedAsyncTask<String, int[], Boolean> {
     private static final String TAG = UpgradeTask.class.getSimpleName();
 

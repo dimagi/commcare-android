@@ -10,8 +10,8 @@ import org.commcare.android.tasks.UpgradeTask;
 
 /**
  * Allow user to manage app upgrading:
- * - Check and downloading new latest upgrade
- * - Stop an upgrade download
+ * - Check and download the latest upgrade
+ * - Stop a downloading upgrade
  * - Apply a downloaded upgrade
  *
  * @author Phillip Mates (pmates@dimagi.com)
@@ -20,7 +20,7 @@ public class UpgradeActivity extends CommCareActivity
         implements TaskListener<int[], Boolean> {
 
     private static final String TAG = UpgradeActivity.class.getSimpleName();
-    private static final String TASK_CANCELLING_KEY = "upgrade_task_is_cancelling";
+    private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
 
     private boolean taskIsCancelling;
 
