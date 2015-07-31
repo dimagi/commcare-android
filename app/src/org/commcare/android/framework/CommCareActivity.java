@@ -231,6 +231,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
+        activityStopped = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
@@ -354,12 +355,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
     }
     
-    @Override
-    protected void onStop() {
-        super.onStop();
-        activityStopped = true;
-    }
-
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
