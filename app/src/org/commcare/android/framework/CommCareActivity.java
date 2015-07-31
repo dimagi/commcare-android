@@ -82,7 +82,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Activity has been put in the background. This is used to prevent dialogs
      * from being shown while activity isn't active.
      */
-    private boolean activityStopped;
+    private boolean activityPaused;
 
     /**
      * Stores the id of a dialog that tried to be shown when the activity
@@ -95,7 +95,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityStopped = false;
+        activityPaused = false;
 
         if (showDialogIdOnResume > 0 && !shouldDismissDialog) {
             startBlockingForTask(showDialogIdOnResume);
@@ -231,7 +231,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
-        activityStopped = true;
+        activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
@@ -260,7 +260,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     @Override
     public void startBlockingForTask(int id) {
-        if (activityStopped) {
+        if (activityPaused) {
             // don't show the dialog if the activity is in the background
             showDialogIdOnResume = id;
             return;
