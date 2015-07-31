@@ -6,6 +6,7 @@ import android.os.Bundle;
 import java.io.File;
 import java.io.IOException;
 
+import org.commcare.android.util.PrintValidationException;
 import org.commcare.android.util.TemplatePrinterUtils;
 
 
@@ -15,20 +16,15 @@ import org.commcare.android.util.TemplatePrinterUtils;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
+public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTask.PrintTaskResult> {
 
     /**
      * The 4 result codes that can be sent back by this task
      */
-    public static final int SUCCESS = 0;
-    public static final int IO_ERROR = 1;
-    public static final int VALIDATION_ERROR_MUSTACHE = 2;
-    public static final int VALIDATION_ERROR_CHEVRON = 3;
 
-    /**
-     * Used to track which type of error (2 or 3 above) was encountered in validateString
-     */
-    private static int validationErrorType;
+    public enum PrintTaskResult {
+        SUCCESS, IO_ERROR, VALIDATION_ERROR_MUSTACHE, VALIDATION_ERROR_CHEVRON
+    }
 
     /**
      * Used to track the string in the template file where a validation error was encountered
@@ -66,15 +62,15 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      * if encountering an error.
      */
     @Override
-    protected Integer doInBackground(Void... params) {
+    protected PrintTaskResult doInBackground(Void... params) {
         try {
             populateHtml(inputFile, values);
-            return SUCCESS;
+            return PrintTaskResult.SUCCESS;
         } catch (IOException e) {
-            return IO_ERROR;
-        } catch (RuntimeException e) {
+            return PrintTaskResult.IO_ERROR;
+        } catch (PrintValidationException e) {
             problemString = e.getMessage();
-            return validationErrorType;
+            return e.getErrorType();
         }
     }
 
@@ -82,7 +78,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      * Receives the return value from doInBackground and proceeds accordingly
      */
     @Override
-    protected void onPostExecute(Integer result) {
+    protected void onPostExecute(PrintTaskResult result) {
         listener.onFinished(result, problemString);
     }
 
@@ -92,31 +88,33 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      *
      * @param input the html print template
      * @param values the mapping of keywords to case property values
-     * @throws IOException
+     * @throws IOException, PrintValidationException
      */
-    private void populateHtml(File input, Bundle values) throws IOException {
+    private void populateHtml(File input, Bundle values)
+            throws IOException, PrintValidationException {
         // Read from input file
         // throws IOException
         String fileText = TemplatePrinterUtils.docToString(input).toLowerCase();
 
         // Check if <body></body> section of html string is properly formed
-        // throws RuntimeException
+        // throws PrintValidationException
         int startBodyIndex = fileText.indexOf("<body");
         String beforeBodySection = fileText.substring(0, startBodyIndex);
         String bodySection = fileText.substring(startBodyIndex);
-        validateStringOrThrowException(bodySection);
+        validateString(bodySection);
 
         // Swap out place-holder keywords for case property values within <body></body> section
         bodySection = replace(bodySection, values);
 
         // Write the new HTML to the desired  temp file location
-        // throws IO Exception
+        // throws IOException
         TemplatePrinterUtils.writeStringToFile(beforeBodySection + bodySection, outputPath);
     }
 
     /**
-     * Populate an input string with attribute keys formatted as {{ attr_key }}
-     * with attribute values.
+     * Populate an input string with attribute keys formatted as {{ attr_key }} with attribute
+     * values.
+     *
      * @param input String input
      * @param values Bundle of String attribute key-value mappings
      * @return The populated String
@@ -169,13 +167,13 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
 
     /**
      * Validates the input string for well-formed {{ }} and < > pairs.
-     * If malformed, throws a RuntimeException which will be caught by
+     * If malformed, throws an exception that will be caught by
      * doInBackground(), and trigger the appropriate result code to be
      * sent back to the attached PopulateListener
      * 
      * @param input String to validate
      */
-    private static void validateStringOrThrowException(String input) {
+    private static void validateString(String input) throws PrintValidationException {
 
         boolean isBetweenMustaches = false;
         boolean isBetweenChevrons = false;
@@ -191,8 +189,8 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
 
             if (c == '{') {
                 if (isBetweenMustaches) {
-                    validationErrorType = VALIDATION_ERROR_MUSTACHE;
-                    throw new RuntimeException(recentString.toString());
+                    throw new PrintValidationException(recentString.toString(),
+                            PrintTaskResult.VALIDATION_ERROR_MUSTACHE);
                 } else {
                     i++;
                     c = input.charAt(i);
@@ -208,17 +206,17 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
                     i++;
                     c = input.charAt(i);
                     if (c != '}') {
-                        validationErrorType = VALIDATION_ERROR_MUSTACHE;
                         recentString.append(c);
-                        throw new RuntimeException(recentString.toString());
+                        throw new PrintValidationException(recentString.toString(),
+                                PrintTaskResult.VALIDATION_ERROR_MUSTACHE);
                     } else {
                         isBetweenMustaches = false;
                     }
                 }
             } else if (c == '<') {
                 if (isBetweenChevrons) {
-                    validationErrorType = VALIDATION_ERROR_CHEVRON;
-                    throw new RuntimeException(recentString.toString());
+                    throw new PrintValidationException(recentString.toString(),
+                            PrintTaskResult.VALIDATION_ERROR_CHEVRON);
                 } else {
                     isBetweenChevrons = true;
                 }
@@ -226,19 +224,19 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
                 if (isBetweenChevrons) {
                     isBetweenChevrons = false;
                 } else {
-                    validationErrorType = VALIDATION_ERROR_CHEVRON;
-                    throw new RuntimeException(recentString.toString());
+                    throw new PrintValidationException(recentString.toString(),
+                            PrintTaskResult.VALIDATION_ERROR_CHEVRON);
                 }
             }
         }
 
         // If we reach the end of the string and are in between either type, should also throw error
         if (isBetweenChevrons) {
-            validationErrorType = VALIDATION_ERROR_CHEVRON;
-            throw new RuntimeException(recentString.toString());
+            throw new PrintValidationException(recentString.toString(),
+                    PrintTaskResult.VALIDATION_ERROR_CHEVRON);
         } else if (isBetweenMustaches) {
-            validationErrorType = VALIDATION_ERROR_MUSTACHE;
-            throw new RuntimeException(recentString.toString());
+            throw new PrintValidationException(recentString.toString(),
+                    PrintTaskResult.VALIDATION_ERROR_MUSTACHE);
         }
 
     }
@@ -247,7 +245,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, Integer> {
      * A listener for this task, implemented by TemplatePrinterActivity
      */
     public interface PopulateListener {
-        void onFinished(int result, String problemString);
+        void onFinished(PrintTaskResult result, String problemString);
     }
 
 }

@@ -54,14 +54,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     private static String jobName;
 
-    /**
-     * Used to hold an instance of the WebView object being printed, so that is it not garbage
-     * collected before the print job is created
-     */
-    private WebView mWebView;
-
     private PrintJob printJob;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,18 +131,18 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * with printing. Otherwise, displays the appropriate error message.
      */
     @Override
-    public void onFinished(int result, String problemString) {
+    public void onFinished(TemplatePrinterTask.PrintTaskResult result, String problemString) {
         switch(result) {
-            case TemplatePrinterTask.SUCCESS:
+            case SUCCESS:
                 doHtmlPrint();
                 break;
-            case TemplatePrinterTask.IO_ERROR:
+            case IO_ERROR:
                 showErrorDialog(Localization.get("print.io.error"));
                 break;
-            case TemplatePrinterTask.VALIDATION_ERROR_MUSTACHE:
+            case VALIDATION_ERROR_MUSTACHE:
                 showErrorDialog(Localization.get("template.malformed.mustache", new String[]{problemString}));
                 break;
-            case TemplatePrinterTask.VALIDATION_ERROR_CHEVRON:
+            case VALIDATION_ERROR_CHEVRON:
                 showErrorDialog(Localization.get("template.malformed.chevron", new String[]{problemString}));
         }
     }
@@ -219,14 +212,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             @Override
             public void onPageFinished(WebView view, String url) {
                 createWebPrintJob(view);
-                mWebView = null;
             }
         });
         try {
             String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
             webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
-            // Keep reference to WebView object until PrintDocumentAdapter is passed to PrintManager
-            mWebView = webView;
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
