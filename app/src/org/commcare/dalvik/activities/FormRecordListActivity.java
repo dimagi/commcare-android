@@ -189,6 +189,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             refreshView();
 
             restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+
+            if(!isUsingActionBar()) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+                }
+                searchbox.setText(lastQueryString);
+            }
         } catch(SessionUnavailableException sue) {
             //TODO: session is dead, login and return
         }
@@ -549,8 +556,15 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     public void afterTextChanged(Editable s) {
+        String filtertext = s.toString();
         if (searchbox.getText() == s) {
-            adapter.applyTextFilter(s.toString());
+            adapter.applyTextFilter(filtertext);
+        }
+        if(!isUsingActionBar()) {
+            lastQueryString = filtertext;
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
+            }
         }
     }
 
