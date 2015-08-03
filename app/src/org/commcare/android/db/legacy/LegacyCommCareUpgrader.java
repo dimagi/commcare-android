@@ -191,7 +191,9 @@ public class LegacyCommCareUpgrader {
             Cursor c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
             c.moveToFirst();
             int rows = c.getInt(0);
-            c.close();
+            if (c != null) {
+                c.close();
+            }
             return rows;
         }catch (Exception e) {
             return -1;

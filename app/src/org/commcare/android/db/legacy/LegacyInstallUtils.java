@@ -242,7 +242,9 @@ public class LegacyInstallUtils {
                 toReplace.add(new Pair<Uri, String>(uri, newFilePath));
             }
         }
-        ef.close();
+        if (ef != null) {
+            ef.close();
+        }
         
         for(Pair<Uri, String> p : toReplace) {
             ContentValues cv = new ContentValues();

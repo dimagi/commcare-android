@@ -126,13 +126,18 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                     Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
                     this.contentUri = result.toString();
             }
-            existingforms.close();
+            if (existingforms != null) {
+                existingforms.close();
+            }
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IOException("couldn't talk to form database to install form");
         }
 
+        if (cpc != null) {
+            cpc.release();
+        }
         
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
