@@ -39,8 +39,7 @@ import java.util.Hashtable;
 public class IntentCallout implements Externalizable {
     private String className;
     private Hashtable<String, TreeReference> refs;
-    private Hashtable<String, String> stringExtras = new Hashtable<>();
-
+    
     private Hashtable<String, TreeReference> responses;
     
     private FormDef form;
@@ -70,15 +69,9 @@ public class IntentCallout implements Externalizable {
         this.data = data;
         this.buttonLabel = buttonLabel;
         this.appearance = appearance;
+
     }
-
-    public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, String> stringExtras, Hashtable<String, TreeReference> responses,
-                         String type, String component, String data, String buttonLabel, String appearance) {
-
-        this(className, refs, responses, type, component, data, buttonLabel, appearance);
-        this.stringExtras = stringExtras;
-    }
-
+    
     protected void attachToForm(FormDef form) {
         this.form = form;
     }
@@ -102,10 +95,6 @@ public class IntentCallout implements Externalizable {
                     i.putExtra(key, e.getValue().uncast().getString());
                 }
             }
-        }
-        for (Enumeration<String> keys = stringExtras.keys(); keys.hasMoreElements(); ) {
-            String key = keys.nextElement();
-            i.putExtra(key, stringExtras.get(key));
         }
         return i;
     }

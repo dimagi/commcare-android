@@ -42,7 +42,6 @@ public class IntentExtensionParser implements IElementHandler {
         String label = e.getAttributeValue(null, "button-label");
 
         Hashtable<String, TreeReference> extras = new Hashtable<String, TreeReference>();
-        Hashtable<String, String> stringExtras = new Hashtable<String, String>();
         Hashtable<String, TreeReference> response = new Hashtable<String, TreeReference>();
 
         for(int i = 0; i < e.getChildCount(); ++i) {
@@ -52,13 +51,8 @@ public class IntentExtensionParser implements IElementHandler {
                     if(child.getName().equals(EXTRA)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
-                        if ("cc:print_template_reference".equals(key)) {
-                            //ref = "./text()";
-                            ref = child.getText(0);
-                            stringExtras.put(key, ref);
-                        } else {
-                            extras.put(key, (TreeReference)new XPathReference(ref).getReference());
-                        }
+                        extras.put(key, (TreeReference)new XPathReference(ref).getReference());
+
                     } else if(child.getName().equals(RESPONSE)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
@@ -72,7 +66,7 @@ public class IntentExtensionParser implements IElementHandler {
             }
         }
 
-        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, stringExtras, response, type, component, data, label, appearance));
+        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, response, type, component, data, label, appearance));
     }
 
 }
