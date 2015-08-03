@@ -41,22 +41,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class FormHierarchyActivity extends ListActivity {
-
-    private static final String t = "FormHierarchyActivity";
-    int state;
+    private static final String TAG = FormHierarchyActivity.class.getSimpleName();
 
     private static final int CHILD = 1;
     private static final int EXPANDED = 2;
     private static final int COLLAPSED = 3;
     private static final int QUESTION = 4;
 
-    private final String mIndent = "     ";
     private Button jumpPreviousButton;
 
-    List<HierarchyElement> formList;
-    TextView mPath;
+    private List<HierarchyElement> formList;
+    private TextView mPath;
 
-    FormIndex mStartIndex;
+    private FormIndex mStartIndex;
 
 
     @Override
@@ -174,7 +171,7 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
 
-    public void refreshView() {
+    private void refreshView() {
         // Record the current index so we can return to the same place if the user hits 'back'.
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
 
@@ -307,6 +304,7 @@ public class FormHierarchyActivity extends ListActivity {
                             .getReference().toString(false)) == 0) {
                         // Add this group name to the drop down list for this repeating group.
                         HierarchyElement h = formList.get(formList.size() - 1);
+                        String mIndent = "     ";
                         h.addChild(new HierarchyElement(mIndent + fc.getLongText() + " "
                                 + (fc.getMultiplicity() + 1), null, null, Color.WHITE, CHILD, fc
                                 .getIndex()));
@@ -325,7 +323,7 @@ public class FormHierarchyActivity extends ListActivity {
         FormEntryActivity.mFormController.jumpToIndex(currentIndex);
     }
 
-    public int getFormEntryPromptIcon(FormEntryPrompt fep){
+    private int getFormEntryPromptIcon(FormEntryPrompt fep){
         if (BuildConfig.DEBUG) {
             Log.i("FEPICON", "FEP (" + fep.hashCode() + ") data type is: " + fep.getDataType() + " | control type is: " + fep.getControlType());
         }
@@ -357,7 +355,7 @@ public class FormHierarchyActivity extends ListActivity {
         return -1;
     }
 
-    public static int getDrawableIDFor(FormEntryPrompt fep){
+    private static int getDrawableIDFor(FormEntryPrompt fep){
         switch(fep.getDataType()){
             case Constants.DATATYPE_TEXT:
                 return R.drawable.avatar_vellum_text;
@@ -390,7 +388,7 @@ public class FormHierarchyActivity extends ListActivity {
      * @param index
      * @return index
      */
-    public FormIndex stepIndexOut(FormIndex index) {
+    private FormIndex stepIndexOut(FormIndex index) {
         if (index.isTerminal()) {
             return null;
         } else {
@@ -421,7 +419,7 @@ public class FormHierarchyActivity extends ListActivity {
                 h.setType(EXPANDED);
                 ArrayList<HierarchyElement> children1 = h.getChildren();
                 for (int i = 0; i < children1.size(); i++) {
-                    Log.i(t, "adding child: " + children1.get(i).getFormIndex());
+                    Log.i(TAG, "adding child: " + children1.get(i).getFormIndex());
                     formList.add(position + 1 + i, children1.get(i));
 
                 }

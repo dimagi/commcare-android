@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class HierarchyElementView extends RelativeLayout {
+    public static final String TAG = HierarchyElementView.class.getSimpleName();
 
     private TextView mPrimaryTextView;
     private TextView mSecondaryTextView;
@@ -49,8 +50,8 @@ public class HierarchyElementView extends RelativeLayout {
         addView(layout);
 
         if (BuildConfig.DEBUG) {
-            Log.i("HEVTYPE", "Type of HEV (" + hashCode() + ") is " + it.getType());
-            Log.i("HEVTYPE", "Icon of HEV (" + hashCode() + ") is " + (it.getIcon() == null ? "null" : it.getIcon().toString()));
+            Log.i(TAG, "Type of HEV (" + hashCode() + ") is " + it.getType());
+            Log.i(TAG, "Icon of HEV (" + hashCode() + ") is " + (it.getIcon() == null ? "null" : it.getIcon().toString()));
         }
     }
 
