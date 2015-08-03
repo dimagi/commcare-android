@@ -35,6 +35,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -204,7 +205,7 @@ public class FormsProvider extends ContentProvider {
             values.put(FormsColumns.MD5_HASH, md5);
 
             if (values.containsKey(FormsColumns.JRCACHE_FILE_PATH) == false) {
-                String cachePath = "/sdcard/odk/.cache/" + md5 + ".formdef";
+                String cachePath = Environment.getExternalStorageDirectory().getPath() + "odk/.cache/" + md5 + ".formdef";
                 values.put(FormsColumns.JRCACHE_FILE_PATH, cachePath);
             }
             if (values.containsKey(FormsColumns.FORM_MEDIA_PATH) == false) {
@@ -378,7 +379,7 @@ public class FormsProvider extends ContentProvider {
                                     .getColumnIndex(FormsColumns.JRCACHE_FILE_PATH)));
                             String newMd5 = FileUtil.getMd5Hash(new File(formFile));
                             values.put(FormsColumns.MD5_HASH, newMd5);
-                            values.put(FormsColumns.JRCACHE_FILE_PATH, "/sdcard/odk/.cache" + newMd5
+                            values.put(FormsColumns.JRCACHE_FILE_PATH, Environment.getExternalStorageDirectory().getPath() + "odk/.cache" + newMd5
                                     + ".formdef");
                         }
     
