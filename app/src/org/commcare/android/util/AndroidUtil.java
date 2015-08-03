@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.util.HashSet;
@@ -26,13 +23,12 @@ import android.view.ViewGroup;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidUtil {
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
 
     /**
-     * Generate a value suitable for use in {@link #setId(int)}.
+     * Generate a value suitable for use in setId(int).
      * This value will not collide with ID values generated at build time by aapt for R.id.
      *
      * @return a generated ID value
@@ -120,9 +116,6 @@ public class AndroidUtil {
 
     /**
      * Returns an int array with the color values for the given attributes (R.attr).
-     * @param context
-     * @param attrs
-     * @return
      */
     public static int[] getThemeColorIDs(final Context context, final int[] attrs){
         int[] colors = new int[attrs.length];

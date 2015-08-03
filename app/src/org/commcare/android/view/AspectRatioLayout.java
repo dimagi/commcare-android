@@ -28,8 +28,6 @@ public class AspectRatioLayout extends FrameLayout {
     
     /**
      * Set layout's aspect ratio.
-     * @param ratioWidth
-     * @param ratioHeight
      */
     public void setRatio(float ratioWidth, float ratioHeight) {
         mRatioWidth = ratioWidth;

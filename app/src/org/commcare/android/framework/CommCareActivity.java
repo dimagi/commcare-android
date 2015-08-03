@@ -30,13 +30,11 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -64,13 +62,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
-    protected final static int DIALOG_PROGRESS = 32;
-    protected final static String DIALOG_TEXT = "cca_dialog_text";
-
     StateFragment stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
+
+    /**
+     * Used to indicate that the (progress) dialog associated with a task
+     * should be dismissed because the task has completed or been canceled.
+     */
     private boolean shouldDismissDialog = true;
 
     private GestureDetector mGestureDetector;
@@ -78,10 +78,30 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
+    /**
+     * Activity has been put in the background. This is used to prevent dialogs
+     * from being shown while activity isn't active.
+     */
+    private boolean activityPaused;
+
+    /**
+     * Stores the id of a dialog that tried to be shown when the activity
+     * wasn't active. When the activity resumes, create this dialog if the
+     * associated task is still running and the id is non-negative.
+     */
+    private int showDialogIdOnResume = -1;
+
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activityPaused = false;
+
+        if (showDialogIdOnResume > 0 && !shouldDismissDialog) {
+            startBlockingForTask(showDialogIdOnResume);
+        }
+        showDialogIdOnResume = -1;
+
         FragmentManager fm = this.getSupportFragmentManager();
         
         stateHolder = (StateFragment) fm.findFragmentByTag("state");
@@ -211,6 +231,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
+        activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
@@ -238,11 +259,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Override these to control the UI for your task
      */
     @Override
-    public void startBlockingForTask(int id) {        
-        //attempt to dismiss the dialog from the last task before showing this one
+    public void startBlockingForTask(int id) {
+        if (activityPaused) {
+            // don't show the dialog if the activity is in the background
+            showDialogIdOnResume = id;
+            return;
+        }
+
+        // attempt to dismiss the dialog from the last task before showing this
+        // one
         attemptDismissDialog();
-        
-        //ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the last dialog during transition, show a new one
+
+        // ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the
+        // last dialog during transition, show a new one
         if (id >= 0 && shouldDismissDialog) {
             this.showProgressDialog(id);
         }
@@ -326,11 +355,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
     }
     
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();

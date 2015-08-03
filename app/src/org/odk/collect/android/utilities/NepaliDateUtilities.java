@@ -159,10 +159,6 @@ public class NepaliDateUtilities {
      * to the given Nepali date. If the given Nepali date is out
      * of range, an exception is thrown.
      * 
-     * @param toYear
-     * @param toMonth
-     * @param toDay
-     * @return
      * @throws RuntimeException is entered date is out of range
      */
     private static int countDaysFromMinDay(int toYear, int toMonth, int toDay) {
