@@ -104,7 +104,9 @@ public class AndroidSharedKeyRecord extends Persisted {
         
         p.unmarshall(decoded, 0, decoded.length);
         p.setDataPosition(0);
-        
-        return p.readBundle();
+
+        Bundle result = p.readBundle();
+        p.recycle();
+        return result;
     }
 }
