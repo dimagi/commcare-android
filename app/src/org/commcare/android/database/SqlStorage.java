@@ -3,6 +3,7 @@ package org.commcare.android.database;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -168,10 +169,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw new UserStorageClosedException(e.getMessage());
         }
         if(c.getCount() == 0) {
-            throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
+            throw new NoSuchElementException("No element in table " + table + " with names " + Arrays.toString(rawFieldNames) +" and values " + Arrays.toString(values));
         }
         if(c.getCount() > 1) {
-             throw new InvalidIndexException("Invalid unique column set" + rawFieldNames + ". Multiple records found with value " + values.toString(), rawFieldNames.toString());
+             throw new InvalidIndexException("Invalid unique column set" + Arrays.toString(rawFieldNames) + ". Multiple records found with value " + Arrays.toString(values), Arrays.toString(rawFieldNames));
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
