@@ -57,7 +57,7 @@ public class SetupInstallFragment extends Fragment {
                 SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
                 Activity currentActivity = getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
-                    ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.CHOOSING_URL);
+                    ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                 }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();

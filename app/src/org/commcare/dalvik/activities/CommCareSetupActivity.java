@@ -60,6 +60,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
+    private static final String KEY_UI_STATE = "current_install_ui_state";
 
     /**
      * Should the user be logged out when this activity is done?
@@ -78,13 +79,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * UI configuration states.
      */
     public enum UiState {
-        CHOOSING_URL,
-        SELECT_INSTALL_CHOOSER,
+        IN_URL_ENTRY,
+        CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
-        /**
-         * Installation or Upgrade has failed, offer to retry or restart.
-         * upgrade/install differentiated with inUpgradeMode boolean
-         */
         ERROR,
 
         /**
@@ -94,7 +91,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         UPGRADE
     }
 
-    private UiState uiState = UiState.SELECT_INSTALL_CHOOSER;
+    private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -169,8 +166,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
-            String uiStateEncoded = savedInstanceState.getString("advanced");
-            this.uiState = uiStateEncoded == null ? UiState.SELECT_INSTALL_CHOOSER : UiState.valueOf(UiState.class, uiStateEncoded);
+            String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
+            this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
@@ -229,8 +226,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 // attached, no need to set them here
                 fragment = startInstall;
                 break;
-            case CHOOSING_URL:
+            case IN_URL_ENTRY:
                 fragment = restoreInstallSetupFragment();
+                break;
+            case CHOOSE_INSTALL_ENTRY_METHOD:
+                fragment = installFragment;
                 break;
             default:
                 return;
@@ -286,7 +286,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("advanced", uiState.toString());
+        outState.putString(KEY_UI_STATE, uiState.toString());
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
@@ -326,7 +326,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
-            this.uiState = UiState.SELECT_INSTALL_CHOOSER;
+            this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
         uiStateScreenTransition();
     }
@@ -649,7 +649,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onStopInstallClicked() {
         incomingRef = null;
-        uiState = UiState.SELECT_INSTALL_CHOOSER;
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
     }
 
