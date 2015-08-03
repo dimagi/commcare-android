@@ -23,7 +23,6 @@
                 android:id="@+id/main_top_banner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"
@@ -36,7 +35,6 @@
                 android:layout_height="fill_parent"
                 android:layout_below="@id/main_top_banner"
                 android:layout_centerVertical="false"
-                android:layout_weight="1"
                 android:orientation="vertical" >
 
                 <Button
@@ -87,7 +85,6 @@
                 android:id="@+id/str_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_alignParentBottom="true" android:layout_alignParentLeft="true" android:textAppearance="@style/VersionIdText"/>
 
         </RelativeLayout>
@@ -103,7 +100,6 @@
                 android:id="@+id/home.banner.placeholder"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:adjustViewBounds="true"
                 android:paddingBottom="10dp"
                 android:scaleType="fitCenter"

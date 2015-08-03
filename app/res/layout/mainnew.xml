@@ -30,7 +30,8 @@
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
         android:paddingTop="10dp"/>
-
+
+
     <LinearLayout
         android:id="@+id/main_center_pane"
         android:layout_width="fill_parent"
@@ -81,8 +82,7 @@
             android:id="@+id/LinearLayout01"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" 
-            android:layout_above="@id/str_version">
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/home.sync"

@@ -29,7 +29,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:layout_alignParentTop="true"
             android:orientation="vertical" >
 
             <FrameLayout
