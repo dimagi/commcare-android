@@ -189,6 +189,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             refreshView();
 
             restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+
+            if(!isUsingActionBar()) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+                }
+                searchbox.setText(lastQueryString);
+            }
         } catch(SessionUnavailableException sue) {
             //TODO: session is dead, login and return
         }
@@ -336,6 +343,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         mAlertDialog.show();
     }
 
+    /**
+     * Checks if the action bar view is active
+     */
+    public boolean isUsingActionBar(){
+        return searchView != null;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
@@ -350,7 +364,11 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                     {
                         searchItem.expandActionView();
                     }
-                    searchView.setQuery(lastQueryString, false);
+                    if (isUsingActionBar()) {
+                        searchView.setQuery(lastQueryString, false);
+                    } else {
+                        searchbox.setText(lastQueryString);
+                    }
                     if (BuildConfig.DEBUG) {
                         Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
                     }
@@ -537,8 +555,15 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     public void afterTextChanged(Editable s) {
+        String filtertext = s.toString();
         if (searchbox.getText() == s) {
-            adapter.applyTextFilter(s.toString());
+            adapter.applyTextFilter(filtertext);
+        }
+        if(!isUsingActionBar()) {
+            lastQueryString = filtertext;
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
+            }
         }
     }
 
