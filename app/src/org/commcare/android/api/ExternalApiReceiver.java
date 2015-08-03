@@ -294,6 +294,4 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             return false;
         }
     }
-
-
 }

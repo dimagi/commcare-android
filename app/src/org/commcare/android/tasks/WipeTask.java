@@ -2,20 +2,15 @@ package org.commcare.android.tasks;
 
 import java.io.File;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCarePlatform;
 
 import android.content.Context;
 import android.util.Log;
 
 /**
  * @author ctsims
- *
  */
 public abstract class WipeTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
 
@@ -63,5 +58,4 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         }
         return true;
     }
-
 }

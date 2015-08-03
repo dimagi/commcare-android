@@ -477,5 +477,4 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;
     }
-
 }

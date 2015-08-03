@@ -36,7 +36,6 @@ import android.util.Pair;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidCaseXmlParser extends CaseXmlParser {
     Cipher attachmentCipher;
@@ -198,7 +197,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * will be randomized, however.
      * 
      * @param source the full path of the source of the attachment.
-     * @return
      */
     private Pair<File, String> getDestination(String source) {
         File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));

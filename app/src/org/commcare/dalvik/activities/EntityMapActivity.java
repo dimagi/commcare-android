@@ -1,5 +1,7 @@
 package org.commcare.dalvik.activities;
 
+import org.commcare.dalvik.BuildConfig;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,7 +13,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.geo.EntityOverlay;
@@ -45,7 +46,6 @@ import com.google.android.maps.OverlayItem;
 
 /**
  * @author ctsims
- *
  */
 public class EntityMapActivity extends MapActivity {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
@@ -249,7 +249,7 @@ public class EntityMapActivity extends MapActivity {
         //If there's a defined debug key in the local environment, use that.
         int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
         if(debugId == 0) { 
-            debugId = R.string.maps_api_key;
+            return BuildConfig.MAPS_API_KEY;
         }
         return this.getString(debugId);
     }
@@ -266,7 +266,6 @@ public class EntityMapActivity extends MapActivity {
     private CommCareInstanceInitializer getInstanceInit() {
         return new CommCareInstanceInitializer(session);
     }
-
 
     @Override
     protected void onStop() {
@@ -285,5 +284,4 @@ public class EntityMapActivity extends MapActivity {
     protected boolean isRouteDisplayed() {
         return false;
     }
-
 }

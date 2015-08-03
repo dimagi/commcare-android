@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
@@ -178,23 +179,21 @@ public class CommCareSessionService extends Service  {
      * Show a notification while this service is running.
      */
     private void showLoggedInNotification(User user) {
-        //mNM.cancel(org.commcare.dalvik.R.string.expirenotification);
-        
-        CharSequence text = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
-
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
-
         //We always want this click to simply bring the live stack back to the top
         Intent callable = new Intent(this, CommCareHomeActivity.class);
         callable.setAction("android.intent.action.MAIN");
-        callable.addCategory("android.intent.category.LAUNCHER");  
+        callable.addCategory("android.intent.category.LAUNCHER");
 
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.notificationtitle), text, contentIntent);
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(this.getString(org.commcare.dalvik.R.string.notificationtitle))
+                .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
+                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                .setContentIntent(contentIntent)
+                .build();
 
         if(user != null) {
             //Send the notification.
