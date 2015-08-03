@@ -345,7 +345,6 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
 
     /**
      * Checks if the action bar view is active
-     * @return
      */
     public boolean isUsingActionBar(){
         return searchView != null;
