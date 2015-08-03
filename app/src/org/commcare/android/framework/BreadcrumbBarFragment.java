@@ -103,6 +103,8 @@ public class BreadcrumbBarFragment extends Fragment {
             title = getBestTitle(activity);
         }
 
+        // with the new AppCompatActivity, the action bar can be null, in which case we just return
+        if(actionBar == null) { return; }
         boolean showNav = true;
         if(activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
