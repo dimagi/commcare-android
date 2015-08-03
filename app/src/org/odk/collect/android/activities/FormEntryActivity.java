@@ -701,7 +701,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	}
             }
             if(!stillRelevent){
-                removeList.add(Integer.valueOf(i));
+                removeList.add(i);
             }
         }
            // remove "atomically" to not mess up iterations

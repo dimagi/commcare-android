@@ -174,7 +174,7 @@ public class FormsProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
+        Long now = System.currentTimeMillis();
 
         // Make sure that the necessary fields are all set
         if (values.containsKey(FormsColumns.DATE) == false) {

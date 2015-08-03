@@ -101,7 +101,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             int index = c.getColumnIndexOrThrow(columnName);
             while(!c.isAfterLast()) {        
                 int id = c.getInt(index);
-                indices.add(Integer.valueOf(id));
+                indices.add(id);
                 c.moveToNext();
             }
             c.close();
