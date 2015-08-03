@@ -106,7 +106,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font).intValue();
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
