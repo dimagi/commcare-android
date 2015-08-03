@@ -259,9 +259,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         case DataPullTask.DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true)) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                            } else {
-                                break;
                             }
+                            break;
                         case DataPullTask.UNREACHABLE_HOST:
                             receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                             break;
@@ -350,7 +349,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
         
     private boolean tryLocalLogin(final String username, String password,
-            final boolean warnMultipleAccounts) {
+                                  final boolean warnMultipleAccounts) {
         try{
             // TODO: We don't actually even use this anymore other than for hte
             // local login count, which seems super silly.
