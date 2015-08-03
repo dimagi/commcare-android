@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user.models;
 
 import java.util.Vector;
@@ -20,7 +17,6 @@ import android.content.ContentValues;
 
 /**
  * @author ctsims
- *
  */
 public class CaseIndexTable {
     public static final String TABLE_NAME = "case_index_storage";
@@ -68,7 +64,6 @@ public class CaseIndexTable {
     /**
      * Creates all indexes for this case. 
      * TODO: this doesn't ensure any sort of uniquenes, you should wipe constraints first
-     * @param c
      */
     public void indexCase(Case c) {
         db.beginTransaction();

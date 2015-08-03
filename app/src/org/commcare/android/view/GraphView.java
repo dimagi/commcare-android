@@ -277,7 +277,6 @@ public class GraphView {
     
     /**
      * Create series appropriate to the current graph type.
-     * @param scaleIndex
      * @return An XYSeries-derived object.
      */
     private XYSeries createSeries(int scaleIndex) {
@@ -465,9 +464,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (Graph.TYPE_TIME.equals(mData.getType())) {
@@ -483,10 +480,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
-     * @throws InvalidStateException 
      */
     private Double parseYValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
@@ -494,9 +488,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
      */
     private Double parseRadiusValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
@@ -504,10 +496,7 @@ public class GraphView {
     
     /**
      * Attempt to parse a double, but fail on NumberFormatException.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
-     * @throws InvalidStateException
      */
     private Double parseDouble(String value, String description) throws InvalidStateException {
         try {

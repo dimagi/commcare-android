@@ -44,6 +44,7 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -145,7 +146,7 @@ public class LegacyInstallUtils {
             if(r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
                 allInstalled = false;
             } 
-            if(r.getResourceId().equals("commcare-application-profile")) {
+            if(r.getResourceId().equals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
                 hasProfile = true;
             }
             oldDbSize++;

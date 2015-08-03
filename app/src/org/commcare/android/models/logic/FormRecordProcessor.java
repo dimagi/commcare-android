@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models.logic;
 
 import java.io.File;
@@ -43,7 +40,6 @@ import android.util.Pair;
  * TODO: We should move most of the "cleanup" task methods here.
  * 
  * @author ctsims
- *
  */
 public class FormRecordProcessor {
     
@@ -57,14 +53,6 @@ public class FormRecordProcessor {
 
     /**
      * This is the entry point for processing a form. New transaction types should all be declared here. 
-     * 
-     * @param record
-     * @return
-     * @throws InvalidStructureException
-     * @throws IOException
-     * @throws XmlPullParserException
-     * @throws UnfullfilledRequirementsException
-     * @throws StorageFullException
      */
     public FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         String form = record.getPath(c);

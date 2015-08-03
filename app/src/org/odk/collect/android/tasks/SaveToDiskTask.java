@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.tasks;
 
 import java.io.File;
@@ -122,8 +108,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     /**
      * Update or create a new entry in the form table for the
-     * @param incomplete
-     * @param canEditAfterCompleted
      */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
         ContentValues values = new ContentValues();
@@ -187,7 +171,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * Write's the data to the sdcard, and updates the instances content provider.
      * In theory we don't have to write to disk, and this is where you'd add
      * other methods.
-     * @param markCompleted
      * @return was writing of data successful?
      */
     private boolean exportData(boolean markCompleted) {
@@ -343,9 +326,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     /**
      * This method actually writes the xml to disk.
-     * @param payload
-     * @param output
-     * @return
      */
     private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
         // create data stream
@@ -382,9 +362,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * Goes through the entire form to make sure all entered answers comply with their constraints.
      * Constraints are ignored on 'jump to', so answers can be outside of constraints. We don't
      * allow saving to disk, though, until all answers conform to their constraints/requirements.
-     * 
-     * @param markCompleted
-     * @return validatedStatus
      */
     private int validateAnswers(Boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
@@ -409,5 +386,4 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         FormEntryActivity.mFormController.jumpToIndex(i);
         return VALIDATED;
     }
-
 }

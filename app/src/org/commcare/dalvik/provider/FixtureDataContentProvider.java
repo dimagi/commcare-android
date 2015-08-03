@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -131,7 +130,6 @@ public class FixtureDataContentProvider extends ContentProvider {
 
     }
 
-
     /** All of the below are invalid due to the read-only nature of the content provider. It's not 100% clear from spec how to express
      * the read-only-ness. **/
 
@@ -154,5 +152,4 @@ public class FixtureDataContentProvider extends ContentProvider {
         // TODO Auto-generated method stub
         return null;
     }
-
 }
