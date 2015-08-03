@@ -78,38 +78,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * UI configuration states.
      */
     public enum UiState {
-        /**
-         * First install, user can enter bit.ly or URL directly, or return to
-         * basic mode
-         */
-        advanced,
-
-        /**
-         * First install, user can scan barcode and move to ready mode or
-         * select advanced mode
-         */
-        basic,
-
-        /**
-         * First install, barcode has been scanned. Can move to advanced mode
-         * to inspect URL, or proceed to install
-         */
-        ready,
-
+        CHOOSING_URL,
+        SELECT_INSTALL_CHOOSER,
+        READY_TO_INSTALL,
         /**
          * Installation or Upgrade has failed, offer to retry or restart.
          * upgrade/install differentiated with inUpgradeMode boolean
          */
-        error,
+        ERROR,
 
         /**
          * App installed already. Buttons aren't shown, trying to update app
          * with no user input
          */
-        upgrade
+        UPGRADE
     }
 
-    private UiState uiState = UiState.basic;
+    private UiState uiState = UiState.SELECT_INSTALL_CHOOSER;
     
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -175,7 +160,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
                     }
                 } else {
-                    this.uiState = UiState.ready;
+                    this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
             } else{
@@ -185,7 +170,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
             String uiStateEncoded = savedInstanceState.getString("advanced");
-            this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
+            this.uiState = uiStateEncoded == null ? UiState.SELECT_INSTALL_CHOOSER : UiState.valueOf(UiState.class, uiStateEncoded);
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
@@ -198,8 +183,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         // if we are in upgrade mode we want the UiState to reflect that,
         // unless we are showing an error
-        if (inUpgradeMode && this.uiState != UiState.error){
-            this.uiState = UiState.upgrade;
+        if (inUpgradeMode && this.uiState != UiState.ERROR){
+            this.uiState = UiState.UPGRADE;
         }
 
         // reclaim ccApp for resuming installation
@@ -222,17 +207,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Log.d(TAG, "SetupEnterURLFragment returned: " + url);
         }
         incomingRef = url;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
         uiStateScreenTransition();
     }
 
     private void uiStateScreenTransition() {
-        Fragment fragment = null;
+        Fragment fragment;
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
-            case upgrade:
-            case ready:
+            case UPGRADE:
+            case READY_TO_INSTALL:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e(TAG,"During install: IncomingRef is empty!");
                     Toast.makeText(getApplicationContext(), "Invalid URL: '" +
@@ -244,27 +229,32 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 // attached, no need to set them here
                 fragment = startInstall;
                 break;
-
-            default:
-                List<Fragment> fgmts = fm.getFragments();
-                int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
-                if(lastIndex > -1) {
-                    fragment = fgmts.get(lastIndex);
-                    if (BuildConfig.DEBUG) {
-                        Log.v(TAG, "Last fragment: " + fragment);
-                    }
-                }
-                if(!(fragment instanceof SetupEnterURLFragment)){
-                    fragment = installFragment;
-                } else {
-                    // we restore the state of the SetupEnterURLFragment if it is our last fragment
-                }
+            case CHOOSING_URL:
+                fragment = restoreInstallSetupFragment();
                 break;
+            default:
+                return;
         }
-
         ft.replace(R.id.setup_fragment_container, fragment);
 
         ft.commit();
+    }
+
+    private Fragment restoreInstallSetupFragment() {
+        Fragment fragment = null;
+        List<Fragment> fgmts = fm.getFragments();
+        int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
+        if(lastIndex > -1) {
+            fragment = fgmts.get(lastIndex);
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Last fragment: " + fragment);
+            }
+        }
+        if(!(fragment instanceof SetupEnterURLFragment)){
+            // last fragment wasn't url entry, so default to the installation method chooser
+            fragment = installFragment;
+        }
+        return fragment;
     }
 
     @Override
@@ -277,7 +267,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onStart();
         uiStateScreenTransition();
         // upgrade app if needed
-        if(uiState == UiState.upgrade && 
+        if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
             if(AndroidUtil.isNetworkAvailable(this)){
                 startResourceInstall(true);
@@ -301,7 +291,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
-        Log.v("UiState","Saving instance state: " + outState);
+        Log.v("UiState", "Saving instance state: " + outState);
     }
     
     @Override
@@ -324,7 +314,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         if(result == null) return;
         incomingRef = result;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
 
         try {
             // check if the reference can be derived without erroring out
@@ -336,7 +326,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
-            this.uiState = UiState.basic;
+            this.uiState = UiState.SELECT_INSTALL_CHOOSER;
         }
         uiStateScreenTransition();
     }
@@ -632,7 +622,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         String title, message;
-        if (uiState == UiState.upgrade) {
+        if (uiState == UiState.UPGRADE) {
             title = Localization.get("updates.title");
             message = Localization.get("updates.checking");
         } else {
@@ -659,8 +649,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onStopInstallClicked() {
         incomingRef = null;
-        uiState = UiState.basic;
+        uiState = UiState.SELECT_INSTALL_CHOOSER;
         uiStateScreenTransition();
+    }
+
+    public void setUiState(UiState newState) {
+        uiState = newState;
     }
 
     //endregion
