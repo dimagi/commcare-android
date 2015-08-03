@@ -9,5 +9,5 @@
     app:sbn_img="@drawable/home_saved"
     app:colorButtonText="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto"/>
 
