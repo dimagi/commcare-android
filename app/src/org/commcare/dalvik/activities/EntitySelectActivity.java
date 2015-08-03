@@ -301,7 +301,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         //tts = new TextToSpeech(this, this);
         restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
 
-        if(!isUsingActionBar()){
+        if (!isUsingActionBar()){
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
             }
@@ -648,7 +648,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.applyFilter(filterString);
             }
         }
-        if(!isUsingActionBar()){
+        if (!isUsingActionBar()){
             lastQueryString = filterString;
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
@@ -733,7 +733,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     /**
      * Checks if this activity uses the ActionBar
-     * @return
      */
     public boolean isUsingActionBar(){
         return searchView != null;
@@ -741,8 +740,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
 
     @SuppressWarnings("NewApi")
     private CharSequence getSearchText(){
-        // not checking for build version because searchview will be null if not supported
-        if(isUsingActionBar()) return searchView.getQuery();
+        if (isUsingActionBar()) {
+            return searchView.getQuery();
+        }
         return searchbox.getText();
     }
     
