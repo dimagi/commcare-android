@@ -95,7 +95,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        activityPaused = false;
 
         if (showDialogIdOnResume > 0 && !shouldDismissDialog) {
             startBlockingForTask(showDialogIdOnResume);
@@ -218,6 +217,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @TargetApi(11)
     protected void onResume() {
         super.onResume();
+
+        activityPaused = false;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // In honeycomb and above the fragment takes care of this
