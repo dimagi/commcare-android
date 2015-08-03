@@ -151,7 +151,7 @@ public class CaseDataContentProvider extends ContentProvider {
                 
 
                 //replace all "?"'s with arguments
-                while(value.indexOf("?") != -1) {
+                while(value.contains("?")) {
                     if(currentArgVal >= selectionArgs.length) { throw new RuntimeException("Selection string missing required arguments" + selection); }
                     value = value.substring(0, value.indexOf("?")) + selectionArgs[currentArgVal] + value.substring(value.indexOf("?") + 1);
                     currentArgVal++;

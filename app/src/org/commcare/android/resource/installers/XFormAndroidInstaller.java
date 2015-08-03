@@ -251,7 +251,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
             for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
                 String key = (String)en.nextElement();
-                if(key.indexOf(";") != -1) {
+                if(key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
                     if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
