@@ -81,10 +81,10 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
             throws IOException, PrintValidationException {
 
         // Read from input file
-        String fileText = TemplatePrinterUtils.docToString(input).toLowerCase();
+        String fileText = TemplatePrinterUtils.docToString(input);
 
         // Check if <body></body> section of html string is properly formed
-        int startBodyIndex = fileText.indexOf("<body");
+        int startBodyIndex = fileText.toLowerCase().indexOf("<body");
         String beforeBodySection = fileText.substring(0, startBodyIndex);
         String bodySection = fileText.substring(startBodyIndex);
         validateString(bodySection);
