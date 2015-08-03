@@ -96,11 +96,14 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     public void setColor(int backgroundColor) {
-        // shows a bluish background when pressed, otherwise shows the chosen color
-        ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
+        // simulating android's default click effects
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
         StateListDrawable sld = new StateListDrawable();
-        sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
+
+        sld.addState(new int[]{ -android.R.attr.state_window_focused, -android.R.attr.state_enabled }, getResources().getDrawable(R.drawable.btn_default_normal_disable));
+        sld.addState(new int[]{ android.R.attr.state_pressed  }, getResources().getDrawable(R.drawable.btn_default_pressed));
+        sld.addState(new int[]{ android.R.attr.state_focused, android.R.attr.state_enabled }, getResources().getDrawable(R.drawable.btn_default_selected));
+        sld.addState(new int[]{ android.R.attr.state_focused }, getResources().getDrawable(R.drawable.btn_default_normal_disable_focused));
         sld.addState(StateSet.WILD_CARD, colorDrawable);
         squareButton.setBackgroundDrawable(sld);
     }
