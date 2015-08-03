@@ -454,7 +454,7 @@ public class GraphView {
         }
         
         // Legend
-        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false")).booleanValue();
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
