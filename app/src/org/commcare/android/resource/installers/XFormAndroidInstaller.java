@@ -126,6 +126,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                     Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
                     this.contentUri = result.toString();
             }
+            existingforms.close();
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

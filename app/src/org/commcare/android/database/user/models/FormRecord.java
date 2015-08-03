@@ -151,8 +151,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         
         Cursor c = context.getContentResolver().query(uri, new String[] {InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
         if(!c.moveToFirst()) { throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString()); }
-        
-        return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+
+        String path = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+        c.close();
+        return path;
     }
     
     @Override
