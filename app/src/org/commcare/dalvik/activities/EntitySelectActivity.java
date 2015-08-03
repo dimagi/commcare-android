@@ -305,7 +305,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
             }
-            EntitySelectActivity.this.searchbox.setText(lastQueryString);
+            searchbox.setText(lastQueryString);
         }
     }
 
