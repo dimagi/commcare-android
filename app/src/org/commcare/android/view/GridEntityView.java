@@ -403,32 +403,45 @@ public class GridEntityView extends GridLayout {
                 }
 
 			// handle horizontal alignments
-			if(horzAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
-			} else if(horzAlign.equals("left")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(horzAlign.equals("right")) {
-				((TextView)retVal).setGravity(Gravity.RIGHT);
-			}  
+				switch (horzAlign) {
+					case "center":
+						((TextView) retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+						break;
+					case "left":
+						((TextView) retVal).setGravity(Gravity.TOP);
+						break;
+					case "right":
+						((TextView) retVal).setGravity(Gravity.RIGHT);
+						break;
+				}
 			// handle vertical alignment
-			if(vertAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
-			} else if(vertAlign.equals("top")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(vertAlign.equals("bottom")) {
-				((TextView)retVal).setGravity(Gravity.BOTTOM);
-			}
+				switch (vertAlign) {
+					case "center":
+						((TextView) retVal).setGravity(Gravity.CENTER_VERTICAL);
+						break;
+					case "top":
+						((TextView) retVal).setGravity(Gravity.TOP);
+						break;
+					case "bottom":
+						((TextView) retVal).setGravity(Gravity.BOTTOM);
+						break;
+				}
 			
 			// handle text resizing
-			if(textsize.equals("large")){
-				((TextView)retVal).setTextSize(LARGE_FONT/DENSITY);
-			} else if(textsize.equals("small")){
-				((TextView)retVal).setTextSize(SMALL_FONT/DENSITY);
-			} else if(textsize.equals("medium")){
-				((TextView)retVal).setTextSize(MEDIUM_FONT/DENSITY);
-			} else if(textsize.equals("xlarge")){
-				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
-			} 
+				switch (textsize) {
+					case "large":
+						((TextView) retVal).setTextSize(LARGE_FONT / DENSITY);
+						break;
+					case "small":
+						((TextView) retVal).setTextSize(SMALL_FONT / DENSITY);
+						break;
+					case "medium":
+						((TextView) retVal).setTextSize(MEDIUM_FONT / DENSITY);
+						break;
+					case "xlarge":
+						((TextView) retVal).setTextSize(XLARGE_FONT / DENSITY);
+						break;
+				}
 		}
 		
 		return retVal;
