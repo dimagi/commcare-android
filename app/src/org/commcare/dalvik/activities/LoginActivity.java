@@ -68,11 +68,17 @@ import android.widget.Toast;
 public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-    public final static int MENU_DEMO = Menu.FIRST;
-    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public final static String ALREADY_LOGGED_IN = "la_loggedin";
-    public final static String KEY_LAST_APP = "id_of_last_selected";
     
+    public static final int MENU_DEMO = Menu.FIRST;
+    public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
+    public static final String ALREADY_LOGGED_IN = "la_loggedin";
+    public final static String KEY_LAST_APP = "id_of_last_selected";
+
+    /**
+     * Determines if this should launch the home activity upon completion
+     * instead of returning to the previous activity.
+     */
+    public static final String REDIRECT_TO_HOMESCREEN = "redirect_to_homescreen";
 
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
@@ -106,8 +112,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     SqlStorage<UserKeyRecord> storage;
     private Map<String,ApplicationRecord> namesToRecords = new HashMap<>();
 
-    private int editTextColor;
-    private View.OnKeyListener l;
     private final TextWatcher textWatcher = new TextWatcher() {
 
         @Override
@@ -454,12 +458,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void done() {
-        Intent i = new Intent();
-        setResult(RESULT_OK, i);
+        Intent parentIntent = getIntent();
+        boolean redirectHomeIgnoringLastActivity =
+            parentIntent.getBooleanExtra(LoginActivity.REDIRECT_TO_HOMESCREEN, false);
 
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+
+        if (redirectHomeIgnoringLastActivity) {
+            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            startActivity(i);
+        } else {
+            Intent i = new Intent();
+            setResult(RESULT_OK, i);
+        }
         finish();
     }
     
@@ -468,9 +481,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
         return storage;
-    }
-
-    public void finished(int status) {
     }
 
     @Override

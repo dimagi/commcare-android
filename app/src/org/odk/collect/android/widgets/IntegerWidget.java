@@ -103,7 +103,7 @@ public class IntegerWidget extends StringWidget {
             
             if(minexample != null) {
                 //If we didn't constrain the input to be 0 or more, don't bother
-                if(((Integer)minexample.getValue()).intValue() < 0) {
+                if((Integer) minexample.getValue() < 0) {
                     throw new UnpivotableExpressionException(); 
                 }
             } else {
@@ -112,7 +112,7 @@ public class IntegerWidget extends StringWidget {
             }
             
             if(maxexample != null) {
-                int max = ((Integer)maxexample.getValue()).intValue();
+                int max = (Integer) maxexample.getValue();
                 if(!hint.isMaxInclusive()) {
                     max -= 1;
                 }

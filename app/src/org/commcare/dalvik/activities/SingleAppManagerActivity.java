@@ -128,11 +128,7 @@ public class SingleAppManagerActivity extends Activity {
                 } else if (resultCode == RESULT_OK) {
                     if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // If the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().expireUserSession();
                     }
                     return;
                 }
@@ -164,11 +160,7 @@ public class SingleAppManagerActivity extends Activity {
      * Uninstalls the selected app
      */
     private void uninstall() {
-        try {
-            CommCareApplication._().getSession().closeSession(false);
-        } catch (SessionUnavailableException e) {
-            // if the session isn't available, we don't need to logout
-        }
+        CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
         rebootCommCare();
     }
@@ -326,11 +318,7 @@ public class SingleAppManagerActivity extends Activity {
                     public void onClick(DialogInterface dialog,
                                         int which) {
                         dialog.dismiss();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // If the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().expireUserSession();
                         switch (actionKey) {
                             case LOGOUT_FOR_UPDATE:
                                 update();

@@ -203,7 +203,7 @@ public class Persisted implements Persistable, IMetaData {
             }
 
         }
-        return fields.toArray(new String[0]);
+        return fields.toArray(new String[fields.size()]);
     }
 
     

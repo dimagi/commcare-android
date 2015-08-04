@@ -97,11 +97,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
      * Logs the user out and takes them to the app installation activity.
      */
     private void installApp() {
-        try {
-            CommCareApplication._().getSession().closeSession(false);
-        } catch (SessionUnavailableException e) {
-            // If the session isn't available, we don't need to logout
-        }
+        CommCareApplication._().expireUserSession();
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
         this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);

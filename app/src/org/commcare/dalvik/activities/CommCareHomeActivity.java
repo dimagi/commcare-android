@@ -41,6 +41,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -263,25 +264,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // session expired, so re-login's probably been triggered
-                    return;
-                }
-                returnToLogin();
+                CommCareApplication._().closeUserSession();
+                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
             }
         };
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
         if (logoutButton != null) {
             logoutButton.setNotificationText(getActivityTitle());
             adapter.notifyDataSetChanged();
-        }
-
-
-        TextView formGroupLabel = (TextView)findViewById(R.id.home_formrecords_label);
-        if (formGroupLabel != null) {
-            formGroupLabel.setText(Localization.get("home.forms"));
         }
 
         SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
@@ -482,11 +472,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().closeUserSession();
                     }
                     return;
                 }
@@ -1048,7 +1034,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
                     return;
                 }
                 receiver.refreshView();
@@ -1135,7 +1121,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    returnToLogin();
+                    SessionActivityRegistration.returnToLogin(this);
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -1153,7 +1139,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     refreshView();
                 }
             } catch (SessionUnavailableException sue) {
-                returnToLogin();
+                SessionActivityRegistration.returnToLogin(this);
             }
         }
 
@@ -1184,7 +1170,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 showDialog(DIALOG_CORRUPTED);
             } catch(SessionUnavailableException e) {
                 // Otherwise, log in first
-                returnToLogin();
+                SessionActivityRegistration.returnToLogin(this);
             }
         }
     }
@@ -1287,12 +1273,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     // endregion
 
 
-    private void returnToLogin() {
-        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i, LOGIN_USER);
-    }
-
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
         mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
@@ -1359,7 +1339,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            returnToLogin();
+            SessionActivityRegistration.returnToLogin(this);
             return;
         }
 

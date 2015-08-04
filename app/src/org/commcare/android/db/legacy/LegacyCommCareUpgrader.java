@@ -185,14 +185,19 @@ public class LegacyCommCareUpgrader {
             database.endTransaction();
         }
     }
-    
+
     private int countRows(SQLiteDatabase database, String table) {
+        Cursor c = null;
         try {
-            Cursor c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
+            c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
             c.moveToFirst();
             return c.getInt(0);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return -1;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
     }
 }

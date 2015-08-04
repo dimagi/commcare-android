@@ -5,7 +5,8 @@
 
         <LinearLayout android:layout_width="wrap_content"
                 android:layout_height="fill_parent" android:layout_alignParentLeft="true"
-                android:id="@+id/quick_select_question" />
+                android:id="@+id/quick_select_question"
+            android:orientation="horizontal" />
         <ImageView android:layout_height="wrap_content"
                 android:layout_width="wrap_content" android:layout_alignParentRight="true"
                 android:id="@+id/quick_select_right_arrow" />

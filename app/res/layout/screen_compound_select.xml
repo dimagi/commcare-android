@@ -2,20 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" android:weightSum="1">
-
+    android:orientation="horizontal" android:weightSum="1"
+    android:baselineAligned="false">
+
+
     <FrameLayout
         android:id="@+id/screen_compound_select_left_pane"
         android:layout_width="0px"
         android:layout_height="match_parent" android:layout_weight="0.5">
 
     </FrameLayout>
-
+
+
     <FrameLayout
         android:id="@+id/screen_compound_select_right_pane"
         android:layout_width="0px"
         android:layout_height="match_parent" android:layout_weight="0.5" android:background="@drawable/background_compound_detail">
-
+
+
         <TextView
             android:id="@+id/screen_compound_select_prompt"
             android:layout_width="wrap_content"

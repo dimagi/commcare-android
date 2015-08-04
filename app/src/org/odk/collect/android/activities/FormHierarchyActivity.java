@@ -3,8 +3,12 @@ package org.odk.collect.android.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.android.framework.SessionActivityRegistration;
+import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -24,22 +28,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class FormHierarchyActivity extends ListActivity {
-
-    private static final String t = "FormHierarchyActivity";
-    int state;
+    private static final String TAG = FormHierarchyActivity.class.getSimpleName();
 
     private static final int CHILD = 1;
     private static final int EXPANDED = 2;
     private static final int COLLAPSED = 3;
     private static final int QUESTION = 4;
 
-    private final String mIndent = "     ";
     private Button jumpPreviousButton;
 
-    List<HierarchyElement> formList;
-    TextView mPath;
+    private List<HierarchyElement> formList;
+    private TextView mPath;
 
-    FormIndex mStartIndex;
+    private FormIndex mStartIndex;
 
 
     @Override
@@ -50,8 +51,7 @@ public class FormHierarchyActivity extends ListActivity {
         // We use a static FormEntryController to make jumping faster.
         mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
-        setTitle(getString(R.string.app_name) + " > "
-                + FormEntryActivity.mFormController.getFormTitle());
+        setTitle(Localization.get("home.menu.saved.forms"));
 
         mPath = (TextView) findViewById(R.id.pathtext);
 
@@ -102,6 +102,20 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
 
@@ -158,7 +172,7 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
 
-    public void refreshView() {
+    private void refreshView() {
         // Record the current index so we can return to the same place if the user hits 'back'.
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
 
@@ -206,10 +220,12 @@ public class FormHierarchyActivity extends ListActivity {
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             mPath.setVisibility(View.GONE);
             jumpPreviousButton.setEnabled(false);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.edit_text_color));
         } else {
             mPath.setVisibility(View.VISIBLE);
             mPath.setText(getCurrentPath());
             jumpPreviousButton.setEnabled(true);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.cc_brand_color));
         }
 
         // Refresh the current event in case we did step forward.
@@ -232,7 +248,8 @@ public class FormHierarchyActivity extends ListActivity {
                     }
 
                     FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
-                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), null,
+                    int fepIcon = getFormEntryPromptIcon(fp);
+                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), fepIcon == -1 ? null : getResources().getDrawable(fepIcon),
                             Color.WHITE, QUESTION, fp.getIndex()));
                     break;
                 case FormEntryController.EVENT_GROUP:
@@ -288,6 +305,7 @@ public class FormHierarchyActivity extends ListActivity {
                             .getReference().toString(false)) == 0) {
                         // Add this group name to the drop down list for this repeating group.
                         HierarchyElement h = formList.get(formList.size() - 1);
+                        String mIndent = "     ";
                         h.addChild(new HierarchyElement(mIndent + fc.getLongText() + " "
                                 + (fc.getMultiplicity() + 1), null, null, Color.WHITE, CHILD, fc
                                 .getIndex()));
@@ -306,13 +324,69 @@ public class FormHierarchyActivity extends ListActivity {
         FormEntryActivity.mFormController.jumpToIndex(currentIndex);
     }
 
+    private int getFormEntryPromptIcon(FormEntryPrompt fep){
+        if (BuildConfig.DEBUG) {
+            Log.i("FEPICON", "FEP (" + fep.hashCode() + ") data type is: " + fep.getDataType() + " | control type is: " + fep.getControlType());
+        }
+        switch(fep.getControlType()){
+            case Constants.CONTROL_SELECT_ONE:
+                return R.drawable.avatar_vellum_single_answer;
+            case Constants.CONTROL_SELECT_MULTI:
+                return R.drawable.avatar_vellum_multi_answer;
+            case Constants.CONTROL_TEXTAREA:
+                return R.drawable.avatar_vellum_text;
+            case Constants.CONTROL_SECRET:
+                return R.drawable.avatar_vellum_password;
+            case Constants.CONTROL_LABEL:
+                return R.drawable.avatar_vellum_label;
+            case Constants.CONTROL_AUDIO_CAPTURE:
+                return R.drawable.avatar_vellum_audio_capture;
+            case Constants.CONTROL_VIDEO_CAPTURE:
+                return R.drawable.avatar_vellum_video;
+            case Constants.CONTROL_TRIGGER:
+                return R.drawable.avatar_vellum_question_list;
+            case Constants.CONTROL_IMAGE_CHOOSE:
+                return R.drawable.avatar_search;
+            case Constants.CONTROL_RANGE:
+            case Constants.CONTROL_UPLOAD:
+            case Constants.CONTROL_SUBMIT:
+            case Constants.CONTROL_INPUT:
+                return getDrawableIDFor(fep);
+        }
+        return -1;
+    }
+
+    private static int getDrawableIDFor(FormEntryPrompt fep){
+        switch(fep.getDataType()){
+            case Constants.DATATYPE_TEXT:
+                return R.drawable.avatar_vellum_text;
+            case Constants.DATATYPE_INTEGER:
+                return R.drawable.avatar_vellum_integer;
+            case Constants.DATATYPE_DECIMAL:
+                return R.drawable.avatar_vellum_decimal;
+            case Constants.DATATYPE_DATE:
+                return R.drawable.avatar_vellum_date;
+            case Constants.DATATYPE_DATE_TIME:
+                return R.drawable.avatar_vellum_datetime;
+            case Constants.DATATYPE_CHOICE:
+                return R.drawable.avatar_vellum_single_answer;
+            case Constants.DATATYPE_CHOICE_LIST:
+                return R.drawable.avatar_vellum_multi_answer;
+            case Constants.DATATYPE_GEOPOINT:
+                return R.drawable.avatar_vellum_gps;
+            case Constants.DATATYPE_BARCODE:
+                return R.drawable.avatar_vellum_barcode;
+        }
+        return -1;
+    }
+
 
     /**
      * used to go up one level in the formIndex. That is, if you're at 5_0, 1 (the second question
      * in a repeating group), this method will return a FormInex of 5_0 (the start of the repeating
      * group). If your at index 16 or 5_0, this will return null;
      */
-    public FormIndex stepIndexOut(FormIndex index) {
+    private FormIndex stepIndexOut(FormIndex index) {
         if (index.isTerminal()) {
             return null;
         } else {
@@ -343,7 +417,7 @@ public class FormHierarchyActivity extends ListActivity {
                 h.setType(EXPANDED);
                 ArrayList<HierarchyElement> children1 = h.getChildren();
                 for (int i = 0; i < children1.size(); i++) {
-                    Log.i(t, "adding child: " + children1.get(i).getFormIndex());
+                    Log.i(TAG, "adding child: " + children1.get(i).getFormIndex());
                     formList.add(position + 1 + i, children1.get(i));
 
                 }
