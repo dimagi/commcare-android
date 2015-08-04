@@ -99,15 +99,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
         //cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
 
-        
+
+        Cursor existingforms = null;
         try {
-            Cursor existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI, 
+            existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI,
                     new String[] { FormsProviderAPI.FormsColumns._ID} , 
                     FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?", 
                     new String[] { formDef.getMainInstance().schema}, null);
 
             
-            if(existingforms.moveToFirst()) {
+            if(existingforms != null && existingforms.moveToFirst()) {
                 //we already have one form. Hopefully this is during an upgrade...
                 if(!upgrade) {
                     //Hm, error out?
@@ -126,13 +127,14 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                     Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
                     this.contentUri = result.toString();
             }
-            if (existingforms != null) {
-                existingforms.close();
-            }
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IOException("couldn't talk to form database to install form");
+        } finally {
+            if (existingforms != null) {
+                existingforms.close();
+            }
         }
 
         if (cpc != null) {
