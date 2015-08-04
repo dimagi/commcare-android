@@ -702,7 +702,7 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
             	}
             }
             if(!stillRelevent){
-                removeList.add(Integer.valueOf(i));
+                removeList.add(i);
             }
         }
            // remove "atomically" to not mess up iterations
@@ -894,7 +894,9 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
 
         Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
 
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+        if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
+            Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
+        }
 
         progressBar.setMax(details.totalQuestions);
 
@@ -919,6 +921,8 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
 
             progressBar.setProgress(details.completedQuestions);
         }
+
+        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
 
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);

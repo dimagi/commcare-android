@@ -64,7 +64,7 @@ public class StorageUtils {
                     //If it still doesn't work, fallback to using ids
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
                     //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                    idToDateIndex.put(id, Long.valueOf(id));
+                    idToDateIndex.put(id, (long) id);
                 }
             }
         }

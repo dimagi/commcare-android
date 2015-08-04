@@ -286,22 +286,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     public void beginSubmissionProcess(int totalItems) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems});        
+        this.publishProgress(LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems);
     }
 
     @Override
     public void startSubmission(int itemNumber, long length) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length);
     }
 
     @Override
     public void notifyProgress(int itemNumber, long progress) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress);
     }
 
     @Override
     public void endSubmissionProcess() {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_DONE});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_DONE);
     }
     
 

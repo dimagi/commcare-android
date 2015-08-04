@@ -112,7 +112,7 @@ public class SetupEnterURLFragment extends Fragment {
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }
-        if(url.indexOf("://") == -1){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
+        if(!url.contains("://")){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
             url = "http://" + url;
         }
         return url;

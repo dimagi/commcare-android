@@ -82,27 +82,21 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
     protected String lastQueryString;
 
     /**
-     * Activity has been put in the background. This is used to prevent dialogs
+     * Activity has been put in the background. Flag prevents dialogs
      * from being shown while activity isn't active.
      */
     private boolean activityPaused;
 
     /**
-     * Stores the id of a dialog that tried to be shown when the activity
-     * wasn't active. When the activity resumes, create this dialog if the
-     * associated task is still running and the id is non-negative.
+     * Store the id of a task progress dialog so it can be disabled/enabled
+     * on activity pause/resume.
      */
-    private int showDialogIdOnResume = -1;
+    private int dialogId = -1;
 
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (showDialogIdOnResume > 0 && !shouldDismissDialog) {
-            startBlockingForTask(showDialogIdOnResume);
-        }
-        showDialogIdOnResume = -1;
 
         FragmentManager fm = this.getSupportFragmentManager();
         
@@ -223,6 +217,10 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
 
         activityPaused = false;
 
+        if (dialogId > -1) {
+            startBlockingForTask(dialogId);
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // In honeycomb and above the fragment takes care of this
             this.setTitle(getTitle(this, getActivityTitle()));
@@ -259,14 +257,16 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
         return (R)this;
     }
     
-    /**
+    /*
      * Override these to control the UI for your task
      */
+
     @Override
     public void startBlockingForTask(int id) {
+        dialogId = id;
+
         if (activityPaused) {
             // don't show the dialog if the activity is in the background
-            showDialogIdOnResume = id;
             return;
         }
 
@@ -283,11 +283,11 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
 
     @Override
     public void stopBlockingForTask(int id) {
-        if (id >= 0) { 
+        dialogId = -1;
+        if (id >= 0) {
             if (inTaskTransition) {
                 shouldDismissDialog = true;
-            }
-            else {
+            } else {
                 dismissProgressDialog();
             }
         }
