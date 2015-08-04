@@ -231,15 +231,24 @@ public class LegacyInstallUtils {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Files moved. Updating Handles");
         
         //We also need to tell the XForm Provider that any/all of its forms have been moved
-        
-        Cursor ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI,new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+
         ArrayList<Pair<Uri, String>> toReplace = new ArrayList<Pair<Uri, String>>();
-        while(ef.moveToNext()) {
-            String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
-            if(!newFilePath.equals(filePath)) {
-                Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+        Cursor ef = null;
+        try {
+            ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+            if (ef != null) {
+                while (ef.moveToNext()) {
+                    String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+                    String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
+                    if (!newFilePath.equals(filePath)) {
+                        Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
+                        toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+                    }
+                }
+            }
+        } finally {
+            if (ef != null) {
+                ef.close();
             }
         }
         

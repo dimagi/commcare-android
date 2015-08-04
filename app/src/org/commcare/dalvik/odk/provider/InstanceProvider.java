@@ -164,7 +164,7 @@ public class InstanceProvider extends ContentProvider {
         // Make sure that the fields are all set
         if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
             // set the change date to now
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, Long.valueOf(System.currentTimeMillis()));
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, System.currentTimeMillis());
         }
 
         if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {

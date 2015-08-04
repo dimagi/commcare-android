@@ -38,6 +38,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import java.util.List;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
@@ -58,11 +60,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
+    private static final String KEY_UI_STATE = "current_install_ui_state";
 
     /**
      * Should the user be logged out when this activity is done?
      */
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_INSTALL_FAILED = "install_failed";
 
     /**
      * Activity is being launched by auto update, instead of being triggered
@@ -76,38 +80,20 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * UI configuration states.
      */
     public enum UiState {
-        /**
-         * First install, user can enter bit.ly or URL directly, or return to
-         * basic mode
-         */
-        advanced,
-
-        /**
-         * First install, user can scan barcode and move to ready mode or
-         * select advanced mode
-         */
-        basic,
-
-        /**
-         * First install, barcode has been scanned. Can move to advanced mode
-         * to inspect URL, or proceed to install
-         */
-        ready,
-
-        /**
-         * Installation or Upgrade has failed, offer to retry or restart.
-         * upgrade/install differentiated with inUpgradeMode boolean
-         */
-        error,
+        IN_URL_ENTRY,
+        CHOOSE_INSTALL_ENTRY_METHOD,
+        READY_TO_INSTALL,
+        ERROR,
 
         /**
          * App installed already. Buttons aren't shown, trying to update app
          * with no user input
          */
-        upgrade
+        UPGRADE
     }
 
-    private UiState uiState = UiState.basic;
+
+    private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -119,10 +105,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private boolean startAllowed = true;
     private boolean inUpgradeMode = false;
-    
     private String incomingRef;
-
     private CommCareApp ccApp;
+
+    /**
+     * Indicates whether this activity was launched from the AppManagerActivity
+     */
+    private boolean mFromManager;
 
     /**
      * Whether this needs to be interactive (if it's automatic, we want to skip
@@ -149,8 +138,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
+        this.mFromManager = this.getIntent().
+                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
         if(savedInstanceState == null) {
@@ -173,17 +163,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
                     }
                 } else {
-                    this.uiState = UiState.ready;
+                    this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else{
+            } else {
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
             inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
-            String uiStateEncoded = savedInstanceState.getString("advanced");
-            this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
+            String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
+            this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
@@ -193,11 +183,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
-
         // if we are in upgrade mode we want the UiState to reflect that,
         // unless we are showing an error
-        if (inUpgradeMode && this.uiState != UiState.error){
-            this.uiState = UiState.upgrade;
+        if (inUpgradeMode && this.uiState != UiState.ERROR){
+            this.uiState = UiState.UPGRADE;
         }
 
         // reclaim ccApp for resuming installation
@@ -215,12 +204,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // If clicking the regular app icon brought us to CommCareSetupActivity
+        // (because that's where we were last time the app was up), but there are now
+        // 1 or more available apps, we want to redirect to CCHomeActivity
+        if (!mFromManager && CommCareApplication._().usableAppsPresent()) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
+    }
+    
+    @Override
     public void onURLChosen(String url) {
         if(BuildConfig.DEBUG) {
             Log.d(TAG, "SetupEnterURLFragment returned: " + url);
         }
         incomingRef = url;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
         uiStateScreenTransition();
     }
 
@@ -229,8 +230,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
-            case upgrade:
-            case ready:
+            case UPGRADE:
+            case READY_TO_INSTALL:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e(TAG,"During install: IncomingRef is empty!");
                     Toast.makeText(getApplicationContext(), "Invalid URL: '" +
@@ -242,15 +243,35 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 // attached, no need to set them here
                 fragment = startInstall;
                 break;
-
-            default:
+            case IN_URL_ENTRY:
+                fragment = restoreInstallSetupFragment();
+                break;
+            case CHOOSE_INSTALL_ENTRY_METHOD:
                 fragment = installFragment;
                 break;
+            default:
+                return;
         }
-
         ft.replace(R.id.setup_fragment_container, fragment);
 
         ft.commit();
+    }
+
+    private Fragment restoreInstallSetupFragment() {
+        Fragment fragment = null;
+        List<Fragment> fgmts = fm.getFragments();
+        int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
+        if(lastIndex > -1) {
+            fragment = fgmts.get(lastIndex);
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Last fragment: " + fragment);
+            }
+        }
+        if(!(fragment instanceof SetupEnterURLFragment)){
+            // last fragment wasn't url entry, so default to the installation method chooser
+            fragment = installFragment;
+        }
+        return fragment;
     }
 
     @Override
@@ -263,7 +284,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onStart();
         uiStateScreenTransition();
         // upgrade app if needed
-        if(uiState == UiState.upgrade && 
+        if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
             if(AndroidUtil.isNetworkAvailable(this)){
                 startResourceInstall(true);
@@ -282,12 +303,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("advanced", uiState.toString());
+        outState.putString(KEY_UI_STATE, uiState.toString());
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
-        Log.v("UiState","Saving instance state: " + outState);
+        Log.v("UiState", "Saving instance state: " + outState);
     }
     
     @Override
@@ -310,7 +331,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         if(result == null) return;
         incomingRef = result;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
 
         try {
             // check if the reference can be derived without erroring out
@@ -322,7 +343,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
-            this.uiState = UiState.basic;
+            this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
         uiStateScreenTransition();
     }
@@ -443,6 +464,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         case StatusBadCertificate:
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
                             break;
+                        case StatusDuplicateApp:
+                            startOverInstall = true;
+                            receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+                            break;
                         default:
                             startOverInstall = true;
                             receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
@@ -508,14 +533,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         return true;
     }
-    
+
     /**
      * Return to or launch home activity.
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
+     * @param failed did installation occur successfully?
      */
-    void done(boolean requireRefresh) {
+    void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
@@ -525,6 +551,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             //Good to go
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+            i.putExtra(KEY_INSTALL_FAILED, failed);
             setResult(RESULT_OK, i);
         }
         finish();
@@ -558,7 +585,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(!appChanged) {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged);
+        done(appChanged, false);
     }
 
     @Override
@@ -612,7 +639,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         String title, message;
-        if (uiState == UiState.upgrade) {
+        if (uiState == UiState.UPGRADE) {
             title = Localization.get("updates.title");
             message = Localization.get("updates.checking");
         } else {
@@ -639,8 +666,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onStopInstallClicked() {
         incomingRef = null;
-        uiState = UiState.basic;
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
+    }
+
+    public void setUiState(UiState newState) {
+        uiState = newState;
     }
 
     //endregion

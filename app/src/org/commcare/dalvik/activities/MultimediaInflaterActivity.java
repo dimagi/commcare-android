@@ -37,7 +37,7 @@ import android.widget.Toast;
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
-    private static final String LOG_TAG = "CommCare-MultimediaInflator";
+    private static final String LOG_TAG = "CC-MultimediaInflator";
 
     private static final int REQUEST_FILE_LOCATION = 1;
     

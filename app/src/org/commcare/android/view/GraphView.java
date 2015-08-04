@@ -197,12 +197,16 @@ public class GraphView {
         Comparator<XYPointData> comparator;
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             String barSort = s.getConfiguration("bar-sort", "");
-            if (barSort.equals("ascending")) {
-                comparator = new AscendingValuePointComparator();
-            } else if (barSort.equals("descending")) {
-                comparator = new DescendingValuePointComparator();
-            } else {
-                comparator = new StringPointComparator();
+            switch (barSort) {
+                case "ascending":
+                    comparator = new AscendingValuePointComparator();
+                    break;
+                case "descending":
+                    comparator = new DescendingValuePointComparator();
+                    break;
+                default:
+                    comparator = new StringPointComparator();
+                    break;
             }
         } else {
             comparator = new NumericPointComparator();
@@ -328,16 +332,22 @@ public class GraphView {
         String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
         if (!pointStyle.equals("none")) {
             PointStyle style = null;
-            if (pointStyle.equals("circle")) {
-                style = PointStyle.CIRCLE;
-            } else if (pointStyle.equals("x")) {
-                style = PointStyle.X;
-            } else if (pointStyle.equals("square")) {
-                style = PointStyle.SQUARE;
-            } else if (pointStyle.equals("triangle")) {
-                style = PointStyle.TRIANGLE;
-            } else if (pointStyle.equals("diamond")) {
-                style = PointStyle.DIAMOND;
+            switch (pointStyle) {
+                case "circle":
+                    style = PointStyle.CIRCLE;
+                    break;
+                case "x":
+                    style = PointStyle.X;
+                    break;
+                case "square":
+                    style = PointStyle.SQUARE;
+                    break;
+                case "triangle":
+                    style = PointStyle.TRIANGLE;
+                    break;
+                case "diamond":
+                    style = PointStyle.DIAMOND;
+                    break;
             }
             currentRenderer.setPointStyle(style);
             currentRenderer.setFillPoints(true);
@@ -444,7 +454,7 @@ public class GraphView {
         }
         
         // Legend
-        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false")).booleanValue();
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
