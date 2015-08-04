@@ -139,6 +139,7 @@ public class TabbedDetailView extends RelativeLayout {
 
     //region Private classes
 
+    @SuppressLint("ParcelCreator")
     private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
         final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
                 new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});

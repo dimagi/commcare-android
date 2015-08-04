@@ -66,27 +66,31 @@ public class UserXmlParser extends TransactionParser<User> {
         }
         
         //Now look for optional components
+        label:
         while (this.nextTagInBlock("registration")) {
             String tag = parser.getName().toLowerCase();
-            
-            if(tag.equals("registering_phone_id")) {
-                String phoneid = parser.nextText();
-            } else if(tag.equals("token")) {
-                String token = parser.nextText();
-            } else if(tag.equals("user_data")) {
-                while(this.nextTagInBlock("user_data")) {
-                    this.checkNode("data");
-                    
-                    String key = this.parser.getAttributeValue(null, "key");
-                    String value = this.parser.nextText();
-                    
-                    u.setProperty(key, value);
-                }
-                
-                //This should be the last block in the registration stuff...
-                break;
-            } else {
-                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag,parser);
+
+            switch (tag) {
+                case "registering_phone_id":
+                    String phoneid = parser.nextText();
+                    break;
+                case "token":
+                    String token = parser.nextText();
+                    break;
+                case "user_data":
+                    while (this.nextTagInBlock("user_data")) {
+                        this.checkNode("data");
+
+                        String key = this.parser.getAttributeValue(null, "key");
+                        String value = this.parser.nextText();
+
+                        u.setProperty(key, value);
+                    }
+
+                    //This should be the last block in the registration stuff...
+                    break label;
+                default:
+                    throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag, parser);
             }
         }
         

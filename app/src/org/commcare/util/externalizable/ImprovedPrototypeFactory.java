@@ -49,7 +49,7 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
     }
     
     private Integer getHash(byte[] hash) {
-        return Integer.valueOf((hash[3] << 0) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24));
+        return (hash[3] << 0) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24);
     }
     
     @Override

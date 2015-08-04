@@ -151,7 +151,7 @@ public class CaseDataContentProvider extends ContentProvider {
                 
 
                 //replace all "?"'s with arguments
-                while(value.indexOf("?") != -1) {
+                while(value.contains("?")) {
                     if(currentArgVal >= selectionArgs.length) { throw new RuntimeException("Selection string missing required arguments" + selection); }
                     value = value.substring(0, value.indexOf("?")) + selectionArgs[currentArgVal] + value.substring(value.indexOf("?") + 1);
                     currentArgVal++;
@@ -168,7 +168,7 @@ public class CaseDataContentProvider extends ContentProvider {
             }
             
             //Do the db records fetch (one at a time, so as to not overload our working memory)
-            Vector<Integer> recordIds = storage.getIDsForValues((String[])keys.toArray(new String[0]), (String[])values.toArray(new String[0]));
+            Vector<Integer> recordIds = storage.getIDsForValues((String[]) keys.toArray(new String[keys.size()]), (String[]) values.toArray(new String[values.size()]));
             for(int i : recordIds) {
                 Case c = storage.read(i);
                 retCursor.addRow(new Object[] {c.getID(), c.getCaseId(), c.getName(), c.getTypeId(), c.getDateOpened(), c.getLastModified(), c.getUserId(), c.isClosed() ? "closed" : "open"});
