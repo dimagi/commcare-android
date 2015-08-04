@@ -22,6 +22,8 @@ import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.ODKView;
 
@@ -38,9 +40,8 @@ import java.util.Hashtable;
  */
 public class IntentCallout implements Externalizable {
     private String className;
-    private Hashtable<String, TreeReference> refs;
-    private Hashtable<String, String> stringExtras = new Hashtable<>();
-
+    private Hashtable<String, XPathExpression> refs;
+    
     private Hashtable<String, TreeReference> responses;
     
     private FormDef form;
@@ -59,7 +60,7 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
     
-    public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, TreeReference> responses, 
+    public IntentCallout(String className, Hashtable<String, XPathExpression> refs, Hashtable<String, TreeReference> responses,
             String type, String component, String data, String buttonLabel, String appearance) {
         
         this.className = className;
@@ -70,15 +71,9 @@ public class IntentCallout implements Externalizable {
         this.data = data;
         this.buttonLabel = buttonLabel;
         this.appearance = appearance;
+
     }
-
-    public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, String> stringExtras, Hashtable<String, TreeReference> responses,
-                         String type, String component, String data, String buttonLabel, String appearance) {
-
-        this(className, refs, responses, type, component, data, buttonLabel, appearance);
-        this.stringExtras = stringExtras;
-    }
-
+    
     protected void attachToForm(FormDef form) {
         this.form = form;
     }
@@ -97,15 +92,12 @@ public class IntentCallout implements Externalizable {
         if(refs != null) {
             for (Enumeration<String> en = refs.keys(); en.hasMoreElements(); ) {
                 String key = en.nextElement();
-                AbstractTreeElement e = ec.resolveReference(refs.get(key));
-                if (e != null && e.getValue() != null) {
-                    i.putExtra(key, e.getValue().uncast().getString());
+
+                String extraVal = XPathFuncExpr.toString(refs.get(key).eval(ec));
+                if(extraVal != null && extraVal != "") {
+                    i.putExtra(key, extraVal);
                 }
             }
-        }
-        for (Enumeration<String> keys = stringExtras.keys(); keys.hasMoreElements(); ) {
-            String key = keys.nextElement();
-            i.putExtra(key, stringExtras.get(key));
         }
         return i;
     }
@@ -198,7 +190,7 @@ public class IntentCallout implements Externalizable {
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         className = ExtUtil.readString(in);
-        refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
+        refs = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMap(String.class, XPathExpression.class), pf);
         responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));

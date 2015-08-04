@@ -10,6 +10,9 @@ import org.javarosa.xform.parse.IElementHandler;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.kdom.Element;
 
 /**
@@ -41,8 +44,7 @@ public class IntentExtensionParser implements IElementHandler {
         
         String label = e.getAttributeValue(null, "button-label");
 
-        Hashtable<String, TreeReference> extras = new Hashtable<String, TreeReference>();
-        Hashtable<String, String> stringExtras = new Hashtable<String, String>();
+        Hashtable<String, XPathExpression> extras = new Hashtable<String, XPathExpression>();
         Hashtable<String, TreeReference> response = new Hashtable<String, TreeReference>();
 
         for(int i = 0; i < e.getChildCount(); ++i) {
@@ -52,27 +54,24 @@ public class IntentExtensionParser implements IElementHandler {
                     if(child.getName().equals(EXTRA)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
-                        if ("cc:print_template_reference".equals(key)) {
-                            //ref = "./text()";
-                            ref = child.getText(0);
-                            stringExtras.put(key, ref);
-                        } else {
-                            extras.put(key, (TreeReference)new XPathReference(ref).getReference());
-                        }
+                        XPathExpression expr = XPathParseTool.parseXPath(ref);
+
+                        extras.put(key, expr);
+
                     } else if(child.getName().equals(RESPONSE)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
-                        response.put(key, (TreeReference)new XPathReference(ref).getReference());
 
+                        response.put(key, (TreeReference)new XPathReference(ref).getReference());
                     } 
                 }
-                catch(XPathException xptm){
+                catch(XPathSyntaxException xptm){
                     throw new XFormParseException("Error parsing Intent Extra: " + xptm.getMessage(), e);
                 }
             }
         }
 
-        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, stringExtras, response, type, component, data, label, appearance));
+        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, response, type, component, data, label, appearance));
     }
 
 }
