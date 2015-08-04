@@ -728,7 +728,7 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void refreshBreadcrumbBar() {
+    public void refreshActionBar() {
         FragmentManager fm = this.getSupportFragmentManager();
         BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
         bar.refresh(this);

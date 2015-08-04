@@ -174,7 +174,7 @@ public class CommCareApp {
     public boolean initializeApplication() {
         boolean appReady = initializeApplicationHelper();
         if (appReady) {
-            if (record.convertedByDbUpgrader()) {
+            if (record.wasConvertedByDbUpgrader()) {
                 updateAppRecord();
             }
         }

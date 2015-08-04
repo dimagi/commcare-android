@@ -123,13 +123,17 @@ public class ApplicationRecord extends Persisted {
         return this.resourcesValidated;
     }
 
-    // A 'visible' app record has status installed and is not archived
+    /**
+     * A 'visible' app record has status installed and is not archived
+     */
     public boolean isVisible() {
         return status == STATUS_INSTALLED && !isArchived;
     }
 
-    // A 'usable' app record is one that will actually get shown to a user -- is visible and has
-    // its MM resources validated
+    /**
+     *  A 'usable' app record is one that will actually get shown to a user -- is visible and has
+     *  its MM resources validated
+     */
     public boolean isUsable() {
         return isVisible() && resourcesValidated;
     }
@@ -144,12 +148,8 @@ public class ApplicationRecord extends Persisted {
      * a pre-Multiple Apps version of CommCare that does not have profile files
      * with uniqueId and displayName
      */
-    public boolean preMultipleAppsProfile() {
+    public boolean isPreMultipleAppsProfile() {
         return this.preMultipleAppsProfile;
-    }
-    
-    public void setPreMultipleAppsProfile(boolean b) {
-        this.preMultipleAppsProfile = b;
     }
 
     /**
@@ -157,16 +157,12 @@ public class ApplicationRecord extends Persisted {
      * different ApplicationRecord format via the db upgrader, because it was 
      * initially installed on a phone with a pre-Multiple Apps version of CommCare
      */
-    public boolean convertedByDbUpgrader() {
+    public boolean wasConvertedByDbUpgrader() {
         return this.convertedViaDbUpgrader;
     }
 
-    public void setConvertedByDbUpgrader(boolean b) {
-        this.convertedViaDbUpgrader = b;
-    }
-
     /**
-     * Used when this record is first installed or upgraded from an old version, to set all
+     * Used when this record is either first installed, or upgraded from an old version, to set all
      * properties of the record that come from its profile file
      */
     public void setPropertiesFromProfile(Profile p) {
@@ -179,5 +175,19 @@ public class ApplicationRecord extends Persisted {
         this.versionNumber = p.getVersion();
         this.preMultipleAppsProfile = p.isOldVersion();
     }
+
+
+    // region: methods used only in the upgrade process for an ApplicationRecord, should not be
+    // touched otherwise
+
+    public void setPreMultipleAppsProfile(boolean b) {
+        this.preMultipleAppsProfile = b;
+    }
+
+    public void setConvertedByDbUpgrader(boolean b) {
+        this.convertedViaDbUpgrader = b;
+    }
+
+    // endregion
 
 }

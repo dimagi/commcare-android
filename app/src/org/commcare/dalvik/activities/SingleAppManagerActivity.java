@@ -90,7 +90,7 @@ public class SingleAppManagerActivity extends Activity {
     private void refresh() {
         // Warns the user that this app came from an old version of the profile file, if necessary
         TextView warning = (TextView)findViewById(R.id.profile_warning);
-        if (appRecord.preMultipleAppsProfile()) {
+        if (appRecord.isPreMultipleAppsProfile()) {
             warning.setVisibility(View.VISIBLE);
         } else {
             warning.setVisibility(View.GONE);

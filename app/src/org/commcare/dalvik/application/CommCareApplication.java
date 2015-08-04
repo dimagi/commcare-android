@@ -565,7 +565,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Completes a full uninstall of the CC app that the given ApplicationRecord represents
+     * Completes a full uninstall of the CC app that the given ApplicationRecord represents.
+     * This method should be idempotent and should be capable of completing an uninstall
+     * regardless of previous failures
      */
     public void uninstall(ApplicationRecord record) {
         CommCareApp app = new CommCareApp(record);

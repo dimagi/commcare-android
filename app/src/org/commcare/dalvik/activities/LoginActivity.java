@@ -110,7 +110,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    private Map<String,ApplicationRecord> namesToRecords = new HashMap<>();
+    private ArrayList<ApplicationRecord> appRecordDropdownList = new ArrayList<>();
 
     private final TextWatcher textWatcher = new TextWatcher() {
 
@@ -579,7 +579,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void refreshView() {
         // Refresh the breadcrumb bar in case the seated app has changed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshBreadcrumbBar();
+            refreshActionBar();
         }
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
@@ -598,15 +598,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             ArrayList<String> appNames = new ArrayList<>();
             ArrayList<String> appIds = new ArrayList<>();
             for (ApplicationRecord r : readyApps) {
-                String name = r.getDisplayName();
-                appNames.add(name);
+                appNames.add(r.getDisplayName());
                 appIds.add(r.getUniqueId());
-                namesToRecords.put(name, r);
+                appRecordDropdownList.add(r);
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(adapter);
             spinner.setOnItemSelectedListener(this);
+
             // Set the spinner's selection to match whatever the currently seated app is
             String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
             int position = appIds.indexOf(currAppId);
@@ -618,8 +618,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // Retrieve the app record corresponding to the app selected
-        String selected = (String) parent.getItemAtPosition(position);
-        ApplicationRecord r = namesToRecords.get(selected);
+        ApplicationRecord r = appRecordDropdownList.get(position);
 
         // Set the id of the last selected app
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -633,7 +632,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         // Refresh the breadcrumb bar accordingly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshBreadcrumbBar();
+            refreshActionBar();
         }
     }
 
