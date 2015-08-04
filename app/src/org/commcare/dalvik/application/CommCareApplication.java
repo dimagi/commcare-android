@@ -847,7 +847,9 @@ public class CommCareApplication extends Application {
     private void unbindUserSessionService() {
         synchronized (serviceLock) {
             if (mIsBound) {
-                sessionWrapper.reset();
+                if (sessionWrapper != null) {
+                    sessionWrapper.reset();
+                }
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
