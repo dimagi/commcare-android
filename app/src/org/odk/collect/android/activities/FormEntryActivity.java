@@ -79,6 +79,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareFragmentActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -145,7 +146,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
+public class FormEntryActivity extends SessionAwareFragmentActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -2595,15 +2596,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            try {
-                CommCareApplication._().getSession().closeSession(true);
-            } catch (SessionUnavailableException sue) {
-                // form saving took too long, so we logged out already.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Saving current form took too long, " +
-                        "so data was (probably) discarded and the session closed. " +
-                        "Save exit code: " + saveStatus);
-            }
+            CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:
