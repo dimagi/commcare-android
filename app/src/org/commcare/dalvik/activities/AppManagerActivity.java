@@ -97,7 +97,6 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
      * Logs the user out and takes them to the app installation activity.
      */
     private void installApp() {
-        CommCareApplication._().expireUserSession();
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
         this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
@@ -173,6 +172,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        CommCareApplication._().expireUserSession();
                         installApp();
                     }
 

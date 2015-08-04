@@ -379,7 +379,7 @@ public class CommCareApplication extends Application {
         ReferenceManager._().addReferenceFactory(afr);
         ReferenceManager._().addReferenceFactory(arfr);
         ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",
-                    GlobalConstants.MEDIA_REF));
+                GlobalConstants.MEDIA_REF));
     }
 
     /**
@@ -1051,7 +1051,9 @@ public class CommCareApplication extends Application {
     private void unbindUserSessionService() {
         synchronized (serviceLock) {
             if (mIsBound) {
-                sessionWrapper.reset();
+                if (sessionWrapper != null) {
+                    sessionWrapper.reset();
+                }
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
