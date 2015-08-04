@@ -274,12 +274,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             adapter.notifyDataSetChanged();
         }
 
-
-        TextView formGroupLabel = (TextView)findViewById(R.id.home_formrecords_label);
-        if (formGroupLabel != null) {
-            formGroupLabel.setText(Localization.get("home.forms"));
-        }
-
         SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
         if (viewOldForms != null) {
             viewOldForms.setText(Localization.get("home.forms.saved"));
