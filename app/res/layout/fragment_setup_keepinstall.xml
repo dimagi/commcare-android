@@ -22,7 +22,6 @@
                 android:id="@+id/screen_first_start_banner"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:adjustViewBounds="true"
                 android:layout_marginRight="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
@@ -47,15 +46,12 @@
                     android:layout_marginBottom="@dimen/content_min_margin"
                     android:gravity="center"
                     android:text="Almost there!\n Press the button below to install your app."
-                    android:textSize="@dimen/text_small"
-                    android:layout_below="@id/screen_first_start_banner"
-                    />
+                    android:textSize="@dimen/text_small" />
 
                 <LinearLayout
                     android:id="@+id/screen_first_start_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/str_setup_message"
                     android:paddingBottom="@dimen/content_min_margin"
                     android:orientation="horizontal" >
 

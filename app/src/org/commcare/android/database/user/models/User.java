@@ -195,7 +195,7 @@ public class User implements Persistable, IMetaData
         } else if(META_USERNAME.equals(fieldName)) {
             return username;
         } else if(META_ID.equals(fieldName)) {
-            return new Integer(recordId);
+            return Integer.valueOf(recordId);
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
         } else if (META_SYNC_TOKEN.equals(fieldName)) {

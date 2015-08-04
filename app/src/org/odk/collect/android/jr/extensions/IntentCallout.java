@@ -39,6 +39,7 @@ import java.util.Hashtable;
  *
  */
 public class IntentCallout implements Externalizable {
+    public static final String TAG = IntentCallout.class.getSimpleName();
     private String className;
     private Hashtable<String, XPathExpression> refs;
     
@@ -155,7 +156,7 @@ public class IntentCallout implements Externalizable {
                     File src = new File(responseValue);
                     if (!src.exists()) {
                         //TODO: How hard should we be failing here?
-                        Log.w("FormEntryActivity-Callout", "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+                        Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
                         //Wipe out any reference that exists
                         form.setValue(null, ref);
                         continue;
@@ -171,7 +172,7 @@ public class IntentCallout implements Externalizable {
                         form.setValue(new StringData(newFile.toString()), ref);
                         continue;
                     } else {
-                        Log.e("FormEntryActivity-Callout", "ODK Failed to property write a file to " + newFile.toString());
+                        Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
                         form.setValue(null, ref);
                         continue;
                     }

@@ -2,8 +2,11 @@ package org.commcare.android.framework;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -56,7 +59,7 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     

@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -228,7 +229,7 @@ public class CommCareVerificationActivity
     }
 
     private String prettyString(String rawString){
-        int marker = rawString.indexOf("/sdcard");
+        int marker = rawString.indexOf(Environment.getExternalStorageDirectory().getPath());
         if(marker<0){return rawString;}
         else{return rawString.substring(marker);}
     }

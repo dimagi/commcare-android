@@ -260,7 +260,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
             //TODO: See if it worked first?
             
-            CommCareApplication._().logIn(key, matchingRecord);
+            CommCareApplication._().startUserSession(key, matchingRecord);
             ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0, matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(), new ManageKeyRecordListener() {
 
                 @Override

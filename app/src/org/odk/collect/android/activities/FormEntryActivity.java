@@ -79,6 +79,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareFragmentActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -145,7 +146,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
+public class FormEntryActivity extends SessionAwareFragmentActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -701,7 +702,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	}
             }
             if(!stillRelevent){
-                removeList.add(Integer.valueOf(i));
+                removeList.add(i);
             }
         }
            // remove "atomically" to not mess up iterations
@@ -893,7 +894,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
 
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+        if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
+            Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
+        }
 
         progressBar.setMax(details.totalQuestions);
 
@@ -918,6 +921,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
             progressBar.setProgress(details.completedQuestions);
         }
+
+        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
 
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
@@ -2591,15 +2596,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            try {
-                CommCareApplication._().getSession().closeSession(true);
-            } catch (SessionUnavailableException sue) {
-                // form saving took too long, so we logged out already.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Saving current form took too long, " +
-                        "so data was (probably) discarded and the session closed. " +
-                        "Save exit code: " + saveStatus);
-            }
+            CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:

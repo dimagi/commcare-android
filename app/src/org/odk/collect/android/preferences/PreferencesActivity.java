@@ -14,6 +14,7 @@
 
 package org.odk.collect.android.preferences;
 
+import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.UrlUtils;
@@ -46,7 +47,7 @@ import android.widget.Toast;
 /**
  * @author yanokwa
  */
-public class PreferencesActivity extends PreferenceActivity implements
+public class PreferencesActivity extends SessionAwarePreferenceActivity implements
         OnSharedPreferenceChangeListener {
 
     protected static final int IMAGE_CHOOSER = 0;

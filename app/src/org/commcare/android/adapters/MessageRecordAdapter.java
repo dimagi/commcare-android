@@ -98,9 +98,12 @@ public class MessageRecordAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         cursor.moveToPosition(enabled.get(position));
-        
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View cre = inflater.inflate(R.layout.call_record_entry, null);
+
+        View cre = convertView;
+        if (cre == null) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            cre = inflater.inflate(R.layout.call_record_entry, null);
+        }
         
         TextView name = (TextView)cre.findViewById(R.id.call_log_name);
         TextView number = (TextView)cre.findViewById(R.id.call_log_number);
