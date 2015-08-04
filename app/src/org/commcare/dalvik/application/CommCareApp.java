@@ -13,11 +13,11 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.Stylizer;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -175,8 +175,7 @@ public class CommCareApp {
             global.repairTable(upgrade);
         }
 
-        // TODO: This, but better.
-        Resource profile = global.getResourceWithId("commcare-application-profile");
+        Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
             platform.initialize(global);
             try {

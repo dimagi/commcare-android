@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.util.Date;
@@ -13,7 +10,6 @@ import org.json.JSONTokener;
 
 /**
  * @author ctsims
- *
  */
 public class DotsData {
     Date anchor;
@@ -204,8 +200,6 @@ public class DotsData {
          * 
          * @param regimenIndex the index of a potential dose (AM,noon,pm, etc)
          * which may be occurring. 
-         * 
-         * @return
          */
         public int[] getRegIndexes(int regimenIndex) {
             int max = this.getMaxReg();

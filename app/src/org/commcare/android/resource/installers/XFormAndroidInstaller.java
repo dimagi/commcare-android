@@ -99,15 +99,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
         //cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
 
-        
+
+        Cursor existingforms = null;
         try {
-            Cursor existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI, 
+            existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI,
                     new String[] { FormsProviderAPI.FormsColumns._ID} , 
                     FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?", 
                     new String[] { formDef.getMainInstance().schema}, null);
 
             
-            if(existingforms.moveToFirst()) {
+            if(existingforms != null && existingforms.moveToFirst()) {
                 //we already have one form. Hopefully this is during an upgrade...
                 if(!upgrade) {
                     //Hm, error out?
@@ -130,8 +131,15 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IOException("couldn't talk to form database to install form");
+        } finally {
+            if (existingforms != null) {
+                existingforms.close();
+            }
         }
 
+        if (cpc != null) {
+            cpc.release();
+        }
         
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
@@ -147,8 +155,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     /**
      * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
      * just changing where the provider points.
-     * 
-     * @return
      */
     private boolean updateFilePath() {
         String localRawUri;
@@ -247,7 +253,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
             for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
                 String key = (String)en.nextElement();
-                if(key.indexOf(";") != -1) {
+                if(key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
                     if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
@@ -276,6 +282,4 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if(problems.size() == 0 ) { return false;}
         return true;
     }
-
-
 }

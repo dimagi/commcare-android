@@ -101,10 +101,10 @@ public class Entity<T> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < data.length; i++) {
-            sb.append("\n" + i + "\n");
-            sb.append("Data: " + data[i] + "|");
-            sb.append("SortData: " + sortData[i] + "|");
-            sb.append("IsValidField: " + isValidField(i));
+            sb.append("\n").append(i).append("\n");
+            sb.append("Data: ").append(data[i]).append("|");
+            sb.append("SortData: ").append(sortData[i]).append("|");
+            sb.append("IsValidField: ").append(isValidField(i));
         }
         return sb.toString() + "\n" + super.toString();
     }

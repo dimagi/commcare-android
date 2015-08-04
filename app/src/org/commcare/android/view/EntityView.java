@@ -289,14 +289,6 @@ public class EntityView extends LinearLayout {
      * Based on the search terms provided, highlight the aspects of the spannable provided which
      * match. A background string can be provided which provides the exact data that is being
      * matched. 
-     * 
-     * @param context
-     * @param searchTerms
-     * @param raw
-     * @param backgroundString
-     * @param fuzzySearchEnabled
-     * @param strictMode
-     * @return
      */
     public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {

@@ -106,7 +106,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
@@ -414,7 +414,6 @@ public abstract class QuestionWidget extends LinearLayout {
 
     /**
     * Display extra help, triggered by user request.
-    * @param prompt
     */
     private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
@@ -461,8 +460,6 @@ public abstract class QuestionWidget extends LinearLayout {
     
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
-     * @param prompt
-     * @return
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());

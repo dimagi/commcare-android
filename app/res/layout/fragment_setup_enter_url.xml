@@ -38,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Enter URL here"
                 android:layout_weight="1"
+                android:singleLine="true"
                 >
             </EditText>
         </LinearLayout>
