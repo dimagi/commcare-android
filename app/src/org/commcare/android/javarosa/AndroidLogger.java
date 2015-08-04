@@ -116,7 +116,7 @@ public class AndroidLogger implements ILogger {
                 }
             }
         }
-        return serializer.serializeLogs(logs.toArray(new LogEntry[0]));
+        return serializer.serializeLogs(logs.toArray(new LogEntry[logs.size()]));
     }
 
     @Override

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.db.legacy;
 
 import org.commcare.android.database.user.models.FormRecord;
@@ -19,7 +16,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
 /**
- * 
  * This class exists in order to handle all of the logic associated with upgrading from one version
  * of CommCare ODK to another. It is going to get big and annoying.
  * 
@@ -95,8 +91,6 @@ public class LegacyCommCareUpgrader {
      * before v. TOBEDECIDED is going to toast all of the app data. As such
      * we need to remove all of the relevant records to ensure that
      * the app doesn't crash and burn. 
-     * 
-     * @param database
      */
     public void upgradeBeforeTwentyFour(SQLiteDatabase database) {
         //NOTE: We'll do this cleanly when appropriate, but for
@@ -114,9 +108,6 @@ public class LegacyCommCareUpgrader {
     /**
      * Previous FormRecord entries were lacking, we're going to 
      * wipe them out.
-     * 
-     * @param database 
-     * @return
      */
     private boolean upgradeTwoSixtoTwoSeven(SQLiteDatabase database) {
         database.beginTransaction();
@@ -194,15 +185,19 @@ public class LegacyCommCareUpgrader {
             database.endTransaction();
         }
     }
-    
+
     private int countRows(SQLiteDatabase database, String table) {
+        Cursor c = null;
         try {
-            Cursor c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
+            c = database.rawQuery(String.format("SELECT COUNT(*) AS total FROM %s", table), new String[0]);
             c.moveToFirst();
             return c.getInt(0);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return -1;
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
     }
-
 }

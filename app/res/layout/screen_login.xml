@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="fill_parent"
                 android:id="@+id/screen_login_main"
                 android:background="@color/cc_core_bg"
     >
@@ -10,132 +10,138 @@
     android:id="@+id/screen_login_bottom_pane"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" android:layout_alignParentBottom="true">
+    android:orientation="vertical" android:layout_alignParentBottom="true"
+    android:visibility="gone" >
 
     <TextView
     android:id="@+id/str_version"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textAppearance="@style/VersionIdText"
-    android:visibility="gone" />
+    />
 
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
+        android:scrollbars="none"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical" >
-
-        <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0px"
-            android:layout_weight=".2"
-            android:paddingTop="@dimen/content_start"
-            android:paddingLeft="@dimen/content_start"
-            android:paddingRight="@dimen/content_start"
-            android:id="@+id/screen_login_banner_pane">
-
-            <ImageView
-                android:id="@+id/screen_login_top_banner"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ccbanner"
-                android:adjustViewBounds="true"/>
-
-        </FrameLayout>
-
+        android:layout_height="fill_parent">
         <LinearLayout
-            android:id="@+id/LinearLayout01"
             android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight=".8"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight=".2"
+                android:paddingTop="@dimen/content_start"
+                android:paddingLeft="@dimen/content_start"
+                android:paddingRight="@dimen/content_start"
+                android:id="@+id/screen_login_banner_pane">
+
+                <ImageView
+                    android:id="@+id/screen_login_top_banner"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ccbanner"
+                    android:adjustViewBounds="true"/>
+
+            </FrameLayout>
 
             <LinearLayout
+                android:id="@+id/LinearLayout01"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="@dimen/content_start"
-                android:paddingLeft="@dimen/login_box_margins"
-                android:paddingRight="@dimen/login_box_margins" >
+                android:layout_height="0px"
+                android:layout_weight=".8"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/welcome_msg"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Welcome back! Please log in."
-                    android:textColor="@color/cc_neutral_color"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/content_min_margin"
-                    android:textSize="@dimen/text_medium"
-                    />
+                    android:orientation="vertical"
+                    android:paddingBottom="@dimen/content_start"
+                    android:paddingLeft="@dimen/login_box_margins"
+                    android:paddingRight="@dimen/login_box_margins" >
 
-                <EditText
-                    android:id="@+id/edit_username"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:nextFocusDown="@+id/edit_password" android:contentDescription="Username"
-                    android:drawableLeft="@drawable/icon_user_neutral50"
-                    android:background="@drawable/login_edit_text"
-                    style="@style/LoginEditTextV2"
-                    android:hint="Username"
-                    android:textSize="@dimen/text_medium"
-                    >
+                    <TextView
+                        android:id="@+id/welcome_msg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Welcome back! Please log in."
+                        android:textColor="@color/cc_neutral_color"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/content_min_margin"
+                        android:textSize="@dimen/text_medium"
+                        />
 
-                    <requestFocus />
-                </EditText>
+                    <EditText
+                        android:id="@+id/edit_username"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:nextFocusDown="@+id/edit_password" android:contentDescription="Username"
+                        android:drawableLeft="@drawable/icon_user_neutral50"
+                        android:background="@drawable/login_edit_text"
+                        style="@style/LoginEditTextV2"
+                        android:hint="Username"
+                        android:textSize="@dimen/text_medium"
+                        >
 
-                <EditText
-                    android:id="@+id/edit_password"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:nextFocusDown="@+id/checkserver"
-                    android:nextFocusUp="@+id/edit_username"
-                    android:drawableLeft="@drawable/icon_lock_neutral50"
-                    android:background="@drawable/login_edit_text"
-                    android:layout_marginBottom="@dimen/content_start"
-                    style="@style/LoginEditTextV2"
-                    android:hint="Password"
-                    android:textSize="@dimen/text_medium"
-                    />
+                        <requestFocus />
+                    </EditText>
 
-                <TextView
-                    android:id="@+id/screen_login_bad_password"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="We couldn't find a user with this password. Please try another!"
-                    android:visibility="gone"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-                    android:textColor="@color/red"
-                    android:textStyle="bold"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginTop="@dimen/content_min_margin"
-                    android:layout_marginBottom="24dp"
-                    android:gravity="center"/>
+                    <EditText
+                        android:id="@+id/edit_password"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPassword"
+                        android:nextFocusDown="@+id/checkserver"
+                        android:nextFocusUp="@+id/edit_username"
+                        android:drawableLeft="@drawable/icon_lock_neutral50"
+                        android:background="@drawable/login_edit_text"
+                        android:layout_marginBottom="@dimen/content_start"
+                        style="@style/LoginEditTextV2"
+                        android:hint="Password"
+                        android:textSize="@dimen/text_medium"
+                        />
 
-                <Button
-                    android:id="@+id/login_button"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:textColor="@color/cc_neutral_bg"
-                    android:background="@color/cc_brand_color"
-                    android:text="Login"
-                    android:nextFocusUp="@+id/edit_password"
-                    />
+                    <TextView
+                        android:id="@+id/screen_login_bad_password"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:text="We couldn't find a user with this password. Please try another!"
+                        android:visibility="gone"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:textColor="@color/red"
+                        android:textStyle="bold"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:layout_marginLeft="3dp"
+                        android:layout_marginRight="3dp"
+                        android:layout_marginTop="@dimen/content_min_margin"
+                        android:layout_marginBottom="24dp"
+                        android:gravity="center"/>
+
+                    <Button
+                        android:id="@+id/login_button"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/content_start"
+                        android:paddingBottom="@dimen/content_start"
+                        android:layout_gravity="bottom"
+                        android:textColor="@color/cc_neutral_bg"
+                        android:background="@color/cc_brand_color"
+                        android:text="Login"
+                        android:nextFocusUp="@+id/edit_password"
+                        />
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
-
-    </LinearLayout>
-
+    </ScrollView>
 </RelativeLayout>
