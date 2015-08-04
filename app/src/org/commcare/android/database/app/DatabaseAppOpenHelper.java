@@ -40,7 +40,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         this.context = context;
     }
     
-    private static String getDbName(String appId) {
+    public static String getDbName(String appId) {
         return DB_LOCATOR_PREF_APP + appId;
     }
 
