@@ -14,13 +14,13 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
     Hashtable<Integer, Class> prototypes;
     
     public ImprovedPrototypeFactory (PrefixTree classNames) {
-        super(classNames);
-        setStaticHasher(new AndroidClassHasher());
+        super(new AndroidClassHasher(), classNames);
     }
 
     protected void lazyInit() {
-        initialized = true;
+        initialized = false;
         prototypes = new Hashtable<Integer, Class>();
+        super.lazyInit();
     }
     
     private Integer getHash(byte[] hash) {

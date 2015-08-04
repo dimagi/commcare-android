@@ -13,6 +13,8 @@ public class AndroidClassHasher extends DefaultHasher {
 
     private static final String TAG = AndroidClassHasher.class.getSimpleName();
 
+    private static final int CLASS_HASH_SIZE = 4;
+
     MessageDigest mMessageDigester;
     
     public AndroidClassHasher() {
@@ -28,7 +30,7 @@ public class AndroidClassHasher extends DefaultHasher {
         PrototypeFactory.setStaticHasher(new AndroidClassHasher());
     }
 
-    public byte[] doHash(Class c){
+    public byte[] getHash(Class c){
         byte[] ret;
         synchronized(mMessageDigester) {
             ret = mMessageDigester.digest(c.getName().getBytes());
