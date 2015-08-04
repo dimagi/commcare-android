@@ -59,7 +59,7 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
+public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     

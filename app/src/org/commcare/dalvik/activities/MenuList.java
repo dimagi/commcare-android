@@ -18,8 +18,8 @@ package org.commcare.dalvik.activities;
 
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.BreadcrumbBarFragment;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -40,7 +40,7 @@ import android.widget.TextView;
 
 
 @ManagedUi(R.layout.screen_suite_menu)
-public class MenuList extends CommCareActivity implements OnItemClickListener {
+public class MenuList extends SessionAwareCommCareActivity implements OnItemClickListener {
     
     private CommCarePlatform platform;
     
