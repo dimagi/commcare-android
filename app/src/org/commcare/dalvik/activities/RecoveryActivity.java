@@ -161,9 +161,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
             appState.setText("app state unavailable.");
             return;
         }
-        
-        
-        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+
+        if(CommCareApplication._().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
         } else {
