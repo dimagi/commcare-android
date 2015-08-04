@@ -158,7 +158,7 @@ public class FileUtil {
                 Log.e("No Cache File", e.getMessage());
                 return null;
             } catch (IOException e) {
-                Log.e("Problem reading from file", e.getMessage());
+                Log.e("Problem reading file", e.getMessage());
                 return null;
             }
 

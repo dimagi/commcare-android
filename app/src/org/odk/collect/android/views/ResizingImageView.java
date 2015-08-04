@@ -144,7 +144,7 @@ public class ResizingImageView extends ImageView {
         if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
             maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight);
         }
-        return new Pair<Integer,Integer>(new Double(maxWidth * imageScaleFactor).intValue(), new Double(maxHeight * imageScaleFactor).intValue());
+        return new Pair<Integer,Integer>(Double.valueOf(maxWidth * imageScaleFactor).intValue(), Double.valueOf(maxHeight * imageScaleFactor).intValue());
     }
 
     /*

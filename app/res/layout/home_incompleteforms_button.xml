@@ -8,4 +8,4 @@
     app:backgroundcolorButton="@color/solid_dark_orange"
     app:sbn_img="@drawable/home_incomplete"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto"/>
