@@ -59,7 +59,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
+public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
@@ -86,6 +86,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     private Spinner filterSelect;
     private ListView listView;
     private SearchView searchView;
+    private MenuItem searchItem;
 
     private View.OnClickListener barcodeScanOnClickListener;
 
@@ -224,7 +225,7 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                 if (BuildConfig.DEBUG) {
                     Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
                 }
-                searchbox.setText(lastQueryString);
+                setSearchText(lastQueryString);
             }
         } catch (SessionUnavailableException sue) {
             //TODO: session is dead, login and return
@@ -236,6 +237,31 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         super.onStop();
 
         saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+    }
+
+    public void onBarcodeFetch(String result, Intent intent) {
+        setSearchText(result);
+    }
+
+
+    public void onCalloutResult(String result, Intent intent) {
+        if (BuildConfig.DEBUG) {
+            throw new IllegalArgumentException("Callout not implemented!");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case BarcodeScanListenerDefaultImpl.BARCODE_FETCH:
+                BarcodeScanListenerDefaultImpl.onBarcodeResult(this, requestCode, resultCode, intent);
+                break;
+            case BarcodeScanListenerDefaultImpl.CALLOUT:
+                BarcodeScanListenerDefaultImpl.onCalloutResult(this, requestCode, resultCode, intent);
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, intent);
+        }
     }
 
     public String getActivityTitle() {
@@ -268,15 +294,22 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         }
     }
 
+    private void setSearchEnabled(boolean enabled) {
+        if (isUsingActionBar()) {
+            searchView.setEnabled(enabled);
+        } else {
+            searchbox.setEnabled(enabled);
+        }
+    }
+
     protected void disableSearch() {
-        searchbox.setEnabled(false);
+        setSearchEnabled(false);
     }
 
 
     protected void enableSearch() {
-        searchbox.setEnabled(true);
+        setSearchEnabled(true);
     }
-
 
     /**
      * Stores the path of selected form and finishes.
@@ -384,6 +417,25 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         return searchView != null;
     }
 
+    @SuppressWarnings("NewApi")
+    private CharSequence getSearchText() {
+        if (isUsingActionBar()) {
+            return searchView.getQuery();
+        }
+        return searchbox.getText();
+    }
+
+    @SuppressWarnings("NewApi")
+    private void setSearchText(CharSequence text) {
+        if (isUsingActionBar()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                searchItem.expandActionView();
+            }
+            searchView.setQuery(text, false);
+        }
+        searchbox.setText(text);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
@@ -392,16 +444,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
             public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+                FormRecordListActivity.this.searchItem = searchItem;
                 FormRecordListActivity.this.searchView = searchView;
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         searchItem.expandActionView();
                     }
-                    if (isUsingActionBar()) {
-                        searchView.setQuery(lastQueryString, false);
-                    } else {
-                        searchbox.setText(lastQueryString);
-                    }
+                    setSearchText(lastQueryString);
                     if (BuildConfig.DEBUG) {
                         Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
                     }
