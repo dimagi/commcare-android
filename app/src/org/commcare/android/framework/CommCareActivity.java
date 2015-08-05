@@ -59,7 +59,7 @@ import java.lang.reflect.Field;
  * 
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
+public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
@@ -114,7 +114,7 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
 
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-            loadFields();
+            loadFields(true);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
@@ -150,8 +150,14 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
                 return super.onOptionsItemSelected(item);
         }
     }
-    
-    private void loadFields() {
+
+    /**
+     * @param restoreOldFields Use the fields already on screen? For refreshing
+     *                         fields when the default language changes due to
+     *                         the app being changed on the home screen
+     *                         multiple app drop-down menu.
+     */
+    protected void loadFields(boolean restoreOldFields) {
         CommCareActivity oldActivity = stateHolder.getPreviousState();
         Class c = this.getClass();
         for(Field f : c.getDeclaredFields()) {
@@ -164,7 +170,7 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
                         View v = this.findViewById(element.value());
                         f.set(this, v);
                         
-                        if(oldActivity != null) {
+                        if(oldActivity != null && restoreOldFields) {
                             View oldView = (View)f.get(oldActivity);
                             if(oldView != null) {
                                 if(v instanceof TextView) {
@@ -719,5 +725,12 @@ public abstract class CommCareActivity<R> extends SessionAwareFragmentActivity
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void refreshActionBar() {
+        FragmentManager fm = this.getSupportFragmentManager();
+        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+        bar.refresh(this);
     }
 }

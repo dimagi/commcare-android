@@ -75,6 +75,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".activities.AppManagerActivity"
+            android:label="@string/manager_activity_name"
+            android:launchMode="singleTask" android:taskAffinity="org.commcare.Manage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
@@ -186,6 +196,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".application.ManagerShortcut" >
+             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity-alias
             android:name=".application.ShortcutGenerator"
@@ -199,7 +216,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
+        
+        <activity-alias
+            android:name=".application.ManagerGenerator"
+            android:label="App Manager"
+            android:targetActivity=".application.ManagerShortcut" >
 
+            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".activities.SingleAppManagerActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
         <activity
             android:name=".activities.EntitySelectActivity"
             android:windowSoftInputMode="stateUnchanged|adjustResize" >

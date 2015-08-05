@@ -3,8 +3,8 @@ package org.commcare.dalvik.activities;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -34,7 +34,7 @@ import android.widget.Toast;
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
     private static final String LOG_TAG = "CC-MultimediaInflator";
