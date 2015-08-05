@@ -66,7 +66,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Activity is being launched by auto update, instead of being triggered
      * manually.
      */
-    public static final String KEY_AUTO = "is_auto_update";
     public static final String KEY_LAST_INSTALL = "last_install_time";
 
     /**
@@ -96,12 +95,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Indicates whether this activity was launched from the AppManagerActivity
      */
     private boolean mFromManager;
-
-    /**
-     * Whether this needs to be interactive (if it's automatic, we want to skip
-     * a lot of the UI stuff
-     */
-    private boolean isAuto = false;
 
     /**
      * Keeps track of whether the previous resource table was in a 'fresh'
@@ -151,14 +144,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             } else {
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
-            isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
             String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
             this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
-            isAuto = savedInstanceState.getBoolean(KEY_AUTO);
             // Uggggh, this might not be 100% legit depending on timing, what
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -269,7 +260,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onSaveInstanceState(outState);
         outState.putString(KEY_UI_STATE, uiState.toString());
         outState.putString("profileref", incomingRef);
-        outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         Log.v("UiState", "Saving instance state: " + outState);
     }
@@ -480,7 +470,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
         
-        if (isAuto || alwaysNotify) {
+        if (alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
         Intent i = new Intent(getIntent());

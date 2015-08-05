@@ -52,6 +52,7 @@ import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
+import org.commcare.android.tasks.UpgradeTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -72,6 +73,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -295,8 +297,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                if (isNetworkNotConnected()) {
-                    if (isAirplaneModeOn()) {
+                if (ConnectivityStatus.isNetworkNotConnected(CommCareHomeActivity.this)) {
+                    if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                         displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
                         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
                     } else {
@@ -322,11 +324,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         rebuildMenus();
     }
 
-    private boolean isNetworkNotConnected() {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo == null || !netInfo.isConnectedOrConnecting());
-    }
 
     private void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
@@ -466,11 +463,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 break;
             case UPGRADE_APP:
                 if(resultCode == RESULT_CANCELED) {
-                    //This might actually be bad, but try to go about your business
-                    //The onResume() will take us to the screen
                     return;
                 } else if(resultCode == RESULT_OK) {
-                    if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
+                    if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
                         CommCareApplication._().closeUserSession();
                     }
@@ -1240,15 +1235,16 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private void handlePendingUpdate() {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
-        //Create the update intent
-        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        SharedPreferences prefs = 
+            CommCareApplication._().getCurrentApp().getAppPreferences();
+
         String ref = prefs.getString("default_app_server", null);
 
-        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-        i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
-        startActivityForResult(i, UPGRADE_APP);
+        try {
+            UpgradeTask upgradeTask = UpgradeTask.getNewInstance();
+            upgradeTask.execute(ref);
+        } catch (IllegalStateException e) {
+        }
     }
 
     private void handlePendingSync() {
@@ -1529,16 +1525,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
-                if (isNetworkNotConnected() && isAirplaneModeOn()) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
-                    return true;
-                }
                 Intent i = new Intent(getApplicationContext(), UpgradeActivity.class);
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String ref = prefs.getString("default_app_server", null);
-                i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-                i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-
                 startActivityForResult(i, UPGRADE_APP);
                 return true;
             case MENU_CALL_LOG:
@@ -1603,13 +1590,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
     }
 
-    private boolean isAirplaneModeOn() {
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return Settings.Global.getInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
-        } else {
-            return Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-        }
-    }
 
     private boolean hasP2p() {
         return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));

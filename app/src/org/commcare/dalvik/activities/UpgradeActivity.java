@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -10,6 +11,7 @@ import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.resources.model.ResourceTable;
 
 /**
@@ -42,6 +44,12 @@ public class UpgradeActivity extends CommCareActivity
         loadSaveInstanceState(savedInstanceState);
 
         setupUpgradeTask();
+
+        if (ConnectivityStatus.isNetworkNotConnected(this) &&
+                ConnectivityStatus.isAirplaneModeOn(this)) {
+            // CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
+            return;
+        }
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -206,7 +214,9 @@ public class UpgradeActivity extends CommCareActivity
             (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY) ||
             (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
 
-        upgradeTask.execute("");
+        SharedPreferences prefs = app.getAppPreferences();
+        String ref = prefs.getString("default_app_server", null);
+        upgradeTask.execute(ref);
         uiController.setDownloadingButtonState();
         uiController.updateProgressBar(0);
     }
