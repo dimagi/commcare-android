@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeTask;
@@ -17,7 +18,7 @@ import org.commcare.android.tasks.UpgradeTask;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpgradeActivity extends CommCareActivity
-        implements TaskListener<int[], Boolean> {
+        implements TaskListener<int[], ResourceEngineOutcomes> {
 
     private static final String TAG = UpgradeActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
@@ -111,8 +112,8 @@ public class UpgradeActivity extends CommCareActivity
     }
 
     @Override
-    public void processTaskResult(Boolean result) {
-        if (result) {
+    public void processTaskResult(ResourceEngineOutcomes result) {
+        if (result == ResourceEngineOutcomes.StatusInstalled) {
             uiController.setUnappliedInstallButtonState();
         } else {
             uiController.setIdleButtonState();
@@ -122,7 +123,7 @@ public class UpgradeActivity extends CommCareActivity
     }
 
     @Override
-    public void processTaskCancel(Boolean result) {
+    public void processTaskCancel(ResourceEngineOutcomes result) {
         unregisterTask();
 
         uiController.setIdleButtonState();

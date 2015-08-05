@@ -36,16 +36,17 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpgradeTask
-        extends ManagedAsyncTask<String, int[], Boolean>
+        extends ManagedAsyncTask<String, int[], ResourceEngineOutcomes>
         implements TableStateListener {
 
     private static final String TAG = UpgradeTask.class.getSimpleName();
 
-    private TaskListener<int[], Boolean> taskListener = null;
+    private TaskListener<int[], ResourceEngineOutcomes> taskListener = null;
 
     private static UpgradeTask singletonRunningInstance = null;
     private int progress = 0;
     // ----------------------------------
+    protected UnresolvedResourceException missingResourceException = null;
     // last time in system millis that we updated the status dialog
     private long lastTime = 0;
     private int phase = -1;
@@ -61,7 +62,7 @@ public class UpgradeTask
      * version of the upgrade table and start over. Otherwise install reuses
      * the last version of the upgrade table.
      */
-    private static final boolean startOverUpgrade = false
+    private static final boolean startOverUpgrade = false;
     // ----------------------------------
 
     private UpgradeTask() {
@@ -85,7 +86,7 @@ public class UpgradeTask
     }
 
     @Override
-    protected final Boolean doInBackground(String... params) {
+    protected final ResourceEngineOutcomes doInBackground(String... params) {
         String profileRef = params[0];
 
         CommCareApp app = CommCareApplication._().getCurrentApp();
@@ -115,7 +116,7 @@ public class UpgradeTask
             // ---------------------------------------
 
             if (!appInstalled) {
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusFailState;
+                return ResourceEngineOutcomes.StatusFailState;
             }
             global.setStateListener(this);
 
@@ -162,7 +163,7 @@ public class UpgradeTask
             Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
             if (!newProfile.isNewer(profile)) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusUpToDate;
+                return ResourceEngineOutcomes.StatusUpToDate;
             }
 
             phase = PHASE_CHECKING;
@@ -191,17 +192,17 @@ public class UpgradeTask
             }
             edit.commit();
 
-            return ResourceEngineTask.ResourceEngineOutcomes.StatusInstalled;
+            return ResourceEngineOutcomes.StatusInstalled;
         } catch (LocalStorageUnavailableException e) {
             e.printStackTrace();
 
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Couldn't install file to local storage|" + e.getMessage());
-            return ResourceEngineTask.ResourceEngineOutcomes.StatusNoLocalStorage;
+            return ResourceEngineOutcomes.StatusNoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
             if (e.isDuplicateException()) {
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusDuplicateApp;
+                return ResourceEngineOutcomes.StatusDuplicateApp;
             } else {
                 int badReqCode = e.getRequirementCode();
                 String vAvailable = e.getAvailableVesionString();
@@ -210,7 +211,7 @@ public class UpgradeTask
 
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                         "App resources are incompatible with this device|" + e.getMessage());
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusBadReqs;
+                return ResourceEngineOutcomes.StatusBadReqs;
             }
         } catch (UnresolvedResourceException e) {
             // couldn't find a resource, which isn't good.
@@ -221,7 +222,7 @@ public class UpgradeTask
             if (mExceptionCause instanceof SSLHandshakeException) {
                 Throwable mSecondExceptionCause = mExceptionCause.getCause();
                 if (mSecondExceptionCause instanceof CertificateException) {
-                    return ResourceEngineTask.ResourceEngineOutcomes.StatusBadCertificate;
+                    return ResourceEngineOutcomes.StatusBadCertificate;
                 }
             }
 
@@ -230,16 +231,16 @@ public class UpgradeTask
                     "A resource couldn't be found, almost certainly due to the network|" +
                             e.getMessage());
             if (e.isMessageUseful()) {
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusMissingDetails;
+                return ResourceEngineOutcomes.StatusMissingDetails;
             } else {
-                return ResourceEngineTask.ResourceEngineOutcomes.StatusMissing;
+                return ResourceEngineOutcomes.StatusMissing;
             }
         } catch (Exception e) {
             e.printStackTrace();
 
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Unknown error ocurred during install|" + e.getMessage());
-            return ResourceEngineTask.ResourceEngineOutcomes.StatusFailUnknown;
+            return ResourceEngineOutcomes.StatusFailUnknown;
         }
     }
 
@@ -253,7 +254,7 @@ public class UpgradeTask
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(ResourceEngineOutcomes result) {
         super.onPostExecute(result);
 
         if (taskListener != null) {
@@ -264,7 +265,7 @@ public class UpgradeTask
     }
 
     @Override
-    protected void onCancelled(Boolean result) {
+    protected void onCancelled(ResourceEngineOutcomes result) {
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             super.onCancelled(result);
         } else {
@@ -278,7 +279,7 @@ public class UpgradeTask
         singletonRunningInstance = null;
     }
 
-    public void registerTaskListener(TaskListener<int[], Boolean> listener)
+    public void registerTaskListener(TaskListener<int[], ResourceEngineOutcomes> listener)
             throws TaskListenerException {
         if (taskListener != null) {
             throw new TaskListenerException("This " + TAG +
@@ -287,7 +288,7 @@ public class UpgradeTask
         taskListener = listener;
     }
 
-    public void unregisterTaskListener(TaskListener<int[], Boolean> listener)
+    public void unregisterTaskListener(TaskListener<int[], ResourceEngineOutcomes> listener)
             throws TaskListenerException {
         if (listener != taskListener) {
             throw new TaskListenerException("The provided listener wasn't " +
