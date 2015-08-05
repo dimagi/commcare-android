@@ -34,6 +34,8 @@ class UpgradeUiController {
     }
 
     private void setupUi() {
+        // title = Localization.get("updates.title");
+        // message = Localization.get("updates.checking");
         activity.setContentView(R.layout.upgrade_activity);
         progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
         setupButtonListeners();

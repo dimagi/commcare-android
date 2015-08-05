@@ -37,7 +37,6 @@ public abstract class ResourceEngineTask<R>
         extends CommCareTask<String, int[], ResourceEngineOutcomes, R>
         implements TableStateListener {
 
-
     private final CommCareApp app;
 
     private static final int PHASE_CHECKING = 0;
@@ -52,8 +51,6 @@ public abstract class ResourceEngineTask<R>
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
-    private boolean upgradeMode = false;
-    private final boolean startOverUpgrade;
     // This boolean is set from CommCareSetupActivity -- If we are in keep
     // trying mode for installation, we want to sleep in between attempts to
     // launch this task
@@ -66,11 +63,8 @@ public abstract class ResourceEngineTask<R>
     protected String vRequired;
     protected boolean majorIsProblem;
 
-    public ResourceEngineTask(boolean upgradeMode, CommCareApp app,
-                              boolean startOverUpgrade, int taskId, boolean shouldSleep) {
-        this.upgradeMode = upgradeMode;
+    public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep) {
         this.app = app;
-        this.startOverUpgrade = startOverUpgrade;
         this.taskId = taskId;
         this.shouldSleep = shouldSleep;
 
@@ -113,12 +107,13 @@ public abstract class ResourceEngineTask<R>
             platform.init(profileRef, global, false);
             // --------------------------
 
-            // Initializes app resources and the app itself, including doing a check to see if this
-            // app record was converted by the db upgrader
+            // Initializes app resources and the app itself, including doing a
+            // check to see if this app record was converted by the db upgrader
             CommCareApplication._().initializeGlobalResources(app);
 
-            // Write this App Record to storage -- needs to be performed after localizations have
-            // been initialized (by initializeGlobalResources), so that getDisplayName() works
+            // Write this App Record to storage -- needs to be performed after
+            // localizations have been initialized (by
+            // initializeGlobalResources), so that getDisplayName() works
             app.writeInstalled();
 
             // update the current profile reference

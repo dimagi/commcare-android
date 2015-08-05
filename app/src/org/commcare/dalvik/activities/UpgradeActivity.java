@@ -109,6 +109,14 @@ public class UpgradeActivity extends CommCareActivity
     public void processTaskUpdate(int[]... vals) {
         int progress = vals[0][0];
         uiController.updateProgressBar(progress);
+
+        /*
+        if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
+            updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+        } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
+            updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
+        }
+        */
     }
 
     @Override

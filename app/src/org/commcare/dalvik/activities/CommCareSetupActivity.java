@@ -23,7 +23,7 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
-import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
@@ -58,7 +58,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public static final String RESOURCE_STATE = "resource_state";
     public static final String KEY_PROFILE_REF = "app_profile_ref";
-    public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
     private static final String KEY_UI_STATE = "current_install_ui_state";
 
@@ -84,12 +83,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
         ERROR,
-
-        /**
-         * App installed already. Buttons aren't shown, trying to update app
-         * with no user input
-         */
-        UPGRADE
     }
 
 
@@ -104,7 +97,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int DIALOG_INSTALL_PROGRESS = 4;
 
     private boolean startAllowed = true;
-    private boolean inUpgradeMode = false;
     private String incomingRef;
     private CommCareApp ccApp;
 
@@ -169,7 +161,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             } else {
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
-            inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
             String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
@@ -177,18 +168,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
-            inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
             isAuto = savedInstanceState.getBoolean(KEY_AUTO);
             // Uggggh, this might not be 100% legit depending on timing, what
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
-        // if we are in upgrade mode we want the UiState to reflect that,
-        // unless we are showing an error
-        if (inUpgradeMode && this.uiState != UiState.ERROR){
-            this.uiState = UiState.UPGRADE;
-        }
-
         // reclaim ccApp for resuming installation
         if(oldActivity != null) {
             this.ccApp = oldActivity.ccApp;
@@ -230,7 +214,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
-            case UPGRADE:
             case READY_TO_INSTALL:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e(TAG,"During install: IncomingRef is empty!");
@@ -282,17 +265,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onStart() {
         super.onStart();
+
         uiStateScreenTransition();
-        // upgrade app if needed
-        if(uiState == UiState.UPGRADE &&
-                incomingRef != null && incomingRef.length() != 0) {
-            if(AndroidUtil.isNetworkAvailable(this)){
-                startResourceInstall(true);
-            } else {
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Remote_NoNetwork, "INSTALL_NO_NETWORK"));
-                finish();
-            }
-        }
     }
 
     @Override
@@ -307,7 +281,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
-        outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
         Log.v("UiState", "Saving instance state: " + outState);
     }
     
@@ -353,10 +326,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private CommCareApp getCommCareApp(){
-        if (inUpgradeMode) {
-            return CommCareApplication._().getCurrentApp();
-        }
-
         ApplicationRecord newRecord =
             new ApplicationRecord(PropertyUtils.genUUID().replace("-",""),
                     ApplicationRecord.STATUS_UNINITIALIZED);
@@ -424,8 +393,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
             
             ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
-                        app, startOverUpgrade,
+                new ResourceEngineTask<CommCareSetupActivity>(app, startOverUpgrade,
                         DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 @Override
@@ -614,16 +582,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        if(inUpgradeMode) {       
-            if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-                updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
-            } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
-                updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
-            }
-        } else {
-            updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
-            updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
-        }
+        updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+        updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 
     @Override
@@ -638,14 +598,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
         }
-        String title, message;
-        if (uiState == UiState.UPGRADE) {
-            title = Localization.get("updates.title");
-            message = Localization.get("updates.checking");
-        } else {
-            title = Localization.get("updates.resources.initialization");
-            message = Localization.get("updates.resources.profile");
-        }
+        String title = Localization.get("updates.resources.initialization");
+        String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         String checkboxText = Localization.get("updates.keep.trying");

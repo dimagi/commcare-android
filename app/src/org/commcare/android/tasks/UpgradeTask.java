@@ -87,6 +87,7 @@ public class UpgradeTask
 
     @Override
     protected final ResourceEngineOutcomes doInBackground(String... params) {
+        // AndroidUtil.isNetworkAvailable(this)
         String profileRef = params[0];
 
         CommCareApp app = CommCareApplication._().getCurrentApp();
@@ -173,12 +174,13 @@ public class UpgradeTask
 
             // ---------------------------------------
 
-            // Initializes app resources and the app itself, including doing a check to see if this
-            // app record was converted by the db upgrader
+            // Initializes app resources and the app itself, including doing a
+            // check to see if this app record was converted by the db upgrader
             CommCareApplication._().initializeGlobalResources(app);
 
-            // Write this App Record to storage -- needs to be performed after localizations have
-            // been initialized (by initializeGlobalResources), so that getDisplayName() works
+            // Write this App Record to storage -- needs to be performed after
+            // localizations have been initialized (by
+            // initializeGlobalResources), so that getDisplayName() works
             app.writeInstalled();
 
             // update the current profile reference

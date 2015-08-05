@@ -1,6 +1,5 @@
 package org.commcare.android.tasks;
 
-import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
 import org.commcare.resources.model.UnresolvedResourceException;
 
 public interface ResourceEngineListener {
