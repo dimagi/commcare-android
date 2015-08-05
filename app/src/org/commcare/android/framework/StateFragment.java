@@ -75,11 +75,7 @@ public class StateFragment extends Fragment {
     }
 
     public synchronized void acquireWakeLock(int lockLevel) {
-        if (wakelock != null) {
-            if (wakelock.isHeld()) {
-                wakelock.release();
-            }
-        }
+        releaseWakeLock();
 
         PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
         wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
@@ -87,10 +83,10 @@ public class StateFragment extends Fragment {
     }
 
     public synchronized void releaseWakeLock() {
-        if (wakelock != null) {
+        if (wakelock != null && wakelock.isHeld()) {
             wakelock.release();
-            wakelock = null;
         }
+        wakelock = null;
     }
 
     public CommCareActivity getPreviousState() {
