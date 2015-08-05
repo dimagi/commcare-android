@@ -78,11 +78,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     /**
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
-     * 
-     * @param xmlns
-     * @param path
-     * @param entityId
-     * @param status
      */
     public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
         this.instanceURI = instanceURI;
@@ -154,10 +149,19 @@ public class FormRecord extends Persisted implements EncryptedModel {
         Uri uri = getInstanceURI();
         if(uri == null) { throw new FileNotFoundException("No form instance URI exists for formrecord " + recordId); }
         
-        Cursor c = context.getContentResolver().query(uri, new String[] {InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
-        if(!c.moveToFirst()) { throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString()); }
-        
-        return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+        Cursor c = null;
+        try {
+            c = context.getContentResolver().query(uri, new String[]{InstanceColumns.INSTANCE_FILE_PATH}, null, null, null);
+            if (c == null || !c.moveToFirst()) {
+                throw new FileNotFoundException("No Instances were found at for formrecord " + recordId + " at isntance URI " + uri.toString());
+            }
+
+            return c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
     }
     
     @Override

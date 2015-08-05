@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models.logic;
 
 import java.io.File;
@@ -43,7 +40,6 @@ import android.util.Pair;
  * TODO: We should move most of the "cleanup" task methods here.
  * 
  * @author ctsims
- *
  */
 public class FormRecordProcessor {
     
@@ -57,14 +53,6 @@ public class FormRecordProcessor {
 
     /**
      * This is the entry point for processing a form. New transaction types should all be declared here. 
-     * 
-     * @param record
-     * @return
-     * @throws InvalidStructureException
-     * @throws IOException
-     * @throws XmlPullParserException
-     * @throws UnfullfilledRequirementsException
-     * @throws StorageFullException
      */
     public FormRecord process(FormRecord record) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, StorageFullException {
         String form = record.getPath(c);
@@ -120,14 +108,14 @@ public class FormRecordProcessor {
     public Pair<Boolean, String> verifyFormRecordIntegrity(FormRecord r) {
         StringBuilder reporter = new StringBuilder();
         try {
-            reporter.append("\n" + r.toString() + "\n");
+            reporter.append("\n").append(r.toString()).append("\n");
             String formPath;
             try {
                 //make sure we can retrieve a record. 
                 formPath = r.getPath(c);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                reporter.append("ERROR - No file path found for form record. " + e.getMessage() + "\n");
+                reporter.append("ERROR - No file path found for form record. ").append(e.getMessage()).append("\n");
                 return new Pair<Boolean, String>(false, reporter.toString());
             }
             
@@ -180,10 +168,10 @@ public class FormRecordProcessor {
                 read = is.read(buffer);
             }
             
-            reporter.append("PASS: Linear scan of " + label+ ". " + accumulated + " bytes read in total\n");
+            reporter.append("PASS: Linear scan of ").append(label).append(". ").append(accumulated).append(" bytes read in total\n");
             return true;            
         }catch(Exception e) {
-            reporter.append("FAILURE: Error during linear scan of " + label + "\n" + ExceptionReportTask.getStackTrace(e));
+            reporter.append("FAILURE: Error during linear scan of ").append(label).append("\n").append(ExceptionReportTask.getStackTrace(e));
             return false;
         } finally {
             try {if(is != null) { is.close(); }} catch(IOException ioe) {}
@@ -205,7 +193,7 @@ public class FormRecordProcessor {
             reporter.append("PASS: Instance file reads as valid XML\n");
             return true;
         } catch (Exception e) {
-            reporter.append("FAILURE: XML Instance file could not be validated\n" + ExceptionReportTask.getStackTrace(e));
+            reporter.append("FAILURE: XML Instance file could not be validated\n").append(ExceptionReportTask.getStackTrace(e));
             return false;
         }  finally {
             try {if(is != null) { is.close(); }} catch(IOException ioe) {}

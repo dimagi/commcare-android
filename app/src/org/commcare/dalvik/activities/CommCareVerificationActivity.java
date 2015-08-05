@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class CommCareVerificationActivity
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
     
     private Button retryButton;
-    
+
     private VerificationTask task;
 
     private static final int DIALOG_VERIFY_PROGRESS = 0;
@@ -56,17 +57,46 @@ public class CommCareVerificationActivity
      */
     private boolean newMediaToValidate = false;
 
+    /**
+     * Indicates whether this activity was launched from the AppManagerActivity
+     */
+    private boolean fromManager;
+
     public void onCreate(Bundle savedInstanceState){
+
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.missing_multimedia_layout);
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
+                
+        this.fromManager = this.getIntent().
+        		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        if (fromManager) {
+            Button skipButton = (Button)findViewById(R.id.skip_verification_button);
+            skipButton.setVisibility(View.VISIBLE);
+            skipButton.setOnClickListener(this);
+        }
         
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
         
         fire();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // It is possible that the CommCare screen was left off in the VerificationActivity, but
+        // then something was done on the Manager screen that means we no longer want to be here --
+        // VerificationActivity should be displayed to a user only if we were explicitly sent from
+        // the manager, or if the state of installed apps calls for it
+        boolean shouldBeHere = fromManager || CommCareApplication._().shouldSeeMMVerification();
+        if (!shouldBeHere) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
     }
     
     private void fire() {
@@ -157,13 +187,11 @@ public class CommCareVerificationActivity
             // we found some media, so try validating it
             newMediaToValidate = true;
         }
-
     }
 
     @Override
     public void success() {
-        CommCareApplication._().getCurrentApp().setResourcesValidated(true);
-
+        CommCareApplication._().getCurrentApp().setMMResourcesValidated();
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
@@ -182,14 +210,7 @@ public class CommCareVerificationActivity
     public void failUnknown() {
         missingMediaPrompt.setText("Validation failed for an unknown reason");
     }
-    
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.screen_multimedia_retry) {
-            verifyResourceInstall();
-        }
-    }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -227,8 +248,22 @@ public class CommCareVerificationActivity
         return null;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.skip_verification_button:
+                Intent i = new Intent(getIntent());
+                setResult(RESULT_CANCELED, i);
+                finish();
+                break;
+            case R.id.screen_multimedia_retry:
+                verifyResourceInstall();
+        }
+        
+    }
+
     private String prettyString(String rawString){
-        int marker = rawString.indexOf("/sdcard");
+        int marker = rawString.indexOf(Environment.getExternalStorageDirectory().getPath());
         if(marker<0){return rawString;}
         else{return rawString.substring(marker);}
     }

@@ -34,12 +34,14 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -51,6 +53,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
+import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
@@ -61,12 +64,14 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -99,20 +104,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final int GET_COMMAND = 1;
     private static final int GET_CASE = 2;
     private static final int MODEL_RESULT = 4;
-    private static final int INIT_APP = 8;
+    public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
-    private static final int UPGRADE_APP = 32;
+    public static final int UPGRADE_APP = 32;
     private static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
      * Should signal a return from CommCareVerificationActivity.
-    */
-
-    private static final int MISSING_MEDIA_ACTIVITY=256;
+     */
+    public static final int MISSING_MEDIA_ACTIVITY=256;
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
-    private static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
+    public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
 
@@ -122,6 +126,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * CommCareVerificationActivity.
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
 
     private static final int DIALOG_CORRUPTED = 1;
 
@@ -180,20 +185,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             }
         }
 
-
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
+        ACRAUtil.registerAppData();
+
         setContentView(R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
-        View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+        final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
         gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
         gridView.addHeaderView(topBanner);
         gridView.setAdapter(adapter);
-        gridView.requestLayout();
-        adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
         gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")
             @Override
@@ -206,26 +210,24 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else {
                     gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
+                gridView.requestLayout();
+                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
                 configUi();
             }
         });
-
     }
 
-    @SuppressLint("NewApi")
     private void configUi() {
         TextView version = (TextView)findViewById(R.id.str_version);
-        if (version != null) version.setText(CommCareApplication._().getCurrentVersionString());
-
-        // enter data button. expects a result.
-
-        startButton = adapter.getButton(R.layout.home_start_button, false);
-        if (startButton == null) {
-            Log.d("buttons", "startButton is null! Crashing!");
+        if (version != null) {
+            version.setText(CommCareApplication._().getCurrentVersionString());
         }
 
+        startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
+        } else {
+            Log.d("buttons", "startButton is null! Crashing!");
         }
         View.OnClickListener startListener = new OnClickListener() {
             public void onClick(View v) {
@@ -238,11 +240,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 startActivityForResult(i, GET_COMMAND);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_start_button, false, startListener);
+        adapter.setOnClickListenerForButton(R.layout.home_start_button, startListener);
 
-
-        // enter data button. expects a result.
-        viewIncomplete = adapter.getButton(R.layout.home_incompleteforms_button, false);
+        viewIncomplete = adapter.getButton(R.layout.home_incompleteforms_button);
 
         if (viewIncomplete != null) {
             setIncompleteFormsText(CommCareApplication._().getSyncDisplayParameters());
@@ -252,63 +252,46 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 goToFormArchive(true);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, false, viewIncompleteListener);
+        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, viewIncompleteListener);
 
 
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button, false);
-        if (logoutButton == null) {
-            Log.d("buttons", "logoutButton is null! Crashing!");
-        }
-
+        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
+        } else {
+            Log.d("buttons", "logoutButton is null! Crashing!");
         }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // session expired, so re-login's probably been triggered
-                    return;
-                }
-                returnToLogin();
+                CommCareApplication._().closeUserSession();
+                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, false, logoutButtonListener);
+        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
         if (logoutButton != null) {
             logoutButton.setNotificationText(getActivityTitle());
             adapter.notifyDataSetChanged();
         }
 
-
-        TextView formGroupLabel = (TextView)findViewById(R.id.home_formrecords_label);
-        if (formGroupLabel != null) {
-            formGroupLabel.setText(Localization.get("home.forms"));
-        }
-
-        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button, false);
-        if (viewOldForms == null) {
-            Log.d("buttons", "viewOldForms is null! Crashing!");
-        }
-
+        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
         if (viewOldForms != null) {
             viewOldForms.setText(Localization.get("home.forms.saved"));
+        } else {
+            Log.d("buttons", "viewOldForms is null! Crashing!");
         }
         View.OnClickListener viewOldFormsListener = new OnClickListener() {
             public void onClick(View v) {
                 goToFormArchive(false);
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, false, viewOldFormsListener);
+        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, viewOldFormsListener);
 
-
-        syncButton = adapter.getButton(R.layout.home_sync_button, false);
-        if (syncButton == null) {
+        syncButton = adapter.getButton(R.layout.home_sync_button);
+        if (syncButton != null) {
+            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
+        } else {
             Log.d("buttons", "syncButton is null! Crashing!");
         }
-
-        if (syncButton != null)
-            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
         View.OnClickListener syncButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 if (isNetworkNotConnected()) {
@@ -333,15 +316,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             }
         };
-        adapter.setOnClickListenerForButton(R.layout.home_sync_button, false, syncButtonListener);
+        adapter.setOnClickListenerForButton(R.layout.home_sync_button, syncButtonListener);
 
-
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        } else {
-            supportInvalidateOptionsMenu();
-        }
+        rebuildMenus();
     }
 
     private boolean isNetworkNotConnected() {
@@ -375,7 +352,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         
         if(User.TYPE_DEMO.equals(u.getUserType())) {
-            //Remind the user that there's no syncing in demo mode.0
+            //Remind the user that there's no syncing in demo mode.
             if (formsToSend) {
                 displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
             } else {
@@ -479,8 +456,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             switch(requestCode) {
             case INIT_APP:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
-                    this.finish();
+                    // app install failed, take user back to installation view
+                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                    this.startActivityForResult(i, INIT_APP);
                     return;
                 } else if(resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
@@ -497,11 +475,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().closeUserSession();
                     }
                     return;
                 }
@@ -627,8 +601,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (platform == null &&
-                            CommCareApplication._().getCurrentApp() != null) {
+                    if (CommCareApplication._().getCurrentApp() != null) {
                         platform = CommCareApplication._().getCommCarePlatform();
                     }
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
@@ -963,8 +936,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             FormRecord record = state.getFormRecord();
 
-            if (platform == null &&
-                    CommCareApplication._().getCurrentApp() != null) {
+            if (CommCareApplication._().getCurrentApp() != null) {
                 platform = CommCareApplication._().getCommCarePlatform();
             }
 
@@ -1065,7 +1037,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
                     return;
                 }
                 receiver.refreshView();
@@ -1121,107 +1093,190 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        if (platform == null && CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshActionBar();
         }
         dispatchHomeScreen();
     }
 
     private void dispatchHomeScreen() {
-        try {
-            //First make sure nothing catastrophic has happened
-            if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED ||
-                    CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-                if (!CommCareApplication._().isStorageAvailable()) {
-                    createNoStorageDialog();
-                } else {
-                    //see if we're logged in. If so, prompt for recovery.
-                    try {
-                        CommCareApplication._().getSession();
-                        showDialog(DIALOG_CORRUPTED);
-                    } catch (SessionUnavailableException sue) {
-                        //otherwise, log in first
-                        returnToLogin();
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+
+        // Path 1: There is a seated app
+        if (currentApp != null) {
+            boolean appResourcesCorrupted = currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
+            boolean dbCorrupted = CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED;
+            ApplicationRecord currentRecord = currentApp.getAppRecord();
+
+            // Note that the order in which these conditions are checked matters!!
+            try {
+                if (appResourcesCorrupted || dbCorrupted) {
+                    // Path 1a: The seated app is damaged or corrupted
+                    handleDamagedApp();
+                } else if (!currentRecord.isUsable()) {
+                    // Path 1b: The seated app is unusable (means either it is archived or is
+                    // missing its MM or both)
+                    boolean unseated = handleUnusableApp(currentRecord);
+                    if (unseated) {
+                        // Recurse in order to make the correct decision based on the new state
+                        dispatchHomeScreen();
                     }
+                } else if (!CommCareApplication._().getSession().isActive()) {
+                    // Path 1c: The user is not logged in
+                    SessionActivityRegistration.returnToLogin(this);
+                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                    // Path 1d: CommCare was launched from an external app, with a session descriptor
+                    handleExternalLaunch();
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                    // Path 1e: CommCare was launched from a shortcut
+                    handleShortcutLaunch();
+                } else if (CommCareApplication._().isUpdatePending()) {
+                    // Path 1f: There is an update pending
+                    handlePendingUpdate();
+                } else if (CommCareApplication._().isSyncPending(false)) {
+                    // Path 1g: There is a sync pending
+                    handlePendingSync();
+                } else {
+                    // Path 1h: Display the normal home screen!
+                    refreshView();
                 }
+            } catch (SessionUnavailableException sue) {
+                SessionActivityRegistration.returnToLogin(this);
             }
+        }
 
-            //Now we need to catch any resource or database upgrade flags and make sure that the application
-            //is ready to go.
-            else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
-                    CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-
-                this.startActivityForResult(i, INIT_APP);
-            } else if (!CommCareApplication._().getCurrentApp().areResourcesValidated()
-                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
-                    && !DeveloperPreferences.isSuperuserEnabled()) {
-
-                Intent i = new Intent(this, CommCareVerificationActivity.class);
-                this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-                
-            } else if(!CommCareApplication._().getSession().isActive()) {
-                //We got brought back to this point despite 
-                returnToLogin();
-            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                wasExternal = true;
-                String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-                SessionStateDescriptor ssd = new SessionStateDescriptor();
-                ssd.fromBundle(sessionRequest);
-                CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-                this.startNextFetch();
-            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                //We were launched in shortcut mode. Get the command and load us up.
-                CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-                startNextFetch();
-                //Only launch shortcuts once per intent
-                this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-            } else if (CommCareApplication._().isUpdatePending()) {
-                //We've got an update pending that we need to check on.
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-                //Create the update intent
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String ref = prefs.getString("default_app_server", null);
-
-                i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-                i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-                i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
-
-                startActivityForResult(i, UPGRADE_APP);
-            } else if(CommCareApplication._().isSyncPending(true)) {
-                long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-                String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-                Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-                refreshView();
-
-                //Send unsent forms first. If the process detects unsent forms
-                //it will sync after the are submitted
-                if(!this.checkAndStartUnsentTask(true)) {
-                    //If there were no unsent forms to be sent, we should immediately
-                    //trigger a sync
-                    this.syncData(false);
-                }
-            } else {
-                //Normal Home Screen login time!
-                refreshView();
+        // Path 2: There is no seated app, so launch CommCareSetupActivity
+        else {
+            if (CommCareApplication._().usableAppsPresent()) {
+                // This is BAD -- means we ended up at home screen with no seated app, but there
+                // are other usable apps available. Should not be able to happen.
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
+                        "seated app, but there are other usable apps available on the device.");
             }
-        } catch (SessionUnavailableException sue) {
-            //TODO: See how much context we have, and go login
-            returnToLogin();
+            Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+            this.startActivityForResult(i, INIT_APP);
         }
     }
 
-    private void returnToLogin() {
-        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i, LOGIN_USER);
+
+    // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
+    // extremely long method
+
+    private void handleDamagedApp() {
+        if (!CommCareApplication._().isStorageAvailable()) {
+            createNoStorageDialog();
+        } else {
+            // See if we're logged in. If so, prompt for recovery.
+            try {
+                CommCareApplication._().getSession();
+                showDialog(DIALOG_CORRUPTED);
+            } catch(SessionUnavailableException e) {
+                // Otherwise, log in first
+                SessionActivityRegistration.returnToLogin(this);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param record the ApplicationRecord corresponding to the seated, unusable app
+     * @return if the unusable app was unseated by this method
+     */
+    private boolean handleUnusableApp(ApplicationRecord record) {
+        if (record.isArchived()) {
+            // If the app is archived, unseat it and try to seat another one
+            CommCareApplication._().unseat(record);
+            CommCareApplication._().initFirstUsableAppRecord();
+            return true;
+        }
+        else {
+            // This app has unvalidated MM
+            if (CommCareApplication._().usableAppsPresent()) {
+                // If there are other usable apps, unseat it and seat another one
+                CommCareApplication._().unseat(record);
+                CommCareApplication._().initFirstUsableAppRecord();
+                return true;
+            } else {
+                handleUnvalidatedApp();
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Handles the case where the seated app is unvalidated and there are no other usable apps
+     * to seat instead -- Either calls out to verification activity or quits out of the app
+     */
+    private void handleUnvalidatedApp() {
+        if (CommCareApplication._().shouldSeeMMVerification()) {
+            Intent i = new Intent(this, CommCareVerificationActivity.class);
+            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        } else {
+            // Means that there are no usable apps, but there are multiple apps who all don't have
+            // MM verified -- show an error message and shut down
+            CommCareApplication._().triggerHandledAppExit(this,
+                    Localization.get("multiple.apps.unverified.message"),
+                    Localization.get("multiple.apps.unverified.title"));
+        }
+
+    }
+
+    private void handleExternalLaunch() {
+        wasExternal = true;
+        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+        SessionStateDescriptor ssd = new SessionStateDescriptor();
+        ssd.fromBundle(sessionRequest);
+        CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+        this.startNextFetch();
+    }
+
+    private void handleShortcutLaunch() {
+        //We were launched in shortcut mode. Get the command and load us up.
+        CommCareApplication._().getCurrentSession().setCommand(
+                this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+        startNextFetch();
+        //Only launch shortcuts once per intent
+        this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+    }
+
+    private void handlePendingUpdate() {
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+
+        //Create the update intent
+        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String ref = prefs.getString("default_app_server", null);
+
+        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+        i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
+        startActivityForResult(i, UPGRADE_APP);
+    }
+
+    private void handlePendingSync() {
+        long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+        refreshView();
+
+        //Send unsent forms first. If the process detects unsent forms
+        //it will sync after the are submitted
+        if(!this.checkAndStartUnsentTask(true)) {
+            //If there were no unsent forms to be sent, we should immediately
+            //trigger a sync
+            this.syncData(false);
+        }
     }
 
     private void createNoStorageDialog() {
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
     }
+
+    // endregion
+
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
@@ -1274,12 +1329,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
 
-        adapter.setNotificationTextForButton(R.layout.home_sync_button, false, message);
+        adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
     }
 
     private void refreshView() {
         TextView version = (TextView)findViewById(R.id.str_version);
-        if (version == null) return;
+        if (version == null) {
+            return;
+        }
         version.setText(CommCareApplication._().getCurrentVersionString());
         boolean syncOK = true;
 
@@ -1287,7 +1344,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            returnToLogin();
+            SessionActivityRegistration.returnToLogin(this);
             return;
         }
 
@@ -1313,9 +1370,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (!"".equals(customBannerURI)) {
             Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
             if (bitmap != null) {
-                if (topBannerImageView != null) topBannerImageView.setImageBitmap(bitmap);
-                else Log.i("TopBanner", "TopBanner is null!");
-
+                if (topBannerImageView != null) {
+                    topBannerImageView.setImageBitmap(bitmap);
+                } else {
+                    Log.i("TopBanner", "TopBanner is null!");
+                }
             }
         }
 
@@ -1368,8 +1427,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         //Make sure that the review button is properly enabled.
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            adapter.setButtonVisibility(R.layout.home_savedforms_button, false, false);
-
+            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
         }
 
         // set adapter to hide the buttons...
@@ -1378,11 +1436,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         Log.i("ShowForms", "ShowSavedForms: " + showSavedForms + " | ShowIncompleteForms: " + showIncompleteForms);
 
-        adapter.setButtonVisibility(R.layout.home_savedforms_button, false, !showSavedForms);
-        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, false, !showIncompleteForms);
+        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
+        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
 
         adapter.notifyDataSetChanged();
-
     }
 
     private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
@@ -1402,12 +1459,15 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (syncDetails.second[1] > 0) {
             Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
             Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[]{String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
-            if (viewIncomplete != null) viewIncomplete.setText(incompleteIndicator);
+            if (viewIncomplete != null) {
+                viewIncomplete.setText(incompleteIndicator);
+            }
 
         } else {
             Log.i("syncDetails", "SyncDetails has no count");
-            if (viewIncomplete != null)
+            if (viewIncomplete != null) {
                 viewIncomplete.setText(this.localize("home.forms.incomplete"));
+            }
         }
     }
 

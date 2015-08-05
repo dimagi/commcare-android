@@ -26,12 +26,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
 import org.commcare.android.framework.FileServerFragment;
 import org.commcare.android.framework.FileServerFragment.FileServerListener;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
 import org.commcare.android.tasks.FormTransferTask;
@@ -62,7 +62,7 @@ import java.util.Vector;
  * WiFi state related events.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
+public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 
     public static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
@@ -455,7 +455,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         }
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(), settings.getString("PostURL", url), receiveFolder){
+        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(),
+                settings.getString("PostURL", url), receiveFolder){
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {

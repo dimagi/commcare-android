@@ -10,7 +10,8 @@ import java.util.List;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
-import org.commcare.util.externalizable.AndroidPrototypeFactory;
+
+import org.commcare.util.externalizable.ImprovedPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -47,7 +48,7 @@ public class DbUtil {
         }
         
         
-        factory = new AndroidPrototypeFactory(tree);
+        factory = new ImprovedPrototypeFactory(tree);
         return factory;
         
     }
@@ -122,11 +123,6 @@ public class DbUtil {
     * one any time the method would have crashed anyway.
     * 
     * Will crash if this update doesn't work, so no return is needed
-    * 
-    * @param key
-    * @param context
-    * @param dbName
-    * @return
     */
    public static void trySqlCipherDbUpdate(String key, Context context, String dbName) {
        //There's no clear way how to tell whether this call is the invalid db version

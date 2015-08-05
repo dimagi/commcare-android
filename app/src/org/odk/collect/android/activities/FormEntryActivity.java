@@ -22,7 +22,6 @@ import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -80,15 +79,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
@@ -104,8 +107,8 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
-import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
+import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
@@ -146,7 +149,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
-    private static final String t = "FormEntryActivity";
+    private static final String TAG = FormEntryActivity.class.getSimpleName();
 
     // Defines for FormEntryActivity
     private static final boolean EXIT = true;
@@ -174,10 +177,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-    public static final String KEY_INSTANCES = "instances";
-    public static final String KEY_SUCCESS = "success";
-    public static final String KEY_ERROR = "error";
-    
+
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     
@@ -229,8 +229,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     private AlertDialog mRepeatDialog;
     private AlertDialog mAlertDialog;
     private ProgressDialog mProgressDialog;
-    private String mErrorMessage;
-    
+
     private boolean mIncompleteEnabled = true;
 
     // used to limit forward/backward swipes to one per question
@@ -258,11 +257,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         LEFT, RIGHT, FADE
     }
 
-
     @Override
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
+        super.onCreate(savedInstanceState);
 
         try {
             // CommCareSessionService will call this.formSaveCallback when the
@@ -274,28 +272,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     "Couldn't register form save callback because session doesn't exist");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
-            if(fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                //Add breadcrumb bar                
-                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                // If the state holder is null, create a new one for this activity
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-                        //the bar will set this up for us again if we need.
-
-                        getActionBar().setDisplayShowCustomEnabled(true);
-                        getActionBar().setDisplayShowTitleEnabled(false);
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w("odk-collect", "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
-            }
-        }
+        addBreadcrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -315,57 +292,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        Boolean newForm = true;
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
-            }
-            if (savedInstanceState.containsKey(NEWFORM)) {
-                newForm = savedInstanceState.getBoolean(NEWFORM, true);
-            }
-            if (savedInstanceState.containsKey(KEY_ERROR)) {
-                mErrorMessage = savedInstanceState.getString(KEY_ERROR);
-            }
-            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
-                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
-                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-            } 
-            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
-                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
-            }
-            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
-                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
-            }
-            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
-                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
-                 try {
-                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                    symetricKey = new SecretKeySpec(storageKey, "AES");
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Base64 encoding not available on this platform");
-                }
-            }
-            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
-                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
-            }
-            
-            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
-                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
-            }
-           
-        }
-
-        // If a parse error message is showing then nothing else is loaded
-        // Dialogs mid form just disappear on rotation.
-        if (mErrorMessage != null) {
-            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
-            return;
-        }
+        boolean isNewForm = loadStateFromBundle(savedInstanceState);
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
@@ -374,161 +301,77 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
         } else if (data == null) {
-            if (!newForm) {
+            if (!isNewForm) {
                 refreshCurrentView();
                 return;
             }
-            boolean readOnly = false;
-
             // Not a restart from a screen orientation change (or other).
             mFormController = null;
             mInstancePath = null;
 
             Intent intent = getIntent();
             if (intent != null) {
+                loadIntentFormData(intent);
+
+                setTitleToLoading();
+
                 Uri uri = intent.getData();
-                
-                if(intent.hasExtra(KEY_FORM_CONTENT_URI)) {
-                    this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
-                }
-                if(intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
-                    this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
-                }
-                if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
-                    this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
-                } else {
-                    mInstanceDestination = Collect.INSTANCES_PATH;
-                }
-                if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
-                    String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
-                    try {
-                        byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                        symetricKey = new SecretKeySpec(storageKey, "AES");
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Base64 encoding not available on this platform");
-                    }
-                    
-                }
-                if(intent.hasExtra(KEY_HEADER_STRING)) {
-                    this.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
-                }
-                
-                if(intent.hasExtra(KEY_INCOMPLETE_ENABLED)) {
-                    this.mIncompleteEnabled = intent.getBooleanExtra(KEY_INCOMPLETE_ENABLED, true);
-                }
-                
-                if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
-                    ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
-                    
-                }
-                
-                if(mHeaderString != null) {
-                    setTitle(mHeaderString);
-                } else {
-                    setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
-                }
-                
-                
-                //csims@dimagi.com - Jan 24, 2012
-                //Since these are parceled across the content resolver, there's no guarantee of reference equality.
-                //We need to manually check value equality on the type 
-                
                 final String contentType = getContentResolver().getType(uri);
-                
+
                 Uri formUri = null;
 
-                switch (contentType) {
-                    case InstanceColumns.CONTENT_ITEM_TYPE:
-
-                        final Cursor instanceCursor;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            instanceCursor = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                        } else {
-                            instanceCursor = this.managedQuery(uri, null, null, null, null);
-                        }
-                        if (instanceCursor.getCount() != 1) {
-                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                            return;
-                        } else {
-                            instanceCursor.moveToFirst();
-                            mInstancePath =
-                                    instanceCursor.getString(instanceCursor
-                                            .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-
-                            final String jrFormId =
-                                    instanceCursor.getString(instanceCursor
-                                            .getColumnIndex(InstanceColumns.JR_FORM_ID));
-
-
-                            //If this form is both already completed
-                            if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
-                                if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
-                                    readOnly = true;
-                                }
-                            }
-
-
-                            final String[] selectionArgs = {
-                                    jrFormId
-                            };
-                            final String selection = FormsColumns.JR_FORM_ID + " like ?";
-
-
-                            final Cursor formCursor;
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                                formCursor = new CursorLoader(this, formProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-                            } else {
-                                formCursor = managedQuery(formProviderContentURI, null, selection, selectionArgs, null);
-                            }
-                            if (formCursor.getCount() == 1) {
-                                formCursor.moveToFirst();
-                                mFormPath =
-                                        formCursor.getString(formCursor
-                                                .getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                                formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                            } else if (formCursor.getCount() < 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "Parent form does not exist", EXIT);
-                                return;
-                            } else if (formCursor.getCount() > 1) {
-                                CommCareHomeActivity.createErrorDialog(this, "More than one possible parent form", EXIT);
-                                return;
-                            }
-
-                        }
-
-                        break;
-                    case FormsColumns.CONTENT_ITEM_TYPE:
-                        final Cursor c;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            c = new CursorLoader(this, uri, null, null, null, null).loadInBackground();
-                        } else {
-                            c = this.managedQuery(uri, null, null, null, null);
-                        }
-                        if (c.getCount() != 1) {
-                            CommCareHomeActivity.createErrorDialog(this, "Bad URI: " + uri, EXIT);
-                            return;
-                        } else {
-                            c.moveToFirst();
-                            mFormPath = c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                boolean isInstanceReadOnly = false;
+                try {
+                    switch (contentType) {
+                        case InstanceColumns.CONTENT_ITEM_TYPE:
+                            Pair<Uri, Boolean> instanceAndStatus = getInstanceUri(uri);
+                            formUri = instanceAndStatus.first;
+                            isInstanceReadOnly = instanceAndStatus.second;
+                            break;
+                        case FormsColumns.CONTENT_ITEM_TYPE:
                             formUri = uri;
-                        }
-                        break;
-                    default:
-                        Log.e(t, "unrecognized URI");
-                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
-                        return;
+                            mFormPath = getFormPath(uri);
+                            break;
+                        default:
+                            Log.e(TAG, "unrecognized URI");
+                            CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
+                            return;
+                    }
+                } catch (FormQueryException e) {
+                    CommCareHomeActivity.createErrorDialog(this, e.getMessage(), EXIT);
+                    return;
                 }
+
                 if(formUri == null) {
-                    Log.e(t, "unrecognized URI");
+                    Log.e(TAG, "unrecognized URI");
                     CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
                     return;
                 }
 
-                mFormLoaderTask = new FormLoaderTask(this, symetricKey, readOnly);
+                mFormLoaderTask = new FormLoaderTask(this, symetricKey, isInstanceReadOnly);
                 mFormLoaderTask.execute(formUri);
                 showDialog(PROGRESS_DIALOG);
             }
         }
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        /*
+         * EventLog accepts only proper Strings as input, but prior to this version,
+         * Android would try to send SpannedStrings to it, thus crashing the app.
+         * This makes sure the title is actually a String.
+         * This fixes bug 174626.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+                && item.getTitleCondensed() != null) {
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Selected item is: " + item);
+            }
+            item.setTitleCondensed(item.getTitleCondensed().toString());
+        }
+
+        return super.onMenuItemSelected(featureId, item);
     }
 
     @Override
@@ -617,7 +460,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(NEWFORM, false);
-        outState.putString(KEY_ERROR, mErrorMessage);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -683,9 +525,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                 File nf = new File(s);
                 if (!fi.renameTo(nf)) {
-                    Log.e(t, "Failed to rename " + fi.getAbsolutePath());
+                    Log.e(TAG, "Failed to rename " + fi.getAbsolutePath());
                 } else {
-                    Log.i(t, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
+                    Log.i(TAG, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
                 }
 
                 // Add the new image to the Media content provider so that the
@@ -698,7 +540,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 values.put(Images.Media.DATA, nf.getAbsolutePath());
 
                 imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                Log.i(t, "Inserting image returned uri = " + imageURI.toString());
+                Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
                 ((ODKView) mCurrentView).setBinaryData(imageURI);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -740,12 +582,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
                     imageURI =
                         getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                    Log.i(t, "Inserting image returned uri = " + imageURI.toString());
+                    Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
                     ((ODKView) mCurrentView).setBinaryData(imageURI);
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 } else {
-                    Log.e(t, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
+                    Log.e(TAG, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
                 }
                 refreshCurrentView();
                 break;
@@ -756,7 +598,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // For audio/video capture/chooser, we get the URI from the content provider
                 // then the widget copies the file and makes a new entry in the content provider.
                 Uri media = intent.getData();
-                ((ODKView) mCurrentView).setBinaryData(media);
+                String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+                if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+                    // don't let the user select a file that won't be included in the
+                    // upload to the server
+                    ((ODKView) mCurrentView).clearAnswer();
+                    Toast.makeText(FormEntryActivity.this,
+                            Localization.get("form.attachment.invalid"),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    ((ODKView) mCurrentView).setBinaryData(media);
+                }
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 refreshCurrentView();
                 break;
@@ -769,7 +621,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // We may have jumped to a new index in hierarchy activity, so refresh
                 refreshCurrentView(false);
                 break;
-
         }
     }
     
@@ -851,7 +702,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	}
             }
             if(!stillRelevent){
-                removeList.add(Integer.valueOf(i));
+                removeList.add(i);
             }
         }
            // remove "atomically" to not mess up iterations
@@ -1041,9 +892,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //is to invalidate the view, though.
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
-        Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
+        Log.i("Questions", "Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
 
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+        if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
+            Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
+        }
 
         progressBar.setMax(details.totalQuestions);
 
@@ -1068,6 +921,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
             progressBar.setProgress(details.completedQuestions);
         }
+
+        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
 
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
@@ -1376,7 +1231,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             success = false;
                         }
                     } else {
-                        Log.w(t,
+                        Log.w(TAG,
                                 "Attempted to save an index referencing something other than a question: "
                                         + index.getReference());
                     }
@@ -1388,7 +1243,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 } else {
                     viewType = mCurrentView.getClass().toString();
                 }
-                Log.w(t, "Unknown view type rendered while current event was question or group! View type: " + viewType);
+                Log.w(TAG, "Unknown view type rendered while current event was question or group! View type: " + viewType);
             }
         }
         return success;
@@ -1486,19 +1341,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     mFormPath
                 };
 
-                Cursor c;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    c = new CursorLoader(this, formProviderContentURI, projection, selection, selectionArgs, null).loadInBackground();
-                } else {
-                    c = managedQuery(formProviderContentURI, projection, selection, selectionArgs, null);
-                }
+                Cursor c = null;
                 String mediaDir = null;
-                if (c.getCount() < 1) {
-                    CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
-                    return new View(this);
-                } else {
-                    c.moveToFirst();
-                    mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                try {
+                    c = getContentResolver().query(formProviderContentURI, projection, selection, selectionArgs, null);
+                    if (c.getCount() < 1) {
+                        CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
+                        return new View(this);
+                    } else {
+                        c.moveToFirst();
+                        mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
+                    }
+                } finally {
+                    if (c != null) {
+                        c.close();
+                    }
                 }
 
                 BitmapDrawable bitImage = null;
@@ -1531,8 +1388,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
                 instanceComplete.setText(StringUtils.getStringSpannableRobust(this, R.string.mark_finished));
 
-                        //If incomplete is not enabled, make sure this box is checked.
-                        instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
+                //If incomplete is not enabled, make sure this box is checked.
+                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
                 
                 if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
                     instanceComplete.setVisibility(View.GONE);
@@ -1610,7 +1467,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         new ODKView(this, mFormController.getQuestionPrompts(),
                                 mFormController.getGroupsForCurrentIndex(),
                                 mFormController.getWidgetFactory(), this);
-                    Log.i(t, "created view for group");
+                    Log.i(TAG, "created view for group");
                 } catch (RuntimeException e) {
                     Logger.exception(e);
                     CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
@@ -1635,7 +1492,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 
                 return odkv;
             default:
-                Log.e(t, "Attempted to create a view that does not exist.");
+                Log.e(TAG, "Attempted to create a view that does not exist.");
                 return null;
         }
     }
@@ -1732,16 +1589,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         // otherwise it's not a field-list group, so just skip it
                         break;
                     case FormEntryController.EVENT_REPEAT:
-                        Log.i(t, "repeat: " + mFormController.getFormIndex().getReference());
+                        Log.i(TAG, "repeat: " + mFormController.getFormIndex().getReference());
                         // skip repeats
                         break;
                     case FormEntryController.EVENT_REPEAT_JUNCTURE:
-                        Log.i(t, "repeat juncture: "
+                        Log.i(TAG, "repeat juncture: "
                                 + mFormController.getFormIndex().getReference());
                         // skip repeat junctures until we implement them
                         break;
                     default:
-                        Log.w(t,
+                        Log.w(TAG,
                             "JavaRosa added a new EVENT type and didn't tell us... shame on them.");
                         break;
                 }
@@ -2173,16 +2030,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
                     + mInstancePath + "'";
-
-        Cursor c;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            c = new CursorLoader(this, instanceProviderContentURI, null, selection, null, null).loadInBackground();
-        } else {
-            c = FormEntryActivity.this.managedQuery(instanceProviderContentURI, null, selection, null, null);
+        Cursor c = null;
+        int instanceCount = 0;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
+            instanceCount = c.getCount();
+        } finally {
+            if (c != null) {
+                c.close();
+            }
         }
 
         // if it's not already saved, erase everything
-        if (c.getCount() < 1) {
+        if (instanceCount < 1) {
             int images = 0;
             int audio = 0;
             int video = 0;
@@ -2190,7 +2050,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             String instanceFolder =
                 mInstancePath.substring(0,
                     mInstancePath.lastIndexOf("/") + 1);
-            Log.i(t, "attempting to delete: " + instanceFolder);
+            Log.i(TAG, "attempting to delete: " + instanceFolder);
 
             String where =
                 Images.Media.DATA + " like '" + instanceFolder + "%'";
@@ -2212,7 +2072,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -2243,7 +2103,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -2274,7 +2134,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 .getColumnIndex(Images.ImageColumns._ID));
 
                     Log.i(
-                        t,
+                            TAG,
                         "attempting to delete: "
                                 + Uri.withAppendedPath(
                                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -2292,13 +2152,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 }
             }
 
-            Log.i(t, "removed from content providers: " + images
+            Log.i(TAG, "removed from content providers: " + images
                     + " image files, " + audio + " audio files,"
                     + " and " + video + " video files.");
             File f = new File(instanceFolder);
             if (f.exists() && f.isDirectory()) {
                 for (File del : f.listFiles()) {
-                    Log.i(t, "deleting file: " + del.getAbsolutePath());
+                    Log.i(TAG, "deleting file: " + del.getAbsolutePath());
                     del.delete();
                 }
                 f.delete();
@@ -2378,7 +2238,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                                 int updated =
                                     getContentResolver().update(formProviderContentURI, values,
                                         selection, selectArgs);
-                                Log.i(t, "Updated language to: " + languages[whichButton] + " in "
+                                Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
                                         + updated + " rows");
 
                                 mFormController.setLanguage(languages[whichButton]);
@@ -2468,6 +2328,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     protected void onPause() {
         super.onPause();
 
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+
         dismissDialogs();
 
         if (mCurrentView != null && currentPromptIsQuestion()) {
@@ -2484,6 +2346,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     protected void onResume() {
         super.onResume();
 
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+
         registerFormEntryReceivers();
 
         if (mFormLoaderTask != null) {
@@ -2495,10 +2359,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         if (mSaveToDiskTask != null) {
             mSaveToDiskTask.setFormSavedListener(this);
-        }
-        if (mErrorMessage != null && (mAlertDialog != null && !mAlertDialog.isShowing())) {
-            CommCareActivity.createErrorDialog(this, mErrorMessage, EXIT);
-            return;
         }
 
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
@@ -2549,17 +2409,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (getContentResolver().getType(getIntent().getData()) == InstanceColumns.CONTENT_ITEM_TYPE) {
             Uri instanceUri = getIntent().getData();
 
-            Cursor instance;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                instance = new CursorLoader(this, instanceUri, null, null, null, null).loadInBackground();
-            } else {
-                instance = managedQuery(instanceUri, null, null, null, null);
-            }
-            if (instance.getCount() == 1) {
-                instance.moveToFirst();
-                saveName =
-                    instance.getString(instance
-                            .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+            Cursor instance = null;
+            try {
+                instance = getContentResolver().query(instanceUri, null, null, null, null);
+                if (instance.getCount() == 1) {
+                    instance.moveToFirst();
+                    saveName =
+                        instance.getString(instance
+                                .getColumnIndex(InstanceColumns.DISPLAY_NAME));
+                }
+            } finally {
+                if (instance != null) {
+                    instance.close();
+                }
             }
         }
         return saveName;
@@ -2738,15 +2600,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            try {
-                CommCareApplication._().getSession().closeSession(true);
-            } catch (SessionUnavailableException sue) {
-                // form saving took too long, so we logged out already.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Saving current form took too long, " +
-                        "so data was (probably) discarded and the session closed. " +
-                        "Save exit code: " + saveStatus);
-            }
+            CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:
@@ -2782,6 +2636,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return status as determined in FormEntryController
      */
     public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
+
         try {
             if (evaluateConstraints) {
                 return mFormController.answerQuestion(index, answer);
@@ -2822,15 +2677,20 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String[] selectionArgs = {
             mInstancePath
         };
-        Cursor c =
-            getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs,
-                null);
-        startManagingCursor(c);
-        if (c != null && c.getCount() > 0) {
-            c.moveToFirst();
-            String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
-            if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
-                complete = true;
+
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+            if (c != null && c.getCount() > 0) {
+                c.moveToFirst();
+                String status = c.getString(c.getColumnIndex(InstanceColumns.STATUS));
+                if (InstanceProviderAPI.STATUS_COMPLETE.compareTo(status) == 0) {
+                    complete = true;
+                }
+            }
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
         return complete;
@@ -2865,25 +2725,27 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 mInstancePath
             };
 
-            Cursor c;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                c = new CursorLoader(this, instanceProviderContentURI, null, selection, selectionArgs, null).loadInBackground();
-            } else {
-                c = managedQuery(instanceProviderContentURI, null, selection, selectionArgs, null);
-            }
-            if (c.getCount() > 0) {
-                // should only be one...
-                c.moveToFirst();
-                String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
-                Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
+            Cursor c = null;
+            try {
+                c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
+                if (c.getCount() > 0) {
+                    // should only be one...
+                    c.moveToFirst();
+                    String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
+                    Uri instance = Uri.withAppendedPath(instanceProviderContentURI, id);
 
-                Intent formReturnIntent = new Intent();
-                formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
+                    Intent formReturnIntent = new Intent();
+                    formReturnIntent.putExtra(IS_ARCHIVED_FORM, mFormController.isFormReadOnly());
 
-                if(reportSaved || hasSaved) {
-                    setResult(RESULT_OK, formReturnIntent.setData(instance));
-                } else {
-                    setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    if (reportSaved || hasSaved) {
+                        setResult(RESULT_OK, formReturnIntent.setData(instance));
+                    } else {
+                        setResult(RESULT_CANCELED, formReturnIntent.setData(instance));
+                    }
+                }
+            } finally {
+                if (c != null) {
+                    c.close();
                 }
             }
         }
@@ -2969,5 +2831,190 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean formHasLoaded() {
         return mFormController != null;
+    }
+
+    private void addBreadcrumbBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            if (fragmentClass != null) {
+                final FragmentManager fm = this.getSupportFragmentManager();
+
+                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
+                if (bar == null) {
+                    try {
+                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
+
+                        getActionBar().setDisplayShowCustomEnabled(true);
+                        getActionBar().setDisplayShowTitleEnabled(false);
+                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
+                    } catch(Exception e) {
+                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean loadStateFromBundle(Bundle savedInstanceState) {
+        boolean isNewForm = true;
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
+                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
+            }
+            if (savedInstanceState.containsKey(NEWFORM)) {
+                isNewForm = savedInstanceState.getBoolean(NEWFORM, true);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
+                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
+                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
+                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
+            } 
+            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
+                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
+            }
+            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
+                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
+            }
+            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
+                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
+                 try {
+                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                    symetricKey = new SecretKeySpec(storageKey, "AES");
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Base64 encoding not available on this platform");
+                }
+            }
+            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
+                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
+            }
+            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
+                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
+            }
+        }
+        return isNewForm;
+    }
+
+    private String getFormPath(Uri uri) throws FormQueryException {
+        Cursor c = null;
+        try {
+            c = getContentResolver().query(uri, null, null, null, null);
+            if (c.getCount() != 1) {
+                throw new FormQueryException("Bad URI: " + uri);
+            } else {
+                c.moveToFirst();
+                return c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    private Pair<Uri, Boolean> getInstanceUri(Uri uri) throws FormQueryException {
+        Cursor instanceCursor = null;
+        Cursor formCursor = null;
+        Boolean isInstanceReadOnly = false;
+        Uri formUri = null;
+        try {
+            instanceCursor = getContentResolver().query(uri, null, null, null, null);
+            if (instanceCursor.getCount() != 1) {
+                throw new FormQueryException("Bad URI: " + uri);
+            } else {
+                instanceCursor.moveToFirst();
+                mInstancePath =
+                        instanceCursor.getString(instanceCursor
+                                .getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+
+                final String jrFormId =
+                        instanceCursor.getString(instanceCursor
+                                .getColumnIndex(InstanceColumns.JR_FORM_ID));
+
+
+                //If this form is both already completed
+                if (InstanceProviderAPI.STATUS_COMPLETE.equals(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.STATUS)))) {
+                    if (!Boolean.parseBoolean(instanceCursor.getString(instanceCursor.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)))) {
+                        isInstanceReadOnly = true;
+                    }
+                }
+                final String[] selectionArgs = {
+                        jrFormId
+                };
+                final String selection = FormsColumns.JR_FORM_ID + " like ?";
+
+                formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
+                if (formCursor.getCount() == 1) {
+                    formCursor.moveToFirst();
+                    mFormPath =
+                            formCursor.getString(formCursor
+                                    .getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                    formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
+                } else if (formCursor.getCount() < 1) {
+                    throw new FormQueryException("Parent form does not exist");
+                } else if (formCursor.getCount() > 1) {
+                    throw new FormQueryException("More than one possible parent form");
+                }
+            }
+        } finally {
+            if (instanceCursor != null) {
+                instanceCursor.close();
+            }
+            if (formCursor != null) {
+                formCursor.close();
+            }
+        }
+        return new Pair<>(formUri, isInstanceReadOnly);
+    }
+
+    private void loadIntentFormData(Intent intent) {
+        if(intent.hasExtra(KEY_FORM_CONTENT_URI)) {
+            this.formProviderContentURI = Uri.parse(intent.getStringExtra(KEY_FORM_CONTENT_URI));
+        }
+        if(intent.hasExtra(KEY_INSTANCE_CONTENT_URI)) {
+            this.instanceProviderContentURI = Uri.parse(intent.getStringExtra(KEY_INSTANCE_CONTENT_URI));
+        }
+        if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
+            this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
+        } else {
+            mInstanceDestination = Collect.INSTANCES_PATH;
+        }
+        if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
+            String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
+            try {
+                byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                symetricKey = new SecretKeySpec(storageKey, "AES");
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Base64 encoding not available on this platform");
+            }
+        }
+        if(intent.hasExtra(KEY_HEADER_STRING)) {
+            this.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
+        }
+
+        if(intent.hasExtra(KEY_INCOMPLETE_ENABLED)) {
+            this.mIncompleteEnabled = intent.getBooleanExtra(KEY_INCOMPLETE_ENABLED, true);
+        }
+
+        if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
+            ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
+        }
+    }
+
+    private void setTitleToLoading() {
+        if(mHeaderString != null) {
+            setTitle(mHeaderString);
+        } else {
+            setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
+        }
+    }
+
+    private class FormQueryException extends Exception {
+        FormQueryException(String msg) {
+            super(msg);
+        }
     }
 }

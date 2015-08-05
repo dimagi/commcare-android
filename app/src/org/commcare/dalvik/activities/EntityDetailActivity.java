@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -21,7 +21,6 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -36,7 +35,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;

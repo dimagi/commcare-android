@@ -2,8 +2,11 @@ package org.commcare.android.framework;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,13 +33,11 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -64,13 +65,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
-    protected final static int DIALOG_PROGRESS = 32;
-    protected final static String DIALOG_TEXT = "cca_dialog_text";
-
     StateFragment stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
+
+    /**
+     * Used to indicate that the (progress) dialog associated with a task
+     * should be dismissed because the task has completed or been canceled.
+     */
     private boolean shouldDismissDialog = true;
 
     private GestureDetector mGestureDetector;
@@ -78,10 +81,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
+    /**
+     * Activity has been put in the background. Flag prevents dialogs
+     * from being shown while activity isn't active.
+     */
+    private boolean activityPaused;
+
+    /**
+     * Store the id of a task progress dialog so it can be disabled/enabled
+     * on activity pause/resume.
+     */
+    private int dialogId = -1;
+
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         FragmentManager fm = this.getSupportFragmentManager();
         
         stateHolder = (StateFragment) fm.findFragmentByTag("state");
@@ -98,7 +114,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         if(this.getClass().isAnnotationPresent(ManagedUi.class)) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-            loadFields();
+            loadFields(true);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
@@ -134,8 +150,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 return super.onOptionsItemSelected(item);
         }
     }
-    
-    private void loadFields() {
+
+    /**
+     * @param restoreOldFields Use the fields already on screen? For refreshing
+     *                         fields when the default language changes due to
+     *                         the app being changed on the home screen
+     *                         multiple app drop-down menu.
+     */
+    protected void loadFields(boolean restoreOldFields) {
         CommCareActivity oldActivity = stateHolder.getPreviousState();
         Class c = this.getClass();
         for(Field f : c.getDeclaredFields()) {
@@ -148,7 +170,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                         View v = this.findViewById(element.value());
                         f.set(this, v);
                         
-                        if(oldActivity != null) {
+                        if(oldActivity != null && restoreOldFields) {
                             View oldView = (View)f.get(oldActivity);
                             if(oldView != null) {
                                 if(v instanceof TextView) {
@@ -199,6 +221,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onResume() {
         super.onResume();
 
+        activityPaused = false;
+
+        if (dialogId > -1) {
+            startBlockingForTask(dialogId);
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // In honeycomb and above the fragment takes care of this
             this.setTitle(getTitle(this, getActivityTitle()));
@@ -211,6 +239,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
+        activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
@@ -234,15 +263,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return (R)this;
     }
     
-    /**
+    /*
      * Override these to control the UI for your task
      */
+
     @Override
-    public void startBlockingForTask(int id) {        
-        //attempt to dismiss the dialog from the last task before showing this one
+    public void startBlockingForTask(int id) {
+        dialogId = id;
+
+        if (activityPaused) {
+            // don't show the dialog if the activity is in the background
+            return;
+        }
+
+        // attempt to dismiss the dialog from the last task before showing this
+        // one
         attemptDismissDialog();
-        
-        //ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the last dialog during transition, show a new one
+
+        // ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the
+        // last dialog during transition, show a new one
         if (id >= 0 && shouldDismissDialog) {
             this.showProgressDialog(id);
         }
@@ -250,11 +289,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void stopBlockingForTask(int id) {
-        if (id >= 0) { 
+        dialogId = -1;
+        if (id >= 0) {
             if (inTaskTransition) {
                 shouldDismissDialog = true;
-            }
-            else {
+            } else {
                 dismissProgressDialog();
             }
         }
@@ -326,11 +365,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
     }
     
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -671,6 +705,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         return xMov > xPixelLimit && angleOfMotion < 30;
     }
+    
+    /**
+     * Rebuild the activity's menu options based on the current state of the activity.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void rebuildMenus() {
+        // CommCare-159047: this method call rebuilds the options menu
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            invalidateOptionsMenu();
+        } else {
+            supportInvalidateOptionsMenu();
+        }
+    }
 
     public Spannable localize(String key){
         return MarkupUtil.localizeStyleSpannable(this, key);
@@ -678,5 +725,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void refreshActionBar() {
+        FragmentManager fm = this.getSupportFragmentManager();
+        BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
+        bar.refresh(this);
     }
 }

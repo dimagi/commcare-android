@@ -1,4 +1,4 @@
-#new localizations should be added above the comment "Add new localization strings here" in this string
+#new localizations should be added above the comment "Add new localization strings here" in this file
 
 option.yes=Yes
 option.no=No
@@ -16,8 +16,6 @@ updates.keep.trying=Keep trying if connection is interrupted
 verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
-
-modules.m0=pregenancy
 
 install.barcode=Welcome to CommCare! Please choose an installation method below 
 install.manual=Please enter the URL
@@ -246,6 +244,7 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.detail.confirm=Continue
+select.address.show=Show Address
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
 
@@ -285,6 +284,12 @@ connection.task.unset.posturl=There has been an error on CommCare's end. Please 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
 notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
+
+multiple.apps.unverified.title=Missing Multimedia for all Apps
+multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
+
+login.welcome.single=Welcome back! Please log in.
+login.welcome.multiple=Welcome back! Please select an app and log in.
 
 
 #Add new localization strings here
@@ -365,6 +370,9 @@ notification.install.nolocal.title=Couldn't install files to storage
 notification.install.nolocal.detail=CommCare couldn't open your local storage to write your app's files.
 notification.install.nolocal.action=This almost always occurs because the SD card from your device has been removed, or your application is currently connected to a computer in Mass Storage mode. Please ensure that external storage is available for your device. If you have an SD card, ensure it is inserted. If you are connected to USB, set the USB transfer mode to "Charge Only"
 
+notification.install.duplicate.title=This app is already installed
+notification.install.duplicate.detail=The app you are trying to install already exists on this device.
+notification.install.duplicate.action=Navigate to the drop-down menu on your log-in screen and look for the app you are attempting to install. If you still can't find the app you're looking for, contact your supervisor.
 
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
@@ -449,3 +457,5 @@ archive.install.button=Install App
 wifi.direct.transfer.forms=Transfer Forms
 wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
+
+form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.

@@ -106,7 +106,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
@@ -242,10 +242,6 @@ public abstract class QuestionWidget extends LinearLayout {
         notifyOnScreen(text, false);
     }
 
-    public void notifyInvalid(String text) {
-        notifyOnScreen(text, true);
-    }
-    
     public void notifyInvalid(String text, boolean requestFocus) {
         notifyOnScreen(text, true, requestFocus);
     }
@@ -418,7 +414,6 @@ public abstract class QuestionWidget extends LinearLayout {
 
     /**
     * Display extra help, triggered by user request.
-    * @param prompt
     */
     private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
@@ -465,8 +460,6 @@ public abstract class QuestionWidget extends LinearLayout {
     
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
-     * @param prompt
-     * @return
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());
@@ -633,10 +626,6 @@ public abstract class QuestionWidget extends LinearLayout {
         if(FileUtils.isFileOversized(file)){
             this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
-    }
-
-    public void checkFileSize(String filepath){
-        checkFileSize(new File(filepath));
     }
 
     /*

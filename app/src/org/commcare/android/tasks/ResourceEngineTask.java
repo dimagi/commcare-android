@@ -14,7 +14,6 @@ import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -80,9 +79,15 @@ public abstract class ResourceEngineTask<R>
         StatusUpToDate("notification.install.uptodate"),
 
         /**
+         * Attempting to install an app that is already installed
+         */
+        StatusDuplicateApp("notification.install.duplicate"),
+
+        /**
          * Certificate was bad
          */
         StatusBadCertificate("notification.install.badcert");
+
 
         ResourceEngineOutcomes(String root) {
             this.root = root;
@@ -164,17 +169,16 @@ public abstract class ResourceEngineTask<R>
             ResourceTable global = platform.getGlobalResourceTable();
 
             // Ok, should figure out what the state of this bad boy is.
-            Resource profile = global.getResourceWithId("commcare-application-profile");
+            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
-            boolean sanityTest1 = (profile != null &&
+            boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
             if (upgradeMode) {
-                if (!sanityTest1) {
+                if (!appInstalled) {
                     return ResourceEngineOutcomes.StatusFailState;
                 }
                 global.setStateListener(this);
-
                 // temporary is the upgrade table, which starts out in the
                 // state that it was left after the last install- partially
                 // populated if it stopped in middle, empty if the install was
@@ -215,7 +219,7 @@ public abstract class ResourceEngineTask<R>
                 // profile is not a newer version, statgeUpgradeTable doesn't
                 // actually pull in all the new references
                 platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
-                Resource newProfile = temporary.getResourceWithId("commcare-application-profile");
+                Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
                 if (!newProfile.isNewer(profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                     return ResourceEngineOutcomes.StatusUpToDate;
@@ -225,22 +229,19 @@ public abstract class ResourceEngineTask<R>
                 // Replaces global table with temporary, or w/ recovery if
                 // something goes wrong
                 platform.upgrade(global, temporary, recovery);
-
-                // And see where we ended up to see whether an upgrade actually occurred
             } else {
-                // this is a standard, clean install
-                if (sanityTest1) {
-                    return ResourceEngineOutcomes.StatusFailState;
-                }
+                // Not upgrade mode, so attempting normal install
                 global.setStateListener(this);
-
                 platform.init(profileRef, global, false);
-
-                app.writeInstalled();
             }
 
-            // Initialize them now that they're installed
+            // Initializes app resources and the app itself, including doing a check to see if this
+            // app record was converted by the db upgrader
             CommCareApplication._().initializeGlobalResources(app);
+
+            // Write this App Record to storage -- needs to be performed after localizations have
+            // been initialized (by initializeGlobalResources), so that getDisplayName() works
+            app.writeInstalled();
 
             // update the current profile reference
             prefs = app.getAppPreferences();
@@ -262,15 +263,18 @@ public abstract class ResourceEngineTask<R>
             return ResourceEngineOutcomes.StatusNoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
-            badReqCode = e.getRequirementCode();
+            if (e.isDuplicateException()) {
+                return ResourceEngineOutcomes.StatusDuplicateApp;
+            } else {
+                badReqCode = e.getRequirementCode();
+                vAvailable = e.getAvailableVesionString();
+                vRequired = e.getRequiredVersionString();
+                majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
-            vAvailable = e.getAvailableVesionString();
-            vRequired = e.getRequiredVersionString();
-            majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
-
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "App resources are incompatible with this device|" + e.getMessage());
-            return ResourceEngineOutcomes.StatusBadReqs;
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "App resources are incompatible with this device|" + e.getMessage());
+                return ResourceEngineOutcomes.StatusBadReqs;
+            }
         } catch (UnresolvedResourceException e) {
             // couldn't find a resource, which isn't good.
             e.printStackTrace();

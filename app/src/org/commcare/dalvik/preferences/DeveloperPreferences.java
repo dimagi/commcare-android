@@ -21,12 +21,13 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
-public class DeveloperPreferences extends PreferenceActivity {
+public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";

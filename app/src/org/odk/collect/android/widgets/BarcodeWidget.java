@@ -42,7 +42,6 @@ import org.odk.collect.android.jr.extensions.IntentCallout;
 
 public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
 
-    private final Button mGetBarcodeButton;
     private TextView mStringAnswer;
 
     public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic) {
@@ -50,16 +49,19 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
 
         mWaitingForData = false;
         setOrientation(LinearLayout.VERTICAL);
+    }
 
-        // set button formatting
-        mGetBarcodeButton = new Button(getContext());
-        WidgetUtils.setupButton(mGetBarcodeButton,
+    @Override
+    public void makeButton(FormEntryPrompt prompt){
+        setOrientation(LinearLayout.VERTICAL);
+        launchIntentButton = new Button(getContext());
+        WidgetUtils.setupButton(launchIntentButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
         // launch barcode capture intent on click
-        mGetBarcodeButton.setOnClickListener(new View.OnClickListener() {
+        launchIntentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("com.google.zxing.client.android.SCAN");
@@ -76,28 +78,14 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
                 }
             }
         });
-
-        // set text formatting
-        mStringAnswer = new TextView(getContext());
-        mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mStringAnswer.setGravity(Gravity.CENTER);
-
-        String s = prompt.getAnswerText();
-        if (s != null) {
-            mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                    R.string.replace_barcode));
-            mStringAnswer.setText(s);
-        }
-        // finish complex layout
-        addView(mGetBarcodeButton);
-        addView(mStringAnswer);
+        addView(launchIntentButton);
     }
 
 
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        mGetBarcodeButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
+        launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
     }
 
     @Override

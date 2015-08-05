@@ -12,7 +12,6 @@
             android:id="@+id/main_top_banner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
             android:paddingBottom="20px"
             android:paddingTop="20px"
@@ -24,7 +23,6 @@
             android:id="@+id/linearLayout1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:orientation="vertical" >
 
             <fragment
@@ -61,21 +59,18 @@
                 android:id="@+id/discover_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:text="Discover Peers" />
 
             <Button
                 android:id="@+id/send_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:text="Transfer Files" />
 
             <Button
                 android:id="@+id/submit_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:text="Submit Files" />
 
             <TextView
@@ -101,7 +96,6 @@
             android:id="@+id/linearLayout2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:orientation="vertical" >
 
             <TextView
@@ -130,7 +124,6 @@
                 android:id="@+id/reset_state_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:text="Change Mode" />
         </LinearLayout>
 

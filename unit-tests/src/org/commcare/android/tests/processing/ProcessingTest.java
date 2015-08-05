@@ -6,7 +6,6 @@ package org.commcare.android.tests.processing;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
-import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;
 import org.junit.Before;
@@ -23,9 +22,6 @@ import static junit.framework.Assert.assertEquals;
 @Config(shadows={SQLiteDatabaseNative.class}, emulateSdk = 18, application=org.commcare.dalvik.application.CommCareApplication.class)
 @RunWith(CommCareTestRunner.class)
 public class ProcessingTest {
-
-    //TODO: Move this to the application or somewhere better static
-    static LivePrototypeFactory factory = new LivePrototypeFactory();
 
     @Before
     public void setupTests() {

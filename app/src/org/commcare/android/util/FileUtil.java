@@ -1,5 +1,16 @@
 package org.commcare.android.util;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.util.Log;
+
+import org.commcare.resources.model.MissingMediaException;
+import org.commcare.resources.model.Resource;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.util.PropertyUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,26 +23,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 
-import org.commcare.resources.model.MissingMediaException;
-import org.commcare.resources.model.Resource;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.Reference;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.util.PropertyUtils;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.util.Log;
-
 /**
  * @author ctsims
- *
  */
 public class FileUtil {
     
@@ -158,7 +158,7 @@ public class FileUtil {
                 Log.e("No Cache File", e.getMessage());
                 return null;
             } catch (IOException e) {
-                Log.e("Problem reading from file", e.getMessage());
+                Log.e("Problem reading file", e.getMessage());
                 return null;
             }
 
@@ -313,9 +313,6 @@ public class FileUtil {
         /**
          * Turn a filepath into a global android URI that can be passed
          * to an intent. 
-         * 
-         * @param fileLocation
-         * @return
          */
         public static String getGlobalStringUri(String fileLocation) {
             return "file://" + fileLocation;
@@ -338,8 +335,6 @@ public class FileUtil {
         /**
          * Ensure that everything between "localpart" and f exists
          * and create it if not.
-         * 
-         * @param f
          */
         public static void ensureFilePathExists(File f) {
             File folder = f.getParentFile();

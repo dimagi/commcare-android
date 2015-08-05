@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,7 +37,7 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.DataPullTask;
@@ -44,6 +45,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -58,7 +60,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
@@ -189,13 +191,20 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
             refreshView();
 
             restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+
+            if(!isUsingActionBar()) {
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+                }
+                searchbox.setText(lastQueryString);
+            }
         } catch(SessionUnavailableException sue) {
             //TODO: session is dead, login and return
         }
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
 
         saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
@@ -336,6 +345,13 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
         mAlertDialog.show();
     }
 
+    /**
+     * Checks if the action bar view is active
+     */
+    public boolean isUsingActionBar(){
+        return searchView != null;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean parent = super.onCreateOptionsMenu(menu);
@@ -350,7 +366,11 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
                     {
                         searchItem.expandActionView();
                     }
-                    searchView.setQuery(lastQueryString, false);
+                    if (isUsingActionBar()) {
+                        searchView.setQuery(lastQueryString, false);
+                    } else {
+                        searchbox.setText(lastQueryString);
+                    }
                     if (BuildConfig.DEBUG) {
                         Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
                     }
@@ -537,8 +557,15 @@ public class FormRecordListActivity extends CommCareActivity<FormRecordListActiv
     }
     
     public void afterTextChanged(Editable s) {
+        String filtertext = s.toString();
         if (searchbox.getText() == s) {
-            adapter.applyTextFilter(s.toString());
+            adapter.applyTextFilter(filtertext);
+        }
+        if(!isUsingActionBar()) {
+            lastQueryString = filtertext;
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
+            }
         }
     }
 

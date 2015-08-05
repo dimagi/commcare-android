@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database.user.models;
 
 import org.commcare.android.database.EncryptedModel;
@@ -19,7 +16,6 @@ import org.javarosa.core.util.MD5;
  * about a CommCare session. It is immutable and reflects a specific state.
  * 
  * @author ctsims
- *
  */
 @Table("android_cc_session")
 public class SessionStateDescriptor extends Persisted implements EncryptedModel {
@@ -87,9 +83,6 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
      *  TODO: Currently we rely on this state being semantically unique,
      *  but it may change in the future. Rely on the specific format as
      *  little as possible.   
-     * 
-     * @param session
-     * @return
      */
     private String createSessionDescriptor(CommCareSession session) {
         //TODO: Serialize into something more useful. I dunno. JSON/XML/Something

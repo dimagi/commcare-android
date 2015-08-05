@@ -27,15 +27,23 @@ the License.
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		android:layout_alignParentBottom="true"
+        android:background="@color/cc_core_bg"
+        android:gravity="right"
+        android:weightSum="4"
 		android:id="@+id/buttonholder">
-		<Button
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <Button
 			android:id="@+id/jumpPreviousButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/jump_to_previous"
 			android:padding="12dp"
 			android:textSize="@dimen/text_medium"
+            android:textColor="@color/cc_brand_color"
+            android:background="@color/cc_core_bg"
 			android:layout_weight="1" />
 		<Button
 			android:id="@+id/jumpBeginningButton"
@@ -44,6 +52,8 @@ the License.
 			android:text="@string/jump_to_beginning"
 			android:padding="12dp"
 			android:textSize="@dimen/text_medium"
+            android:textColor="@color/cc_brand_color"
+            android:background="@color/cc_core_bg"
 			android:layout_weight="1" />
 		<Button
 			android:id="@+id/jumpEndButton"
@@ -52,14 +62,17 @@ the License.
 			android:text="@string/jump_to_end"
 			android:padding="12dp"
 			android:textSize="@dimen/text_medium"
+            android:textColor="@color/cc_brand_color"
+            android:background="@color/cc_core_bg"
 			android:layout_weight="1" />
 	</LinearLayout>
 	<ListView
 		android:id="@android:id/list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:layout_above="@id/buttonholder"
-		android:layout_below="@id/pathtext"/>
+        android:listSelector="@drawable/selector"
+        android:divider="@drawable/divider_hierarchy_layout"
+		android:layout_below="@id/buttonholder"/>
 	<TextView
 		android:id="@android:id/empty"
 		android:layout_width="fill_parent"

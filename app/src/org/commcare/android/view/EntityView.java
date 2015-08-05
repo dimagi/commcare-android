@@ -279,7 +279,7 @@ public class EntityView extends LinearLayout {
             }
         }
         else {
-            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
         }
     }
     
@@ -289,14 +289,6 @@ public class EntityView extends LinearLayout {
      * Based on the search terms provided, highlight the aspects of the spannable provided which
      * match. A background string can be provided which provides the exact data that is being
      * matched. 
-     * 
-     * @param context
-     * @param searchTerms
-     * @param raw
-     * @param backgroundString
-     * @param fuzzySearchEnabled
-     * @param strictMode
-     * @return
      */
     public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {
@@ -432,7 +424,6 @@ public class EntityView extends LinearLayout {
             raw.removeSpan(span);
         }
     }
-
     /**
      * Determine width of each child view, based on mHints, the suite's size hints.
      * mHints contains a width hint for each child view, each one of
@@ -500,8 +491,10 @@ public class EntityView extends LinearLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // calculate the view and its childrens default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
+
+        // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
@@ -510,7 +503,9 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
-
+        
+        // Re-calculate the view's measurements based on the percentage
+        // adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }
