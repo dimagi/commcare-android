@@ -1,32 +1,26 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.NoSuchElementException;
-
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 public class UserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed storage;
-    Context context;
     byte[] wrappedKey;
     
-    public UserXmlParser(KXmlParser parser, Context context, byte[] wrappedKey) {
+    public UserXmlParser(KXmlParser parser, byte[] wrappedKey) {
         super(parser);
-        this.context = context;
         this.wrappedKey = wrappedKey;
     }
 
@@ -44,8 +38,6 @@ public class UserXmlParser extends TransactionParser<User> {
         String uuid = parser.nextText();
         
         this.nextTag("date");
-        String dateModified = parser.nextText();
-        Date modified = DateUtils.parseDateTime(dateModified);
 
         User u;
         try {
