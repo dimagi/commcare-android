@@ -1,7 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Date;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +13,8 @@ import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.Date;
 
 /**
  * @author ctsims

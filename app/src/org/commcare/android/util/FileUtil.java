@@ -23,7 +23,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;

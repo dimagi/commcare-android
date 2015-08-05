@@ -1,6 +1,10 @@
 package org.odk.collect.android.application;
 
-import java.io.File;
+import android.app.Application;
+import android.content.Context;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
@@ -12,11 +16,7 @@ import org.apache.http.protocol.SyncBasicHttpContext;
 import org.commcare.dalvik.R;
 import org.odk.collect.android.utilities.AgingCredentialsProvider;
 
-import android.app.Application;
-import android.content.Context;
-import android.os.Environment;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import java.io.File;
 
 /**
  * Extends the Application class to implement 

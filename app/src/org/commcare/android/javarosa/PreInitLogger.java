@@ -3,14 +3,14 @@
  */
 package org.commcare.android.javarosa;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.services.Logger;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This class keeps track of logs before the app has fully initialized its storage engine

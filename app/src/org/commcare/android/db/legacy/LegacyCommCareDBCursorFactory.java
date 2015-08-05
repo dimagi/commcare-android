@@ -1,16 +1,16 @@
 package org.commcare.android.db.legacy;
 
-import java.util.Hashtable;
-
-import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.database.EncryptedModel;
-
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
+
+import org.commcare.android.crypt.CipherPool;
+import org.commcare.android.database.EncryptedModel;
+
+import java.util.Hashtable;
 
 /**
  * @author ctsims

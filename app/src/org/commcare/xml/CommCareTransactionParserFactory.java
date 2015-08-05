@@ -1,8 +1,6 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Hashtable;
+import android.content.Context;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logic.GlobalConstants;
@@ -12,14 +10,16 @@ import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Hashtable;
 
 /**
  * The CommCare Transaction Parser Factory wraps all of the current

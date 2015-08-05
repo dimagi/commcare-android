@@ -14,11 +14,11 @@
 
 package org.odk.collect.android.logic;
 
-import java.util.ArrayList;
+import android.graphics.drawable.Drawable;
 
 import org.javarosa.core.model.FormIndex;
 
-import android.graphics.drawable.Drawable;
+import java.util.ArrayList;
 
 public class HierarchyElement {
     private String mPrimaryText = "";

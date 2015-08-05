@@ -1,7 +1,5 @@
 package org.commcare.android.framework;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -10,6 +8,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+
+import org.commcare.android.tasks.templates.CommCareTask;
 /**
  * @author ctsims
  *

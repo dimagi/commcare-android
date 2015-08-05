@@ -17,10 +17,9 @@
 package org.commcare.android.util;
 
 
+import android.view.MotionEvent;
 
 import org.commcare.android.util.GestureDirection.UserGesture;
-
-import android.view.MotionEvent;
 
 /**
  * Detects when a gesture/fling has occurred and in what direction.

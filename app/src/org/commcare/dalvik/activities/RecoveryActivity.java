@@ -1,5 +1,15 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.ManagedUi;
@@ -14,16 +24,6 @@ import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
-
-import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
 
 /**
  * @author ctsims

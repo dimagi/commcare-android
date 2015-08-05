@@ -1,5 +1,19 @@
 package org.odk.collect.android.utilities;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+
+import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.kxml2.io.KXmlSerializer;
+import org.kxml2.kdom.Document;
+import org.kxml2.kdom.Element;
+import org.kxml2.kdom.Node;
+import org.odk.collect.android.logic.FormController.InstanceMetadata;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,20 +42,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.kxml2.io.KXmlSerializer;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
-import org.kxml2.kdom.Node;
-import org.odk.collect.android.logic.FormController.InstanceMetadata;
-
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
 
 /**
  * Utility class for encrypting submissions during the SaveToDiskTask.

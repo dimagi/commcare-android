@@ -3,9 +3,9 @@
  */
 package org.commcare.android.util;
 
-import org.commcare.android.util.DotsData.DotsDay;
-
 import android.graphics.Rect;
+
+import org.commcare.android.util.DotsData.DotsDay;
 
 /**
  * @author ctsims

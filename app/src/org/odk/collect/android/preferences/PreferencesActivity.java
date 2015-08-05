@@ -14,12 +14,6 @@
 
 package org.odk.collect.android.preferences;
 
-import org.commcare.android.framework.SessionAwarePreferenceActivity;
-import org.commcare.dalvik.R;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.UrlUtils;
-import org.odk.collect.android.utilities.WebUtils;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -36,13 +30,18 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore.Images;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.widget.Toast;
+
+import org.commcare.android.framework.SessionAwarePreferenceActivity;
+import org.commcare.dalvik.R;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.utilities.UrlUtils;
+import org.odk.collect.android.utilities.WebUtils;
 
 /**
  * @author yanokwa

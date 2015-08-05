@@ -3,6 +3,12 @@
  */
 package org.commcare.android.storage.framework;
 
+import org.javarosa.core.services.storage.IMetaData;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,12 +20,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
-
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims

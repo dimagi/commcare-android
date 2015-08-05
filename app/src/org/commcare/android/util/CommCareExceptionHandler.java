@@ -1,8 +1,8 @@
 package org.commcare.android.util;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import org.commcare.android.tasks.ExceptionReportTask;
+
+import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
  * TODO: This class is basically just for testing, it should be rewritten for 

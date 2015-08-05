@@ -3,13 +3,13 @@
  */
 package org.commcare.dalvik.activities;
 
-import org.commcare.dalvik.R;
-
 import android.app.TabActivity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.TabHost;
+
+import org.commcare.dalvik.R;
 
 /**
  * @author ctsims

@@ -14,16 +14,16 @@
 
 package org.odk.collect.android.logic;
 
-import java.util.HashMap;
-import java.util.Vector;
-
-import org.javarosa.core.services.IPropertyManager;
-import org.javarosa.core.services.properties.IPropertyRules;
-
 import android.content.Context;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import org.javarosa.core.services.IPropertyManager;
+import org.javarosa.core.services.properties.IPropertyRules;
+
+import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Used to return device properties to JavaRosa

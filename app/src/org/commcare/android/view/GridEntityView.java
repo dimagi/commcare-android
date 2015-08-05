@@ -3,19 +3,6 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.CachingAsyncImageLoader;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.util.GridCoordinate;
-import org.commcare.util.GridStyle;
-import org.javarosa.core.services.Logger;
-import org.javarosa.xpath.XPathUnhandledException;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -32,6 +19,19 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.Space;
 import android.widget.TextView;
+
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.util.CachingAsyncImageLoader;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.util.GridCoordinate;
+import org.commcare.util.GridStyle;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathUnhandledException;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.ViewId;
 
 import java.util.Arrays;
 
