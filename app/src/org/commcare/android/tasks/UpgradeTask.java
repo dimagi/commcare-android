@@ -1,16 +1,13 @@
 package org.commcare.android.tasks;
 
-import android.content.SharedPreferences;
-import android.os.SystemClock;
-
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -24,7 +21,6 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.cert.CertificateException;
-import java.util.Date;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -96,12 +92,7 @@ public class UpgradeTask
 
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
-        SharedPreferences prefs = app.getAppPreferences();
-
-        // Make sure we record that an attempt was started.
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
+        InstallAndUpdateUtils.recordUpdateAttempt(app.getAppPreferences());
 
         app.setupSandbox();
 
@@ -187,16 +178,9 @@ public class UpgradeTask
             // initializeGlobalResources), so that getDisplayName() works
             app.writeInstalled();
 
-            // update the current profile reference
-            prefs = app.getAppPreferences();
-            SharedPreferences.Editor edit = prefs.edit();
-            if (platform.getCurrentProfile().getAuthReference() != null) {
-                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER,
-                        platform.getCurrentProfile().getAuthReference());
-            } else {
-                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
-            }
-            edit.commit();
+            InstallAndUpdateUtils.updateProfileRef(app.getAppPreferences(),
+                    platform.getCurrentProfile().getAuthReference(),
+                    profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (LocalStorageUnavailableException e) {

@@ -1,7 +1,6 @@
 package org.commcare.android.tasks;
 
 import java.security.cert.CertificateException;
-import java.util.Date;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -10,9 +9,9 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -22,8 +21,6 @@ import org.commcare.xml.CommCareElementParser;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.SystemClock;
 
 /**
@@ -72,12 +69,7 @@ public abstract class ResourceEngineTask<R>
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
-        SharedPreferences prefs = app.getAppPreferences();
-
-        // Make sure we record that an attempt was started.
-        Editor editor = prefs.edit();
-        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
+        InstallAndUpdateUtils.recordUpdateAttempt(app.getAppPreferences());
 
         app.setupSandbox();
 
@@ -91,12 +83,6 @@ public abstract class ResourceEngineTask<R>
         try {
             // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
-
-            // Ok, should figure out what the state of this bad boy is.
-            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-            boolean appInstalled = (profile != null &&
-                    profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
             // --------------------------
             // Not upgrade mode, so attempting normal install
@@ -113,16 +99,9 @@ public abstract class ResourceEngineTask<R>
             // initializeGlobalResources), so that getDisplayName() works
             app.writeInstalled();
 
-            // update the current profile reference
-            prefs = app.getAppPreferences();
-            Editor edit = prefs.edit();
-            if (platform.getCurrentProfile().getAuthReference() != null) {
-                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER,
-                        platform.getCurrentProfile().getAuthReference());
-            } else {
-                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
-            }
-            edit.commit();
+            InstallAndUpdateUtils.updateProfileRef(app.getAppPreferences(),
+                    platform.getCurrentProfile().getAuthReference(),
+                    profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (LocalStorageUnavailableException e) {
