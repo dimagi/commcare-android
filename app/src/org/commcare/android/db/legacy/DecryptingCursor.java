@@ -5,7 +5,7 @@ import javax.crypto.Cipher;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;

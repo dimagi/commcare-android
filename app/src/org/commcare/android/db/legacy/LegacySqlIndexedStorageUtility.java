@@ -9,10 +9,10 @@ import java.util.NoSuchElementException;
 import java.util.Vector;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -103,7 +103,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
         if(c.getCount() == 0) {
             c.close();
@@ -135,7 +135,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
         Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
         if(c.getCount() == 0) {
             c.close();
@@ -298,7 +298,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
+            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for(Pair<String, String[]> whereParams : whereParamList) {
                 int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
             }
@@ -344,7 +344,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         
         if(removed.size() == 0) { return removed; }
         
-        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
 
         
         SQLiteDatabase db = helper.getHandle();

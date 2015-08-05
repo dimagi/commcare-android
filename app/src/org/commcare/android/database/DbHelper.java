@@ -3,30 +3,26 @@
  */
 package org.commcare.android.database;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import android.content.ContentValues;
+import android.content.Context;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.util.SessionUnavailableException;
-import org.javarosa.core.services.storage.IMetaData;
+import org.commcare.api.models.EncryptedModel;
+import org.commcare.api.persistence.UserDatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.util.Pair;
+import java.util.HashMap;
 
 /**
  * @author ctsims
  *
  */
-public abstract class DbHelper {
+public abstract class DbHelper extends UserDatabaseHelper{
     
     protected Context c;
     
@@ -35,78 +31,31 @@ public abstract class DbHelper {
     }
     
     public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
-    
 
-    public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {
-        Set<String> fields = null;
-        if(p instanceof IMetaData) {
-            IMetaData m = (IMetaData)p;
-            String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
-            for(String s : thefields) {
-                fields.add(TableBuilder.scrubName(s));
+    public ContentValues getContentValues(Externalizable e){
+        ContentValues ret = new ContentValues();
+        HashMap<String, Object> metaFieldsAndValues = UserDatabaseHelper.getMetaFieldsAndValues(e);
+        for(String key: metaFieldsAndValues.keySet()){
+            Object obj = metaFieldsAndValues.get(key);
+            if(obj instanceof String){
+                ret.put(key,(String)obj);
+            } else if(obj instanceof Integer){
+                ret.put(key, (Integer) obj);
+            } else if(obj instanceof byte[]){
+                ret.put(key, (byte[]) obj);
+            } else{
+                System.out.println("Couldn't determine type of object: " + obj);
             }
         }
-        
-        if(em instanceof IMetaData) {
-            IMetaData m = (IMetaData)em;
-            String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
-            for(String s : thefields) {
-                fields.add(TableBuilder.scrubName(s));
-            }
-        }
-        
-        String ret = "";
-        String[] arguments = new String[fieldNames.length];
-        for(int i = 0 ; i < fieldNames.length; ++i) {
-            String columnName = TableBuilder.scrubName(fieldNames[i]);
-            if(fields != null) {
-                if(!fields.contains(columnName)) {
-                    throw new IllegalArgumentException("Model does not contain the column " + columnName + "!");
-                }
-            }
-            ret += columnName + "=?";
-            
-            arguments[i] = values[i].toString();
-            
-            if(i + 1 < fieldNames.length) {
-                ret += " AND ";
-            }
-        }
-        return new Pair<String, String[]>(ret, arguments);
+
+        return ret;
     }
-    
-    public ContentValues getContentValues(Externalizable e) {
-        boolean encrypt = e instanceof EncryptedModel;
-        
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        OutputStream out = bos;
-        
-        try {
-            e.writeExternal(new DataOutputStream(out));
-            out.close();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException("Failed to serialize externalizable for content values");
-        }
-        byte[] blob = bos.toByteArray();
-        
-        ContentValues values = new ContentValues();
-        
-        if(e instanceof IMetaData) {
-            IMetaData m = (IMetaData)e;
-            for(String key : m.getMetaDataFields()) {
-                Object o = m.getMetaData(key);
-                if(o == null ) { continue;}
-                String value = o.toString();
-                values.put(TableBuilder.scrubName(key), value);
-            }
-        }
-        
-        values.put(DbUtil.DATA_COL,blob);
-        
-        return values;
+
+    public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){
+        org.commcare.api.util.Pair<String, String[]> mPair = UserDatabaseHelper.createWhere(fieldNames, values, em, p);
+        Pair<String, String[]> returnPair = new Pair<String, String[]>(mPair.first, mPair.second);
+        return returnPair;
+
     }
     
     public PrototypeFactory getPrototypeFactory() {

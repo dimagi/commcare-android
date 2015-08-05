@@ -11,7 +11,7 @@ import android.util.Log;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.User;
@@ -121,7 +121,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         //Build the where clause for the provided key names
         String whereClause = "";
         for(int i = 0 ; i < names.length; ++ i) {
-            whereClause += TableBuilder.scrubName(names[i]) + " = ?";
+            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
             if(i + 1 < names.length) {
                 whereClause += " AND ";
             }

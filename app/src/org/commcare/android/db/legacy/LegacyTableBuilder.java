@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Vector;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 

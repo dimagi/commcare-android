@@ -4,8 +4,8 @@ import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.Hashtable;
 
-import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.storage.framework.MetaField;
+import org.commcare.api.models.EncryptedModel;
+import org.commcare.api.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
