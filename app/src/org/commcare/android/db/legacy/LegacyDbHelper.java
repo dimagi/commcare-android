@@ -15,8 +15,8 @@ import javax.crypto.CipherOutputStream;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.api.models.EncryptedModel;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -129,7 +129,7 @@ public abstract class LegacyDbHelper {
                 if(o == null ) { continue;}
                 String value = o.toString();
                 if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
-                    values.put(TableBuilder.scrubName(key), encrypt(value));
+                    values.put(AndroidTableBuilder.scrubName(key), encrypt(value));
                 } else {
                     values.put(LegacyTableBuilder.scrubName(key), value);
                 }

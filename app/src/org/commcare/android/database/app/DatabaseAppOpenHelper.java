@@ -5,7 +5,7 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
@@ -48,23 +48,23 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+            AndroidTableBuilder builder = new AndroidTableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+            builder = new AndroidTableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder("fixture");
+            builder = new AndroidTableBuilder("fixture");
             builder.addData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder(UserKeyRecord.class);
+            builder = new AndroidTableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
             
             database.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");

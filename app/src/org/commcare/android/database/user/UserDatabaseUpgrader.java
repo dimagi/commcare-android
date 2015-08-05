@@ -5,7 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.CaseIndexTable;
@@ -174,7 +174,7 @@ public class UserDatabaseUpgrader {
     }
 
     private void addStockTable(SQLiteDatabase db) {
-        TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
+        AndroidTableBuilder builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
         db.execSQL(builder.getTableCreateString());

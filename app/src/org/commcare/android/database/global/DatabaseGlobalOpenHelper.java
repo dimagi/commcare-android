@@ -3,17 +3,17 @@
  */
 package org.commcare.android.database.global;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
-
-import android.content.Context;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -45,14 +45,14 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         try {
             database.beginTransaction();
             
-            TableBuilder builder = new TableBuilder(ApplicationRecord.class);
+            AndroidTableBuilder builder = new AndroidTableBuilder(ApplicationRecord.class);
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder(AndroidSharedKeyRecord.class);
+            builder = new AndroidTableBuilder(AndroidSharedKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             
-            builder = new TableBuilder(AndroidLogEntry.STORAGE_KEY);
+            builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
             

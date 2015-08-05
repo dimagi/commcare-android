@@ -14,7 +14,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;

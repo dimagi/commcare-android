@@ -3,7 +3,7 @@ package org.commcare.android.db.legacy;
 import java.util.Hashtable;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;

@@ -8,7 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.api.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;

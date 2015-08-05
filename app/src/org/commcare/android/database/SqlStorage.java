@@ -1,14 +1,7 @@
 package org.commcare.android.database;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.database.Cursor;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
@@ -18,6 +11,7 @@ import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.api.models.EncryptedModel;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -28,8 +22,15 @@ import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.database.Cursor;
-import android.util.Pair;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -78,7 +79,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
-        Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, t);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
@@ -112,7 +113,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
     
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-        Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, t);
 
         Cursor c;
         try {
@@ -139,7 +140,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
         Cursor c;
         try {
             c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
@@ -158,7 +159,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
     
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
-        Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, t);
         Cursor c;
         try {
             c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
@@ -186,14 +187,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(new String[] {rawFieldName}, new Object[] {value}, em, t);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
             DbUtil.explainSql(db, sql, whereClause.second);
         }
         
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
         Cursor c = db.query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
         if(c.getCount() == 0) {
             c.close();
@@ -413,14 +414,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param primaryId a metadata index that 
      */
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL, TableBuilder.scrubName(primaryId)} : new String[] {DbUtil.ID_COL,  TableBuilder.scrubName(primaryId)};
+        String[] projection = includeData ? new String[] {DbUtil.ID_COL, DbUtil.DATA_COL, AndroidTableBuilder.scrubName(primaryId)} : new String[] {DbUtil.ID_COL,  AndroidTableBuilder.scrubName(primaryId)};
         Cursor c;
         try {
             c = helper.getHandle().query(table,  projection, null, null, null, null, DbUtil.ID_COL);
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
-        return new SqlStorageIterator<T>(c, this, TableBuilder.scrubName(primaryId));
+        return new SqlStorageIterator<T>(c, this, AndroidTableBuilder.scrubName(primaryId));
     }
     
     public Iterator<T> iterator() {
@@ -474,7 +475,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
+            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for(Pair<String, String[]> whereParams : whereParamList) {
                 int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
             }
@@ -525,7 +526,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         
         if(removed.size() == 0) { return removed; }
         
-        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
 
         
         SQLiteDatabase db;

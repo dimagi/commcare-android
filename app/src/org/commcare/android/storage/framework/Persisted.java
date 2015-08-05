@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.commcare.api.models.MetaField;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
