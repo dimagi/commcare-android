@@ -1,6 +1,6 @@
 package org.commcare.android.database.user.models;
 
-import java.util.Vector;
+import android.content.ContentValues;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
@@ -13,7 +13,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.ContentValues;
+import java.util.Vector;
 
 /**
  * @author ctsims

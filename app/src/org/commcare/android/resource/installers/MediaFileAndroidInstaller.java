@@ -1,8 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import android.util.Pair;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.FileUtil;
@@ -15,7 +13,9 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.util.Pair;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @author ctsims
