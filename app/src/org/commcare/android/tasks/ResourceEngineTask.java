@@ -149,7 +149,6 @@ public abstract class ResourceEngineTask<R>
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         SharedPreferences prefs = app.getAppPreferences();
 
-
         // Make sure we record that an attempt was started.
         Editor editor = prefs.edit();
         editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
@@ -174,66 +173,11 @@ public abstract class ResourceEngineTask<R>
             boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
-            if (upgradeMode) {
-                if (!appInstalled) {
-                    return ResourceEngineOutcomes.StatusFailState;
-                }
-                global.setStateListener(this);
-                // temporary is the upgrade table, which starts out in the
-                // state that it was left after the last install- partially
-                // populated if it stopped in middle, empty if the install was
-                // successful
-                ResourceTable temporary = platform.getUpgradeResourceTable();
-                ResourceTable recovery = platform.getRecoveryTable();
-                temporary.setStateListener(this);
-
-                // When profileRef points is http, add appropriate dev flags
-                URL profileUrl = null;
-                try {
-                    profileUrl = new URL(profileRef);
-                } catch (MalformedURLException e) {
-                    // profileRef couldn't be parsed as a URL, so don't worry
-                    // about adding dev flags to the url's query
-                }
-
-                // If we want to be using/updating to the latest build of the
-                // app (instead of latest release), add it to the query tags of
-                // the profile reference
-                if (DeveloperPreferences.isNewestAppVersionEnabled() &&
-                        (profileUrl != null) &&
-                        ("https".equals(profileUrl.getProtocol()) ||
-                                "http".equals(profileUrl.getProtocol()))) {
-                    if (profileUrl.getQuery() != null) {
-                        // If the profileRef url already have query strings
-                        // just add a new one to the end
-                        profileRef = profileRef + "&target=build";
-                    } else {
-                        // otherwise, start off the query string with a ?
-                        profileRef = profileRef + "?target=build";
-                    }
-                }
-
-
-                // This populates the upgrade table with resources based on
-                // binary files, starting with the profile file. If the new
-                // profile is not a newer version, statgeUpgradeTable doesn't
-                // actually pull in all the new references
-                platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
-                Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-                if (!newProfile.isNewer(profile)) {
-                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                    return ResourceEngineOutcomes.StatusUpToDate;
-                }
-
-                phase = PHASE_CHECKING;
-                // Replaces global table with temporary, or w/ recovery if
-                // something goes wrong
-                platform.upgrade(global, temporary, recovery);
-            } else {
-                // Not upgrade mode, so attempting normal install
-                global.setStateListener(this);
-                platform.init(profileRef, global, false);
-            }
+            // --------------------------
+            // Not upgrade mode, so attempting normal install
+            global.setStateListener(this);
+            platform.init(profileRef, global, false);
+            // --------------------------
 
             // Initializes app resources and the app itself, including doing a check to see if this
             // app record was converted by the db upgrader

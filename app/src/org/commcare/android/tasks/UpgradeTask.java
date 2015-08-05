@@ -1,8 +1,32 @@
 package org.commcare.android.tasks;
 
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
+import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
+import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCarePlatform;
+import org.commcare.xml.CommCareElementParser;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.util.Date;
+import java.util.Vector;
+
+import javax.net.ssl.SSLHandshakeException;
 
 /**
  * Upgrades the seated app in the background. If the user opens the Upgrade
@@ -11,13 +35,34 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeTask extends ManagedAsyncTask<String, int[], Boolean> {
+public class UpgradeTask
+        extends ManagedAsyncTask<String, int[], Boolean>
+        implements TableStateListener {
+
     private static final String TAG = UpgradeTask.class.getSimpleName();
 
     private TaskListener<int[], Boolean> taskListener = null;
 
     private static UpgradeTask singletonRunningInstance = null;
     private int progress = 0;
+    // ----------------------------------
+    // last time in system millis that we updated the status dialog
+    private long lastTime = 0;
+    private int phase = -1;
+    /**
+     * Wait time between dialog updates in milliseconds
+     */
+    private static final long STATUS_UPDATE_WAIT_TIME = 1000;
+    private static final int PHASE_CHECKING = 0;
+    private static final int PHASE_DOWNLOAD = 1;
+    private static final int PHASE_COMMIT = 2;
+    /**
+     * When set CommCarePlatform.stageUpgradeTable() will clear the last
+     * version of the upgrade table and start over. Otherwise install reuses
+     * the last version of the upgrade table.
+     */
+    private static final boolean startOverUpgrade = false
+    // ----------------------------------
 
     private UpgradeTask() {
     }
@@ -41,16 +86,161 @@ public class UpgradeTask extends ManagedAsyncTask<String, int[], Boolean> {
 
     @Override
     protected final Boolean doInBackground(String... params) {
-        while (progress < 101) {
-            if (isCancelled()) {
-                SystemClock.sleep(3000);
-                return false;
+        String profileRef = params[0];
+
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        AndroidCommCarePlatform platform = app.getCommCarePlatform();
+        SharedPreferences prefs = app.getAppPreferences();
+
+        // Make sure we record that an attempt was started.
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
+        editor.commit();
+
+        app.setupSandbox();
+
+        Logger.log(AndroidLogger.TYPE_RESOURCES,
+                "Beginning install attempt for profile " + profileRef);
+
+        try {
+            // This is replicated in the application in a few places.
+            ResourceTable global = platform.getGlobalResourceTable();
+
+            // Ok, should figure out what the state of this bad boy is.
+            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+            boolean appInstalled = (profile != null &&
+                    profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
+
+            // ---------------------------------------
+
+            if (!appInstalled) {
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusFailState;
+            }
+            global.setStateListener(this);
+
+            // temporary is the upgrade table, which starts out in the
+            // state that it was left after the last install- partially
+            // populated if it stopped in middle, empty if the install was
+            // successful
+            ResourceTable temporary = platform.getUpgradeResourceTable();
+            ResourceTable recovery = platform.getRecoveryTable();
+            temporary.setStateListener(this);
+
+            // When profileRef points is http, add appropriate dev flags
+            URL profileUrl = null;
+            try {
+                profileUrl = new URL(profileRef);
+            } catch (MalformedURLException e) {
+                // profileRef couldn't be parsed as a URL, so don't worry
+                // about adding dev flags to the url's query
             }
 
-            SystemClock.sleep(500);
-            publishProgress(new int[]{progress++, 100});
+            // If we want to be using/updating to the latest build of the
+            // app (instead of latest release), add it to the query tags of
+            // the profile reference
+            if (DeveloperPreferences.isNewestAppVersionEnabled() &&
+                    (profileUrl != null) &&
+                    ("https".equals(profileUrl.getProtocol()) ||
+                            "http".equals(profileUrl.getProtocol()))) {
+                if (profileUrl.getQuery() != null) {
+                    // If the profileRef url already have query strings
+                    // just add a new one to the end
+                    profileRef = profileRef + "&target=build";
+                } else {
+                    // otherwise, start off the query string with a ?
+                    profileRef = profileRef + "?target=build";
+                }
+            }
+
+
+            // This populates the upgrade table with resources based on
+            // binary files, starting with the profile file. If the new
+            // profile is not a newer version, statgeUpgradeTable doesn't
+            // actually pull in all the new references
+            platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
+            Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            if (!newProfile.isNewer(profile)) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusUpToDate;
+            }
+
+            phase = PHASE_CHECKING;
+            // Replaces global table with temporary, or w/ recovery if
+            // something goes wrong
+            platform.upgrade(global, temporary, recovery);
+
+            // ---------------------------------------
+
+            // Initializes app resources and the app itself, including doing a check to see if this
+            // app record was converted by the db upgrader
+            CommCareApplication._().initializeGlobalResources(app);
+
+            // Write this App Record to storage -- needs to be performed after localizations have
+            // been initialized (by initializeGlobalResources), so that getDisplayName() works
+            app.writeInstalled();
+
+            // update the current profile reference
+            prefs = app.getAppPreferences();
+            SharedPreferences.Editor edit = prefs.edit();
+            if (platform.getCurrentProfile().getAuthReference() != null) {
+                edit.putString("default_app_server",
+                        platform.getCurrentProfile().getAuthReference());
+            } else {
+                edit.putString("default_app_server", profileRef);
+            }
+            edit.commit();
+
+            return ResourceEngineTask.ResourceEngineOutcomes.StatusInstalled;
+        } catch (LocalStorageUnavailableException e) {
+            e.printStackTrace();
+
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Couldn't install file to local storage|" + e.getMessage());
+            return ResourceEngineTask.ResourceEngineOutcomes.StatusNoLocalStorage;
+        } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+            if (e.isDuplicateException()) {
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusDuplicateApp;
+            } else {
+                int badReqCode = e.getRequirementCode();
+                String vAvailable = e.getAvailableVesionString();
+                String vRequired = e.getRequiredVersionString();
+                boolean majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "App resources are incompatible with this device|" + e.getMessage());
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusBadReqs;
+            }
+        } catch (UnresolvedResourceException e) {
+            // couldn't find a resource, which isn't good.
+            e.printStackTrace();
+
+            Throwable mExceptionCause = e.getCause();
+
+            if (mExceptionCause instanceof SSLHandshakeException) {
+                Throwable mSecondExceptionCause = mExceptionCause.getCause();
+                if (mSecondExceptionCause instanceof CertificateException) {
+                    return ResourceEngineTask.ResourceEngineOutcomes.StatusBadCertificate;
+                }
+            }
+
+            missingResourceException = e;
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                    "A resource couldn't be found, almost certainly due to the network|" +
+                            e.getMessage());
+            if (e.isMessageUseful()) {
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusMissingDetails;
+            } else {
+                return ResourceEngineTask.ResourceEngineOutcomes.StatusMissing;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                    "Unknown error ocurred during install|" + e.getMessage());
+            return ResourceEngineTask.ResourceEngineOutcomes.StatusFailUnknown;
         }
-        return true;
     }
 
     @Override
@@ -108,5 +298,46 @@ public class UpgradeTask extends ManagedAsyncTask<String, int[], Boolean> {
 
     public int getProgress() {
         return progress;
+    }
+
+    @Override
+    public void resourceStateUpdated(ResourceTable table) {
+        // if last time isn't set or is less than our spacing count, do not
+        // perform status update
+        if (System.currentTimeMillis() - lastTime < UpgradeTask.STATUS_UPDATE_WAIT_TIME) {
+            return;
+        }
+
+        Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+
+        // TODO: Better reflect upgrade status process
+
+        int score = 0;
+
+        for (Resource r : resources) {
+            switch (r.getStatus()) {
+                case Resource.RESOURCE_STATUS_UPGRADE:
+                    // If we spot an upgrade after we've started the upgrade process,
+                    // something now needs to be updated
+                    if (phase == PHASE_CHECKING) {
+                        this.phase = PHASE_DOWNLOAD;
+                    }
+                    score += 1;
+                    break;
+                case Resource.RESOURCE_STATUS_INSTALLED:
+                    score += 1;
+                    break;
+                default:
+                    score += 0;
+                    break;
+            }
+        }
+        lastTime = System.currentTimeMillis();
+        incrementProgress(score, resources.size());
+    }
+
+    @Override
+    public void incrementProgress(int complete, int total) {
+        this.publishProgress(new int[]{complete, total, phase});
     }
 }
