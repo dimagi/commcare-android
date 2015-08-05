@@ -1093,7 +1093,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
-        refreshActionBar();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+        {
+            refreshActionBar();
+        }
         dispatchHomeScreen();
     }
 
