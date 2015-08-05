@@ -51,6 +51,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UpgradeTask;
 import org.commcare.android.tasks.WipeTask;
@@ -1238,7 +1239,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         SharedPreferences prefs = 
             CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        String ref = prefs.getString("default_app_server", null);
+        String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
 
         try {
             UpgradeTask upgradeTask = UpgradeTask.getNewInstance();

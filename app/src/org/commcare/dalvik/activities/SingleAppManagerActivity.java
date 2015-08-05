@@ -249,11 +249,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
-        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String ref = prefs.getString("default_app_server", null);
-        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+        Intent i = new Intent(getApplicationContext(), UpgradeActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
     }

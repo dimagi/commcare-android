@@ -191,10 +191,10 @@ public class UpgradeTask
             prefs = app.getAppPreferences();
             SharedPreferences.Editor edit = prefs.edit();
             if (platform.getCurrentProfile().getAuthReference() != null) {
-                edit.putString("default_app_server",
+                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER,
                         platform.getCurrentProfile().getAuthReference());
             } else {
-                edit.putString("default_app_server", profileRef);
+                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
             }
             edit.commit();
 

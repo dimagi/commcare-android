@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
+import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeTask;
@@ -215,7 +216,7 @@ public class UpgradeActivity extends CommCareActivity
             (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
 
         SharedPreferences prefs = app.getAppPreferences();
-        String ref = prefs.getString("default_app_server", null);
+        String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
         upgradeTask.execute(ref);
         uiController.setDownloadingButtonState();
         uiController.updateProgressBar(0);

@@ -43,6 +43,8 @@ public abstract class ResourceEngineTask<R>
      */
     private static final long STATUS_UPDATE_WAIT_TIME = 1000;
 
+    public static final String DEFAULT_APP_SERVER = "default_app_server";
+
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
@@ -115,10 +117,10 @@ public abstract class ResourceEngineTask<R>
             prefs = app.getAppPreferences();
             Editor edit = prefs.edit();
             if (platform.getCurrentProfile().getAuthReference() != null) {
-                edit.putString("default_app_server",
+                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER,
                         platform.getCurrentProfile().getAuthReference());
             } else {
-                edit.putString("default_app_server", profileRef);
+                edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
             }
             edit.commit();
 
