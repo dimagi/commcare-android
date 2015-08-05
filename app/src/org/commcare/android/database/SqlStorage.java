@@ -366,7 +366,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         //faster method depending on our stats. This method retrieves the 
         //index records that _don't_ exist so we can assume the spans that
         //do.
-        if(includeData == false && STORAGE_OPTIMIZATIONS_ACTIVE) {
+        if(!includeData && STORAGE_OPTIMIZATIONS_ACTIVE) {
 
             SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
             

@@ -35,8 +35,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
