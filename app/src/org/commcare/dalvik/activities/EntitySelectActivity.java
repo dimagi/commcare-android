@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -80,7 +81,7 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
+public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;

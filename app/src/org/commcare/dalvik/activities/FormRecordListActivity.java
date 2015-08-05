@@ -59,7 +59,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
