@@ -5,8 +5,8 @@ import java.util.Vector;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -38,7 +38,7 @@ import android.widget.TextView;
  */
 
 @ManagedUi(R.layout.screen_form_dump)
-public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
+public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommCareFormDumpActivity> {
     private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
      
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")

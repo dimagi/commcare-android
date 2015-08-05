@@ -89,7 +89,7 @@ public class CallInPhoneListener extends PhoneStateListener {
                     new TimerTask() {
                         int runtimes = 0;
                         public void run() {
-                            if(runtimes > 100 || running == false) {
+                            if(runtimes > 100 || !running) {
                                 this.cancel();
                             } else {
                                 runtimes++;

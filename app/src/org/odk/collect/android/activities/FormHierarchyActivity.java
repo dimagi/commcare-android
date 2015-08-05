@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
@@ -101,6 +102,20 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
 

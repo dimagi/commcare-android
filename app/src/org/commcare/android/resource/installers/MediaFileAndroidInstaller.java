@@ -38,7 +38,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         boolean success = super.uninstall(r);
-        if( success == false ) { return false; }
+        if(!success) { return false; }
         //cleanup dirs
         return FileUtil.cleanFilePath(this.localDestination, path);
     }

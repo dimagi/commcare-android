@@ -81,7 +81,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
     
     private void primeCache() {
-        if(mTemplateIsCachable == null || mTemplateIsCachable == false || mCacheHost == null ) { return; }
+        if(mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null ) { return; }
         
         String[][] cachePrimeKeys = mCacheHost.getCachePrimeGuess();
         if(cachePrimeKeys == null) { return; }

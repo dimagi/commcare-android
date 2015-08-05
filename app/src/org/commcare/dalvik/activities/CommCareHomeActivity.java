@@ -34,12 +34,14 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -62,12 +64,14 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -102,19 +106,19 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final int GET_COMMAND = 1;
     private static final int GET_CASE = 2;
     private static final int MODEL_RESULT = 4;
-    private static final int INIT_APP = 8;
+    public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
-    private static final int UPGRADE_APP = 32;
+    public static final int UPGRADE_APP = 32;
     private static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
      * Should signal a return from CommCareVerificationActivity.
      */
-    private static final int MISSING_MEDIA_ACTIVITY=256;
+    public static final int MISSING_MEDIA_ACTIVITY=256;
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
-    private static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
+    public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
     /**
@@ -123,6 +127,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
      * CommCareVerificationActivity.
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
+
 
     private static final int DIALOG_CORRUPTED = 1;
 
@@ -259,25 +264,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // session expired, so re-login's probably been triggered
-                    return;
-                }
-                returnToLogin();
+                CommCareApplication._().closeUserSession();
+                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
             }
         };
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
         if (logoutButton != null) {
             logoutButton.setNotificationText(getActivityTitle());
             adapter.notifyDataSetChanged();
-        }
-
-
-        TextView formGroupLabel = (TextView)findViewById(R.id.home_formrecords_label);
-        if (formGroupLabel != null) {
-            formGroupLabel.setText(Localization.get("home.forms"));
         }
 
         SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
@@ -478,11 +472,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().closeUserSession();
                     }
                     return;
                 }
@@ -608,8 +598,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (platform == null &&
-                            CommCareApplication._().getCurrentApp() != null) {
+                    if (CommCareApplication._().getCurrentApp() != null) {
                         platform = CommCareApplication._().getCommCarePlatform();
                     }
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
@@ -944,8 +933,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
             FormRecord record = state.getFormRecord();
 
-            if (platform == null &&
-                    CommCareApplication._().getCurrentApp() != null) {
+            if (CommCareApplication._().getCurrentApp() != null) {
                 platform = CommCareApplication._().getCommCarePlatform();
             }
 
@@ -1046,7 +1034,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
                     return;
                 }
                 receiver.refreshView();
@@ -1102,107 +1090,190 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     protected void onResume() {
         super.onResume();
-        if (platform == null && CommCareApplication._().getCurrentApp() != null) {
+        if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshActionBar();
         }
         dispatchHomeScreen();
     }
 
     private void dispatchHomeScreen() {
-        try {
-            //First make sure nothing catastrophic has happened
-            if (CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED ||
-                    CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED) {
-                if (!CommCareApplication._().isStorageAvailable()) {
-                    createNoStorageDialog();
-                } else {
-                    //see if we're logged in. If so, prompt for recovery.
-                    try {
-                        CommCareApplication._().getSession();
-                        showDialog(DIALOG_CORRUPTED);
-                    } catch (SessionUnavailableException sue) {
-                        //otherwise, log in first
-                        returnToLogin();
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+
+        // Path 1: There is a seated app
+        if (currentApp != null) {
+            boolean appResourcesCorrupted = currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
+            boolean dbCorrupted = CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED;
+            ApplicationRecord currentRecord = currentApp.getAppRecord();
+
+            // Note that the order in which these conditions are checked matters!!
+            try {
+                if (appResourcesCorrupted || dbCorrupted) {
+                    // Path 1a: The seated app is damaged or corrupted
+                    handleDamagedApp();
+                } else if (!currentRecord.isUsable()) {
+                    // Path 1b: The seated app is unusable (means either it is archived or is
+                    // missing its MM or both)
+                    boolean unseated = handleUnusableApp(currentRecord);
+                    if (unseated) {
+                        // Recurse in order to make the correct decision based on the new state
+                        dispatchHomeScreen();
                     }
+                } else if (!CommCareApplication._().getSession().isActive()) {
+                    // Path 1c: The user is not logged in
+                    SessionActivityRegistration.returnToLogin(this);
+                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                    // Path 1d: CommCare was launched from an external app, with a session descriptor
+                    handleExternalLaunch();
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                    // Path 1e: CommCare was launched from a shortcut
+                    handleShortcutLaunch();
+                } else if (CommCareApplication._().isUpdatePending()) {
+                    // Path 1f: There is an update pending
+                    handlePendingUpdate();
+                } else if (CommCareApplication._().isSyncPending(false)) {
+                    // Path 1g: There is a sync pending
+                    handlePendingSync();
+                } else {
+                    // Path 1h: Display the normal home screen!
+                    refreshView();
                 }
+            } catch (SessionUnavailableException sue) {
+                SessionActivityRegistration.returnToLogin(this);
             }
+        }
 
-            //Now we need to catch any resource or database upgrade flags and make sure that the application
-            //is ready to go.
-            else if (CommCareApplication._().getAppResourceState() != CommCareApplication.STATE_READY ||
-                    CommCareApplication._().getDatabaseState() != CommCareApplication.STATE_READY) {
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-
-                this.startActivityForResult(i, INIT_APP);
-            } else if (!CommCareApplication._().getCurrentApp().areResourcesValidated()
-                    // if superuser is enabled, we won't need to validate multimedia, just launch the home screen directly
-                    && !DeveloperPreferences.isSuperuserEnabled()) {
-
-                Intent i = new Intent(this, CommCareVerificationActivity.class);
-                this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-                
-            } else if(!CommCareApplication._().getSession().isActive()) {
-                //We got brought back to this point despite 
-                returnToLogin();
-            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                wasExternal = true;
-                String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-                SessionStateDescriptor ssd = new SessionStateDescriptor();
-                ssd.fromBundle(sessionRequest);
-                CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-                this.startNextFetch();
-            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                //We were launched in shortcut mode. Get the command and load us up.
-                CommCareApplication._().getCurrentSession().setCommand(this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-                startNextFetch();
-                //Only launch shortcuts once per intent
-                this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-            } else if (CommCareApplication._().isUpdatePending()) {
-                //We've got an update pending that we need to check on.
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-                //Create the update intent
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String ref = prefs.getString("default_app_server", null);
-
-                i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-                i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-                i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
-
-                startActivityForResult(i, UPGRADE_APP);
-            } else if(CommCareApplication._().isSyncPending(true)) {
-                long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-                String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-                Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-                refreshView();
-
-                //Send unsent forms first. If the process detects unsent forms
-                //it will sync after the are submitted
-                if(!this.checkAndStartUnsentTask(true)) {
-                    //If there were no unsent forms to be sent, we should immediately
-                    //trigger a sync
-                    this.syncData(false);
-                }
-            } else {
-                //Normal Home Screen login time!
-                refreshView();
+        // Path 2: There is no seated app, so launch CommCareSetupActivity
+        else {
+            if (CommCareApplication._().usableAppsPresent()) {
+                // This is BAD -- means we ended up at home screen with no seated app, but there
+                // are other usable apps available. Should not be able to happen.
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
+                        "seated app, but there are other usable apps available on the device.");
             }
-        } catch (SessionUnavailableException sue) {
-            //TODO: See how much context we have, and go login
-            returnToLogin();
+            Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+            this.startActivityForResult(i, INIT_APP);
         }
     }
 
-    private void returnToLogin() {
-        Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i, LOGIN_USER);
+
+    // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
+    // extremely long method
+
+    private void handleDamagedApp() {
+        if (!CommCareApplication._().isStorageAvailable()) {
+            createNoStorageDialog();
+        } else {
+            // See if we're logged in. If so, prompt for recovery.
+            try {
+                CommCareApplication._().getSession();
+                showDialog(DIALOG_CORRUPTED);
+            } catch(SessionUnavailableException e) {
+                // Otherwise, log in first
+                SessionActivityRegistration.returnToLogin(this);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param record the ApplicationRecord corresponding to the seated, unusable app
+     * @return if the unusable app was unseated by this method
+     */
+    private boolean handleUnusableApp(ApplicationRecord record) {
+        if (record.isArchived()) {
+            // If the app is archived, unseat it and try to seat another one
+            CommCareApplication._().unseat(record);
+            CommCareApplication._().initFirstUsableAppRecord();
+            return true;
+        }
+        else {
+            // This app has unvalidated MM
+            if (CommCareApplication._().usableAppsPresent()) {
+                // If there are other usable apps, unseat it and seat another one
+                CommCareApplication._().unseat(record);
+                CommCareApplication._().initFirstUsableAppRecord();
+                return true;
+            } else {
+                handleUnvalidatedApp();
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Handles the case where the seated app is unvalidated and there are no other usable apps
+     * to seat instead -- Either calls out to verification activity or quits out of the app
+     */
+    private void handleUnvalidatedApp() {
+        if (CommCareApplication._().shouldSeeMMVerification()) {
+            Intent i = new Intent(this, CommCareVerificationActivity.class);
+            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
+        } else {
+            // Means that there are no usable apps, but there are multiple apps who all don't have
+            // MM verified -- show an error message and shut down
+            CommCareApplication._().triggerHandledAppExit(this,
+                    Localization.get("multiple.apps.unverified.message"),
+                    Localization.get("multiple.apps.unverified.title"));
+        }
+
+    }
+
+    private void handleExternalLaunch() {
+        wasExternal = true;
+        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
+        SessionStateDescriptor ssd = new SessionStateDescriptor();
+        ssd.fromBundle(sessionRequest);
+        CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+        this.startNextFetch();
+    }
+
+    private void handleShortcutLaunch() {
+        //We were launched in shortcut mode. Get the command and load us up.
+        CommCareApplication._().getCurrentSession().setCommand(
+                this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+        startNextFetch();
+        //Only launch shortcuts once per intent
+        this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+    }
+
+    private void handlePendingUpdate() {
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+
+        //Create the update intent
+        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String ref = prefs.getString("default_app_server", null);
+
+        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
+        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
+        i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
+        startActivityForResult(i, UPGRADE_APP);
+    }
+
+    private void handlePendingSync() {
+        long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+        refreshView();
+
+        //Send unsent forms first. If the process detects unsent forms
+        //it will sync after the are submitted
+        if(!this.checkAndStartUnsentTask(true)) {
+            //If there were no unsent forms to be sent, we should immediately
+            //trigger a sync
+            this.syncData(false);
+        }
     }
 
     private void createNoStorageDialog() {
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
     }
+
+    // endregion
+
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
@@ -1270,7 +1341,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            returnToLogin();
+            SessionActivityRegistration.returnToLogin(this);
             return;
         }
 
