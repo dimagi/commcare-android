@@ -37,7 +37,7 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.DataPullTask;
@@ -60,7 +60,7 @@ import org.javarosa.core.services.storage.StorageFullException;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends CommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;

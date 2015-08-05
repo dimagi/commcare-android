@@ -1,5 +1,17 @@
 package org.commcare.dalvik.application;
 
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -21,6 +33,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -32,10 +45,10 @@ import android.widget.Toast;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
-import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -43,6 +56,7 @@ import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.PreInitLogger;
@@ -58,6 +72,7 @@ import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
@@ -68,6 +83,7 @@ import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -87,16 +103,7 @@ import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import org.acra.annotation.ReportsCrashes;
 
 /**
  * @author ctsims
@@ -108,17 +115,17 @@ import javax.crypto.SecretKey;
         reportType = org.acra.sender.HttpSender.Type.JSON,
         httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
-
+    private static final String TAG = CommCareApplication.class.getSimpleName();
 
     public static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
     public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
+    public static final int STATE_DELETE_REQUESTED = 8;
 
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
-    private int resourceState;
 
     private static CommCareApplication app;
 
@@ -127,11 +134,9 @@ public class CommCareApplication extends Application {
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
 
-    // Generalize
     private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
 
-    //Kind of an odd way to do this
     private boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
@@ -148,6 +153,13 @@ public class CommCareApplication extends Application {
     // Has CommCareSessionService initilization finished?
     // Important so we don't use the service before the db is initialized.
     private boolean mIsBinding = false;
+
+    //Milliseconds to wait for bind
+    private static final int MAX_BIND_TIMEOUT = 5000;
+
+    private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
+
+    private CallInPhoneListener listener = null;
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -206,8 +218,8 @@ public class CommCareApplication extends Application {
 
         intializeDefaultLocalizerData();
 
-        //The fallback in case the db isn't installed 
-        resourceState = initializeAppResources();
+        //The fallback in case the db isn't installed
+        initializeAppResourcesOnStartup();
 
         ACRAUtil.initACRA(this);
     }
@@ -221,46 +233,65 @@ public class CommCareApplication extends Application {
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
 
-        //start a new stack and forget where we were (so we don't restart the app from there)
+        // start a new stack and forget where we were (so we don't restart the
+        // app from there)
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         c.startActivity(i);
     }
 
-    /**
-     * Close down the commcare session and login session.
-     */
-    public void logout() {
-        synchronized(serviceLock) {
-            if(this.sessionWrapper != null) {
-                // clear out commcare session
-                sessionWrapper.reset();
-            }
-            
-            // close down the commcare login session
-            doUnbindService();
-        }
-    }
-    
-    /**
-     * Start commcare login session.
-     */
-    public void logIn(byte[] symetricKey, UserKeyRecord record) {
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
         synchronized(serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if(this.mIsBound) {
-                logout();
+                releaseUserResourcesAndServices();
             }
-            doBindService(symetricKey, record);
+            bindUserSessionService(symetricKey, record);
         }
+    }
+
+    /**
+     * Closes down the user service, resources, and background tasks. Used for
+     * manual user log-outs.
+     */
+    public void closeUserSession() {
+        synchronized(serviceLock) {
+            // Cancel any running tasks before closing down the user databse.
+            ManagedAsyncTask.cancelTasks();
+
+            releaseUserResourcesAndServices();
+        }
+    }
+
+    /**
+     * Closes down the user service, resources, and background tasks,
+     * broadcasting an intent to redirect the user to the login screen. Used
+     * for session-expiration related user logouts.
+     */
+    public void expireUserSession() {
+        synchronized(serviceLock) {
+            closeUserSession();
+
+            SessionActivityRegistration.registerSessionExpiration();
+            sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
+        }
+    }
+
+    public void releaseUserResourcesAndServices() {
+        try {
+            CommCareApplication._().getSession().closeServiceResources();
+        } catch (SessionUnavailableException e) {
+            Log.w(TAG, "User's session services have unexpectedly already " +
+                    "been closed down. Proceeding to close the session.");
+        }
+
+        unbindUserSessionService();
     }
 
     public SecretKey createNewSymetricKey() throws SessionUnavailableException {
         return getSession().createNewSymetricKey();
     }
-
-    private CallInPhoneListener listener = null;
 
     private void attachCallListener() {
         TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
@@ -312,13 +343,9 @@ public class CommCareApplication extends Application {
         return dbState;
     }
 
-    public int getAppResourceState() {
-        return resourceState;
-    }
-
     public void initializeGlobalResources(CommCareApp app) {
         if (dbState != STATE_UNINSTALLED) {
-            resourceState = initializeAppResources(app);
+            initializeAppResources(app);
         }
     }
 
@@ -333,7 +360,8 @@ public class CommCareApplication extends Application {
 
     public void intializeDefaultLocalizerData() {
         Localization.init(true);
-        Localization.registerLanguageReference("default", "jr://asset/locales/messages_ccodk_default.txt");
+        Localization.registerLanguageReference("default",
+                "jr://asset/locales/messages_ccodk_default.txt");
         Localization.setDefaultLocale("default");
 
         //For now. Possibly handle this better in the future
@@ -352,28 +380,77 @@ public class CommCareApplication extends Application {
         ReferenceManager._().addReferenceFactory(http);
         ReferenceManager._().addReferenceFactory(afr);
         ReferenceManager._().addReferenceFactory(arfr);
-        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/", GlobalConstants.MEDIA_REF));
+        ReferenceManager._().addRootTranslator(new RootTranslator("jr://media/",
+                GlobalConstants.MEDIA_REF));
     }
 
-    private int initializeAppResources() {
-        //There should be exactly one of these for now
+    /**
+     * Performs the appropriate initialization of an application when this CommCareApplication is
+     * first launched
+     */
+    private void initializeAppResourcesOnStartup() {
+        // Before we try to initialize a new app, check if any existing apps were left in a
+        // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
-            if (record.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                //We have an app record ready to go
-                return initializeAppResources(new CommCareApp(record));
+            if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
+                try {
+                    uninstall(record);
+                }
+                catch (RuntimeException e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
+                            "during startup that was previously left partially-deleted");
+                }
             }
         }
-        return STATE_UNINSTALLED;
+
+        // There may now be multiple app records in storage, because of multiple apps support. We
+        // want to initialize one of them to start, so that there will be currently-seated app when
+        // the login screen starts up
+
+        // If there is a 'last app' set in shared preferences, try to initialize that application.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
+        if (!"".equals(lastAppId)){
+            ApplicationRecord lastApp = getAppById(lastAppId);
+            if (lastApp == null || !lastApp.isUsable()) {
+                // This app record could be null if it has since been uninstalled, or unusable if
+                // it has since been archived, etc. In either case, just revert to picking the
+                // first app
+                initFirstUsableAppRecord();
+            } else {
+                initializeAppResources(new CommCareApp(lastApp));
+            }
+        }
+
+        // Otherwise, just pick the first app in the list to initialize
+        initFirstUsableAppRecord();
     }
 
-    private int initializeAppResources(CommCareApp app) {
+    /**
+     * Initializes the first "usable" application from the list of globally installed app records,
+     * if there is one
+     */
+    public void initFirstUsableAppRecord() {
+        for(ApplicationRecord record : getUsableAppRecords()) {
+            initializeAppResources(new CommCareApp(record));
+            break;
+        }
+    }
+
+    /**
+     * Initialize all of the given app's resources, and set the state of its resources accordingly
+     *
+     * @param app the CC app to initialize
+     */
+    public void initializeAppResources(CommCareApp app) {
+        int resourceState;
         try {
             currentApp = app;
             if (currentApp.initializeApplication()) {
-                return STATE_READY;
+                resourceState = STATE_READY;
             } else {
                 //????
-                return STATE_CORRUPTED;
+                resourceState = STATE_CORRUPTED;
             }
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
@@ -381,8 +458,165 @@ public class CommCareApplication extends Application {
             e.printStackTrace();
             ExceptionReportTask ert = new ExceptionReportTask();
             ert.execute(e);
-            return STATE_CORRUPTED;
+            resourceState = STATE_CORRUPTED;
         }
+        app.setAppResourceState(resourceState);
+    }
+
+    /**
+     * @return all ApplicationRecords in storage, regardless of their status, in alphabetical order
+     */
+    public ArrayList<ApplicationRecord> getInstalledAppRecords() {
+        ArrayList<ApplicationRecord> records = new ArrayList<>();
+        for (ApplicationRecord r : getGlobalStorage(ApplicationRecord.class)) {
+            records.add(r);
+        }
+        Collections.sort(records, new Comparator<ApplicationRecord>() {
+
+            @Override
+            public int compare(ApplicationRecord lhs, ApplicationRecord rhs) {
+                return lhs.getDisplayName().compareTo(rhs.getDisplayName());
+            }
+
+        });
+        return records;
+    }
+
+    /**
+     * @return all ApplicationRecords that have status installed and are NOT archived
+     */
+    public ArrayList<ApplicationRecord> getVisibleAppRecords() {
+        ArrayList<ApplicationRecord> visible = new ArrayList<>();
+        for (ApplicationRecord r : getInstalledAppRecords()) {
+            if (r.isVisible()) {
+                visible.add(r);
+            }
+        }
+        return visible;
+    }
+
+    /**
+     * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
+     */
+    public ArrayList<ApplicationRecord> getUsableAppRecords() {
+        ArrayList<ApplicationRecord> ready = new ArrayList<>();
+        for (ApplicationRecord r : getInstalledAppRecords()) {
+            if (r.isUsable()) {
+                ready.add(r);
+            }
+        }
+        return ready;
+    }
+
+    /**
+     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
+     * that this should occur only if there is exactly one visible app and it is missing its MM
+     * (because we are then assuming the user is not currently using multiple apps functionality)
+     */
+    public boolean shouldSeeMMVerification() {
+        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
+                CommCareApplication._().getUsableAppRecords().size() == 0);
+    }
+
+    public boolean usableAppsPresent() {
+        return getUsableAppRecords().size() > 0;
+    }
+
+    /**
+     * @return the list of all installed apps as an array
+     */
+    public ApplicationRecord[] appRecordArray() {
+        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
+        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
+        int index = 0;
+        for (ApplicationRecord r : appList) {
+            appArray[index++] = r;
+        }
+        return appArray;
+    }
+
+    /**
+     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
+     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
+     * return null
+     */
+    public ApplicationRecord getAppById(String uniqueId) {
+        for (ApplicationRecord r : getInstalledAppRecords()) {
+            if (r.getUniqueId().equals(uniqueId)) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return if the given ApplicationRecord is the currently seated one
+     */
+    public boolean isSeated(ApplicationRecord record) {
+        return currentApp != null && currentApp.getUniqueId().equals(record.getUniqueId());
+    }
+
+    /**
+     * If the given record is the currently seated app, unseat it
+     */
+    public void unseat(ApplicationRecord record) {
+        if (isSeated(record)) {
+            this.currentApp.teardownSandbox();
+            this.currentApp = null;
+        }
+    }
+
+    /**
+     * Completes a full uninstall of the CC app that the given ApplicationRecord represents.
+     * This method should be idempotent and should be capable of completing an uninstall
+     * regardless of previous failures
+     */
+    public void uninstall(ApplicationRecord record) {
+        CommCareApp app = new CommCareApp(record);
+
+        // 1) If the app we are uninstalling is the currently-seated app, tear down its sandbox
+        if (isSeated(record)) {
+            getCurrentApp().teardownSandbox();
+        }
+
+        // 2) Set record's status to delete requested, so we know if we have left it in a bad
+        // state later
+        record.setStatus(ApplicationRecord.STATUS_DELETE_REQUESTED);
+        getGlobalStorage(ApplicationRecord.class).write(record);
+
+        // 3) Delete the directory containing all of this app's resources
+        FileUtil.deleteFileOrDir(app.storageRoot());
+
+        // 3) Delete all the user databases associated with this app
+        SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
+        for (UserKeyRecord user : userDatabase) {
+            File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
+            if (f.exists()) {
+                boolean deleted = f.delete();
+                if (!deleted) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
+                            "deleted during app uninstall. Aborting uninstall process for now.");
+                    // If we failed to delete a file, it is likely because there is an open pointer
+                    // to that db still in use, so stop the uninstall for now, and rely on it to
+                    // complete the next time the app starts up
+                    return;
+                }
+            }
+        }
+
+        // 4) Delete the app database
+        File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
+        if (f.exists()) {
+            boolean deleted = f.delete();
+            if (!deleted) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
+                        "during app uninstall. Aborting uninstall process for now.");
+                return;
+            }
+        }
+
+        // 5) Delete the ApplicationRecord
+        getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 
     private int initGlobalDb() {
@@ -392,7 +626,7 @@ public class CommCareApplication extends Application {
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
-            //Only thrown in DB isn't there
+            //Only thrown if DB isn't there
             return STATE_UNINSTALLED;
         }
     }
@@ -464,25 +698,30 @@ public class CommCareApplication extends Application {
      * It makes no attempt to make sure this is a safe operation when called, so
      * it shouldn't be used lightly.
      */
-    public void clearUserData() throws SessionUnavailableException {
+    public void clearUserData() {
 //        //First clear anything that will require the user's key, since we're going to wipe it out!
 //        getStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
-//        
+//
 //        //TODO: We should really be wiping out the _stored_ instances here, too
 //        getStorage(FormRecord.STORAGE_KEY, FormRecord.class).removeAll();
-//        
+//
 //        //Also, any of the sessions we've got saved
 //        getStorage(SessionStateDescriptor.STORAGE_KEY, SessionStateDescriptor.class).removeAll();
-//        
+//
 //        //Now we wipe out the user entirely
 //        getStorage(User.STORAGE_KEY, User.class).removeAll();
-//        
+//
 //        //Get rid of any user fixtures
 //        getStorage("fixture", FormInstance.class).removeAll();
-//        
+//
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
-        final String username = this.getSession().getLoggedInUser().getUsername();
+        final String username;
+        try {
+            username = this.getSession().getLoggedInUser().getUsername();
+        } catch (SessionUnavailableException e) {
+            return;
+        }
 
         final Set<String> dbIdsToRemove = new HashSet<String>();
 
@@ -498,9 +737,7 @@ public class CommCareApplication extends Application {
             }
         });
 
-        //TODO: We can just delete the db entirely. 
-        //Should be good to go. The app'll log us out now that there's no user details in memory
-        logout();
+        //TODO: We can just delete the db entirely.
 
         Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
 
@@ -513,6 +750,7 @@ public class CommCareApplication extends Application {
             //(Eventually)
             this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
         }
+        CommCareApplication._().closeUserSession();
     }
 
     public void prepareTemporaryStorage() {
@@ -566,8 +804,8 @@ public class CommCareApplication extends Application {
             this.mCurrentServiceBindTimeout = timeout;
         }
     }
-    
-    void doBindService(final byte[] key, final UserKeyRecord record) {
+
+    private void bindUserSessionService(final byte[] key, final UserKeyRecord record) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 // This is called when the connection with the service has been
@@ -765,9 +1003,9 @@ public class CommCareApplication extends Application {
         Calendar lastRestoreCalendar = Calendar.getInstance();
         lastRestoreCalendar.setTimeInMillis(last);
 
-        //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior, 
+        //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
         //you still sync, so people can get into the cycle of doing it once in the morning, which
-        //is more valuable than syncing mid-day.        
+        //is more valuable than syncing mid-day.
         if (period == DateUtils.DAY_IN_MILLIS &&
                 (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
             return true;
@@ -814,13 +1052,12 @@ public class CommCareApplication extends Application {
         return updatePending;
     }
 
-    /**
-     * Logout of commcare login session and close down connection to the bound
-     * service.
-     */
-    void doUnbindService() {
+    private void unbindUserSessionService() {
         synchronized (serviceLock) {
             if (mIsBound) {
+                if (sessionWrapper != null) {
+                    sessionWrapper.reset();
+                }
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
@@ -828,18 +1065,13 @@ public class CommCareApplication extends Application {
         }
     }
 
-    //Milliseconds to wait for bind
-    private static final int MAX_BIND_TIMEOUT = 5000;
-
-    private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
-
     public CommCareSessionService getSession() throws SessionUnavailableException {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while (mIsBinding) {
             if (System.currentTimeMillis() - started > mCurrentServiceBindTimeout) {
                 //Something bad happened
-                doUnbindService();
+                unbindUserSessionService();
                 throw new SessionUnavailableException("Timeout binding to session service");
             }
         }
@@ -969,12 +1201,10 @@ public class CommCareApplication extends Application {
         }
     }
 
-    // End - Error Message Hooks
-
     private boolean syncPending = false;
 
     /**
-     * @return True if there is a sync action pending. False otherwise.
+     * @return True if there is a sync action pending.
      */
     private boolean getPendingSyncStatus() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -1008,7 +1238,7 @@ public class CommCareApplication extends Application {
         if (areAutomatedActionsInvalid()) {
             return false;
         }
-        //We only set this to true occasionally, but in theory it could be set to false 
+        //We only set this to true occasionally, but in theory it could be set to false
         //from other factors, so turn it off if it is.
         if (!getPendingSyncStatus()) {
             syncPending = false;
@@ -1032,8 +1262,9 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Notify the application that something has occurred which has been logged, and which should
-     * cause log submission to occur as soon as possible.
+     * Notify the application that something has occurred which has been
+     * logged, and which should cause log submission to occur as soon as
+     * possible.
      */
     public void notifyLogsPending() {
         doReportMaintenance(true);
@@ -1096,5 +1327,4 @@ public class CommCareApplication extends Application {
             }
         }
     }
-
 }

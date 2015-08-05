@@ -79,6 +79,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -891,7 +892,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //is to invalidate the view, though.
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
-        Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
+        Log.i("Questions", "Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
 
         if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
             Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
@@ -2327,6 +2328,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     protected void onPause() {
         super.onPause();
 
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+
         dismissDialogs();
 
         if (mCurrentView != null && currentPromptIsQuestion()) {
@@ -2342,6 +2345,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     protected void onResume() {
         super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
 
         registerFormEntryReceivers();
 
@@ -2595,15 +2600,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // Notify the key session that the form state has been saved (or at
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
-            try {
-                CommCareApplication._().getSession().closeSession(true);
-            } catch (SessionUnavailableException sue) {
-                // form saving took too long, so we logged out already.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Saving current form took too long, " +
-                        "so data was (probably) discarded and the session closed. " +
-                        "Save exit code: " + saveStatus);
-            }
+            CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
                 case SaveToDiskTask.SAVED:

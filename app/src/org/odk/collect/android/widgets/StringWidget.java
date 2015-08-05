@@ -162,7 +162,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.isAltPressed() == true) {
+        if (event.isAltPressed()) {
             return false;
         }
         widgetEntryChanged();

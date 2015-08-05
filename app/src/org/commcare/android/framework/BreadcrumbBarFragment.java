@@ -12,6 +12,7 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
@@ -78,7 +79,10 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        
+        refresh(activity);
+    }
+
+    public void refresh(Activity activity) {
         breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
         ActionBar actionBar = activity.getActionBar();
@@ -88,9 +92,9 @@ public class BreadcrumbBarFragment extends Fragment {
         } else {
             attachBreadcrumbBar(activity, actionBar);
         }
-        
+
         this.tile = findAndLoadCaseTile(activity);
-    }     
+    }
         
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
         String title = null;
@@ -373,6 +377,9 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
     private static String defaultTitle(String currentTitle, Activity activity) {
+        if (activity instanceof CommCareSetupActivity) {
+            return "CommCare";
+        }
         if(currentTitle == null || "".equals(currentTitle)) {
             currentTitle = CommCareActivity.getTopLevelTitleName(activity);
         }

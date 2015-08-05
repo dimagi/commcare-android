@@ -66,6 +66,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Should the user be logged out when this activity is done?
      */
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_INSTALL_FAILED = "install_failed";
 
     /**
      * Activity is being launched by auto update, instead of being triggered
@@ -91,6 +92,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         UPGRADE
     }
 
+
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     
     public static final int MODE_BASIC = Menu.FIRST;
@@ -103,10 +105,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private boolean startAllowed = true;
     private boolean inUpgradeMode = false;
-    
     private String incomingRef;
-
     private CommCareApp ccApp;
+
+    /**
+     * Indicates whether this activity was launched from the AppManagerActivity
+     */
+    private boolean mFromManager;
 
     /**
      * Whether this needs to be interactive (if it's automatic, we want to skip
@@ -133,8 +138,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
+        this.mFromManager = this.getIntent().
+                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
         if(savedInstanceState == null) {
@@ -160,7 +166,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else{
+            } else {
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
             inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
@@ -177,7 +183,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
-
         // if we are in upgrade mode we want the UiState to reflect that,
         // unless we are showing an error
         if (inUpgradeMode && this.uiState != UiState.ERROR){
@@ -198,6 +203,18 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         uiStateScreenTransition();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // If clicking the regular app icon brought us to CommCareSetupActivity
+        // (because that's where we were last time the app was up), but there are now
+        // 1 or more available apps, we want to redirect to CCHomeActivity
+        if (!mFromManager && CommCareApplication._().usableAppsPresent()) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
+    }
+    
     @Override
     public void onURLChosen(String url) {
         if(BuildConfig.DEBUG) {
@@ -447,6 +464,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         case StatusBadCertificate:
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
                             break;
+                        case StatusDuplicateApp:
+                            startOverInstall = true;
+                            receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+                            break;
                         default:
                             startOverInstall = true;
                             receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
@@ -512,14 +533,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         return true;
     }
-    
+
     /**
      * Return to or launch home activity.
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
+     * @param failed did installation occur successfully?
      */
-    void done(boolean requireRefresh) {
+    void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
@@ -529,6 +551,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             //Good to go
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+            i.putExtra(KEY_INSTALL_FAILED, failed);
             setResult(RESULT_OK, i);
         }
         finish();
@@ -562,7 +585,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(!appChanged) {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged);
+        done(appChanged, false);
     }
 
     @Override
