@@ -1,16 +1,12 @@
 package org.commcare.android.tasks;
 
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -41,7 +37,6 @@ public abstract class ResourceEngineTask<R>
 
     private static final int PHASE_CHECKING = 0;
     public static final int PHASE_DOWNLOAD = 1;
-    public static final int PHASE_COMMIT = 2;
 
     /**
      * Wait time between dialog updates in milliseconds

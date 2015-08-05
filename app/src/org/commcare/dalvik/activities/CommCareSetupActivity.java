@@ -18,14 +18,12 @@ import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -34,7 +32,6 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -56,9 +53,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         SetupKeepInstallFragment.StartStopInstallCommands {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
-    public static final String RESOURCE_STATE = "resource_state";
     public static final String KEY_PROFILE_REF = "app_profile_ref";
-    public static final String KEY_ERROR_MODE = "app_error_mode";
     private static final String KEY_UI_STATE = "current_install_ui_state";
 
     /**
@@ -72,8 +67,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * manually.
      */
     public static final String KEY_AUTO = "is_auto_update";
-    private static final String KEY_START_OVER = "start_over_uprgrade";
-    private static final String KEY_LAST_INSTALL = "last_install_time";
+    public static final String KEY_LAST_INSTALL = "last_install_time";
 
     /**
      * UI configuration states.
@@ -82,15 +76,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         IN_URL_ENTRY,
         CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
-        ERROR,
+        ERROR
     }
 
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
     
-    public static final int MODE_BASIC = Menu.FIRST;
-    public static final int MODE_ADVANCED = Menu.FIRST + 1;
-    private static final int MODE_ARCHIVE = Menu.FIRST + 2;
+    private static final int MODE_ARCHIVE = Menu.FIRST;
     
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
@@ -116,8 +108,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * (empty or installed) state before the last install ran.
      */
     private boolean resourceTableWasFresh;
-
-    private static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
 
     //region UIState fragments
 
@@ -333,25 +323,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return new CommCareApp(newRecord);
     }
 
-    private void startResourceInstall() {
-        CommCareApp ccApp = getCommCareApp();
-        long lastInstallTime = ccApp.getAppPreferences().getLong(KEY_LAST_INSTALL, -1);
-        if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
-            // If we are triggering a start over install due to the time
-            // threshold when there is a partial resource table that we could
-            // be using, send a message to log this.
-            ResourceTable temporary = ccApp.getCommCarePlatform().getUpgradeResourceTable();
-            if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "A start-over on installation has been "
-                        + "triggered by the time threshold when there is an existing partial "
-                        + "resource table that could be used.");
-            }
-            startResourceInstall(true);
-        } else {
-            startResourceInstall(ccApp.getAppPreferences().getBoolean(KEY_START_OVER, true));
-        }
-    }
-    
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
@@ -364,13 +335,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.startAllowed = true;
     }
 
-    /**
-     * @param startOverUpgrade When set CommCarePlatform.stageUpgradeTable()
-     *                         will clear the last version of the upgrade table
-     *                         and start over. Otherwise install reuses the
-     *                         last version of the upgrade table.
-     */
-    private void startResourceInstall(boolean startOverUpgrade) {
+    private void startResourceInstall() {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
 
@@ -391,15 +356,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              // sleep before it starts, set based on whether we are currently
              // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
-            
+
             ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(app, startOverUpgrade,
+                new ResourceEngineTask<CommCareSetupActivity>(app,
                         DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                 @Override
                 protected void deliverResult(CommCareSetupActivity receiver,
                                              ResourceEngineOutcomes result) {
-                    boolean startOverInstall = false;
                     switch (result) {
                         case StatusInstalled:
                             receiver.reportSuccess(true);
@@ -410,42 +374,27 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         case StatusMissingDetails:
                             // fall through to more general case:
                         case StatusMissing:
-                            CustomProgressDialog lastDialog = receiver.getCurrentDialog();
-                            if ((lastDialog != null) && lastDialog.isChecked()) {
-                                // 'Keep Trying' installation mode is set
-                                receiver.startResourceInstall(false);
-                            } else {
-                                receiver.failMissingResource(this.missingResourceException, result);
-                            }
+                            receiver.failMissingResource(this.missingResourceException, result);
                             break;
                         case StatusBadReqs:
                             receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                             break;
                         case StatusFailState:
-                            startOverInstall = true;
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
                             break;
                         case StatusNoLocalStorage:
-                            startOverInstall = true;
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
                             break;
                         case StatusBadCertificate:
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
                             break;
                         case StatusDuplicateApp:
-                            startOverInstall = true;
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
                             break;
                         default:
-                            startOverInstall = true;
                             receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
                             break;
                      }
-
-                    // Did the install fail in a way where the existing
-                    // resource table should be reused in the next install
-                    // attempt?
-                    receiver.ccApp.getAppPreferences().edit().putBoolean(KEY_START_OVER, startOverInstall).commit();
 
                     // Check if we want to record this as a 'last install
                     // time', based on the state of the resource table before

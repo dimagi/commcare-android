@@ -8,6 +8,9 @@ import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeTask;
+import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.model.ResourceTable;
 
 /**
  * Allow user to manage app upgrading:
@@ -24,6 +27,7 @@ public class UpgradeActivity extends CommCareActivity
     private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
 
     private boolean taskIsCancelling;
+    private boolean resourceTableWasFresh;
 
     private UpgradeTask upgradeTask;
 
@@ -128,6 +132,46 @@ public class UpgradeActivity extends CommCareActivity
         }
 
         unregisterTask();
+
+        boolean startOverInstall = false;
+        switch (result) {
+            case StatusInstalled:
+            case StatusUpToDate:
+            case StatusMissingDetails:
+            case StatusMissing:
+            case StatusBadReqs:
+                break;
+            case StatusFailState:
+                startOverInstall = true;
+                break;
+            case StatusNoLocalStorage:
+                startOverInstall = true;
+                break;
+            case StatusBadCertificate:
+                break;
+            case StatusDuplicateApp:
+                startOverInstall = true;
+                break;
+            default:
+                startOverInstall = true;
+                break;
+         }
+
+        // Did the install fail in a way where the existing
+        // resource table should be reused in the next install
+        // attempt?
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        app.getAppPreferences().edit().putBoolean(UpgradeTask.KEY_START_OVER, startOverInstall).commit();
+        // Check if we want to record this as a 'last install
+        // time', based on the state of the resource table before
+        // and after this install took place
+        ResourceTable temporary = app.getCommCarePlatform().getUpgradeResourceTable();
+
+        if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL &&
+                resourceTableWasFresh) {
+            app.getAppPreferences().edit().putLong(CommCareSetupActivity.KEY_LAST_INSTALL,
+                    System.currentTimeMillis()).commit();
+        }
     }
 
     @Override
@@ -150,6 +194,18 @@ public class UpgradeActivity extends CommCareActivity
                     "already registered task.");
             return;
         }
+
+        // store what the state of the resource table was before this
+        // install, so we can compare it to the state after and decide if
+        // this should count as a 'last install time'
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        int tableStateBeforeInstall =
+            app.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
+
+        resourceTableWasFresh =
+            (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY) ||
+            (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
+
         upgradeTask.execute("");
         uiController.setDownloadingButtonState();
         uiController.updateProgressBar(0);

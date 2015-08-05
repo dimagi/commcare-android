@@ -7,6 +7,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -46,6 +47,7 @@ public class UpgradeTask
     private static UpgradeTask singletonRunningInstance = null;
     private int progress = 0;
     // ----------------------------------
+    public static final String KEY_START_OVER = "start_over_uprgrade";
     protected UnresolvedResourceException missingResourceException = null;
     // last time in system millis that we updated the status dialog
     private long lastTime = 0;
@@ -62,7 +64,9 @@ public class UpgradeTask
      * version of the upgrade table and start over. Otherwise install reuses
      * the last version of the upgrade table.
      */
-    private static final boolean startOverUpgrade = false;
+    private boolean startOverUpgrade = false;
+
+    private static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
     // ----------------------------------
 
     private UpgradeTask() {
@@ -244,6 +248,7 @@ public class UpgradeTask
                     "Unknown error ocurred during install|" + e.getMessage());
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
+
     }
 
     @Override
@@ -342,5 +347,24 @@ public class UpgradeTask
     @Override
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[]{complete, total, phase});
+    }
+
+    public void calcResourceFreshness() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        long lastInstallTime = app.getAppPreferences().getLong(CommCareSetupActivity.KEY_LAST_INSTALL, -1);
+        if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
+            // If we are triggering a start over install due to the time
+            // threshold when there is a partial resource table that we could
+            // be using, send a message to log this.
+            ResourceTable temporary = app.getCommCarePlatform().getUpgradeResourceTable();
+            if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "A start-over on installation has been "
+                        + "triggered by the time threshold when there is an existing partial "
+                        + "resource table that could be used.");
+            }
+            startOverUpgrade = true;
+        } else {
+            startOverUpgrade = app.getAppPreferences().getBoolean(KEY_START_OVER, true);
+        }
     }
 }
