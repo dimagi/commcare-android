@@ -3,19 +3,6 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.util.CachingAsyncImageLoader;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.util.GridCoordinate;
-import org.commcare.util.GridStyle;
-import org.javarosa.core.services.Logger;
-import org.javarosa.xpath.XPathUnhandledException;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -33,6 +20,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
+
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.util.CachingAsyncImageLoader;
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.util.GridCoordinate;
+import org.commcare.util.GridStyle;
+import org.javarosa.core.services.Logger;
+import org.javarosa.xpath.XPathUnhandledException;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.ViewId;
 
 import java.util.Arrays;
 
@@ -141,10 +141,9 @@ public class GridEntityView extends GridLayout {
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
 		//setup all the various dimensions we need
-		Point size = new Point();
 		Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-		{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			Point size = new Point();
 			display.getSize(size);
 
 			screenWidth = size.x;
