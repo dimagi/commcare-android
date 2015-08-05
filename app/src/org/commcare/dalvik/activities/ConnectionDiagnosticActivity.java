@@ -10,8 +10,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
 import org.commcare.android.tasks.DataSubmissionListener;
@@ -31,7 +31,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 
 @ManagedUi(R.layout.connection_diagnostic)
-public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
+public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";

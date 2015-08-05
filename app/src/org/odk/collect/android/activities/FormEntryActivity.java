@@ -79,7 +79,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionAwareFragmentActivity;
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -146,7 +146,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends SessionAwareFragmentActivity implements AnimationListener, FormLoaderListener,
+public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -892,7 +892,7 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
         //is to invalidate the view, though.
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
-        Log.i("Questions","Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
+        Log.i("Questions", "Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
 
         if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
             Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
@@ -2328,6 +2328,8 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
     protected void onPause() {
         super.onPause();
 
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+
         dismissDialogs();
 
         if (mCurrentView != null && currentPromptIsQuestion()) {
@@ -2343,6 +2345,8 @@ public class FormEntryActivity extends SessionAwareFragmentActivity implements A
     @Override
     protected void onResume() {
         super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
 
         registerFormEntryReceivers();
 

@@ -252,7 +252,8 @@ public class CommCareApplication extends Application {
     }
 
     /**
-     * Closes down the user service, resources, and background tasks.
+     * Closes down the user service, resources, and background tasks. Used for
+     * manual user log-outs.
      */
     public void closeUserSession() {
         synchronized(serviceLock) {
@@ -265,7 +266,8 @@ public class CommCareApplication extends Application {
 
     /**
      * Closes down the user service, resources, and background tasks,
-     * broadcasting an intent to redirect the user to the login screen.
+     * broadcasting an intent to redirect the user to the login screen. Used
+     * for session-expiration related user logouts.
      */
     public void expireUserSession() {
         synchronized(serviceLock) {
