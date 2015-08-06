@@ -119,31 +119,7 @@ public class UpgradeTask
             ResourceTable recovery = platform.getRecoveryTable();
             temporary.setStateListener(this);
 
-            // When profileRef points is http, add appropriate dev flags
-            URL profileUrl = null;
-            try {
-                profileUrl = new URL(profileRef);
-            } catch (MalformedURLException e) {
-                // profileRef couldn't be parsed as a URL, so don't worry
-                // about adding dev flags to the url's query
-            }
-
-            // If we want to be using/updating to the latest build of the
-            // app (instead of latest release), add it to the query tags of
-            // the profile reference
-            if (DeveloperPreferences.isNewestAppVersionEnabled() &&
-                    (profileUrl != null) &&
-                    ("https".equals(profileUrl.getProtocol()) ||
-                            "http".equals(profileUrl.getProtocol()))) {
-                if (profileUrl.getQuery() != null) {
-                    // If the profileRef url already have query strings
-                    // just add a new one to the end
-                    profileRef = profileRef + "&target=build";
-                } else {
-                    // otherwise, start off the query string with a ?
-                    profileRef = profileRef + "?target=build";
-                }
-            }
+            profileRef = addParamsToProfileReference(profileRef);
 
             try {
                 // This populates the upgrade table with resources based on
@@ -197,18 +173,9 @@ public class UpgradeTask
                 }
             }
 
-            // Initializes app resources and the app itself, including doing a
-            // check to see if this app record was converted by the db upgrader
-            CommCareApplication._().initializeGlobalResources(app);
-
-            // Write this App Record to storage -- needs to be performed after
-            // localizations have been initialized (by
-            // initializeGlobalResources), so that getDisplayName() works
-            app.writeInstalled();
-
-            InstallAndUpdateUtils.updateProfileRef(app.getAppPreferences(),
-                    platform.getCurrentProfile().getAuthReference(),
-                    profileRef);
+            InstallAndUpdateUtils.initAndCommitApp(app,
+                    profileRef,
+                    platform.getCurrentProfile().getAuthReference());
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (Exception e) {
@@ -216,6 +183,35 @@ public class UpgradeTask
                     "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
+    }
+
+    private String addParamsToProfileReference(final String profileRef) {
+        URL profileUrl = null;
+        try {
+            profileUrl = new URL(profileRef);
+        } catch (MalformedURLException e) {
+            // don't add url query params to non-url profile references
+            return profileRef;
+        }
+
+        if (!("https".equals(profileUrl.getProtocol()) ||
+                "http".equals(profileUrl.getProtocol()))) {
+            return profileRef;
+        }
+
+        // If we want to be using/updating to the latest build of the
+        // app (instead of latest release), add it to the query tags of
+        // the profile reference
+        if (DeveloperPreferences.isNewestAppVersionEnabled()) {
+            if (profileUrl.getQuery() != null) {
+                // url already has query strings, so add a new one to the end
+                return profileRef + "&target=build";
+            } else {
+                return profileRef + "?target=build";
+            }
+        }
+
+        return profileRef;
     }
 
     @Override

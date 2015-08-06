@@ -8,7 +8,6 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -121,18 +120,9 @@ public abstract class ResourceEngineTask<R>
                 }
             }
 
-            // Initializes app resources and the app itself, including doing a
-            // check to see if this app record was converted by the db upgrader
-            CommCareApplication._().initializeGlobalResources(app);
-
-            // Write this App Record to storage -- needs to be performed after
-            // localizations have been initialized (by
-            // initializeGlobalResources), so that getDisplayName() works
-            app.writeInstalled();
-
-            InstallAndUpdateUtils.updateProfileRef(app.getAppPreferences(),
-                    platform.getCurrentProfile().getAuthReference(),
-                    profileRef);
+            InstallAndUpdateUtils.initAndCommitApp(app,
+                    profileRef,
+                    platform.getCurrentProfile().getAuthReference());
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (Exception e) {
