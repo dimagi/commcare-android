@@ -1,6 +1,5 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.util.Hashtable;
 import android.util.Log;
 
 import org.javarosa.core.model.FormDef;
@@ -11,6 +10,8 @@ import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.javarosa.xpath.XPathException;
 import org.kxml2.kdom.Element;
+
+import java.util.Hashtable;
 
 /**
  * @author ctsims

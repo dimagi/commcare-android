@@ -1,7 +1,6 @@
 package org.odk.collect.android.utilities;
 
-import java.util.Calendar;
-import java.util.Date;
+import android.content.Context;
 
 import org.commcare.dalvik.R;
 import org.joda.time.Chronology;
@@ -9,7 +8,8 @@ import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
 import org.joda.time.chrono.GregorianChronology;
 
-import android.content.Context;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Ethiopian Date Helper.

@@ -1,10 +1,10 @@
 package org.commcare.android.tasks;
 
-import java.util.List;
-
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
+
+import java.util.List;
 
 public interface EntityLoaderListener {
     public void attach(EntityLoaderTask task);

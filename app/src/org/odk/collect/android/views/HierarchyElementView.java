@@ -14,16 +14,16 @@
 
 package org.odk.collect.android.views;
 
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
-import org.odk.collect.android.logic.HierarchyElement;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.odk.collect.android.logic.HierarchyElement;
 
 public class HierarchyElementView extends RelativeLayout {
     public static final String TAG = HierarchyElementView.class.getSimpleName();

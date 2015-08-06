@@ -1,14 +1,9 @@
 package org.commcare.android.net;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.util.Date;
-import java.util.Vector;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -40,10 +35,15 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.net.http.AndroidHttpClient;
-import android.util.Log;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
+import java.net.URL;
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author ctsims

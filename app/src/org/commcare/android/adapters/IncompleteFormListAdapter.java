@@ -1,17 +1,16 @@
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.os.AsyncTask.Status;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
+import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -21,12 +20,13 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.os.AsyncTask.Status;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Responsible for delegating the loading of form lists and performing

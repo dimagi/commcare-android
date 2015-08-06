@@ -3,6 +3,8 @@
  */
 package org.commcare.android.crypt;
 
+import org.commcare.android.util.AndroidStreamUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,8 +29,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.util.AndroidStreamUtil;
 
 /**
  * @author ctsims

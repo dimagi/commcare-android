@@ -3,6 +3,8 @@
  */
 package org.commcare.android.database.user;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -20,8 +22,6 @@ import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
-
-import android.content.Context;
 
 /**
  * The central db point for 

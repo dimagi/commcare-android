@@ -1,12 +1,12 @@
 package org.commcare.android.references;
 
+import org.commcare.android.net.HttpRequestGenerator;
+import org.javarosa.core.reference.Reference;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-
-import org.commcare.android.net.HttpRequestGenerator;
-import org.javarosa.core.reference.Reference;
 
 /**
  * @author ctsims

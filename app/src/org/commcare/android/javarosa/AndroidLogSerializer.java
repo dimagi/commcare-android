@@ -1,8 +1,5 @@
 package org.commcare.android.javarosa;
 
-import java.io.IOException;
-import java.util.Hashtable;
-
 import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
@@ -11,6 +8,9 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  * @author ctsims

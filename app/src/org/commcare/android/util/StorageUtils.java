@@ -3,18 +3,18 @@
  */
 package org.commcare.android.util;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.javarosa.core.services.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.javarosa.core.services.Logger;
 
 /**
  * 

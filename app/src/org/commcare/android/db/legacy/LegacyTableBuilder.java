@@ -3,16 +3,16 @@
  */
 package org.commcare.android.db.legacy;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Vector;
+import android.util.Pair;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
-import android.util.Pair;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Vector;
 
 /**
  * @author ctsims

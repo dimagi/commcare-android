@@ -1,7 +1,6 @@
 package org.commcare.android.tasks;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Pair;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
@@ -14,7 +13,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
-import android.util.Pair;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**

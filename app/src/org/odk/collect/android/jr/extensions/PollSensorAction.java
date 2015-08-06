@@ -1,11 +1,15 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
@@ -22,16 +26,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.GeoUtils;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * XForms Action extension to periodically poll a sensor and optionally save its value.
