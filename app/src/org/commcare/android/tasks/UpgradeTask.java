@@ -20,10 +20,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateException;
 import java.util.Vector;
-
-import javax.net.ssl.SSLHandshakeException;
 
 /**
  * Upgrades the seated app in the background. If the user opens the Upgrade
@@ -184,13 +181,10 @@ public class UpgradeTask
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (LocalStorageUnavailableException e) {
-            e.printStackTrace();
-
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Couldn't install file to local storage|" + e.getMessage());
+            InstallAndUpdateUtils.logInstallError(e,
+                    "Couldn't install file to local storage|");
             return ResourceEngineOutcomes.StatusNoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
             if (e.isDuplicateException()) {
                 return ResourceEngineOutcomes.StatusDuplicateApp;
             } else {
@@ -199,21 +193,16 @@ public class UpgradeTask
                 String vRequired = e.getRequiredVersionString();
                 boolean majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "App resources are incompatible with this device|" + e.getMessage());
+                InstallAndUpdateUtils.logInstallError(e,
+                        "App resources are incompatible with this device|");
                 return ResourceEngineOutcomes.StatusBadReqs;
             }
         } catch (UnresolvedResourceException e) {
             // couldn't find a resource, which isn't good.
             e.printStackTrace();
 
-            Throwable mExceptionCause = e.getCause();
-
-            if (mExceptionCause instanceof SSLHandshakeException) {
-                Throwable mSecondExceptionCause = mExceptionCause.getCause();
-                if (mSecondExceptionCause instanceof CertificateException) {
-                    return ResourceEngineOutcomes.StatusBadCertificate;
-                }
+            if (InstallAndUpdateUtils.isBadCertificateError(e)) {
+                return ResourceEngineOutcomes.StatusBadCertificate;
             }
 
             missingResourceException = e;
@@ -226,13 +215,10 @@ public class UpgradeTask
                 return ResourceEngineOutcomes.StatusMissing;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Unknown error ocurred during install|" + e.getMessage());
+            InstallAndUpdateUtils.logInstallError(e,
+                    "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
-
     }
 
     @Override
