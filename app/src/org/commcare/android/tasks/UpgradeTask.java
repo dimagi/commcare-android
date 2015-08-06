@@ -106,8 +106,6 @@ public class UpgradeTask
             boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
-            // ---------------------------------------
-
             if (!appInstalled) {
                 return ResourceEngineOutcomes.StatusFailState;
             }
@@ -147,24 +145,57 @@ public class UpgradeTask
                 }
             }
 
+            try {
+                // This populates the upgrade table with resources based on
+                // binary files, starting with the profile file. If the new
+                // profile is not a newer version, statgeUpgradeTable doesn't
+                // actually pull in all the new references
+                platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
+                Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                if (!newProfile.isNewer(profile)) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                    return ResourceEngineOutcomes.StatusUpToDate;
+                }
 
-            // This populates the upgrade table with resources based on
-            // binary files, starting with the profile file. If the new
-            // profile is not a newer version, statgeUpgradeTable doesn't
-            // actually pull in all the new references
-            platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
-            Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-            if (!newProfile.isNewer(profile)) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                return ResourceEngineOutcomes.StatusUpToDate;
+                phase = PHASE_CHECKING;
+                // Replaces global table with temporary, or w/ recovery if
+                // something goes wrong
+                platform.upgrade(global, temporary, recovery);
+            } catch (LocalStorageUnavailableException e) {
+                InstallAndUpdateUtils.logInstallError(e,
+                        "Couldn't install file to local storage|");
+                return ResourceEngineOutcomes.StatusNoLocalStorage;
+            } catch (UnfullfilledRequirementsException e) {
+                if (e.isDuplicateException()) {
+                    return ResourceEngineOutcomes.StatusDuplicateApp;
+                } else {
+                    int badReqCode = e.getRequirementCode();
+                    String vAvailable = e.getAvailableVesionString();
+                    String vRequired = e.getRequiredVersionString();
+                    boolean majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+
+                    InstallAndUpdateUtils.logInstallError(e,
+                            "App resources are incompatible with this device|");
+                    return ResourceEngineOutcomes.StatusBadReqs;
+                }
+            } catch (UnresolvedResourceException e) {
+                // couldn't find a resource, which isn't good.
+                e.printStackTrace();
+
+                if (InstallAndUpdateUtils.isBadCertificateError(e)) {
+                    return ResourceEngineOutcomes.StatusBadCertificate;
+                }
+
+                missingResourceException = e;
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                        "A resource couldn't be found, almost certainly due to the network|" +
+                                e.getMessage());
+                if (e.isMessageUseful()) {
+                    return ResourceEngineOutcomes.StatusMissingDetails;
+                } else {
+                    return ResourceEngineOutcomes.StatusMissing;
+                }
             }
-
-            phase = PHASE_CHECKING;
-            // Replaces global table with temporary, or w/ recovery if
-            // something goes wrong
-            platform.upgrade(global, temporary, recovery);
-
-            // ---------------------------------------
 
             // Initializes app resources and the app itself, including doing a
             // check to see if this app record was converted by the db upgrader
@@ -180,40 +211,6 @@ public class UpgradeTask
                     profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
-        } catch (LocalStorageUnavailableException e) {
-            InstallAndUpdateUtils.logInstallError(e,
-                    "Couldn't install file to local storage|");
-            return ResourceEngineOutcomes.StatusNoLocalStorage;
-        } catch (UnfullfilledRequirementsException e) {
-            if (e.isDuplicateException()) {
-                return ResourceEngineOutcomes.StatusDuplicateApp;
-            } else {
-                int badReqCode = e.getRequirementCode();
-                String vAvailable = e.getAvailableVesionString();
-                String vRequired = e.getRequiredVersionString();
-                boolean majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
-
-                InstallAndUpdateUtils.logInstallError(e,
-                        "App resources are incompatible with this device|");
-                return ResourceEngineOutcomes.StatusBadReqs;
-            }
-        } catch (UnresolvedResourceException e) {
-            // couldn't find a resource, which isn't good.
-            e.printStackTrace();
-
-            if (InstallAndUpdateUtils.isBadCertificateError(e)) {
-                return ResourceEngineOutcomes.StatusBadCertificate;
-            }
-
-            missingResourceException = e;
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
-                    "A resource couldn't be found, almost certainly due to the network|" +
-                            e.getMessage());
-            if (e.isMessageUseful()) {
-                return ResourceEngineOutcomes.StatusMissingDetails;
-            } else {
-                return ResourceEngineOutcomes.StatusMissing;
-            }
         } catch (Exception e) {
             InstallAndUpdateUtils.logInstallError(e,
                     "Unknown error ocurred during install|");

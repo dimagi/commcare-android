@@ -81,11 +81,45 @@ public abstract class ResourceEngineTask<R>
             // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
 
-            // --------------------------
             // Not upgrade mode, so attempting normal install
             global.setStateListener(this);
-            platform.init(profileRef, global, false);
-            // --------------------------
+            try {
+                platform.init(profileRef, global, false);
+            } catch (LocalStorageUnavailableException e) {
+                InstallAndUpdateUtils.logInstallError(e,
+                        "Couldn't install file to local storage|");
+                return ResourceEngineOutcomes.StatusNoLocalStorage;
+            } catch (UnfullfilledRequirementsException e) {
+                if (e.isDuplicateException()) {
+                    return ResourceEngineOutcomes.StatusDuplicateApp;
+                } else {
+                    badReqCode = e.getRequirementCode();
+                    vAvailable = e.getAvailableVesionString();
+                    vRequired = e.getRequiredVersionString();
+                    majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+
+                    InstallAndUpdateUtils.logInstallError(e,
+                            "App resources are incompatible with this device|");
+                    return ResourceEngineOutcomes.StatusBadReqs;
+                }
+            } catch (UnresolvedResourceException e) {
+                // couldn't find a resource, which isn't good.
+                e.printStackTrace();
+
+                if (InstallAndUpdateUtils.isBadCertificateError(e)) {
+                    return ResourceEngineOutcomes.StatusBadCertificate;
+                }
+
+                missingResourceException = e;
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                        "A resource couldn't be found, almost certainly due to the network|" +
+                                e.getMessage());
+                if (e.isMessageUseful()) {
+                    return ResourceEngineOutcomes.StatusMissingDetails;
+                } else {
+                    return ResourceEngineOutcomes.StatusMissing;
+                }
+            }
 
             // Initializes app resources and the app itself, including doing a
             // check to see if this app record was converted by the db upgrader
@@ -101,40 +135,6 @@ public abstract class ResourceEngineTask<R>
                     profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
-        } catch (LocalStorageUnavailableException e) {
-            InstallAndUpdateUtils.logInstallError(e,
-                    "Couldn't install file to local storage|");
-            return ResourceEngineOutcomes.StatusNoLocalStorage;
-        } catch (UnfullfilledRequirementsException e) {
-            if (e.isDuplicateException()) {
-                return ResourceEngineOutcomes.StatusDuplicateApp;
-            } else {
-                badReqCode = e.getRequirementCode();
-                vAvailable = e.getAvailableVesionString();
-                vRequired = e.getRequiredVersionString();
-                majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
-
-                InstallAndUpdateUtils.logInstallError(e,
-                        "App resources are incompatible with this device|");
-                return ResourceEngineOutcomes.StatusBadReqs;
-            }
-        } catch (UnresolvedResourceException e) {
-            // couldn't find a resource, which isn't good.
-            e.printStackTrace();
-
-            if (InstallAndUpdateUtils.isBadCertificateError(e)) {
-                return ResourceEngineOutcomes.StatusBadCertificate;
-            }
-
-            missingResourceException = e;
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
-                    "A resource couldn't be found, almost certainly due to the network|" +
-                            e.getMessage());
-            if (e.isMessageUseful()) {
-                return ResourceEngineOutcomes.StatusMissingDetails;
-            } else {
-                return ResourceEngineOutcomes.StatusMissing;
-            }
         } catch (Exception e) {
             InstallAndUpdateUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
