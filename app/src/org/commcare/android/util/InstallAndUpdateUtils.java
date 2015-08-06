@@ -56,8 +56,7 @@ public class InstallAndUpdateUtils {
     }
 
     public static void initAndCommitApp(CommCareApp app,
-                                        String profileRef,
-                                        String authRef) {
+                                        String profileRef) {
         // Initializes app resources and the app itself, including doing a
         // check to see if this app record was converted by the db upgrader
         CommCareApplication._().initializeGlobalResources(app);
@@ -66,6 +65,8 @@ public class InstallAndUpdateUtils {
         // localizations have been initialized (by
         // initializeGlobalResources), so that getDisplayName() works
         app.writeInstalled();
+
+        String authRef = app.getCommCarePlatform().getCurrentProfile().getAuthReference();
 
         updateProfileRef(app.getAppPreferences(), authRef, profileRef);
     }

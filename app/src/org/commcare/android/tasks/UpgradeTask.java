@@ -14,7 +14,6 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -30,19 +29,20 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpgradeTask
-        extends ManagedAsyncTask<String, int[], ResourceEngineOutcomes>
+        extends ManagedAsyncTask<String, Integer, ResourceEngineOutcomes>
         implements TableStateListener {
 
     private static final String TAG = UpgradeTask.class.getSimpleName();
 
-    private TaskListener<int[], ResourceEngineOutcomes> taskListener = null;
+    private TaskListener<Integer, ResourceEngineOutcomes> taskListener = null;
 
     private static UpgradeTask singletonRunningInstance = null;
-    private int progress = 0;
-    // ----------------------------------
+
+    private int currentProgress = 0;
+    private int maxProgress = 0;
+
     public static final String KEY_START_OVER = "start_over_uprgrade";
-    // last time in system millis that we updated the status dialog
-    private long lastTime = 0;
+    private long lastDialogUpdate = 0;
     private int phase = -1;
     /**
      * Wait time between dialog updates in milliseconds
@@ -50,16 +50,9 @@ public class UpgradeTask
     private static final long STATUS_UPDATE_WAIT_TIME = 1000;
     private static final int PHASE_CHECKING = 0;
     private static final int PHASE_DOWNLOAD = 1;
-    private static final int PHASE_COMMIT = 2;
-    /**
-     * When set CommCarePlatform.stageUpgradeTable() will clear the last
-     * version of the upgrade table and start over. Otherwise install reuses
-     * the last version of the upgrade table.
-     */
-    private boolean startOverUpgrade = false;
 
-    private static final long START_OVER_THRESHOLD = 604800000; //1 week in milliseconds
-    // ----------------------------------
+    // 1 week in milliseconds
+    private static final long START_OVER_THRESHOLD = 604800000;
 
     private UpgradeTask() {
     }
@@ -120,19 +113,22 @@ public class UpgradeTask
 
             profileRef = addParamsToProfileReference(profileRef);
 
+            boolean startOverUpgrade = calcResourceFreshness();
             try {
                 // This populates the upgrade table with resources based on
                 // binary files, starting with the profile file. If the new
                 // profile is not a newer version, statgeUpgradeTable doesn't
                 // actually pull in all the new references
-                platform.stageUpgradeTable(global, temporary, recovery, profileRef, startOverUpgrade);
-                Resource newProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                platform.stageUpgradeTable(global, temporary,
+                        recovery, profileRef, startOverUpgrade);
+                Resource newProfile =
+                    temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
                 if (!newProfile.isNewer(profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
-                phase = PHASE_CHECKING;
+                // XXX PLM: Checking phase, I think.
                 // Replaces global table with temporary, or w/ recovery if
                 // something goes wrong
                 platform.upgrade(global, temporary, recovery);
@@ -144,11 +140,6 @@ public class UpgradeTask
                 if (e.isDuplicateException()) {
                     return ResourceEngineOutcomes.StatusDuplicateApp;
                 } else {
-                    int badReqCode = e.getRequirementCode();
-                    String vAvailable = e.getAvailableVesionString();
-                    String vRequired = e.getRequiredVersionString();
-                    boolean majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
-
                     InstallAndUpdateUtils.logInstallError(e,
                             "App resources are incompatible with this device|");
                     return ResourceEngineOutcomes.StatusBadReqs;
@@ -157,9 +148,7 @@ public class UpgradeTask
                 return InstallAndUpdateUtils.processUnresolvedResource(e);
             }
 
-            InstallAndUpdateUtils.initAndCommitApp(app,
-                    profileRef,
-                    platform.getCurrentProfile().getAuthReference());
+            InstallAndUpdateUtils.initAndCommitApp(app, profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (Exception e) {
@@ -170,7 +159,7 @@ public class UpgradeTask
     }
 
     private String addParamsToProfileReference(final String profileRef) {
-        URL profileUrl = null;
+        URL profileUrl;
         try {
             profileUrl = new URL(profileRef);
         } catch (MalformedURLException e) {
@@ -199,7 +188,7 @@ public class UpgradeTask
     }
 
     @Override
-    protected void onProgressUpdate(int[]... values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
 
         if (taskListener != null) {
@@ -233,7 +222,7 @@ public class UpgradeTask
         singletonRunningInstance = null;
     }
 
-    public void registerTaskListener(TaskListener<int[], ResourceEngineOutcomes> listener)
+    public void registerTaskListener(TaskListener<Integer, ResourceEngineOutcomes> listener)
             throws TaskListenerException {
         if (taskListener != null) {
             throw new TaskListenerException("This " + TAG +
@@ -242,7 +231,7 @@ public class UpgradeTask
         taskListener = listener;
     }
 
-    public void unregisterTaskListener(TaskListener<int[], ResourceEngineOutcomes> listener)
+    public void unregisterTaskListener(TaskListener<Integer, ResourceEngineOutcomes> listener)
             throws TaskListenerException {
         if (listener != taskListener) {
             throw new TaskListenerException("The provided listener wasn't " +
@@ -252,22 +241,24 @@ public class UpgradeTask
     }
 
     public int getProgress() {
-        return progress;
+        return currentProgress;
+    }
+
+    public int getMaxProgress() {
+        return maxProgress;
     }
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
         // if last time isn't set or is less than our spacing count, do not
         // perform status update
-        if (System.currentTimeMillis() - lastTime < UpgradeTask.STATUS_UPDATE_WAIT_TIME) {
+        if (System.currentTimeMillis() - lastDialogUpdate < UpgradeTask.STATUS_UPDATE_WAIT_TIME) {
             return;
         }
 
         Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
 
         // TODO: Better reflect upgrade status process
-
-        int score = 0;
 
         for (Resource r : resources) {
             switch (r.getStatus()) {
@@ -277,26 +268,32 @@ public class UpgradeTask
                     if (phase == PHASE_CHECKING) {
                         this.phase = PHASE_DOWNLOAD;
                     }
-                    score += 1;
+                    currentProgress += 1;
                     break;
                 case Resource.RESOURCE_STATUS_INSTALLED:
-                    score += 1;
+                    currentProgress += 1;
                     break;
                 default:
-                    score += 0;
+                    currentProgress += 0;
                     break;
             }
         }
-        lastTime = System.currentTimeMillis();
-        incrementProgress(score, resources.size());
+        lastDialogUpdate = System.currentTimeMillis();
+        maxProgress = resources.size();
+        incrementProgress(currentProgress, maxProgress);
     }
 
     @Override
     public void incrementProgress(int complete, int total) {
-        this.publishProgress(new int[]{complete, total, phase});
+        this.publishProgress(complete, total);
     }
 
-    public void calcResourceFreshness() {
+    /**
+     * When set CommCarePlatform.stageUpgradeTable() will clear the last
+     * version of the upgrade table and start over. Otherwise install reuses
+     * the last version of the upgrade table.
+     */
+    public boolean calcResourceFreshness() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         long lastInstallTime = app.getAppPreferences().getLong(CommCareSetupActivity.KEY_LAST_INSTALL, -1);
         if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
@@ -309,9 +306,9 @@ public class UpgradeTask
                         + "triggered by the time threshold when there is an existing partial "
                         + "resource table that could be used.");
             }
-            startOverUpgrade = true;
+            return true;
         } else {
-            startOverUpgrade = app.getAppPreferences().getBoolean(KEY_START_OVER, true);
+            return app.getAppPreferences().getBoolean(KEY_START_OVER, true);
         }
     }
 }

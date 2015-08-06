@@ -14,6 +14,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.resources.model.ResourceTable;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Allow user to manage app upgrading:
@@ -24,7 +25,7 @@ import org.commcare.resources.model.ResourceTable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpgradeActivity extends CommCareActivity
-        implements TaskListener<int[], ResourceEngineOutcomes> {
+        implements TaskListener<Integer, ResourceEngineOutcomes> {
 
     private static final String TAG = UpgradeActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
@@ -79,8 +80,10 @@ public class UpgradeActivity extends CommCareActivity
         super.onResume();
 
         int currentProgress = 0;
+        int maxProgress = 0;
         if (upgradeTask != null) {
             currentProgress = upgradeTask.getProgress();
+            currentProgress = upgradeTask.getMaxProgress();
             if (taskIsCancelling) {
                 uiController.setCancellingButtonState();
             } else {
@@ -89,7 +92,7 @@ public class UpgradeActivity extends CommCareActivity
         } else {
             uiController.pendingUpgradeOrIdle();
         }
-        uiController.updateProgressBar(currentProgress);
+        uiController.updateProgressBar(currentProgress, maxProgress);
     }
 
     @Override
@@ -119,17 +122,13 @@ public class UpgradeActivity extends CommCareActivity
     }
 
     @Override
-    public void processTaskUpdate(int[]... vals) {
-        int progress = vals[0][0];
-        uiController.updateProgressBar(progress);
-
-        /*
-        if (phase == ResourceEngineTask.PHASE_DOWNLOAD) {
-            updateProgress(Localization.get("updates.found", new String[] {""+done,""+total}), DIALOG_INSTALL_PROGRESS);
-        } else if (phase == ResourceEngineTask.PHASE_COMMIT) {
-            updateProgress(Localization.get("updates.downloaded"), DIALOG_INSTALL_PROGRESS);
-        }
-        */
+    public void processTaskUpdate(Integer... vals) {
+        int progress = vals[0];
+        int max = vals[1];
+        uiController.updateProgressBar(progress, max);
+        // TODO: check the phase: checking, downloading, committing
+        String msg = Localization.get("updates.found", new String[]{"" + progress, "" + max});
+        uiController.updateProgressText(msg);
     }
 
     @Override
@@ -188,7 +187,7 @@ public class UpgradeActivity extends CommCareActivity
         unregisterTask();
 
         uiController.setIdleButtonState();
-        uiController.updateProgressBar(0);
+        uiController.updateProgressBar(0, 100);
     }
 
     protected void startUpgradeCheck() {
@@ -219,7 +218,7 @@ public class UpgradeActivity extends CommCareActivity
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
         upgradeTask.execute(ref);
         uiController.setDownloadingButtonState();
-        uiController.updateProgressBar(0);
+        uiController.updateProgressBar(0, 100);
     }
 
     private void enterErrorState(String errorMsg) {

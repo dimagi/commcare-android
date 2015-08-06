@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
@@ -23,7 +24,14 @@ class UpgradeUiController {
     @UiElement(R.id.install_upgrade_button)
     private Button installUpgradeButton;
 
+    @UiElement(R.id.upgrade_progress_bar)
     private ProgressBar progressBar;
+
+    @UiElement(R.id.pending_upgrade_status_text)
+    private TextView pendingUpgradeStatus;
+
+    @UiElement(R.id.upgrade_progress_text)
+    private TextView progressText;
 
     private final UpgradeActivity activity;
 
@@ -37,7 +45,12 @@ class UpgradeUiController {
         // title = Localization.get("updates.title");
         // message = Localization.get("updates.checking");
         activity.setContentView(R.layout.upgrade_activity);
+
         progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
+        progressText = (TextView)activity.findViewById(R.id.upgrade_progress_text);
+        pendingUpgradeStatus =
+            (TextView)activity.findViewById(R.id.pending_upgrade_status_text);
+
         setupButtonListeners();
     }
 
@@ -132,7 +145,12 @@ class UpgradeUiController {
         installUpgradeButton.setEnabled(false);
     }
 
-    protected void updateProgressBar(int currentProgress) {
+    protected void updateProgressText(String msg) {
+        progressText.setText(msg);
+    }
+
+    protected void updateProgressBar(int currentProgress, int max) {
         progressBar.setProgress(currentProgress);
+        progressBar.setMax(max);
     }
 }

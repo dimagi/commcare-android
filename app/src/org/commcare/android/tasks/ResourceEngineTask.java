@@ -110,12 +110,11 @@ public abstract class ResourceEngineTask<R>
                 return outcome;
             }
 
-            InstallAndUpdateUtils.initAndCommitApp(app,
-                    profileRef,
-                    platform.getCurrentProfile().getAuthReference());
+            InstallAndUpdateUtils.initAndCommitApp(app, profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (Exception e) {
+            e.printStackTrace();
             InstallAndUpdateUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
