@@ -59,7 +59,7 @@ public final class BarcodeScanListenerDefaultImpl {
         }
     }
 
-    public static void callBarcodeScanIntent(Activity act) {
+    private static void callBarcodeScanIntent(Activity act) {
         Log.i("SCAN", "Using default barcode scan");
         Intent i = new Intent("com.google.zxing.client.android.SCAN");
         try {
@@ -72,7 +72,7 @@ public final class BarcodeScanListenerDefaultImpl {
         }
     }
 
-    public static CalloutAction makeCalloutAction(final Activity act, Callout callout, CalloutActionSetup calloutActionSetup) {
+    private static CalloutAction makeCalloutAction(final Activity act, Callout callout, CalloutActionSetup calloutActionSetup) {
         final CalloutData calloutData = callout.evaluate();
 
         if (calloutData.getImage() != null && calloutActionSetup != null) {
