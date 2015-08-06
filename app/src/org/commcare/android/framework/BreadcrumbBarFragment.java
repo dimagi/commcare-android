@@ -35,6 +35,7 @@ import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
+import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
@@ -385,6 +386,9 @@ public class BreadcrumbBarFragment extends Fragment {
         }
         if(currentTitle == null || "".equals(currentTitle)) {
             currentTitle = "CommCare";
+        }
+        if (activity instanceof FormRecordListActivity) {
+            currentTitle = currentTitle + " - " + ((FormRecordListActivity)activity).getActivityTitle();
         }
         return currentTitle;
     }
