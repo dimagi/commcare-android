@@ -361,7 +361,7 @@
         </activity>
         <activity
             android:name=".activities.TemplatePrinterActivity"
-            android:theme="@style/Theme.Dialog" >
+            android:theme="@style/Theme.Dialog.NoTitle" >
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT" />
 

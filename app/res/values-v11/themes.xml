@@ -81,7 +81,7 @@
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
 	</style>
     
-    <style name="Theme.Dialog" parent="@android:style/Theme.Holo.Light.Dialog">
+    <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Holo.Light.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
 
