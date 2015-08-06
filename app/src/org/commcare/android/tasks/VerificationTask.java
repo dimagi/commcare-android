@@ -1,5 +1,7 @@
 package org.commcare.android.tasks;
 
+import android.os.AsyncTask;
+
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
@@ -7,8 +9,6 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
-
-import android.os.AsyncTask;
 
 /**
  * This task is responsible for validating app's installed media

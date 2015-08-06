@@ -1,7 +1,5 @@
 package org.commcare.android.view;
 
-import org.commcare.dalvik.BuildConfig;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;

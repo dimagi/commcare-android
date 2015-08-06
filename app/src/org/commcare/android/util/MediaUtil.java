@@ -1,6 +1,7 @@
 package org.commcare.android.util;
 
-import java.io.IOException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -10,8 +11,7 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import java.io.IOException;
 
 /**
  * @author ctsims

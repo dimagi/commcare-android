@@ -1,5 +1,11 @@
 package org.commcare.android.db.legacy;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
+
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -8,12 +14,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
-
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 
 /**
  * This class exists in order to handle all of the logic associated with upgrading from one version

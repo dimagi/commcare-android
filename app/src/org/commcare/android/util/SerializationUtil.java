@@ -3,19 +3,19 @@
  */
 package org.commcare.android.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import android.content.Intent;
+import android.os.Bundle;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.content.Intent;
-import android.os.Bundle;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @author ctsims

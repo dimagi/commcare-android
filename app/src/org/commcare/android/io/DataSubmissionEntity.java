@@ -1,13 +1,13 @@
 package org.commcare.android.io;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import android.util.Log;
 
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.tasks.DataSubmissionListener;
 
-import android.util.Log;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author ctsims

@@ -11,9 +11,6 @@ package org.commcare.dalvik.dialogs;
  * fully implemented in CommCareActivity
  */
 
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.dalvik.R;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -26,6 +23,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.dalvik.R;
 
 public class CustomProgressDialog extends DialogFragment {
     

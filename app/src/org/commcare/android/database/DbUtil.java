@@ -1,11 +1,9 @@
 package org.commcare.android.database;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
@@ -15,10 +13,13 @@ import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.util.Log;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
 import dalvik.system.DexFile;
 
 public class DbUtil {

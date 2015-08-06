@@ -1,7 +1,10 @@
 package org.commcare.dalvik.provider;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
 
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -11,11 +14,8 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.model.xform.DataModelSerializer;
 
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.net.Uri;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * The fixture content provider defines the interface for external applications

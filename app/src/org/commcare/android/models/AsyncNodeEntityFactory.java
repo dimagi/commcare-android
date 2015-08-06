@@ -1,13 +1,9 @@
 package org.commcare.android.models;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import android.util.Log;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
-
-import android.util.Log;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
@@ -24,6 +20,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -81,7 +81,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
     
     private void primeCache() {
-        if(mTemplateIsCachable == null || mTemplateIsCachable == false || mCacheHost == null ) { return; }
+        if(mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null ) { return; }
         
         String[][] cachePrimeKeys = mCacheHost.getCachePrimeGuess();
         if(cachePrimeKeys == null) { return; }

@@ -1,12 +1,12 @@
 package org.commcare.dalvik.application;
 
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.AppManagerActivity;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.AppManagerActivity;
 
 public class ManagerShortcut extends Activity {
 

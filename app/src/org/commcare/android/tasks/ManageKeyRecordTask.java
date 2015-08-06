@@ -1,8 +1,6 @@
 package org.commcare.android.tasks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -26,7 +24,9 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * This task is responsible for taking user credentials and attempting to

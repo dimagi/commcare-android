@@ -1,6 +1,5 @@
 package org.commcare.android.framework;
 
-import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 /**

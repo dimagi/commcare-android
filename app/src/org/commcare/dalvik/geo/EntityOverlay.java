@@ -1,13 +1,13 @@
 package org.commcare.dalvik.geo;
 
-import org.javarosa.core.model.instance.TreeReference;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
+
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * @author ctsims

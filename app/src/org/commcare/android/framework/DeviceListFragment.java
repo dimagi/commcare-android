@@ -1,11 +1,5 @@
 package org.commcare.android.framework;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -24,6 +18,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A ListFragment that displays available peers on discovery and requests the

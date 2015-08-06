@@ -3,13 +3,6 @@
  */
 package org.commcare.android.database.user.models;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.cases.model.CaseIndex;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -17,6 +10,13 @@ import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMapPoly;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * A model extension which reads Resource models from the

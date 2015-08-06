@@ -1,18 +1,12 @@
 package org.commcare.android.tasks;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -43,8 +37,6 @@ import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.CommCareTransactionParserFactory;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -56,15 +48,23 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.http.AndroidHttpClient;
-import android.util.Log;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 /**
  * @author ctsims

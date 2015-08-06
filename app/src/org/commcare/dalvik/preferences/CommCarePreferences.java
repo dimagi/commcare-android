@@ -27,18 +27,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;

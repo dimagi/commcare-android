@@ -1,13 +1,6 @@
 package org.commcare.android.tasks;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import android.util.Log;
 
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
@@ -16,7 +9,14 @@ import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.util.Log;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @author ctsims

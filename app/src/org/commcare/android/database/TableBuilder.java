@@ -3,19 +3,19 @@
  */
 package org.commcare.android.database;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Vector;
+import android.util.Pair;
 
 import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Table;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
-import android.util.Pair;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author ctsims
