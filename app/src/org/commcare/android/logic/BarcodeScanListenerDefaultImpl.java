@@ -18,6 +18,9 @@ import java.util.Map;
  * Created by dancluna on 8/5/15.
  */
 public final class BarcodeScanListenerDefaultImpl {
+
+    public static final String SCAN_RESULT = "SCAN_RESULT";
+
     public interface BarcodeScanListener {
         void onBarcodeFetch(String result, Intent intent);
 
@@ -42,7 +45,7 @@ public final class BarcodeScanListenerDefaultImpl {
             }
         }
         if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("SCAN_RESULT");
+            String result = intent.getStringExtra(SCAN_RESULT);
             barcodeScanListener.onBarcodeFetch(result, intent);
         }
     }
