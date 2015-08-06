@@ -68,6 +68,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
+import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
@@ -81,7 +82,7 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListenerDefaultImpl.BarcodeScanListener {
+public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
@@ -233,7 +234,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
                 EntitySelectActivity.this, callout,
-                new BarcodeScanListenerDefaultImpl.CalloutActionSetup() {
+                new Callout.CalloutActionSetup() {
                     @Override
                     public void onImageFound(CalloutData calloutData) {
                         setupImageLayout(barcodeButton, calloutData.getImage());

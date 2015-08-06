@@ -10,6 +10,7 @@ import android.widget.Toast;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
+import org.odk.collect.android.listeners.BarcodeScanListener;
 
 import java.util.Map;
 
@@ -19,30 +20,16 @@ import java.util.Map;
 public final class BarcodeScanListenerDefaultImpl {
 
     public static final String SCAN_RESULT = "SCAN_RESULT";
-
-    public interface BarcodeScanListener {
-        void onBarcodeFetch(String result, Intent intent);
-
-        void onCalloutResult(String result, Intent intent);
-    }
-
-    public interface CalloutActionSetup {
-        void onImageFound(CalloutData calloutData);
-    }
-
-    public interface CalloutAction {
-        void callout();
-    }
-
     public static final int BARCODE_FETCH = 1;
     public static final int CALLOUT = 3;
 
     public static void onBarcodeResult(BarcodeScanListener barcodeScanListener, int requestCode, int resultCode, Intent intent) {
-        if (BuildConfig.DEBUG) {
-            if (!(requestCode == BARCODE_FETCH)) {
-                throw new IllegalArgumentException("requestCode should've been BARCODE_FETCH!");
-            }
+        //region Asserting requestCode == BARCODE_FETCH
+        if (BuildConfig.DEBUG && !(requestCode == BARCODE_FETCH)) {
+            throw new AssertionError("requestCode should be BARCODE_FETCH!");
         }
+        //endregion
+
         if (resultCode == Activity.RESULT_OK) {
             String result = intent.getStringExtra(SCAN_RESULT);
             barcodeScanListener.onBarcodeFetch(result, intent);
@@ -50,11 +37,11 @@ public final class BarcodeScanListenerDefaultImpl {
     }
 
     public static void onCalloutResult(BarcodeScanListener barcodeScanListener, int requestCode, int resultCode, Intent intent) {
-        if (BuildConfig.DEBUG) {
-            if (!(requestCode == CALLOUT)) {
-                throw new IllegalArgumentException("requestCode should've been CALLOUT!");
-            }
+        //region Asserting requestCode == CALLOUT
+        if (BuildConfig.DEBUG && !(requestCode == CALLOUT)) {
+            throw new AssertionError("requestCode should be CALLOUT!");
         }
+        //endregion
         if (resultCode == Activity.RESULT_OK) {
             String result = intent.getStringExtra("odk_intent_data");
             barcodeScanListener.onCalloutResult(result, intent);
@@ -74,7 +61,7 @@ public final class BarcodeScanListenerDefaultImpl {
         }
     }
 
-    private static CalloutAction makeCalloutAction(final Activity act, Callout callout, CalloutActionSetup calloutActionSetup) {
+    private static Callout.CalloutAction makeCalloutAction(final Activity act, Callout callout, Callout.CalloutActionSetup calloutActionSetup) {
         final CalloutData calloutData = callout.evaluate();
 
         if (calloutData.getImage() != null && calloutActionSetup != null) {
@@ -85,7 +72,7 @@ public final class BarcodeScanListenerDefaultImpl {
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
             i.putExtra(keyValue.getKey(), keyValue.getValue());
         }
-        return new CalloutAction() {
+        return new Callout.CalloutAction() {
             @Override
             public void callout() {
                 Log.i("SCAN", "Using barcode scan with action: " + i.getAction());
@@ -99,7 +86,7 @@ public final class BarcodeScanListenerDefaultImpl {
         };
     }
 
-    public static View.OnClickListener makeCalloutOnClickListener(final Activity act, Callout callout, CalloutActionSetup calloutActionSetup) {
+    public static View.OnClickListener makeCalloutOnClickListener(final Activity act, Callout callout, Callout.CalloutActionSetup calloutActionSetup) {
         if (callout == null) {
             return new View.OnClickListener() {
                 @Override
@@ -108,7 +95,7 @@ public final class BarcodeScanListenerDefaultImpl {
                 }
             };
         } else {
-            final CalloutAction calloutAction = makeCalloutAction(act, callout, calloutActionSetup);
+            final Callout.CalloutAction calloutAction = makeCalloutAction(act, callout, calloutActionSetup);
             return new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
