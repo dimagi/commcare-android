@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.commcare.dalvik"
-    android:versionCode="106"
-    android:versionName="2.22" >
+          xmlns:tools="http://schemas.android.com/tools"
+          package="org.commcare.dalvik"
+          android:versionCode="106"
+          android:versionName="2.22">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -57,6 +58,7 @@
     </permission>
 
     <application
+        tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
@@ -75,7 +77,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
@@ -84,7 +86,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
@@ -216,7 +218,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
-        
+
         <activity-alias
             android:name=".application.ManagerGenerator"
             android:label="App Manager"
