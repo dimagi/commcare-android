@@ -69,6 +69,7 @@ public class InstallAndUpdateUtils {
 
         updateProfileRef(app.getAppPreferences(), authRef, profileRef);
     }
+
     public static ResourceEngineOutcomes processUnresolvedResource(UnresolvedResourceException e) {
         // couldn't find a resource, which isn't good.
         e.printStackTrace();
@@ -77,7 +78,6 @@ public class InstallAndUpdateUtils {
             return ResourceEngineOutcomes.StatusBadCertificate;
         }
 
-        missingResourceException = e;
         Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                 "A resource couldn't be found, almost certainly due to the network|" +
                         e.getMessage());

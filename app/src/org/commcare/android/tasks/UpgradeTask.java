@@ -41,7 +41,6 @@ public class UpgradeTask
     private int progress = 0;
     // ----------------------------------
     public static final String KEY_START_OVER = "start_over_uprgrade";
-    protected UnresolvedResourceException missingResourceException = null;
     // last time in system millis that we updated the status dialog
     private long lastTime = 0;
     private int phase = -1;
@@ -155,22 +154,7 @@ public class UpgradeTask
                     return ResourceEngineOutcomes.StatusBadReqs;
                 }
             } catch (UnresolvedResourceException e) {
-                // couldn't find a resource, which isn't good.
-                e.printStackTrace();
-
-                if (InstallAndUpdateUtils.isBadCertificateError(e)) {
-                    return ResourceEngineOutcomes.StatusBadCertificate;
-                }
-
-                missingResourceException = e;
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
-                        "A resource couldn't be found, almost certainly due to the network|" +
-                                e.getMessage());
-                if (e.isMessageUseful()) {
-                    return ResourceEngineOutcomes.StatusMissingDetails;
-                } else {
-                    return ResourceEngineOutcomes.StatusMissing;
-                }
+                return InstallAndUpdateUtils.processUnresolvedResource(e);
             }
 
             InstallAndUpdateUtils.initAndCommitApp(app,

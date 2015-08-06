@@ -102,22 +102,12 @@ public abstract class ResourceEngineTask<R>
                     return ResourceEngineOutcomes.StatusBadReqs;
                 }
             } catch (UnresolvedResourceException e) {
-                // couldn't find a resource, which isn't good.
-                e.printStackTrace();
-
-                if (InstallAndUpdateUtils.isBadCertificateError(e)) {
-                    return ResourceEngineOutcomes.StatusBadCertificate;
+                ResourceEngineOutcomes outcome =
+                    InstallAndUpdateUtils.processUnresolvedResource(e);
+                if (outcome != ResourceEngineOutcomes.StatusBadCertificate) {
+                    missingResourceException = e;
                 }
-
-                missingResourceException = e;
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
-                        "A resource couldn't be found, almost certainly due to the network|" +
-                                e.getMessage());
-                if (e.isMessageUseful()) {
-                    return ResourceEngineOutcomes.StatusMissingDetails;
-                } else {
-                    return ResourceEngineOutcomes.StatusMissing;
-                }
+                return outcome;
             }
 
             InstallAndUpdateUtils.initAndCommitApp(app,
