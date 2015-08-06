@@ -1,32 +1,4 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.commcare.android.framework;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.javarosa.core.services.Logger;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -40,6 +12,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device
@@ -127,10 +111,6 @@ public class FileServerFragment extends Fragment {
         private FileServerFragment mListener;
         private boolean socketOccupied;
 
-        /**
-         * @param context
-         * @param statusText
-         */
         public FileServerAsyncTask(FileServerFragment mListener) {
             Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
             this.mListener = mListener;

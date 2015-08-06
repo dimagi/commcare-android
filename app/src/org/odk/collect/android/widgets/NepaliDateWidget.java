@@ -1,12 +1,12 @@
 package org.odk.collect.android.widgets;
 
+import android.content.Context;
+import android.content.res.Resources;
+
 import org.commcare.dalvik.R;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.utilities.NepaliDateUtilities;
 import org.odk.collect.android.utilities.UniversalDate;
-
-import android.content.Context;
-import android.content.res.Resources;
 
 /**
  * Nepali Date Widget.

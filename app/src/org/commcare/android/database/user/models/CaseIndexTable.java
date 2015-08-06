@@ -1,9 +1,6 @@
-/**
- * 
- */
 package org.commcare.android.database.user.models;
 
-import java.util.Vector;
+import android.content.ContentValues;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
@@ -16,11 +13,10 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.ContentValues;
+import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class CaseIndexTable {
     public static final String TABLE_NAME = "case_index_storage";
@@ -68,7 +64,6 @@ public class CaseIndexTable {
     /**
      * Creates all indexes for this case. 
      * TODO: this doesn't ensure any sort of uniquenes, you should wipe constraints first
-     * @param c
      */
     public void indexCase(Case c) {
         db.beginTransaction();

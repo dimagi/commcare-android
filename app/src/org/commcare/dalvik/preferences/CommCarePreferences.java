@@ -24,23 +24,22 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.ListPreference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-public class CommCarePreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class CommCarePreferences extends SessionAwarePreferenceActivity implements OnSharedPreferenceChangeListener {
 
     //So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
     //out cleanly?
@@ -149,10 +148,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                try {
-                    CommCareApplication._().clearUserData();
-                } catch (SessionUnavailableException e) {
-                }
+                CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
             case ABOUT_COMMCARE:
@@ -243,6 +239,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     @Override
     protected void onResume() {
         super.onResume();
+
         // Set up a listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
@@ -251,6 +248,7 @@ public class CommCarePreferences extends PreferenceActivity implements OnSharedP
     @Override
     protected void onPause() {
         super.onPause();
+
         // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);

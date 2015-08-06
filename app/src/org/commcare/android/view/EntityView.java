@@ -1,23 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +15,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -279,7 +279,7 @@ public class EntityView extends LinearLayout {
             }
         }
         else {
-            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
         }
     }
     
@@ -289,14 +289,6 @@ public class EntityView extends LinearLayout {
      * Based on the search terms provided, highlight the aspects of the spannable provided which
      * match. A background string can be provided which provides the exact data that is being
      * matched. 
-     * 
-     * @param context
-     * @param searchTerms
-     * @param raw
-     * @param backgroundString
-     * @param fuzzySearchEnabled
-     * @param strictMode
-     * @return
      */
     public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {

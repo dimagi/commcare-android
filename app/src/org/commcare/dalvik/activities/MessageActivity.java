@@ -3,13 +3,6 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -18,6 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
 
 /**
  * An activity to display messages for the user about something that

@@ -3,10 +3,10 @@
  */
 package org.commcare.android.models.notifications;
 
-import java.util.Date;
-
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+
+import java.util.Date;
 
 /**
  * Static holder for generating notification messages which are common 

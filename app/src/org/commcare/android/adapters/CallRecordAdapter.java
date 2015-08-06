@@ -3,14 +3,6 @@
  */
 package org.commcare.android.adapters;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -22,6 +14,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author ctsims
@@ -87,10 +87,13 @@ public class CallRecordAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         cursor.moveToPosition(enabled.get(position));
-        
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View cre = inflater.inflate(R.layout.call_record_entry, null);
-        
+
+        View cre = convertView;
+        if (cre == null) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            cre = inflater.inflate(R.layout.call_record_entry, null);
+        }
+
         TextView name = (TextView)cre.findViewById(R.id.call_log_name);
         TextView number = (TextView)cre.findViewById(R.id.call_log_number);
         TextView when = (TextView)cre.findViewById(R.id.call_log_when);

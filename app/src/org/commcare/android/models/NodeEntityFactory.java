@@ -1,14 +1,6 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -20,9 +12,12 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+
 /**
  * @author ctsims
- *
  */
 public class NodeEntityFactory {
 

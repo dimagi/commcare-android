@@ -3,18 +3,18 @@
  */
 package org.commcare.android.util;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.javarosa.core.services.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.javarosa.core.services.Logger;
 
 /**
  * 
@@ -64,7 +64,7 @@ public class StorageUtils {
                     //If it still doesn't work, fallback to using ids
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
                     //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                    idToDateIndex.put(id, Long.valueOf(id));
+                    idToDateIndex.put(id, (long) id);
                 }
             }
         }

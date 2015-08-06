@@ -3,15 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.util.Date;
-
-import org.commcare.android.util.DotsData.DotsBox;
-import org.commcare.android.util.DotsData.DotsDay;
-import org.commcare.android.util.DotsData.MedStatus;
-import org.commcare.android.util.DotsData.ReportType;
-import org.commcare.android.util.DotsEditListener;
-import org.commcare.dalvik.R;
-
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.View;
@@ -22,6 +13,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import org.commcare.android.util.DotsData.DotsBox;
+import org.commcare.android.util.DotsData.DotsDay;
+import org.commcare.android.util.DotsData.MedStatus;
+import org.commcare.android.util.DotsData.ReportType;
+import org.commcare.android.util.DotsEditListener;
+import org.commcare.dalvik.R;
+
+import java.util.Date;
 
 /**
  * @author ctsims

@@ -1,11 +1,9 @@
 package org.commcare.android.models;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -32,21 +30,23 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -75,8 +75,6 @@ public class AndroidSessionWrapper {
     /**
      * Serialize the state of this session so it can be restored 
      * at a later time. 
-     * 
-     * @return
      */
     public SessionStateDescriptor getSessionStateDescriptor() {
         return new SessionStateDescriptor(this);

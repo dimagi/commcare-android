@@ -2,11 +2,11 @@ package org.commcare.android.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -112,7 +112,7 @@ public class SetupEnterURLFragment extends Fragment {
         if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }
-        if(url.indexOf("://") == -1){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
+        if(!url.contains("://")){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
             url = "http://" + url;
         }
         return url;

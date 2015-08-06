@@ -3,9 +3,17 @@
  */
 package org.commcare.android.adapters;
 
-import java.io.File;
-import java.util.Hashtable;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -13,9 +21,9 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
+import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
@@ -32,17 +40,9 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.views.media.AudioButton;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.TextView;
+import java.io.File;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Adapter class to handle both Menu and Entry items
@@ -76,7 +76,7 @@ public class MenuAdapter implements ListAdapter {
                     if (m.getMenuRelevance() != null) {
                         xpathExpression = m.getMenuRelevanceRaw();
                         ec = asw.getEvaluationContext(m.getId());
-                        if (XPathFuncExpr.toBoolean(relevance.eval(ec)).booleanValue() == false) {
+                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
                             continue;
                         }
                     }

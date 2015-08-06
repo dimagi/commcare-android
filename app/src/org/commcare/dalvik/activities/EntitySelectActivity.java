@@ -15,7 +15,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -39,7 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -50,7 +49,6 @@ import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
@@ -66,7 +64,6 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -79,24 +76,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * 
  * TODO: Lots of locking and state-based cleanup
  * 
  * @author ctsims
- *
  */
-public class EntitySelectActivity extends CommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
-    public static final String TAG = EntitySelectActivity.class.getSimpleName();
+public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener {
+    private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
     private AndroidSessionWrapper asw;
     
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
-    public static final String EXTRA_IS_MAP = "is_map";
+    private static final String EXTRA_IS_MAP = "is_map";
     
     private static final int CONFIRM_SELECT = 0;
     private static final int BARCODE_FETCH = 1;
@@ -107,39 +103,37 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     private static final int MENU_MAP = Menu.FIRST + 1;
     private static final int MENU_ACTION = Menu.FIRST + 2;
     
-    EditText searchbox;
-    TextView searchResultStatus;
-    EntityListAdapter adapter;
-    LinearLayout header;
-    ImageButton barcodeButton;
-    SearchView searchView;
+    private EditText searchbox;
+    private TextView searchResultStatus;
+    private EntityListAdapter adapter;
+    private LinearLayout header;
+    private ImageButton barcodeButton;
+    private SearchView searchView;
     
-    TextToSpeech tts;
+    private TextToSpeech tts;
     
-    SessionDatum selectDatum;
+    private SessionDatum selectDatum;
+
+    private boolean mResultIsMap = false;
     
-    EvaluationContext entityContext;
-    
-    boolean mResultIsMap = false;
-    
-    boolean mMappingEnabled = false;
+    private boolean mMappingEnabled = false;
     
     // Is the detail screen for showing entities, without option for moving
     // forward on to form manipulation?
-    boolean mViewMode = false;
+    private boolean mViewMode = false;
 
     // Has a detail screen not been defined?
-    boolean mNoDetailMode = false;
+    private boolean mNoDetailMode = false;
     
     private EntityLoaderTask loader;
     
     private boolean inAwesomeMode = false;
-    FrameLayout rightFrame;
-    TabbedDetailView detailView;
+    private FrameLayout rightFrame;
+    private TabbedDetailView detailView;
     
-    Intent selectedIntent = null;
+    private Intent selectedIntent = null;
     
-    String filterString = "";
+    private String filterString = "";
     
     private Detail shortSelect;
     
@@ -273,8 +267,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                     Log.i("SCAN","Using barcode scan with action: " + actionName);
                     Intent i = new Intent(actionName);
 
-                    for(String key: extras.keySet()){
-                        i.putExtra(key, extras.get(key));
+                    for(Map.Entry<String,String> keyValue: extras.entrySet()){
+                        i.putExtra(keyValue.getKey(), keyValue.getValue());
                     }
                     try {
                         startActivityForResult(i, CALLOUT);
@@ -303,14 +297,21 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
-        restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+
+        if (!isUsingActionBar()){
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
+            }
+            searchbox.setText(lastQueryString);
+        }
     }
 
     /**
      * Updates the ImageView layout that is passed in, based on the
      * new id and source
      */
-    public void setupImageLayout(View layout, final String imagePath) {
+    private void setupImageLayout(View layout, final String imagePath) {
         ImageView iv = (ImageView)layout;
         Bitmap b;
         if (!imagePath.equals("")) {
@@ -323,13 +324,9 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 } else {
                     iv.setImageBitmap(b);
                 }
-            } catch (IOException ex) {
+            } catch (IOException | InvalidReferenceException ex) {
                 ex.printStackTrace();
                 // Error loading image, default to folder button
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-            } catch (InvalidReferenceException ex) {
-                ex.printStackTrace();
-                // No image, default to folder button
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
             }
         } else {
@@ -382,8 +379,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return null;
     }
 
-    boolean resuming = false;
-    boolean startOther = false;
+    private boolean resuming = false;
+    private boolean startOther = false;
     
     public void onResume() {
         super.onResume();
@@ -467,10 +464,10 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
     
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
         stopTimer();
-        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
     
 
@@ -488,7 +485,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
-    protected Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
+    private Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
         if (detailIntent == null) {
             detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
@@ -645,6 +642,12 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 adapter.applyFilter(filterString);
             }
         }
+        if (!isUsingActionBar()){
+            lastQueryString = filterString;
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
+            }
+        }
     }
 
 
@@ -722,10 +725,18 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         return true;
     }
 
+    /**
+     * Checks if this activity uses the ActionBar
+     */
+    private boolean isUsingActionBar(){
+        return searchView != null;
+    }
+
     @SuppressWarnings("NewApi")
     private CharSequence getSearchText(){
-        // not checking for build version because searchview will be null if not supported
-        if(searchView != null) return searchView.getQuery();
+        if (isUsingActionBar()) {
+            return searchView.getQuery();
+        }
         return searchbox.getText();
     }
     
@@ -808,7 +819,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             }
         }
         
-        final String[] names = namesList.toArray(new String[0]);
+        final String[] names = namesList.toArray(new String[namesList.size()]);
                 
         builder.setItems(names, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -912,7 +923,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
                 ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
                 view.setSelection(adapter.getPosition(selected));
             }
-            return;
         }
     }
 
@@ -923,12 +933,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         this.loader = task;
     }
 
-    public boolean inAwesomeMode(){
-        return inAwesomeMode;
-    }
-    
-    boolean rightFrameSetup = false;
-    NodeEntityFactory factory;
+    private boolean rightFrameSetup = false;
+    private NodeEntityFactory factory;
     
     private void select() {
         // create intent for return and store path
@@ -955,7 +961,7 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
     
-    public void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
+    private void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = getDetailIntent(selection, getIntent());
         //this should be 100% "fragment" able
         if(!rightFrameSetup) {
@@ -967,7 +973,6 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
                     select();
-                    return;
                 }
             });
 
@@ -1045,8 +1050,8 @@ public class EntitySelectActivity extends CommCareActivity implements TextWatche
     }
 
     private Timer myTimer;
-    private Object timerLock = new Object();
-    boolean cancelled;
+    private final Object timerLock = new Object();
+    private boolean cancelled;
     
     private void startTimer() {
         if(!DeveloperPreferences.isListRefreshEnabled()) { return; }

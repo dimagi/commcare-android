@@ -16,11 +16,6 @@
 
 package org.commcare.android.framework;
 
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
-import org.javarosa.core.services.Logger;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -40,6 +35,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
+import org.javarosa.core.services.Logger;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device

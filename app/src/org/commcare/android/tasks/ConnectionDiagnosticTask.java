@@ -1,28 +1,26 @@
 package org.commcare.android.tasks;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
  * @author srengesh
  */
-
-
 
 //CommCareTask<A, B, C, R>
 public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R>
@@ -121,9 +119,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         Process pingCommand = null;
         try {
             //append the input url to the ping command
-            StringBuilder pingURLBuilder = new StringBuilder(pingPrefix);
-            pingURLBuilder.append(url);
-            String pingURL = pingURLBuilder.toString();
+            String pingURL = pingPrefix + url;
             
             //run the ping command at runtime
             pingCommand = java.lang.Runtime.getRuntime().exec(pingURL);
@@ -135,11 +131,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         } 
         catch (IOException e) 
         {
-            StringBuilder out = new StringBuilder(logGoogleIOErrorMessage);
-            out.append(System.getProperty("line.separator"));
-            out.append("Stack trace: ");
-            out.append(ExceptionReportTask.getStackTrace(e));
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
             return false;
         }
         int pingReturn = Integer.MAX_VALUE;
@@ -149,11 +141,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         } 
         catch (InterruptedException e) 
         {
-            StringBuilder out = new StringBuilder(logGoogleInterruptedMessage);
-            out.append(System.getProperty("line.separator"));
-            out.append("Stack trace: ");
-            out.append(ExceptionReportTask.getStackTrace(e));
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleInterruptedMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
             return false;
         } 
         //0 if success, 2 if fail
@@ -184,27 +172,15 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
             htmlLine = buffer.readLine();
         } catch (IllegalStateException e) {
             //if a stream to this web address has already been invoked on the same thread
-            StringBuilder out = new StringBuilder(logCCIllegalStateMessage);
-            out.append(System.getProperty("line.separator"));
-            out.append("Stack trace: ");
-            out.append(ExceptionReportTask.getStackTrace(e));
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIllegalStateMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
             return false;
         } catch (ClientProtocolException e) {
             //general HTTP Exception
-            StringBuilder out = new StringBuilder(logCCNetworkFailureMessge);
-            out.append(System.getProperty("line.separator"));
-            out.append("Stack trace: ");
-            out.append(ExceptionReportTask.getStackTrace(e));
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessge + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
             return false;
         } catch (IOException e) {
             //error on client side
-            StringBuilder out = new StringBuilder(logCCIOErrorMessage);
-            out.append(System.getProperty("line.separator"));
-            out.append("Stack trace: ");
-            out.append(ExceptionReportTask.getStackTrace(e));
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
             return false;
         } finally {
             if(buffer != null)
@@ -212,11 +188,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     buffer.close();
                 } catch (IOException e) {
-                    StringBuilder out = new StringBuilder(logCCIOErrorMessage);
-                    out.append(System.getProperty("line.separator"));
-                    out.append("Stack trace: ");
-                    out.append(ExceptionReportTask.getStackTrace(e));
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
                     return false;
                 }
             }
@@ -225,11 +197,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    StringBuilder out = new StringBuilder(logCCIOErrorMessage);
-                    out.append(System.getProperty("line.separator"));
-                    out.append("Stack trace: ");
-                    out.append(ExceptionReportTask.getStackTrace(e));
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
                     return false;
                 }
             }

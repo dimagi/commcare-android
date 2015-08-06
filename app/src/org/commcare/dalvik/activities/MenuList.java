@@ -16,19 +16,6 @@
 
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.adapters.MenuAdapter;
-import org.commcare.android.framework.BreadcrumbBarFragment;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.Menu;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.util.SessionFrame;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,9 +25,22 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.commcare.android.adapters.MenuAdapter;
+import org.commcare.android.framework.BreadcrumbBarFragment;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.Menu;
+import org.commcare.util.CommCarePlatform;
+import org.commcare.util.SessionFrame;
+
 
 @ManagedUi(R.layout.screen_suite_menu)
-public class MenuList extends CommCareActivity implements OnItemClickListener {
+public class MenuList extends SessionAwareCommCareActivity implements OnItemClickListener {
     
     private CommCarePlatform platform;
     

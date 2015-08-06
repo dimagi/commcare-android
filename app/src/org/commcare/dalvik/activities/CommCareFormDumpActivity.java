@@ -1,12 +1,20 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.util.Vector;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -22,23 +30,15 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import java.io.File;
+import java.util.Vector;
 
 /**
  * @author wspride
  */
 
 @ManagedUi(R.layout.screen_form_dump)
-public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
+public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommCareFormDumpActivity> {
     private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
      
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")

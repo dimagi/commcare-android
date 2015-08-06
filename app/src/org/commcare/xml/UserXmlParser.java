@@ -1,22 +1,22 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.NoSuchElementException;
+import android.content.Context;
 
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.Date;
+import java.util.NoSuchElementException;
 
 public class UserXmlParser extends TransactionParser<User> {
 
@@ -66,27 +66,31 @@ public class UserXmlParser extends TransactionParser<User> {
         }
         
         //Now look for optional components
+        label:
         while (this.nextTagInBlock("registration")) {
             String tag = parser.getName().toLowerCase();
-            
-            if(tag.equals("registering_phone_id")) {
-                String phoneid = parser.nextText();
-            } else if(tag.equals("token")) {
-                String token = parser.nextText();
-            } else if(tag.equals("user_data")) {
-                while(this.nextTagInBlock("user_data")) {
-                    this.checkNode("data");
-                    
-                    String key = this.parser.getAttributeValue(null, "key");
-                    String value = this.parser.nextText();
-                    
-                    u.setProperty(key, value);
-                }
-                
-                //This should be the last block in the registration stuff...
-                break;
-            } else {
-                throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag,parser);
+
+            switch (tag) {
+                case "registering_phone_id":
+                    String phoneid = parser.nextText();
+                    break;
+                case "token":
+                    String token = parser.nextText();
+                    break;
+                case "user_data":
+                    while (this.nextTagInBlock("user_data")) {
+                        this.checkNode("data");
+
+                        String key = this.parser.getAttributeValue(null, "key");
+                        String value = this.parser.nextText();
+
+                        u.setProperty(key, value);
+                    }
+
+                    //This should be the last block in the registration stuff...
+                    break label;
+                default:
+                    throw new InvalidStructureException("Unrecognized tag in user registraiton data: " + tag, parser);
             }
         }
         

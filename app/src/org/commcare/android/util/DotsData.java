@@ -1,9 +1,4 @@
-/**
- * 
- */
 package org.commcare.android.util;
-
-import java.util.Date;
 
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
@@ -11,9 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.util.Date;
+
 /**
  * @author ctsims
- *
  */
 public class DotsData {
     Date anchor;
@@ -204,8 +200,6 @@ public class DotsData {
          * 
          * @param regimenIndex the index of a potential dose (AM,noon,pm, etc)
          * which may be occurring. 
-         * 
-         * @return
          */
         public int[] getRegIndexes(int regimenIndex) {
             int max = this.getMaxReg();

@@ -1,23 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -44,6 +26,24 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -106,7 +106,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
@@ -414,7 +414,6 @@ public abstract class QuestionWidget extends LinearLayout {
 
     /**
     * Display extra help, triggered by user request.
-    * @param prompt
     */
     private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
         if (!prompt.hasHelp()) {
@@ -461,8 +460,6 @@ public abstract class QuestionWidget extends LinearLayout {
     
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
-     * @param prompt
-     * @return
      */
     private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
         TextView text = new TextView(getContext());

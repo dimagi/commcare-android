@@ -16,9 +16,6 @@
 
 package org.commcare.android.framework;
 
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -31,6 +28,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device

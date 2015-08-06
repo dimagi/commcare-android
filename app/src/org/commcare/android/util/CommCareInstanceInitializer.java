@@ -39,7 +39,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         CommCareApplication app = CommCareApplication._();
         String ref = instance.getReference();
-        if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
+        if(ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             if(stockbase == null) {
                 SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
                 stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
@@ -48,7 +48,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 stockbase.rebase(instance.getBase());
             }
             return stockbase;
-        }else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
+        }else if(ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             if(casebase == null) {
                 SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
                 casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
@@ -58,7 +58,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
             instance.setCacheHost(casebase);
             return casebase;
-        }else if(instance.getReference().indexOf("fixture") != -1) {
+        }else if(instance.getReference().contains("fixture")) {
             //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
             String userId = "";
             User u;
@@ -88,7 +88,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 throw new RuntimeException("Could not load fixture for src: " + ref);
             }
         }
-        if(instance.getReference().indexOf("session") != -1) {
+        if(instance.getReference().contains("session")) {
             User u;
             try {
                 u = CommCareApplication._().getSession().getLoggedInUser();

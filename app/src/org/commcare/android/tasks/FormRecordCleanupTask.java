@@ -1,5 +1,39 @@
 package org.commcare.android.tasks;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.cases.model.Case;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParser;
+import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.CommCarePlatform;
+import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.BestEffortBlockParser;
+import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.MetaDataXmlParser;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,41 +48,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.cases.model.Case;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.BestEffortBlockParser;
-import org.commcare.xml.CaseXmlParser;
-import org.commcare.xml.MetaDataXmlParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
 
 /**
  * @author ctsims
@@ -151,17 +150,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Parses out a formrecord and fills in the various parse-able details (UUID, date modified, etc), and updates
      * it to the provided status.
      * 
-     * @param context
-     * @param r
-     * @param newStatus
      * @return The new form record containing relevant details about this form
-     * @throws InvalidKeyException 
-     * @throws NoSuchPaddingException 
-     * @throws NoSuchAlgorithmException 
-     * @throws IOException 
-     * @throws InvalidStructureException 
-     * @throws UnfullfilledRequirementsException 
-     * @throws XmlPullParserException 
      */
     public static FormRecord getUpdatedRecord(Context context, CommCarePlatform platform, FormRecord r, String newStatus) throws InvalidStateException, InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         //Awful. Just... awful

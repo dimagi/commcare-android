@@ -1,20 +1,5 @@
 package org.commcare.dalvik.odk.provider;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.javarosa.core.services.Logger;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -28,6 +13,21 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.services.Logger;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
@@ -164,7 +164,7 @@ public class InstanceProvider extends ContentProvider {
         // Make sure that the fields are all set
         if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
             // set the change date to now
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, Long.valueOf(System.currentTimeMillis()));
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, System.currentTimeMillis());
         }
 
         if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {

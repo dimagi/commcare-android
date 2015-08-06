@@ -3,6 +3,24 @@
  */
 package org.commcare.android.view;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.os.Build;
+import android.support.v7.widget.GridLayout;
+import android.support.v7.widget.Space;
+import android.text.Spannable;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+import android.widget.TextView;
+
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
@@ -16,23 +34,6 @@ import org.javarosa.xpath.XPathUnhandledException;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.Point;
-import android.text.Spannable;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.Space;
-import android.widget.TextView;
-
 import java.util.Arrays;
 
 /**
@@ -42,7 +43,6 @@ import java.util.Arrays;
  * Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
  *
  */
-@SuppressLint("NewApi")
 public class GridEntityView extends GridLayout {
 
 	private String[] forms;
@@ -141,12 +141,18 @@ public class GridEntityView extends GridLayout {
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
 		//setup all the various dimensions we need
-		Point size = new Point();
-		((Activity)context).getWindowManager().getDefaultDisplay().getSize(size);
-		
-		screenWidth = size.x;
-		screenHeight = size.y;
-		
+		Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			Point size = new Point();
+			display.getSize(size);
+
+			screenWidth = size.x;
+			screenHeight = size.y;
+		} else {
+			screenWidth = display.getWidth();
+			screenHeight = display.getHeight();
+		}
+
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
 		    //TODO: call to inAwesomeMode was not working for me. What's the best method to determine this?
@@ -403,32 +409,45 @@ public class GridEntityView extends GridLayout {
                 }
 
 			// handle horizontal alignments
-			if(horzAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_HORIZONTAL);
-			} else if(horzAlign.equals("left")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(horzAlign.equals("right")) {
-				((TextView)retVal).setGravity(Gravity.RIGHT);
-			}  
+				switch (horzAlign) {
+					case "center":
+						((TextView) retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+						break;
+					case "left":
+						((TextView) retVal).setGravity(Gravity.TOP);
+						break;
+					case "right":
+						((TextView) retVal).setGravity(Gravity.RIGHT);
+						break;
+				}
 			// handle vertical alignment
-			if(vertAlign.equals("center")){
-				((TextView)retVal).setGravity(Gravity.CENTER_VERTICAL);
-			} else if(vertAlign.equals("top")) {
-				((TextView)retVal).setGravity(Gravity.TOP);
-			} else if(vertAlign.equals("bottom")) {
-				((TextView)retVal).setGravity(Gravity.BOTTOM);
-			}
+				switch (vertAlign) {
+					case "center":
+						((TextView) retVal).setGravity(Gravity.CENTER_VERTICAL);
+						break;
+					case "top":
+						((TextView) retVal).setGravity(Gravity.TOP);
+						break;
+					case "bottom":
+						((TextView) retVal).setGravity(Gravity.BOTTOM);
+						break;
+				}
 			
 			// handle text resizing
-			if(textsize.equals("large")){
-				((TextView)retVal).setTextSize(LARGE_FONT/DENSITY);
-			} else if(textsize.equals("small")){
-				((TextView)retVal).setTextSize(SMALL_FONT/DENSITY);
-			} else if(textsize.equals("medium")){
-				((TextView)retVal).setTextSize(MEDIUM_FONT/DENSITY);
-			} else if(textsize.equals("xlarge")){
-				((TextView)retVal).setTextSize(XLARGE_FONT/DENSITY);
-			} 
+				switch (textsize) {
+					case "large":
+						((TextView) retVal).setTextSize(LARGE_FONT / DENSITY);
+						break;
+					case "small":
+						((TextView) retVal).setTextSize(SMALL_FONT / DENSITY);
+						break;
+					case "medium":
+						((TextView) retVal).setTextSize(MEDIUM_FONT / DENSITY);
+						break;
+					case "xlarge":
+						((TextView) retVal).setTextSize(XLARGE_FONT / DENSITY);
+						break;
+				}
 		}
 		
 		return retVal;

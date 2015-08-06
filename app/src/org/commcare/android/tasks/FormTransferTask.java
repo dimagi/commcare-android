@@ -1,5 +1,11 @@
 package org.commcare.android.tasks;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,12 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-
-import android.content.Context;
-import android.util.Log;
 
 public abstract class FormTransferTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
     

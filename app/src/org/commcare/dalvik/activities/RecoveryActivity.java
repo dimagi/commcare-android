@@ -1,21 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StorageUtils;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
-import org.javarosa.core.services.Logger;
-
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -26,11 +10,26 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.FormUploadUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StorageUtils;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
+
 /**
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_recovery)
-public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
+public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
     
     private static final int SEND_TASK_ID = 100;
     private static final int RECOVER_TASK_ID = 101;
@@ -162,9 +161,8 @@ public class RecoveryActivity extends CommCareActivity<RecoveryActivity> {
             appState.setText("app state unavailable.");
             return;
         }
-        
-        
-        if(CommCareApplication._().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+
+        if(CommCareApplication._().getCurrentApp().getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
             appState.setText("App install is corrupt. Make sure forms are sent before attempting recovery.");
             btnRecoverApp.setEnabled(true);
         } else {

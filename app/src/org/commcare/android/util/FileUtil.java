@@ -23,7 +23,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -32,7 +31,6 @@ import javax.crypto.CipherOutputStream;
 
 /**
  * @author ctsims
- *
  */
 public class FileUtil {
     
@@ -159,7 +157,7 @@ public class FileUtil {
                 Log.e("No Cache File", e.getMessage());
                 return null;
             } catch (IOException e) {
-                Log.e("Problem reading from file", e.getMessage());
+                Log.e("Problem reading file", e.getMessage());
                 return null;
             }
 
@@ -314,9 +312,6 @@ public class FileUtil {
         /**
          * Turn a filepath into a global android URI that can be passed
          * to an intent. 
-         * 
-         * @param fileLocation
-         * @return
          */
         public static String getGlobalStringUri(String fileLocation) {
             return "file://" + fileLocation;
@@ -339,8 +334,6 @@ public class FileUtil {
         /**
          * Ensure that everything between "localpart" and f exists
          * and create it if not.
-         * 
-         * @param f
          */
         public static void ensureFilePathExists(File f) {
             File folder = f.getParentFile();

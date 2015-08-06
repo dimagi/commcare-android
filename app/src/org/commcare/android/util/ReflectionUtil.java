@@ -1,10 +1,10 @@
 package org.commcare.android.util;
 
+import android.os.Environment;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import android.os.Environment;
 
 /**
  * @author wspride
@@ -19,7 +19,7 @@ public class ReflectionUtil {
     private static void initCompatibility() {
         try {
             mExternalStorageEmulated =
-                Environment.class.getMethod("isExternalStorageEmulated", new Class[0]);
+                Environment.class.getMethod("isExternalStorageEmulated");
            /* success, this is a newer device */
         } catch (NoSuchMethodException nsme) {
            /* failure, must be older device */
@@ -33,7 +33,7 @@ public class ReflectionUtil {
      */
     private static boolean mIsExternalStorageEmulated() throws IOException {
         try {
-            Object obj = mExternalStorageEmulated.invoke(null, new Object[0]);
+            Object obj = mExternalStorageEmulated.invoke(null);
             return (Boolean)obj;
         } catch (InvocationTargetException ite) {
            /* unpack original exception when possible */

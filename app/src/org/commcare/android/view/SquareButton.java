@@ -22,14 +22,16 @@ public class SquareButton extends ImageButton {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int canvasWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int canvasHeight = MeasureSpec.getSize(heightMeasureSpec);
 
-        //Get canvas width and height
-        int w = MeasureSpec.getSize(widthMeasureSpec);
-        int h = MeasureSpec.getSize(heightMeasureSpec);
+        int squareCanvasDimension = Math.min(canvasWidth, canvasHeight);
+        if (squareCanvasDimension <= 0) {
+            // At times GridView forces its child views to have a height/width
+            // of 0. Avoid button invisibility by choosing the max dimension.
+            squareCanvasDimension = Math.max(canvasWidth, canvasHeight);
+        }
 
-        w = Math.min(w, h);
-        h = w;
-
-        setMeasuredDimension(w, h);
+        setMeasuredDimension(squareCanvasDimension, squareCanvasDimension);
     }
 }

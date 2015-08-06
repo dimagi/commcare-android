@@ -1,20 +1,16 @@
 package org.commcare.android.db.legacy;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -44,23 +40,28 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
-import android.util.Pair;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
@@ -145,7 +146,7 @@ public class LegacyInstallUtils {
             if(r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
                 allInstalled = false;
             } 
-            if(r.getResourceId().equals("commcare-application-profile")) {
+            if(r.getResourceId().equals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
                 hasProfile = true;
             }
             oldDbSize++;
@@ -230,15 +231,24 @@ public class LegacyInstallUtils {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Files moved. Updating Handles");
         
         //We also need to tell the XForm Provider that any/all of its forms have been moved
-        
-        Cursor ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI,new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+
         ArrayList<Pair<Uri, String>> toReplace = new ArrayList<Pair<Uri, String>>();
-        while(ef.moveToNext()) {
-            String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
-            if(!newFilePath.equals(filePath)) {
-                Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+        Cursor ef = null;
+        try {
+            ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+            if (ef != null) {
+                while (ef.moveToNext()) {
+                    String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+                    String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
+                    if (!newFilePath.equals(filePath)) {
+                        Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
+                        toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+                    }
+                }
+            }
+        } finally {
+            if (ef != null) {
+                ef.close();
             }
         }
         

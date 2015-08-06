@@ -1,10 +1,8 @@
 package org.commcare.xml;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.crypto.Cipher;
+import android.net.ParseException;
+import android.net.Uri;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -30,13 +28,14 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlParser;
 
-import android.net.ParseException;
-import android.net.Uri;
-import android.util.Pair;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.crypto.Cipher;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidCaseXmlParser extends CaseXmlParser {
     Cipher attachmentCipher;
@@ -198,7 +197,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
      * will be randomized, however.
      * 
      * @param source the full path of the source of the attachment.
-     * @return
      */
     private Pair<File, String> getDestination(String source) {
         File storagePath = new File(CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_ATTACHMENTS));
