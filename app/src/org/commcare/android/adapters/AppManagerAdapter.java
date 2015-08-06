@@ -1,14 +1,14 @@
 package org.commcare.android.adapters;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.AppManagerActivity;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.AppManagerActivity;
 
 /**
  * The ArrayAdapter used by AppManagerActivity to display all installed

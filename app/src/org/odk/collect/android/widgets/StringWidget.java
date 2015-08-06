@@ -1,7 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import org.commcare.dalvik.R;
-
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -19,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -162,7 +161,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.isAltPressed() == true) {
+        if (event.isAltPressed()) {
             return false;
         }
         widgetEntryChanged();

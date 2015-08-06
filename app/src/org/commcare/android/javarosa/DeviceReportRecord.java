@@ -1,5 +1,16 @@
 package org.commcare.android.javarosa;
 
+import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.storage.framework.Persisted;
+import org.commcare.android.storage.framework.Persisting;
+import org.commcare.android.storage.framework.Table;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.api.models.EncryptedModel;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,17 +24,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.api.models.EncryptedModel;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 
 /**
  * A small DB record for keeping track of serialized device reports which we are planning

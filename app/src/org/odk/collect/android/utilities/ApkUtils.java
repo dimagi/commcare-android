@@ -3,6 +3,12 @@
  */
 package org.odk.collect.android.utilities;
 
+import android.content.Context;
+
+import org.javarosa.core.util.PrefixTree;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -10,11 +16,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.javarosa.core.util.PrefixTree;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
-import android.content.Context;
 import dalvik.system.DexFile;
 
 /**

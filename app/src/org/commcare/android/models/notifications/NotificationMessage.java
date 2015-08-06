@@ -1,9 +1,9 @@
 package org.commcare.android.models.notifications;
 
-import java.util.Date;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import java.util.Date;
 
 /**
  * Notification messages are messages which are intended to be displayed to end

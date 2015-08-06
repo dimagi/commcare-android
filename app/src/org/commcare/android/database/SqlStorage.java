@@ -1,15 +1,5 @@
 package org.commcare.android.database;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Vector;
 import android.database.Cursor;
 import android.util.Pair;
 
@@ -17,7 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
 
-import org.commcare.android.db.legacy.LegacyInstallUtils.CopyMapper;
+import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.SessionUnavailableException;
@@ -35,6 +25,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -94,7 +85,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, t);
         
         if(STORAGE_OUTPUT_DEBUG) {
-            String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
+            String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DbUtil.ID_COL}, whereClause.first, null, null, null, null);
             DbUtil.explainSql(db, sql, whereClause.second);
         }
         
@@ -376,7 +367,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         //faster method depending on our stats. This method retrieves the 
         //index records that _don't_ exist so we can assume the spans that
         //do.
-        if(includeData == false && STORAGE_OPTIMIZATIONS_ACTIVE) {
+        if(!includeData && STORAGE_OPTIMIZATIONS_ACTIVE) {
 
             SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
             
@@ -633,7 +624,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return cleanCopy(from, to, null);
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try{

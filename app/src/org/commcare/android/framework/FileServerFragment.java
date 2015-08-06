@@ -1,17 +1,5 @@
 package org.commcare.android.framework;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.javarosa.core.services.Logger;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -24,6 +12,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device

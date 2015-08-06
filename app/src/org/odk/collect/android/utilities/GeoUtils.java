@@ -1,16 +1,16 @@
 package org.odk.collect.android.utilities;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.commcare.dalvik.R;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationManager;
+
+import org.commcare.dalvik.R;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.

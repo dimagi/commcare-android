@@ -1,14 +1,9 @@
 package org.commcare.android.tasks;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.security.cert.CertificateException;
-import java.util.Date;
-import java.util.Vector;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.SystemClock;
 
-import javax.net.ssl.SSLHandshakeException;
-
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
@@ -17,18 +12,23 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.CommCareElementParser;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.os.SystemClock;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.util.Date;
+import java.util.Vector;
+
+import javax.net.ssl.SSLHandshakeException;
 
 /**
  * @author ctsims

@@ -1,5 +1,27 @@
 package org.commcare.xml;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.TransactionParser;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.kxml2.io.KXmlParser;
+import org.kxml2.io.KXmlSerializer;
+import org.kxml2.kdom.Document;
+import org.kxml2.kdom.Element;
+import org.kxml2.kdom.Node;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,28 +38,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.kxml2.io.KXmlParser;
-import org.kxml2.io.KXmlSerializer;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
-import org.kxml2.kdom.Node;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
 
 /**
  * @author ctsims

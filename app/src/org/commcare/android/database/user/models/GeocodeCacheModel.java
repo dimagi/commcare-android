@@ -3,10 +3,7 @@
  */
 package org.commcare.android.database.user.models;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
+import com.google.android.maps.GeoPoint;
 
 import org.commcare.api.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
@@ -16,7 +13,10 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import com.google.android.maps.GeoPoint;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author ctsims

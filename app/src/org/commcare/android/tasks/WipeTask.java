@@ -1,13 +1,13 @@
 package org.commcare.android.tasks;
 
-import java.io.File;
+import android.content.Context;
+import android.util.Log;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
-import android.content.Context;
-import android.util.Log;
+import java.io.File;
 
 /**
  * @author ctsims

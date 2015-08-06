@@ -3,14 +3,6 @@
  */
 package org.commcare.android.adapters;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -22,6 +14,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author ctsims

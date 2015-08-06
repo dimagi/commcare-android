@@ -1,16 +1,16 @@
 package org.commcare.android.db.legacy;
 
-import javax.crypto.Cipher;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
 import org.commcare.api.models.EncryptedModel;
 
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
+import javax.crypto.Cipher;
 
 /**
  * @author ctsims

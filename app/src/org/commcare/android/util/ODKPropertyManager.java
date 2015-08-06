@@ -1,9 +1,9 @@
 package org.commcare.android.util;
 
-import java.util.Vector;
-
 import org.javarosa.core.services.IPropertyManager;
 import org.javarosa.core.services.properties.IPropertyRules;
+
+import java.util.Vector;
 
 /**
  * @author ctsims

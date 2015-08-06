@@ -1,5 +1,7 @@
 package org.commcare.android.database.app;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -9,8 +11,6 @@ import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
-
-import android.content.Context;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for

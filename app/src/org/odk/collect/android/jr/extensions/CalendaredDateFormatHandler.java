@@ -1,7 +1,6 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.util.Date;
-import java.util.Vector;
+import android.content.Context;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -11,7 +10,8 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.EthiopianDateHelper;
 import org.odk.collect.android.utilities.NepaliDateUtilities;
 
-import android.content.Context;
+import java.util.Date;
+import java.util.Vector;
 
 /**
  * @author ctsims

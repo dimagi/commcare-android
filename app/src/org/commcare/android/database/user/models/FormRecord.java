@@ -1,8 +1,8 @@
 package org.commcare.android.database.user.models;
 
-import java.io.FileNotFoundException;
-import java.util.Date;
-import java.util.Hashtable;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import org.commcare.api.models.EncryptedModel;
 import org.commcare.api.models.MetaField;
@@ -12,9 +12,9 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import java.io.FileNotFoundException;
+import java.util.Date;
+import java.util.Hashtable;
 
 /**
  * @author ctsims

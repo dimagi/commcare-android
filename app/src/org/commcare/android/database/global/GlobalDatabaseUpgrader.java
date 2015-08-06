@@ -3,6 +3,8 @@
  */
 package org.commcare.android.database.global;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
@@ -11,8 +13,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.javarosa.core.services.storage.Persistable;
-
-import android.content.Context;
 
 /**
  * @author ctsims

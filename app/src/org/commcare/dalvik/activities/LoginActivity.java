@@ -1,40 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.framework.BreadcrumbBarFragment;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.notifications.MessageTag;
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.ManageKeyRecordListener;
-import org.commcare.android.tasks.ManageKeyRecordTask;
-import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
-import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.util.DemoUserUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +25,38 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.ManageKeyRecordListener;
+import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.util.ACRAUtil;
+import org.commcare.android.util.DemoUserUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 
 /**
  * @author ctsims

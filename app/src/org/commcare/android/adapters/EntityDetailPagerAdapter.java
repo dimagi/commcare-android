@@ -1,14 +1,14 @@
 package org.commcare.android.adapters;
 
-import org.commcare.android.framework.EntityDetailFragment;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.suite.model.Detail;
-import org.javarosa.core.model.instance.TreeReference;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+
+import org.commcare.android.framework.EntityDetailFragment;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * Subclass of FragmentStatePagerAdapter for populating a ViewPager (swipe-based paging widget) with entity detail fields.

@@ -1,12 +1,12 @@
 package org.commcare.android.database;
 
-import java.util.Iterator;
+import android.database.Cursor;
 
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
 
-import android.database.Cursor;
+import java.util.Iterator;
 
 /**
  * @author ctsims

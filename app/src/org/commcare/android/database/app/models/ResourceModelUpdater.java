@@ -3,11 +3,6 @@
  */
 package org.commcare.android.database.app.models;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInstaller;
 import org.commcare.resources.model.ResourceLocation;
@@ -16,6 +11,11 @@ import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * A model extension which reads Resource models from the

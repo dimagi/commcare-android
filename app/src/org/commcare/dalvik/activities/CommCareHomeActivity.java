@@ -34,8 +34,8 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -71,7 +71,6 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;

@@ -14,6 +14,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+
+
 public class UserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed storage;
