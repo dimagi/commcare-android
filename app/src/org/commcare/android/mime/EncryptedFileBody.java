@@ -1,5 +1,12 @@
 package org.commcare.android.mime;
 
+import org.apache.http.entity.mime.MIME;
+import org.apache.http.entity.mime.content.AbstractContentBody;
+import org.apache.james.mime4j.message.Entity;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.io.StreamsUtil.OutputIOException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,13 +14,6 @@ import java.io.OutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-
-import org.apache.http.entity.mime.MIME;
-import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.apache.james.mime4j.message.Entity;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.io.StreamsUtil.InputIOException;
-import org.javarosa.core.io.StreamsUtil.OutputIOException;
 
 
 /**

@@ -1,23 +1,23 @@
 package org.commcare.dalvik.activities;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import org.commcare.android.adapters.AppManagerAdapter;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import org.commcare.android.adapters.AppManagerAdapter;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.services.locale.Localization;
 
 /**

@@ -1,8 +1,8 @@
 package org.commcare.android.tasks;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -12,9 +12,10 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.

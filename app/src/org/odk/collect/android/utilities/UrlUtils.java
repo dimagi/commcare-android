@@ -14,14 +14,14 @@
 
 package org.odk.collect.android.utilities;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 
 public class UrlUtils {
 

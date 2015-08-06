@@ -1,28 +1,5 @@
 package org.commcare.android.framework;
 
-import java.util.Vector;
-
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.view.GridEntityView;
-import org.commcare.android.view.TabbedDetailView;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareSetupActivity;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
-
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
@@ -46,6 +23,29 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SessionStateUninitException;
+import org.commcare.android.view.GridEntityView;
+import org.commcare.android.view.TabbedDetailView;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareSetupActivity;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.StackFrameStep;
+import org.commcare.util.CommCareSession;
+import org.commcare.util.SessionFrame;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
+
+import java.util.Vector;
 
 /**
  * @author ctsims

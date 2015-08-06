@@ -1,17 +1,5 @@
 package org.commcare.dalvik.application;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -45,6 +33,7 @@ import android.widget.Toast;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
+import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -103,7 +92,18 @@ import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
 
-import org.acra.annotation.ReportsCrashes;
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 /**
  * @author ctsims

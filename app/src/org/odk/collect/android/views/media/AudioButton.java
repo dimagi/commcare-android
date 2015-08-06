@@ -1,12 +1,5 @@
 package org.odk.collect.android.views.media;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -16,6 +9,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ctsims

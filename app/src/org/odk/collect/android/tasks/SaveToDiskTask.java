@@ -1,5 +1,29 @@
 package org.odk.collect.android.tasks;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.transport.payload.ByteArrayPayload;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.listeners.FormSavedListener;
+import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.utilities.EncryptionUtils;
+import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,30 +37,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.transport.payload.ByteArrayPayload;
-import org.javarosa.form.api.FormEntryController;
-import org.javarosa.model.xform.XFormSerializingVisitor;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.listeners.FormSavedListener;
-import org.odk.collect.android.logic.FormController;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.odk.collect.android.utilities.EncryptionUtils;
-import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * Background task for loading a form.

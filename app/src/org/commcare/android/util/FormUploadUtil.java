@@ -1,19 +1,9 @@
 package org.commcare.android.util;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLConnection;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -30,10 +20,16 @@ import org.commcare.android.tasks.DataSubmissionListener;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.services.Logger;
 
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
-import android.webkit.MimeTypeMap;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 public class FormUploadUtil {
     private static final String TAG = FormUploadUtil.class.getSimpleName();

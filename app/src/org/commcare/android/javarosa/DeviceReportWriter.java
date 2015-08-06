@@ -3,11 +3,7 @@
  */
 package org.commcare.android.javarosa;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
+import android.content.Context;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.User;
@@ -17,7 +13,11 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;
 
-import android.content.Context;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * This class generates and serializes a device report to either a byte array

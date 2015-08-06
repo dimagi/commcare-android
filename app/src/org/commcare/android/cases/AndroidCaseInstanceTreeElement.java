@@ -1,8 +1,5 @@
 package org.commcare.android.cases;
 
-import java.util.Hashtable;
-import java.util.Vector;
-
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
@@ -18,6 +15,9 @@ import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DataUtil;
+
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims

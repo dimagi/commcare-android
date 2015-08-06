@@ -1,5 +1,4 @@
 package org.odk.collect.android.application;
-import org.commcare.dalvik.R;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +8,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
 
 public class GeoProgressDialog extends Dialog {
     

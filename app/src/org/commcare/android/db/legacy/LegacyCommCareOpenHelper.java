@@ -3,6 +3,11 @@
  */
 package org.commcare.android.db.legacy;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
@@ -13,11 +18,6 @@ import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * @author ctsims

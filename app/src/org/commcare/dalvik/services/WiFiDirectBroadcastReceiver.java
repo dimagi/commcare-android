@@ -16,10 +16,6 @@
 
 package org.commcare.dalvik.services;
 
-import org.commcare.android.framework.WiFiDirectManagementFragment;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.javarosa.core.services.Logger;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
@@ -30,6 +26,10 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.Build;
 import android.util.Log;
+
+import org.commcare.android.framework.WiFiDirectManagementFragment;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
 
 /**
  * A BroadcastReceiver that notifies of important wifi p2p events.

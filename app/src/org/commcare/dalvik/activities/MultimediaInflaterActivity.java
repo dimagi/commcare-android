@@ -1,20 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.MultimediaInflaterTask;
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.utils.UriToFilePath;
-import org.javarosa.core.services.locale.Localization;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -28,6 +13,21 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.MultimediaInflaterTask;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.utils.UriToFilePath;
+import org.javarosa.core.services.locale.Localization;
+
+import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author ctsims

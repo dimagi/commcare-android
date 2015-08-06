@@ -1,9 +1,5 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.util.Base64;
@@ -14,6 +10,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.joda.time.format.ISODateTimeFormat;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * @author ctsims

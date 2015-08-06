@@ -1,8 +1,6 @@
 package org.commcare.android.util;
 
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Vector;
+import android.net.Uri;
 
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -14,7 +12,9 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
-import android.net.Uri;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Vector;
 
 /**
  * @author ctsims
