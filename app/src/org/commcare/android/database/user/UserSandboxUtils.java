@@ -1,7 +1,11 @@
 package org.commcare.android.database.user;
 
-import java.io.File;
-import java.io.IOException;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -17,12 +21,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ctsims

@@ -1,5 +1,8 @@
 package org.commcare.android.database.user;
 
+import android.content.Context;
+import android.util.Log;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
@@ -14,9 +17,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
-
-import android.content.Context;
-import android.util.Log;
 
 /**
  * @author ctsims

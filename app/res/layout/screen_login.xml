@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/screen_login_main"
-                android:background="@color/cc_core_bg"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/screen_login_main"
+    android:background="@color/cc_core_bg">
 
     <LinearLayout
-    android:id="@+id/screen_login_bottom_pane"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" android:layout_alignParentBottom="true"
-    android:visibility="gone" >
+        android:id="@+id/screen_login_bottom_pane"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" android:layout_alignParentBottom="true"
+        android:visibility="gone" >
 
     <TextView
     android:id="@+id/str_version"
@@ -22,10 +21,12 @@
 
     </LinearLayout>
 
+
     <ScrollView
         android:scrollbars="none"
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -76,6 +77,16 @@
                         android:layout_margin="@dimen/content_min_margin"
                         android:textSize="@dimen/text_medium"
                         />
+
+                    <Spinner
+                        android:id="@+id/app_selection_spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/text_medium"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:layout_marginBottom="@dimen/cell_padding_vertical"
+                        android:visibility="gone" />
 
                     <EditText
                         android:id="@+id/edit_username"

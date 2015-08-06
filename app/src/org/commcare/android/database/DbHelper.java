@@ -3,12 +3,9 @@
  */
 package org.commcare.android.database;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import android.content.ContentValues;
+import android.content.Context;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -18,9 +15,12 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.util.Pair;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author ctsims

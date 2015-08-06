@@ -3,12 +3,12 @@
  */
 package org.commcare.android.references;
 
+import android.content.Context;
+
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;
 import org.javarosa.core.reference.ReferenceManager;
-
-import android.content.Context;
 
 
 /**

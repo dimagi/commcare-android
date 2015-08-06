@@ -1,5 +1,10 @@
 package org.commcare.android.tasks;
 
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.android.util.FileUtil;
+import org.javarosa.core.services.locale.Localization;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -8,11 +13,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.FileUtil;
-import org.javarosa.core.services.locale.Localization;
 
 public abstract class MultimediaInflaterTask<R> extends CommCareTask<String, String, Boolean, R> {
     

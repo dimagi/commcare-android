@@ -1,11 +1,11 @@
 package org.commcare.util.externalizable;
 
-import java.util.Hashtable;
-
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapTagged;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.util.Hashtable;
 
 /**
  * @author ctsims

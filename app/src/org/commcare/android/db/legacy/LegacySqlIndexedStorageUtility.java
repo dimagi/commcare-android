@@ -1,12 +1,8 @@
 package org.commcare.android.db.legacy;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.EncryptedModel;
@@ -21,9 +17,13 @@ import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Pair;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * @author ctsims

@@ -3,6 +3,8 @@
  */
 package org.commcare.android.database.global;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -12,8 +14,6 @@ import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
-
-import android.content.Context;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -27,8 +27,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     
     /**
      * V.2 - all sqlstorage objects now need numbers tables
+     * V.3 - ApplicationRecord has new fields to support multiple app seating
      */
-    private static final int GLOBAL_DB_VERSION = 2;
+    private static final int GLOBAL_DB_VERSION = 3;
     
     private static final String GLOBAL_DB_LOCATOR = "database_global";
     

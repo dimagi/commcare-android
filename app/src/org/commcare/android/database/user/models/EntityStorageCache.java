@@ -1,5 +1,8 @@
 package org.commcare.android.database.user.models;
 
+import android.content.ContentValues;
+import android.util.Log;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -9,9 +12,6 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
-
-import android.content.ContentValues;
-import android.util.Log;
 
 /**
  * @author ctsims

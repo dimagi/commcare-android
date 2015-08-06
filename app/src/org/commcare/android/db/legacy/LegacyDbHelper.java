@@ -3,15 +3,10 @@
  */
 package org.commcare.android.db.legacy;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
@@ -23,10 +18,15 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Pair;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
 
 /**
  * @author ctsims

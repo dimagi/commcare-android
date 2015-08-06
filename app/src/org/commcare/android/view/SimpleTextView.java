@@ -3,12 +3,12 @@
  */
 package org.commcare.android.view;
 
-import org.commcare.suite.model.Text;
-import org.commcare.util.CommCarePlatform;
-
 import android.content.Context;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import org.commcare.suite.model.Text;
+import org.commcare.util.CommCarePlatform;
 
 /**
  * @author ctsims

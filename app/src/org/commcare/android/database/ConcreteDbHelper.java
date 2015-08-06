@@ -1,7 +1,8 @@
 package org.commcare.android.database;
 
-import net.sqlcipher.database.SQLiteDatabase;
 import android.content.Context;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 /**
  * A Db Handler for direct DB Handle access, when

@@ -1,23 +1,21 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.android.adapters.CallRecordAdapter;
-import org.commcare.android.adapters.MessageRecordAdapter;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.storage.Persistable;
-
 import android.app.ListActivity;
-import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import org.commcare.android.adapters.CallRecordAdapter;
+import org.commcare.android.adapters.MessageRecordAdapter;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * @author ctsims

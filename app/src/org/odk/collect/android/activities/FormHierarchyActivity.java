@@ -1,8 +1,17 @@
 package org.odk.collect.android.activities;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.ListActivity;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
 
+import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
@@ -15,16 +24,8 @@ import org.odk.collect.android.adapters.HierarchyListAdapter;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.HierarchyElement;
 
-import android.app.ListActivity;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
     private static final String TAG = FormHierarchyActivity.class.getSimpleName();
@@ -101,6 +102,20 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
 
 

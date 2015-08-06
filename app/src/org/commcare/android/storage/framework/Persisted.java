@@ -3,6 +3,12 @@
  */
 package org.commcare.android.storage.framework;
 
+import org.javarosa.core.services.storage.IMetaData;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,12 +20,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
-
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 /**
  * @author ctsims
@@ -125,6 +125,9 @@ public class Persisted implements Persistable, IMetaData {
                     f.set(o, ExtUtil.readBytes(in));
                     return;
                 }
+            } else if (type.equals(Boolean.TYPE)) {
+                f.setBoolean(o, ExtUtil.readBool(in));
+                return;
             }
         } finally {
             f.setAccessible(false);
@@ -156,6 +159,9 @@ public class Persisted implements Persistable, IMetaData {
                     ExtUtil.writeBytes(out,(byte[])f.get(o));
                     return;
                 }
+            } else if (type.equals(Boolean.TYPE)) {
+                ExtUtil.writeBool(out, f.getBoolean(o));
+                return;
             }
         } finally {
             f.setAccessible(false);
