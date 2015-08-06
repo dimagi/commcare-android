@@ -1,19 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.tasks.VerificationTask;
-import org.commcare.android.tasks.VerificationTaskListener;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.resources.model.MissingMediaException;
-import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.SizeBoundVector;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask.Status;
@@ -26,6 +12,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.tasks.VerificationTask;
+import org.commcare.android.tasks.VerificationTaskListener;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.resources.model.MissingMediaException;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.SizeBoundVector;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Performs media validation and allows for the installation of missing media

@@ -1,23 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -44,6 +26,24 @@ import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import java.io.File;
 
 public abstract class QuestionWidget extends LinearLayout {
     private final static String TAG = QuestionWidget.class.getSimpleName();

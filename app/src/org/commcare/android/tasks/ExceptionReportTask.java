@@ -1,12 +1,8 @@
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.Date;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -21,9 +17,13 @@ import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Date;
 
 
 /**

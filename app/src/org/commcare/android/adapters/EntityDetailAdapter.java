@@ -3,8 +3,11 @@
  */
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
@@ -12,11 +15,8 @@ import org.commcare.android.view.EntityDetailView;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ctsims

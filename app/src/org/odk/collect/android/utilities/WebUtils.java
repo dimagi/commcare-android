@@ -1,15 +1,7 @@
 package org.odk.collect.android.utilities;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.TimeZone;
+import android.text.format.DateFormat;
+import android.util.Log;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -36,8 +28,16 @@ import org.kxml2.kdom.Document;
 import org.odk.collect.android.application.Collect;
 import org.xmlpull.v1.XmlPullParser;
 
-import android.text.format.DateFormat;
-import android.util.Log;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Common utility methods for managing the credentials associated with the request context and

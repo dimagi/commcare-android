@@ -1,13 +1,11 @@
 package org.commcare.android.framework;
 
-import android.preference.PreferenceActivity;
-
 /**
  * Manage redirection to login screen when session expiration occurs.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class SessionAwarePreferenceActivity extends PreferenceActivity {
+public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> {
     @Override
     protected void onResume() {
         super.onResume();

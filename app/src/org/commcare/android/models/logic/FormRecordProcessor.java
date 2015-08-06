@@ -1,15 +1,8 @@
 package org.commcare.android.models.logic;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Date;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.spec.SecretKeySpec;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Pair;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -23,15 +16,22 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.LedgerXmlParsers;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.content.Intent;
-import android.util.Pair;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * A FormRecordProcessor keeps track of all of the logic needed to process

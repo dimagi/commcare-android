@@ -1,10 +1,12 @@
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import android.app.Activity;
+import android.database.DataSetObserver;
+import android.speech.tts.TextToSpeech;
+import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -31,13 +33,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 
-import android.app.Activity;
-import android.database.DataSetObserver;
-import android.speech.tts.TextToSpeech;
-import android.util.Pair;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author ctsims

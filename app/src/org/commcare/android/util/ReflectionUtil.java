@@ -1,10 +1,10 @@
 package org.commcare.android.util;
 
+import android.os.Environment;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import android.os.Environment;
 
 /**
  * @author wspride

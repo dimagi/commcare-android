@@ -3,11 +3,9 @@
  */
 package org.commcare.android.database.global.models;
 
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcel;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.storage.framework.MetaField;
@@ -17,9 +15,11 @@ import org.commcare.android.storage.framework.Table;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Parcel;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 /**
  * This is a record of a key that CommCare ODK has shared with another app

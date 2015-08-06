@@ -3,6 +3,10 @@
  */
 package org.commcare.android.util.bitcache;
 
+import android.content.Context;
+
+import org.commcare.android.crypt.CryptUtil;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,10 +24,6 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-
-import org.commcare.android.crypt.CryptUtil;
-
-import android.content.Context;
 
 /**
  * @author ctsims

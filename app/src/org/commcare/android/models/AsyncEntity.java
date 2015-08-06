@@ -3,9 +3,6 @@
  */
 package org.commcare.android.models;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -20,6 +17,9 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 
 

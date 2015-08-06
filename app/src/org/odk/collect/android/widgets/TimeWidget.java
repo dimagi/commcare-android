@@ -1,18 +1,18 @@
 package org.odk.collect.android.widgets;
 
-import java.util.Date;
-
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.TimeData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.joda.time.DateTime;
-
 import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
+
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.TimeData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
+
+import java.util.Date;
 
 /**
  * Displays a TimePicker widget.

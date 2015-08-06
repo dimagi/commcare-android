@@ -1,12 +1,12 @@
 package org.commcare.android.util;
 
-import java.util.Date;
-
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import java.util.Date;
 
 /**
  * @author ctsims

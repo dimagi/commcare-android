@@ -1,9 +1,8 @@
 package org.commcare.android.tasks;
 
-import java.security.cert.CertificateException;
-import java.util.Vector;
-
-import javax.net.ssl.SSLHandshakeException;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.SystemClock;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
@@ -18,10 +17,16 @@ import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.xml.CommCareElementParser;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import android.os.SystemClock;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.util.Date;
+import java.util.Vector;
+
+import javax.net.ssl.SSLHandshakeException;
 
 /**
  * @author ctsims

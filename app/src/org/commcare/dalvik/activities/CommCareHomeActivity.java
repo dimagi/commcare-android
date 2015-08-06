@@ -34,8 +34,8 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
@@ -73,7 +73,6 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
@@ -97,8 +96,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
-
-import android.text.Spannable;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
@@ -1089,7 +1086,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
-        refreshActionBar();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshActionBar();
+        }
         dispatchHomeScreen();
     }
 

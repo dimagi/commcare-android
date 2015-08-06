@@ -1,15 +1,5 @@
 package org.odk.collect.android.views.media;
 
-import java.io.File;
-
-import org.commcare.dalvik.R;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.utilities.QRCodeEncoder;
-import org.odk.collect.android.views.ResizingImageView;
-
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +15,16 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.commcare.dalvik.R;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.utilities.QRCodeEncoder;
+import org.odk.collect.android.views.ResizingImageView;
+
+import java.io.File;
 
 /**
  * This layout is used anywhere we can have image/audio/video/text. TODO: It

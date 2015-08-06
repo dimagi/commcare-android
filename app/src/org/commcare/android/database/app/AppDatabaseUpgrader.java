@@ -1,12 +1,12 @@
 package org.commcare.android.database.app;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.resources.model.Resource;
-
-import android.content.Context;
 
 /**
  * @author ctsims

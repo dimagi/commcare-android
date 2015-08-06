@@ -1,15 +1,7 @@
 package org.commcare.android.database;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Vector;
+import android.database.Cursor;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
@@ -29,8 +21,16 @@ import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
-import android.database.Cursor;
-import android.util.Pair;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -366,7 +366,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         //faster method depending on our stats. This method retrieves the 
         //index records that _don't_ exist so we can assume the spans that
         //do.
-        if(includeData == false && STORAGE_OPTIMIZATIONS_ACTIVE) {
+        if(!includeData && STORAGE_OPTIMIZATIONS_ACTIVE) {
 
             SQLiteStatement min = db.compileStatement("SELECT MIN(" + DbUtil.ID_COL + ") from " + table);
             

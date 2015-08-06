@@ -1,6 +1,7 @@
 package org.commcare.dalvik.application;
 
-import java.io.File;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -26,8 +27,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.io.File;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single

@@ -3,9 +3,9 @@
  */
 package org.commcare.android.database;
 
-import org.javarosa.core.services.storage.Persistable;
-
 import android.database.Cursor;
+
+import org.javarosa.core.services.storage.Persistable;
 
 /**
  * A index spanning iterator is a special kind of iterator that is used on densely packed tables
