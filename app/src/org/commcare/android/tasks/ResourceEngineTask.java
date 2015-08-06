@@ -1,7 +1,5 @@
 package org.commcare.android.tasks;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.SystemClock;
 
 import org.commcare.android.javarosa.AndroidLogger;
@@ -20,10 +18,7 @@ import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.cert.CertificateException;
-import java.util.Date;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
