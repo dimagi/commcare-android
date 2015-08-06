@@ -514,8 +514,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             setSearchText(result);
             resultSet = true;
         }
-        Callout callout = shortSelect.getCallout();
-        for (String key : callout.getResponses()) {
+        for (String key : shortSelect.getCallout().getResponses()) {
             result = intent.getExtras().getString(key);
             if (result != null && !resultSet) {
                 resultSet = true;

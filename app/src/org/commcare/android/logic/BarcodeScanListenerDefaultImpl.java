@@ -11,7 +11,6 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 
-import java.util.Hashtable;
 import java.util.Map;
 
 /**
@@ -82,22 +81,19 @@ public final class BarcodeScanListenerDefaultImpl {
             calloutActionSetup.onImageFound(calloutData);
         }
 
-        final String actionName = calloutData.getActionName();
-        final Hashtable<String, String> extras = calloutData.getExtras();
-
+        final Intent i = new Intent(calloutData.getActionName());
+        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
+            i.putExtra(keyValue.getKey(), keyValue.getValue());
+        }
         return new CalloutAction() {
             @Override
             public void callout() {
-                Log.i("SCAN", "Using barcode scan with action: " + actionName);
-                Intent i = new Intent(actionName);
+                Log.i("SCAN", "Using barcode scan with action: " + i.getAction());
 
-                for (Map.Entry<String, String> keyValue : extras.entrySet()) {
-                    i.putExtra(keyValue.getKey(), keyValue.getValue());
-                }
                 try {
                     act.startActivityForResult(i, CALLOUT);
                 } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(act, "No application found for action: " + actionName, Toast.LENGTH_LONG).show();
+                    Toast.makeText(act, "No application found for action: " + i.getAction(), Toast.LENGTH_LONG).show();
                 }
             }
         };
