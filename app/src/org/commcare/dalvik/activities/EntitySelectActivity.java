@@ -502,10 +502,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
     }
 
+    @Override
     public void onBarcodeFetch(String result, Intent intent) {
         setSearchText(result);
     }
 
+    @Override
     public void onCalloutResult(String result, Intent intent) {
         boolean resultSet = false;
         if (result != null) {

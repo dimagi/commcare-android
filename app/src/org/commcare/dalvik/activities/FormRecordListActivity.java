@@ -239,11 +239,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
+    @Override
     public void onBarcodeFetch(String result, Intent intent) {
         setSearchText(result);
     }
 
-
+    @Override
     public void onCalloutResult(String result, Intent intent) {
         if (BuildConfig.DEBUG) {
             throw new IllegalArgumentException("Callout not implemented!");
