@@ -18,6 +18,7 @@ import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
@@ -271,7 +272,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch(requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    result = data.getStringExtra("SCAN_RESULT");
+                    result = data.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
                     String dbg = "Got url from barcode scanner: " + result;
                     Log.i(TAG, dbg);
                 }
