@@ -3,21 +3,22 @@
  */
 package org.commcare.android.view;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.os.Build;
+import android.support.v7.widget.GridLayout;
+import android.support.v7.widget.Space;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.Space;
 import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
@@ -42,7 +43,6 @@ import java.util.Arrays;
  * Significant axis of configuration are NUMBER_ROWS, NUMBER_COLUMNS, AND CELL_HEIGHT_DIVISOR defined below
  *
  */
-@SuppressLint("NewApi")
 public class GridEntityView extends GridLayout {
 
 	private String[] forms;
@@ -141,12 +141,18 @@ public class GridEntityView extends GridLayout {
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
 		//setup all the various dimensions we need
-		Point size = new Point();
-		((Activity)context).getWindowManager().getDefaultDisplay().getSize(size);
-		
-		screenWidth = size.x;
-		screenHeight = size.y;
-		
+		Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			Point size = new Point();
+			display.getSize(size);
+
+			screenWidth = size.x;
+			screenHeight = size.y;
+		} else {
+			screenWidth = display.getWidth();
+			screenHeight = display.getHeight();
+		}
+
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
 		    //TODO: call to inAwesomeMode was not working for me. What's the best method to determine this?

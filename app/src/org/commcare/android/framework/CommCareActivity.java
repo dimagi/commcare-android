@@ -376,11 +376,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         int lockLevel = getWakeLockingLevel();
         if(lockLevel == -1) { return;}
         
-        stateHolder.wakelock(lockLevel);
+        stateHolder.acquireWakeLock(lockLevel);
     }
     
     private void unlock() {
-        stateHolder.unlock();
+        stateHolder.releaseWakeLock();
     }
     
     /**
