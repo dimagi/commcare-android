@@ -42,6 +42,11 @@ but that will be a less pleasurable experience.
 
 In Android Studio, hit the build button (a green "play" symbol in the toolbar).
 The first build will take a minute.
-Then it'll ask you what device to run it on; select your device (or the emulator).
+Then it'll ask you what device to run it on
+
+- Make sure your screen is unlocked (or else you'll see [something like this](https://gist.github.com/dannyroberts/6d8d57ff4d5f9a1b70a5))
+- select your device
 
 Enjoy!
+
+(or just select the emulator and cry)
