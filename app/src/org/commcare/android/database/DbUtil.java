@@ -8,7 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
-import org.commcare.util.externalizable.ImprovedPrototypeFactory;
+import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -48,7 +48,7 @@ public class DbUtil {
         }
         
         
-        factory = new ImprovedPrototypeFactory(tree);
+        factory = new AndroidPrototypeFactory(tree);
         return factory;
         
     }
