@@ -1,15 +1,17 @@
 package org.commcare.android.database.user.models;
 
+import android.content.ContentValues;
+import android.util.Log;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
-
-import android.content.ContentValues;
-import android.util.Log;
 
 /**
  * @author ctsims
@@ -46,7 +48,14 @@ public class EntityStorageCache {
     //an object for the same cache at once
     
     public EntityStorageCache(String cacheName) {
-        this(cacheName, CommCareApplication._().getUserDbHandle());
+        // TODO PLM: refactor so that error handling occurs by caller and this
+        // method can call 'this'.
+        try {
+            this.db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+        this.mCacheName = cacheName;
     }
     
     SQLiteDatabase db;
@@ -94,8 +103,6 @@ public class EntityStorageCache {
     
     /**
      * Removes cache records associated with the provided ID
-     * 
-     * @param recordId
      */
     public void invalidateCache(String recordId) {
         int removed = db.delete(TABLE_NAME, COL_CACHE_NAME + " = ? AND " + COL_ENTITY_KEY + " = ?", new String[] {this.mCacheName, recordId});
@@ -121,9 +128,6 @@ public class EntityStorageCache {
     
     /**
      * TODO: This is the wrong place for this, I think? Hard to say where it should go...
-     * @param d
-     * @param sortFieldId
-     * @return
      */
     public static String getCacheKey(String detailId, String mFieldId) {
         return detailId + "_" + mFieldId;

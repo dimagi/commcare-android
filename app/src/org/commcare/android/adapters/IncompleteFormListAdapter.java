@@ -1,17 +1,16 @@
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import android.content.Context;
+import android.database.DataSetObserver;
+import android.os.AsyncTask.Status;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
+import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
@@ -21,12 +20,13 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 
-import android.content.Context;
-import android.database.DataSetObserver;
-import android.os.AsyncTask.Status;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Responsible for delegating the loading of form lists and performing
@@ -138,7 +138,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * text data using FormRecordLoaderTask; results will then be re-filtered
      * and displayed via callbacks.
      */
-    public void resetRecords() throws SessionUnavailableException {
+    public void resetRecords() {
         // reload the form records, even if they are currently being loaded
         if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
@@ -147,7 +147,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             loader = loader.spawn();
         }
 
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
 
         // choose a default filter if none set
         if (filter == null) {
@@ -182,7 +182,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
         loader.init(searchCache, names);
-        loader.execute(records.toArray(new FormRecord[0]));
+        loader.execute(records.toArray(new FormRecord[records.size()]));
     }
 
     public int findRecordPosition(int formRecordId) {
@@ -195,10 +195,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetChanged()
-     */
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
@@ -207,10 +203,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.widget.BaseAdapter#notifyDataSetInvalidated()
-     */
     @Override
     public void notifyDataSetInvalidated() {
         super.notifyDataSetInvalidated();
@@ -220,52 +212,38 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int i) {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
+    @Override
     public int getCount() {
         return current.size();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public Object getItem(int i) {
         return current.get(i);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int i) {
         //Skeeeeetccchhyyyy maybe?
         return current.get(i).getID();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int i) {
         return 0;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
+    @Override
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
@@ -289,28 +267,22 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         return ifrv;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
     
-    public void setFormFilter(FormRecordFilter filter) throws SessionUnavailableException {
+    public void setFormFilter(FormRecordFilter filter) {
         this.filter = filter;
     }
     
@@ -400,15 +372,11 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }

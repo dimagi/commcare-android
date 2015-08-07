@@ -1,7 +1,11 @@
 package org.commcare.android.database.user;
 
-import java.io.File;
-import java.io.IOException;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -17,16 +21,11 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ctsims
- *
  */
 public class UserSandboxUtils {
 
@@ -67,10 +66,6 @@ public class UserSandboxUtils {
             
             //If we were able to iterate over the users, the key was fine, so let's use it to open our db
             DbHelper dbh = new DbHelper(c) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.database.DbHelper#getHandle()
-                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;
@@ -156,6 +151,7 @@ public class UserSandboxUtils {
         
         //OK! So we should be all set, here. Mark the new sandbox as ready and the old sandbox as ready for cleanup.
         SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
+
         SQLiteDatabase ukrdb = ukr.getAccessLock();
         ukrdb.beginTransaction();
         try {
@@ -202,10 +198,6 @@ public class UserSandboxUtils {
         
         try {
             DbHelper dbh = new DbHelper(context) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.database.DbHelper#getHandle()
-                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;

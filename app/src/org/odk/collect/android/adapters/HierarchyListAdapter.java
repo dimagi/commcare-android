@@ -14,16 +14,16 @@
 
 package org.odk.collect.android.adapters;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.odk.collect.android.logic.HierarchyElement;
-import org.odk.collect.android.views.HierarchyElementView;
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+
+import org.odk.collect.android.logic.HierarchyElement;
+import org.odk.collect.android.views.HierarchyElementView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HierarchyListAdapter extends BaseAdapter {
 
@@ -36,44 +36,24 @@ public class HierarchyListAdapter extends BaseAdapter {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
-     */
     @Override
     public int getCount() {
         return mItems.size();
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
     @Override
     public Object getItem(int position) {
         return mItems.get(position);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         HierarchyElementView hev;

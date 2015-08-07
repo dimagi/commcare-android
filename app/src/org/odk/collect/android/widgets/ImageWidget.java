@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.app.Activity;
@@ -245,10 +231,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mBinaryName = null;*/
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         // remove the file
@@ -260,10 +242,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mCaptureButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
@@ -273,10 +251,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#setBinaryData(java.lang.Object)
-     */
     @Override
     public void setBinaryData(Object binaryuri) {
         // you are replacing an answer. delete the previous image using the
@@ -284,18 +258,15 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binarypath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
-        File f = new File(binarypath);
+        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
+
+        File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
 
         mWaitingForData = false;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -304,19 +275,11 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.IBinaryWidget#isWaitingForBinaryData()
-     */
     @Override
     public boolean isWaitingForBinaryData() {
         return mWaitingForData;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mCaptureButton.setOnLongClickListener(l);
@@ -326,10 +289,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

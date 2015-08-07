@@ -1,9 +1,5 @@
 package org.commcare.android.cases;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;
@@ -13,6 +9,10 @@ import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.DataUtil;
+
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -57,10 +57,6 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
     }
     
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.cases.util.StorageBackedTreeRoot#union(java.util.Vector, java.util.Vector)
-     */
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         //This is kind of (ok, so really) awkward looking, but we can't use sets in 

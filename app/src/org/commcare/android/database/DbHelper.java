@@ -3,23 +3,24 @@
  */
 package org.commcare.android.database;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.util.Pair;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
+import org.commcare.android.util.SessionUnavailableException;
+import org.javarosa.core.services.storage.IMetaData;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.Externalizable;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.sqlcipher.database.SQLiteDatabase;
-
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.Externalizable;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.util.Pair;
 
 /**
  * @author ctsims
@@ -33,7 +34,7 @@ public abstract class DbHelper {
         this.c = c;
     }
     
-    public abstract SQLiteDatabase getHandle();
+    public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
     
 
     public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p)  throws IllegalArgumentException {

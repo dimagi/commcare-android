@@ -1,11 +1,7 @@
 package org.commcare.android.tasks;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Queue;
+import android.content.Context;
+import android.util.Pair;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -15,8 +11,12 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.suite.model.Text;
 
-import android.content.Context;
-import android.util.Pair;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 
 /**
  * Loads textual information for a list of FormRecords.
@@ -111,10 +111,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         this.listeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doInBackground(FormRecord... params) {
         int loadedFormCount = 0;
@@ -214,9 +210,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         return this.loadingComplete;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
@@ -234,9 +227,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         formNames = null;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
     @Override
     protected void onProgressUpdate(Pair<FormRecord, ArrayList<String>>... values) {
         super.onProgressUpdate(values);

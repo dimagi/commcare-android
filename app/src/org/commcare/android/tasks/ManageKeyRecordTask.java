@@ -1,9 +1,6 @@
 package org.commcare.android.tasks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.NoSuchElementException;
+import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -27,7 +24,9 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -77,32 +76,21 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         this.taskId = taskId;
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-     */
     @Override
     protected void deliverResult(R receiver, HttpCalloutOutcomes result) {        
         //If this task completed and we logged in.
         if(result == HttpCalloutOutcomes.Success) {
-            
             if(loggedIn == null) {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // if the session isn't available, we don't need to logout
-                }
+                CommCareApplication._().releaseUserResourcesAndServices();
                 listener.keysReadyForSync(receiver);
                 return;
             } else {
@@ -110,19 +98,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 return;
             }
         } else if(result == HttpCalloutOutcomes.NetworkFailure) {
-            
             if(calloutNeeded && userRecordExists){
                 result = HttpCalloutOutcomes.NetworkFailureBadPassword;
             }
         }
 
-        //For any other result make sure we're logged out. 
-        try {
-            CommCareApplication._().getSession().closeSession(false);
-        } catch (SessionUnavailableException e) {
-            // if the session isn't available, we don't need to logout
-        }
-        
+        //For any other result make sure we're logged out.
+        CommCareApplication._().releaseUserResourcesAndServices();
+
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
         listener.keysDoneOther(receiver, result);
@@ -134,9 +117,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doSetupTaskBeforeRequest()
-     */
     @Override
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         //This step needs to determine three things
@@ -155,9 +135,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         userRecordExists = false;
         UserKeyRecord valid = null;
         
-        Date now = new Date();
-        for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
             userRecordExists = true;
             
             if(!ukr.isPasswordValid(password)) {
@@ -214,10 +193,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 }
                 
                 continue;
-            }
-            else if(record.getType() == UserKeyRecord.TYPE_NEW) {
+            } else if(record.getType() == UserKeyRecord.TYPE_NEW) {
                 //See if we have another sandbox with this ID that is fully initialized.
-                if(app.getStorage(UserKeyRecord.class).getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {
+                if(storage.getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {
                     
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + record.getUuid() + " as initialized, since it's already in use on this device");
                     //If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
@@ -250,36 +228,22 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doHttpRequest()
-     */
     @Override
     protected HttpResponse doHttpRequest() throws ClientProtocolException, IOException {
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#getTransactionParserFactory()
-     */
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
         TransactionParserFactory factory = new TransactionParserFactory() {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-             */
             @Override
             public TransactionParser getParser(KXmlParser parser) {
                 String name = parser.getName();
                 if("auth_keys".equals(name)) {
                     return new KeyRecordParser(parser, username, password, keyRecords) {
 
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-                         */
                         @Override
                         public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
                             ManageKeyRecordTask.this.keyRecords = parsed;
@@ -294,27 +258,17 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return factory;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#HttpCalloutNeeded()
-     */
     @Override
     protected boolean HttpCalloutNeeded() {
         return calloutNeeded;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#HttpCalloutRequired()
-     */
     @Override
     protected boolean HttpCalloutRequired() {
         return calloutRequired;
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#processSuccesfulRequest()
-     */
     @Override
     protected boolean processSuccesfulRequest() {
         if(keyRecords == null || keyRecords.size() == 0) {
@@ -323,7 +277,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         try {
-            
             Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
             SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
             //We successfully received and parsed out some key records! Let's update the db
@@ -348,17 +301,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 }
             }
             return true;
-        
         } catch (StorageFullException e) {
             e.printStackTrace();
             return false;
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doPostCalloutTask(boolean)
-     */
     @Override
     protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
         //Now we need to complete our login 
@@ -383,9 +331,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Or just leave the old one?
                     
                     
-                    //Switching over to using the old record instead of failing 
+                    //Switching over to using the old record instead of failing
                     current = getInUseSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
-                    
+
                     //Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
@@ -413,7 +361,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().logIn(current.unWrapKey(password), current);
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current);
         
         //So we may have logged in a key record but not a user (if we just received the
         //key, but not the user's data, for instance). 
@@ -466,9 +414,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //(B) Wipe that old record once the migrated record is completed (and see if we should wipe the 
         //sandbox's data).
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        
+
         UserKeyRecord oldSandboxToMigrate = getInUseSandbox(newRecord.getUsername(), storage);
-        
 
         //Our new record is completely new. Easy and awesome. Record and move on.
         if(oldSandboxToMigrate == null) {
@@ -480,7 +427,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         
         //Otherwise we should start migrating that data over.
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
-        
         
         //First see if the old sandbox is legacy and needs to be transfered over.
         if(oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
@@ -505,12 +451,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
     }
 
-    
     //TODO: this shouldn't go here. Where should it go?
     public static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String password, boolean acceptExpired) {
-        Date now = new Date();
         UserKeyRecord validIsh = null;
-        for(UserKeyRecord ukr : app.getStorage(UserKeyRecord.class).getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+
+        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
             if(!ukr.isPasswordValid(password)) {
                 //This record is for a different password
                 continue;
@@ -527,13 +473,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         if(acceptExpired) { return validIsh; }
         return null;
     }
-
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.HttpCalloutTask#doResponseOther(org.apache.http.HttpResponse)
-     */
     @Override
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;
     }
-
 }

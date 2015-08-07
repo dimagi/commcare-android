@@ -1,11 +1,15 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
@@ -22,16 +26,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.GeoUtils;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * XForms Action extension to periodically poll a sensor and optionally save its value.
@@ -46,10 +46,6 @@ public class PollSensorAction extends Action implements LocationListener {
     private TreeReference mContextRef;
 
     private class ProvidersChangedHandler extends BroadcastReceiver {
-        /*
-         * (non-Javadoc)
-         * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
-         */
         @Override
         public void onReceive(Context context, Intent intent) {
             Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
@@ -58,10 +54,6 @@ public class PollSensorAction extends Action implements LocationListener {
     }
     
     private class StopPollingTask extends TimerTask {
-        /*
-         * (non-Javadoc)
-         * @see java.util.TimerTask#run()
-         */
         @Override
         public void run() {
             mLocationManager.removeUpdates(PollSensorAction.this);
@@ -80,7 +72,6 @@ public class PollSensorAction extends Action implements LocationListener {
     /**
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
      * @param model The FormDef that triggered the action
-     * @param contextRef
      */
     public void processAction(FormDef model, TreeReference contextRef) {
         mModel = model;
@@ -139,11 +130,7 @@ public class PollSensorAction extends Action implements LocationListener {
     }
     
     /**
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onLocationChanged(android.location.Location)
-     * 
      * If this action has a target node, update its value with the given location.
-     * @param location
      */
     @Override
     public void onLocationChanged(Location location) {
@@ -165,24 +152,12 @@ public class PollSensorAction extends Action implements LocationListener {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onProviderDisabled(java.lang.String)
-     */
     @Override
     public void onProviderDisabled(String provider) { }
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onProviderEnabled(java.lang.String)
-     */
     @Override
     public void onProviderEnabled(String provider) { }
 
-    /*
-     * (non-Javadoc)
-     * @see android.location.LocationListener#onStatusChanged(java.lang.String, int, android.os.Bundle)
-     */
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) { }
 }

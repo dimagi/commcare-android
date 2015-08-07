@@ -35,8 +35,8 @@ import org.commcare.util.CommCareSession;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
 import org.odk.collect.android.views.media.ViewId;
 
 import java.util.HashSet;
@@ -69,7 +69,6 @@ public class EntityDetailView extends FrameLayout {
     private AudioButton audioButton;
     private View valuePane;
     private View currentView;
-    private AudioController controller;
     private LinearLayout detailRow;
     private LinearLayout.LayoutParams origValue;
     private LinearLayout.LayoutParams origLabel;
@@ -98,11 +97,10 @@ public class EntityDetailView extends FrameLayout {
     private int oddRowColor;
     private int evenRowColor;
 
-    public EntityDetailView(Context context, CommCareSession session, Detail d, Entity e, int index,
-            AudioController controller, int detailNumber) {
+    public EntityDetailView(Context context, CommCareSession session, Detail d,
+                            Entity e, int index, int detailNumber) {
         super(context);
-        this.controller = controller;
-        
+
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
         label = (TextView)detailRow.findViewById(R.id.detail_type_text);
         spacer = (TextView)detailRow.findViewById(R.id.entity_detail_spacer); 
@@ -113,7 +111,7 @@ public class EntityDetailView extends FrameLayout {
         
         ViewId uniqueId = new ViewId(detailNumber, index, true);
         String audioText = e.getFieldString(index);
-        audioButton = new AudioButton(context, audioText, uniqueId, controller, false);
+        audioButton = new AudioButton(context, audioText, uniqueId, false);
         detailRow.addView(audioButton);
         audioButton.setVisibility(View.GONE);
         
@@ -250,6 +248,7 @@ public class EntityDetailView extends FrameLayout {
             final String address = textField;
             addressText.setText(address);
             if(current != ADDRESS) {
+                addressButton.setText(Localization.get("select.address.show"));
                 addressButton.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
                         listener.addressRequested(MediaUtil.getGeoIntentURI(address));

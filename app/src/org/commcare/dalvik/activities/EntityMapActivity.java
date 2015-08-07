@@ -1,30 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.geo.EntityOverlay;
-import org.commcare.dalvik.geo.EntityOverlayItemFactory;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -42,9 +17,34 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.geo.EntityOverlay;
+import org.commcare.dalvik.geo.EntityOverlayItemFactory;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.StorageFullException;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
 /**
  * @author ctsims
- *
  */
 public class EntityMapActivity extends MapActivity {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
@@ -60,9 +60,6 @@ public class EntityMapActivity extends MapActivity {
     EntityOverlay mEntityOverlay;
     Vector<Entity<TreeReference>> entities;
     
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -129,10 +126,6 @@ public class EntityMapActivity extends MapActivity {
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.dalvik.geo.EntityOverlay#selected(org.javarosa.core.model.instance.TreeReference)
-             */
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());
@@ -255,7 +248,7 @@ public class EntityMapActivity extends MapActivity {
         //If there's a defined debug key in the local environment, use that.
         int debugId = this.getResources().getIdentifier("maps_api_key_debug","string", this.getPackageName());
         if(debugId == 0) { 
-            debugId = R.string.maps_api_key;
+            return BuildConfig.MAPS_API_KEY;
         }
         return this.getString(debugId);
     }
@@ -273,10 +266,6 @@ public class EntityMapActivity extends MapActivity {
         return new CommCareInstanceInitializer(session);
     }
 
-
-    /* (non-Javadoc)
-     * @see android.app.Activity#onStop()
-     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -284,9 +273,6 @@ public class EntityMapActivity extends MapActivity {
         mMyLocationOverlay.disableMyLocation();
     }
 
-    /* (non-Javadoc)
-     * @see com.google.android.maps.MapActivity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -297,5 +283,4 @@ public class EntityMapActivity extends MapActivity {
     protected boolean isRouteDisplayed() {
         return false;
     }
-
 }

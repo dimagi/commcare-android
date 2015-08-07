@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
@@ -21,22 +22,21 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.odk.collect.android.listeners.FormSaveCallback;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
+import org.odk.collect.android.listeners.FormSaveCallback;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -115,10 +115,6 @@ public class CommCareSessionService extends Service  {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Service#onCreate()
-     */
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -157,10 +153,6 @@ public class CommCareSessionService extends Service  {
         };
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // We want this service to continue running until it is explicitly
@@ -168,22 +160,12 @@ public class CommCareSessionService extends Service  {
         return START_STICKY;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Service#onDestroy()
-     */
     @Override
     public void onDestroy() {
         // Cancel the persistent notification.
         this.stopForeground(true);
-        
-        // TODO: Create a notification which the user can click to restart the session 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Service#onBind(android.content.Intent)
-     */
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -197,23 +179,21 @@ public class CommCareSessionService extends Service  {
      * Show a notification while this service is running.
      */
     private void showLoggedInNotification(User user) {
-        //mNM.cancel(org.commcare.dalvik.R.string.expirenotification);
-        
-        CharSequence text = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
-
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
-
         //We always want this click to simply bring the live stack back to the top
         Intent callable = new Intent(this, CommCareHomeActivity.class);
         callable.setAction("android.intent.action.MAIN");
-        callable.addCategory("android.intent.category.LAUNCHER");  
+        callable.addCategory("android.intent.category.LAUNCHER");
 
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.notificationtitle), text, contentIntent);
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(this.getString(org.commcare.dalvik.R.string.notificationtitle))
+                .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
+                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                .setContentIntent(contentIntent)
+                .build();
 
         if(user != null) {
             //Send the notification.
@@ -246,11 +226,8 @@ public class CommCareSessionService extends Service  {
 
     }
     
- 
-    
     //Start CommCare Specific Functionality
-    
-    
+
     public SQLiteDatabase getUserDbHandle() {
         synchronized(lock){
             return userDatabase;
@@ -297,10 +274,6 @@ public class CommCareSessionService extends Service  {
             maintenanceTimer = new Timer("CommCareService");
             maintenanceTimer.schedule(new TimerTask() {
     
-                /*
-                 * (non-Javadoc)
-                 * @see java.util.TimerTask#run()
-                 */
                 @Override
                 public void run() {
                     timeToExpireSession();
@@ -316,13 +289,10 @@ public class CommCareSessionService extends Service  {
      * progess then don't do anything.
      */
     private void timeToExpireSession() {
-
         long currentTime = new Date().getTime();
 
         // If logout process started and has taken longer than the logout
-        // timeout then wrap-up the process. This is especially necessary since
-        // if the FormEntryActivity  isn't active then it will never launch
-        // closeSession upon receiving the KEY_SESSION_ENDING broadcast
+        // timeout then wrap-up the process.
         if (logoutStartedAt != -1 &&
                 currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             // Try and grab the logout lock, aborting if synchronization is in
@@ -331,7 +301,7 @@ public class CommCareSessionService extends Service  {
                 return;
             }
             try {
-                closeSession(true);
+                CommCareApplication._().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
             }
@@ -350,7 +320,6 @@ public class CommCareSessionService extends Service  {
             }
 
             try {
-                logoutStartedAt = new Date().getTime();
                 saveFormAndCloseSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -366,7 +335,7 @@ public class CommCareSessionService extends Service  {
      */
     private void saveFormAndCloseSession() {
         // Remember when we started so that if form saving takes too long, the
-        // maintenance timer will launch closeSession
+        // maintenance timer will launch CommCareApplication._().expireUserSession
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
@@ -374,7 +343,7 @@ public class CommCareSessionService extends Service  {
             if (formSaver != null) {
                 formSaver.formSaveCallback();
             } else {
-                closeSession(true);
+                CommCareApplication._().expireUserSession();
             }
         }
     }
@@ -400,15 +369,10 @@ public class CommCareSessionService extends Service  {
         }
     }
 
-
     /**
-     * Closes the key pool and user database. Performs CommCareApplication
-     * logout to unbind its connection to this object.
-     *
-     * @param sessionExpired should the user be redirected to the login screen
-     *                       upon closing this session?
+     * Closes the key pool and user database.
      */
-    public void closeSession(boolean sessionExpired) {
+    public void closeServiceResources() {
         synchronized(lock){
             if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance
@@ -416,9 +380,6 @@ public class CommCareSessionService extends Service  {
                 // before.
                 return;
             }
-
-            // Cancel any running tasks before closing down the user databse.
-            ManagedAsyncTask.cancelTasks();
 
             key = null;
             String msg = "Logging out service login";
@@ -449,26 +410,7 @@ public class CommCareSessionService extends Service  {
             }
             logoutStartedAt = -1;
 
-            CommCareApplication._().logout();
-
             pool.expire();
-            this.stopForeground(true);
-
-            if (sessionExpired) {
-                // Re-direct to the home screen
-                Intent loginIntent = new Intent(this, CommCareHomeActivity.class);
-                // TODO: instead of launching here, which will pop-up the login
-                // screen even if CommCare isn't in the foreground, we should
-                // broadcast an intent, which CommCareActivity can receive if
-                // in focus and dispatch the login activity. Will also need to
-                // extend CommCareActivity's onResume to check if we need to
-                // re-login when we bring CommCare back into the foreground, so
-                // that the user can't just continue doing work while logged
-                // out. -- PLM
-                loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(loginIntent);
-            }
         }
     }
 
@@ -545,10 +487,6 @@ public class CommCareSessionService extends Service  {
             
             int lastUpdate = 0;
             
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.DataSubmissionListener#beginSubmissionProcess(int)
-             */
             @Override
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
@@ -587,10 +525,6 @@ public class CommCareSessionService extends Service  {
 
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.DataSubmissionListener#startSubmission(int, long)
-             */
             @Override
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
@@ -600,10 +534,6 @@ public class CommCareSessionService extends Service  {
                 mNM.notify(notificationId, submissionNotification);
             }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.DataSubmissionListener#notifyProgress(int, long)
-             */
             @Override
             public void notifyProgress(int itemNumber, long progress) {
                 int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
@@ -630,10 +560,6 @@ public class CommCareSessionService extends Service  {
                     lastUpdate = progressPercent;
                 }
             }
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.tasks.DataSubmissionListener#endSubmissionProcess()
-             */
             @Override
             public void endSubmissionProcess() {
                 mNM.cancel(notificationId);

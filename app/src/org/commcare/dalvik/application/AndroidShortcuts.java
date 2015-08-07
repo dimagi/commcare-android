@@ -1,11 +1,5 @@
 package org.commcare.dalvik.application;
 
-import java.util.ArrayList;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.suite.model.Suite;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -13,6 +7,12 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.suite.model.Suite;
+
+import java.util.ArrayList;
 
 /**
  * @author ctsims
@@ -25,10 +25,6 @@ public class AndroidShortcuts extends Activity {
     String[] commands;
     String[] names;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);

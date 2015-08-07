@@ -1,14 +1,6 @@
-/**
- * 
- */
 package org.commcare.android.models;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -20,9 +12,12 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+
 /**
  * @author ctsims
- *
  */
 public class NodeEntityFactory {
 
@@ -45,7 +40,7 @@ public class NodeEntityFactory {
         this.ec = ec;
     }
 
-    public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
+    public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         Hashtable<String, XPathExpression> variables = getDetail().getVariableDeclarations();
         //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
@@ -79,15 +74,9 @@ public class NodeEntityFactory {
 					backgroundDetails[count] = backgroundText.evaluate(nodeContext);
                 }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
-            } catch(XPathException xpe) {
+            } catch(XPathSyntaxException | XPathException xpe) {
                 xpe.printStackTrace();
                 details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
-                backgroundDetails[count] = "";
-                // assume that if there's an error, user should see it
-                relevancyDetails[count] = true;
-            } catch (XPathSyntaxException e) {
-                e.printStackTrace();
-                details[count] = "<invalid xpath: " + e.getMessage() + ">";
                 backgroundDetails[count] = "";
                 // assume that if there's an error, user should see it
                 relevancyDetails[count] = true;

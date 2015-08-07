@@ -1,24 +1,5 @@
 package org.commcare.android.view;
 
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import org.commcare.android.models.AsyncEntity;
-import org.commcare.android.models.Entity;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
-import org.odk.collect.android.views.media.AudioButton;
-import org.odk.collect.android.views.media.AudioController;
-import org.odk.collect.android.views.media.ViewId;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +16,24 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.commcare.android.models.AsyncEntity;
+import org.commcare.android.models.Entity;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.R;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.graph.GraphData;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
+import org.odk.collect.android.views.media.AudioButton;
+import org.odk.collect.android.views.media.ViewId;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
+
 /**
  * @author ctsims
  *
@@ -47,7 +46,6 @@ public class EntityView extends LinearLayout {
     private String[] searchTerms;
     private String[] mHints;
     private Context context;
-    private AudioController controller;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -62,14 +60,13 @@ public class EntityView extends LinearLayout {
      * Constructor for row/column contents
      */
     public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-            String[] searchTerms, AudioController controller, long rowId, boolean mFuzzySearchEnabled) {
+            String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
         this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
-        this.controller = controller;
         this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
@@ -78,8 +75,7 @@ public class EntityView extends LinearLayout {
         
         for (int i = 0; i < views.length; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                Object uniqueId = new ViewId(rowId, i, false);
-                views[i] = initView(e.getField(i), forms[i], uniqueId, e.getSortField(i));
+                views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
                 views[i].setId(i);
             }
         }
@@ -123,7 +119,7 @@ public class EntityView extends LinearLayout {
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
      */
-    private View initView(Object data, String form, Object uniqueId, String sortField) {
+    private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
             ImageView iv = (ImageView)View.inflate(context, R.layout.entity_item_image, null);
@@ -133,10 +129,10 @@ public class EntityView extends LinearLayout {
             String text = (String) data;
             AudioButton b;
             if (text != null & text.length() > 0) {
-                b = new AudioButton(context, text, uniqueId, controller, true);
+                b = new AudioButton(context, text, uniqueId, true);
             }
             else {
-                b = new AudioButton(context, text, uniqueId, controller, false);
+                b = new AudioButton(context, text, uniqueId, false);
             }
             retVal = b;
         } 
@@ -235,10 +231,6 @@ public class EntityView extends LinearLayout {
 
         btn.setOnClickListener(new OnClickListener(){
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 String textToRead = text;
@@ -287,7 +279,7 @@ public class EntityView extends LinearLayout {
             }
         }
         else {
-            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
         }
     }
     
@@ -297,14 +289,6 @@ public class EntityView extends LinearLayout {
      * Based on the search terms provided, highlight the aspects of the spannable provided which
      * match. A background string can be provided which provides the exact data that is being
      * matched. 
-     * 
-     * @param context
-     * @param searchTerms
-     * @param raw
-     * @param backgroundString
-     * @param fuzzySearchEnabled
-     * @param strictMode
-     * @return
      */
     public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {
@@ -440,49 +424,77 @@ public class EntityView extends LinearLayout {
             raw.removeSpan(span);
         }
     }
-
+    /**
+     * Determine width of each child view, based on mHints, the suite's size hints.
+     * mHints contains a width hint for each child view, each one of
+     * - A string like "50%", requesting the field take up 50% of the row
+     * - A string like "200", requesting the field take up 200 pixels
+     * - Null, not specifying a width for the field
+     * This function will parcel out requested widths and divide remaining space among unspecified columns.
+     * @param fullSize Width, in pixels, of the containing row.
+     * @return Array of integers, each corresponding to a child view,
+     * representing the desired width, in pixels, of that view.
+     */
     private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels
-        int[] hints = new int[mHints.length];
+        // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
+        int[] widths = new int[mHints.length];
         for (int i = 0; i < mHints.length; i++) {
             if (mHints[i] == null) {
-                hints[i] = -1;
+                widths[i] = -1;
             } else if (mHints[i].contains("%")) {
-                hints[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
+                widths[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
             }
             else {
-                hints[i] = Integer.parseInt(mHints[i]);
-            }
-        }
-
-        // Determine how wide to make columns without a specified width
-        int[] widths = new int[hints.length];
-        int sharedBetween = 0;
-        for(int hint : hints) {
-            if(hint != -1) {
-                fullSize -= hint;
-            } else {
-                sharedBetween++;
+                widths[i] = Integer.parseInt(mHints[i]);
             }
         }
         
-        // Set column widths
-        int defaultWidth = sharedBetween == 0 ? 0 : fullSize / sharedBetween;
-        for(int i = 0; i < hints.length; ++i) {
-            widths[i] = hints[i] == -1 ? defaultWidth : hints[i];
+        int claimedSpace = 0;
+        int indeterminateColumns = 0;
+        for (int width : widths) {
+            if (width != -1) {
+                claimedSpace += width;
+            }
+            else {
+                indeterminateColumns++;
+            }
+        }
+        if (fullSize < claimedSpace + indeterminateColumns 
+                || (fullSize > claimedSpace && indeterminateColumns == 0)) {
+            // Either more space has been claimed than the screen has room for,
+            // or the full width isn't spoken for and there are no indeterminate columns
+            claimedSpace += indeterminateColumns;
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
+                    // Assign indeterminate columns a real width.
+                    // It's arbitrary and tiny, but this is going to look terrible regardless.
+                    widths[i] = 1;
+                }
+                else {
+                    // Shrink or expand columns proportionally
+                    widths[i] = fullSize * widths[i] / claimedSpace;
+                }
+            }
+        }
+        else if (indeterminateColumns > 0) {
+            // Divide remaining space equally among the indeterminate columns
+            int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
+            for (int i = 0; i < widths.length; i++) {
+                if (widths[i] == -1) {
+                    widths[i] = defaultWidth;
+                }
+            }
         }
         
         return widths;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.LinearLayout#onMeasure(int, int)
-     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // calculate the view and its childrens default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
+
+        // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
         for (int i = 0; i < views.length; i++) {
             if (views[i] != null) {
@@ -491,5 +503,9 @@ public class EntityView extends LinearLayout {
                 views[i].setLayoutParams(params);
             }
         }
+        
+        // Re-calculate the view's measurements based on the percentage
+        // adjustments above
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

@@ -3,13 +3,6 @@
  */
 package org.commcare.dalvik.activities;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-
-import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.text.format.DateUtils;
@@ -18,6 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
 
 /**
  * An activity to display messages for the user about something that
@@ -31,9 +31,6 @@ public class MessageActivity extends ListActivity {
     
     private static final String KEY_MESSAGES = "ma_key_messages";
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,27 +41,18 @@ public class MessageActivity extends ListActivity {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_MESSAGES, messages);
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
         this.setContentView(R.layout.screen_messages);
         this.setListAdapter(new ArrayAdapter<NotificationMessage>(this, R.layout.layout_note_msg, messages) {
 
-            /* (non-Javadoc)
-             * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
-             */
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View messageView = convertView;
@@ -87,9 +75,6 @@ public class MessageActivity extends ListActivity {
                 return messageView;
             }
 
-            /* (non-Javadoc)
-             * @see android.widget.BaseAdapter#isEnabled(int)
-             */
             @Override
             public boolean isEnabled(int position) {
                 return false;

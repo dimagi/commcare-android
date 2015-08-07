@@ -1,10 +1,11 @@
 package org.commcare.android.view;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Vector;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint.Align;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart;
@@ -28,12 +29,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint.Align;
-import android.view.View;
-import android.widget.LinearLayout;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Vector;
 
 /*
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
@@ -197,12 +197,16 @@ public class GraphView {
         Comparator<XYPointData> comparator;
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             String barSort = s.getConfiguration("bar-sort", "");
-            if (barSort.equals("ascending")) {
-                comparator = new AscendingValuePointComparator();
-            } else if (barSort.equals("descending")) {
-                comparator = new DescendingValuePointComparator();
-            } else {
-                comparator = new StringPointComparator();
+            switch (barSort) {
+                case "ascending":
+                    comparator = new AscendingValuePointComparator();
+                    break;
+                case "descending":
+                    comparator = new DescendingValuePointComparator();
+                    break;
+                default:
+                    comparator = new StringPointComparator();
+                    break;
             }
         } else {
             comparator = new NumericPointComparator();
@@ -277,7 +281,6 @@ public class GraphView {
     
     /**
      * Create series appropriate to the current graph type.
-     * @param scaleIndex
      * @return An XYSeries-derived object.
      */
     private XYSeries createSeries(int scaleIndex) {
@@ -329,16 +332,22 @@ public class GraphView {
         String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
         if (!pointStyle.equals("none")) {
             PointStyle style = null;
-            if (pointStyle.equals("circle")) {
-                style = PointStyle.CIRCLE;
-            } else if (pointStyle.equals("x")) {
-                style = PointStyle.X;
-            } else if (pointStyle.equals("square")) {
-                style = PointStyle.SQUARE;
-            } else if (pointStyle.equals("triangle")) {
-                style = PointStyle.TRIANGLE;
-            } else if (pointStyle.equals("diamond")) {
-                style = PointStyle.DIAMOND;
+            switch (pointStyle) {
+                case "circle":
+                    style = PointStyle.CIRCLE;
+                    break;
+                case "x":
+                    style = PointStyle.X;
+                    break;
+                case "square":
+                    style = PointStyle.SQUARE;
+                    break;
+                case "triangle":
+                    style = PointStyle.TRIANGLE;
+                    break;
+                case "diamond":
+                    style = PointStyle.DIAMOND;
+                    break;
             }
             currentRenderer.setPointStyle(style);
             currentRenderer.setFillPoints(true);
@@ -395,7 +404,6 @@ public class GraphView {
         mRenderer.setYLabelsVerticalPadding(padding);
         
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
             mRenderer.setBarSpacing(0.5);
         }
         
@@ -403,6 +411,16 @@ public class GraphView {
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
+
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            String orientation = mData.getConfiguration("bar-orientation", "");
+            if (orientation.equalsIgnoreCase("vertical")) {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            }
+            else {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
+            }
+        }
 
         if (mData.getConfiguration("x-min") != null) {
             mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min"), "x-min"));
@@ -436,7 +454,7 @@ public class GraphView {
         }
         
         // Legend
-        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false")).booleanValue();
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
@@ -456,9 +474,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
         if (Graph.TYPE_TIME.equals(mData.getType())) {
@@ -474,10 +490,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
-     * @throws InvalidStateException 
      */
     private Double parseYValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
@@ -485,9 +498,7 @@ public class GraphView {
     
     /**
      * Parse given string into Double for AChartEngine.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
      */
     private Double parseRadiusValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
@@ -495,10 +506,7 @@ public class GraphView {
     
     /**
      * Attempt to parse a double, but fail on NumberFormatException.
-     * @param value
      * @param description Something to identify the kind of value, used to augment any error message.
-     * @return
-     * @throws InvalidStateException
      */
     private Double parseDouble(String value, String description) throws InvalidStateException {
         try {

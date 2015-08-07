@@ -1,18 +1,28 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.tasks;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.transport.payload.ByteArrayPayload;
+import org.javarosa.form.api.FormEntryController;
+import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.listeners.FormSavedListener;
+import org.odk.collect.android.logic.FormController;
+import org.odk.collect.android.utilities.EncryptionUtils;
+import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,30 +37,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.FormDef;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.instance.FormInstance;
-import org.javarosa.core.services.transport.payload.ByteArrayPayload;
-import org.javarosa.form.api.FormEntryController;
-import org.javarosa.model.xform.XFormSerializingVisitor;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.listeners.FormSavedListener;
-import org.odk.collect.android.logic.FormController;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.odk.collect.android.utilities.EncryptionUtils;
-import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * Background task for loading a form.
@@ -99,9 +85,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
 
     /**
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     * 
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
@@ -125,8 +108,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     /**
      * Update or create a new entry in the form table for the
-     * @param incomplete
-     * @param canEditAfterCompleted
      */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
         ContentValues values = new ContentValues();
@@ -190,7 +171,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * Write's the data to the sdcard, and updates the instances content provider.
      * In theory we don't have to write to disk, and this is where you'd add
      * other methods.
-     * @param markCompleted
      * @return was writing of data successful?
      */
     private boolean exportData(boolean markCompleted) {
@@ -346,9 +326,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     /**
      * This method actually writes the xml to disk.
-     * @param payload
-     * @param output
-     * @return
      */
     private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
         // create data stream
@@ -365,10 +342,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         synchronized (this) {
@@ -389,9 +362,6 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
      * Goes through the entire form to make sure all entered answers comply with their constraints.
      * Constraints are ignored on 'jump to', so answers can be outside of constraints. We don't
      * allow saving to disk, though, until all answers conform to their constraints/requirements.
-     * 
-     * @param markCompleted
-     * @return validatedStatus
      */
     private int validateAnswers(Boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
@@ -416,5 +386,4 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         FormEntryActivity.mFormController.jumpToIndex(i);
         return VALIDATED;
     }
-
 }

@@ -3,14 +3,14 @@
  */
 package org.commcare.dalvik.activities;
 
-import org.javarosa.core.services.locale.Localization;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -24,10 +24,6 @@ public class UnrecoverableErrorActivity extends Activity {
     String title;
     String message;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +32,6 @@ public class UnrecoverableErrorActivity extends Activity {
         this.showDialog(0);
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreateDialog(int)
-     */
     @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();

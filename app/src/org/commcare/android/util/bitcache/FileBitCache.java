@@ -3,6 +3,10 @@
  */
 package org.commcare.android.util.bitcache;
 
+import android.content.Context;
+
+import org.commcare.android.crypt.CryptUtil;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,10 +25,6 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import org.commcare.android.crypt.CryptUtil;
-
-import android.content.Context;
-
 /**
  * @author ctsims
  *
@@ -38,9 +38,7 @@ public class FileBitCache implements BitCache {
         this.context = context;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#initializeCache()
-     */
+    @Override
     public void initializeCache() throws IOException {
         File cacheLocation = context.getCacheDir();
         
@@ -49,9 +47,7 @@ public class FileBitCache implements BitCache {
         key = CryptUtil.generateSemiRandomKey();
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#getCacheStream()
-     */
+    @Override
     public OutputStream getCacheStream() throws IOException{
         //generate write key/cipher
         try {
@@ -77,9 +73,7 @@ public class FileBitCache implements BitCache {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.util.bitcache.BitCache#retrieveCache()
-     */
+    @Override
     public InputStream retrieveCache() throws IOException {
         try{
             //generate read key/cipher

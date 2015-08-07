@@ -1,12 +1,8 @@
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.Date;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -21,9 +17,13 @@ import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.util.Log;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Date;
 
 
 /**
@@ -34,10 +34,6 @@ import android.util.Log;
  **/
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
     private static final String TAG = ExceptionReportTask.class.getSimpleName();
-    /*
-     * (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-     */
     @Override
     protected String doInBackground(Throwable... values) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -92,10 +88,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             //Apparently if you don't have a filename in the multipart wrapper, some receivers
             //don't properly receive this post.
             StringBody body = new StringBody(payload, "text/xml", MIME.DEFAULT_CHARSET) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.apache.http.entity.mime.content.StringBody#getFilename()
-                 */
                 @Override
                 public String getFilename() {
                     return "exceptionreport.xml";

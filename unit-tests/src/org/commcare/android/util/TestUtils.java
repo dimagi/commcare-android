@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import java.io.IOException;
@@ -27,7 +24,6 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.model.test.TreeReferenceTest;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -37,12 +33,11 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * @author ctsims
- *
  */
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    static LivePrototypeFactory factory = new LivePrototypeFactory();
+    public static LivePrototypeFactory factory = new LivePrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -65,9 +60,9 @@ public class TestUtils {
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
         return new TransactionParserFactory() {
-            
-            public TransactionParser getParser(String name, String namespace, KXmlParser parser) {
-                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace) && name.toLowerCase().equals("case")) {
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {

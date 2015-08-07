@@ -1,15 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.commcare.dalvik"
-    android:versionCode="106"
-    android:versionName="2.22" >
+          xmlns:tools="http://schemas.android.com/tools"
+          package="org.commcare.dalvik"
+          android:versionCode="106"
+          android:versionName="2.22">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.INTERNET" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- for call log -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+
+    <!-- Start COllect Permissions -->
+
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.USE_CREDENTIALS" />
+
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+
+    <permission
+        android:name="org.commcare.dalvik.provider.cases.read"
+        android:description="@string/permission_content_provider_description"
+        android:label="@string/permission_content_provider_label"
+        android:protectionLevel="dangerous" >
+    </permission>
 
     <application
+        tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
@@ -28,15 +79,23 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.AppManagerActivity"
+            android:label="@string/manager_activity_name"
+            android:launchMode="singleTask" android:taskAffinity="org.commcare.Manage">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
-        <activity android:name=".activities.ReferenceDetailActivity" >
-        </activity>
 
         <provider
             android:name=".odk.provider.FormsProvider"
@@ -141,6 +200,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".application.ManagerShortcut" >
+             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity-alias
             android:name=".application.ShortcutGenerator"
@@ -155,6 +221,23 @@
             </intent-filter>
         </activity-alias>
 
+        <activity-alias
+            android:name=".application.ManagerGenerator"
+            android:label="App Manager"
+            android:targetActivity=".application.ManagerShortcut" >
+
+            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".activities.SingleAppManagerActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
         <activity
             android:name=".activities.EntitySelectActivity"
             android:windowSoftInputMode="stateUnchanged|adjustResize" >
@@ -185,8 +268,6 @@
             android:name=".activities.PhoneLogActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name="org.achartengine.GraphicalActivity" >
-        </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"
@@ -216,10 +297,7 @@
             android:name="org.commcare.dalvik.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity
-            android:name="org.odk.collect.android.views.FullScreenImage"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
+
         <activity android:name=".activities.EntityMapActivity" >
         </activity>
 
@@ -275,7 +353,8 @@
         <activity android:name=".activities.CommCareFormDumpActivity"
                   android:windowSoftInputMode="adjustPan" >
         </activity>
-        <activity android:name=".activities.ConnectionDiagnosticActivity" >
+        <activity android:name=".activities.ConnectionDiagnosticActivity"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
@@ -283,41 +362,17 @@
         </activity>
         <activity android:name=".preferences.DeveloperPreferences" >
         </activity>
-
-        <!-- Start Collect Manifest -->
         <activity
-            android:name=".activities.MainMenuActivity"
-            android:configChanges="orientation"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name=".activities.DrawActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormEntryActivity"
-            android:configChanges="orientation"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="adjustResize" >
+            android:name=".activities.TemplatePrinterActivity"
+            android:theme="@style/Theme.Dialog.NoTitle" >
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
+                <action android:name="org.commcare.dalvik.action.PRINT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.item/vnd.odk.form" />
-                <data android:mimeType="vnd.android.cursor.item/vnd.odk.instance" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.AccountList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.AccountInfo"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceChooserList"
-            android:label="@string/app_name" />
+
+        <!-- Start Collect Manifest -->
 
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
@@ -328,139 +383,5 @@
             <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance" />
         </intent-filter>
 
-        <activity
-            android:name=".activities.InstanceChooserTabs"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormChooserList"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
-                <action android:name="android.intent.action.PICK" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/vnd.odk.form" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".activities.FormManagerList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormDownloadList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.DataManagerList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FileManagerTabs"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceUploaderList"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.InstanceUploaderActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".preferences.PreferencesActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.FormHierarchyActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.GeoPointActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".activities.GeoPointMapActivity"
-            android:label="@string/app_name" />
-        <!-- Enable Shortcuts for Command Actions -->
-        <activity
-            android:name=".activities.AndroidShortcuts"
-            android:label="ODK Form"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <uses-library
-            android:name="com.google.android.maps"
-            android:required="false" />
     </application>
-
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.location"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.location.gps"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.location.network"
-        android:required="false" />
-
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <!-- Start COllect Permissions -->
-
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="14" >
-    </uses-sdk>
-
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <permission
-        android:name="org.commcare.dalvik.provider.cases.read"
-        android:description="@string/permission_content_provider_description"
-        android:label="@string/permission_content_provider_label"
-        android:protectionLevel="dangerous" >
-    </permission>
-
 </manifest>

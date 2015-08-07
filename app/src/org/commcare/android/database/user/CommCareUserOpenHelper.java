@@ -3,6 +3,8 @@
  */
 package org.commcare.android.database.user;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
@@ -20,8 +22,6 @@ import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
-
-import android.content.Context;
 
 /**
  * The central db point for 
@@ -59,9 +59,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         return USER_DB_LOCATOR + sandboxId;
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-     */
     @Override
     public void onCreate(SQLiteDatabase database) {
 
@@ -133,9 +130,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         boolean inSenseMode = false;

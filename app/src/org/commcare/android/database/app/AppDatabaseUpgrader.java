@@ -1,21 +1,15 @@
-/**
- * 
- */
 package org.commcare.android.database.app;
+
+import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.resources.model.Resource;
-import org.javarosa.core.services.storage.Persistable;
-
-import android.content.Context;
 
 /**
  * @author ctsims
- *
  */
 public class AppDatabaseUpgrader {
     private Context c;
@@ -100,20 +94,6 @@ public class AppDatabaseUpgrader {
             return true;
         } finally {
             db.endTransaction();
-        }
-    }
-    
-    /**
-     * Reads and rewrites all of the records in a table, generally to adapt an old serialization format to a new
-     * format
-     *  
-     * @param db
-     * @param storage
-     * @return
-     */
-    private <T extends Persistable> void updateModels(SqlStorage<T> storage) {
-        for(T t : storage) {
-            storage.write(t);
         }
     }
 }

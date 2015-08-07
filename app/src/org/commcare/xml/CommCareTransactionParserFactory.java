@@ -1,8 +1,6 @@
 package org.commcare.xml;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Hashtable;
+import android.content.Context;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logic.GlobalConstants;
@@ -12,14 +10,16 @@ import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Hashtable;
 
 /**
  * The CommCare Transaction Parser Factory wraps all of the current
@@ -70,10 +70,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                         //TODO: store these on the file system instead of in DB?
                         private IStorageUtilityIndexed fixtureStorage;
                         
-                        /*
-                         * (non-Javadoc)
-                         * @see org.commcare.xml.FixtureXmlParser#storage()
-                         */
                         @Override
                         public IStorageUtilityIndexed storage() {
                             if(fixtureStorage == null) {
@@ -89,10 +85,7 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
         }; 
     }
     
-    
-    /* (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParserFactory#getParser(org.kxml2.io.KXmlParser)
-     */
+    @Override
     public TransactionParser getParser(KXmlParser parser) {
         String name = parser.getName();
         String namespace = parser.getNamespace();
@@ -132,10 +125,6 @@ public class CommCareTransactionParserFactory implements TransactionParserFactor
                 @Override
                 public void commit(String parsed) throws IOException {}
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.javarosa.xml.ElementParser#parse()
-                 */
                 @Override
                 public String parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
                     this.checkNode("sync");

@@ -1,18 +1,18 @@
 package org.odk.collect.android.widgets;
 
-import java.util.Date;
-
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.TimeData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.joda.time.DateTime;
-
 import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
+
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.TimeData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
+
+import java.util.Date;
 
 /**
  * Displays a TimePicker widget.
@@ -72,9 +72,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+    /**
      * Resets time to today.
      */
     @Override
@@ -84,10 +82,6 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         mTimePicker.setCurrentMinute(ldt.getMinuteOfHour());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         mTimePicker.clearFocus();
@@ -104,10 +98,6 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -117,30 +107,18 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mTimePicker.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mTimePicker.cancelLongPress();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.widget.TimePicker.OnTimeChangedListener#onTimeChanged(android.widget.TimePicker, int, int)
-     */
     @Override
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         this.widgetEntryChanged();

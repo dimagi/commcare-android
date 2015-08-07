@@ -6,6 +6,7 @@ package org.commcare.android.util;
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
@@ -38,7 +39,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         CommCareApplication app = CommCareApplication._();
         String ref = instance.getReference();
-        if(ref.indexOf(LedgerInstanceTreeElement.MODEL_NAME) != -1) {
+        if(ref.contains(LedgerInstanceTreeElement.MODEL_NAME)) {
             if(stockbase == null) {
                 SqlStorage<Ledger> storage = app.getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
                 stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
@@ -47,7 +48,7 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 stockbase.rebase(instance.getBase());
             }
             return stockbase;
-        }else if(ref.indexOf(CaseInstanceTreeElement.MODEL_NAME) != -1) {
+        }else if(ref.contains(CaseInstanceTreeElement.MODEL_NAME)) {
             if(casebase == null) {
                 SqlStorage<ACase> storage = app.getUserStorage(ACase.STORAGE_KEY, ACase.class);
                 casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false);
@@ -57,19 +58,22 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             }
             instance.setCacheHost(casebase);
             return casebase;
-        }else if(instance.getReference().indexOf("fixture") != -1) {
-            
+        }else if(instance.getReference().contains("fixture")) {
             //TODO: This is all just copied from J2ME code. that's pretty silly. unify that.
-            
             String userId = "";
-            User u = CommCareApplication._().getSession().getLoggedInUser();
+            User u;
+            try {
+                u = CommCareApplication._().getSession().getLoggedInUser();
+            } catch (SessionUnavailableException e) {
+                throw new UserStorageClosedException(e.getMessage());
+            }
+
             if(u != null) {
                 userId = u.getUniqueId();
             }
             
             String refId = ref.substring(ref.lastIndexOf('/') + 1, ref.length());
             try{
-                
                 FormInstance fixture = CommCareUtil.loadFixture(refId, userId);
                 
                 if(fixture == null) {
@@ -82,12 +86,15 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
                 
             } catch(IllegalStateException ise){
                 throw new RuntimeException("Could not load fixture for src: " + ref);
-                
             }
-            
         }
-        if(instance.getReference().indexOf("session") != -1) {
-            User u = app.getSession().getLoggedInUser();
+        if(instance.getReference().contains("session")) {
+            User u;
+            try {
+                u = CommCareApplication._().getSession().getLoggedInUser();
+            } catch (SessionUnavailableException e) {
+                throw new UserStorageClosedException(e.getMessage());
+            }
             TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
             root.setParent(instance.getBase());
             return root;

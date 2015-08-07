@@ -60,7 +60,7 @@ public class MarkupUtil {
      */
 
     public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey){
-        CharSequence mSequence = generateMarkdown(c, new String(Localization.get(localizationKey)));
+        CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey));
         return mSequence;
     }
 

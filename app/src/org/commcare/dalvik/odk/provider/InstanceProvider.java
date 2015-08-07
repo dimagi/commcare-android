@@ -1,27 +1,5 @@
 package org.commcare.dalvik.odk.provider;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,6 +13,32 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 import javax.crypto.SecretKey;
 
@@ -61,10 +65,6 @@ public class InstanceProvider extends ContentProvider {
             super(c, databaseName, null, DATABASE_VERSION);
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-         */
         @Override
         public void onCreate(SQLiteDatabase db) {            
            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
@@ -80,10 +80,6 @@ public class InstanceProvider extends ContentProvider {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
@@ -95,10 +91,6 @@ public class InstanceProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
         //This is so stupid.
@@ -115,10 +107,6 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
-     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -149,10 +137,6 @@ public class InstanceProvider extends ContentProvider {
         return c;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
@@ -193,7 +177,7 @@ public class InstanceProvider extends ContentProvider {
         // Make sure that the fields are all set
         if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
             // set the change date to now
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, Long.valueOf(System.currentTimeMillis()));
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, System.currentTimeMillis());
         }
 
         if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
@@ -234,7 +218,12 @@ public class InstanceProvider extends ContentProvider {
                 // in the current session
                 String xmlns = values.getAsString(InstanceColumns.JR_FORM_ID);
 
-                SecretKey key = CommCareApplication._().createNewSymetricKey();
+                SecretKey key;
+                try {
+                    key = CommCareApplication._().createNewSymetricKey();
+                } catch (SessionUnavailableException e) {
+                    throw new UserStorageClosedException(e.getMessage());
+                }
                 FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
                         xmlns, key.getEncoded(), null, new Date(0));
                 IStorageUtilityIndexed<FormRecord> storage =
@@ -289,10 +278,7 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     * 
+    /**
      * This method removes the entry from the content provider, and also removes any associated files.
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
@@ -528,8 +514,13 @@ public class InstanceProvider extends ContentProvider {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
                 } catch (Exception e) {
+                    NotificationMessage message =
+                            NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
+                                    new String[]{null, null, e.getMessage()});
+                    CommCareApplication._().reportNotificationMessage(message);
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                    throw new RuntimeException(e);
                 }
             }
         }

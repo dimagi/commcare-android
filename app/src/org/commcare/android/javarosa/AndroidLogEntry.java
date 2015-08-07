@@ -3,11 +3,6 @@
  */
 package org.commcare.android.javarosa;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
@@ -15,6 +10,11 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -46,9 +46,6 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
         this.date = date;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
@@ -58,9 +55,6 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
@@ -90,17 +84,11 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
         return message;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaDataFields()
-     */
     @Override
     public String[] getMetaDataFields() {
         return new String[] {META_TYPE, META_DATE};
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IMetaData#getMetaData(java.lang.String)
-     */
     @Override
     public Object getMetaData(String fieldName) {
         if(META_DATE.equals(fieldName)) {
@@ -112,17 +100,11 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
     @Override
     public void setID(int ID) {
         this.recordId = ID;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
     @Override
     public int getID() {
         return this.recordId;

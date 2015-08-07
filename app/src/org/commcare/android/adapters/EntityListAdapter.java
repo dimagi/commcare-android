@@ -1,10 +1,12 @@
 package org.commcare.android.adapters;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import android.app.Activity;
+import android.database.DataSetObserver;
+import android.speech.tts.TextToSpeech;
+import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListAdapter;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -30,15 +32,12 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.odk.collect.android.views.media.AudioController;
 
-import android.app.Activity;
-import android.database.DataSetObserver;
-import android.speech.tts.TextToSpeech;
-import android.util.Pair;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author ctsims
@@ -67,7 +66,6 @@ public class EntityListAdapter implements ListAdapter {
     List<TreeReference> references;
 
     TextToSpeech tts;
-    AudioController controller;
 
     private TreeReference selected;
 
@@ -90,8 +88,11 @@ public class EntityListAdapter implements ListAdapter {
 
     private boolean inAwesomeMode = false;
 
-    public EntityListAdapter(Activity activity, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> full, 
-            int[] sort, TextToSpeech tts, AudioController controller, NodeEntityFactory factory) throws SessionUnavailableException {
+    public EntityListAdapter(Activity activity, Detail detail,
+                             List<TreeReference> references,
+                             List<Entity<TreeReference>> full,
+                             int[] sort, TextToSpeech tts,
+                             NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
 
@@ -119,7 +120,6 @@ public class EntityListAdapter implements ListAdapter {
         }
         
         this.tts = tts;
-        this.controller = controller;
         if(android.os.Build.VERSION.SDK_INT >= 14){
             mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
         }
@@ -134,8 +134,6 @@ public class EntityListAdapter implements ListAdapter {
     
     /**
      * Set the current display set for this adapter
-     * 
-     * @param arrayList
      */
     private void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
@@ -225,7 +223,13 @@ public class EntityListAdapter implements ListAdapter {
             long startTime = System.currentTimeMillis();
             //It's a bit sketchy here, because this DB lock will prevent
             //anything else from processing
-            SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+            SQLiteDatabase db;
+            try {
+                db = CommCareApplication._().getUserDbHandle();
+            } catch (SessionUnavailableException e) {
+                this.finish();
+                return;
+            }
             db.beginTransaction();
             full:
             for(int index = 0 ; index < full.size() ; ++index) {
@@ -413,26 +417,20 @@ public class EntityListAdapter implements ListAdapter {
         });
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#areAllItemsEnabled()
-     */
+    @Override
     public boolean areAllItemsEnabled() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.ListAdapter#isEnabled(int)
-     */
+    @Override
     public boolean isEnabled(int position) {
         return true;
     }
 
-    /*
+    /**
      * Includes action, if enabled, as an item.
-     * 
-     * (non-Javadoc)
-     * @see android.widget.Adapter#getCount()
      */
+    @Override
     public int getCount() {
         return getCount(false, false);
     }
@@ -452,16 +450,12 @@ public class EntityListAdapter implements ListAdapter {
         return (fullCount ? full.size() : current.size()) + (actionEnabled && !ignoreAction ? 1 : 0);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItem(int)
-     */
+    @Override
     public TreeReference getItem(int position) {
         return current.get(position).getElement();
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemId(int)
-     */
+    @Override
     public long getItemId(int position) {
         if(actionEnabled) {
             if(position == actionPosition) {
@@ -471,9 +465,7 @@ public class EntityListAdapter implements ListAdapter {
         return references.indexOf(current.get(position).getElement());
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getItemViewType(int)
-     */
+    @Override
     public int getItemViewType(int position) {
         if(actionEnabled) {
             if(position == actionPosition) {
@@ -483,16 +475,11 @@ public class EntityListAdapter implements ListAdapter {
         return 0;
     }
 
-    public void setController(AudioController controller) {
-        this.controller = controller;
-    }
-
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
-     */
-    /* Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
+    /**
+     * Note that position gives a unique "row" id, EXCEPT that the header row AND the first content row
      * are both assigned position 0 -- this is not an issue for current usage, but it could be in future
      */
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(actionEnabled && position == actionPosition) {
             HorizontalMediaView tiav =(HorizontalMediaView)convertView;
@@ -515,7 +502,7 @@ public class EntityListAdapter implements ListAdapter {
             GridEntityView emv =(GridEntityView)convertView;
 
             if(emv == null) {
-                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, controller, mFuzzySearchEnabled);
+                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
                 int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
                 emv.setTitleTextColor(titleColor[0]);
             } else{
@@ -530,7 +517,7 @@ public class EntityListAdapter implements ListAdapter {
             EntityView emv =(EntityView)convertView;
 
             if (emv == null) {
-                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, controller, position, mFuzzySearchEnabled);
+                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
             } else {
                 emv.setSearchTerms(currentSearchTerms);
                 emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
@@ -540,23 +527,17 @@ public class EntityListAdapter implements ListAdapter {
 
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#getViewTypeCount()
-     */
+    @Override
     public int getViewTypeCount() {
         return actionEnabled? 2 : 1;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#hasStableIds()
-     */
+    @Override
     public boolean hasStableIds() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#isEmpty()
-     */
+    @Override
     public boolean isEmpty() {
         return getCount() > 0;
     }
@@ -583,16 +564,12 @@ public class EntityListAdapter implements ListAdapter {
         return reverseSort;
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#registerDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
 
-    /* (non-Javadoc)
-     * @see android.widget.Adapter#unregisterDataSetObserver(android.database.DataSetObserver)
-     */
+    @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }

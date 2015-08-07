@@ -1,24 +1,22 @@
-/**
- * 
- */
 package org.commcare.android.database.user.models;
 
-import java.util.Vector;
+import android.content.ContentValues;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
 
-import android.content.ContentValues;
+import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class CaseIndexTable {
     public static final String TABLE_NAME = "case_index_storage";
@@ -48,7 +46,14 @@ public class CaseIndexTable {
     //an object for the same cache at once and let us manage the lifecycle
     
     public CaseIndexTable() {
-        this(CommCareApplication._().getUserDbHandle());
+        // TODO PLM: remove this constructor and have callers pass in result
+        // from getUserDbHandle()
+        try {
+            this.db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            // TODO PLM: find a way to fail elegantly here.
+            throw new UserStorageClosedException(e.getMessage());
+        }
     }
     
     SQLiteDatabase db;
@@ -59,7 +64,6 @@ public class CaseIndexTable {
     /**
      * Creates all indexes for this case. 
      * TODO: this doesn't ensure any sort of uniquenes, you should wipe constraints first
-     * @param c
      */
     public void indexCase(Case c) {
         db.beginTransaction();

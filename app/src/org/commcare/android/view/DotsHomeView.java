@@ -3,14 +3,6 @@
  */
 package org.commcare.android.view;
 
-import java.util.Calendar;
-
-import org.commcare.android.util.DotsData;
-import org.commcare.android.util.DotsData.DotsDay;
-import org.commcare.android.util.DotsData.MedStatus;
-import org.commcare.android.util.DotsEditListener;
-import org.commcare.dalvik.R;
-
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.Gravity;
@@ -21,6 +13,14 @@ import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import org.commcare.android.util.DotsData;
+import org.commcare.android.util.DotsData.DotsDay;
+import org.commcare.android.util.DotsData.MedStatus;
+import org.commcare.android.util.DotsEditListener;
+import org.commcare.dalvik.R;
+
+import java.util.Calendar;
 
 /**
  * @author ctsims

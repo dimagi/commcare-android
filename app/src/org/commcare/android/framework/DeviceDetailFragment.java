@@ -16,9 +16,6 @@
 
 package org.commcare.android.framework;
 
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -31,6 +28,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device
@@ -49,29 +49,17 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     final String targetDirectory = baseDirectory + "/target";
     final String zipDirectory = baseDirectory + "/zipfolder.zip";
 
-	/*
-	 * (non-Javadoc)
-	 * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-	 */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, container);
         return mContentView;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener#onConnectionInfoAvailable(android.net.wifi.p2p.WifiP2pInfo)
-     */
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         Log.d(CommCareWiFiDirectActivity.TAG, "onConnectionInfoAvailable");

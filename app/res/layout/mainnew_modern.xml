@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res/org.commcare.dalvik"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/cc_core_bg"
-    >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/cc_core_bg">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -21,6 +20,7 @@
         android:layout_above="@+id/str_version"
         android:paddingBottom="@dimen/content_start"
         android:scrollbars="none"
+        tools:listitem="@layout/square_button_notification"
         />
     <TextView
         android:id="@+id/str_version"

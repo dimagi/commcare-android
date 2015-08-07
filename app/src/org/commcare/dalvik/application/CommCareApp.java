@@ -1,6 +1,7 @@
 package org.commcare.dalvik.application;
 
-import java.io.File;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -13,11 +14,11 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.Stylizer;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
@@ -26,8 +27,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.io.File;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
@@ -37,23 +37,25 @@ import android.util.Log;
  * @author ctsims
  */
 public class CommCareApp {
-    ApplicationRecord record;
+    private ApplicationRecord record;
 
-    JavaFileRoot fileRoot;
-    AndroidCommCarePlatform platform;
+    private JavaFileRoot fileRoot;
+    private final AndroidCommCarePlatform platform;
 
     private static final String TAG = CommCareApp.class.getSimpleName();
 
-    public static Object lock = new Object();
+    private static final Object lock = new Object();
 
     // This unfortunately can't be managed entirely by the application object,
     // so we have to do some here
     public static CommCareApp currentSandbox;
 
-    private Object appDbHandleLock = new Object();
+    private final Object appDbHandleLock = new Object();
     private SQLiteDatabase appDatabase; 
     
-    public static Stylizer mStylizer;
+    private static Stylizer mStylizer;
+
+    private int resourceState;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -62,7 +64,7 @@ public class CommCareApp {
         int[] version = CommCareApplication._().getCommCareVersion();
 
         // TODO: Badly coupled
-        platform = new AndroidCommCarePlatform(version[0], version[1], CommCareApplication._(), this);
+        platform = new AndroidCommCarePlatform(version[0], version[1], this);
     }
     
     public Stylizer getStylizer(){
@@ -76,7 +78,7 @@ public class CommCareApp {
         return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
-    public void createPaths() {
+    void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
             GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
             GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
@@ -93,7 +95,6 @@ public class CommCareApp {
     public String fsPath(String relative) {
         return storageRoot() + relative;
     }
-
 
     private void initializeFileRoots() {
         synchronized (lock) {
@@ -126,7 +127,7 @@ public class CommCareApp {
         setupSandbox(true);
     }
     
-    public void initializeStylizer() {
+    void initializeStylizer() {
         mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
     }
     
@@ -148,8 +149,39 @@ public class CommCareApp {
         }
     }
 
+    /**
+     * If the CommCare app being initialized was first installed on this device with pre-Multiple
+     * Apps build of CommCare, then its ApplicationRecord will have been generated from an
+     * older format with missing fields. This method serves to fill in those missing fields,
+     * and is called after initializeApplication, if and only if the ApplicationRecord has just
+     * been generated from the old format. Once the update for an AppRecord performs once, it will
+     * not be performed again.
+     */
+    private void updateAppRecord() {
+        // Set all of the properties of this record that come from the profile
+        record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
+
+        // The default value this field was set to may be incorrect, so check it
+        record.setResourcesStatus(areMMResourcesValidated());
+
+        // Set this to false so we don't try to update this app record every time we seat it
+        record.setConvertedByDbUpgrader(false);
+
+        // Commit changes
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
 
     public boolean initializeApplication() {
+        boolean appReady = initializeApplicationHelper();
+        if (appReady) {
+            if (record.wasConvertedByDbUpgrader()) {
+                updateAppRecord();
+            }
+        }
+        return appReady;
+    }
+    
+    public boolean initializeApplicationHelper() {
         setupSandbox();
 
         ResourceTable global = platform.getGlobalResourceTable();
@@ -157,11 +189,8 @@ public class CommCareApp {
         ResourceTable recovery = platform.getRecoveryTable();
 
         Log.d(TAG, "Global\n" + global.toString());
-
         Log.d(TAG, "Upgrade\n" + upgrade.toString());
-
         Log.d(TAG, "Recovery\n" + recovery.toString());
-
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
@@ -174,14 +203,12 @@ public class CommCareApp {
         }
 
         // See if we got left in the middle of an update
-        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
-            // If so, repair the global table. (Always takes priority over
-            // maintaining the update)
+        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+            // If so, repair the global table. (Always takes priority over maintaining the update)
             global.repairTable(upgrade);
         }
 
-        // TODO: This, but better.
-        Resource profile = global.getResourceWithId("commcare-application-profile");
+        Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
             platform.initialize(global);
             try {
@@ -194,21 +221,29 @@ public class CommCareApp {
             
             return true;
         }
-        
-       
         return false;
     }
 
-    public boolean areResourcesValidated() {
+    public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
                 appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES));
     }
 
-    public void setResourcesValidated(boolean isValidated) {
+    public void setMMResourcesValidated() {
         SharedPreferences.Editor editor = getAppPreferences().edit();
-        editor.putBoolean("isValidated", isValidated);
+        editor.putBoolean("isValidated", true);
         editor.commit();
+        record.setResourcesStatus(true);
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+
+    public int getAppResourceState() {
+        return resourceState;
+    }
+
+    public void setAppResourceState(int resourceState) {
+        this.resourceState = resourceState;
     }
 
     public void teardownSandbox() {
@@ -229,16 +264,12 @@ public class CommCareApp {
         return platform;
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getStorage(Class<T> c) {
         return getStorage(c.getAnnotation(Table.class).value(), c);
     }
 
-    public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) throws SessionUnavailableException {
+    public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
         return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.database.DbHelper#getHandle()
-             */
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -251,23 +282,39 @@ public class CommCareApp {
         });
     }
 
-    public void clearInstallData() {
-        ResourceTable global = platform.getGlobalResourceTable();
-
-        // Install was botched, clear anything left lying around....
-        global.clear();
-    }
-
+    /**
+     * Initialize all of the properties that an app record should have and update it to the
+     * installed state.
+     */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
+        record.setResourcesStatus(areMMResourcesValidated());
+        record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
         try {
             CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
         } catch (StorageFullException e) {
             throw new RuntimeException(e);
         }
     }
+
+    public String getUniqueId() {
+        return this.record.getUniqueId();
+    }
     
-    public String getPreferencesFilename(){
+    public String getPreferencesFilename() {
         return record.getApplicationId();
+    }
+
+    public ApplicationRecord getAppRecord() {
+        return this.record;
+    }
+
+    /**
+     * Refreshes this CommCareApp's ApplicationRecord pointer to be to whatever version is
+     * currently sitting in the db -- should be called whenever an ApplicationRecord is updated
+     * while its associated app is seated, so that the 2 are not out of sync
+     */
+    public void refreshAppRecord() {
+        this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
     }
 }

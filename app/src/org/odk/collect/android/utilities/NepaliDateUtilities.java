@@ -1,10 +1,10 @@
 package org.odk.collect.android.utilities;
 
-import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
+import android.util.SparseArray;
 
 import java.util.Date;
 
-import android.util.SparseArray;
+import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
 
 /**
  * Date manipulation utility functions for the Nepali calendar system.
@@ -159,10 +159,6 @@ public class NepaliDateUtilities {
      * to the given Nepali date. If the given Nepali date is out
      * of range, an exception is thrown.
      * 
-     * @param toYear
-     * @param toMonth
-     * @param toDay
-     * @return
      * @throws RuntimeException is entered date is out of range
      */
     private static int countDaysFromMinDay(int toYear, int toMonth, int toDay) {

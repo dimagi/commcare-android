@@ -1,11 +1,11 @@
 package org.commcare.android.crypt;
 
+import android.util.Log;
+
 import java.util.HashSet;
 import java.util.Stack;
 
 import javax.crypto.Cipher;
-
-import android.util.Log;
 
 /**
  * @author ctsims
@@ -43,7 +43,7 @@ public abstract class CipherPool {
         free.push(cipher);
     }
     
-    private synchronized final void grow() {
+    private synchronized void grow() {
         for(int i = 0 ; i < GROWTH_FACTOR; ++i) {
             free.push(generateNewCipher());
         }

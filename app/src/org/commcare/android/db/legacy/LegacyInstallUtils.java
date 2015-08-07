@@ -1,20 +1,16 @@
 package org.commcare.android.db.legacy;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
+import android.telephony.TelephonyManager;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -44,23 +40,28 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.Uri;
-import android.preference.PreferenceManager;
-import android.provider.Settings.Secure;
-import android.telephony.TelephonyManager;
-import android.util.Pair;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
@@ -71,7 +72,7 @@ public class LegacyInstallUtils {
     public static final String LEGACY_UPGRADE_PROGRESS = "legacy_upgrade_progress";
     public static final String UPGRADE_COMPLETE = "complete";
 
-    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException {
+    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException, SessionUnavailableException {
         SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         if(globalPreferences.getString(LEGACY_UPGRADE_PROGRESS, "").equals(UPGRADE_COMPLETE)) { return; }
         //Check to see if the legacy database exists on this system
@@ -126,10 +127,6 @@ public class LegacyInstallUtils {
         //get the legacy storage
         final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c).getReadableDatabase();
         LegacyDbHelper ldbh = new LegacyDbHelper(c) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
-             */
             @Override
             public android.database.sqlite.SQLiteDatabase getHandle() {
                 return olddb;
@@ -149,7 +146,7 @@ public class LegacyInstallUtils {
             if(r.getStatus() != Resource.RESOURCE_STATUS_INSTALLED) {
                 allInstalled = false;
             } 
-            if(r.getResourceId().equals("commcare-application-profile")) {
+            if(r.getResourceId().equals(CommCarePlatform.APP_PROFILE_RESOURCE_ID)) {
                 hasProfile = true;
             }
             oldDbSize++;
@@ -234,15 +231,24 @@ public class LegacyInstallUtils {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Legacy| Files moved. Updating Handles");
         
         //We also need to tell the XForm Provider that any/all of its forms have been moved
-        
-        Cursor ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI,new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+
         ArrayList<Pair<Uri, String>> toReplace = new ArrayList<Pair<Uri, String>>();
-        while(ef.moveToNext()) {
-            String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
-            if(!newFilePath.equals(filePath)) {
-                Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+        Cursor ef = null;
+        try {
+            ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
+            if (ef != null) {
+                while (ef.moveToNext()) {
+                    String filePath = ef.getString(ef.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
+                    String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
+                    if (!newFilePath.equals(filePath)) {
+                        Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
+                        toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+                    }
+                }
+            }
+        } finally {
+            if (ef != null) {
+                ef.close();
             }
         }
         
@@ -284,9 +290,6 @@ public class LegacyInstallUtils {
         //4) Finally, we need to register a new UserKeyRecord which will prepare the user-facing records for transition
         //when the user logs in again
         
-        
-        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
-        
         //Get legacy user storage
         LegacySqlIndexedStorageUtility<User> legacyUsers = new LegacySqlIndexedStorageUtility<User>("USER", User.class, ldbh);
         
@@ -299,7 +302,9 @@ public class LegacyInstallUtils {
         
         //we're done with the old storage now.
         olddb.close();
-        
+
+        SqlStorage<UserKeyRecord> newUserKeyRecords = app.getStorage(UserKeyRecord.class);
+
         User preferred = null;
         //go through all of the old users and generate key records for them
         for(User u : oldUsers) {
@@ -374,7 +379,7 @@ public class LegacyInstallUtils {
         return filesystemHome + "commcare/";
     }
 
-    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException{
+    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
         
         try {
@@ -382,10 +387,6 @@ public class LegacyInstallUtils {
                 Object lock = new Object();
                 byte[] key = oldKey;
     
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
-                 */
                 @Override
                 public Cipher generateNewCipher() {
                     synchronized(lock) {
@@ -416,7 +417,7 @@ public class LegacyInstallUtils {
             
             //get the legacy storage
             final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
-                protected CipherPool getCipherPool() throws SessionUnavailableException {
+                protected CipherPool getCipherPool() {
                     return pool;
                 }
             }).getReadableDatabase();
@@ -424,10 +425,6 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
             
             LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.db.legacy.LegacyDbHelper#getHandle()
-                 */
                 @Override
                 public android.database.sqlite.SQLiteDatabase getHandle() {
                     return olddb;
@@ -469,10 +466,6 @@ public class LegacyInstallUtils {
             final SQLiteDatabase currentUserDatabase = ourDb;
             
             DbHelper newDbHelper = new DbHelper(c) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.database.DbHelper#getHandle()
-                 */
                 @Override
                 public SQLiteDatabase getHandle() {
                     return currentUserDatabase;
@@ -556,7 +549,7 @@ public class LegacyInstallUtils {
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
                     new SqlStorage<FormInstance>("fixture", FormInstance.class, newDbHelper));
             
-            } catch(StorageFullException sfe) {
+            } catch(SessionUnavailableException | StorageFullException sfe) {
                 throw new RuntimeException(sfe);
             }
             
@@ -565,7 +558,7 @@ public class LegacyInstallUtils {
             //Now we can update this key record to confirm that it is fully installed
             ukr.setType(UserKeyRecord.TYPE_NORMAL);
             app.getStorage(UserKeyRecord.class).write(ukr);
-            
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
             
             //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
@@ -633,5 +626,4 @@ public class LegacyInstallUtils {
         }
         return imei;
     }
-    
 }

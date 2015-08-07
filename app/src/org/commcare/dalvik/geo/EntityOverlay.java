@@ -1,13 +1,13 @@
 package org.commcare.dalvik.geo;
 
-import org.javarosa.core.model.instance.TreeReference;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
+
+import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * @author ctsims
@@ -26,19 +26,11 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
         this.context = context;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.google.android.maps.ItemizedOverlay#createItem(int)
-     */
     @Override
     protected OverlayItem createItem(int i) {
         return overlays[i];
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.google.android.maps.ItemizedOverlay#size()
-     */
     @Override
     public int size() {
         if (full) {
@@ -62,9 +54,6 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
         populate();
     }
     
-    /* (non-Javadoc)
-     * @see com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay#onBalloonTap(int, com.google.android.maps.OverlayItem)
-     */
     @Override
     protected boolean onBalloonTap(int index, OverlayItem item) {
         selected(references[index]);

@@ -1,16 +1,16 @@
 package org.odk.collect.android.utilities;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.commcare.dalvik.R;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationManager;
+
+import org.commcare.dalvik.R;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
@@ -26,7 +26,6 @@ public class GeoUtils {
 
     /**
      * Format location in a string for user display.
-     * @param location
      * @return String in format "<latitude> <longitude> <altitude> <accuracy>"
      */
     public static String locationToString(Location location) {
@@ -35,7 +34,6 @@ public class GeoUtils {
     
     /**
      * Get a LocationManager's providers, and trim the list down to providers we care about: GPS and network.
-     * @param manager
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     public static Set<String> evaluateProviders(LocationManager manager) {
@@ -56,7 +54,6 @@ public class GeoUtils {
     
     /**
      * Display a non-cancel-able dialog asking user if they want to turn on their GPS.
-     * @param context
      * @param onChange Listener to call when dialog button is pressed.
      */
     public static void showNoGpsDialog(Context context, DialogInterface.OnClickListener onChange) {
@@ -65,7 +62,6 @@ public class GeoUtils {
 
     /**
      * Display a cancel-able dialog asking user if they want to turn on their GPS.
-     * @param context
      * @param onChange Listener to call when dialog button is pressed.
      * @param onCancel Listener to call when dialog is canceled.
      */

@@ -1,5 +1,39 @@
 package org.commcare.android.tasks;
 
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+import android.util.Pair;
+
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.FileUtil;
+import org.commcare.cases.model.Case;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParser;
+import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.CommCarePlatform;
+import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.BestEffortBlockParser;
+import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.MetaDataXmlParser;
+import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,41 +48,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.cases.model.Case;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.util.CommCarePlatform;
-import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.BestEffortBlockParser;
-import org.commcare.xml.CaseXmlParser;
-import org.commcare.xml.MetaDataXmlParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-import android.util.Pair;
 
 /**
  * @author ctsims
@@ -68,10 +67,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         this.taskId = taskId;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
@@ -408,25 +403,16 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         //If we have a proper 2.0 namespace, good.
         if (CaseXmlParser.CASE_XML_NAMESPACE.equals(namespace)) {
             return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class)) {
-
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.CaseXmlParser#commit(org.commcare.cases.model.Case)
-                 */
                 @Override
-                public void commit(Case parsed) throws IOException, SessionUnavailableException {
+                public void commit(Case parsed) throws IOException {
                     String incoming = parsed.getCaseId();
                     if (incoming != null && !"".equals(incoming)) {
                         caseIDs[0] = incoming;
                     }
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.CaseXmlParser#retrieve(java.lang.String)
-                 */
                 @Override
-                public ACase retrieve(String entityId) throws SessionUnavailableException {
+                public ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
                     ACase c = new ACase("", "");
                     c.setCaseId(entityId);
@@ -438,10 +424,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // skip this block for compatibility purposes, but we can
             // at least try to get a caseID (which is all we want)
             return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.BestEffortBlockParser#commit(java.util.Hashtable)
-                 */
                 @Override
                 public void commit(Hashtable<String, String> values) {
                     if (values.containsKey("case_id")) {
@@ -456,12 +438,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                                      final Date[] modified,
                                                      KXmlParser parser) {
         return new MetaDataXmlParser(parser) {
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.xml.MetaDataXmlParser#commit(java.lang.String[])
-             */
             @Override
-            public void commit(String[] meta) throws IOException, SessionUnavailableException {
+            public void commit(String[] meta) throws IOException {
                 if (meta[0] != null) {
                     modified[0] = DateUtils.parseDateTime(meta[0]);
                 }

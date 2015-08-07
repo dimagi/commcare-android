@@ -1,17 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Vector;
-
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
+import android.util.Pair;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -26,7 +15,6 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -34,12 +22,23 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
-import android.util.Pair;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Vector;
+
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * @author ctsims
- *
  */
 public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
     
@@ -60,24 +59,15 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         this.upgradeDestination = upgradeDestination;
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#cleanup()
-     */
     @Override
     public void cleanup() {
         // TODO Auto-generated method stub
 
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
     @Override
     public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#install(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceLocation, org.javarosa.core.reference.Reference, org.commcare.resources.model.ResourceTable, org.commcare.util.CommCareInstance, boolean)
-     */
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
@@ -140,33 +130,23 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
                 throw new UnresolvedResourceException(r, "After install there is no local resource location");
             }
             return true;
-            /*
-             * This error is thrown by the HttpRequestGenerator on 4.3 devices when the peer certificate is bad. 
-             * We catch this and deliver upstream to the SetupActivity as an UnresolvedResourceException
-             */
-        } catch(SSLHandshakeException she){
-            
-            she.printStackTrace();
-            
-            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
-            mURE.initCause(she);
-            
+        } catch (SSLHandshakeException | SSLPeerUnverifiedException e) {
+            // SSLHandshakeException is thrown by the HttpRequestGenerator on
+            // 4.3 devices when the peer certificate is bad.
+            //
+            // SSLPeerUnverifiedException is thrown by the HttpRequestGenerator
+            // on 2.3 devices when the peer certificate is bad.
+            //
+            // Deliver these errors upstream to the SetupActivity as an
+            // UnresolvedResourceException
+            e.printStackTrace();
+
+            UnresolvedResourceException mURE =
+                new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
+            mURE.initCause(e);
+
             throw mURE;
-            /*
-             * This error is thrown by the HttpRequestGenerator on 2.3 devices when the peer certificate is bad.
-             * Handled the same as above.
-             */
-        } catch(SSLPeerUnverifiedException spue){
-            
-            spue.printStackTrace();
-            
-            UnresolvedResourceException mURE = new UnresolvedResourceException(r, "Your certificate was bad. This is often due to a mis-set phone clock.", true);
-            mURE.initCause(spue);
-            
-            throw mURE;
-            
-        } catch (IOException e) { 
-            
+        } catch (IOException e) {
             e.printStackTrace();
             throw new UnreliableSourceException(r, e.getMessage());
         }
@@ -184,25 +164,12 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 
     /**
      * Perform any custom installation actions required for this resource.
-     * 
-     * @param r
-     * @param local
-     * @param upgrade
-     * @return
-     * @throws IOException
-     * @throws UnresolvedResourceException
      */
     protected abstract int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException;
-    
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+
     @Override
     public abstract boolean requiresRuntimeInitialization();
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#uninstall(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         try{
@@ -212,9 +179,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean upgrade(Resource r) {
         try {             
@@ -279,10 +243,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#unstage(org.commcare.resources.model.Resource, int)
-     */
     @Override
     public boolean unstage(Resource r, int newStatus) {
         try {
@@ -320,10 +280,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#revert(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean revert(Resource r, ResourceTable table) {
         String finalLocation = null;
@@ -402,10 +358,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
             File preMove = new File(ReferenceManager._().DeriveReference(oldRef).getLocalURI());
             
             File expectedFile = new File(ReferenceManager._().DeriveReference(expectedRef).getLocalURI());
-            
-            
-            
-            
+
             //the expectation is that localReference might be pointing to the old ref which no longer exists, 
             //in which case the moved already happened.
             if(currentPointer.exists()) {
@@ -436,9 +389,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         } 
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         this.localLocation = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
@@ -446,9 +396,6 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         this.upgradeDestination = ExtUtil.readString(in);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(localLocation));

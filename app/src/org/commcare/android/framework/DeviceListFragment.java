@@ -1,26 +1,4 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.commcare.android.framework;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -41,6 +19,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A ListFragment that displays available peers on discovery and requests the
  * parent activity to handle user interaction events
@@ -53,10 +37,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     View mContentView = null;
     private WifiP2pDevice device;
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.Fragment#onActivityCreated(android.os.Bundle)
-     */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -64,10 +44,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
@@ -101,10 +77,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.support.v4.app.ListFragment#onListItemClick(android.widget.ListView, android.view.View, int, long)
-     * 
+    /**
      * Initiate a connection with the peer.
      */
     @Override
@@ -134,11 +107,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
         private List<WifiP2pDevice> items;
 
-        /**
-         * @param context
-         * @param textViewResourceId
-         * @param objects
-         */
         public WiFiPeerListAdapter(Context context, int textViewResourceId,
                 List<WifiP2pDevice> objects) {
             super(context, textViewResourceId, objects);
@@ -146,10 +114,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
-         */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View v = convertView;
@@ -189,10 +153,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         view.setText(getDeviceStatus(device.status));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.net.wifi.p2p.WifiP2pManager.PeerListListener#onPeersAvailable(android.net.wifi.p2p.WifiP2pDeviceList)
-     */
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
         Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
@@ -214,9 +174,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
-    /**
-     * 
-     */
     public void onInitiateDiscovery() {
         Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
         if (progressDialog != null && progressDialog.isShowing()) {
@@ -225,13 +182,9 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
                 true, new DialogInterface.OnCancelListener() {
 
-	        	/*
-	        	 * (non-Javadoc)
-	        	 * @see android.content.DialogInterface.OnCancelListener#onCancel(android.content.DialogInterface)
-	        	 */
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        
+
                     }
                 });
     }

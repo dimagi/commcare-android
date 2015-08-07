@@ -1,17 +1,14 @@
 package org.commcare.android.models;
 
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import android.util.Log;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import android.util.Log;
-
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
@@ -23,6 +20,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.expr.XPathExpression;
+
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -52,7 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public Entity<TreeReference> getEntity(TreeReference data) throws SessionUnavailableException {
+    public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         
         mCacheHost = nodeContext.getCacheHost(data);
@@ -79,8 +80,8 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         return entity;
     }
     
-    public void primeCache() {
-        if(mTemplateIsCachable == null || mTemplateIsCachable == false || mCacheHost == null ) { return; }
+    private void primeCache() {
+        if(mTemplateIsCachable == null || !mTemplateIsCachable || mCacheHost == null ) { return; }
         
         String[][] cachePrimeKeys = mCacheHost.getCachePrimeGuess();
         if(cachePrimeKeys == null) { return; }
@@ -109,9 +110,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         //along with the specific keys we wanna pull out
         
         String[] args = new String[cachePrimeKeys[1].length + sortKeys.size()];
-        for(int i = 0 ; i < cachePrimeKeys[1].length ; ++i) {
-            args[i] = cachePrimeKeys[1][i];
-        }
+        System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
         
         for(int i = 0 ; i < sortKeys.size() ; ++i) {
             args[2 + i] = EntityStorageCache.getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
@@ -129,8 +128,15 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
         
         long now = System.currentTimeMillis();
-        
-        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
+
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            // TODO PLM: not sure how to fail elegantly here, so mimicking
+            // current behaviour by raising a runtime error.
+            throw new UserStorageClosedException(e.getMessage());
+        }
         
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if(SqlStorage.STORAGE_OUTPUT_DEBUG) {

@@ -1,20 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.commcare.android.util.DotsData;
-import org.commcare.android.util.DotsData.DotsBox;
-import org.commcare.android.util.DotsData.DotsDay;
-import org.commcare.android.util.DotsEditListener;
-import org.commcare.android.util.GestureDetector;
-import org.commcare.android.view.DotsDetailView;
-import org.commcare.android.view.DotsHomeView;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.utils.DateUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +21,21 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import org.commcare.android.util.DotsData;
+import org.commcare.android.util.DotsData.DotsBox;
+import org.commcare.android.util.DotsData.DotsDay;
+import org.commcare.android.util.DotsEditListener;
+import org.commcare.android.util.GestureDetector;
+import org.commcare.android.view.DotsDetailView;
+import org.commcare.android.view.DotsHomeView;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.utils.DateUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -68,10 +68,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     int zX = -1;
     int zY = -1;
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,11 +141,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         mGestureDetector = new GestureDetector();
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -161,10 +152,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
-     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -291,10 +278,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -307,10 +290,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onPause()
-     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -328,10 +307,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         showView(home, AnimationType.zoomout);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
-     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -366,11 +341,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
 
     boolean mBeenSwiped;
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onTouchEvent(android.view.MotionEvent)
-     */
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         /*

@@ -14,16 +14,6 @@
 
 package org.commcare.dalvik.odk.provider;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,8 +25,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * 
@@ -66,10 +67,6 @@ public class FormsProvider extends ContentProvider {
         }
 
 
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-         */
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + FORMS_TABLE_NAME + " (" 
@@ -90,10 +87,6 @@ public class FormsProvider extends ContentProvider {
                     + FormsColumns.JRCACHE_FILE_PATH + " text not null );");
         }
 
-        /*
-         * (non-Javadoc)
-         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(t, "Upgrading database from version " + oldVersion + " to " + newVersion
@@ -106,10 +99,6 @@ public class FormsProvider extends ContentProvider {
     private DatabaseHelper mDbHelper;
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#onCreate()
-     */
     @Override
     public boolean onCreate() {
         //This is so stupid.
@@ -124,10 +113,6 @@ public class FormsProvider extends ContentProvider {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#query(android.net.Uri, java.lang.String[], java.lang.String, java.lang.String[], java.lang.String)
-     */
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
@@ -159,10 +144,6 @@ public class FormsProvider extends ContentProvider {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#getType(android.net.Uri)
-     */
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
@@ -178,10 +159,6 @@ public class FormsProvider extends ContentProvider {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
-     */
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
         init();
@@ -197,14 +174,14 @@ public class FormsProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
+        Long now = System.currentTimeMillis();
 
         // Make sure that the necessary fields are all set
-        if (values.containsKey(FormsColumns.DATE) == false) {
+        if (!values.containsKey(FormsColumns.DATE)) {
             values.put(FormsColumns.DATE, now);
         }
 
-        if (values.containsKey(FormsColumns.DISPLAY_SUBTEXT) == false) {
+        if (!values.containsKey(FormsColumns.DISPLAY_SUBTEXT)) {
             Date today = new Date();
             String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
             values.put(FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
@@ -212,11 +189,11 @@ public class FormsProvider extends ContentProvider {
 
         // if we don't have a path to the file, the rest are irrelevant.
         // it should fail anyway because you can't have a null file path.
-        if (values.containsKey(FormsColumns.FORM_FILE_PATH) == true) {
+        if (values.containsKey(FormsColumns.FORM_FILE_PATH)) {
             String filePath = values.getAsString(FormsColumns.FORM_FILE_PATH);
             File form = new File(filePath);
 
-            if (values.containsKey(FormsColumns.DISPLAY_NAME) == false) {
+            if (!values.containsKey(FormsColumns.DISPLAY_NAME)) {
                 values.put(FormsColumns.DISPLAY_NAME, form.getName());
             }
 
@@ -227,11 +204,11 @@ public class FormsProvider extends ContentProvider {
             String md5 = FileUtil.getMd5Hash(form);
             values.put(FormsColumns.MD5_HASH, md5);
 
-            if (values.containsKey(FormsColumns.JRCACHE_FILE_PATH) == false) {
-                String cachePath = "/sdcard/odk/.cache/" + md5 + ".formdef";
+            if (!values.containsKey(FormsColumns.JRCACHE_FILE_PATH)) {
+                String cachePath = Environment.getExternalStorageDirectory().getPath() + "odk/.cache/" + md5 + ".formdef";
                 values.put(FormsColumns.JRCACHE_FILE_PATH, cachePath);
             }
-            if (values.containsKey(FormsColumns.FORM_MEDIA_PATH) == false) {
+            if (!values.containsKey(FormsColumns.FORM_MEDIA_PATH)) {
                 String pathNoExtension = filePath.substring(0, filePath.lastIndexOf("."));
                 String mediaPath = pathNoExtension + "-media";
                 values.put(FormsColumns.FORM_MEDIA_PATH, mediaPath);
@@ -256,10 +233,7 @@ public class FormsProvider extends ContentProvider {
    
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#delete(android.net.Uri, java.lang.String, java.lang.String[])
-     * 
+    /**
      * This method removes the entry from the content provider, and also removes any associated
      * files. files: form.xml, [formmd5].formdef, formname-media {directory}
      */
@@ -326,10 +300,6 @@ public class FormsProvider extends ContentProvider {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
-     */
     @Override
     public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
         init();
@@ -352,7 +322,7 @@ public class FormsProvider extends ContentProvider {
                 //app is responsible for those resources;
 
                 // Make sure that the necessary fields are all set
-                if (values.containsKey(FormsColumns.DATE) == true) {
+                if (values.containsKey(FormsColumns.DATE)) {
                     Date today = new Date();
                     String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
                     values.put(FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
@@ -409,12 +379,12 @@ public class FormsProvider extends ContentProvider {
                                     .getColumnIndex(FormsColumns.JRCACHE_FILE_PATH)));
                             String newMd5 = FileUtil.getMd5Hash(new File(formFile));
                             values.put(FormsColumns.MD5_HASH, newMd5);
-                            values.put(FormsColumns.JRCACHE_FILE_PATH, "/sdcard/odk/.cache" + newMd5
+                            values.put(FormsColumns.JRCACHE_FILE_PATH, Environment.getExternalStorageDirectory().getPath() + "odk/.cache" + newMd5
                                     + ".formdef");
                         }
     
                         // Make sure that the necessary fields are all set
-                        if (values.containsKey(FormsColumns.DATE) == true) {
+                        if (values.containsKey(FormsColumns.DATE)) {
                             Date today = new Date();
                             String ts =
                                 new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);

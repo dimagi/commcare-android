@@ -1,9 +1,7 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
-import java.io.IOException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.model.data.GeoPointData;
@@ -13,12 +11,10 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import java.io.IOException;
 
 /**
  * @author ctsims
- *
  */
 public class MediaUtil {
     public static final String FORM_VIDEO = "video";
@@ -59,44 +55,10 @@ public class MediaUtil {
             return null;
         }
     }
-    
-    
-    /*
-     * Warning: Use of temp file could cause slowness.
-     *  
-     * Not currently used, so commented out because requires
-     * import of external commons.io jar file, but could 
-     * potentially be useful down the road.
-     */
-    
-    /*public static FileInputStream inputStreamToFIS(InputStream in) {
-        FileInputStream fis = null;
-        FileOutputStream out = null;
-        File tempFile = null;
-        try {
-            tempFile = File.createTempFile("stream2file", ".tmp");
-            tempFile.deleteOnExit();
-            //TODO: try using StreamsUtil method for this, currently causes inf loop
-            out = new FileOutputStream(tempFile);
-            IOUtils.copy(in, out);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        try {
-            fis = new FileInputStream(tempFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return fis;    
-    }*/
 
-    
     /**
      * Pass in a string representing either a GeoPont or an address and get back a valid
      * GeoURI that can be passed as an intent argument 
-     * 
-     * @param rawInput
-     * @return
      */
     public static String getGeoIntentURI(String rawInput){
         try{

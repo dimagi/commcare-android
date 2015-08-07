@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+                xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/screen_first_start_main"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:orientation="vertical"
                 android:background="@color/cc_core_bg"
     >
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,7 +21,6 @@
             android:id="@+id/screen_first_start_banner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
             android:layout_marginRight="@dimen/content_start"
             android:paddingBottom="@dimen/content_start"
@@ -42,15 +45,12 @@
                 android:layout_marginBottom="@dimen/content_min_margin"
                 android:gravity="center"
                 android:text="Welcome to CommCare!\n Please choose an installation method below."
-                android:textSize="@dimen/text_small"
-                android:layout_below="@id/screen_first_start_banner"
-                />
+                android:textSize="@dimen/text_small" />
 
             <LinearLayout
                 android:id="@+id/screen_first_start_bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/str_setup_message"
                 android:paddingBottom="@dimen/content_min_margin"
                 android:orientation="horizontal" >
 
@@ -83,4 +83,5 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

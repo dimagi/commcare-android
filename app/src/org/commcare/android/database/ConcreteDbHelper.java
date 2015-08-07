@@ -1,7 +1,8 @@
 package org.commcare.android.database;
 
-import net.sqlcipher.database.SQLiteDatabase;
 import android.content.Context;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 /**
  * A Db Handler for direct DB Handle access, when
@@ -18,10 +19,6 @@ public class ConcreteDbHelper extends DbHelper {
         this.handle = handle;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.database.DbHelper#getHandle()
-     */
     @Override
     public SQLiteDatabase getHandle() {
         return handle;

@@ -1,5 +1,27 @@
 package org.commcare.xml;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
+
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.data.xml.TransactionParser;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.kxml2.io.KXmlParser;
+import org.kxml2.io.KXmlSerializer;
+import org.kxml2.kdom.Document;
+import org.kxml2.kdom.Element;
+import org.kxml2.kdom.Node;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,27 +37,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
-import org.kxml2.io.KXmlParser;
-import org.kxml2.io.KXmlSerializer;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
-import org.kxml2.kdom.Node;
-import org.xmlpull.v1.XmlPullParserException;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
 
 /**
  * @author ctsims
@@ -68,7 +69,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
-    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException, SessionUnavailableException {
+    public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom
         Element element = new Element();
@@ -84,7 +85,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         document.addChild(Node.ELEMENT, element);    
         
         KXmlSerializer serializer = new KXmlSerializer();
-        
+
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         
         //Register this instance for inspection
@@ -105,7 +106,12 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
         // Find the form record attached to the form instance during insertion
-        IStorageUtilityIndexed<FormRecord> storage = storage();
+        IStorageUtilityIndexed<FormRecord> storage;
+        try {
+            storage = cachedStorage();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
         FormRecord attachedRecord =
             storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
                     instanceRecord.toString());
@@ -116,6 +122,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
         // TODO PLM: Eventually merge with SaveToDiskTask exportData xml
         // serialization logic
+
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
 
@@ -151,8 +158,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         }
         return attachedRecord;
     }
-
-    IStorageUtilityIndexed<FormRecord> storage() throws SessionUnavailableException{
+    public IStorageUtilityIndexed<FormRecord> cachedStorage() throws SessionUnavailableException{
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         } 
@@ -188,10 +194,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         throw new RuntimeException("Couldn't create folder needed to save form instance");
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.data.xml.TransactionParser#commit(java.lang.Object)
-     */
     @Override
     public void commit(FormRecord parsed) throws IOException {
         //This is unused.

@@ -14,20 +14,20 @@
 
 package org.odk.collect.android.widgets;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.joda.time.DateTime;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
+
+import org.javarosa.core.model.data.DateData;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.joda.time.DateTime;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
@@ -53,10 +53,6 @@ public class DateWidget extends QuestionWidget {
         }
         
         mDateListener = new DatePicker.OnDateChangedListener() {
-        	/*
-        	 * (non-Javadoc)
-        	 * @see android.widget.DatePicker.OnDateChangedListener#onDateChanged(android.widget.DatePicker, int, int, int)
-        	 */
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
                 if (mPrompt.isReadOnly()) {
@@ -108,9 +104,7 @@ public class DateWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
+    /**
      * Resets date to today.
      */
     @Override
@@ -121,10 +115,6 @@ public class DateWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();
@@ -135,10 +125,6 @@ public class DateWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -148,20 +134,12 @@ public class DateWidget extends QuestionWidget {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mDatePicker.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();

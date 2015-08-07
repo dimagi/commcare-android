@@ -1,20 +1,4 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
-
-import org.commcare.dalvik.R;
 
 import android.content.Context;
 import android.text.Editable;
@@ -33,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import org.commcare.dalvik.R;
 import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -100,10 +85,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     
     /**
      * Guess the max string length based on the datatypes.
-     * 
-     * @param prompt
-     * @return
-     * @throws UnpivotableExpressionException
      */
     protected int guessMaxStringLength(FormEntryPrompt prompt) throws UnpivotableExpressionException{
         StringLengthRangeHint hint = new StringLengthRangeHint();
@@ -138,20 +119,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#clearAnswer()
-     */
     @Override
     public void clearAnswer() {
         mAnswer.setText(null);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#getAnswer()
-     */
     @Override
     public IAnswerData getAnswer() {
         String s = mAnswer.getText().toString().trim();
@@ -163,10 +136,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setFocus(android.content.Context)
-     */
     @Override
     public void setFocus(Context context) {
         
@@ -190,13 +159,9 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#onKeyDown(int, android.view.KeyEvent)
-     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.isAltPressed() == true) {
+        if (event.isAltPressed()) {
             return false;
         }
         widgetEntryChanged();
@@ -204,30 +169,18 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#setOnLongClickListener(android.view.View.OnLongClickListener)
-     */
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mAnswer.setOnLongClickListener(l);
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see org.odk.collect.android.widgets.QuestionWidget#cancelLongPress()
-     */
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mAnswer.cancelLongPress();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
     @Override
     public void onClick(View v) {
         //revert to default editor behavior
@@ -240,19 +193,11 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.performClick();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#afterTextChanged(android.text.Editable)
-     */
     @Override
     public void afterTextChanged(Editable s) {
         widgetEntryChanged();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#beforeTextChanged(java.lang.CharSequence, int, int, int)
-     */
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
             int after) {
@@ -260,10 +205,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.text.TextWatcher#onTextChanged(java.lang.CharSequence, int, int, int)
-     */
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub

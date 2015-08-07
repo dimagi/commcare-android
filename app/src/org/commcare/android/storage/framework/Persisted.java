@@ -3,6 +3,12 @@
  */
 package org.commcare.android.storage.framework;
 
+import org.javarosa.core.services.storage.IMetaData;
+import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,12 +21,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
 
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
 /**
  * @author ctsims
  *
@@ -31,9 +31,6 @@ public class Persisted implements Persistable, IMetaData {
     
     protected int recordId = -1; 
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
@@ -81,9 +78,6 @@ public class Persisted implements Persistable, IMetaData {
         
     };
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
@@ -96,17 +90,11 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#setID(int)
-     */
     @Override
     public void setID(int ID) {
         recordId = ID;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.Persistable#getID()
-     */
     @Override
     public int getID() {
         return recordId;
@@ -137,6 +125,9 @@ public class Persisted implements Persistable, IMetaData {
                     f.set(o, ExtUtil.readBytes(in));
                     return;
                 }
+            } else if (type.equals(Boolean.TYPE)) {
+                f.setBoolean(o, ExtUtil.readBool(in));
+                return;
             }
         } finally {
             f.setAccessible(false);
@@ -168,6 +159,9 @@ public class Persisted implements Persistable, IMetaData {
                     ExtUtil.writeBytes(out,(byte[])f.get(o));
                     return;
                 }
+            } else if (type.equals(Boolean.TYPE)) {
+                ExtUtil.writeBool(out, f.getBoolean(o));
+                return;
             }
         } finally {
             f.setAccessible(false);
@@ -209,7 +203,7 @@ public class Persisted implements Persistable, IMetaData {
             }
 
         }
-        return fields.toArray(new String[0]);
+        return fields.toArray(new String[fields.size()]);
     }
 
     

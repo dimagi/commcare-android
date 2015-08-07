@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/cc_core_bg"
@@ -23,21 +24,19 @@
             android:numColumns="3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/str_version"
             android:layout_marginStart="@dimen/content_start"
             android:layout_marginEnd="@dimen/content_start"
             android:horizontalSpacing="@dimen/content_start"
             android:verticalSpacing="@dimen/content_start"
             android:paddingBottom="@dimen/content_start"
             android:scrollbars="none"
+            tools:listitem="@layout/square_button_notification"
             />
         <TextView
             android:id="@+id/str_version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
             android:textAppearance="@style/VersionIdText"
             android:visibility="gone"
             />

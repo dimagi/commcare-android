@@ -1,12 +1,13 @@
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Enumeration;
-import java.util.Vector;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.RemoteException;
+import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -35,14 +36,13 @@ import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.RemoteException;
-import android.util.Log;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -61,20 +61,13 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
         super(localDestination, upgradeDestination);
     }
-    
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
+    @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         instance.registerXmlns(namespace, contentUri);
         return true;
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.resource.installers.FileSystemInstaller#customInstall(org.commcare.resources.model.Resource, org.javarosa.core.reference.Reference, boolean)
-     */
+
     @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
@@ -106,15 +99,16 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
         //cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
 
-        
+
+        Cursor existingforms = null;
         try {
-            Cursor existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI, 
+            existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI,
                     new String[] { FormsProviderAPI.FormsColumns._ID} , 
                     FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?", 
                     new String[] { formDef.getMainInstance().schema}, null);
 
             
-            if(existingforms.moveToFirst()) {
+            if(existingforms != null && existingforms.moveToFirst()) {
                 //we already have one form. Hopefully this is during an upgrade...
                 if(!upgrade) {
                     //Hm, error out?
@@ -137,15 +131,19 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
             throw new IOException("couldn't talk to form database to install form");
+        } finally {
+            if (existingforms != null) {
+                existingforms.close();
+            }
         }
 
+        if (cpc != null) {
+            cpc.release();
+        }
         
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.resource.installers.FileSystemInstaller#upgrade(org.commcare.resources.model.Resource, org.commcare.resources.model.ResourceTable)
-     */
     @Override
     public boolean upgrade(Resource r) {
         boolean fileUpgrade = super.upgrade(r);
@@ -157,8 +155,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     /**
      * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
      * just changing where the provider points.
-     * 
-     * @return
      */
     private boolean updateFilePath() {
         String localRawUri;
@@ -207,25 +203,19 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         this.namespace = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         this.contentUri = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
@@ -263,7 +253,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
             for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
                 String key = (String)en.nextElement();
-                if(key.indexOf(";") != -1) {
+                if(key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
                     if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
@@ -292,6 +282,4 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if(problems.size() == 0 ) { return false;}
         return true;
     }
-
-
 }

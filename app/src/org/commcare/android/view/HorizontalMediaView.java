@@ -118,7 +118,7 @@ public class HorizontalMediaView extends RelativeLayout {
         File audioFile = new File(audioFilename);
 
         // First set up the audio button
-        if (audioFilename != "" && audioFile.exists()) {
+        if (!"".equals(audioFilename) && audioFile.exists()) {
             // An audio file is specified
             mAudioButton = new AudioButton(getContext(), audioURI, true);
             mAudioButton.setId(3245345); // random ID to be used by the relative layout.
@@ -166,8 +166,6 @@ public class HorizontalMediaView extends RelativeLayout {
 
     /**
      * This adds a divider at the bottom of this layout. Used to separate fields in lists.
-     * 
-     * @param v
      */
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
@@ -190,10 +188,6 @@ public class HorizontalMediaView extends RelativeLayout {
     }
 
 
-    /*
-     * (non-Javadoc)
-     * @see android.view.View#onWindowVisibilityChanged(int)
-     */
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
@@ -203,5 +197,4 @@ public class HorizontalMediaView extends RelativeLayout {
             }
         }
     }
-
 }

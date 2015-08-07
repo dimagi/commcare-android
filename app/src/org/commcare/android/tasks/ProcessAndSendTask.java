@@ -1,14 +1,7 @@
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import javax.crypto.spec.SecretKeySpec;
+import android.content.Context;
+import android.os.AsyncTask;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
@@ -23,19 +16,24 @@ import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCarePlatform;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.os.AsyncTask;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
- *
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
@@ -80,22 +78,17 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_SDCARD_REMOVED = 512;
     
     DataSubmissionListener formSubmissionListener;
-    CommCarePlatform platform;
     private FormRecordProcessor processor;
     
     private static int SUBMISSION_ATTEMPTS = 2;
     
-    
     static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
     
-    private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
-    
-    public ProcessAndSendTask(Context c, String url) throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url) {
         this(c, url, SEND_PHASE_ID, true);
     }
     
-    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) 
-            throws SessionUnavailableException{
+    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) {
         this.c = c;
         this.url = url;
         this.sendTaskId = sendTaskId;
@@ -107,10 +100,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             this.taskId = -1;
         }
     }
-    
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#doInBackground(Params[])
-     */
+
+    @Override
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
@@ -349,9 +340,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
     
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onProgressUpdate(Progress[])
-     */
+    @Override
     protected void onProgressUpdate(Long... values) {
         if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
@@ -383,10 +372,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.formSubmissionListener = submissionListener;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#onPostExecute(java.lang.Object)
-     */
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
@@ -434,9 +419,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();

@@ -1,22 +1,4 @@
-/*
- * Copyright (C) 2009 JavaRosa
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.logic;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Vector;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -34,6 +16,10 @@ import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.WidgetFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
@@ -295,8 +281,6 @@ public class FormController {
      * constraint checking. Only use this if you know what you're doing. For normal form filling you
      * should always use answerQuestion().
      * 
-     * @param index
-     * @param data
      * @return true if saved successfully, false otherwise.
      */
     public boolean saveAnswer(IAnswerData data) {
@@ -456,8 +440,6 @@ public class FormController {
 
     /**
      * Creates a new repeated instance of the group referenced by the current FormIndex.
-     * 
-     * @param questionIndex
      */
     public void newRepeat() {
         mFormEntryController.newRepeat();
@@ -582,9 +564,7 @@ public class FormController {
 
         FormEntryCaption[] v = mFormEntryController.getModel().getCaptionHierarchy();
         FormEntryCaption[] groups = new FormEntryCaption[v.length - lastquestion];
-        for (int i = 0; i < v.length - lastquestion; i++) {
-            groups[i] = v[i];
-        }
+        System.arraycopy(v, 0, groups, 0, v.length - lastquestion);
         return groups;
     }
 

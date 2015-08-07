@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.view;
 
 import android.content.Context;
@@ -13,7 +10,6 @@ import android.widget.TextView;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Text;
 
@@ -23,7 +19,6 @@ import java.util.Hashtable;
 
 /**
  * @author ctsims
- *
  */
 public class IncompleteFormRecordView extends LinearLayout {
     
@@ -62,7 +57,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         rightHandSync = context.getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
     }
 
-    public void setParams(FormRecord record, String dataTitle, Long timestamp) throws SessionUnavailableException{
+    public void setParams(FormRecord record, String dataTitle, Long timestamp) {
         if(names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
             mPrimaryTextView.setText(MarkupUtil.styleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));

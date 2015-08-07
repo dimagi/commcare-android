@@ -1,15 +1,12 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
-import java.util.Iterator;
+import android.database.Cursor;
 
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
 
-import android.database.Cursor;
+import java.util.Iterator;
 
 /**
  * @author ctsims
@@ -56,9 +53,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         }
     }
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#hasMore()
-     */
+    @Override
     public boolean hasMore() {
         if(!c.isClosed()) {
             return !c.isAfterLast();
@@ -73,9 +68,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextID()
-     */
+    @Override
     public int nextID() {
         int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
         c.moveToNext();
@@ -86,9 +79,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         return id;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
-     */
+    @Override
     public T nextRecord() {
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
         
@@ -97,9 +88,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         return storage.newObject(data);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#numRecords()
-     */
+    @Override
     public int numRecords() {
         return count;
     }
@@ -123,9 +112,6 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     //TESTING ONLY
     
-    /* (non-Javadoc)
-     * @see org.javarosa.core.services.storage.IStorageIterator#nextRecord()
-     */
     private byte[] getBlob() {
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
 

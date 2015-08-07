@@ -1,11 +1,12 @@
 package org.commcare.android.fragments;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,10 @@ public class SetupInstallFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
+                Activity currentActivity = getActivity();
+                if (currentActivity instanceof CommCareSetupActivity) {
+                    ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();

@@ -17,10 +17,6 @@ public class RangeXYValueSeries extends XYValueSeries {
         super(title);
     }
         
-    /*
-     * (non-Javadoc)
-     * @see org.achartengine.model.XYValueSeries#getMaxValue()
-     */
     @Override
     public double getMaxValue() {
         return max == null ? super.getMaxValue() : max;

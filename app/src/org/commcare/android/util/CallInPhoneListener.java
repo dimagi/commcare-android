@@ -1,11 +1,18 @@
 package org.commcare.android.util;
 
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.telephony.PhoneNumberUtils;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.util.Pair;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
@@ -19,19 +26,12 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.telephony.PhoneNumberUtils;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
-import android.util.Pair;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -59,10 +59,6 @@ public class CallInPhoneListener extends PhoneStateListener {
 
     static final boolean disabled = true;
 
-    /*
-     * (non-Javadoc)
-     * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-     */
     @Override
     public void onCallStateChanged(int state, String incomingNumber) {
         super.onCallStateChanged(state, incomingNumber);
@@ -93,7 +89,7 @@ public class CallInPhoneListener extends PhoneStateListener {
                     new TimerTask() {
                         int runtimes = 0;
                         public void run() {
-                            if(runtimes > 100 || running == false) {
+                            if(runtimes > 100 || !running) {
                                 this.cancel();
                             } else {
                                 runtimes++;
@@ -108,17 +104,11 @@ public class CallInPhoneListener extends PhoneStateListener {
         if(disabled) {return;}
         AsyncTask<Void, Void, Void> loader = new AsyncTask<Void, Void, Void>() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-             */
             @Override
             protected Void doInBackground(Void... params) {
-                try {
                     synchronized(cachedNumbers) {
                         Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
                         Set<Detail> details = new HashSet<Detail>();
-
 
                         //To fan this out, we first need to find the appropriate long detail screens
                         //then determine what nodeset to use to iterate over it
@@ -176,7 +166,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
                                 TreeReference nodesetSource = detailSources.get(d.getId()).second;
 
-                                Vector<TreeReference> references =ec .expandReference(nodesetSource);
+                                Vector<TreeReference> references = ec.expandReference(nodesetSource);
 
                                 Set<Integer> phoneIds = new HashSet<Integer>();
                                 String[] forms = d.getTemplateForms();
@@ -209,10 +199,6 @@ public class CallInPhoneListener extends PhoneStateListener {
                         Log.d(TAG, "Caching Complete");
                         return null;
                     }
-                } catch(SessionUnavailableException sue) {
-                    //We got logged out in the middle of 
-                    return null;
-                }
             }
 
             private EvaluationContext getEC(String commandId) {

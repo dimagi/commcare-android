@@ -3,10 +3,10 @@
  */
 package org.commcare.android.models.notifications;
 
-import java.util.Date;
-
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+
+import java.util.Date;
 
 /**
  * Static holder for generating notification messages which are common 
@@ -59,7 +59,9 @@ public class NotificationMessageFactory {
         
         /**Could not retrieve Form Result **/
         FormEntry_Unretrievable ("notification.formentry.unretrievable"),
-        
+
+        FormEntry_Save_Error ("notification.formentry.save_error"),
+
         /**In airplane mode while trying to sync**/
         Sync_AirplaneMode("notification.sync.airplane"),
         

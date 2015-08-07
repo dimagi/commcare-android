@@ -1,20 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.MultimediaInflaterTask;
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.utils.UriToFilePath;
-import org.javarosa.core.services.locale.Localization;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -29,15 +14,30 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.MultimediaInflaterTask;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.utils.UriToFilePath;
+import org.javarosa.core.services.locale.Localization;
+
+import java.io.File;
+import java.util.ArrayList;
+
 /**
  * @author ctsims
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> {
+public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
     
-    private static final String LOG_TAG = "CommCare-MultimediaInflator";
+    private static final String LOG_TAG = "CC-MultimediaInflator";
 
     private static final int REQUEST_FILE_LOCATION = 1;
     
@@ -60,9 +60,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
     
     boolean done = false;
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -71,10 +68,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         super.onCreate(savedInstanceState);
         btnFetchFiles.setOnClickListener(new OnClickListener() {
 
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 //Go fetch us a file path!
@@ -90,18 +83,10 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         });
 
         btnInstallMultimedia.setOnClickListener(new OnClickListener() {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v) {
                 MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                     */
                     @Override
                     protected void deliverResult( MultimediaInflaterActivity receiver, Boolean result) {
                         if(result == Boolean.TRUE){
@@ -116,20 +101,12 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
                         }
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(MultimediaInflaterActivity receiver, String... update) {
                         receiver.updateProgress(update[0], CommCareTask.GENERIC_TASK_ID);
                         receiver.txtInteractiveMessages.setText(update[0]);
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
@@ -156,10 +133,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(requestCode == REQUEST_FILE_LOCATION) {
@@ -176,9 +149,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onResume()
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -217,9 +187,6 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         }
     }
     
-    /* (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTaskConnector#taskCancelled(int)
-     */
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
@@ -295,11 +262,7 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
         }
     }
     
-    
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
+    /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */

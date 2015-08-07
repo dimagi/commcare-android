@@ -1,12 +1,5 @@
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
-
 import android.util.Log;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -22,8 +15,6 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -32,8 +23,17 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -50,9 +50,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
     
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#initialize(org.commcare.util.CommCareInstance)
-     */
+    @Override
     public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
         
         try {
@@ -62,10 +60,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
     
             SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(),null) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -104,10 +98,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             
             SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid()) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     return instance.getFixtureStorage();
@@ -143,23 +133,17 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
 
-    /* (non-Javadoc)
-     * @see org.commcare.resources.model.ResourceInstaller#requiresRuntimeInitialization()
-     */
+    @Override
     public boolean requiresRuntimeInitialization() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
     }
 
-    /* (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
     }
@@ -168,19 +152,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try{
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#getFixtureStorage()
-                 */
                 @Override
                 protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
                     //shouldn't be necessary
                     return null;
                 }
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.xml.SuiteParser#inValidationMode()
-                 */
                 @Override
                 protected boolean inValidationMode(){
                     return true;

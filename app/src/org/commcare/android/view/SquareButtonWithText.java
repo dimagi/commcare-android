@@ -2,8 +2,11 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
+import android.util.StateSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,7 +58,7 @@ public class SquareButtonWithText extends RelativeLayout {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
         backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
-        backgroundColor = typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent);
+        backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
         text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
         colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, colorButtonText);
 
@@ -93,7 +96,13 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     public void setColor(int backgroundColor) {
-        squareButton.setBackgroundResource(backgroundColor);
+        // shows a bluish background when pressed, otherwise shows the chosen color
+        ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
+        ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
+        StateListDrawable sld = new StateListDrawable();
+        sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
+        sld.addState(StateSet.WILD_CARD, colorDrawable);
+        squareButton.setBackgroundDrawable(sld);
     }
 
     public void setTextColor(int textColor) {

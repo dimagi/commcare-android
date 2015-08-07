@@ -48,14 +48,6 @@ package org.odk.collect.android.utilities;
  *
  */
 
-import java.security.MessageDigest;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.auth.AUTH;
@@ -70,6 +62,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EncodingUtils;
+
+import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
 
 /**
  * Digest authentication scheme as defined in RFC 2617. Both MD5 (default) and
@@ -126,16 +126,11 @@ public class EnhancedDigestScheme extends RFC2617Scheme {
     }
 
     /**
-     * (non-Javadoc)
-     * @see org.apache.http.impl.auth.AuthSchemeBase#processChallenge(org.apache.http.Header)
-     * 
      * Processes the Digest challenge.
      * 
-     * @param header
-     *            the challenge header
+     * @param header the challenge header
      * 
-     * @throws MalformedChallengeException
-     *             is thrown if the authentication challenge is malformed
+     * @throws MalformedChallengeException is thrown if the authentication challenge is malformed
      */
     @Override
     public void processChallenge(final Header header)

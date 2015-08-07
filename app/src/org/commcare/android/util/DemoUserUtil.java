@@ -3,7 +3,7 @@
  */
 package org.commcare.android.util;
 
-import java.util.Date;
+import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -18,7 +18,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.util.PropertyUtils;
 
-import android.content.Context;
+import java.util.Date;
 
 /**
  * Placeholders for demo user stuff.

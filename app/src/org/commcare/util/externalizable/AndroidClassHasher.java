@@ -2,11 +2,11 @@ package org.commcare.util.externalizable;
 
 import android.util.Log;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author ctsims
@@ -37,10 +37,8 @@ public class AndroidClassHasher implements Hasher {
         synchronized(mMessageDigester) {
              md5 = mMessageDigester.digest(type.getName().getBytes());
         }
-        
-        for (int i = 0; i < hash.length; i++) {
-            hash[i] = md5[i];
-        }
+
+        System.arraycopy(md5, 0, hash, 0, hash.length);
         byte[] badHash = new byte[] {0,4,78,97};
         if(PrototypeFactory.compareHash(badHash, hash)) {
             Log.d(TAG, "BAD CLASS: " + type.getName());

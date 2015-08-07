@@ -1,7 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Date;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +13,8 @@ import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -38,10 +38,6 @@ public class CallOutActivity extends Activity {
     TelephonyManager tManager;
     CallListener listener;
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,10 +148,6 @@ public class CallOutActivity extends Activity {
         long duration;
         boolean finished = false;
 
-        /*
-         * (non-Javadoc)
-         * @see android.telephony.PhoneStateListener#onCallStateChanged(int, java.lang.String)
-         */
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             super.onCallStateChanged(state, incomingNumber);

@@ -1,5 +1,14 @@
 package org.commcare.android.tasks;
 
+import android.util.Log;
+
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -9,19 +18,8 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-
-import android.util.Log;
-
 /**
  * @author ctsims
- *
  */
 public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer, R> {
         
@@ -29,15 +27,13 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         
         public File mFile;
         
-        public UnzipTask() throws SessionUnavailableException{
+        public UnzipTask() {
             Log.d(CommCareWiFiDirectActivity.TAG, "UnZip task constructor");
             this.taskId = UNZIP_TASK_ID;
+
+            TAG = UnzipTask.class.getSimpleName();
         }
 
-        /*
-         * (non-Javadoc)
-         * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-         */
         @Override
         protected Integer doTaskBackground(String... params) {
             

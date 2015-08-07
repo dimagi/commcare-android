@@ -10,8 +10,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
 import org.commcare.android.tasks.DataSubmissionListener;
@@ -31,7 +31,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 
 @ManagedUi(R.layout.connection_diagnostic)
-public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
+public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
@@ -50,32 +50,20 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         
     
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         btnRunTest.setOnClickListener(new OnClickListener() 
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
                 ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
                 new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(
-                        getApplicationContext(), 
+                        getApplicationContext(),
                         CommCareApplication._().getCurrentApp().getCommCarePlatform())
                 {    
-                /*
-                 * (non-Javadoc)
-                 * @see org.commcare.android.tasks.templates.CommCareTask#deliverResult(java.lang.Object, java.lang.Object)
-                 */
                 @Override
                     //<R> receiver, <C> result. 
                     //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
@@ -118,20 +106,12 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                         return;
                     }
 
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverUpdate(java.lang.Object, java.lang.Object[])
-                     */
                     @Override
                     protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) 
                     {
                         receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
                     }
                     
-                    /*
-                     * (non-Javadoc)
-                     * @see org.commcare.android.tasks.templates.CommCareTask#deliverError(java.lang.Object, java.lang.Exception)
-                     */
                     @Override
                     protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e)
                     {
@@ -148,10 +128,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         //Set a button that allows you to change your airplane mode settings
         this.settingsButton.setOnClickListener( new OnClickListener()
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
@@ -161,10 +137,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         
         this.reportButton.setOnClickListener( new OnClickListener()
         {
-            /*
-             * (non-Javadoc)
-             * @see android.view.View.OnClickListener#onClick(android.view.View)
-             */
             @Override
             public void onClick(View v)
             {
@@ -184,7 +156,6 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
                     }
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
-                                    CommCareApplication._(),
                                     true,
                                     dataListener, url);
                     reportSubmitter.execute();
@@ -202,10 +173,7 @@ public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDia
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#generateProgressDialog(int)
-     * 
+    /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */

@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -20,7 +20,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -35,7 +35,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
@@ -67,10 +67,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     @UiElement(value=R.id.entity_detail_tabs)
     TabbedDetailView mDetailView;
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onCreate(android.os.Bundle)
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
@@ -78,7 +74,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
             session = asw.getSession();
-        } catch(SessionUnavailableException sue){
+        } catch(SessionStateUninitException sue) {
             // The user isn't logged in! bounce this back to where we came from
             this.setResult(RESULT_CANCELED, this.getIntent());
             this.finish();
@@ -123,23 +119,19 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
             }
         }
      
-        try {
-            next.setOnClickListener(new OnClickListener() {
-                public void onClick(View v) {
-                    select();
-                }
-            });
-
-            if (mViewMode) {
-                next.setText("Done");
+        next.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                select();
             }
+        });
 
-            mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
-            mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
-        } catch(SessionUnavailableException sue) {
-            //TODO: Login and return to try again
+        if (mViewMode) {
+            next.setText("Done");
         }
-        
+
+        mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+
         mDetailView.setDetail(factory.getDetail());
     }
     
@@ -147,20 +139,12 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         return mEntityContext;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#isTopNavEnabled()
-     */
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
     
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#getActivityTitle()
-     */
     @Override
     public String getActivityTitle() {
         //Skipping this until it's a more general pattern
@@ -181,10 +165,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
     
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch(requestCode) {
@@ -225,10 +205,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onForwardSwipe()
-     */
     @Override
     protected boolean onForwardSwipe() {
         // Move along, provided we're on the last tab of tabbed case details
@@ -239,10 +215,6 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
         return false;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.framework.CommCareActivity#onBackwardSwipe()
-     */
     @Override
     protected boolean onBackwardSwipe() {
         // Move back, provided we're on the first screen of tabbed case details

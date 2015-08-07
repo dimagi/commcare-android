@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
 
     <!-- Text sizes -->
     <dimen name="text_smaller">9dp</dimen>
@@ -19,8 +19,9 @@
     <dimen name="tab_gradient_radius">300dp</dimen>
     
     <dimen name="spacer_small">5dp</dimen>
+    <dimen name="standard_spacer">8dp</dimen>
     <dimen name="spacer">10dp</dimen>
-    
+
     <dimen name="login_box_margins">30dp</dimen>
     
     <!-- Default screen margins, per the Android Design guidelines. -->
@@ -31,6 +32,8 @@
     <dimen name="font_size_medium">15sp</dimen>
     <dimen name="font_size_large">18sp</dimen>
 	<dimen name="font_size_xlarge">21sp</dimen>
+	<dimen name="font_size_xlarger">23sp</dimen>
+	<dimen name="font_size_xlargest">28sp</dimen>
 	
 	<dimen name="cell_padding_vertical">8dp</dimen>
 	<dimen name="cell_padding_horizontal">8dp</dimen>

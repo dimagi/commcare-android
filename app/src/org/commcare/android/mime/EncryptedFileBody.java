@@ -1,5 +1,12 @@
 package org.commcare.android.mime;
 
+import org.apache.http.entity.mime.MIME;
+import org.apache.http.entity.mime.content.AbstractContentBody;
+import org.apache.james.mime4j.message.Entity;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.io.StreamsUtil.OutputIOException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -7,13 +14,6 @@ import java.io.OutputStream;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-
-import org.apache.http.entity.mime.MIME;
-import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.apache.james.mime4j.message.Entity;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.io.StreamsUtil.InputIOException;
-import org.javarosa.core.io.StreamsUtil.OutputIOException;
 
 
 /**
@@ -50,10 +50,6 @@ public class EncryptedFileBody extends AbstractContentBody {
         return MIME.ENC_BINARY;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.apache.james.mime4j.message.SingleBody#writeTo(java.io.OutputStream)
-     */
     @Override
     public void writeTo(OutputStream out) throws IOException {
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since

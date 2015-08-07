@@ -1,18 +1,12 @@
 package org.commcare.android.tasks;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.http.AndroidHttpClient;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -43,8 +37,6 @@ import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.CommCareTransactionParserFactory;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -56,22 +48,28 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.http.AndroidHttpClient;
-import android.util.Log;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.NoSuchElementException;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 /**
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    private static final String TAG = DataPullTask.class.getSimpleName();
-
     String server;
     String keyProvider;
     String username;
@@ -116,7 +114,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
     private InputStream mDebugStream;
 
-    
     public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
         this.server = server;
         this.keyProvider = keyProvider;
@@ -124,27 +121,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         this.password = password;
         this.c = c;
         this.taskId = DATA_PULL_TASK_ID;
+
+        TAG = DataPullTask.class.getSimpleName();
     }
 
-    /* (non-Javadoc)
-     * @see android.os.AsyncTask#onCancelled()
-     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
         if(wasKeyLoggedIn) {
-            try {
-                CommCareApplication._().getSession().closeSession(false);
-            } catch (SessionUnavailableException e) {
-                // if the session isn't available, we don't need to logout
-            }
+            CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.android.tasks.templates.CommCareTask#doTaskBackground(java.lang.Object[])
-     */
     @Override
     protected Integer doTaskBackground(Void... params) {
         // Don't try to sync if logging out is occuring
@@ -188,10 +176,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         
         CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
             boolean publishedAuth = false;
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.xml.CommCareTransactionParserFactory#reportProgress(int)
-             */
             @Override
             public void reportProgress(int progress) {
                 if(!publishedAuth) {
@@ -261,11 +245,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 if(responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return AUTH_FAILED;
@@ -274,7 +254,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().logIn(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
+                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
                         wasKeyLoggedIn = true;
                     }
                     
@@ -340,11 +320,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            try {
-                                CommCareApplication._().getSession().closeSession(false);
-                            } catch (SessionUnavailableException e) {
-                                // if the session isn't available, we don't need to logout
-                            }
+                            CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
@@ -354,30 +330,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //wipe our login if one happened
                         if(loginNeeded) {
-                            try {
-                                CommCareApplication._().getSession().closeSession(false);
-                            } catch (SessionUnavailableException e) {
-                                // if the session isn't available, we don't need to logout
-                            }
+                            CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
                         return UNKNOWN_FAILURE;
                     }
                     
                     if(loginNeeded) {
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                 } else if(responseCode == 500) {
                     if(loginNeeded) {
-                        try {
-                            CommCareApplication._().getSession().closeSession(false);
-                        } catch (SessionUnavailableException e) {
-                            // if the session isn't available, we don't need to logout
-                        }
+                        CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return SERVER_ERROR;
@@ -409,11 +373,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 sue.printStackTrace();
             }
             if(loginNeeded) {
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // if the session isn't available, we don't need to logout
-                }
+                CommCareApplication._().releaseUserResourcesAndServices();
             }
             this.publishProgress(PROGRESS_DONE);
             return responseError;
@@ -427,7 +387,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
      * local cache. Notifies listeners of progress through the download if its
      * size is available.
      *
-     * @param response
      * @throws IOException If there is an issue reading or writing the response.
      */
     private BitCache writeResponseToCache(HttpResponse response) throws IOException {

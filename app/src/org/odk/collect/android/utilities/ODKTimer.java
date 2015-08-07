@@ -1,8 +1,8 @@
 package org.odk.collect.android.utilities;
 
-import org.odk.collect.android.listeners.TimerListener;
-
 import android.os.CountDownTimer;
+
+import org.odk.collect.android.listeners.TimerListener;
 
 /**
  * simple class that calls back to a TimerListener after a set amount of time
@@ -20,20 +20,12 @@ public class ODKTimer extends CountDownTimer{
         mTimerListener = tl;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.CountDownTimer#onFinish()
-     */
     @Override
     public void onFinish() {
         mUntilFinished = 0;
         mTimerListener.notifyTimerFinished();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.os.CountDownTimer#onTick(long)
-     */
     @Override
     public void onTick(long millisUntilFinished) {
         mUntilFinished = millisUntilFinished;
