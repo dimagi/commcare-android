@@ -128,7 +128,7 @@ public class UpgradeTask
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
-                // XXX PLM: Checking phase, I think.
+                platform.prepareUpgradeResources(global, temporary, recovery);
                 // Replaces global table with temporary, or w/ recovery if
                 // something goes wrong
                 platform.upgrade(global, temporary, recovery);

@@ -22,8 +22,8 @@ import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
-import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
+import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -175,7 +175,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!mFromManager && !inUpgradeMode && CommCareApplication._().usableAppsPresent()) {
+        if (!mFromManager && CommCareApplication._().usableAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
