@@ -11,7 +11,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.api.models.EncryptedModel;
-import org.commcare.api.persistence.UserDatabaseHelper;
+import org.commcare.api.persistence.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -22,7 +22,7 @@ import java.util.HashMap;
  * @author ctsims
  *
  */
-public abstract class DbHelper extends UserDatabaseHelper{
+public abstract class DbHelper extends DatabaseHelper {
     
     protected Context c;
     
@@ -34,7 +34,7 @@ public abstract class DbHelper extends UserDatabaseHelper{
 
     public ContentValues getContentValues(Externalizable e){
         ContentValues ret = new ContentValues();
-        HashMap<String, Object> metaFieldsAndValues = UserDatabaseHelper.getMetaFieldsAndValues(e);
+        HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getMetaFieldsAndValues(e);
         for(String key: metaFieldsAndValues.keySet()){
             Object obj = metaFieldsAndValues.get(key);
             if(obj instanceof String){
@@ -52,7 +52,7 @@ public abstract class DbHelper extends UserDatabaseHelper{
     }
 
     public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){
-        org.commcare.api.util.Pair<String, String[]> mPair = UserDatabaseHelper.createWhere(fieldNames, values, em, p);
+        org.commcare.api.util.Pair<String, String[]> mPair = DatabaseHelper.createWhere(fieldNames, values, em, p);
         Pair<String, String[]> returnPair = new Pair<String, String[]>(mPair.first, mPair.second);
         return returnPair;
 
