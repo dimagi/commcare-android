@@ -133,14 +133,15 @@ public class IntentCallout implements Externalizable {
                 }
 
                 for (TreeReference ref : responses.get(key)) {
-                    processResponseItem(ref, responseValue);
+                    processResponseItem(ref, responseValue, destination);
                 }
             }
         }
         return (result != null);
     }
 
-    private void processResponseItem(TreeReference ref, String responseValue) {
+    private void processResponseItem(TreeReference ref, String responseValue,
+                                     File destinationFile) {
         EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
 
         AbstractTreeElement node = context.resolveReference(ref);
@@ -171,7 +172,7 @@ public class IntentCallout implements Externalizable {
                 return;
             }
 
-            File newFile = new File(destination, src.getName());
+            File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
             FileUtils.copyFile(src, newFile);
