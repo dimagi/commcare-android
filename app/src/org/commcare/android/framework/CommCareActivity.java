@@ -716,14 +716,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     public Spannable localize(String key){
-        try {
-            return MarkupUtil.localizeStyleSpannable(this, key);
-        } catch (NoLocalizedTextException nlte) {
-            Log.v(TAG, nlte.toString());
-            return MarkupUtil.styleSpannable(this, key);
-        }
+        return MarkupUtil.localizeStyleSpannable(this, key);
     }
-
+    
     public Spannable localize(String key, String[] args){
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
