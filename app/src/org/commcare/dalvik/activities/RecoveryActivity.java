@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,40 +21,43 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 /**
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
-    
+    public static final String TAG = RecoveryActivity.class.getSimpleName();
+
     private static final int SEND_TASK_ID = 100;
     private static final int RECOVER_TASK_ID = 101;
 
     @UiElement(R.id.screen_recovery_unsent_message)
     TextView txtUnsentForms;
-    
+
     @UiElement(R.id.screen_recovery_unsent_button)
     Button sendForms;
-    
+
     @UiElement(R.id.screen_recovery_app_install_message)
     TextView appState;
     @UiElement(R.id.screen_recovery_app_install_button)
     Button btnRecoverApp;
-    
+
     @UiElement(R.id.screen_recovery_progress)
     TextView txtUserMessage;
-    
-    
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         if(this.getDestroyedActivityState() != null) {
             //We just rotated or whatever, don't re-initialize everything
         } else {
@@ -153,6 +158,16 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     public void stopBlockingForTask(int id) {
         updateSendFormsState();
         updateRecoverAppState();
+    }
+
+    @Override
+    public Spannable localize(String key) {
+        try {
+            return MarkupUtil.localizeStyleSpannable(this, key);
+        } catch (NoLocalizedTextException nlte) {
+            Log.v(TAG, nlte.toString());
+            return MarkupUtil.styleSpannable(this, key);
+        }
     }
 
     private void updateRecoverAppState() {
