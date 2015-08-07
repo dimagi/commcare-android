@@ -1,6 +1,6 @@
 package org.commcare.util.externalizable;
 
-import org.javarosa.core.util.externalizable.DefaultHasher;
+import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.security.MessageDigest;
@@ -9,9 +9,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author ctsims
  */
-public class AndroidClassHasher extends DefaultHasher {
-
-    private static final String TAG = AndroidClassHasher.class.getSimpleName();
+public class AndroidClassHasher extends Hasher {
 
     private static final int CLASS_HASH_SIZE = 4;
 

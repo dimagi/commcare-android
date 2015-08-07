@@ -6,23 +6,30 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.util.Hashtable;
 
 /**
- * @author ctsims
+ * This class overrides the core PrototypeFactory class primarily because we
+ * can store our Android hashes as an int and thus store them in a map for faster lookups. Most
+ * other functionality is the same, except we override how we store and retrieve hashes
+ * so that we can use the Map.
  *
+ * @author ctsims
+ * @author wspride
  */
-public class ImprovedPrototypeFactory extends PrototypeFactory {
+public class AndroidPrototypeFactory extends PrototypeFactory {
     
     Hashtable<Integer, Class> prototypes;
     
-    public ImprovedPrototypeFactory (PrefixTree classNames) {
+    public AndroidPrototypeFactory(PrefixTree classNames) {
         super(new AndroidClassHasher(), classNames);
     }
 
+    @Override
     protected void lazyInit() {
         initialized = false;
         prototypes = new Hashtable<Integer, Class>();
         super.lazyInit();
     }
-    
+
+
     private Integer getHash(byte[] hash) {
         return Integer.valueOf((hash[3] << 0) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24));
     }
@@ -35,6 +42,7 @@ public class ImprovedPrototypeFactory extends PrototypeFactory {
         return prototypes.get(getHash(hash));
     }
 
+    @Override
     public void storeHash(Class c, byte[] hash){
         prototypes.put(getHash(hash), c);
     }
