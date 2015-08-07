@@ -36,6 +36,7 @@ dependencies {
     compile project(':commcare')
 
     compile project(':libraries:mapballoons')
+    compile project(':libraries:achartengine')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
     compile 'com.android.support:support-v4:22.1.1'
@@ -113,9 +114,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    def sourceLocations = ['app/src'
-                           , 'libraries/achartengine/achartengine/src'
-                          ]
+    def sourceLocations = ['app/src']
 
     sourceSets {
       main {
