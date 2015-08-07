@@ -18,6 +18,7 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.ExtWrapList;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -29,6 +30,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -41,7 +43,7 @@ public class IntentCallout implements Externalizable {
     private String className;
     private Hashtable<String, TreeReference> refs;
     
-    private Hashtable<String, TreeReference> responses;
+    private Hashtable<String, ArrayList<TreeReference>> responses;
     
     private FormDef form;
     
@@ -59,8 +61,9 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
     
-    public IntentCallout(String className, Hashtable<String, TreeReference> refs, Hashtable<String, TreeReference> responses, 
-            String type, String component, String data, String buttonLabel, String appearance) {
+    public IntentCallout(String className, Hashtable<String, TreeReference> refs,
+                         Hashtable<String, ArrayList<TreeReference>> responses, String type,
+                         String component, String data, String buttonLabel,String appearance) {
         
         this.className = className;
         this.refs = refs;
@@ -126,70 +129,70 @@ public class IntentCallout implements Externalizable {
                     key = "";
                 }
 
-                //Figure out where it's going
-                TreeReference ref = responses.get(key);
+                for (TreeReference ref : responses.get(key)) {
+                    //Figure out where it's going
+                    EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
 
-                EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
+                    AbstractTreeElement node = context.resolveReference(ref);
 
-                AbstractTreeElement node = context.resolveReference(ref);
+                    if (node == null) {
+                        continue;
+                    }
+                    int dataType = node.getDataType();
 
-                if (node == null) {
-                    continue;
+                    //TODO: Handle file system errors in a way that is more visible to the user
+
+                    //See if this is binary data and we'll have to do something complex...
+                    if (dataType == Constants.DATATYPE_BINARY) {
+                        //We need to copy the binary data at this address into the appropriate location
+                        if (responseValue == null || responseValue.equals("")) {
+                            //If the response was blank, wipe out any data that was present before
+                            form.setValue(null, ref);
+                            continue;
+                        }
+
+                        //Otherwise, grab that file
+                        File src = new File(responseValue);
+                        if (!src.exists()) {
+                            //TODO: How hard should we be failing here?
+                            Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+                            //Wipe out any reference that exists
+                            form.setValue(null, ref);
+                            continue;
+                        }
+
+                        File newFile = new File(destination, src.getName());
+
+                        //Looks like our source file exists, so let's go grab it
+                        FileUtils.copyFile(src, newFile);
+
+                        //That code throws no errors, so we have to manually check whether the copy worked.
+                        if (newFile.exists() && newFile.length() == src.length()) {
+                            form.setValue(new StringData(newFile.toString()), ref);
+                            continue;
+                        } else {
+                            Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
+                            form.setValue(null, ref);
+                            continue;
+                        }
+                    }
+
+                    //otherwise, just load it up
+                    IAnswerData val = Recalculate.wrapData(responseValue, dataType);
+
+                    form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
                 }
-                int dataType = node.getDataType();
-
-                //TODO: Handle file system errors in a way that is more visible to the user
-
-                //See if this is binary data and we'll have to do something complex...
-                if (dataType == Constants.DATATYPE_BINARY) {
-                    //We need to copy the binary data at this address into the appropriate location
-                    if (responseValue == null || responseValue.equals("")) {
-                        //If the response was blank, wipe out any data that was present before
-                        form.setValue(null, ref);
-                        continue;
-                    }
-
-                    //Otherwise, grab that file
-                    File src = new File(responseValue);
-                    if (!src.exists()) {
-                        //TODO: How hard should we be failing here?
-                        Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
-                        //Wipe out any reference that exists
-                        form.setValue(null, ref);
-                        continue;
-                    }
-
-                    File newFile = new File(destination, src.getName());
-
-                    //Looks like our source file exists, so let's go grab it
-                    FileUtils.copyFile(src, newFile);
-
-                    //That code throws no errors, so we have to manually check whether the copy worked.
-                    if (newFile.exists() && newFile.length() == src.length()) {
-                        form.setValue(new StringData(newFile.toString()), ref);
-                        continue;
-                    } else {
-                        Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
-                        form.setValue(null, ref);
-                        continue;
-                    }
-                }
-
-                //otherwise, just load it up
-                IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-
-                form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
             }
         }
-        if(result == null){return false;}
-        return true;
+        return (result != null);
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
-        responses = (Hashtable<String, TreeReference>)ExtUtil.read(in, new ExtWrapMap(String.class, TreeReference.class), pf);
+        responses = (Hashtable<String, ArrayList<TreeReference>>)
+                ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapList(TreeReference.class)), pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
