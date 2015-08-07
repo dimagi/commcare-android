@@ -470,6 +470,7 @@ public class InstanceProvider extends ContentProvider {
                 } catch (Exception e) {
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                    throw new RuntimeException(e);
                 }
             }
         }
