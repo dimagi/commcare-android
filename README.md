@@ -28,3 +28,20 @@ git clone https://github.com/dimagi/javarosa.git
   (this just declines Android Studio's overzealous offer to do some automatic stuff we don't want)
 - Click "Cancel" on the Import Gradle Project popup (also just declining something automatic that we don't want)
 - Wait while Android Studio spins its wheels
+
+## Running CommCare ODK
+
+Now you're basically ready to go. To build CommCare ODK and get it running on your phone,
+plug in an android phone that
+
+- is [in developer mode has USB debugging enabled](https://developer.android.com/tools/device.html#setting-up)
+- doesn't have CommCare ODK installed on it
+
+Alternatively, you can resign yourself to using the android emulator on your computer,
+but that will be a less pleasurable experience.
+
+In Android Studio, hit the build button (a green "play" symbol in the toolbar).
+The first build will take a minute.
+Then it'll ask you what device to run it on; select your device (or the emulator).
+
+Enjoy!
