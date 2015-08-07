@@ -125,6 +125,7 @@ public class UpgradeTask
                     temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
                 if (!newProfile.isNewer(profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                    temporary.destroy();
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
