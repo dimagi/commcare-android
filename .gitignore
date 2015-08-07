@@ -42,3 +42,4 @@ app/libs/javarosa-libraries.jar
 build/
 libraries/achartengine/build/
 libraries/mapballoons/build/
+*.db
