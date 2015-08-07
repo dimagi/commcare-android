@@ -178,23 +178,16 @@ public class AndroidSessionWrapper {
 
         // save the updated form record
         try {
-            FormRecord updated = FormRecordCleanupTask.getUpdatedRecord(CommCareApplication._(), platform, current, recordStatus);
-
-            SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-            storage.write(updated);
-
-            return updated;
+            return FormRecordCleanupTask.updateAndWriteRecord(CommCareApplication._(),
+                    platform, current, recordStatus,
+                    CommCareApplication._().getUserStorage(FormRecord.class));
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
             throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");
-        } catch (IOException e1) {
+        } catch (XmlPullParserException | IOException e) {
+            e.printStackTrace();
             throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
-        } catch (XmlPullParserException e1) {
-            e1.printStackTrace();
-            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
-        } catch (UnfullfilledRequirementsException e1) {
-            throw new RuntimeException(e1);
-        } catch (StorageFullException e) {
+        } catch (StorageFullException | UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
     }

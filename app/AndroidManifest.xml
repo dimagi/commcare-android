@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.commcare.dalvik"
-    android:versionCode="106"
-    android:versionName="2.22" >
+          xmlns:tools="http://schemas.android.com/tools"
+          package="org.commcare.dalvik"
+          android:versionCode="106"
+          android:versionName="2.22">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -22,6 +23,8 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- for call log -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
 
     <!-- Start COllect Permissions -->
 
@@ -57,6 +60,7 @@
     </permission>
 
     <application
+        tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
@@ -75,7 +79,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
@@ -84,11 +88,11 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
@@ -216,7 +220,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
-        
+
         <activity-alias
             android:name=".application.ManagerGenerator"
             android:label="App Manager"
@@ -349,13 +353,23 @@
         <activity android:name=".activities.CommCareFormDumpActivity"
                   android:windowSoftInputMode="adjustPan" >
         </activity>
-        <activity android:name=".activities.ConnectionDiagnosticActivity" >
+        <activity android:name=".activities.ConnectionDiagnosticActivity"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
         <activity android:name=".activities.RecoveryActivity" >
         </activity>
         <activity android:name=".preferences.DeveloperPreferences" >
+        </activity>
+        <activity
+            android:name=".activities.TemplatePrinterActivity"
+            android:theme="@style/Theme.Dialog.NoTitle" >
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.action.PRINT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- Start Collect Manifest -->

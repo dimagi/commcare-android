@@ -291,6 +291,25 @@ multiple.apps.unverified.message=All of your available apps are missing their as
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
 
+no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
+print.error=There was an error while printing. Please try again.
+print.io.error=There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance
+print.not.supported=This device does not support printing at this time.
+printjob.started=Your print job is starting
+printjob.queued=Your print job is queued
+printjob.not.started=No print job was started
+printjob.blocked=Your print job is currently blocked. Please wait or check the printer, and try again.
+printing.done=Printing done successfully
+print.dialog.title=Print Job Status
+template.warning=A print template must have extension .html. Please choose a different file
+template.invalid=The template file set for your print job is invalid. Please ask a supervisor for assistance.
+template.not.set=No template file was set
+template.success=Template set successfully!
+missing.template.file=No template file has been set for your print job. Please ask a supervisor to assist you in setting one.
+template.malformed.mustache=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '{'/'}' characters near the section: ${0}
+template.malformed.chevron=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '<'/'>' characters near the section: ${0}
+cannot.set.template=Could not set your print template
+no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 
 #Add new localization strings here
 
@@ -389,6 +408,10 @@ notification.logger.error.detail=CommCare ran into an error trying to submit you
 notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
 notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.
+
+notification.formentry.save_error.title=Error Saving your Form
+notification.formentry.save_error.detail=CommCare ran into an error while processing your form, due to a problem with the form definition. The form structure needs to be updated, and it is unlikely you can fix this error on the phone. You should cancel form entry until the problem is addressed.
+notification.formentry.save_error.action=The error that occured was:\n${0}
 
 notification.processing.badstructure.title=Problem with your App
 notification.processing.badstructure.detail=CommCare couldn't process a form you completed because it contains invalid information.
