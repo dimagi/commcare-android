@@ -14,6 +14,7 @@ import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.kdom.Element;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 /**
@@ -46,7 +47,7 @@ public class IntentExtensionParser implements IElementHandler {
         String label = e.getAttributeValue(null, "button-label");
 
         Hashtable<String, XPathExpression> extras = new Hashtable<String, XPathExpression>();
-        Hashtable<String, TreeReference> response = new Hashtable<String, TreeReference>();
+        Hashtable<String, ArrayList<TreeReference>> response = new Hashtable<>();
 
         for(int i = 0; i < e.getChildCount(); ++i) {
             if(e.getType(i) == Element.ELEMENT) {
@@ -62,9 +63,12 @@ public class IntentExtensionParser implements IElementHandler {
                     } else if(child.getName().equals(RESPONSE)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
+                        if (response.get(key) == null) {
+                            response.put(key, new ArrayList<TreeReference>());
+                        }
+                        response.get(key).add((TreeReference)new XPathReference(ref).getReference());
 
-                        response.put(key, (TreeReference)new XPathReference(ref).getReference());
-                    } 
+                    }
                 }
                 catch(XPathSyntaxException xptm){
                     throw new XFormParseException("Error parsing Intent Extra: " + xptm.getMessage(), e);
