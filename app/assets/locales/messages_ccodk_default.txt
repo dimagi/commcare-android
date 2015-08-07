@@ -291,6 +291,25 @@ multiple.apps.unverified.message=All of your available apps are missing their as
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
 
+no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
+print.error=There was an error while printing. Please try again.
+print.io.error=There was an error reading or writing your file for printing. This may be due to an error in your template. Please see a supervisor for assistance
+print.not.supported=This device does not support printing at this time.
+printjob.started=Your print job is starting
+printjob.queued=Your print job is queued
+printjob.not.started=No print job was started
+printjob.blocked=Your print job is currently blocked. Please wait or check the printer, and try again.
+printing.done=Printing done successfully
+print.dialog.title=Print Job Status
+template.warning=A print template must have extension .html. Please choose a different file
+template.invalid=The template file set for your print job is invalid. Please ask a supervisor for assistance.
+template.not.set=No template file was set
+template.success=Template set successfully!
+missing.template.file=No template file has been set for your print job. Please ask a supervisor to assist you in setting one.
+template.malformed.mustache=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '{'/'}' characters near the section: ${0}
+template.malformed.chevron=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '<'/'>' characters near the section: ${0}
+cannot.set.template=Could not set your print template
+no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 
 #Add new localization strings here
 

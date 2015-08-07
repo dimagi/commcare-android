@@ -52,4 +52,9 @@
 	</style>
 	
 	<style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
+    
+    <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    
 </resources>

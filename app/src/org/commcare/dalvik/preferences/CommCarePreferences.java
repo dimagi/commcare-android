@@ -17,13 +17,16 @@
 package org.commcare.dalvik.preferences;
 
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.view.Menu;
@@ -33,9 +36,11 @@ import android.widget.Toast;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
+import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -97,6 +102,12 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     private static final int RECOVERY_MODE = Menu.FIRST + 3;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
 
+    // Fields for setting print template
+    private static final int REQUEST_TEMPLATE = 0;
+    public final static String PRINT_DOC_LOCATION = "print_doc_location";
+    private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
+
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +127,45 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
+
+        //Set an OnPreferenceClickListener for Print doc location
+        Preference pref = prefMgr.findPreference(PREF_MANAGER_PRINT_KEY);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (preference.getKey().equals(PREF_MANAGER_PRINT_KEY)) {
+                    startFileBrowser();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_TEMPLATE) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri uri = data.getData();
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
+                String extension = TemplatePrinterUtils.getExtension(filePath);
+                if (extension.equalsIgnoreCase("html")) {
+                    SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
+                            getAppPreferences().edit();
+                    editor.putString(PRINT_DOC_LOCATION, filePath);
+                    editor.commit();
+                    Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
+                } else {
+                    TemplatePrinterUtils.showAlertDialog(this, Localization.get("template.not.set"),
+                            Localization.get("template.warning"), false);
+                }
+            } else {
+                //No file selected
+                Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     @Override
@@ -283,6 +333,20 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
             } catch (NoLocalizedTextException nle) {
 
             }
+        }
+    }
+
+    private void startFileBrowser() {
+        Intent chooseTemplateIntent = new Intent()
+                .setAction(Intent.ACTION_GET_CONTENT)
+                .setType("file/*")
+                .addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            startActivityForResult(chooseTemplateIntent, REQUEST_TEMPLATE);
+        } catch (ActivityNotFoundException e) {
+            // Means that there is no file browser installed on the device
+            TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
+                    Localization.get("no.file.browser"), false);
         }
     }
 
