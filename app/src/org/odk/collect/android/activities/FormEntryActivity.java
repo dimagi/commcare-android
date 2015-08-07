@@ -96,6 +96,7 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -623,8 +624,24 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 refreshCurrentView(false);
                 break;
         }
+        mFormController.setPendingCalloutFormIndex(null);
     }
-    
+
+    private IntentWidget tryToGetIntentWidget() {
+        IntentWidget bestMatch = null;
+
+        //Ugh, copied from the odkview mostly, that's stupid
+        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+            //Figure out if we have a pending intent widget
+            if (q instanceof IntentWidget) {
+                if(((IntentWidget) q).isWaitingForBinaryData() || bestMatch == null) {
+                    bestMatch = (IntentWidget)q;
+                }
+            }
+        }
+        return bestMatch;
+    }
+
     private void processIntentResponse(Intent response){
         processIntentResponse(response, false);
     }
@@ -637,17 +654,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         //We need to go grab our intent callout object to process the results here
         
-        IntentWidget bestMatch = null;
-        
-        //Ugh, copied from the odkview mostly, that's stupid
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            //Figure out if we have a pending intent widget
-            if (q instanceof IntentWidget) {
-                if(((IntentWidget) q).isWaitingForBinaryData() || bestMatch == null) {
-                    bestMatch = (IntentWidget)q;
-                }
-            }
-        }
+        IntentWidget bestMatch = tryToGetIntentWidget();
         
         if(bestMatch != null) {
             //Set our instance destination for binary data if needed
@@ -657,9 +664,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             IntentCallout ic = bestMatch.getIntentCallout();
             
             quick = "quick".equals(ic.getAppearance());
-            
+            if (mFormController.getPendingCalloutFormIndex() != null) {
+                TreeReference context = mFormController.getPendingCalloutFormIndex().getReference();
+            }
             //And process it 
-            advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            advance = ic.processResponse(
+                    response, (ODKView) mCurrentView, mFormController.getInstance(),
+                    mFormController.getFormIndex().getReference(), new File(destination));
             
             ic.setCancelled(cancelled);
             

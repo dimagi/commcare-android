@@ -106,7 +106,8 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
-    public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance, File destination) {
+    public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance,
+                                   TreeReference context, File destination) {
         
         if(intent == null){
             return false;
@@ -133,7 +134,7 @@ public class IntentCallout implements Externalizable {
                 }
 
                 for (TreeReference ref : responses.get(key)) {
-                    processResponseItem(ref, responseValue, destination);
+                    processResponseItem(ref, responseValue, context, destination);
                 }
             }
         }
@@ -141,9 +142,8 @@ public class IntentCallout implements Externalizable {
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
-                                     File destinationFile) {
-        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
-
+                                     TreeReference contextRef,  File destinationFile) {
+        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
         AbstractTreeElement node = context.resolveReference(ref);
 
         if (node == null) {
