@@ -18,6 +18,7 @@ commcare-odk-test/gen/*
 *.orig
 *.swp
 *.iml
+*.db
 *.properties
 .hg*
 .svn*
