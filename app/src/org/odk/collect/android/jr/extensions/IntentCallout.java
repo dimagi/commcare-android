@@ -105,7 +105,7 @@ public class IntentCallout implements Externalizable {
         }
         return i;
     }
-    
+
     public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance, File destination) {
         
         if(intent == null){
@@ -133,61 +133,64 @@ public class IntentCallout implements Externalizable {
                 }
 
                 for (TreeReference ref : responses.get(key)) {
-                    //Figure out where it's going
-                    EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
-
-                    AbstractTreeElement node = context.resolveReference(ref);
-
-                    if (node == null) {
-                        continue;
-                    }
-                    int dataType = node.getDataType();
-
-                    //TODO: Handle file system errors in a way that is more visible to the user
-
-                    //See if this is binary data and we'll have to do something complex...
-                    if (dataType == Constants.DATATYPE_BINARY) {
-                        //We need to copy the binary data at this address into the appropriate location
-                        if (responseValue == null || responseValue.equals("")) {
-                            //If the response was blank, wipe out any data that was present before
-                            form.setValue(null, ref);
-                            continue;
-                        }
-
-                        //Otherwise, grab that file
-                        File src = new File(responseValue);
-                        if (!src.exists()) {
-                            //TODO: How hard should we be failing here?
-                            Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
-                            //Wipe out any reference that exists
-                            form.setValue(null, ref);
-                            continue;
-                        }
-
-                        File newFile = new File(destination, src.getName());
-
-                        //Looks like our source file exists, so let's go grab it
-                        FileUtils.copyFile(src, newFile);
-
-                        //That code throws no errors, so we have to manually check whether the copy worked.
-                        if (newFile.exists() && newFile.length() == src.length()) {
-                            form.setValue(new StringData(newFile.toString()), ref);
-                            continue;
-                        } else {
-                            Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
-                            form.setValue(null, ref);
-                            continue;
-                        }
-                    }
-
-                    //otherwise, just load it up
-                    IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-
-                    form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
+                    processResponseItem(ref, responseValue);
                 }
             }
         }
         return (result != null);
+    }
+
+    private void processResponseItem(TreeReference ref, String responseValue) {
+        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
+
+        AbstractTreeElement node = context.resolveReference(ref);
+
+        if (node == null) {
+            return;
+        }
+        int dataType = node.getDataType();
+
+        //TODO: Handle file system errors in a way that is more visible to the user
+
+        //See if this is binary data and we'll have to do something complex...
+        if (dataType == Constants.DATATYPE_BINARY) {
+            //We need to copy the binary data at this address into the appropriate location
+            if (responseValue == null || responseValue.equals("")) {
+                //If the response was blank, wipe out any data that was present before
+                form.setValue(null, ref);
+                return;
+            }
+
+            //Otherwise, grab that file
+            File src = new File(responseValue);
+            if (!src.exists()) {
+                //TODO: How hard should we be failing here?
+                Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+                //Wipe out any reference that exists
+                form.setValue(null, ref);
+                return;
+            }
+
+            File newFile = new File(destination, src.getName());
+
+            //Looks like our source file exists, so let's go grab it
+            FileUtils.copyFile(src, newFile);
+
+            //That code throws no errors, so we have to manually check whether the copy worked.
+            if (newFile.exists() && newFile.length() == src.length()) {
+                form.setValue(new StringData(newFile.toString()), ref);
+                return;
+            } else {
+                Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
+                form.setValue(null, ref);
+                return;
+            }
+        }
+
+        //otherwise, just load it up
+        IAnswerData val = Recalculate.wrapData(responseValue, dataType);
+
+        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
     }
 
     @Override
