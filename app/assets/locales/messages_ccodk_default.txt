@@ -451,6 +451,7 @@ problem.report.menuitem=Report Problem
 verification.title=Verifying Multimedia
 verification.checking=Verifying...
 verification.progress=Checked ${0} out of ${1} resources
+verification.success.message=Application's multimedia completely installed
 verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.
 
 wifi.direct.base.folder=wifidirect
