@@ -353,7 +353,8 @@
         <activity android:name=".activities.CommCareFormDumpActivity"
                   android:windowSoftInputMode="adjustPan" >
         </activity>
-        <activity android:name=".activities.ConnectionDiagnosticActivity" >
+        <activity android:name=".activities.ConnectionDiagnosticActivity"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
