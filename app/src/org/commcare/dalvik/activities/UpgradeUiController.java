@@ -7,6 +7,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
 
 /**
@@ -78,6 +79,7 @@ class UpgradeUiController {
         installUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                InstallAndUpdateUtils.performUpgradeFromStagedTable();
             }
         });
     }
@@ -99,15 +101,11 @@ class UpgradeUiController {
     }
 
     protected void pendingUpgradeOrIdle() {
-        if (downloadedUpgradePresent()) {
+        if (InstallAndUpdateUtils.isUpgradeInstallReady()) {
             setUnappliedInstallButtonState();
         } else {
             setIdleButtonState();
         }
-    }
-
-    private boolean downloadedUpgradePresent() {
-        return false;
     }
 
     protected void setIdleButtonState() {

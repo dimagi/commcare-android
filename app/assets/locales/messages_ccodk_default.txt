@@ -377,6 +377,9 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
 
+notification.install.updatestaged.title=CommCare update ready to install
+notification.install.updatestaged.detail=A newer version of CommCare is ready to install on next login
+
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
 

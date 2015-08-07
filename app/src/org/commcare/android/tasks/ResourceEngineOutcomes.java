@@ -39,6 +39,11 @@ public enum ResourceEngineOutcomes implements MessageTag {
     StatusNoLocalStorage("notification.install.nolocal"),
 
     /**
+     * Update has been downloaded into update table
+     */
+    StatusUpdateStaged("notification.install.updatestaged"),
+
+    /**
      * Install is fine
      */
     StatusUpToDate("notification.install.uptodate"),

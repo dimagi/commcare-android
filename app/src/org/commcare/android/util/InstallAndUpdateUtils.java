@@ -8,6 +8,7 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.services.Logger;
 
@@ -20,39 +21,35 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class InstallAndUpdateUtils {
-    public static void recordUpdateAttempt(SharedPreferences prefs) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
-        editor.commit();
-    }
+    public static void performUpgradeFromStagedTable() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        app.setupSandbox();
 
-    private static void updateProfileRef(SharedPreferences prefs, String authRef, String profileRef) {
-        SharedPreferences.Editor edit = prefs.edit();
-        if (authRef != null) {
-            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, authRef);
-        } else {
-            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
+        AndroidCommCarePlatform platform = app.getCommCarePlatform();
+        ResourceTable global = platform.getGlobalResourceTable();
+        ResourceTable temporary = platform.getUpgradeResourceTable();
+        ResourceTable recovery = platform.getRecoveryTable();
+
+        if (!isUpgradeInstallReady()) {
+            return;
         }
-        edit.commit();
-    }
 
-    public static boolean isBadCertificateError(UnresolvedResourceException e) {
-        Throwable mExceptionCause = e.getCause();
-
-        if (mExceptionCause instanceof SSLHandshakeException) {
-            Throwable mSecondExceptionCause = mExceptionCause.getCause();
-            if (mSecondExceptionCause instanceof CertificateException) {
-                return true;
-            }
+        try {
+            // Replaces global table with temporary, or w/ recovery if
+            // something goes wrong
+            platform.upgrade(global, temporary, recovery);
+        } catch (UnresolvedResourceException e) {
         }
-        return false;
+        String profileRef = null;
+        initAndCommitApp(app, profileRef);
     }
 
-    public static void logInstallError(Exception e, String logMessage) {
-        e.printStackTrace();
+    public static boolean isUpgradeInstallReady() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
-        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                logMessage + e.getMessage());
+        ResourceTable temporary = platform.getUpgradeResourceTable();
+        return (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE);
     }
 
     public static void initAndCommitApp(CommCareApp app,
@@ -71,6 +68,16 @@ public class InstallAndUpdateUtils {
         updateProfileRef(app.getAppPreferences(), authRef, profileRef);
     }
 
+    private static void updateProfileRef(SharedPreferences prefs, String authRef, String profileRef) {
+        SharedPreferences.Editor edit = prefs.edit();
+        if (authRef != null) {
+            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, authRef);
+        } else {
+            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
+        }
+        edit.commit();
+    }
+
     public static ResourceEngineOutcomes processUnresolvedResource(UnresolvedResourceException e) {
         // couldn't find a resource, which isn't good.
         e.printStackTrace();
@@ -87,6 +94,30 @@ public class InstallAndUpdateUtils {
         } else {
             return ResourceEngineOutcomes.StatusMissing;
         }
+    }
 
+    public static boolean isBadCertificateError(UnresolvedResourceException e) {
+        Throwable mExceptionCause = e.getCause();
+
+        if (mExceptionCause instanceof SSLHandshakeException) {
+            Throwable mSecondExceptionCause = mExceptionCause.getCause();
+            if (mSecondExceptionCause instanceof CertificateException) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void recordUpdateAttempt(SharedPreferences prefs) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
+        editor.commit();
+    }
+
+    public static void logInstallError(Exception e, String logMessage) {
+        e.printStackTrace();
+
+        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                logMessage + e.getMessage());
     }
 }

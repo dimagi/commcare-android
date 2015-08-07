@@ -129,9 +129,6 @@ public class UpgradeTask
                 }
 
                 platform.prepareUpgradeResources(global, temporary, recovery);
-                // Replaces global table with temporary, or w/ recovery if
-                // something goes wrong
-                platform.upgrade(global, temporary, recovery);
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -148,9 +145,7 @@ public class UpgradeTask
                 return InstallAndUpdateUtils.processUnresolvedResource(e);
             }
 
-            InstallAndUpdateUtils.initAndCommitApp(app, profileRef);
-
-            return ResourceEngineOutcomes.StatusInstalled;
+            return ResourceEngineOutcomes.StatusUpdateStaged;
         } catch (Exception e) {
             InstallAndUpdateUtils.logInstallError(e,
                     "Unknown error ocurred during install|");

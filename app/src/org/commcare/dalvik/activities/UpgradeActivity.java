@@ -46,12 +46,6 @@ public class UpgradeActivity extends CommCareActivity
         loadSaveInstanceState(savedInstanceState);
 
         setupUpgradeTask();
-
-        if (ConnectivityStatus.isNetworkNotConnected(this) &&
-                ConnectivityStatus.isAirplaneModeOn(this)) {
-            // CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
-            return;
-        }
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -78,6 +72,13 @@ public class UpgradeActivity extends CommCareActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (ConnectivityStatus.isNetworkNotConnected(this) &&
+                ConnectivityStatus.isAirplaneModeOn(this)) {
+            // TODO
+            uiController.setErrorButtonState();
+            return;
+        }
 
         int currentProgress = 0;
         int maxProgress = 0;
@@ -133,7 +134,7 @@ public class UpgradeActivity extends CommCareActivity
 
     @Override
     public void processTaskResult(ResourceEngineOutcomes result) {
-        if (result == ResourceEngineOutcomes.StatusInstalled) {
+        if (result == ResourceEngineOutcomes.StatusUpdateStaged) {
             uiController.setUnappliedInstallButtonState();
         } else {
             uiController.setIdleButtonState();
