@@ -18,6 +18,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
+import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -468,8 +470,13 @@ public class InstanceProvider extends ContentProvider {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
                 } catch (Exception e) {
+                    NotificationMessage message =
+                            NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
+                                    new String[]{null, null, e.getMessage()});
+                    CommCareApplication._().reportNotificationMessage(message);
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                             "Error processing form. Should be recaptured during async processing: " + e.getMessage());
+                    throw new RuntimeException(e);
                 }
             }
         }
