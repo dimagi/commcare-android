@@ -92,7 +92,7 @@
         <activity
             android:name=".activities.LoginActivity"
             android:label="@string/application_name"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
