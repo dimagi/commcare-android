@@ -409,6 +409,10 @@ notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
 notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.
 
+notification.formentry.save_error.title=Form Saving Failed
+notification.formentry.save_error.detail=The following error occurred while saving the form:
+notification.formentry.save_error.action=${0}
+
 notification.processing.badstructure.title=Problem with your App
 notification.processing.badstructure.detail=CommCare couldn't process a form you completed because it contains invalid information.
 notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. If you were completing an incomplete form, that Form's data had become invalid and the form couldn't be used. Otherwise, please contact a supervisor or tech support. The error will be sent to your submission server as a log.
