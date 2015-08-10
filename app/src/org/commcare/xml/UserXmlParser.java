@@ -5,6 +5,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -38,8 +39,10 @@ public class UserXmlParser extends TransactionParser<User> {
         
         this.nextTag("uuid");
         String uuid = parser.nextText();
-        
+
         this.nextTag("date");
+        String dateModified = parser.nextText();
+        DateUtils.parseDateTime(dateModified);
 
         User u;
         try {
