@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.activities;
 
 import android.annotation.SuppressLint;
@@ -178,18 +164,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-
+    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
-    
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
-    
     public static final String KEY_HEADER_STRING = "form_header";
-    
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
-    
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
-    
     public static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
 
     /**
@@ -246,7 +227,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     
     // Was the form saved? Used to set activity return code.
     public boolean hasSaved = false;
-    
+
     private BroadcastReceiver mNoGPSReceiver;
 
     // marked true if we are in the process of saving a form because the user
@@ -262,16 +243,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        try {
-            // CommCareSessionService will call this.formSaveCallback when the
-            // key session is closing down and we need to save any intermediate
-            // results before they become un-saveable.
-            CommCareApplication._().getSession().registerFormSaveCallback(this);
-        } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Couldn't register form save callback because session doesn't exist");
-        }
 
         addBreadcrumbBar();
 
@@ -301,12 +272,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
-        } else if (data == null) {
-            if (!isNewForm) {
-                refreshCurrentView();
-                return;
-            }
-            // Not a restart from a screen orientation change (or other).
+        } else if (!isNewForm) {
+            // Screen orientation change
+            registerSessionFormSaveCallback();
+            refreshCurrentView();
+        } else {
             mFormController = null;
             mInstancePath = null;
 
@@ -319,7 +289,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
 
-                Uri formUri = null;
+                Uri formUri;
 
                 boolean isInstanceReadOnly = false;
                 try {
@@ -355,6 +325,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
     }
+
+    private void registerSessionFormSaveCallback() {
+        if (mFormController != null && !mFormController.isFormReadOnly()) {
+            try {
+                // CommCareSessionService will call this.formSaveCallback when
+                // the key session is closing down and we need to save any
+                // intermediate results before they become un-saveable.
+                CommCareApplication._().getSession().registerFormSaveCallback(this);
+            } catch (SessionUnavailableException e) {
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Couldn't register form save callback because session doesn't exist");
+            }
+        }
+    }
+
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -453,8 +438,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mOutAnimation = null;
         mGestureDetector = new GestureDetector(this);
     }
-
-    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -2533,6 +2516,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Logger.log("formloader", "Could not get the localizer");
         }
 
+        registerSessionFormSaveCallback();
+
         // Set saved answer path
         if (mInstancePath == null) {
 
@@ -2552,13 +2537,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
-
-        //mFormController.setLanguage(mFormController.getLanguage());
-        
-        /* here was code that loaded cached language preferences fin the
-         * collect code. we've overridden that to use our language
-         * from the shared preferences
-         */
 
         refreshCurrentView();
         updateNavigationCues(this.mCurrentView);
