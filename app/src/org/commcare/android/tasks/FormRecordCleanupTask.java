@@ -140,7 +140,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             XmlPullParserException, UnfullfilledRequirementsException {
 
         Pair<FormRecord, String> recordUpdates =
-            reparseRecord(context, oldRecord, FormRecord.STATUS_SAVED);
+            reparseRecord(context, oldRecord, newStatus);
         FormRecord updated = recordUpdates.first;
         String caseId = recordUpdates.second;
 
