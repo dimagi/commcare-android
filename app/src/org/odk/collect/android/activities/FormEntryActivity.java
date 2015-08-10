@@ -1395,10 +1395,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if(mFormController.isFormReadOnly()) {
                     button.setText(StringUtils.getStringSpannableRobust(this, R.string.exit));
                             button.setOnClickListener(new OnClickListener() {
-                                /*
-                                 * (non-Javadoc)
-                                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                                 */
                                 @Override
                                 public void onClick(View v) {
                                     finishReturnInstance();
@@ -2399,7 +2395,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Call when the user is ready to save and return the current form as complete 
      */
     private void triggerUserFormComplete() {
-        saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+        if (mFormController.isFormReadOnly()) {
+            finishReturnInstance(false);
+        } else {
+            saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+        }
     }
 
     @Override
