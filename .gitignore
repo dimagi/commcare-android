@@ -20,6 +20,7 @@ commcare-odk-test/gen/*
 *.orig
 *.swp
 *.iml
+*.db
 *.properties
 .hg*
 .svn*
@@ -40,4 +41,7 @@ test-app/test-app.iml
 app/libs/commcare-libraries.jar
 app/libs/javarosa-libraries.jar
 **/local.properties
-.gradle/*
+.gradle/
+build/
+libraries/achartengine/build/
+libraries/mapballoons/build/
