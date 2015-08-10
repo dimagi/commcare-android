@@ -325,21 +325,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    private void registerSessionFormSaveCallback() {
-        if (mFormController != null && !mFormController.isFormReadOnly()) {
-            try {
-                // CommCareSessionService will call this.formSaveCallback when
-                // the key session is closing down and we need to save any
-                // intermediate results before they become un-saveable.
-                CommCareApplication._().getSession().registerFormSaveCallback(this);
-            } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                        "Couldn't register form save callback because session doesn't exist");
-            }
-        }
-    }
-
-
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         /*
@@ -2540,6 +2525,21 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         refreshCurrentView();
         updateNavigationCues(this.mCurrentView);
     }
+
+    private void registerSessionFormSaveCallback() {
+        if (mFormController != null && !mFormController.isFormReadOnly()) {
+            try {
+                // CommCareSessionService will call this.formSaveCallback when
+                // the key session is closing down and we need to save any
+                // intermediate results before they become un-saveable.
+                CommCareApplication._().getSession().registerFormSaveCallback(this);
+            } catch (SessionUnavailableException e) {
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Couldn't register form save callback because session doesn't exist");
+            }
+        }
+    }
+
 
 
     /**
