@@ -966,9 +966,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         //Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra("odk_title_fragment", BreadcrumbBarFragment.class.getName());
+        i.putExtra(FormEntryActivity.TITLE_FRAGMENT_TAG, BreadcrumbBarFragment.class.getName());
 
-        i.putExtra("instancedestination", CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
+        i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
@@ -979,18 +979,16 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             i.setData(formUri);
         }
 
-        i.putExtra("org.odk.collect.resizing.enabled", CommCarePreferences.getResizeMethod());
+        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, CommCarePreferences.getResizeMethod());
 
-        i.putExtra("org.odk.collect.form.management", CommCarePreferences.isIncompleteFormsEnabled());
+        i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, CommCarePreferences.isIncompleteFormsEnabled());
 
-        i.putExtra("readonlyform", FormRecord.STATUS_SAVED.equals(r.getStatus()));
+        i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
 
-        i.putExtra("key_aes_storage", Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
-
-        i.putExtra("form_content_uri", FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
-        i.putExtra("instance_content_uri", InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
+        i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
+        i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
         if (headerTitle != null) {
-            i.putExtra("form_header", headerTitle);
+            i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
         }
 
         startActivityForResult(i, MODEL_RESULT);
