@@ -180,6 +180,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
 
         FormRecord updated = recordUpdates.first;
+        updated = updated.updateInstanceAndStatus(updated.getInstanceURI().toString(), FormRecord.STATUS_SAVED);
         String caseId = recordUpdates.second;
 
         if (caseId != null &&
