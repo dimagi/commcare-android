@@ -152,7 +152,7 @@ public class GraphView {
             return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
         }
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.STACKED);
+            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT);
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
