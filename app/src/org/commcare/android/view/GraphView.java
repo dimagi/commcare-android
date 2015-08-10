@@ -103,7 +103,8 @@ public class GraphView {
         
     public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
-        
+
+        setPanAndZoom(Boolean.valueOf(mData.getConfiguration("zoom", "false")));
         String title = mRenderer.getChartTitle();
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
@@ -116,6 +117,16 @@ public class GraphView {
         }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
     }
+
+    /**
+     * Enable or disable pan and zoom settings for this view.
+     * @param allow Whether or not to enabled pan and zoom.
+     */
+    private void setPanAndZoom(boolean allow) {
+        mRenderer.setPanEnabled(allow, allow);
+        mRenderer.setZoomEnabled(allow, allow);
+        mRenderer.setZoomButtonsVisible(allow);
+    }
     
     /*
      * Get a View object that will display this graph. This should be called after making
@@ -123,7 +134,10 @@ public class GraphView {
      */
     public View getView(GraphData data) throws InvalidStateException {
         render(data);
-        
+
+        // Panning and zooming are allowed on in full-screen graphs (created by getIntent)
+        setPanAndZoom(false);
+
         // Graph will not render correctly unless it has data, so
         // add a dummy series if needed.
         boolean hasPoints = false;
@@ -465,11 +479,6 @@ public class GraphView {
         boolean showLabels = hasX || hasY;
         mRenderer.setShowLabels(showLabels);
         mRenderer.setShowTickMarks(showLabels);
-
-        boolean panAndZoom = Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE);
-        mRenderer.setPanEnabled(panAndZoom, panAndZoom);
-        mRenderer.setZoomEnabled(panAndZoom, panAndZoom);
-        mRenderer.setZoomButtonsVisible(panAndZoom);
     }
     
     /**
