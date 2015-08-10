@@ -31,6 +31,9 @@ class UpgradeUiController {
     @UiElement(R.id.pending_upgrade_status_text)
     private TextView pendingUpgradeStatus;
 
+    @UiElement(R.id.current_version_text)
+    private TextView currentVersionText;
+
     @UiElement(R.id.upgrade_progress_text)
     private TextView progressText;
 
@@ -51,6 +54,8 @@ class UpgradeUiController {
         progressText = (TextView)activity.findViewById(R.id.upgrade_progress_text);
         pendingUpgradeStatus =
             (TextView)activity.findViewById(R.id.pending_upgrade_status_text);
+        currentVersionText =
+                (TextView)activity.findViewById(R.id.current_version_text);
 
         setupButtonListeners();
     }
@@ -126,6 +131,8 @@ class UpgradeUiController {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
         stopUpgradeButton.setText("Stop upgrade");
+        int version = InstallAndUpdateUtils.upgradeTableVersion();
+        pendingUpgradeStatus.setText("Current version: " + Integer.toString(version));
         installUpgradeButton.setEnabled(true);
     }
 
@@ -150,5 +157,9 @@ class UpgradeUiController {
     protected void updateProgressBar(int currentProgress, int max) {
         progressBar.setProgress(currentProgress);
         progressBar.setMax(max);
+    }
+
+    public void setCurrentVersion(int version) {
+        currentVersionText.setText("Current version: " + Integer.toString(version));
     }
 }

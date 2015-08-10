@@ -8,8 +8,10 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
 import java.security.cert.CertificateException;
@@ -40,6 +42,7 @@ public class InstallAndUpdateUtils {
             platform.upgrade(global, temporary, recovery);
         } catch (UnresolvedResourceException e) {
         }
+        // TODO PLM
         String profileRef = null;
         initAndCommitApp(app, profileRef);
     }
@@ -49,7 +52,18 @@ public class InstallAndUpdateUtils {
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         ResourceTable temporary = platform.getUpgradeResourceTable();
+
         return (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE);
+    }
+
+    public static int upgradeTableVersion() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        AndroidCommCarePlatform platform = app.getCommCarePlatform();
+
+        ResourceTable temporary = platform.getUpgradeResourceTable();
+
+        Resource temporaryProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        return temporaryProfile.getVersion();
     }
 
     public static void initAndCommitApp(CommCareApp app,

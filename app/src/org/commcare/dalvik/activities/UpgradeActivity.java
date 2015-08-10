@@ -94,6 +94,8 @@ public class UpgradeActivity extends CommCareActivity
             uiController.pendingUpgradeOrIdle();
         }
         uiController.updateProgressBar(currentProgress, maxProgress);
+        CommCareApplication app = CommCareApplication._();
+        uiController.setCurrentVersion(app.getCommCarePlatform().getCurrentProfile().getVersion());
     }
 
     @Override
