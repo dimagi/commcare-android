@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.os.AsyncTask;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -89,65 +88,47 @@ class UpgradeUiController {
         });
     }
 
-    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
-        switch (taskStatus) {
-            case RUNNING:
-                setDownloadingButtonState();
-                break;
-            case PENDING:
-                pendingUpgradeOrIdle();
-                break;
-            case FINISHED:
-                setErrorButtonState();
-                break;
-            default:
-                setErrorButtonState();
-        }
-    }
-
-    protected void pendingUpgradeOrIdle() {
-        if (InstallAndUpdateUtils.isUpgradeInstallReady()) {
-            setUnappliedInstallButtonState();
-        } else {
-            setIdleButtonState();
-        }
-    }
-
-    protected void setIdleButtonState() {
+    protected void idle() {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
+
+        stopUpgradeButton.setText("Stop upgrade");
     }
 
-    protected void setDownloadingButtonState() {
+    protected void downloading() {
         checkUpgradeButton.setEnabled(false);
         stopUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
+
+        stopUpgradeButton.setText("Stop upgrade");
     }
 
-    protected void setUnappliedInstallButtonState() {
+    protected void unappliedUpdateAvailable() {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(true);
+
         stopUpgradeButton.setText("Stop upgrade");
+
         int version = InstallAndUpdateUtils.upgradeTableVersion();
         pendingUpgradeStatus.setText("Current version: " + Integer.toString(version));
-        installUpgradeButton.setEnabled(true);
     }
 
-    protected void setCancellingButtonState() {
+    protected void cancelling() {
         checkUpgradeButton.setEnabled(false);
         stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(false);
+
         stopUpgradeButton.setText("Cancelling task");
-        installUpgradeButton.setEnabled(false);
     }
 
-    protected void setErrorButtonState() {
+    protected void error() {
         checkUpgradeButton.setEnabled(false);
         stopUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setText("Stop upgrade");
         installUpgradeButton.setEnabled(false);
+
+        stopUpgradeButton.setText("Stop upgrade");
     }
 
     protected void updateProgressText(String msg) {
@@ -159,7 +140,9 @@ class UpgradeUiController {
         progressBar.setMax(max);
     }
 
-    public void setCurrentVersion(int version) {
-        currentVersionText.setText("Current version: " + Integer.toString(version));
+    public void setStatusText(int version, String lastChecked) {
+        String checkedMsg = "Last checked for updates: " + lastChecked;
+        String versionMsg = "Current version: " + Integer.toString(version);
+        currentVersionText.setText(versionMsg + "\n" + checkedMsg);
     }
 }

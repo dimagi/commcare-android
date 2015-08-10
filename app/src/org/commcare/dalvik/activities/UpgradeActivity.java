@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -10,6 +11,7 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpgradeTask;
+import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.ConnectivityStatus;
@@ -65,7 +67,7 @@ public class UpgradeActivity extends CommCareActivity
         } catch (TaskListenerException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
                     "registered task.");
-            uiController.setErrorButtonState();
+            uiController.error();
         }
     }
 
@@ -76,7 +78,7 @@ public class UpgradeActivity extends CommCareActivity
         if (ConnectivityStatus.isNetworkNotConnected(this) &&
                 ConnectivityStatus.isAirplaneModeOn(this)) {
             // TODO
-            uiController.setErrorButtonState();
+            uiController.error();
             return;
         }
 
@@ -86,17 +88,42 @@ public class UpgradeActivity extends CommCareActivity
             currentProgress = upgradeTask.getProgress();
             currentProgress = upgradeTask.getMaxProgress();
             if (taskIsCancelling) {
-                uiController.setCancellingButtonState();
+                uiController.cancelling();
             } else {
-                uiController.setUiStateFromRunningTask(upgradeTask.getStatus());
+                setUiStateFromRunningTask(upgradeTask.getStatus());
             }
         } else {
-            uiController.pendingUpgradeOrIdle();
+            pendingUpgradeOrIdle();
         }
         uiController.updateProgressBar(currentProgress, maxProgress);
         CommCareApplication app = CommCareApplication._();
-        uiController.setCurrentVersion(app.getCommCarePlatform().getCurrentProfile().getVersion());
+        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), "");
     }
+
+    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+        switch (taskStatus) {
+            case RUNNING:
+                uiController.downloading();
+                break;
+            case PENDING:
+                pendingUpgradeOrIdle();
+                break;
+            case FINISHED:
+                uiController.error();
+                break;
+            default:
+                uiController.error();
+        }
+    }
+
+    protected void pendingUpgradeOrIdle() {
+        if (InstallAndUpdateUtils.isUpgradeInstallReady()) {
+            uiController.unappliedUpdateAvailable();
+        } else {
+            uiController.idle();
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -137,9 +164,9 @@ public class UpgradeActivity extends CommCareActivity
     @Override
     public void processTaskResult(ResourceEngineOutcomes result) {
         if (result == ResourceEngineOutcomes.StatusUpdateStaged) {
-            uiController.setUnappliedInstallButtonState();
+            uiController.unappliedUpdateAvailable();
         } else {
-            uiController.setIdleButtonState();
+            uiController.idle();
         }
 
         unregisterTask();
@@ -189,7 +216,7 @@ public class UpgradeActivity extends CommCareActivity
     public void processTaskCancel(ResourceEngineOutcomes result) {
         unregisterTask();
 
-        uiController.setIdleButtonState();
+        uiController.idle();
         uiController.updateProgressBar(0, 100);
     }
 
@@ -220,22 +247,22 @@ public class UpgradeActivity extends CommCareActivity
         SharedPreferences prefs = app.getAppPreferences();
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
         upgradeTask.execute(ref);
-        uiController.setDownloadingButtonState();
+        uiController.downloading();
         uiController.updateProgressBar(0, 100);
     }
 
     private void enterErrorState(String errorMsg) {
         Log.e(TAG, errorMsg);
-        uiController.setErrorButtonState();
+        uiController.error();
     }
 
     public void stopUpgradeCheck() {
         if (upgradeTask != null) {
             upgradeTask.cancel(true);
             taskIsCancelling = true;
-            uiController.setCancellingButtonState();
+            uiController.cancelling();
         } else {
-            uiController.setIdleButtonState();
+            uiController.idle();
         }
     }
 }
