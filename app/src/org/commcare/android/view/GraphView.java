@@ -104,7 +104,7 @@ public class GraphView {
     public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
 
-        setPanAndZoom(Boolean.valueOf(mData.getConfiguration("zoom", "false")).equals(Boolean.TRUE));
+        setPanAndZoom(Boolean.valueOf(mData.getConfiguration("zoom", "false")));
         String title = mRenderer.getChartTitle();
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
