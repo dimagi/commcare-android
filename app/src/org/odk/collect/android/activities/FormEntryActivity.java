@@ -272,10 +272,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
-            registerSessionFormSaveCallback();
         } else if (!isNewForm) {
             // Screen orientation change
-            registerSessionFormSaveCallback();
             refreshCurrentView();
         } else {
             mFormController = null;
