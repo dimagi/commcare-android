@@ -177,8 +177,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
-        Pair<FormRecord, String> recordUpdates =
-            reparseRecord(context, oldRecord);
+        Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
 
         FormRecord updated = recordUpdates.first;
         String caseId = recordUpdates.second;
