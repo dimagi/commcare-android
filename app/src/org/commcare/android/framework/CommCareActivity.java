@@ -186,13 +186,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                         }
 
                         String localeString = element.locale();
-                        Log.i("8/11", "localeString for field: " + localeString);
                         if(!"".equals(localeString)) {
                             if (v instanceof EditText) {
-                                Log.i("8/11", "setting edittext from locale");
                                 ((EditText)v).setHint(Localization.get(localeString));
                             } else if(v instanceof TextView) {
-                                Log.i("8/11", "setting textview from locale");
                                 ((TextView)v).setText(Localization.get(localeString));
                             } else {
                                 throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");

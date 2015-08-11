@@ -101,7 +101,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.app_selection_spinner)
     Spinner spinner;
 
-    //@UiElement(value=R.id.welcome_msg, locale="login.welcome.multiple")
     @UiElement(R.id.welcome_msg)
     TextView welcomeMessage;
     
@@ -627,6 +626,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         // Refresh UI for potential new language
         loadFields(false);
+        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
         // Refresh the breadcrumb bar accordingly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
