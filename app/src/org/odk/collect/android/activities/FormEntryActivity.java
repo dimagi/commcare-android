@@ -627,14 +627,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mFormController.setPendingCalloutFormIndex(null);
     }
 
-    private IntentWidget tryToGetIntentWidget() {
+    private IntentWidget getPendingIntentWidget() {
         IntentWidget bestMatch = null;
 
         //Ugh, copied from the odkview mostly, that's stupid
         for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
             //Figure out if we have a pending intent widget
             if (q instanceof IntentWidget) {
-                if(((IntentWidget) q).isWaitingForBinaryData() || bestMatch == null) {
+                if(((IntentWidget) q).getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
                     bestMatch = (IntentWidget)q;
                 }
             }
@@ -654,21 +654,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         //We need to go grab our intent callout object to process the results here
         
-        IntentWidget bestMatch = tryToGetIntentWidget();
+        IntentWidget pendingIntentWidget = getPendingIntentWidget();
         TreeReference context;
-        if(bestMatch != null) {
+        if (mFormController.getPendingCalloutFormIndex() != null) {
+            context = mFormController.getPendingCalloutFormIndex().getReference();
+        } else {
+            context = null;
+        }
+        if(pendingIntentWidget != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
             
             //get the original intent callout
-            IntentCallout ic = bestMatch.getIntentCallout();
+            IntentCallout ic = pendingIntentWidget.getIntentCallout();
             
             quick = "quick".equals(ic.getAppearance());
-            if (mFormController.getPendingCalloutFormIndex() != null) {
-                context = mFormController.getPendingCalloutFormIndex().getReference();
-            } else {
-                context = null;
-            }
+
             //And process it 
             advance = ic.processResponse(
                     response, (ODKView) mCurrentView, mFormController.getInstance(), context,
