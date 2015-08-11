@@ -1581,6 +1581,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private void startValidationActivity() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
         CommCareHomeActivity.this.startActivityForResult(i, MEDIA_VALIDATOR_ACTIVITY);
     }
 
