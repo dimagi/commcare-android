@@ -71,6 +71,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
 
+    public static final int SEAT_APP_ACTIVITY = 0;
+    public final static String KEY_APP_TO_SEAT = "app_to_seat";
+
+
     /**
      * Determines if this should launch the home activity upon completion
      * instead of returning to the previous activity.
@@ -107,7 +111,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final int TASK_KEY_EXCHANGE = 1;
     
     SqlStorage<UserKeyRecord> storage;
-    private ArrayList<ApplicationRecord> appRecordDropdownList = new ArrayList<>();
+    private ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private final TextWatcher textWatcher = new TextWatcher() {
 
@@ -593,11 +597,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         else {
             welcomeMessage.setText(Localization.get("login.welcome.multiple"));
             ArrayList<String> appNames = new ArrayList<>();
-            ArrayList<String> appIds = new ArrayList<>();
             for (ApplicationRecord r : readyApps) {
                 appNames.add(r.getDisplayName());
-                appIds.add(r.getUniqueId());
-                appRecordDropdownList.add(r);
+                appIdDropdownList.add(r.getUniqueId());
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -606,7 +608,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
             // Set the spinner's selection to match whatever the currently seated app is
             String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
-            int position = appIds.indexOf(currAppId);
+            int position = appIdDropdownList.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
         }
@@ -615,22 +617,34 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // Retrieve the app record corresponding to the app selected
-        ApplicationRecord r = appRecordDropdownList.get(position);
+        String appId = appIdDropdownList.get(position);
 
-        // Set the id of the last selected app
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
+        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (appChanged) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
 
-        // Initialize the selected app
-        CommCareApplication._().initializeAppResources(new CommCareApp(r));
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+    }
 
-        // Refresh UI for potential new language
-        loadFields(false);
-        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i("8/11", "in activityResult");
+        switch(requestCode) {
+            case SEAT_APP_ACTIVITY:
+                // Refresh UI for potential new language
+                loadFields(false);
+                welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
-        // Refresh the breadcrumb bar accordingly
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshActionBar();
+                // Refresh the breadcrumb bar accordingly
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    refreshActionBar();
+                }
         }
     }
 
