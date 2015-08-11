@@ -11,7 +11,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.api.models.EncryptedModel;
-import org.commcare.api.persistence.DatabaseHelper;
+import org.commcare.core.database.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

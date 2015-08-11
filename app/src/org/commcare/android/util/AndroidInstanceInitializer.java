@@ -15,7 +15,7 @@ import org.commcare.util.CommCareSession;
 public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     public AndroidInstanceInitializer(CommCareSession session) {
-        super(new AndroidSandbox(CommCareApplication._()), session);
+        super(session, new AndroidSandbox(CommCareApplication._()), CommCareApplication._().getCommCarePlatform());
     }
 
     @Override
