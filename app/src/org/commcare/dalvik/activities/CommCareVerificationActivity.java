@@ -41,6 +41,7 @@ public class CommCareVerificationActivity
     private static final int MENU_UNZIP = Menu.FIRST;
     
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_LAUNCH_FROM_SETTINGS = "from_settings";
     
     private Button retryButton;
 
@@ -64,6 +65,13 @@ public class CommCareVerificationActivity
      */
     private boolean fromManager;
 
+    /**
+     * Indicates whether this activity was launched explicitly from the settings menu in
+     * CommCareHomeActivity
+     */
+    private boolean fromSettings;
+
+
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
@@ -72,7 +80,9 @@ public class CommCareVerificationActivity
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
-                
+
+        this.fromSettings = this.getIntent().
+                getBooleanExtra(KEY_LAUNCH_FROM_SETTINGS, false);
         this.fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
@@ -94,7 +104,7 @@ public class CommCareVerificationActivity
         // then something was done on the Manager screen that means we no longer want to be here --
         // VerificationActivity should be displayed to a user only if we were explicitly sent from
         // the manager, or if the state of installed apps calls for it
-        boolean shouldBeHere = fromManager || CommCareApplication._().shouldSeeMMVerification();
+        boolean shouldBeHere = fromManager || fromSettings || CommCareApplication._().shouldSeeMMVerification();
         if (!shouldBeHere) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
