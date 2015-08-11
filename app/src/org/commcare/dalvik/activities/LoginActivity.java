@@ -83,10 +83,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
     TextView errorBox;
     
-    @UiElement(R.id.edit_username)
+    @UiElement(value=R.id.edit_username, locale="login.username")
     EditText username;
     
-    @UiElement(R.id.edit_password)
+    @UiElement(value=R.id.edit_password, locale="login.password")
     EditText password;
     
     @UiElement(R.id.screen_login_banner_pane)
@@ -101,6 +101,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.app_selection_spinner)
     Spinner spinner;
 
+    //@UiElement(value=R.id.welcome_msg, locale="login.welcome.multiple")
     @UiElement(R.id.welcome_msg)
     TextView welcomeMessage;
     
@@ -621,11 +622,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
 
-        // Refresh UI for potential new language
-        loadFields(false);
-
         // Initialize the selected app
         CommCareApplication._().initializeAppResources(new CommCareApp(r));
+
+        // Refresh UI for potential new language
+        loadFields(false);
 
         // Refresh the breadcrumb bar accordingly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
