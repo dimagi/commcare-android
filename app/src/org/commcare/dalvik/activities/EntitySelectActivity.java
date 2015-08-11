@@ -44,7 +44,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
@@ -970,7 +970,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             detailView = new TabbedDetailView(this);
             detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
             detailView.setDetail(detail);
 

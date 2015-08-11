@@ -78,7 +78,7 @@ public class User extends org.commcare.suite.model.User
 
     public Object getMetaData(String fieldName) {
         try{
-            super.getMetaData(fieldName);
+            return super.getMetaData(fieldName);
         }catch(IllegalArgumentException e){
             if (META_WRAPPED_KEY.equals(fieldName)) {
                 return wrappedKey;

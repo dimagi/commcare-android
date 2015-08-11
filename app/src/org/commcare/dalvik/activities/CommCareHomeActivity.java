@@ -55,7 +55,7 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -844,7 +844,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         StackFrameStep lastPopped = session.getPoppedStep();
 
         if (needed == null) {
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+            EvaluationContext ec = session.getEvaluationContext(new AndroidInstanceInitializer(session));
             //See if we failed any of our asseertions
             Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
             if (text != null) {
@@ -889,7 +889,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 e.printStackTrace();
                 throw new RuntimeException(e.getMessage());
             }
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+            EvaluationContext ec = session.getEvaluationContext(new AndroidInstanceInitializer(session));
             if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
                 session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
                 session.setDatum("", "awful");
@@ -970,7 +970,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
+        FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
 
         //Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
