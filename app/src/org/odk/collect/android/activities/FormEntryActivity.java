@@ -655,7 +655,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //We need to go grab our intent callout object to process the results here
         
         IntentWidget bestMatch = tryToGetIntentWidget();
-        
+        TreeReference context;
         if(bestMatch != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
@@ -665,12 +665,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             
             quick = "quick".equals(ic.getAppearance());
             if (mFormController.getPendingCalloutFormIndex() != null) {
-                TreeReference context = mFormController.getPendingCalloutFormIndex().getReference();
+                context = mFormController.getPendingCalloutFormIndex().getReference();
+            } else {
+                context = null;
             }
             //And process it 
             advance = ic.processResponse(
-                    response, (ODKView) mCurrentView, mFormController.getInstance(),
-                    mFormController.getFormIndex().getReference(), new File(destination));
+                    response, (ODKView) mCurrentView, mFormController.getInstance(), context,
+                    new File(destination));
             
             ic.setCancelled(cancelled);
             
