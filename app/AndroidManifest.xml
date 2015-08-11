@@ -353,13 +353,23 @@
         <activity android:name=".activities.CommCareFormDumpActivity"
                   android:windowSoftInputMode="adjustPan" >
         </activity>
-        <activity android:name=".activities.ConnectionDiagnosticActivity" >
+        <activity android:name=".activities.ConnectionDiagnosticActivity"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity android:name=".activities.CommCareWiFiDirectActivity" >
         </activity>
         <activity android:name=".activities.RecoveryActivity" >
         </activity>
         <activity android:name=".preferences.DeveloperPreferences" >
+        </activity>
+        <activity
+            android:name=".activities.TemplatePrinterActivity"
+            android:theme="@style/Theme.Dialog.NoTitle" >
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.action.PRINT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- Start Collect Manifest -->
