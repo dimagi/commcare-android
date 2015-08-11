@@ -86,7 +86,7 @@ public class UpgradeActivity extends CommCareActivity
         int maxProgress = 0;
         if (upgradeTask != null) {
             currentProgress = upgradeTask.getProgress();
-            currentProgress = upgradeTask.getMaxProgress();
+            maxProgress = upgradeTask.getMaxProgress();
             if (taskIsCancelling) {
                 uiController.cancelling();
             } else {

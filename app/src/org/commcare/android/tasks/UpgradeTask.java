@@ -93,7 +93,8 @@ public class UpgradeTask
             ResourceTable global = platform.getGlobalResourceTable();
 
             // Ok, should figure out what the state of this bad boy is.
-            Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            Resource profile =
+                global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -114,6 +115,14 @@ public class UpgradeTask
             profileRef = addParamsToProfileReference(profileRef);
 
             boolean startOverUpgrade = calcResourceFreshness();
+            
+            Resource upgradeProfile =
+                temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            if (upgradeProfile != null) {
+                System.out.print(upgradeProfile.getVersion());
+            }
+            System.out.println(temporary.getTableReadiness());
+
             try {
                 // This populates the upgrade table with resources based on
                 // binary files, starting with the profile file. If the new
@@ -121,10 +130,9 @@ public class UpgradeTask
                 // actually pull in all the new references
                 platform.stageUpgradeTable(global, temporary,
                         recovery, profileRef, startOverUpgrade);
-                Resource newProfile =
-                    temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-                if (!newProfile.isNewer(profile)) {
-                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                System.out.println(temporary.getTableReadiness());
+
+                if (updateIsntNewer(temporary, profile)) {
                     temporary.destroy();
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
@@ -146,6 +154,7 @@ public class UpgradeTask
                 return InstallAndUpdateUtils.processUnresolvedResource(e);
             }
 
+            System.out.println(temporary.getTableReadiness());
             return ResourceEngineOutcomes.StatusUpdateStaged;
         } catch (Exception e) {
             InstallAndUpdateUtils.logInstallError(e,
@@ -181,6 +190,17 @@ public class UpgradeTask
         }
 
         return profileRef;
+    }
+
+    private boolean updateIsntNewer(ResourceTable upgradeTable,
+                                    Resource currentProfile) {
+        Resource newProfile =
+            upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        if (!newProfile.isNewer(currentProfile)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+            return true;
+        }
+        return false;
     }
 
     @Override
