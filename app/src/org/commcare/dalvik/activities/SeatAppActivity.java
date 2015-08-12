@@ -18,7 +18,7 @@ public class SeatAppActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_template_printer);
+        setContentView(R.layout.progress_bar_dialog);
 
         String idOfAppToSeat = getIntent().getStringExtra(LoginActivity.KEY_APP_TO_SEAT);
         ApplicationRecord record = CommCareApplication._().getAppById(idOfAppToSeat);
