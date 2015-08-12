@@ -59,6 +59,11 @@ public class SeatAppActivity extends Activity {
         outState.putBoolean(KEY_IN_PROGRESS, inProgress);
     }
 
+    @Override
+    public void onBackPressed() {
+        // Make it impossible to quit in the middle of this activity
+    }
+
     public void setInProgress(boolean b) {
         this.inProgress = b;
     }

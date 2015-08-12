@@ -16,7 +16,7 @@
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/font_size_xlargest"
+        android:textSize="@dimen/font_size_xlarger"
         android:gravity="center"
         android:layout_centerHorizontal="true"
         android:paddingTop="@dimen/help_text_padding"
