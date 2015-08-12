@@ -59,7 +59,9 @@ public class NotificationMessageFactory {
         
         /**Could not retrieve Form Result **/
         FormEntry_Unretrievable ("notification.formentry.unretrievable"),
-        
+
+        FormEntry_Save_Error ("notification.formentry.save_error"),
+
         /**In airplane mode while trying to sync**/
         Sync_AirplaneMode("notification.sync.airplane"),
         
