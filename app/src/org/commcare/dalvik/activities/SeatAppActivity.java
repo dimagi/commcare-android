@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.TextView;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Activity to perform asynchronous initialization of an application
@@ -24,7 +27,9 @@ public class SeatAppActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_template_printer);
+        setContentView(R.layout.screen_seat_app);
+        TextView tv = (TextView) findViewById(R.id.text);
+        tv.setText(Localization.get("seating.app"));
 
         inProgress = savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);

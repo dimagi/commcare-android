@@ -290,6 +290,7 @@ multiple.apps.unverified.message=All of your available apps are missing their as
 
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
+seating.app=CommCare is loading your app
 
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
 print.error=There was an error while printing. Please try again.
