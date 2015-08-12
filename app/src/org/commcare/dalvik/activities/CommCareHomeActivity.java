@@ -200,45 +200,29 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             newGridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
             newGridView.addHeaderView(topBanner);
             newGridView.setAdapter(adapter);
-            newGridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @SuppressLint("NewApi")
-                @Override
-                public void onGlobalLayout() {
-                    if (adapter.getItem(0) == null) {
-                        Log.e("configUi", "Items still not instantiated by newGridView, configUi is going to crash!");
-                    }
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                        newGridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        newGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                    newGridView.requestLayout();
-                    adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
-                    configUi();
-                }
-            });
         } else {
             gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
             gridView.addHeaderView(topBanner);
             gridView.setAdapter(adapter);
-            gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @SuppressLint("NewApi")
-                @Override
-                public void onGlobalLayout() {
-                    if (adapter.getItem(0) == null) {
-                        Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
-                    }
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                        gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                    gridView.requestLayout();
-                    adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
-                    configUi();
-                }
-            });
         }
+        final View grid = newGridView != null ? newGridView : gridView;
+        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public void onGlobalLayout() {
+                if (adapter.getItem(0) == null) {
+                    Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
+                }
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                grid.requestLayout();
+                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                configUi();
+            }
+        });
     }
 
     private void configUi() {
