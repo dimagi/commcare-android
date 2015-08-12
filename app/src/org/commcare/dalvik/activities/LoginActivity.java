@@ -578,17 +578,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void refreshView() {
-        // Refresh the breadcrumb bar in case the seated app has changed
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshActionBar();
-        }
+        // In case the seated app has changed since last time we were in LoginActivity
+        refreshForNewApp();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {
             spinner.setVisibility(View.GONE);
             welcomeMessage.setText(Localization.get("login.welcome.single"));
-            // Set this app as the last selected app, for use in choosing what about to initialize
+            // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
             ApplicationRecord r = readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -597,6 +595,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         else {
             welcomeMessage.setText(Localization.get("login.welcome.multiple"));
             ArrayList<String> appNames = new ArrayList<>();
+            appIdDropdownList.clear();
             for (ApplicationRecord r : readyApps) {
                 appNames.add(r.getDisplayName());
                 appIdDropdownList.add(r.getUniqueId());
@@ -637,18 +636,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         switch(requestCode) {
             case SEAT_APP_ACTIVITY:
                 if (resultCode == RESULT_OK) {
-                    // Refresh UI for potential new language
-                    loadFields(false);
-
-                    // Refresh welcome msg separately bc cannot set a single locale for its UiElement
-                    welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-
-                    // Refresh the breadcrumb bar for new app name
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        refreshActionBar();
-                    }
+                    refreshForNewApp();
                 }
         }
+    }
+
+    private void refreshForNewApp() {
+        // Refresh the breadcrumb bar for new app name
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshActionBar();
+        }
+
+        // Refresh UI for potential new language
+        loadFields(false);
+
+        // Refresh welcome msg separately bc cannot set a single locale for its UiElement
+        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
     }
 
     @Override
