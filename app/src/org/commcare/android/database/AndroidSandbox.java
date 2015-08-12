@@ -38,12 +38,12 @@ public class AndroidSandbox implements UserDataInterface {
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
-        return app.getUserStorage(FormInstance.class);
+        return app.getUserStorage("fixture", FormInstance.class);
     }
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
-        return app.getAppStorage(FormInstance.class);
+        return app.getAppStorage("fixture", FormInstance.class);
     }
 
     @Override
@@ -63,6 +63,11 @@ public class AndroidSandbox implements UserDataInterface {
     @Override
     public void setSyncToken(String syncToken) {
 
+    }
+
+    @Override
+    public String getSyncToken() {
+        return null;
     }
 
     @Override
