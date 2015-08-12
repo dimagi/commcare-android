@@ -182,11 +182,9 @@ public class CommCareApp {
 
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable upgrade = platform.getUpgradeResourceTable();
-        ResourceTable recovery = platform.getRecoveryTable();
 
         Log.d(TAG, "Global\n" + global.toString());
         Log.d(TAG, "Upgrade\n" + upgrade.toString());
-        Log.d(TAG, "Recovery\n" + recovery.toString());
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {

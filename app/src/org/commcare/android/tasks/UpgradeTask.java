@@ -5,7 +5,6 @@ import org.commcare.android.resource.installers.LocalStorageUnavailableException
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.InstallAndUpdateUtils;
-import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -42,14 +41,6 @@ public class UpgradeTask
     private int maxProgress = 0;
 
     public static final String KEY_START_OVER = "start_over_uprgrade";
-    private long lastDialogUpdate = 0;
-    private int phase = -1;
-    /**
-     * Wait time between dialog updates in milliseconds
-     */
-    private static final long STATUS_UPDATE_WAIT_TIME = 1000;
-    private static final int PHASE_CHECKING = 0;
-    private static final int PHASE_DOWNLOAD = 1;
 
     // 1 week in milliseconds
     private static final long START_OVER_THRESHOLD = 604800000;
@@ -76,7 +67,6 @@ public class UpgradeTask
 
     @Override
     protected final ResourceEngineOutcomes doInBackground(String... params) {
-        // AndroidUtil.isNetworkAvailable(this)
         String profileRef = params[0];
 
         CommCareApp app = CommCareApplication._().getCurrentApp();
@@ -108,36 +98,36 @@ public class UpgradeTask
             // state that it was left after the last install- partially
             // populated if it stopped in middle, empty if the install was
             // successful
-            ResourceTable temporary = platform.getUpgradeResourceTable();
+            ResourceTable upgradeTable = platform.getUpgradeResourceTable();
             ResourceTable recovery = platform.getRecoveryTable();
-            temporary.setStateListener(this);
+            upgradeTable.setStateListener(this);
 
             profileRef = addParamsToProfileReference(profileRef);
 
             boolean startOverUpgrade = calcResourceFreshness();
 
-            Resource upgradeProfile =
-                    temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+            Resource upgradeProfileBeforeStage =
+                    upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             try {
                 // This populates the upgrade table with resources based on
                 // binary files, starting with the profile file. If the new
                 // profile is not a newer version, statgeUpgradeTable doesn't
                 // actually pull in all the new references
-                platform.stageUpgradeTable(global, temporary,
+                platform.stageUpgradeTable(global, upgradeTable,
                         recovery, profileRef, startOverUpgrade);
 
-                if (latestUpgradeStaged(temporary, upgradeProfile)) {
+                if (isTableStagedAndLatest(upgradeTable, upgradeProfileBeforeStage)) {
                     return ResourceEngineOutcomes.StatusUpdateStaged;
                 }
 
-                if (updateIsntNewer(temporary, profile)) {
+                if (updateIsntNewer(upgradeTable, profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                    temporary.destroy();
+                    upgradeTable.destroy();
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
-                platform.prepareUpgradeResources(global, temporary, recovery);
+                platform.prepareUpgradeResources(global, upgradeTable, recovery);
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -154,7 +144,7 @@ public class UpgradeTask
                 return InstallAndUpdateUtils.processUnresolvedResource(e);
             }
 
-            System.out.println(temporary.getTableReadiness());
+            System.out.println(upgradeTable.getTableReadiness());
             return ResourceEngineOutcomes.StatusUpdateStaged;
         } catch (Exception e) {
             InstallAndUpdateUtils.logInstallError(e,
@@ -163,13 +153,14 @@ public class UpgradeTask
         }
     }
 
-    private boolean latestUpgradeStaged(ResourceTable upgradeTable, Resource upgradeProfile) {
+    private boolean isTableStagedAndLatest(ResourceTable upgradeTable, Resource upgradeProfileBeforeStage) {
         Resource newUpgradeProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
-        boolean versionNewerThanCurrentUpgradeTable = upgradeProfile == null || newUpgradeProfile.isNewer(upgradeProfile);
-        return (versionNewerThanCurrentUpgradeTable ||
-                upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_UPGRADE);
+        boolean versionNewerThanCurrentUpgradeTable = upgradeProfileBeforeStage == null || newUpgradeProfile.isNewer(upgradeProfileBeforeStage);
+        System.out.print(upgradeTable.isReady());
+        return (!versionNewerThanCurrentUpgradeTable &&
+                upgradeTable.isReady());
     }
 
     private String addParamsToProfileReference(final String profileRef) {
@@ -273,35 +264,18 @@ public class UpgradeTask
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
-        // if last time isn't set or is less than our spacing count, do not
-        // perform status update
-        if (System.currentTimeMillis() - lastDialogUpdate < UpgradeTask.STATUS_UPDATE_WAIT_TIME) {
-            return;
-        }
-
         Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
-
-        // TODO: Better reflect upgrade status process
 
         for (Resource r : resources) {
             switch (r.getStatus()) {
                 case Resource.RESOURCE_STATUS_UPGRADE:
-                    // If we spot an upgrade after we've started the upgrade process,
-                    // something now needs to be updated
-                    if (phase == PHASE_CHECKING) {
-                        this.phase = PHASE_DOWNLOAD;
-                    }
                     currentProgress += 1;
                     break;
                 case Resource.RESOURCE_STATUS_INSTALLED:
                     currentProgress += 1;
                     break;
-                default:
-                    currentProgress += 0;
-                    break;
             }
         }
-        lastDialogUpdate = System.currentTimeMillis();
         maxProgress = resources.size();
         incrementProgress(currentProgress, maxProgress);
     }
@@ -318,6 +292,7 @@ public class UpgradeTask
      */
     public boolean calcResourceFreshness() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
+        /*
         long lastInstallTime = app.getAppPreferences().getLong(CommCareSetupActivity.KEY_LAST_INSTALL, -1);
         if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
             // If we are triggering a start over install due to the time
@@ -333,5 +308,7 @@ public class UpgradeTask
         } else {
             return app.getAppPreferences().getBoolean(KEY_START_OVER, true);
         }
+        */
+        return false;
     }
 }

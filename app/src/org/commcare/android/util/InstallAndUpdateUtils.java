@@ -53,7 +53,9 @@ public class InstallAndUpdateUtils {
 
         ResourceTable temporary = platform.getUpgradeResourceTable();
 
-        return (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UPGRADE);
+        boolean res = temporary.isReady();
+        System.out.print(res);
+        return (temporary.isReady());
     }
 
     public static int upgradeTableVersion() {

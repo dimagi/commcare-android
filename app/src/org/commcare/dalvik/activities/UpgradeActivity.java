@@ -14,9 +14,11 @@ import org.commcare.android.tasks.UpgradeTask;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.utils.ConnectivityStatus;
-import org.commcare.resources.model.ResourceTable;
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.Date;
 
 /**
  * Allow user to manage app upgrading:
@@ -97,7 +99,10 @@ public class UpgradeActivity extends CommCareActivity
         }
         uiController.updateProgressBar(currentProgress, maxProgress);
         CommCareApplication app = CommCareApplication._();
-        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), "");
+
+        SharedPreferences preferences = app.getCurrentApp().getAppPreferences();
+        long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), new Date(lastUpdateCheck));
     }
 
     protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
@@ -171,35 +176,16 @@ public class UpgradeActivity extends CommCareActivity
 
         unregisterTask();
 
-        boolean startOverInstall = false;
-        switch (result) {
-            case StatusInstalled:
-            case StatusUpToDate:
-            case StatusMissingDetails:
-            case StatusMissing:
-            case StatusBadReqs:
-                break;
-            case StatusFailState:
-                startOverInstall = true;
-                break;
-            case StatusNoLocalStorage:
-                startOverInstall = true;
-                break;
-            case StatusBadCertificate:
-                break;
-            case StatusDuplicateApp:
-                startOverInstall = true;
-                break;
-            default:
-                startOverInstall = true;
-                break;
-         }
+        boolean startOverInstall =
+                (result == ResourceEngineOutcomes.StatusFailState ||
+                        result == ResourceEngineOutcomes.StatusNoLocalStorage);
 
         // Did the install fail in a way where the existing
         // resource table should be reused in the next install
         // attempt?
         CommCareApp app = CommCareApplication._().getCurrentApp();
         app.getAppPreferences().edit().putBoolean(UpgradeTask.KEY_START_OVER, startOverInstall).commit();
+        /*
         // Check if we want to record this as a 'last install
         // time', based on the state of the resource table before
         // and after this install took place
@@ -210,6 +196,7 @@ public class UpgradeActivity extends CommCareActivity
             app.getAppPreferences().edit().putLong(CommCareSetupActivity.KEY_LAST_INSTALL,
                     System.currentTimeMillis()).commit();
         }
+        */
     }
 
     @Override
@@ -233,16 +220,18 @@ public class UpgradeActivity extends CommCareActivity
             return;
         }
 
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        /*
         // store what the state of the resource table was before this
         // install, so we can compare it to the state after and decide if
         // this should count as a 'last install time'
-        CommCareApp app = CommCareApplication._().getCurrentApp();
         int tableStateBeforeInstall =
             app.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 
         resourceTableWasFresh =
             (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY) ||
             (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
+        */
 
         SharedPreferences prefs = app.getAppPreferences();
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);

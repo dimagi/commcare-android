@@ -29,7 +29,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -332,16 +331,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             ccApp = app;
 
-             // store what the state of the resource table was before this
-             // install, so we can compare it to the state after and decide if
-             // this should count as a 'last install time'
-            int tableStateBeforeInstall =
-                ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
-
-            this.resourceTableWasFresh =
-                (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY) ||
-                (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
-
             CustomProgressDialog lastDialog = getCurrentDialog();
              // used to tell the ResourceEngineTask whether or not it should
              // sleep before it starts, set based on whether we are currently
@@ -386,17 +375,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                             receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
                             break;
                      }
-
-                    // Check if we want to record this as a 'last install
-                    // time', based on the state of the resource table before
-                    // and after this install took place
-                    ResourceTable temporary =
-                        receiver.ccApp.getCommCarePlatform().getUpgradeResourceTable();
-
-                    if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
-                            receiver.resourceTableWasFresh) {
-                        receiver.ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
-                    }
                 }
 
                 @Override

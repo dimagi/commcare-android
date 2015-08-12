@@ -9,6 +9,8 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
 
+import java.util.Date;
+
 /**
  * Controls the UI for the upgrade activity.
  *
@@ -140,8 +142,8 @@ class UpgradeUiController {
         progressBar.setMax(max);
     }
 
-    public void setStatusText(int version, String lastChecked) {
-        String checkedMsg = "Last checked for updates: " + lastChecked;
+    public void setStatusText(int version, Date lastChecked) {
+        String checkedMsg = "Last checked for updates: " + lastChecked.toString();
         String versionMsg = "Current version: " + Integer.toString(version);
         currentVersionText.setText(versionMsg + "\n" + checkedMsg);
     }
