@@ -24,7 +24,7 @@ public class SeatAppActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.progress_bar_dialog);
+        setContentView(R.layout.activity_template_printer);
 
         inProgress = savedInstanceState != null &&
                 savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
