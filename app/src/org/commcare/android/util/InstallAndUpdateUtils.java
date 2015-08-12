@@ -65,6 +65,9 @@ public class InstallAndUpdateUtils {
         ResourceTable temporary = platform.getUpgradeResourceTable();
 
         Resource temporaryProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        if (temporaryProfile == null) {
+            return -1;
+        }
         return temporaryProfile.getVersion();
     }
 
