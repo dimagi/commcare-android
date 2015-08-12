@@ -371,8 +371,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.SeatAppActivity"
-            android:theme="@style/Theme.Dialog.NoTitle" >
+            android:name=".activities.SeatAppActivity" >
         </activity>
 
         <!-- Start Collect Manifest -->

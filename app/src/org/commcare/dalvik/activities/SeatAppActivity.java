@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,33 +12,65 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
- * Created by amstone326 on 8/11/15.
+ * Performs initialization of an application record
+ *
+ * @author amstone
  */
 public class SeatAppActivity extends Activity {
+
+    private static final String KEY_IN_PROGRESS = "initialization_in_progress";
+    private boolean inProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.progress_bar_dialog);
 
-        String idOfAppToSeat = getIntent().getStringExtra(LoginActivity.KEY_APP_TO_SEAT);
-        ApplicationRecord record = CommCareApplication._().getAppById(idOfAppToSeat);
+        inProgress = savedInstanceState != null &&
+                savedInstanceState.getBoolean(KEY_IN_PROGRESS, false);
 
-        ThreadHandler handler = new ThreadHandler(this);
-        Thread t = new Thread(new SeatAppProcess(record, handler));
-        t.start();
+        if (!inProgress) {
+
+            String idOfAppToSeat = getIntent().getStringExtra(LoginActivity.KEY_APP_TO_SEAT);
+            ApplicationRecord record = CommCareApplication._().getAppById(idOfAppToSeat);
+
+            if (record == null) {
+                // No record was found for the given id
+                Intent i = new Intent(getIntent());
+                setResult(RESULT_CANCELED, i);
+                finish();
+            }
+
+            ThreadHandler handler = new ThreadHandler(this);
+            Thread t = new Thread(new SeatAppProcess(record, handler));
+            setInProgress(true);
+            t.start();
+        }
     }
 
-    private class ThreadHandler extends Handler {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_IN_PROGRESS, inProgress);
+    }
 
-        private Activity activity;
+    public void setInProgress(boolean b) {
+        this.inProgress = b;
+    }
 
-        public ThreadHandler(Activity a) {
+    private static class ThreadHandler extends Handler {
+
+        private SeatAppActivity activity;
+
+        public ThreadHandler(SeatAppActivity a) {
             this.activity = a;
         }
 
         @Override
         public void handleMessage(Message msg) {
+            activity.setInProgress(false);
+            Intent i = new Intent(activity.getIntent());
+            activity.setResult(RESULT_OK, i);
             activity.finish();
         }
     }

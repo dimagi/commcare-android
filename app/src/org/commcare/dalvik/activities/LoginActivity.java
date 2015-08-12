@@ -634,16 +634,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i("8/11", "in activityResult");
         switch(requestCode) {
             case SEAT_APP_ACTIVITY:
-                // Refresh UI for potential new language
-                loadFields(false);
-                welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+                if (resultCode == RESULT_OK) {
+                    // Refresh UI for potential new language
+                    loadFields(false);
 
-                // Refresh the breadcrumb bar accordingly
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    refreshActionBar();
+                    // Refresh welcome msg separately bc cannot set a single locale for its UiElement
+                    welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+
+                    // Refresh the breadcrumb bar for new app name
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        refreshActionBar();
+                    }
                 }
         }
     }
