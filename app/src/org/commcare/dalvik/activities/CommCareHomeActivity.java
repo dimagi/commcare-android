@@ -96,6 +96,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
+
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -150,7 +152,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-
+    
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
@@ -163,7 +165,8 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private SquareButtonWithNotification syncButton;
 
     private HomeScreenAdapter adapter;
-    private StaggeredGridView gridView;
+    private GridViewWithHeaderAndFooter gridView;
+    private StaggeredGridView newGridView;
     private ImageView topBannerImageView;
 
     @Override
@@ -193,26 +196,49 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
-        gridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
-        gridView.addHeaderView(topBanner);
-        gridView.setAdapter(adapter);
-        gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressLint("NewApi")
-            @Override
-            public void onGlobalLayout() {
-                if (adapter.getItem(0) == null) {
-                    Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            newGridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
+            newGridView.addHeaderView(topBanner);
+            newGridView.setAdapter(adapter);
+            newGridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @SuppressLint("NewApi")
+                @Override
+                public void onGlobalLayout() {
+                    if (adapter.getItem(0) == null) {
+                        Log.e("configUi", "Items still not instantiated by newGridView, configUi is going to crash!");
+                    }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                        newGridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    } else {
+                        newGridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    newGridView.requestLayout();
+                    adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                    configUi();
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            });
+        } else {
+            gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+            gridView.addHeaderView(topBanner);
+            gridView.setAdapter(adapter);
+            gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @SuppressLint("NewApi")
+                @Override
+                public void onGlobalLayout() {
+                    if (adapter.getItem(0) == null) {
+                        Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
+                    }
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                        gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    } else {
+                        gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                    gridView.requestLayout();
+                    adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                    configUi();
                 }
-                gridView.requestLayout();
-                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
-                configUi();
-            }
-        });
+            });
+        }
     }
 
     private void configUi() {
@@ -348,7 +374,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             // abort since it looks like the session expired
             return;
         }
-
+        
         if(User.TYPE_DEMO.equals(u.getUserType())) {
             //Remind the user that there's no syncing in demo mode.
             if (formsToSend) {
@@ -500,17 +526,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
                 else if(resultCode == DumpTask.BULK_DUMP_ID){
                     int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
+                    
                     displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
-
+                    
                     refreshView();
                     return;
                 }
                 else if(resultCode == SendTask.BULK_SEND_ID){
                     int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
+                    
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
+                    
                     Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
                     refreshView();
                     return;
@@ -523,17 +549,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
                 else if(resultCode == SendTask.BULK_SEND_ID){
                     int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-
+                    
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
+                    
                     Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
                     refreshView();
                     return;
                 } else if(resultCode == WipeTask.WIPE_TASK_ID){
                     int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-
+                    
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
+                    
                     Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
                     refreshView();
                     return;
@@ -545,7 +571,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 else if(resultCode == RESULT_OK){
                     CommCareApplication._().notifyLogsPending();
                     refreshView();
-                    return;
+                    return;    
                 }
             case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
@@ -555,14 +581,14 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 } else if(resultCode == RESULT_OK) {
                     if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
                         refreshView();
-
+                        
                         //Unless we're about to sync (which will handle this
                         //in a blocking fashion), trigger off a regular unsent
                         //task processor
                         if(!CommCareApplication._().isSyncPending(false)) {
                             checkAndStartUnsentTask(false);
                         }
-
+                        
                         if(isDemoUser()) {
                             showDemoModeWarning();
                         }
@@ -570,11 +596,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     return;
                 }
                 break;
-
+                
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
                 AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-
+                
                 if(resultCode == RESULT_CANCELED) {
                     refreshView();
                     return;
@@ -585,7 +611,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                         break;
                     }
                     FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
-
+                    
                     //Retrieve and load the appropriate ssd
                     SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
                     Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
@@ -973,7 +999,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         i.putExtra(FormEntryActivity.TITLE_FRAGMENT_TAG, BreadcrumbBarFragment.class.getName());
 
         i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
-
+        
         // See if there's existing form data that we want to continue entering
         // (note, this should be stored in the form record as a URI link to
         // the instance provider in the future)
@@ -1562,7 +1588,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         return super.onOptionsItemSelected(item);
     }
-
+    
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
@@ -1648,7 +1674,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     /**
      * All methods for implementation of DialogController that are not already handled in CommCareActivity *
      */
-
+    
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
