@@ -11,6 +11,9 @@ import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 
 /**
+ * Basically just a useful abstraction that allows us to use an Android
+ * CommCareApplication as a UserDataInterface
+ *
  * Created by wpride1 on 8/11/15.
  */
 public class AndroidSandbox implements UserDataInterface {

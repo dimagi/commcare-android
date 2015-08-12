@@ -3,7 +3,7 @@ package org.commcare.android.util;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
@@ -122,7 +122,7 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
         
-        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(Robolectric.application, db) {
+        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(Robolectric.application, db) {
 
             @Override
             public PrototypeFactory getPrototypeFactory() {

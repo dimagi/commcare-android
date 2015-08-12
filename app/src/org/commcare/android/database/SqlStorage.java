@@ -49,11 +49,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     Class<? extends T> ctype;
     EncryptedModel em;
     T t;
-    DbHelper helper;
+    AndroidDbHelper helper;
     
     protected SqlStorage() {}
     
-    public SqlStorage(String table, Class<? extends T> ctype, DbHelper helper) {
+    public SqlStorage(String table, Class<? extends T> ctype, AndroidDbHelper helper) {
         this.table = table;
         this.ctype = ctype;
         this.helper = helper;

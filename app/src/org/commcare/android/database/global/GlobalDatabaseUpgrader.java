@@ -7,7 +7,7 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -55,7 +55,7 @@ public class GlobalDatabaseUpgrader {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
-                    new ConcreteDbHelper(c, db));
+                    new ConcreteAndroidDbHelper(c, db));
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
                 ApplicationRecord newRecord =

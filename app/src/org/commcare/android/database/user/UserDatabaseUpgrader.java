@@ -5,7 +5,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.AndroidTableBuilder;
@@ -134,7 +134,7 @@ public class UserDatabaseUpgrader {
             
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
-            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteAndroidDbHelper(c, db));
 
             for(ACase c : caseStorage) {
                 cit.indexCase(c);
@@ -157,7 +157,7 @@ public class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             
-            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
             db.setTransactionSuccessful();
             return true;
@@ -185,7 +185,7 @@ public class UserDatabaseUpgrader {
         if(inSenseMode) {
             
             //Get form record storage
-            SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class,new ConcreteDbHelper(c,db));
+            SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class,new ConcreteAndroidDbHelper(c,db));
             
             //Iterate through all forms currently saved
             for(FormRecord record : storage) {

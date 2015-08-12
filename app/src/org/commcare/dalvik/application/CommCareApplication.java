@@ -34,7 +34,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -641,7 +641,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
-        return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(table, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
@@ -667,7 +667,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
-        return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -680,7 +680,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
-        return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;

@@ -16,7 +16,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.ResourceModelUpdater;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -465,7 +465,7 @@ public class LegacyInstallUtils {
             
             final SQLiteDatabase currentUserDatabase = ourDb;
             
-            DbHelper newDbHelper = new DbHelper(c) {
+            AndroidDbHelper newAndroidDbHelper = new AndroidDbHelper(c) {
                 @Override
                 public SQLiteDatabase getHandle() {
                     return currentUserDatabase;
@@ -483,17 +483,17 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + legacyCases.getNumRecords() + " old cases detected");
             
             Map m = SqlStorage.cleanCopy(legacyCases,
-                       new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, newDbHelper));
+                       new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, newAndroidDbHelper));
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + m.size() + " cases copied. Copying Users");
             
             SqlStorage.cleanCopy(legacyUserStorage,
-                    new SqlStorage<User>("USER", User.class, newDbHelper));
+                    new SqlStorage<User>("USER", User.class, newAndroidDbHelper));
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Users copied. Copying form records");
             
             final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh),
-                    new SqlStorage<FormRecord>("FORMRECORDS", FormRecord.class, newDbHelper), new CopyMapper<FormRecord>() {
+                    new SqlStorage<FormRecord>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), new CopyMapper<FormRecord>() {
     
                         @Override
                         public FormRecord transform(FormRecord t) {
@@ -520,7 +520,7 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Form records copied. Copying sessions.");
             
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh),
-                    new SqlStorage<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, newDbHelper), new CopyMapper<SessionStateDescriptor>() {
+                    new SqlStorage<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, newAndroidDbHelper), new CopyMapper<SessionStateDescriptor>() {
     
                         @Override
                         public SessionStateDescriptor transform(SessionStateDescriptor t) {
@@ -531,12 +531,12 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Sessions copied. Copying geocaches.");
             
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, ldbh),
-                    new SqlStorage<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newDbHelper));
+                    new SqlStorage<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newAndroidDbHelper));
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| geocaches copied. Copying serialized log submissions.");
             
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh),
-                        new SqlStorage<DeviceReportRecord>("log_records", DeviceReportRecord.class, newDbHelper), new CopyMapper<DeviceReportRecord>() {
+                        new SqlStorage<DeviceReportRecord>("log_records", DeviceReportRecord.class, newAndroidDbHelper), new CopyMapper<DeviceReportRecord>() {
                         @Override
                         public DeviceReportRecord transform(DeviceReportRecord t) {
                             return new DeviceReportRecord(replaceOldRoot(t.getFilePath(), oldRoot, newFileSystemRoot), t.getKey());
@@ -547,7 +547,7 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| serialized log submissions copied. Copying fixtures");
             
             SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
-                    new SqlStorage<FormInstance>("fixture", FormInstance.class, newDbHelper));
+                    new SqlStorage<FormInstance>("fixture", FormInstance.class, newAndroidDbHelper));
             
             } catch(SessionUnavailableException | StorageFullException sfe) {
                 throw new RuntimeException(sfe);

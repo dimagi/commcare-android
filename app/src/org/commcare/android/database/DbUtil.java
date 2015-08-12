@@ -31,6 +31,11 @@ public class DbUtil {
     private static PrototypeFactory factory;
 
 
+    /**
+     * Basically this is our PrototypeManager for Android
+     * @param c
+     * @return
+     */
     public static PrototypeFactory getPrototypeFactory(Context c) {
         if(factory != null) {
             return factory;
@@ -39,14 +44,13 @@ public class DbUtil {
         PrefixTree tree = new PrefixTree();
         
         try {
-        List<String> classes = getClasses(new String[] { "org.javarosa", "org.commcare"}, c);
-        for(String cl : classes) {
-            tree.addString(cl);
-        }
+            List<String> classes = getClasses(new String[] { "org.javarosa", "org.commcare"}, c);
+            for(String cl : classes) {
+                tree.addString(cl);
+            }
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
-        
         
         factory = new AndroidPrototypeFactory(tree);
         return factory;

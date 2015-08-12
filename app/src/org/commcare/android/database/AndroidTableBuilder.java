@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Some additional table methods we need only on Androidp
+ *
  * @author ctsims
+ * @author wspride
  *
  */
 public class AndroidTableBuilder extends TableBuilder {

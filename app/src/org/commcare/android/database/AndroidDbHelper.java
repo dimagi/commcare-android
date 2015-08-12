@@ -19,14 +19,19 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.util.HashMap;
 
 /**
+ * Essentially a wrapper around the Java-generic DatabaseHelper
+ * class that allows us to use those function i Android idiomatic classes
+ * (IE ResultSet -> ContentValues, Android Pair instead of generic Pair, etc.
+ *
  * @author ctsims
+ * @author wspride
  *
  */
-public abstract class DbHelper extends DatabaseHelper {
+public abstract class AndroidDbHelper extends DatabaseHelper {
     
     protected Context c;
     
-    public DbHelper(Context c) {
+    public AndroidDbHelper(Context c) {
         this.c = c;
     }
     
