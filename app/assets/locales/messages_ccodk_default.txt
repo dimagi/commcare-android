@@ -130,6 +130,7 @@ notifications.prompt.details=Select for details. ${0}
 notifications.prompt.more=(${0} More...)
 
 update.success.refresh=CommCare has been updated! Please log in again.
+update.success=CommCare has been updated!
 
 form.record.filter.subandpending=Filter By: All Completed Forms
 form.record.filter.submitted=Filter By: Only Submitted Forms
