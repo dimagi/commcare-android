@@ -115,13 +115,9 @@ public class UpgradeTask
             profileRef = addParamsToProfileReference(profileRef);
 
             boolean startOverUpgrade = calcResourceFreshness();
-            
+
             Resource upgradeProfile =
-                temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-            if (upgradeProfile != null) {
-                System.out.print(upgradeProfile.getVersion());
-            }
-            System.out.println(temporary.getTableReadiness());
+                    temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             try {
                 // This populates the upgrade table with resources based on
@@ -130,9 +126,13 @@ public class UpgradeTask
                 // actually pull in all the new references
                 platform.stageUpgradeTable(global, temporary,
                         recovery, profileRef, startOverUpgrade);
-                System.out.println(temporary.getTableReadiness());
+
+                if (latestUpgradeStaged(temporary, upgradeProfile)) {
+                    return ResourceEngineOutcomes.StatusUpdateStaged;
+                }
 
                 if (updateIsntNewer(temporary, profile)) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                     temporary.destroy();
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
@@ -163,7 +163,18 @@ public class UpgradeTask
         }
     }
 
+    private boolean latestUpgradeStaged(ResourceTable upgradeTable, Resource upgradeProfile) {
+        Resource newUpgradeProfile =
+                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+
+        boolean versionNewerThanCurrentUpgradeTable = upgradeProfile == null || newUpgradeProfile.isNewer(upgradeProfile);
+        return (versionNewerThanCurrentUpgradeTable ||
+                upgradeTable.getTableReadiness() != ResourceTable.RESOURCE_TABLE_UPGRADE);
+    }
+
     private String addParamsToProfileReference(final String profileRef) {
+        // TODO PLM: move to commcare repo and unify with util usage of this
+        // logic
         URL profileUrl;
         try {
             profileUrl = new URL(profileRef);
@@ -196,11 +207,7 @@ public class UpgradeTask
                                     Resource currentProfile) {
         Resource newProfile =
             upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-        if (!newProfile.isNewer(currentProfile)) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-            return true;
-        }
-        return false;
+        return newProfile != null && !newProfile.isNewer(currentProfile);
     }
 
     @Override
