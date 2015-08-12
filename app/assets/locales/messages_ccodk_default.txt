@@ -409,6 +409,10 @@ notification.formentry.unretrievable.title=Form Entry Error - Data Lost
 notification.formentry.unretrievable.detail=CommCare couldn't retrieve the data that you just entered. Something went wrong with the app's internal communication.
 notification.formentry.unretrievable.action=Unfortunately, CommCare can't retrieve the form you were entering. You'll almost certainly need to re-enter it. This error has been submitted to the server and is being looked into.
 
+notification.formentry.save_error.title=Error Saving your Form
+notification.formentry.save_error.detail=CommCare ran into an error while processing your form, due to a problem with the form definition. The form structure needs to be updated, and it is unlikely you can fix this error on the phone. You should cancel form entry until the problem is addressed.
+notification.formentry.save_error.action=The error that occured was:\n${0}
+
 notification.processing.badstructure.title=Problem with your App
 notification.processing.badstructure.detail=CommCare couldn't process a form you completed because it contains invalid information.
 notification.processing.badstructure.action=The form unfortunately can't be recovered. You can try to re-enter it, but it is likely that the form is designed incorrectly. If you were completing an incomplete form, that Form's data had become invalid and the form couldn't be used. Otherwise, please contact a supervisor or tech support. The error will be sent to your submission server as a log.
@@ -451,6 +455,7 @@ problem.report.menuitem=Report Problem
 verification.title=Verifying Multimedia
 verification.checking=Verifying...
 verification.progress=Checked ${0} out of ${1} resources
+verification.success.message=Application's multimedia is installed
 verification.fail.message=Some of your application's multimedia has not been installed. Please make sure the following files are present in the device, and press retry.
 
 wifi.direct.base.folder=wifidirect

@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.android.tasks.VerificationTaskListener;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -39,6 +41,7 @@ public class CommCareVerificationActivity
     private static final int MENU_UNZIP = Menu.FIRST;
     
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_LAUNCH_FROM_SETTINGS = "from_settings";
     
     private Button retryButton;
 
@@ -62,6 +65,13 @@ public class CommCareVerificationActivity
      */
     private boolean fromManager;
 
+    /**
+     * Indicates whether this activity was launched explicitly from the settings menu in
+     * CommCareHomeActivity
+     */
+    private boolean fromSettings;
+
+
     public void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
@@ -70,7 +80,9 @@ public class CommCareVerificationActivity
         
         retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
-                
+
+        this.fromSettings = this.getIntent().
+                getBooleanExtra(KEY_LAUNCH_FROM_SETTINGS, false);
         this.fromManager = this.getIntent().
         		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
@@ -92,7 +104,7 @@ public class CommCareVerificationActivity
         // then something was done on the Manager screen that means we no longer want to be here --
         // VerificationActivity should be displayed to a user only if we were explicitly sent from
         // the manager, or if the state of installed apps calls for it
-        boolean shouldBeHere = fromManager || CommCareApplication._().shouldSeeMMVerification();
+        boolean shouldBeHere = fromManager || fromSettings || CommCareApplication._().shouldSeeMMVerification();
         if (!shouldBeHere) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
@@ -194,15 +206,22 @@ public class CommCareVerificationActivity
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Returning to " + CommCareHomeActivity.class.getSimpleName() + " on success");
+            }
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             startActivity(i);
         } else {
             //Good to go
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Returning to " + getIntent().getAction() + " on success");
+            }
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             setResult(RESULT_OK, i);
         }
+        Toast.makeText(getApplicationContext(), Localization.get("verification.success.message"), Toast.LENGTH_SHORT).show();
         finish();
     }
 

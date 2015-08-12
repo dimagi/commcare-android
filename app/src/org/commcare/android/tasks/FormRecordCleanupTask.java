@@ -80,8 +80,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             FormRecord r = storage.read(recordID);
 
             try {
-                updateAndWriteRecord(context, platform, r,
-                        FormRecord.STATUS_SAVED, storage);
+                updateAndWriteUnindexedRecord(context, platform, r, storage);
             } catch (FileNotFoundException | InvalidStructureException e) {
                 // No form or bad form data, mark for deletion
                 recordsToRemove.add(recordID);
@@ -113,14 +112,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     /**
      * Reparse the saved form instance associated with the form record and
      * apply any updates found to the form record, such as UUID and date
-     * modified, returning an updated copy.  Write the updated record to
-     * storage. If the record is associated with a case id, recompute and write
-     * the SessionStateDescriptor too.
+     * modified, returning an updated copy with the status set to saved.  Write
+     * the updated record to storage.
      *
      * @param context   Used to get the filepath of the form instance
      *                  associated with the record.
      * @param oldRecord Reparse this record and return an updated copy of it
-     * @param newStatus The new form record status
      * @param storage   User storage where updated FormRecord is written
      * @return The reparsed form record and the associated case id, if present
      * @throws IOException                       Problem opening the saved form
@@ -132,21 +129,62 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      *                                           versioning problem
      */
     public static FormRecord updateAndWriteRecord(Context context,
-                                                  CommCarePlatform platform,
                                                   FormRecord oldRecord,
-                                                  String newStatus,
                                                   SqlStorage<FormRecord> storage)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
-        Pair<FormRecord, String> recordUpdates =
-            reparseRecord(context, oldRecord, FormRecord.STATUS_SAVED);
+        Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
+
         FormRecord updated = recordUpdates.first;
         String caseId = recordUpdates.second;
 
         if (caseId != null &&
-                FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus()) &&
-                !FormRecord.STATUS_UNINDEXED.equals(newStatus)) {
+                FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus())) {
+            throw new RuntimeException("Trying to update an unindexed record without performing the indexing");
+        }
+
+        storage.write(updated);
+        return updated;
+    }
+
+    /**
+     * Reparse the saved form instance associated with the form record and
+     * apply any updates found to the form record, such as UUID and date
+     * modified, returning an updated copy with the status set to saved.  Write
+     * the updated record to storage. If the record is unindexed and associated
+     * with a case id, recompute and write the SessionStateDescriptor too.
+     *
+     * @param context   Used to get the filepath of the form instance
+     *                  associated with the record.
+     * @param platform  Used to generate SessionStateDescriptor for instances
+     *                  that reference a case.
+     * @param oldRecord Reparse this record and return an updated copy of it
+     * @param storage   User storage where updated FormRecord is written
+     * @return The reparsed form record and the associated case id, if present
+     * @throws IOException                       Problem opening the saved form
+     *                                           attached to the record.
+     * @throws InvalidStructureException         Occurs during reparsing of the
+     *                                           form attached to record.
+     * @throws XmlPullParserException
+     * @throws UnfullfilledRequirementsException Parsing encountered a platform
+     *                                           versioning problem
+     */
+    private static void updateAndWriteUnindexedRecord(Context context,
+                                                      CommCarePlatform platform,
+                                                      FormRecord oldRecord,
+                                                      SqlStorage<FormRecord> storage)
+            throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException {
+
+        Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
+
+        FormRecord updated = recordUpdates.first;
+        updated = updated.updateInstanceAndStatus(updated.getInstanceURI().toString(), FormRecord.STATUS_SAVED);
+        String caseId = recordUpdates.second;
+
+        if (caseId != null &&
+                FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus())) {
             // There is a case id associated with an unidexed form record,
             // calculate the state descripter and write it.
             //
@@ -168,18 +206,16 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         }
 
         storage.write(updated);
-        return updated;
     }
 
     /**
      * Reparse the saved form instance associated with the form record and
      * apply any updates found to the form record, such as UUID and date
-     * modified, returning an updated copy.
+     * modified, returning an updated copy with status set to saved.
      *
      * @param context   Used to get the filepath of the form instance
      *                  associated with the record.
      * @param r         Reparse this record and return an updated copy of it
-     * @param newStatus The new form record status
      * @return The reparsed form record and the associated case id, if present
      * @throws IOException                       Problem opening the saved form
      *                                           attached to the record.
@@ -190,8 +226,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      *                                           versioning problem
      */
     private static Pair<FormRecord, String> reparseRecord(Context context,
-                                                         FormRecord r,
-                                                         String newStatus)
+                                                         FormRecord r)
             throws IOException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         final String[] caseIDs = new String[1];
@@ -214,12 +249,18 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         };
 
         String path = r.getPath(context);
-        InputStream is;
+        InputStream is = null;
         FileInputStream fis = new FileInputStream(path);
         try {
             Cipher decrypter = Cipher.getInstance("AES");
             decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(r.getAesKey(), "AES"));
             is = new CipherInputStream(fis, decrypter);
+
+            // Construct parser for this form's internal data.
+            DataModelPullParser parser = new DataModelPullParser(is, factory);
+
+            // populate uuid, modified, and caseIDs arrays by parsing
+            parser.parse();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException("No Algorithm while attempting to decode form submission for processing");
@@ -229,31 +270,24 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         } catch (InvalidKeyException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid Key Data while attempting to decode form submission for processing");
+        } finally {
+            fis.close();
+            if (is != null) {
+                is.close();
+            }
         }
-
-        // Construct parser for this form's internal data.
-        DataModelPullParser parser = new DataModelPullParser(is, factory);
-
-        // populate uuid, modified, and caseIDs arrays by parsing
-        parser.parse();
-
-        fis.close();
-        is.close();
 
         // TODO: We should be committing all changes to form record models via
         // the ASW objects, not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
-                newStatus, r.getFormNamespace(), r.getAesKey(),
+                r.getStatus(), r.getFormNamespace(), r.getAesKey(),
                 uuid[0], modified[0]);
         parsed.setID(r.getID());
 
         // Make sure that the instance is no longer editable
-        if (!newStatus.equals(FormRecord.STATUS_INCOMPLETE) &&
-                !newStatus.equals(FormRecord.STATUS_UNSTARTED)) {
-            ContentValues cv = new ContentValues();
-            cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
-            context.getContentResolver().update(r.getInstanceURI(), cv, null, null);
-        }
+        ContentValues cv = new ContentValues();
+        cv.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(false));
+        context.getContentResolver().update(r.getInstanceURI(), cv, null, null);
 
         return new Pair<>(parsed, caseIDs[0]);
     }
@@ -346,17 +380,20 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if(dataPath != null) {
             String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
             Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {dataPath}, null);
-            if(c.moveToFirst()) {
-                //There's a cursor for this file, good.
-                long id = c.getLong(0);
+            try {
+                if (c.moveToFirst()) {
+                    //There's a cursor for this file, good.
+                    long id = c.getLong(0);
 
-                //this should take care of the files
-                context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
-            } else{
-                //No instance record for whatever reason, manually wipe files
-                FileUtil.deleteFileOrDir(dataPath);
+                    //this should take care of the files
+                    context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
+                } else {
+                    //No instance record for whatever reason, manually wipe files
+                    FileUtil.deleteFileOrDir(dataPath);
+                }
+            } finally {
+                c.close();
             }
-            c.close();
         }
     }
 
