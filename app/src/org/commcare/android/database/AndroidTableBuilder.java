@@ -6,7 +6,7 @@ package org.commcare.android.database;
 import android.util.Pair;
 
 import org.commcare.android.storage.framework.Table;
-import org.commcare.api.persistence.TableBuilder;
+import org.commcare.core.database.TableBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
