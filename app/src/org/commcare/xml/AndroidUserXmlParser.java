@@ -17,12 +17,12 @@ import java.util.NoSuchElementException;
 
 
 
-public class UserXmlParser extends TransactionParser<User> {
+public class AndroidUserXmlParser extends TransactionParser<User> {
 
     IStorageUtilityIndexed storage;
     byte[] wrappedKey;
     
-    public UserXmlParser(KXmlParser parser, byte[] wrappedKey) {
+    public AndroidUserXmlParser(KXmlParser parser, byte[] wrappedKey) {
         super(parser);
         this.wrappedKey = wrappedKey;
     }
@@ -114,7 +114,7 @@ public class UserXmlParser extends TransactionParser<User> {
             return null;
         }
     }
-    
+
     public IStorageUtilityIndexed cachedStorage() throws SessionUnavailableException{
         if (storage == null) {
             storage =  CommCareApplication._().getUserStorage(User.class);

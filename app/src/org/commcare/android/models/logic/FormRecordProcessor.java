@@ -56,7 +56,7 @@ public class FormRecordProcessor {
         final Cipher decrypter = FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
-        org.commcare.api.process.FormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is);
+        org.commcare.core.process.FormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is);
 
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");

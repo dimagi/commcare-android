@@ -1,11 +1,10 @@
 package org.commcare.android.database;
 
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.api.interfaces.UserDataInterface;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -39,12 +38,12 @@ public class AndroidSandbox implements UserDataInterface {
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
-        return app.getUserStorage(FormRecord.class);
+        return app.getUserStorage(FormInstance.class);
     }
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
-        return app.getAppStorage(FormRecord.class);
+        return app.getAppStorage(FormInstance.class);
     }
 
     @Override

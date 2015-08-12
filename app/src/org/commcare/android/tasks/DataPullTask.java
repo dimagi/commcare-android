@@ -36,7 +36,7 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
-import org.commcare.xml.CommCareTransactionParserFactory;
+import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -174,7 +174,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
         
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
+        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, requestor) {
             boolean publishedAuth = false;
             @Override
             public void reportProgress(int progress) {
@@ -485,7 +485,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
+    private int recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
         
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
@@ -635,7 +635,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
+    private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
         DataModelPullParser parser;
         
         factory.initCaseParser();
