@@ -12,7 +12,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
- * Performs initialization of an application record
+ * Activity to perform asynchronous initialization of an application
  *
  * @author amstone
  */
