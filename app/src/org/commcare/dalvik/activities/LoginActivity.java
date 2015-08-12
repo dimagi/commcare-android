@@ -567,12 +567,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
         return dialog;
     }
-    
+
     @Override
     public boolean isBackEnabled() {
-        return false;
+        return true;
     }
-    
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+
+        CommCareHomeActivity.exitCommCare(this);
+    }
+
     private void refreshView() {
         // Refresh the breadcrumb bar in case the seated app has changed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
