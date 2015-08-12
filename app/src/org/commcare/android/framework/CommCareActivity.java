@@ -241,11 +241,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
-        //If stateHolder is null here, it's because it is restoring itself, it doesn't need
-        //this step
-        wakelock();
         stateHolder.connectTask(task);
-        
+
         //If we've left an old dialog showing during the task transition and it was from the same task
         //as the one that is starting, don't dismiss it
         CustomProgressDialog currDialog = getCurrentDialog();
@@ -254,9 +251,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    @Override
-    public R getReceiver() {
-        return (R)this;
+
+    /**
+     * @return wakelock level for an activity with a running task attached to
+     * it; defaults to not using wakelocks.
+     */
+    protected int getWakeLockLevel() {
+        return CommCareTask.DONT_WAKELOCK;
     }
     
     /*
@@ -293,9 +294,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 dismissProgressDialog();
             }
         }
-        unlock();
+
+        stateHolder.releaseWakeLock();
     }
-    
+
+    @Override
+    public R getReceiver() {
+        return (R)this;
+    }
+
     @Override
     public void startTaskTransition() {
         inTaskTransition = true;
@@ -372,25 +379,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    private void wakelock() {
-        int lockLevel = getWakeLockingLevel();
-        if(lockLevel == -1) { return;}
-        
-        stateHolder.acquireWakeLock(lockLevel);
-    }
-    
-    private void unlock() {
-        stateHolder.releaseWakeLock();
-    }
-    
-    /**
-     * @return The WakeLock flags that should be used for this activity's tasks. -1
-     * if this activity should not acquire/use the wakelock for tasks
-     */
-    protected int getWakeLockingLevel() {
-        return -1;
-    }
-    
     //Graphical stuff below, needs to get modularized
     
     public void transplantStyle(TextView target, int resource) {
