@@ -30,6 +30,12 @@ public final class InstanceProviderAPI {
     public static final String STATUS_COMPLETE = "complete";
     public static final String STATUS_SUBMITTED = "submitted";
     public static final String STATUS_SUBMISSION_FAILED = "submissionFailed";
+
+    /**
+     * Used to signal an instance insertion shouldn't be attached to the
+     * session's form record, but rather create a new record to register with.
+     */
+    public static final String UNINDEXED_SUBMISSION = "unindexedSubmission";
     
     public static final class InstanceColumns implements BaseColumns {
         // This class cannot be instantiated
