@@ -832,18 +832,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     /**
      * Polls the CommCareSession to determine what information is needed in order to proceed with
-     * the next step in the session, and then executes the action to get that info
+     * the next entry step in the session and then executes the action to get that info, OR
+     * proceeds with trying to enter the form if no more info is needed
      */
     private void startNextFetch() {
-        //TODO: feels like this logic should... not be in a big disgusting ifghetti.
-        //Interface out the transitions, maybe?
 
         final CommCareSession session = CommCareApplication._().getCurrentSession();
         String needed = session.getNeededData();
         StackFrameStep lastPopped = session.getPoppedStep();
 
         if (needed == null) {
-            handleMissingNextStep(session);
+            readyToProceed(session);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
@@ -857,7 +856,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     // region: private helper methods used by startNextFetch(), to prevent it from being one
     // extremely long method
 
-    private void handleMissingNextStep(final CommCareSession session) {
+    private void readyToProceed(final CommCareSession session) {
         EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
         //See if we failed any of our assertions
         Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
