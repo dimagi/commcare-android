@@ -32,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etsy.android.grid.StaggeredGridView;
+
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -164,6 +166,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
+    private StaggeredGridView newGridView;
     private ImageView topBannerImageView;
 
     @Override
@@ -193,10 +196,17 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
-        gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
-        gridView.addHeaderView(topBanner);
-        gridView.setAdapter(adapter);
-        gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            newGridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
+            newGridView.addHeaderView(topBanner);
+            newGridView.setAdapter(adapter);
+        } else {
+            gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+            gridView.addHeaderView(topBanner);
+            gridView.setAdapter(adapter);
+        }
+        final View grid = newGridView != null ? newGridView : gridView;
+        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")
             @Override
             public void onGlobalLayout() {
@@ -204,11 +214,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
                 }
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 } else {
-                    gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
-                gridView.requestLayout();
+                grid.requestLayout();
                 adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
                 configUi();
             }
