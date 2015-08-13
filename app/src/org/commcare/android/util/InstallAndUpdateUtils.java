@@ -35,7 +35,7 @@ public class InstallAndUpdateUtils {
         CommCareResourceManager resourceManager =
             new CommCareResourceManager(platform, global, temporary, recovery);
 
-        if (!isUpgradeInstallReady()) {
+        if (!CommCareResourceManager.isUpgradeStaged(temporary)) {
             return;
         }
 
@@ -53,12 +53,8 @@ public class InstallAndUpdateUtils {
     public static boolean isUpgradeInstallReady() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
-
-        ResourceTable temporary = platform.getUpgradeResourceTable();
-
-        boolean res = temporary.isReady();
-        System.out.print(res);
-        return (temporary.isReady());
+        ResourceTable upgradeTable = platform.getUpgradeResourceTable();
+        return CommCareResourceManager.isUpgradeStaged(upgradeTable);
     }
 
     public static int upgradeTableVersion() {

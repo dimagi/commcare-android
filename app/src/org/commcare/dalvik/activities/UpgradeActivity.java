@@ -45,6 +45,7 @@ public class UpgradeActivity extends CommCareActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         uiController = new UpgradeUiController(this);
 
         loadSaveInstanceState(savedInstanceState);

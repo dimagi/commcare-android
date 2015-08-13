@@ -124,7 +124,7 @@ public class UpgradeTask
 
             try {
                 resourceManager.instantiateLatestProfile(profileRef);
-                if (resourceManager.isUpgradeStaged()) {
+                if (CommCareResourceManager.isUpgradeStaged(upgradeTable)) {
                     return ResourceEngineOutcomes.StatusUpdateStaged;
                 }
 
