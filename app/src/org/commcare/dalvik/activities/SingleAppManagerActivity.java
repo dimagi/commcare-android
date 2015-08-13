@@ -126,7 +126,7 @@ public class SingleAppManagerActivity extends Activity {
                     Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                 } else if (resultCode == RESULT_OK) {
                     if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                        Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, Localization.get("update.success"), Toast.LENGTH_LONG).show();
                         CommCareApplication._().expireUserSession();
                     }
                     return;
