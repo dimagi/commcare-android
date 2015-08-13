@@ -846,9 +846,9 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            handleGetCase(session, lastPopped);
+            handleGetDatum(session, lastPopped);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            handleXpathCompute(session);
+            handleCompute(session);
         }
     }
 
@@ -884,7 +884,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startActivityForResult(i, GET_COMMAND);
     }
 
-    private void handleGetCase(CommCareSession session, StackFrameStep lastPopped) {
+    private void handleGetDatum(CommCareSession session, StackFrameStep lastPopped) {
         Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
@@ -893,7 +893,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startActivityForResult(i, GET_CASE);
     }
 
-    private void handleXpathCompute(CommCareSession session) {
+    private void handleCompute(CommCareSession session) {
         SessionDatum datum = session.getNeededDatum();
         XPathExpression form;
         try {
