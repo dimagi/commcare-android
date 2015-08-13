@@ -71,11 +71,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
 
-    /**
-     * Determines if this should launch the home activity upon completion
-     * instead of returning to the previous activity.
-     */
-    public static final String REDIRECT_TO_HOMESCREEN = "redirect_to_homescreen";
+    public static final int SEAT_APP_ACTIVITY = 0;
+    public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
     @UiElement(value=R.id.login_button, locale="login.button")
     Button login;
@@ -455,21 +452,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
     
     private void done() {
-        Intent parentIntent = getIntent();
-        boolean redirectHomeIgnoringLastActivity =
-            parentIntent.getBooleanExtra(LoginActivity.REDIRECT_TO_HOMESCREEN, false);
-
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
-        if (redirectHomeIgnoringLastActivity) {
-            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
-            startActivity(i);
-        } else {
-            Intent i = new Intent();
-            setResult(RESULT_OK, i);
-        }
+        Intent i = new Intent();
+        setResult(RESULT_OK, i);
+
         finish();
     }
     
@@ -576,9 +565,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        Intent i = new Intent();
+        setResult(RESULT_CANCELED, i);
+
         finish();
 
-        CommCareHomeActivity.exitCommCare(this);
+        //CommCareHomeActivity.exitCommCare(this);
     }
 
     private void refreshView() {

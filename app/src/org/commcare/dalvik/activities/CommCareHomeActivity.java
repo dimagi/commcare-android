@@ -43,6 +43,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -97,10 +98,10 @@ import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
+public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
-    private static final int LOGIN_USER = 0;
+    public static final int LOGIN_USER = 0;
     private static final int GET_COMMAND = 1;
     private static final int GET_CASE = 2;
     private static final int MODEL_RESULT = 4;

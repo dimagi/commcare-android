@@ -25,7 +25,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
@@ -214,9 +213,9 @@ public class CommCareSessionService extends Service  {
         Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
         // The PendingIntent to launch our activity if the user selects this notification
-        Intent i = new Intent(this, LoginActivity.class);
+        Intent i = new Intent(this, CommCareHomeActivity.class);
         
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, notification.flags |= Notification.FLAG_AUTO_CANCEL);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_ONE_SHOT);
 
         // Set the info for the views that show in the notification panel.
         notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.expirenotification), text, contentIntent);
