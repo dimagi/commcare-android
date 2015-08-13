@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -154,8 +153,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-
-    public static final String REQUESTED_EXIT = "requested_exit";
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
@@ -1130,10 +1127,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                         // Recurse in order to make the correct decision based on the new state
                         dispatchHomeScreen();
                     }
-                } else if (this.getIntent().hasExtra(REQUESTED_EXIT)) {
-                    // just exit
-
-                    finish();
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
                     SessionActivityRegistration.returnToLogin(this);
@@ -1169,16 +1162,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
             this.startActivityForResult(i, INIT_APP);
         }
-    }
-
-    /**
-     * Helper method to leave CommCare unconditionally
-     */
-    public static void exitCommCare(Context context) {
-        Intent intent = new Intent(context, CommCareHomeActivity.class);
-        intent.putExtra(CommCareHomeActivity.REQUESTED_EXIT, true);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK );
-        context.startActivity(intent);
     }
 
     // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one

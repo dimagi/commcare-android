@@ -569,8 +569,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         setResult(RESULT_CANCELED, i);
 
         finish();
-
-        //CommCareHomeActivity.exitCommCare(this);
     }
 
     private void refreshView() {
