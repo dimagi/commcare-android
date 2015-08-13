@@ -6,6 +6,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.tasks.InstallStagedUpgradeTask;
+import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
 
@@ -85,7 +87,32 @@ class UpgradeUiController {
         installUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InstallAndUpdateUtils.performUpgradeFromStagedTable();
+                InstallStagedUpgradeTask<UpgradeActivity> task =
+                        new InstallStagedUpgradeTask<UpgradeActivity>(UpgradeActivity.DIALOG_INSTALL_PROGRESS) {
+
+                            @Override
+                            protected void deliverResult(UpgradeActivity receiver,
+                                                         ResourceEngineOutcomes result) {
+                                if (result == ResourceEngineOutcomes.StatusInstalled) {
+                                    receiver.handleSuccessfulUpgrade();
+                                } else {
+                                    receiver.handleInstallError();
+                                }
+                            }
+
+                            @Override
+                            protected void deliverUpdate(UpgradeActivity receiver,
+                                                         int[]... update) {
+                            }
+
+                            @Override
+                            protected void deliverError(UpgradeActivity receiver,
+                                                        Exception e) {
+                                receiver.handleInstallError();
+                            }
+                        };
+                task.connect(activity);
+                task.execute();
             }
         });
     }
@@ -131,6 +158,15 @@ class UpgradeUiController {
         installUpgradeButton.setEnabled(false);
 
         stopUpgradeButton.setText("Stop upgrade");
+    }
+
+    protected void upgradeComplete() {
+        checkUpgradeButton.setEnabled(true);
+        stopUpgradeButton.setEnabled(false);
+        installUpgradeButton.setEnabled(false);
+
+        stopUpgradeButton.setText("Stop upgrade");
+        pendingUpgradeStatus.setText("Just finished upgrading!");
     }
 
     protected void updateProgressText(String msg) {

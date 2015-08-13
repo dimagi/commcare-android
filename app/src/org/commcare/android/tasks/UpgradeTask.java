@@ -95,10 +95,6 @@ public class UpgradeTask
             }
             global.setStateListener(this);
 
-            // temporary is the upgrade table, which starts out in the
-            // state that it was left after the last install- partially
-            // populated if it stopped in middle, empty if the install was
-            // successful
             ResourceTable upgradeTable = platform.getUpgradeResourceTable();
             ResourceTable recovery = platform.getRecoveryTable();
             upgradeTable.setStateListener(this);
@@ -108,19 +104,10 @@ public class UpgradeTask
             CommCareResourceManager resourceManager =
                 new CommCareResourceManager(platform, global, upgradeTable, recovery);
 
-            // is table ready to install
-            //   - no:
-            //          start or resume downloading resources into update table
-            //   - yes:
-            //          return staged upadate flag
-
             boolean startOverUpgrade = calcResourceFreshness();
             if (startOverUpgrade) {
                 upgradeTable.clear();
             }
-
-            Resource upgradeProfileBeforeStage =
-                    upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             try {
                 resourceManager.instantiateLatestProfile(profileRef);

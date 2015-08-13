@@ -14,6 +14,7 @@ import org.commcare.android.tasks.UpgradeTask;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.javarosa.core.services.locale.Localization;
@@ -28,7 +29,7 @@ import java.util.Date;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeActivity extends CommCareActivity
+public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         implements TaskListener<Integer, ResourceEngineOutcomes> {
 
     private static final String TAG = UpgradeActivity.class.getSimpleName();
@@ -40,6 +41,8 @@ public class UpgradeActivity extends CommCareActivity
     private UpgradeTask upgradeTask;
 
     private UpgradeUiController uiController;
+
+    protected static final int DIALOG_INSTALL_PROGRESS = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,5 +257,33 @@ public class UpgradeActivity extends CommCareActivity
         } else {
             uiController.idle();
         }
+    }
+
+    public void handleInstallError() {
+        uiController.error();
+    }
+
+    public void handleSuccessfulUpgrade() {
+        uiController.upgradeComplete();
+
+        CommCareApplication app = CommCareApplication._();
+        SharedPreferences preferences = app.getCurrentApp().getAppPreferences();
+        long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), new Date(lastUpdateCheck));
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (taskId != DIALOG_INSTALL_PROGRESS) {
+            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                    + "any valid possibilities in CommCareSetupActivity");
+            return null;
+        }
+        String title = Localization.get("updates.installing.title");
+        String message = Localization.get("updates.installing.message");
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        dialog.setCancelable(false);
+        CustomProgressDialog lastDialog = getCurrentDialog();
+        return dialog;
     }
 }

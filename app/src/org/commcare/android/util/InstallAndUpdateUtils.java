@@ -24,32 +24,6 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class InstallAndUpdateUtils {
-    public static void performUpgradeFromStagedTable() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        app.setupSandbox();
-
-        AndroidCommCarePlatform platform = app.getCommCarePlatform();
-        ResourceTable global = platform.getGlobalResourceTable();
-        ResourceTable temporary = platform.getUpgradeResourceTable();
-        ResourceTable recovery = platform.getRecoveryTable();
-        CommCareResourceManager resourceManager =
-            new CommCareResourceManager(platform, global, temporary, recovery);
-
-        if (!CommCareResourceManager.isUpgradeStaged(temporary)) {
-            return;
-        }
-
-        try {
-            // Replaces global table with temporary, or w/ recovery if
-            // something goes wrong
-            resourceManager.upgrade();
-        } catch (UnresolvedResourceException e) {
-        }
-        // TODO PLM
-        String profileRef = null;
-        initAndCommitApp(app, profileRef);
-    }
-
     public static boolean isUpgradeInstallReady() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();

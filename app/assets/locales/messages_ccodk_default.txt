@@ -35,6 +35,9 @@ upgrade.button.startover=Restart Upgrade
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
+updates.installing.title=Installing new app version
+updates.installing.message=Installing downloaded updates
+
 menu.basic=Basic Install
 menu.advanced=Advanced Install
 menu.archive=Offline Install
