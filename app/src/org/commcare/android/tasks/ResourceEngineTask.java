@@ -83,8 +83,7 @@ public abstract class ResourceEngineTask<R>
             // Not upgrade mode, so attempting normal install
             global.setStateListener(this);
             try {
-                CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
-                resourceManager.init(profileRef, global, false);
+                CommCareResourceManager.init(platform, profileRef, global, false);
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");

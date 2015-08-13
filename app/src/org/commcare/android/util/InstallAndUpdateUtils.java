@@ -29,10 +29,11 @@ public class InstallAndUpdateUtils {
         app.setupSandbox();
 
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
-        CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable temporary = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
+        CommCareResourceManager resourceManager =
+            new CommCareResourceManager(platform, global, temporary, recovery);
 
         if (!isUpgradeInstallReady()) {
             return;
@@ -41,7 +42,7 @@ public class InstallAndUpdateUtils {
         try {
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
-            resourceManager.upgrade(global, temporary, recovery);
+            resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
         }
         // TODO PLM

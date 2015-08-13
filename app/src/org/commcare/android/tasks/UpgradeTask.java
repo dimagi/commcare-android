@@ -105,43 +105,36 @@ public class UpgradeTask
 
             profileRef = addParamsToProfileReference(profileRef);
 
-            CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
+            CommCareResourceManager resourceManager =
+                new CommCareResourceManager(platform, global, upgradeTable, recovery);
 
-            // instantiateLatestProfile
-            //    - fetch into recovery
-            //    - if newer than upgrade, clear upgrade, copy over recovery, download
-            //    - if not newer, clear recovery
             // is table ready to install
             //   - no:
             //          start or resume downloading resources into update table
             //   - yes:
             //          return staged upadate flag
-            // resourceManager.instantiateLatestProfile(upgradeTable, recovery);
 
             boolean startOverUpgrade = calcResourceFreshness();
+            if (startOverUpgrade) {
+                upgradeTable.clear();
+            }
 
             Resource upgradeProfileBeforeStage =
                     upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             try {
-                // This populates the upgrade table with resources based on
-                // binary files, starting with the profile file. If the new
-                // profile is not a newer version, statgeUpgradeTable doesn't
-                // actually pull in all the new references
-                resourceManager.stageUpgradeTable(global, upgradeTable,
-                        recovery, profileRef, startOverUpgrade);
-
-                if (isTableStagedAndLatest(upgradeTable, upgradeProfileBeforeStage)) {
+                resourceManager.instantiateLatestProfile(profileRef);
+                if (resourceManager.isUpgradeStaged()) {
                     return ResourceEngineOutcomes.StatusUpdateStaged;
                 }
 
-                if (updateIsntNewer(upgradeTable, profile)) {
+                if (resourceManager.updateIsntNewer(profile)) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                    upgradeTable.destroy();
+                    upgradeTable.clear();
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
-                resourceManager.prepareUpgradeResources(global, upgradeTable, recovery);
+                resourceManager.prepareUpgradeResources();
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -207,13 +200,6 @@ public class UpgradeTask
         }
 
         return profileRef;
-    }
-
-    private boolean updateIsntNewer(ResourceTable upgradeTable,
-                                    Resource currentProfile) {
-        Resource newProfile =
-            upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-        return newProfile != null && !newProfile.isNewer(currentProfile);
     }
 
     @Override
