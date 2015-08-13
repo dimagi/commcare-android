@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -165,7 +166,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                     try {
                         View v = this.findViewById(element.value());
                         f.set(this, v);
-                        
+
                         if(oldActivity != null && restoreOldFields) {
                             View oldView = (View)f.get(oldActivity);
                             if(oldView != null) {
@@ -183,10 +184,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                                 continue;
                             }
                         }
-                        
-                        if(!"".equals(element.locale())) {
-                            if(v instanceof TextView) {
-                                ((TextView)v).setText(Localization.get(element.locale()));
+
+                        String localeString = element.locale();
+                        if(!"".equals(localeString)) {
+                            if (v instanceof EditText) {
+                                ((EditText)v).setHint(Localization.get(localeString));
+                            } else if(v instanceof TextView) {
+                                ((TextView)v).setText(Localization.get(localeString));
                             } else {
                                 throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");
                             }
