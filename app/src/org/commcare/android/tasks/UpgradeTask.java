@@ -13,6 +13,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -104,6 +105,19 @@ public class UpgradeTask
 
             profileRef = addParamsToProfileReference(profileRef);
 
+            CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
+
+            // instantiateLatestProfile
+            //    - fetch into recovery
+            //    - if newer than upgrade, clear upgrade, copy over recovery, download
+            //    - if not newer, clear recovery
+            // is table ready to install
+            //   - no:
+            //          start or resume downloading resources into update table
+            //   - yes:
+            //          return staged upadate flag
+            // resourceManager.instantiateLatestProfile(upgradeTable, recovery);
+
             boolean startOverUpgrade = calcResourceFreshness();
 
             Resource upgradeProfileBeforeStage =
@@ -114,7 +128,7 @@ public class UpgradeTask
                 // binary files, starting with the profile file. If the new
                 // profile is not a newer version, statgeUpgradeTable doesn't
                 // actually pull in all the new references
-                platform.stageUpgradeTable(global, upgradeTable,
+                resourceManager.stageUpgradeTable(global, upgradeTable,
                         recovery, profileRef, startOverUpgrade);
 
                 if (isTableStagedAndLatest(upgradeTable, upgradeProfileBeforeStage)) {
@@ -127,7 +141,7 @@ public class UpgradeTask
                     return ResourceEngineOutcomes.StatusUpToDate;
                 }
 
-                platform.prepareUpgradeResources(global, upgradeTable, recovery);
+                resourceManager.prepareUpgradeResources(global, upgradeTable, recovery);
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -153,7 +167,8 @@ public class UpgradeTask
         }
     }
 
-    private boolean isTableStagedAndLatest(ResourceTable upgradeTable, Resource upgradeProfileBeforeStage) {
+    private boolean isTableStagedAndLatest(ResourceTable upgradeTable,
+                                           Resource upgradeProfileBeforeStage) {
         Resource newUpgradeProfile =
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
@@ -264,7 +279,7 @@ public class UpgradeTask
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
-        Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+        Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
 
         for (Resource r : resources) {
             switch (r.getStatus()) {

@@ -12,7 +12,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareResourceManager;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -83,7 +83,8 @@ public abstract class ResourceEngineTask<R>
             // Not upgrade mode, so attempting normal install
             global.setStateListener(this);
             try {
-                platform.init(profileRef, global, false);
+                CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
+                resourceManager.init(profileRef, global, false);
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -129,7 +130,7 @@ public abstract class ResourceEngineTask<R>
             return;
         }
 
-        Vector<Resource> resources = CommCarePlatform.getResourceListFromProfile(table);
+        Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
 
         // TODO: Better reflect upgrade status process
 

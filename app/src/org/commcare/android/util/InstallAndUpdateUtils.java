@@ -12,6 +12,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 
 import java.security.cert.CertificateException;
@@ -28,6 +29,7 @@ public class InstallAndUpdateUtils {
         app.setupSandbox();
 
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
+        CommCareResourceManager resourceManager = new CommCareResourceManager(platform);
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable temporary = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
@@ -39,7 +41,7 @@ public class InstallAndUpdateUtils {
         try {
             // Replaces global table with temporary, or w/ recovery if
             // something goes wrong
-            platform.upgrade(global, temporary, recovery);
+            resourceManager.upgrade(global, temporary, recovery);
         } catch (UnresolvedResourceException e) {
         }
         // TODO PLM
