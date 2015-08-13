@@ -11,6 +11,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected static String TAG;
 
     public static final int GENERIC_TASK_ID = 32;
+    public static final int DONT_WAKELOCK = -1;
     
     private Object connectorLock = new Object();
     private CommCareTaskConnector<R> connector;
