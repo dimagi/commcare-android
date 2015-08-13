@@ -63,7 +63,6 @@ import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -1163,7 +1162,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     /**
      * Helper method to leave CommCare unconditionally
-     * @param context
      */
     public static void exitCommCare(Context context) {
         Intent intent = new Intent(context, CommCareHomeActivity.class);
