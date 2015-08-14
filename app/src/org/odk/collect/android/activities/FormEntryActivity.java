@@ -92,6 +92,7 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
@@ -229,6 +230,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public boolean hasSaved = false;
 
     private BroadcastReceiver mNoGPSReceiver;
+    private BroadcastReceiver xpathErrorReceiver;
 
     // marked true if we are in the process of saving a form because the user
     // database & key session are expiring. Being set causes savingComplete to
@@ -357,6 +359,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Setup BroadcastReceiver for asking user if they want to enable gps
      */
     private void registerFormEntryReceivers() {
+
         // See if this form needs GPS to be turned on
         mNoGPSReceiver = new BroadcastReceiver() {
             @Override
@@ -379,6 +382,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         };
         registerReceiver(mNoGPSReceiver,
                 new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
+
+        // Receiver for if an unresolvable xpath expression was encountered in
+        // PollSensorAction.onLocationChanged
+        xpathErrorReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                context.removeStickyBroadcast(intent);
+                String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
+                CommCareActivity.createErrorDialog(FormEntryActivity.this,
+                        "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
+            }
+        };
+        registerReceiver(xpathErrorReceiver, new IntentFilter(PollSensorAction.XPATH_ERROR_ACTION));
     }
 
     /**
@@ -2302,6 +2318,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         if (mNoGPSReceiver != null) {
             unregisterReceiver(mNoGPSReceiver);
+        }
+        if (xpathErrorReceiver != null) {
+            unregisterReceiver(xpathErrorReceiver);
         }
     }
 
