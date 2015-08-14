@@ -449,6 +449,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * selection information attached.
      */
     private Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
+        // if no value was given, bail on entity selection
+        if (selectDatum.getValue() == null || "".equals(selectDatum.getValue())) {
+            return new Intent(getApplicationContext(), CommCareHomeActivity.class);
+        }
+
         if (detailIntent == null) {
             detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
