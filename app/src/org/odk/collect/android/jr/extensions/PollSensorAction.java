@@ -148,7 +148,6 @@ public class PollSensorAction extends Action implements LocationListener {
                     Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
                     xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
                     applicationContext.sendStickyBroadcast(xpathErrorIntent);
-                    //throw new NullPointerException("Target of TreeReference " + qualifiedReference.toString(true) +" could not be resolved!");
                 } else {
                     int dataType = node.getDataType();
                     IAnswerData val = Recalculate.wrapData(result, dataType);
