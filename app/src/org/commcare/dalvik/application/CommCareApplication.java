@@ -448,7 +448,7 @@ public class CommCareApplication extends Application {
             currentApp = app;
             if (currentApp.initializeApplication()) {
                 resourceState = STATE_READY;
-                //this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
+                this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
             } else {
                 //????
                 resourceState = STATE_CORRUPTED;
@@ -1057,8 +1057,7 @@ public class CommCareApplication extends Application {
         synchronized (serviceLock) {
             if (mIsBound) {
                 if (sessionWrapper != null) {
-                    //sessionWrapper.reset();
-                    sessionWrapper = null;
+                    sessionWrapper.reset();
                 }
                 mIsBound = false;
                 // Detach our existing connection.
