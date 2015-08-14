@@ -64,6 +64,7 @@ import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -192,20 +193,32 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         ACRAUtil.registerAppData();
 
-        setContentView(R.layout.mainnew_modern);
+        // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
+        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            newGridView = (StaggeredGridView)findViewById(R.id.home_gridview_buttons);
+        final View grid = findViewById(R.id.home_gridview_buttons);
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Grid is: " + grid + ", build version: " + Build.VERSION.SDK_INT + ", tag is: " + grid.getTag());
+        }
+        if (grid instanceof StaggeredGridView) {
+            newGridView = (StaggeredGridView)grid;
             newGridView.addHeaderView(topBanner);
             newGridView.setAdapter(adapter);
         } else {
-            gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
+            gridView = (GridViewWithHeaderAndFooter)grid;
             gridView.addHeaderView(topBanner);
             gridView.setAdapter(adapter);
         }
-        final View grid = newGridView != null ? newGridView : gridView;
+        //region Asserting that we're using the correct grid view for each version
+        if (!(((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) && newGridView != null) || ((Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) && gridView != null))) {
+            Log.v(TAG, "Mismatch when loading grid view! Current grid is " + grid + ", but should be the other version");
+            if (BuildConfig.DEBUG) {
+                throw new AssertionError("Mismatch when loading grid view! Current grid is " + grid + ", but should be the other version");
+            }
+        }
+        //endregion
         grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")
             @Override
