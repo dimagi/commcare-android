@@ -12,6 +12,7 @@
         <!-- the top banner is going to be added as a header view to this element -->
         <com.etsy.android.grid.StaggeredGridView
             android:id="@+id/home_gridview_buttons"
+            android:tag="new-gv-port-v10"
             android:numColumns="2"
             android:layout_marginStart="@dimen/content_start"
             android:layout_marginEnd="@dimen/content_start"
