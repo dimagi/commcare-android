@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--android:left="@dimen/divider_left_margin"-->
     <item>
         <shape android:shape="rectangle" android:thickness="2dp">
             <stroke android:color="@color/black"/>

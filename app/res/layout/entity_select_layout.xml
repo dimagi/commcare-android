@@ -58,7 +58,6 @@
     android:listSelector="@drawable/selector"
     android:dividerHeight="1dp"
     >
-    <!--android:divider="@drawable/divider_case_list_modern"-->
 </ListView>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
