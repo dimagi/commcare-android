@@ -853,75 +853,96 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mAlertDialog.show();
     }
 
+    /**
+     * Polls the CommCareSession to determine what information is needed in order to proceed with
+     * the next entry step in the session and then executes the action to get that info, OR
+     * proceeds with trying to enter the form if no more info is needed
+     */
     private void startNextFetch() {
-        //TODO: feels like this logic should... not be in a big disgusting ifghetti.
-        //Interface out the transitions, maybe?
 
         final CommCareSession session = CommCareApplication._().getCurrentSession();
         String needed = session.getNeededData();
-        StackFrameStep lastPopped = session.getPoppedStep();
 
         if (needed == null) {
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            //See if we failed any of our asseertions
-            Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
-            if (text != null) {
-                createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        session.stepBack();
-                        CommCareHomeActivity.this.startNextFetch();
-                    }
-                });
-                return;
-            }
-            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+            readyToProceed(session);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
-            Intent i;
-
-            if (DeveloperPreferences.isGridMenuEnabled()) {
-                i = new Intent(getApplicationContext(), MenuGrid.class);
-            } else {
-                i = new Intent(getApplicationContext(), MenuList.class);
-            }
-
-            i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            startActivityForResult(i, GET_COMMAND);
+            handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
-
-            i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
-            }
-
-            startActivityForResult(i, GET_CASE);
+            handleGetDatum(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            //compute
-            SessionDatum datum = session.getNeededDatum();
-            XPathExpression form;
-            try {
-                form = XPathParseTool.parseXPath(datum.getValue());
-            } catch (XPathSyntaxException e) {
-                //TODO: What.
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-                session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-                session.setDatum("", "awful");
-            } else {
-                try {
-                    session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
-                } catch (XPathException e) {
-                    displayException(e);
-                    return;
-                }
-            }
-            startNextFetch();
+            handleCompute(session);
         }
     }
+
+
+    // region: private helper methods used by startNextFetch(), to prevent it from being one
+    // extremely long method
+
+    private void readyToProceed(final CommCareSession session) {
+        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+        //See if we failed any of our assertions
+        Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
+        if (text != null) {
+            createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    session.stepBack();
+                    CommCareHomeActivity.this.startNextFetch();
+                }
+            });
+            return;
+        }
+        startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+    }
+
+    private void handleGetCommand(CommCareSession session) {
+        Intent i;
+        if (DeveloperPreferences.isGridMenuEnabled()) {
+            i = new Intent(getApplicationContext(), MenuGrid.class);
+        } else {
+            i = new Intent(getApplicationContext(), MenuList.class);
+        }
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        startActivityForResult(i, GET_COMMAND);
+    }
+
+    private void handleGetDatum(CommCareSession session) {
+        Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        StackFrameStep lastPopped = session.getPoppedStep();
+        if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
+            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+        }
+        startActivityForResult(i, GET_CASE);
+    }
+
+    private void handleCompute(CommCareSession session) {
+        SessionDatum datum = session.getNeededDatum();
+        XPathExpression form;
+        try {
+            form = XPathParseTool.parseXPath(datum.getValue());
+        } catch (XPathSyntaxException e) {
+            //TODO: What.
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
+            session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
+            session.setDatum("", "awful");
+        } else {
+            try {
+                session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
+            } catch (XPathException e) {
+                displayException(e);
+                return;
+            }
+        }
+        startNextFetch();
+    }
+
+    // endregion
+
 
     /**
      * Create (or re-use) a form record and pass it to the form entry activity
