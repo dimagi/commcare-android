@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.activities;
 
 import android.annotation.SuppressLint;
@@ -106,6 +92,7 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
@@ -178,18 +165,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Identifies the gp of the form used to launch form entry
     public static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-
+    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
-    
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
-    
     public static final String KEY_HEADER_STRING = "form_header";
-    
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
-    
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
-    
     public static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
 
     /**
@@ -246,8 +228,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     
     // Was the form saved? Used to set activity return code.
     public boolean hasSaved = false;
-    
-    private BroadcastReceiver mNoGPSReceiver;
+
+    private BroadcastReceiver mLocationServiceIssueReceiver;
 
     // marked true if we are in the process of saving a form because the user
     // database & key session are expiring. Being set causes savingComplete to
@@ -262,16 +244,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        try {
-            // CommCareSessionService will call this.formSaveCallback when the
-            // key session is closing down and we need to save any intermediate
-            // results before they become un-saveable.
-            CommCareApplication._().getSession().registerFormSaveCallback(this);
-        } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
-                    "Couldn't register form save callback because session doesn't exist");
-        }
 
         addBreadcrumbBar();
 
@@ -301,12 +273,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
-        } else if (data == null) {
-            if (!isNewForm) {
-                refreshCurrentView();
-                return;
-            }
-            // Not a restart from a screen orientation change (or other).
+        } else if (!isNewForm) {
+            // Screen orientation change
+            refreshCurrentView();
+        } else {
             mFormController = null;
             mInstancePath = null;
 
@@ -319,7 +289,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
 
-                Uri formUri = null;
+                Uri formUri;
 
                 boolean isInstanceReadOnly = false;
                 try {
@@ -384,32 +354,52 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         saveDataToDisk(EXIT, false, null, true);
     }
 
-    /**
-     * Setup BroadcastReceiver for asking user if they want to enable gps
-     */
-    private void registerFormEntryReceivers() {
-        // See if this form needs GPS to be turned on
-        mNoGPSReceiver = new BroadcastReceiver() {
+    private void registerFormEntryReceiver() {
+
+        //BroadcastReceiver for:
+        // a) An unresolvable xpath expression encountered in PollSensorAction.onLocationChanged
+        // b) Checking if GPS services are not available
+        mLocationServiceIssueReceiver = new BroadcastReceiver() {
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 context.removeStickyBroadcast(intent);
-                LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                Set<String> providers = GeoUtils.evaluateProviders(manager);
-                if (providers.isEmpty()) {
-                    DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int i) {
-                            if (i == DialogInterface.BUTTON_POSITIVE) {
-                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivity(intent);
-                            }
-                        }
-                    };
-                    GeoUtils.showNoGpsDialog(FormEntryActivity.this, onChangeListener);
+                String action = intent.getAction();
+                if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(action)) {
+                    handleNoGpsBroadcast(context);
+                } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(action)) {
+                    handleXpathErrorBroadcast(intent);
                 }
             }
         };
-        registerReceiver(mNoGPSReceiver,
-                new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
+        filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        registerReceiver(mLocationServiceIssueReceiver, filter);
+
+    }
+
+    private void handleNoGpsBroadcast(Context context) {
+        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Set<String> providers = GeoUtils.evaluateProviders(manager);
+        if (providers.isEmpty()) {
+            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(intent);
+                    }
+                }
+            };
+            GeoUtils.showNoGpsDialog(this, onChangeListener);
+        }
+    }
+
+    private void handleXpathErrorBroadcast(Intent intent) {
+        String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
+        CommCareActivity.createErrorDialog(FormEntryActivity.this,
+                "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
     }
 
     /**
@@ -453,8 +443,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mOutAnimation = null;
         mGestureDetector = new GestureDetector(this);
     }
-
-    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -1428,10 +1416,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 if(mFormController.isFormReadOnly()) {
                     button.setText(StringUtils.getStringSpannableRobust(this, R.string.exit));
                             button.setOnClickListener(new OnClickListener() {
-                                /*
-                                 * (non-Javadoc)
-                                 * @see android.view.View.OnClickListener#onClick(android.view.View)
-                                 */
                                 @Override
                                 public void onClick(View v) {
                                     finishReturnInstance();
@@ -2337,8 +2321,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
-        if (mNoGPSReceiver != null) {
-            unregisterReceiver(mNoGPSReceiver);
+        if (mLocationServiceIssueReceiver != null) {
+            unregisterReceiver(mLocationServiceIssueReceiver);
         }
     }
 
@@ -2349,7 +2333,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         SessionActivityRegistration.handleOrListenForSessionExpiration(this);
 
-        registerFormEntryReceivers();
+        registerFormEntryReceiver();
 
         if (mFormLoaderTask != null) {
             mFormLoaderTask.setFormLoaderListener(this);
@@ -2432,7 +2416,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Call when the user is ready to save and return the current form as complete 
      */
     private void triggerUserFormComplete() {
-        saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+        if (mFormController.isFormReadOnly()) {
+            finishReturnInstance(false);
+        } else {
+            saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+        }
     }
 
     @Override
@@ -2533,6 +2521,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Logger.log("formloader", "Could not get the localizer");
         }
 
+        registerSessionFormSaveCallback();
+
         // Set saved answer path
         if (mInstancePath == null) {
 
@@ -2553,16 +2543,24 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
 
-        //mFormController.setLanguage(mFormController.getLanguage());
-        
-        /* here was code that loaded cached language preferences fin the
-         * collect code. we've overridden that to use our language
-         * from the shared preferences
-         */
-
         refreshCurrentView();
         updateNavigationCues(this.mCurrentView);
     }
+
+    private void registerSessionFormSaveCallback() {
+        if (mFormController != null && !mFormController.isFormReadOnly()) {
+            try {
+                // CommCareSessionService will call this.formSaveCallback when
+                // the key session is closing down and we need to save any
+                // intermediate results before they become un-saveable.
+                CommCareApplication._().getSession().registerFormSaveCallback(this);
+            } catch (SessionUnavailableException e) {
+                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                        "Couldn't register form save callback because session doesn't exist");
+            }
+        }
+    }
+
 
 
     /**

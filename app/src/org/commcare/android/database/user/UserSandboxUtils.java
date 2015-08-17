@@ -139,7 +139,7 @@ public class UserSandboxUtils {
                 //ok, new directory totally ready. Create a new instanceURI
                 values.put(InstanceColumns.INSTANCE_FILE_PATH, newfileToWrite.getAbsolutePath());
                 Uri newUri = cr.insert(InstanceColumns.CONTENT_URI, values);
-                record = record.updateStatus(newUri.toString(), record.getStatus());
+                record = record.updateInstanceAndStatus(newUri.toString(), record.getStatus());
                 formRecords.write(record);
             }
             
