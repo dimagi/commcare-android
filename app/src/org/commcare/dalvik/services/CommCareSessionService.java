@@ -212,7 +212,7 @@ public class CommCareSessionService extends Service  {
         // The PendingIntent to launch our activity if the user selects this notification
         Intent i = new Intent(this, CommCareHomeActivity.class);
         
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Set the info for the views that show in the notification panel.
         notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.expirenotification), text, contentIntent);
