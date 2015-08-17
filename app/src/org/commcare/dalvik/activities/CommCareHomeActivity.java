@@ -44,6 +44,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -99,7 +100,7 @@ import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
+public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     private static final int LOGIN_USER = 0;
@@ -153,7 +154,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    
+
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
@@ -285,7 +286,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
-                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
+                returnToLogin();
             }
         };
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
@@ -1073,7 +1074,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
+                    returnToLogin();
                     return;
                 }
                 receiver.refreshView();
@@ -1162,7 +1163,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    SessionActivityRegistration.returnToLogin(this);
+                    returnToLogin();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -1180,7 +1181,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     refreshView();
                 }
             } catch (SessionUnavailableException sue) {
-                SessionActivityRegistration.returnToLogin(this);
+                returnToLogin();
             }
         }
 
@@ -1197,7 +1198,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-
     // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
     // extremely long method
 
@@ -1211,7 +1211,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 showDialog(DIALOG_CORRUPTED);
             } catch(SessionUnavailableException e) {
                 // Otherwise, log in first
-                SessionActivityRegistration.returnToLogin(this);
+                returnToLogin();
             }
         }
     }
@@ -1380,7 +1380,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            SessionActivityRegistration.returnToLogin(this);
+            returnToLogin();
             return;
         }
 
@@ -1725,5 +1725,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     public boolean isBackEnabled() {
         return false;
+    }
+
+    private void returnToLogin() {
+        Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        this.startActivityForResult(i, LOGIN_USER);
     }
 }
