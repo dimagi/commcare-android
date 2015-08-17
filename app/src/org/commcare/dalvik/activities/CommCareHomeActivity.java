@@ -839,14 +839,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         final CommCareSession session = CommCareApplication._().getCurrentSession();
         String needed = session.getNeededData();
-        StackFrameStep lastPopped = session.getPoppedStep();
 
         if (needed == null) {
             readyToProceed(session);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            handleGetDatum(session, lastPopped);
+            handleGetDatum(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             handleCompute(session);
         }
@@ -884,9 +883,10 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         startActivityForResult(i, GET_COMMAND);
     }
 
-    private void handleGetDatum(CommCareSession session, StackFrameStep lastPopped) {
+    private void handleGetDatum(CommCareSession session) {
         Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        StackFrameStep lastPopped = session.getPoppedStep();
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
