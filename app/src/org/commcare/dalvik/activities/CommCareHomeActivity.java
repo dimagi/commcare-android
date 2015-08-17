@@ -43,7 +43,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -573,7 +572,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
             case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
                     this.finish();
                     return;
                 } else if(resultCode == RESULT_OK) {
