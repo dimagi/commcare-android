@@ -8,6 +8,8 @@ import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.resources.model.InstallCancelledException;
+import org.commcare.resources.model.ProcessCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -30,7 +32,7 @@ import java.util.Vector;
  */
 public class UpgradeTask
         extends ManagedAsyncTask<String, Integer, ResourceEngineOutcomes>
-        implements TableStateListener {
+        implements TableStateListener, ProcessCancelled {
 
     private static final String TAG = UpgradeTask.class.getSimpleName();
 
@@ -93,16 +95,16 @@ public class UpgradeTask
             if (!appInstalled) {
                 return ResourceEngineOutcomes.StatusFailState;
             }
-            global.setStateListener(this);
 
             ResourceTable upgradeTable = platform.getUpgradeResourceTable();
             ResourceTable recovery = platform.getRecoveryTable();
-            upgradeTable.setStateListener(this);
 
             profileRef = addParamsToProfileReference(profileRef);
 
             CommCareResourceManager resourceManager =
                 new CommCareResourceManager(platform, global, upgradeTable, recovery);
+
+            resourceManager.setListeners(this);
 
             boolean startOverUpgrade = calcResourceFreshness();
             if (startOverUpgrade) {
@@ -122,6 +124,9 @@ public class UpgradeTask
                 }
 
                 resourceManager.prepareUpgradeResources();
+            } catch (InstallCancelledException e) {
+                // The user cancelled the upgrade check process
+                return ResourceEngineOutcomes.StatusFailUnknown;
             } catch (LocalStorageUnavailableException e) {
                 InstallAndUpdateUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -145,17 +150,6 @@ public class UpgradeTask
                     "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
-    }
-
-    private boolean isTableStagedAndLatest(ResourceTable upgradeTable,
-                                           Resource upgradeProfileBeforeStage) {
-        Resource newUpgradeProfile =
-                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-
-        boolean versionNewerThanCurrentUpgradeTable = upgradeProfileBeforeStage == null || newUpgradeProfile.isNewer(upgradeProfileBeforeStage);
-        System.out.print(upgradeTable.isReady());
-        return (!versionNewerThanCurrentUpgradeTable &&
-                upgradeTable.isReady());
     }
 
     private String addParamsToProfileReference(final String profileRef) {
@@ -298,5 +292,10 @@ public class UpgradeTask
         }
         */
         return false;
+    }
+
+    @Override
+    public boolean processWasCancelled() {
+        return isCancelled();
     }
 }
