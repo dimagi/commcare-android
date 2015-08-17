@@ -557,20 +557,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         return dialog;
     }
 
-    @Override
-    public boolean isBackEnabled() {
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent i = new Intent();
-        setResult(RESULT_CANCELED, i);
-
-        finish();
-    }
-
     private void refreshView() {
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
