@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.LoginActivity;
 
 /**
@@ -28,7 +29,7 @@ public class SessionActivityRegistration {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     unredirectedSessionExpiration = false;
-                    returnToLogin(context);
+                    letHomeScreenRedirectToLogin(context);
                 }
             };
 
@@ -41,7 +42,7 @@ public class SessionActivityRegistration {
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
-                returnToLogin(activity);
+                letHomeScreenRedirectToLogin(activity);
             }
         }
         activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
@@ -65,10 +66,15 @@ public class SessionActivityRegistration {
         }
     }
 
-    public static void returnToLogin(Context context) {
-        Intent i = new Intent(context.getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        i.putExtra(LoginActivity.REDIRECT_TO_HOMESCREEN, true);
+    /**
+     * Launch the CommCareHomeActivity, but clear the activity backstack down
+     * to its first occurrence, which should be at the very bottom of the
+     * stack.  The backstack clearing is necessary for exiting out of the app
+     * if the login activity is cancelled
+     */
+    private static void letHomeScreenRedirectToLogin(Context context) {
+        Intent i = new Intent(context.getApplicationContext(), CommCareHomeActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);
     }
 }
