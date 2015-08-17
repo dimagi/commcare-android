@@ -229,8 +229,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Was the form saved? Used to set activity return code.
     public boolean hasSaved = false;
 
-    private BroadcastReceiver mNoGPSReceiver;
-    private BroadcastReceiver xpathErrorReceiver;
+    private BroadcastReceiver mLocationServiceIssueReceiver;
 
     // marked true if we are in the process of saving a form because the user
     // database & key session are expiring. Being set causes savingComplete to
@@ -355,46 +354,52 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         saveDataToDisk(EXIT, false, null, true);
     }
 
-    /**
-     * Setup BroadcastReceiver for asking user if they want to enable gps
-     */
-    private void registerFormEntryReceivers() {
+    private void registerFormEntryReceiver() {
 
-        // See if this form needs GPS to be turned on
-        mNoGPSReceiver = new BroadcastReceiver() {
+        //BroadcastReceiver for:
+        // a) An unresolvable xpath expression encountered in PollSensorAction.onLocationChanged
+        // b) Checking if GPS services are not available
+        mLocationServiceIssueReceiver = new BroadcastReceiver() {
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 context.removeStickyBroadcast(intent);
-                LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                Set<String> providers = GeoUtils.evaluateProviders(manager);
-                if (providers.isEmpty()) {
-                    DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int i) {
-                            if (i == DialogInterface.BUTTON_POSITIVE) {
-                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivity(intent);
-                            }
-                        }
-                    };
-                    GeoUtils.showNoGpsDialog(FormEntryActivity.this, onChangeListener);
+                String action = intent.getAction();
+                if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(action)) {
+                    handleNoGpsBroadcast(context);
+                } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(action)) {
+                    handleXpathErrorBroadcast(intent);
                 }
             }
         };
-        registerReceiver(mNoGPSReceiver,
-                new IntentFilter(GeoUtils.ACTION_CHECK_GPS_ENABLED));
 
-        // Receiver for if an unresolvable xpath expression was encountered in
-        // PollSensorAction.onLocationChanged
-        xpathErrorReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                context.removeStickyBroadcast(intent);
-                String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
-                CommCareActivity.createErrorDialog(FormEntryActivity.this,
-                        "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
-            }
-        };
-        registerReceiver(xpathErrorReceiver, new IntentFilter(PollSensorAction.XPATH_ERROR_ACTION));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
+        filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
+        registerReceiver(mLocationServiceIssueReceiver, filter);
+
+    }
+
+    private void handleNoGpsBroadcast(Context context) {
+        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Set<String> providers = GeoUtils.evaluateProviders(manager);
+        if (providers.isEmpty()) {
+            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(intent);
+                    }
+                }
+            };
+            GeoUtils.showNoGpsDialog(this, onChangeListener);
+        }
+    }
+
+    private void handleXpathErrorBroadcast(Intent intent) {
+        String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
+        CommCareActivity.createErrorDialog(FormEntryActivity.this,
+                "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
     }
 
     /**
@@ -2316,11 +2321,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
-        if (mNoGPSReceiver != null) {
-            unregisterReceiver(mNoGPSReceiver);
-        }
-        if (xpathErrorReceiver != null) {
-            unregisterReceiver(xpathErrorReceiver);
+        if (mLocationServiceIssueReceiver != null) {
+            unregisterReceiver(mLocationServiceIssueReceiver);
         }
     }
 
@@ -2331,7 +2333,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         SessionActivityRegistration.handleOrListenForSessionExpiration(this);
 
-        registerFormEntryReceivers();
+        registerFormEntryReceiver();
 
         if (mFormLoaderTask != null) {
             mFormLoaderTask.setFormLoaderListener(this);
