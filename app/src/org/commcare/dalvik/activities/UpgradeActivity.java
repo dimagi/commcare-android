@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.tasks.InstallStagedUpgradeTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
@@ -42,7 +43,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
 
     private UpgradeUiController uiController;
 
-    protected static final int DIALOG_INSTALL_PROGRESS = 4;
+    private static final int DIALOG_UPGRADE_INSTALL = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -259,11 +260,40 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         }
     }
 
-    public void handleInstallError() {
+    protected void launchUpgradeInstallTask() {
+        InstallStagedUpgradeTask<UpgradeActivity> task =
+                new InstallStagedUpgradeTask<UpgradeActivity>(UpgradeActivity.DIALOG_UPGRADE_INSTALL) {
+
+                    @Override
+                    protected void deliverResult(UpgradeActivity receiver,
+                                                 ResourceEngineOutcomes result) {
+                        if (result == ResourceEngineOutcomes.StatusInstalled) {
+                            receiver.handleSuccessfulUpgrade();
+                        } else {
+                            receiver.handleInstallError();
+                        }
+                    }
+
+                    @Override
+                    protected void deliverUpdate(UpgradeActivity receiver,
+                                                 int[]... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(UpgradeActivity receiver,
+                                                Exception e) {
+                        receiver.handleInstallError();
+                    }
+                };
+        task.connect(this);
+        task.execute();
+    }
+
+    private void handleInstallError() {
         uiController.error();
     }
 
-    public void handleSuccessfulUpgrade() {
+    private void handleSuccessfulUpgrade() {
         uiController.upgradeComplete();
 
         CommCareApplication app = CommCareApplication._();
@@ -274,7 +304,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (taskId != DIALOG_INSTALL_PROGRESS) {
+        if (taskId != DIALOG_UPGRADE_INSTALL) {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
@@ -283,7 +313,6 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
-        CustomProgressDialog lastDialog = getCurrentDialog();
         return dialog;
     }
 }

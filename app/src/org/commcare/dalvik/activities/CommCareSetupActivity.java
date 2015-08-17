@@ -181,7 +181,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!fromManager && !fromExternal && !inUpgradeMode &&
+        if (!fromManager && !fromExternal &&
                 CommCareApplication._().usableAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
