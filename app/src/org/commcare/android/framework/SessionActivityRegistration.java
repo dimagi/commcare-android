@@ -42,7 +42,7 @@ public class SessionActivityRegistration {
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
-                returnToLogin(activity);
+                letHomeScreenRedirectToLogin(activity);
             }
         }
         activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
@@ -66,15 +66,15 @@ public class SessionActivityRegistration {
         }
     }
 
+    /**
+     * Launch the CommCareHomeActivity, but clear the activity backstack down
+     * to its first occurrence, which should be at the very bottom of the
+     * stack.  The backstack clearing is necessary for exiting out of the app
+     * if the login activity is cancelled
+     */
     private static void letHomeScreenRedirectToLogin(Context context) {
         Intent i = new Intent(context.getApplicationContext(), CommCareHomeActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);
-    }
-
-    public static void returnToLogin(Activity activity) {
-        Intent i = new Intent(activity.getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        activity.startActivityForResult(i, CommCareHomeActivity.LOGIN_USER);
     }
 }
