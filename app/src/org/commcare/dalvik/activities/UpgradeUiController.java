@@ -9,6 +9,7 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
 
@@ -40,6 +41,8 @@ class UpgradeUiController {
     private TextView progressText;
 
     private final UpgradeActivity activity;
+    private final String stopCheckingText = Localization.get("updates.check.cancel");
+    private final String upgradeFinishedText = Localization.get("updates.install.finished");
 
     public UpgradeUiController(UpgradeActivity upgradeActivity) {
         activity = upgradeActivity;
@@ -48,8 +51,6 @@ class UpgradeUiController {
     }
 
     private void setupUi() {
-        // title = Localization.get("updates.title");
-        // message = Localization.get("updates.checking");
         activity.setContentView(R.layout.upgrade_activity);
 
         progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
@@ -96,7 +97,7 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText("Stop upgrade");
+        stopUpgradeButton.setText(stopCheckingText);
     }
 
     protected void downloading() {
@@ -104,7 +105,7 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(true);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText("Stop upgrade");
+        stopUpgradeButton.setText(stopCheckingText);
     }
 
     protected void unappliedUpdateAvailable() {
@@ -112,7 +113,7 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(true);
 
-        stopUpgradeButton.setText("Stop upgrade");
+        stopUpgradeButton.setText(stopCheckingText);
 
         int version = InstallAndUpdateUtils.upgradeTableVersion();
         pendingUpgradeStatus.setText("Current version: " + Integer.toString(version));
@@ -124,6 +125,7 @@ class UpgradeUiController {
         installUpgradeButton.setEnabled(false);
 
         stopUpgradeButton.setText("Cancelling task");
+        // TODO clear progress
     }
 
     protected void error() {
@@ -131,7 +133,7 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText("Stop upgrade");
+        stopUpgradeButton.setText(stopCheckingText);
     }
 
     protected void upgradeComplete() {
@@ -139,8 +141,8 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText("Stop upgrade");
-        pendingUpgradeStatus.setText("Just finished upgrading!");
+        stopUpgradeButton.setText(stopCheckingText);
+        pendingUpgradeStatus.setText(upgradeFinishedText);
     }
 
     protected void updateProgressText(String msg) {

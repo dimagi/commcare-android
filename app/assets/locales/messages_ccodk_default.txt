@@ -12,6 +12,9 @@ updates.success=CommCare is up to date
 updates.title=CommCare App Update
 updates.checking=Checking for updates...
 updates.keep.trying=Keep trying if connection is interrupted
+updates.check.cancel.check=Stop checking
+updates.check.cancelling=Cancelling check for updates
+updates.install.finished=Just finished updating!
 
 verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
