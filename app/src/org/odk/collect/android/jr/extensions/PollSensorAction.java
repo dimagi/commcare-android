@@ -10,7 +10,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
@@ -41,7 +40,7 @@ import java.util.TimerTask;
 public class PollSensorAction extends Action implements LocationListener {
     private static String name = "pollsensor";
     public static String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
-    public static String XPATH_ERROR_ACTION = "org.odk.collect.android.jr.extensions.error.action";
+    public static String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
     
     private LocationManager mLocationManager;
