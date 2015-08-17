@@ -1,11 +1,8 @@
 package org.commcare.android.models;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.Vector;
-
-import javax.crypto.SecretKey;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -30,20 +27,23 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.Vector;
+
+import javax.crypto.SecretKey;
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -446,21 +446,9 @@ public class AndroidSessionWrapper {
         // form modified the case database before stack ops fire
         initializer = null;
         
-        //TODO: should this section get wrapped up in the session, maybe?
-        Vector<StackOperation> ops = session.getCurrentEntry().getPostEntrySessionOperations();
-        
-        //Let the session know that the current frame shouldn't work its way back onto the stack
-        session.markCurrentFrameForDeath();
-        
-        //First, see if we have operations to run
-        if(ops.size() > 0) {
-            EvaluationContext ec = getEvaluationContext();
-            session.executeStackOperations(ops, ec);
-        }
-        
         // Ok, now we just need to figure out if it's time to go home, or time
         // to fire up a new session from the stack
-        if(session.finishAndPop()) {
+        if(session.finishExecuteAndPop(getEvaluationContext())) {
             //We just built a new session stack into the session, so we want to keep that,
             //clear out the internal state vars, though.
             cleanVolatiles();
