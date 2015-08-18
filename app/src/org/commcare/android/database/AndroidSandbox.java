@@ -36,7 +36,7 @@ public class AndroidSandbox implements UserDataInterface {
 
     @Override
     public IStorageUtilityIndexed<User> getUserStorage() {
-        return app.getUserStorage(User.class);
+        return app.getUserStorage("USER", User.class);
     }
 
     @Override

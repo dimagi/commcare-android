@@ -42,6 +42,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.UserDatabaseUpgrader;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
@@ -828,9 +829,19 @@ public class CommCareApplication extends Application {
                     if (record != null) {
                         //Ok, so we have a login that was successful, but do we have a user model in the DB?
                         //We need to check before we're logged in, so we get the handle raw, here
-                        for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
-                            if (record.getUsername().equals(u.getUsername())) {
-                                user = u;
+                        try {
+                            for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
+                                if (record.getUsername().equals(u.getUsername())) {
+                                    user = u;
+                                }
+                            }
+                        } catch(RuntimeException e){
+                            System.out.println("Caught e: " + e);
+                            UserDatabaseUpgrader.upgradeSevenEight(mBoundService.getUserDbHandle(), 7, 8, CommCareApplication.this.getApplicationContext());
+                            for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
+                                if (record.getUsername().equals(u.getUsername())) {
+                                    user = u;
+                                }
                             }
                         }
                     }
