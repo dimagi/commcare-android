@@ -241,15 +241,18 @@ public class MediaLayout extends RelativeLayout {
                     }
 
                     if (b != null) {
-                        mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
-                        mImageView.setPadding(10, 10, 10, 10);
-                        mImageView.setAdjustViewBounds(true);
-                        
-                        if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")){
+
+                        ImageView mImageView = new ImageView(getContext());;
+
+                        //config specially if we need to do a custom resize
+                        if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
+                                || ResizingImageView.resizeMethod.equals("width")){
+                            mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
+                            mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxHeight(maxHeight);
                             mImageView.setMaxWidth(maxWidth);
                         }
-                       
+                        mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
                         imageView = mImageView;
