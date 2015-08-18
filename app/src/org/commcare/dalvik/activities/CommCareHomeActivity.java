@@ -43,7 +43,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -76,7 +75,6 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -86,10 +84,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
@@ -880,7 +874,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     // extremely long method
 
     private void readyToProceed(final CommCareSession session) {
-        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+        EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
         //See if we failed any of our assertions
         Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
         if (text != null) {
@@ -918,28 +912,13 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void handleCompute(CommCareSession session) {
-        SessionDatum datum = session.getNeededDatum();
-        XPathExpression form;
+        EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
         try {
-            form = XPathParseTool.parseXPath(datum.getValue());
-        } catch (XPathSyntaxException e) {
-            //TODO: What.
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            session.setComputedDatum(ec);
+            startNextFetch();
+        } catch (XPathException e) {
+            displayException(e);
         }
-        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-            session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-            session.setDatum("", "awful");
-        } else {
-            try {
-                session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
-            } catch (XPathException e) {
-                displayException(e);
-                return;
-            }
-        }
-        startNextFetch();
     }
 
     // endregion
