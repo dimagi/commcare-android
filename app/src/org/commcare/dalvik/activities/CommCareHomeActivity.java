@@ -855,17 +855,18 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
      */
     private void startNextFetch() {
 
-        final CommCareSession session = CommCareApplication._().getCurrentSession();
+        final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+        CommCareSession session = asw.getSession();
         String needed = session.getNeededData();
 
         if (needed == null) {
-            readyToProceed(session);
+            readyToProceed(asw);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            handleCompute(session);
+            handleCompute(asw);
         }
     }
 
@@ -873,15 +874,15 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     // region: private helper methods used by startNextFetch(), to prevent it from being one
     // extremely long method
 
-    private void readyToProceed(final CommCareSession session) {
-        EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+    private void readyToProceed(final AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
         //See if we failed any of our assertions
-        Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
+        Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
         if (text != null) {
             createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
-                    session.stepBack();
+                    asw.getSession().stepBack();
                     CommCareHomeActivity.this.startNextFetch();
                 }
             });
@@ -911,10 +912,10 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         startActivityForResult(i, GET_CASE);
     }
 
-    private void handleCompute(CommCareSession session) {
-        EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+    private void handleCompute(AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
         try {
-            session.setComputedDatum(ec);
+            asw.getSession().setComputedDatum(ec);
         } catch (XPathException e) {
             displayException(e);
         }
