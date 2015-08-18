@@ -140,7 +140,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     }
 
     protected void displayMessage(String text) {
-        txtUserMessage.setText(this.localize(text));
+        txtUserMessage.setText(text);
     }
 
     @Override

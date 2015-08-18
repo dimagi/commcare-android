@@ -73,6 +73,11 @@ public class CommCareUtil {
      */
     public static int countPreds(TreeReference reference) {
         int preds = 0;
+
+        if (reference == null) {
+            return 0;
+        }
+
         for(int i =0 ; i < reference.size(); ++i) {
             Vector<XPathExpression> predicates = reference.getPredicate(i);
             if(predicates != null) {

@@ -105,6 +105,12 @@ public class TabbedDetailView extends RelativeLayout {
                 hasDetailCalloutListener, new DefaultEDVModifier()
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
+        if(!detail.isCompound()) {
+            View pagerTabStrip = getRootView().findViewById(R.id.pager_tab_strip);
+            if (pagerTabStrip != null) {
+                pagerTabStrip.setVisibility(GONE);
+            }
+        }
     }
 
     /*
