@@ -56,8 +56,7 @@
     android:layout_above="@+id/searchfooter"
     android:layout_below="@+id/entity_select_filter_dropdown"
     android:listSelector="@drawable/selector"
-    android:divider="@drawable/divider_case_list_modern"
-    android:dividerHeight="8dp"
+    android:dividerHeight="1dp"
     >
 </ListView>
 

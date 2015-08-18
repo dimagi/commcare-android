@@ -90,4 +90,5 @@
 
     <dimen name="form_label_padding">8dp</dimen>
 
+    <dimen name="entity_select_divider_left_inset">120dp</dimen>
 </resources>
