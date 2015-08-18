@@ -33,7 +33,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;

@@ -14,6 +14,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.CaseXmlParser;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -37,7 +38,7 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    public static LivePrototypeFactory factory = new LivePrototypeFactory();
+    public static PrototypeFactory factory = new PrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -46,7 +47,7 @@ public class TestUtils {
     public static void initializeStaticTestStorage() {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
-        PrototypeFactory.setStaticHasher(factory);
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
         AndroidUtil.initializeStaticHandlers();
         
         // For now, disable the optimizations, since they require in-depth SQL code that

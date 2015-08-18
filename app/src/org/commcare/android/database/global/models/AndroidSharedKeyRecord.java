@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;

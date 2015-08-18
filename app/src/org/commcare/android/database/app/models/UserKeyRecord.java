@@ -4,7 +4,7 @@
 package org.commcare.android.database.app.models;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;

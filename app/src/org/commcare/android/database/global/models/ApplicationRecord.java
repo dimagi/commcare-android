@@ -8,7 +8,7 @@ import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.locale.Localization;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 
 /**
  * An Application Record tracks an individual CommCare app on the current

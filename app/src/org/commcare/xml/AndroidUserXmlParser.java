@@ -1,6 +1,6 @@
 package org.commcare.xml;
 
-import org.commcare.api.parser.UserXmlParser;
+import org.commcare.core.parse.UserXmlParser;
 import org.commcare.suite.model.User;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;

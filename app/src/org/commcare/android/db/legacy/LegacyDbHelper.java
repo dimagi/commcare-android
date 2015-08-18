@@ -10,7 +10,7 @@ import android.util.Pair;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.util.Base64;
 import org.javarosa.core.services.storage.IMetaData;

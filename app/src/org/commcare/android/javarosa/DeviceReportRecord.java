@@ -6,7 +6,7 @@ import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;

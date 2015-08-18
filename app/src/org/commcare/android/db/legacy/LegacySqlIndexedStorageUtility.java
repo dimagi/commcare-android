@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import org.commcare.android.database.DbUtil;
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.AndroidTableBuilder;

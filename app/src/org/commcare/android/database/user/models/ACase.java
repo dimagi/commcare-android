@@ -1,6 +1,6 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.cases.model.Case;
 
 /**

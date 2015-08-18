@@ -1,8 +1,8 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;

@@ -3,7 +3,7 @@
  */
 package org.commcare.android.storage.framework;
 
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;

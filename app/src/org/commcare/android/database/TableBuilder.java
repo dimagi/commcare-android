@@ -6,7 +6,7 @@ package org.commcare.android.database;
 import android.util.Pair;
 
 import org.commcare.android.storage.framework.Table;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.MetaField;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 

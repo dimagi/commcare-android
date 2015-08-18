@@ -4,8 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import org.commcare.api.models.EncryptedModel;
-import org.commcare.api.models.MetaField;
+import org.commcare.core.models.EncryptedModel;
+import org.commcare.core.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;

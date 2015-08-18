@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
 
 import org.commcare.android.crypt.CipherPool;
-import org.commcare.api.models.EncryptedModel;
+import org.commcare.core.models.EncryptedModel;
 
 import java.util.Hashtable;
 

@@ -5,7 +5,6 @@ package org.commcare.android.util;
 
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.Hashtable;
@@ -17,7 +16,7 @@ import java.util.Hashtable;
  * @author ctsims
  *
  */
-public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
+public class LivePrototypeFactory extends PrototypeFactory {
     
     Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
     AndroidClassHasher hasher;
@@ -46,17 +45,4 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
     public Object getInstance(byte[] hash) {
         return PrototypeFactory.getInstance(getClass(hash));
     }
-
-    @Override
-    public byte[] getClassHashValue(Class type) {
-        byte[] hash = hasher.getClassHashValue(type);
-        factoryTable.put(ExtUtil.printBytes(hash), type);
-        return hash;
-    }
-
-    @Override
-    public int getHashSize() {
-        return hasher.getHashSize();
-    }
-
 }
