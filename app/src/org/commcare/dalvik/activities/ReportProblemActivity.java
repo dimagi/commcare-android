@@ -101,7 +101,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
         i.setType("message/rfc822");
         i.putExtra(Intent.EXTRA_EMAIL, new String[]{"commcarehq-support@dimagi.com"});
         i.putExtra(Intent.EXTRA_TEXT, ReportProblemActivity.buildMessage(report));
-        i.putExtra(Intent.EXTRA_SUBJECT, "Mobile Error Report");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Problem reported via CommCareODK: " + report);
 
         try {
             startActivity(Intent.createChooser(i, "Send mail..."));
