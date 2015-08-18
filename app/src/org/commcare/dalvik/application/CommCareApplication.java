@@ -990,10 +990,7 @@ public class CommCareApplication extends Application {
     }
 
     private boolean isPending(long last, long period) {
-        Date current = new Date();
-        //There are a couple of conditions in which we want to trigger pending maintenance ops.
-
-        long now = current.getTime();
+        long now = new Date().getTime();
 
         //1) Straightforward - Time is greater than last + duration
         long diff = now - last;
@@ -1022,7 +1019,6 @@ public class CommCareApplication extends Application {
         //TODO: maaaaybe trigger all if there's a substantial time difference
         //noted between calls to a server
 
-        //Otherwise we're fine
         return false;
     }
 
@@ -1032,13 +1028,10 @@ public class CommCareApplication extends Application {
      */
     private boolean areAutomatedActionsInvalid() {
         try {
-            if (User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
-                return true;
-            }
+            return User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
             return true;
         }
-        return false;
     }
 
     public boolean isUpdatePending() {
