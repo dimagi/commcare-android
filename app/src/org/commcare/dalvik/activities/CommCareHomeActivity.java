@@ -915,10 +915,10 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
         try {
             session.setComputedDatum(ec);
-            startNextFetch();
         } catch (XPathException e) {
             displayException(e);
         }
+        startNextFetch();
     }
 
     // endregion
