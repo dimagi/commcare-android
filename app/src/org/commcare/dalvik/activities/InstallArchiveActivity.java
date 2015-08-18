@@ -234,7 +234,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         if (taskId == UnzipTask.UNZIP_TASK_ID) {
             String title = Localization.get("archive.install.title");
             String message = Localization.get("archive.install.unzip");
-            return CustomProgressDialog.newInstance(title, message, taskId);
+            return CustomProgressDialog.newInstance(this, title, message, taskId);
         }
         else {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "

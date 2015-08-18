@@ -972,7 +972,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                     + "any valid possibilities in CommCareWifiDirectActivity");
             return null;
         }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(this, title, message, taskId);
         return dialog;
     }
 }

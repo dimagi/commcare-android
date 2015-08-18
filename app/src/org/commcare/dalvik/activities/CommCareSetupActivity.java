@@ -661,7 +661,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             title = Localization.get("updates.resources.initialization");
             message = Localization.get("updates.resources.profile");
         }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(this, title, message, taskId);
         dialog.setCancelable(false);
         String checkboxText = Localization.get("updates.keep.trying");
         CustomProgressDialog lastDialog = getCurrentDialog();

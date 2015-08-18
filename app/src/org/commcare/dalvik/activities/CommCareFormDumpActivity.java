@@ -309,6 +309,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     + "any valid possibilities in CommCareFormDumpActivity");
             return null;
         }
-        return CustomProgressDialog.newInstance(title, message, taskId);
+        return CustomProgressDialog.newInstance(this, title, message, taskId);
     }
 }

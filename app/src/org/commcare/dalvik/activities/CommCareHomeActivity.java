@@ -43,7 +43,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -1715,7 +1714,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                         + "any valid possibilities in CommCareHomeActivity");
                 return null;
         }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(this, title, message, taskId);
         if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
             dialog.addProgressBar();
         }

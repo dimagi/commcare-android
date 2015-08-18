@@ -695,6 +695,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         + "any valid possibilities in FormRecordListActivity");
                 return null;
         }
-        return CustomProgressDialog.newInstance(title, message, taskId);
+        return CustomProgressDialog.newInstance(this, title, message, taskId);
     }
 }
