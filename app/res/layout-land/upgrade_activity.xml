@@ -6,8 +6,8 @@
 
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/current_version_text"
@@ -16,7 +16,7 @@
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:padding="@dimen/content_min_margin"/>
 
         <TextView
@@ -24,10 +24,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/current_version_text"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
             android:padding="@dimen/content_min_margin"/>
 
         <ProgressBar
@@ -36,48 +35,55 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/upgrade_progress_text"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"/>
 
-        <Button
-            android:id="@+id/check_for_upgrade_button"
+        <TextView
+            android:id="@+id/pending_upgrade_status_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/upgrade_progress_bar"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="@dimen/content_min_margin"
+            />
+
+        <Button
+            android:id="@+id/check_for_upgrade_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/pending_upgrade_status_text"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="Check for upgrade"/>
 
         <Button
             android:id="@+id/stop_upgrade_download_button"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/check_for_upgrade_button"
+            android:layout_below="@+id/pending_upgrade_status_text"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_toEndOf="@+id/check_for_upgrade_button"
+            android:layout_toRightOf="@+id/check_for_upgrade_button"
             android:text="Stop upgrade"/>
-
-        <TextView
-            android:id="@+id/pending_upgrade_status_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/stop_upgrade_download_button"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
-            android:padding="@dimen/content_min_margin"/>
 
         <Button
             android:id="@+id/install_upgrade_button"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pending_upgrade_status_text"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:text="Install upgrade"/>
+            android:layout_toEndOf="@+id/stop_upgrade_download_button"
+            android:layout_toRightOf="@+id/stop_upgrade_download_button"
+            android:text="Install upgrade"
+            />
 
     </RelativeLayout>
 </ScrollView>
