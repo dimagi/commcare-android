@@ -587,7 +587,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     private void updateUserSyncToken(String syncToken) throws StorageFullException {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);
             u.setLastSyncToken(syncToken);
