@@ -248,6 +248,7 @@ public class UpgradeTask
     public void resourceStateUpdated(ResourceTable table) {
         Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
 
+        currentProgress = 0;
         for (Resource r : resources) {
             switch (r.getStatus()) {
                 case Resource.RESOURCE_STATUS_UPGRADE:
