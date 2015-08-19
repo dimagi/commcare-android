@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.resource.installers;
 
 import android.content.SharedPreferences;
@@ -94,7 +91,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     
             
             ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(), 
-                    upgrade ? Resource.RESOURCE_STATUS_UNINITIALIZED : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
+                    Resource.RESOURCE_STATUS_UNINITIALIZED, false);
             
             Profile p = parser.parse();
 
