@@ -898,34 +898,13 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             
             startActivityForResult(i, GET_CASE);
         } else if(needed == SessionFrame.STATE_DATUM_COMPUTED) {
-            //compute
-            SessionDatum datum = session.getNeededDatum();
-            XPathExpression form;
+            EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
             try {
-                form = XPathParseTool.parseXPath(datum.getValue());
-            } catch (XPathSyntaxException e) {
-                //TODO: What.
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            if(datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-                session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-                session.setDatum("", "awful");
-            } else {
-                try {
-                    session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
-                }
-                catch (XPathException e) {
-                    displayException(e);
-                    return;
-                }
+                session.setComputedDatum(ec);
+            } catch (XPathException e) {
+                displayException(e);
             }
             startNextFetch();
-        }
-        
-        if(lastPopped != null) {
-            //overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
         }
     }
     
