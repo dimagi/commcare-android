@@ -128,6 +128,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+        errorBox.setVisibility(View.GONE);
     }
 
     public enum LoginBoxesStatus {
@@ -636,6 +637,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     private void refreshForNewApp() {
+        // Remove any error content from trying to log into a different app
+        setStyleDefault();
+
         // Refresh the breadcrumb bar for new app name
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
