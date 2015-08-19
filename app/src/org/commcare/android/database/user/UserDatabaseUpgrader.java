@@ -74,7 +74,7 @@ public class UserDatabaseUpgrader {
         }
 
         if(oldVersion == 7) {
-            if(upgradeSevenEight(db, oldVersion, newVersion, c)) {
+            if(upgradeSevenEight(db, oldVersion, newVersion)) {
                 oldVersion = 8;
             }
         }
@@ -177,7 +177,7 @@ public class UserDatabaseUpgrader {
         }
     }
 
-    public static boolean upgradeSevenEight(SQLiteDatabase db, int oldVersion, int newVersion, Context c) {
+    private boolean upgradeSevenEight(SQLiteDatabase db, int oldVersion, int newVersion) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
