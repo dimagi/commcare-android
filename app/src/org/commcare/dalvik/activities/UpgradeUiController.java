@@ -44,6 +44,8 @@ class UpgradeUiController {
 
     private final UpgradeActivity activity;
 
+    private final String upToDateText =
+            Localization.get("updates.success");
     private final String stopCheckingText =
             Localization.get("updates.check.cancel");
     private final String upgradeFinishedText =
@@ -98,6 +100,12 @@ class UpgradeUiController {
                 activity.launchUpgradeInstallTask();
             }
         });
+    }
+
+    protected void upToDate() {
+        idle();
+
+        progressText.setText(upToDateText);
     }
 
     protected void idle() {

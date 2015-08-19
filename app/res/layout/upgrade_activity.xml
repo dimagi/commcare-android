@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
         android:layout_weight="1.5"
-        android:text="Check"
+        android:text="Check for upgrade"
         android:layout_marginLeft="10dp"/>
 
     <Button
