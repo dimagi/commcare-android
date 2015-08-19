@@ -169,7 +169,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         if (result == ResourceEngineOutcomes.StatusUpdateStaged) {
             uiController.unappliedUpdateAvailable();
         } else {
-            uiController.idle();
+            uiController.upToDate();
         }
 
         unregisterTask();
@@ -183,6 +183,8 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         // attempt?
         CommCareApp app = CommCareApplication._().getCurrentApp();
         app.getAppPreferences().edit().putBoolean(UpgradeTask.KEY_START_OVER, startOverInstall).commit();
+
+        uiController.refreshStatusText();
         /*
         // Check if we want to record this as a 'last install
         // time', based on the state of the resource table before
