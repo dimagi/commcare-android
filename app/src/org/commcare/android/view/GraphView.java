@@ -9,6 +9,9 @@ import android.widget.LinearLayout;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart;
+import org.achartengine.chart.BubbleChart;
+import org.achartengine.chart.CombinedXYChart.XYCombinedChartDef;
+import org.achartengine.chart.LineChart;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -158,8 +161,13 @@ public class GraphView {
             s.setConfiguration("point-style", "none");
             renderSeries(s);
         }
-        
-        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
+
+        XYCombinedChartDef[] types = new XYCombinedChartDef[] {
+                new XYCombinedChartDef(BubbleChart.TYPE, 0),
+                new XYCombinedChartDef(LineChart.TYPE, 1)
+        };
+        return ChartFactory.getCombinedXYChartView(mContext, mDataset, mRenderer, types);
+        /*if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
         if (Graph.TYPE_TIME.equals(mData.getType())) {
@@ -168,7 +176,7 @@ public class GraphView {
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT);
         }
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
     }
     
     /**
@@ -196,7 +204,7 @@ public class GraphView {
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
         series.setTitle(s.getConfiguration("name", ""));
-        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
+        if (org.commcare.suite.model.graph.XYSeries.TYPE_BUBBLE.equals(s.getType())) {
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
             }
@@ -209,7 +217,7 @@ public class GraphView {
             sortedPoints.add(d);
         }
         Comparator<XYPointData> comparator;
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
+        if (org.commcare.suite.model.graph.XYSeries.TYPE_BAR.equals(s.getType())) {
             String barSort = s.getConfiguration("bar-sort", "");
             switch (barSort) {
                 case "ascending":
@@ -231,13 +239,13 @@ public class GraphView {
         JSONObject barLabels = new JSONObject();
         for (XYPointData p : sortedPoints) {
             String description = "point (" + p.getX() + ", " + p.getY() + ")";
-            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
+            if (org.commcare.suite.model.graph.XYSeries.TYPE_BUBBLE.equals(s.getType())) {
                 BubblePointData b = (BubblePointData) p;
                 description += " with radius " + b.getRadius();
                 ((RangeXYValueSeries) series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
-            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
+            } else if (org.commcare.suite.model.graph.XYSeries.TYPE_TIME.equals(s.getType())) {
                 ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
-            } else if (Graph.TYPE_BAR.equals(mData.getType())) {
+            } else if (org.commcare.suite.model.graph.XYSeries.TYPE_BAR.equals(s.getType())) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
                 // and y as a set of values. In AChartEngine, bar graphs are a subclass
                 // of XY graphs, with numeric x and y values. Deal with this by 
@@ -255,7 +263,8 @@ public class GraphView {
                 series.add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             }
         }
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
+        if (org.commcare.suite.model.graph.XYSeries.TYPE_BAR.equals(s.getType())) {
+            // TODO: think about this
             mData.setConfiguration("x-min", Double.toString(0.5));
             mData.setConfiguration("x-max", Double.toString(sortedPoints.size() + 0.5));
             mData.setConfiguration("x-labels", barLabels.toString());
@@ -279,6 +288,7 @@ public class GraphView {
         // and happened to look nice for partographs. Vertically-oriented graphs,
         // however, get squished unless they're drawn as a square. Expect to revisit 
         // this eventually (make all graphs square? user-configured aspect ratio?).
+        // jls: create a hasAny() or types() function for GraphData
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return 1;
         }
