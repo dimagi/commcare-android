@@ -1,14 +1,16 @@
 package org.commcare.dalvik.activities;
 
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
@@ -41,8 +43,13 @@ class UpgradeUiController {
     private TextView progressText;
 
     private final UpgradeActivity activity;
-    private final String stopCheckingText = Localization.get("updates.check.cancel");
-    private final String upgradeFinishedText = Localization.get("updates.install.finished");
+
+    private final String stopCheckingText =
+            Localization.get("updates.check.cancel");
+    private final String upgradeFinishedText =
+            Localization.get("updates.install.finished");
+    private final String cancellingMsg =
+            Localization.get("updates.check.cancelling");
 
     public UpgradeUiController(UpgradeActivity upgradeActivity) {
         activity = upgradeActivity;
@@ -56,7 +63,7 @@ class UpgradeUiController {
         progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
         progressText = (TextView)activity.findViewById(R.id.upgrade_progress_text);
         pendingUpgradeStatus =
-            (TextView)activity.findViewById(R.id.pending_upgrade_status_text);
+                (TextView)activity.findViewById(R.id.pending_upgrade_status_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
 
@@ -65,7 +72,7 @@ class UpgradeUiController {
 
     private void setupButtonListeners() {
         checkUpgradeButton =
-            (Button)activity.findViewById(R.id.check_for_upgrade_button);
+                (Button)activity.findViewById(R.id.check_for_upgrade_button);
         checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,16 +81,17 @@ class UpgradeUiController {
         });
 
         stopUpgradeButton =
-            (Button)activity.findViewById(R.id.stop_upgrade_download_button);
+                (Button)activity.findViewById(R.id.stop_upgrade_download_button);
         stopUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 activity.stopUpgradeCheck();
             }
         });
+        stopUpgradeButton.setText(stopCheckingText);
 
         installUpgradeButton =
-            (Button)activity.findViewById(R.id.install_upgrade_button);
+                (Button)activity.findViewById(R.id.install_upgrade_button);
         installUpgradeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,7 +105,9 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText(stopCheckingText);
+        progressBar.setEnabled(false);
+        updateProgressText("");
+        updateProgressBar(0, 100);
     }
 
     protected void downloading() {
@@ -105,7 +115,8 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(true);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText(stopCheckingText);
+        progressBar.setEnabled(true);
+        updateProgressBar(0, 100);
     }
 
     protected void unappliedUpdateAvailable() {
@@ -113,10 +124,14 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(true);
 
-        stopUpgradeButton.setText(stopCheckingText);
+        progressBar.setEnabled(false);
 
         int version = InstallAndUpdateUtils.upgradeTableVersion();
-        pendingUpgradeStatus.setText("Current version: " + Integer.toString(version));
+        String versionMsg =
+                Localization.get("update.staged.version",
+                        new String[]{Integer.toString(version)});
+        pendingUpgradeStatus.setText(versionMsg);
+        updateProgressText("");
     }
 
     protected void cancelling() {
@@ -124,8 +139,8 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText("Cancelling task");
-        // TODO clear progress
+        progressBar.setEnabled(false);
+        updateProgressText(cancellingMsg);
     }
 
     protected void error() {
@@ -133,16 +148,20 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText(stopCheckingText);
+        progressBar.setEnabled(false);
+        updateProgressText("");
     }
 
-    protected void upgradeComplete() {
+    protected void upgradeInstalled() {
         checkUpgradeButton.setEnabled(true);
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(false);
 
-        stopUpgradeButton.setText(stopCheckingText);
         pendingUpgradeStatus.setText(upgradeFinishedText);
+        progressBar.setEnabled(false);
+        updateProgressText("");
+
+        refreshStatusText();
     }
 
     protected void updateProgressText(String msg) {
@@ -154,9 +173,25 @@ class UpgradeUiController {
         progressBar.setMax(max);
     }
 
-    public void setStatusText(int version, Date lastChecked) {
-        String checkedMsg = "Last checked for updates: " + lastChecked.toString();
-        String versionMsg = "Current version: " + Integer.toString(version);
+    public void refreshStatusText() {
+        CommCareApplication app = CommCareApplication._();
+
+        SharedPreferences preferences =
+                app.getCurrentApp().getAppPreferences();
+
+        long lastUpdateCheck =
+                preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+
+        int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
+        Date lastChecked = new Date(lastUpdateCheck);
+
+        String checkedMsg =
+                Localization.get("updates.check.last",
+                        new String[]{lastChecked.toString()});
+
+        String versionMsg =
+                Localization.get("install.current.version",
+                        new String[]{Integer.toString(version)});
         currentVersionText.setText(versionMsg + "\n" + checkedMsg);
     }
 }

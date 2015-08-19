@@ -87,7 +87,7 @@ public class UpgradeTask
 
             // Ok, should figure out what the state of this bad boy is.
             Resource profile =
-                global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                    global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
             boolean appInstalled = (profile != null &&
                     profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -102,7 +102,7 @@ public class UpgradeTask
             profileRef = addParamsToProfileReference(profileRef);
 
             CommCareResourceManager resourceManager =
-                new CommCareResourceManager(platform, global, upgradeTable, recovery);
+                    new CommCareResourceManager(platform, global, upgradeTable, recovery);
 
             resourceManager.setListeners(this);
 

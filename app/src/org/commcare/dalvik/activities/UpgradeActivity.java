@@ -16,11 +16,8 @@ import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.javarosa.core.services.locale.Localization;
-
-import java.util.Date;
 
 /**
  * Allow user to manage app upgrading:
@@ -103,11 +100,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
             pendingUpgradeOrIdle();
         }
         uiController.updateProgressBar(currentProgress, maxProgress);
-        CommCareApplication app = CommCareApplication._();
-
-        SharedPreferences preferences = app.getCurrentApp().getAppPreferences();
-        long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), new Date(lastUpdateCheck));
+        uiController.refreshStatusText();
     }
 
     protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
@@ -166,8 +159,8 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         int progress = vals[0];
         int max = vals[1];
         uiController.updateProgressBar(progress, max);
-        // TODO: check the phase: checking, downloading, committing
-        String msg = Localization.get("updates.found", new String[]{"" + progress, "" + max});
+        String msg = Localization.get("updates.found",
+                new String[]{"" + progress, "" + max});
         uiController.updateProgressText(msg);
     }
 
@@ -209,7 +202,6 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         unregisterTask();
 
         uiController.idle();
-        uiController.updateProgressBar(0, 100);
     }
 
     protected void startUpgradeCheck() {
@@ -242,7 +234,6 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
         upgradeTask.execute(ref);
         uiController.downloading();
-        uiController.updateProgressBar(0, 100);
     }
 
     private void enterErrorState(String errorMsg) {
@@ -268,9 +259,9 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
                     protected void deliverResult(UpgradeActivity receiver,
                                                  ResourceEngineOutcomes result) {
                         if (result == ResourceEngineOutcomes.StatusInstalled) {
-                            receiver.handleSuccessfulUpgrade();
+                            uiController.upgradeInstalled();
                         } else {
-                            receiver.handleInstallError();
+                            uiController.error();
                         }
                     }
 
@@ -282,24 +273,11 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
                     @Override
                     protected void deliverError(UpgradeActivity receiver,
                                                 Exception e) {
-                        receiver.handleInstallError();
+                        uiController.upgradeInstalled();
                     }
                 };
         task.connect(this);
         task.execute();
-    }
-
-    private void handleInstallError() {
-        uiController.error();
-    }
-
-    private void handleSuccessfulUpgrade() {
-        uiController.upgradeComplete();
-
-        CommCareApplication app = CommCareApplication._();
-        SharedPreferences preferences = app.getCurrentApp().getAppPreferences();
-        long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-        uiController.setStatusText(app.getCommCarePlatform().getCurrentProfile().getVersion(), new Date(lastUpdateCheck));
     }
 
     @Override
