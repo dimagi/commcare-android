@@ -195,7 +195,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         ACRAUtil.registerAppData();
 
         // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
-        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
+        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
