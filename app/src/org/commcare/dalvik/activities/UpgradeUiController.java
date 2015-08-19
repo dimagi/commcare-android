@@ -116,6 +116,7 @@ class UpgradeUiController {
         progressBar.setEnabled(false);
         updateProgressText("");
         updateProgressBar(0, 100);
+        pendingUpgradeStatus.setText("");
     }
 
     protected void downloading() {
