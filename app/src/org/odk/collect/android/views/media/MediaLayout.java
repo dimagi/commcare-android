@@ -40,7 +40,6 @@ public class MediaLayout extends RelativeLayout {
     private static final String t = "AVTLayout";
 
     private TextView mView_Text;
-    private VideoView mVideoView;
     private AudioButton mAudioButton;
     private ImageButton mVideoButton;
     private ResizingImageView mImageView;
@@ -76,9 +75,9 @@ public class MediaLayout extends RelativeLayout {
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams audioParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams imageParams =
+        RelativeLayout.LayoutParams centerViewParams =
             new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        imageParams.addRule(CENTER_IN_PARENT);
+        centerViewParams.addRule(CENTER_IN_PARENT);
         RelativeLayout.LayoutParams videoParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -164,69 +163,12 @@ public class MediaLayout extends RelativeLayout {
             topPane.addView(mView_Text, textParams);
         }
 
-        // Now set up the image view
+        // Now set up the center view, it is either an image, a QR Code, or an inline video
         String errorMsg = null;
+        View centerView= null;
 
-        View imageView= null;
         if(inlineVideoURI != null) {
-            String error = null;
-            try {
-                final String imageFilename = ReferenceManager._().DeriveReference(inlineVideoURI).getLocalURI();
-
-//                MediaPlayer mp = new MediaPlayer();
-//                mp.setDataSource(imageFilename);
-//                mp.prepare();
-//
-//                int preferredVideoWidth = mp.getVideoWidth();
-//                int preferredVideoHeight = mp.getVideoHeight();
-
-                //Not sure if this is useful yet
-                int[] maxBounds = getMaxImageViewBounds();
-
-                File videoFile = new File(imageFilename);
-                if(!videoFile.exists()) {
-                    error = "No video file found at: " + imageFilename;
-                } else {
-                    //NOTE: This has odd behavior when you have a text input on the screen
-                    //since clicking the video view to bring up controls has weird effects.
-                    //since we shotgun grab the focus for the input widget.
-
-                    final MediaController ctrl = new MediaController(this.getContext());
-
-                    mVideoView = new VideoView(this.getContext());
-                    mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mediaPlayer) {
-                            ctrl.show();
-                        }
-                    });
-                    mVideoView.setVideoPath(imageFilename);
-                    mVideoView.setMediaController(ctrl);
-                    ctrl.setAnchorView(mVideoView);
-
-                    //These surprisingly get re-jiggered as soon as the video is loaded, so we
-                    //just want to give it the _max_ bounds, it'll pick the limiter and shrink
-                    //itself when it's ready.
-                    imageParams.width = maxBounds[0];
-                    imageParams.height = maxBounds[1];
-
-                    imageView = mVideoView;
-                }
-
-            }catch(InvalidReferenceException ire) {
-                Log.e(t, "invalid video reference exception");
-                ire.printStackTrace();
-                error = "Invalid reference: " + ire.getReferenceString();
-            }
-
-            if(error != null) {
-                mMissingImage = new TextView(getContext());
-                mMissingImage.setText(errorMsg);
-                mMissingImage.setPadding(10, 10, 10, 10);
-                mMissingImage.setId(234873453);
-                imageView = mMissingImage;
-
-            }
+            centerView = getInlineVideoView(inlineVideoURI, centerViewParams);
 
         }
         else if(qrCodeContent != null ) {
@@ -253,13 +195,13 @@ public class MediaLayout extends RelativeLayout {
                 mImageView.setImageBitmap(image);
                 mImageView.setId(23423534);
 
-                imageView = mImageView;
+                centerView = mImageView;
             } catch(Exception e) {
                 e.printStackTrace();
             }
         } else if (imageURI != null) {
             try {
-                int[] maxBounds = getMaxImageViewBounds();
+                int[] maxBounds = getMaxCenterViewBounds();
 
                 //If we didn't get an image yet, try for a norm
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
@@ -297,7 +239,7 @@ public class MediaLayout extends RelativeLayout {
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
-                        imageView = mImageView;
+                        centerView = mImageView;
                     } else if (errorMsg == null) {
                         // An error hasn't been logged and loading the image failed, so it's likely
                         // a bad file.
@@ -317,7 +259,7 @@ public class MediaLayout extends RelativeLayout {
                     mMissingImage.setText(errorMsg);
                     mMissingImage.setPadding(10, 10, 10, 10);
                     mMissingImage.setId(234873453);
-                    imageView = mMissingImage;
+                    centerView = mMissingImage;
                 }
             } catch (InvalidReferenceException e) {
                 Log.e(t, "image invalid reference exception");
@@ -325,22 +267,84 @@ public class MediaLayout extends RelativeLayout {
             }
         }
 
-        if(imageView != null) {
+        if(centerView != null) {
             RelativeLayout parent = this;
-            imageParams.addRule(RelativeLayout.BELOW, topPane.getId());
+            centerViewParams.addRule(RelativeLayout.BELOW, topPane.getId());
             if (mAudioButton != null) {
                 if (!textVisible) {
-                    imageParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+                    centerViewParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
                     parent = topPane;
                 }
             }
             if (mVideoButton != null) {
                 if (!textVisible) {
-                    imageParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
+                    centerViewParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
                     parent = topPane;
                 }
             }
-            parent.addView(imageView, imageParams);
+            parent.addView(centerView, centerViewParams);
+        }
+    }
+
+    /**
+     * Creates a video view for the provided URI or an error view elaborating why the video
+     * couldn't be displayed.
+     *
+     * @param inlineVideoURI JavaRosa Reference URI
+     * @param viewLayoutParams the layout params that will be applied to the view. Expect to be
+     *                         mutated by this method
+     */
+    private View getInlineVideoView(String inlineVideoURI, RelativeLayout.LayoutParams viewLayoutParams) {
+        String error = null;
+        try {
+            final String videoFilename = ReferenceManager._().DeriveReference(inlineVideoURI).getLocalURI();
+
+            int[] maxBounds = getMaxCenterViewBounds();
+
+            File videoFile = new File(videoFilename);
+            if(!videoFile.exists()) {
+                error = "No video file found at: " + videoFilename;
+            } else {
+                //NOTE: This has odd behavior when you have a text input on the screen
+                //since clicking the video view to bring up controls has weird effects.
+                //since we shotgun grab the focus for the input widget.
+
+                final MediaController ctrl = new MediaController(this.getContext());
+
+                VideoView videoView = new VideoView(this.getContext());
+                videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        ctrl.show();
+                    }
+                });
+                videoView.setVideoPath(videoFilename);
+                videoView.setMediaController(ctrl);
+                ctrl.setAnchorView(videoView);
+
+                //These surprisingly get re-jiggered as soon as the video is loaded, so we
+                //just want to give it the _max_ bounds, it'll pick the limiter and shrink
+                //itself when it's ready.
+                viewLayoutParams.width = maxBounds[0];
+                viewLayoutParams.height = maxBounds[1];
+
+                return videoView;
+            }
+
+        }catch(InvalidReferenceException ire) {
+            Log.e(t, "invalid video reference exception");
+            ire.printStackTrace();
+            error = "Invalid reference: " + ire.getReferenceString();
+        }
+
+        if(error != null) {
+            mMissingImage = new TextView(getContext());
+            mMissingImage.setText(error);
+            mMissingImage.setPadding(10, 10, 10, 10);
+            mMissingImage.setId(234873453);
+            return mMissingImage;
+        } else {
+            return null;
         }
     }
 
@@ -348,7 +352,7 @@ public class MediaLayout extends RelativeLayout {
      * @return The appropriate max size of an image view pane in this widget. returned as an int
      * array of [width, height]
      */
-    private int[] getMaxImageViewBounds() {
+    private int[] getMaxCenterViewBounds() {
         DisplayMetrics metrics = this.getContext().getResources().getDisplayMetrics();
         int maxWidth = metrics.widthPixels;
         int maxHeight = metrics.heightPixels;
