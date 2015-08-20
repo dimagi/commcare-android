@@ -42,9 +42,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
+                android:gravity="center"
+                android:text="Welcome to CommCare!"
+                android:textSize="@dimen/text_small" />
+            <TextView
+                android:id="@+id/str_setup_message_2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/content_min_margin"
+                android:layout_marginRight="@dimen/content_min_margin"
                 android:layout_marginBottom="@dimen/content_min_margin"
                 android:gravity="center"
-                android:text="Welcome to CommCare!\n Please choose an installation method below."
+                android:text="Please choose an installation method below."
                 android:textSize="@dimen/text_small" />
 
             <LinearLayout
