@@ -47,11 +47,19 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
+                    android:gravity="center"
+                    android:text="Almost there!"
+                    android:textSize="@dimen/text_small" />
+                <TextView
+                    android:id="@+id/str_setup_message_2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_min_margin"
                     android:layout_marginBottom="@dimen/content_min_margin"
                     android:gravity="center"
-                    android:text="Almost there!\n Press the button below to install your app."
+                    android:text="Press the button below to install your app."
                     android:textSize="@dimen/text_small" />
-
                 <LinearLayout
                     android:id="@+id/screen_first_start_bottom"
                     android:layout_width="match_parent"
