@@ -23,6 +23,7 @@ apply plugin: 'com.android.application'
 // we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
+  jcenter()
 }
 
 dependencies {
@@ -42,6 +43,7 @@ dependencies {
     compile 'com.etsy.android.grid:library:1.0.4'
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.android.support:gridlayout-v7:21.0.0'
+    compile 'com.avast:android-styled-dialogs:2.2.0'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }

@@ -2,19 +2,23 @@ package org.commcare.dalvik.dialogs;
 
 /**
  * @author amstone326
- * 
+ *
  * Any progress dialog associated with a CommCareTask should use
  * this class to implement the dialog. Any class that launches such a task
  * should implement the generateProgressDialog() method of the DialogController
- * interface, and create the dialog in that method. The rest of the dialog's 
- * lifecycle is handled by methods of the DialogController interface that are 
+ * interface, and create the dialog in that method. The rest of the dialog's
+ * lifecycle is handled by methods of the DialogController interface that are
  * fully implemented in CommCareActivity
  */
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +28,15 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.avast.android.dialogs.fragment.SimpleDialogFragment;
+
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
-public class CustomProgressDialog extends DialogFragment {
-    
+public class CustomProgressDialog extends SimpleDialogFragment {
+    public static final String TAG = CustomProgressDialog.class.getSimpleName();
+
     //keys for onSaveInstanceState
     private final static String KEY_TITLE = "title";
     private final static String KEY_MESSAGE = "message";
@@ -41,7 +49,7 @@ public class CustomProgressDialog extends DialogFragment {
     private final static String KEY_USING_PROGRESS_BAR = "using_progress_bar";
     private final static String KEY_PROGRESS_BAR_PROGRESS = "progress_bar_progress";
     private final static String KEY_PROGRESS_BAR_MAX = "progress_bar_max";
-    
+
     //id of the task that spawned this dialog, -1 if not associated with a CommCareTask
     private int taskId;
 
@@ -49,74 +57,111 @@ public class CustomProgressDialog extends DialogFragment {
     private String title;
     private String message;
     private boolean isCancelable; //default is false, only set to true if setCancelable() is explicitly called
-    
+
     //for checkboxes
     private boolean usingCheckbox;
     private boolean isChecked;
     private String checkboxText;
-    
+
     //for cancel button
     private boolean usingCancelButton;
-    
+
     //for progress bar
     private boolean usingProgressBar;
     private int progressBarProgress;
     private int progressBarMax;
-        
-    public static CustomProgressDialog newInstance(String title, String message, int taskId) {
-        CustomProgressDialog frag = new CustomProgressDialog();
+
+
+    public static class CustomProgressDialogBuilder extends SimpleDialogBuilder {
+        private int taskId;
+
+        public static CustomProgressDialogBuilder createBuilder(Context context, FragmentManager fragmentManager) {
+            return new CustomProgressDialogBuilder(context,fragmentManager, CustomProgressDialog.class);
+        }
+
+        protected CustomProgressDialogBuilder(Context context, FragmentManager fragmentManager, Class<? extends SimpleDialogFragment> clazz) {
+            super(context, fragmentManager, clazz);
+        }
+
+        @Override
+        public DialogFragment show() {
+            return super.show();
+        }
+
+        @Override
+        public Bundle prepareArguments() {
+            Bundle bundle = super.prepareArguments();
+            bundle.putString(KEY_TASK_ID, Integer.toString(taskId));
+            return bundle;
+        }
+
+        public void setTaskId(int taskId) {
+            this.taskId = taskId;
+        }
+    }
+
+    public static CustomProgressDialog newInstance(FragmentActivity activity, String title, String message, int taskId) {
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Calling new newInstance");
+        }
+        Context context = activity;
+        FragmentManager fm = activity.getSupportFragmentManager();
+        CustomProgressDialogBuilder frag = CustomProgressDialogBuilder.createBuilder(context, fm);
         frag.setTitle(title);
         frag.setMessage(message);
         frag.setTaskId(taskId);
-        return frag;
+        CustomProgressDialog dialog = new CustomProgressDialog();
+        dialog.setArguments(frag.prepareArguments());
+        dialog.setTaskId(taskId);
+        return dialog;
     }
-    
+
     public void addCheckbox(String text, boolean isChecked) {
         this.usingCheckbox = true;
         this.checkboxText = text;
         this.isChecked = isChecked;
     }
-    
+
     public void addCancelButton() {
         usingCancelButton = true;
     }
-    
+
     public void setCancelable() {
         this.isCancelable = true;
     }
-    
+
     public void addProgressBar() {
         this.usingProgressBar = true;
         this.progressBarProgress = 0;
         this.progressBarMax = 0;
     }
-    
+
     private void setTaskId(int id) {
         this.taskId = id;
     }
-    
+
     public int getTaskId() {
         return taskId;
     }
-    
+
     private void setTitle(String s) {
         this.title = s;
     }
-    
+
     private void setMessage(String s) {
         this.message = s;
     }
-    
+
     public boolean isChecked() {
         return isChecked;
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFields(savedInstanceState);
     }
-    
+
     private void restoreFields(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             this.title = savedInstanceState.getString(KEY_TITLE);
@@ -151,13 +196,13 @@ public class CustomProgressDialog extends DialogFragment {
         builder.setTitle(title);
         builder.setCancelable(isCancelable);
         View view = LayoutInflater.from(wrapper).inflate(R.layout.fragment_progress_dialog, null);
-        
+
         TextView tv = (TextView) view.findViewById(R.id.progress_dialog_message);
         tv.setText(message);
-        
+
          //All logic for if this dialog uses a checkbox
         if (usingCheckbox) {
-            
+
             CheckBox cb = (CheckBox) view.findViewById(R.id.progress_dialog_checkbox);
             cb.setVisibility(View.VISIBLE);
             cb.setText(checkboxText);
@@ -165,7 +210,7 @@ public class CustomProgressDialog extends DialogFragment {
 
                 @Override
                 public void onClick(View v) {
-                    isChecked = ((CheckBox)v).isChecked();                    
+                    isChecked = ((CheckBox)v).isChecked();
                 }
 
             });
@@ -183,28 +228,28 @@ public class CustomProgressDialog extends DialogFragment {
                 public void onClick(View v) {
                     ((CommCareActivity)getActivity()).cancelCurrentTask();
                 }
-                
+
             });
             b.setVisibility(View.VISIBLE);
         }
-        
+
         if (usingProgressBar) {
             ProgressBar bar = (ProgressBar) view.findViewById(R.id.progress_bar_horizontal);
             bar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar));
             bar.setProgress(progressBarProgress);
             bar.setMax(progressBarMax);
             bar.setVisibility(View.VISIBLE);
-            
+
             // If there's a determinate progress bar, hide the spinning indicator
             view.findViewById(R.id.progress_bar).setVisibility(View.GONE);
         }
-        
+
         builder.setView(view);
         Dialog d = builder.create();
         d.setCanceledOnTouchOutside(isCancelable);
         return d;
     }
-    
+
     public void updateMessage(String text) {
         this.message = text;
         AlertDialog pd = (AlertDialog) getDialog();
@@ -213,7 +258,7 @@ public class CustomProgressDialog extends DialogFragment {
             tv.setText(this.message);
         }
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

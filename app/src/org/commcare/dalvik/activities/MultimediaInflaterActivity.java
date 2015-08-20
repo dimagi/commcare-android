@@ -271,7 +271,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
         if(taskId == CommCareTask.GENERIC_TASK_ID) {
             String title = Localization.get("mult.install.title");
             String message = Localization.get("mult.install.progress", new String[] {"0"});
-            return CustomProgressDialog.newInstance(title, message, taskId);
+            return CustomProgressDialog.newInstance(this, title, message, taskId);
         }
         Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                 + "any valid possibilities in MultiMediaInflaterActivity");

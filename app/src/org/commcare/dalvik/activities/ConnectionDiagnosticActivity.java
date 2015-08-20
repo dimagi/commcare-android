@@ -182,7 +182,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
         if (taskId == ConnectionDiagnosticTask.CONNECTION_ID) {
             String title = Localization.get("connection.test.run.title");
             String message = Localization.get("connection.test.now.running");
-            CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+            CustomProgressDialog dialog = CustomProgressDialog.newInstance(this, title, message, taskId);
             dialog.setCancelable();
             return dialog;
         }
