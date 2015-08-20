@@ -64,7 +64,7 @@ public abstract class ResourceEngineTask<R>
     @Override
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
-        InstallAndUpdateUtils.recordUpdateAttempt();
+        InstallAndUpdateUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
 

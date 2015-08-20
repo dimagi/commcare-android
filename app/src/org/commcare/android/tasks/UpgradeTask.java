@@ -75,7 +75,7 @@ public class UpgradeTask
     protected final ResourceEngineOutcomes doInBackground(String... params) {
         String profileRef = params[0];
 
-        upgradeSetup(profileRef);
+        setupUpgrade(profileRef);
 
         try {
             return performUpgrade(profileRef);
@@ -86,10 +86,10 @@ public class UpgradeTask
         }
     }
 
-    private void upgradeSetup(String profileRef) {
-        InstallAndUpdateUtils.recordUpdateAttempt();
-
+    private void setupUpgrade(String profileRef) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
+        InstallAndUpdateUtils.recordUpdateAttempt(app);
+
         app.setupSandbox();
 
         Logger.log(AndroidLogger.TYPE_RESOURCES,

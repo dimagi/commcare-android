@@ -103,8 +103,7 @@ public class InstallAndUpdateUtils {
         return false;
     }
 
-    public static void recordUpdateAttempt() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+    public static void recordUpdateAttempt(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
