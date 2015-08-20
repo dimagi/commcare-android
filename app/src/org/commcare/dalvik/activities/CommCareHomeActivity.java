@@ -567,7 +567,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
             case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
                     this.finish();
                     return;
                 } else if(resultCode == RESULT_OK) {

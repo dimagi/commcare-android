@@ -75,8 +75,6 @@ public class CommCareSessionService extends Service  {
 
     private byte[] key = null;
 
-    private boolean multimediaIsVerified=false;
-
     private Date sessionExpireDate;
 
     private final Object lock = new Object();
@@ -584,13 +582,5 @@ public class CommCareSessionService extends Service  {
      */
     private void setSessionLength(){
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
-    }
-
-    public boolean isMultimediaVerified(){
-        return multimediaIsVerified;
-    }
-    
-    public void setMultiMediaVerified(boolean toggle){
-        multimediaIsVerified = toggle;
     }
 }
