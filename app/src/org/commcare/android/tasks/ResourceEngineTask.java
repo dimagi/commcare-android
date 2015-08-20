@@ -64,8 +64,7 @@ public abstract class ResourceEngineTask<R>
     @Override
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
-        AndroidCommCarePlatform platform = app.getCommCarePlatform();
-        InstallAndUpdateUtils.recordUpdateAttempt(app.getAppPreferences());
+        InstallAndUpdateUtils.recordUpdateAttempt();
 
         app.setupSandbox();
 
@@ -77,6 +76,7 @@ public abstract class ResourceEngineTask<R>
         }
 
         try {
+            AndroidCommCarePlatform platform = app.getCommCarePlatform();
             // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
 

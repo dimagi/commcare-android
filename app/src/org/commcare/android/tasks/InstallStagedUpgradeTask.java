@@ -32,7 +32,7 @@ public abstract class InstallStagedUpgradeTask<R>
         CommCareResourceManager resourceManager =
             new CommCareResourceManager(platform, global, temporary, recovery);
 
-        if (!CommCareResourceManager.isUpgradeStaged(temporary)) {
+        if (!CommCareResourceManager.isTableStaged(temporary)) {
             return ResourceEngineOutcomes.StatusFailState;
         }
 

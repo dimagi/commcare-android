@@ -8,6 +8,7 @@ import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -15,6 +16,8 @@ import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.util.Date;
 
@@ -28,7 +31,7 @@ public class InstallAndUpdateUtils {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
-        return CommCareResourceManager.isUpgradeStaged(upgradeTable);
+        return CommCareResourceManager.isTableStaged(upgradeTable);
     }
 
     public static int upgradeTableVersion() {
@@ -100,7 +103,9 @@ public class InstallAndUpdateUtils {
         return false;
     }
 
-    public static void recordUpdateAttempt(SharedPreferences prefs) {
+    public static void recordUpdateAttempt() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
         editor.commit();
@@ -111,5 +116,36 @@ public class InstallAndUpdateUtils {
 
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                 logMessage + e.getMessage());
+    }
+
+    public static String addParamsToProfileReference(final String profileRef) {
+        // TODO PLM: move to commcare repo and unify with util usage of this
+        // logic
+        URL profileUrl;
+        try {
+            profileUrl = new URL(profileRef);
+        } catch (MalformedURLException e) {
+            // don't add url query params to non-url profile references
+            return profileRef;
+        }
+
+        if (!("https".equals(profileUrl.getProtocol()) ||
+                "http".equals(profileUrl.getProtocol()))) {
+            return profileRef;
+        }
+
+        // If we want to be using/updating to the latest build of the
+        // app (instead of latest release), add it to the query tags of
+        // the profile reference
+        if (DeveloperPreferences.isNewestAppVersionEnabled()) {
+            if (profileUrl.getQuery() != null) {
+                // url already has query strings, so add a new one to the end
+                return profileRef + "&target=build";
+            } else {
+                return profileRef + "?target=build";
+            }
+        }
+
+        return profileRef;
     }
 }
