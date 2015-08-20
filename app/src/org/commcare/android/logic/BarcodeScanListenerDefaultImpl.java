@@ -31,7 +31,7 @@ public final class BarcodeScanListenerDefaultImpl {
         //endregion
 
         if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra(SCAN_RESULT);
+            String result = intent.getStringExtra(SCAN_RESULT).trim();
             barcodeScanListener.onBarcodeFetch(result, intent);
         }
     }
@@ -43,7 +43,7 @@ public final class BarcodeScanListenerDefaultImpl {
         }
         //endregion
         if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("odk_intent_data");
+            String result = intent.getStringExtra("odk_intent_data").trim();
             barcodeScanListener.onCalloutResult(result, intent);
         }
     }
