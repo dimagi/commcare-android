@@ -41,9 +41,10 @@ public class UpgradeTask
     private int maxProgress = 0;
 
     private final CommCareResourceManager resourceManager;
+    private final CommCareApp app;
 
     private UpgradeTask() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
+        app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         ResourceTable global = platform.getGlobalResourceTable();
@@ -52,6 +53,12 @@ public class UpgradeTask
 
         resourceManager =
                 new CommCareResourceManager(platform, global, upgradeTable, recovery);
+
+        // TODO PLM: detect if we are resuming a download and restore an
+        // old download stat object
+
+        ResourceDownloadStats installStatListener = ResourceDownloadStats.loadPersistentStats(app);
+        resourceManager.setUpgradeListeners(this, this, installStatListener);
     }
 
     public static UpgradeTask getNewInstance() {
@@ -87,7 +94,6 @@ public class UpgradeTask
     }
 
     private void setupUpgrade(String profileRef) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
         InstallAndUpdateUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
@@ -109,12 +115,6 @@ public class UpgradeTask
         profileRef =
                 InstallAndUpdateUtils.addParamsToProfileReference(profileRef);
 
-        // TODO PLM: detect if we are resuming a download and restore an
-        // old download stat object
-        ResourceDownloadStats resourceDownloadStats =
-                new ResourceDownloadStats();
-        resourceManager.setListeners(this, resourceDownloadStats);
-
         try {
             resourceManager.instantiateLatestProfile(profileRef);
             if (resourceManager.isUpgradeTableStaged()) {
@@ -124,6 +124,7 @@ public class UpgradeTask
             if (resourceManager.updateIsntNewer(profile)) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                 resourceManager.clearUpgradeTable();
+                ResourceDownloadStats.clearPersistedStats(app);
                 return ResourceEngineOutcomes.StatusUpToDate;
             }
 
@@ -169,6 +170,7 @@ public class UpgradeTask
 
         if (!reusePartialTable) {
             resourceManager.clearUpgradeTable();
+            ResourceDownloadStats.clearPersistedStats(app);
         }
 
         if (taskListener != null) {
@@ -189,6 +191,9 @@ public class UpgradeTask
         if (taskListener != null) {
             taskListener.processTaskCancel(result);
         }
+
+        // TODO PLM: create android level resourcemanager
+        // ResourceDownloadStats.saveStatsPersistently(app, resourceManager.getDownloadStats());
 
         singletonRunningInstance = null;
     }

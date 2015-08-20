@@ -77,10 +77,8 @@ public abstract class ResourceEngineTask<R>
 
         try {
             AndroidCommCarePlatform platform = app.getCommCarePlatform();
-            // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
 
-            // Not upgrade mode, so attempting normal install
             global.setStateListener(this);
             try {
                 CommCareResourceManager.init(platform, profileRef, global, false);
@@ -129,12 +127,10 @@ public abstract class ResourceEngineTask<R>
             return;
         }
 
-        Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
-
-        // TODO: Better reflect upgrade status process
+        Vector<Resource> resources =
+                CommCareResourceManager.getResourceListFromProfile(table);
 
         int score = 0;
-
         for (Resource r : resources) {
             switch (r.getStatus()) {
                 case Resource.RESOURCE_STATUS_UPGRADE:
@@ -147,9 +143,6 @@ public abstract class ResourceEngineTask<R>
                     break;
                 case Resource.RESOURCE_STATUS_INSTALLED:
                     score += 1;
-                    break;
-                default:
-                    score += 0;
                     break;
             }
         }
