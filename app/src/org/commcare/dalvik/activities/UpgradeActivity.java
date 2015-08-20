@@ -34,7 +34,6 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
     private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
 
     private boolean taskIsCancelling;
-    private boolean resourceTableWasFresh;
 
     private UpgradeTask upgradeTask;
 
@@ -174,29 +173,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
 
         unregisterTask();
 
-        boolean startOverInstall =
-                (result == ResourceEngineOutcomes.StatusFailState ||
-                        result == ResourceEngineOutcomes.StatusNoLocalStorage);
-
-        // Did the install fail in a way where the existing
-        // resource table should be reused in the next install
-        // attempt?
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        app.getAppPreferences().edit().putBoolean(UpgradeTask.KEY_START_OVER, startOverInstall).commit();
-
         uiController.refreshStatusText();
-        /*
-        // Check if we want to record this as a 'last install
-        // time', based on the state of the resource table before
-        // and after this install took place
-        ResourceTable temporary = app.getCommCarePlatform().getUpgradeResourceTable();
-
-        if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL &&
-                resourceTableWasFresh) {
-            app.getAppPreferences().edit().putLong(CommCareSetupActivity.KEY_LAST_INSTALL,
-                    System.currentTimeMillis()).commit();
-        }
-        */
     }
 
     @Override
@@ -219,19 +196,8 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
             return;
         }
 
+        // TODO PLM: is this the correct way to get the ref?
         CommCareApp app = CommCareApplication._().getCurrentApp();
-        /*
-        // store what the state of the resource table was before this
-        // install, so we can compare it to the state after and decide if
-        // this should count as a 'last install time'
-        int tableStateBeforeInstall =
-            app.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
-
-        resourceTableWasFresh =
-            (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_EMPTY) ||
-            (tableStateBeforeInstall == ResourceTable.RESOURCE_TABLE_INSTALLED);
-        */
-
         SharedPreferences prefs = app.getAppPreferences();
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
         upgradeTask.execute(ref);
@@ -255,7 +221,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
 
     protected void launchUpgradeInstallTask() {
         InstallStagedUpgradeTask<UpgradeActivity> task =
-                new InstallStagedUpgradeTask<UpgradeActivity>(UpgradeActivity.DIALOG_UPGRADE_INSTALL) {
+                new InstallStagedUpgradeTask<UpgradeActivity>(DIALOG_UPGRADE_INSTALL) {
 
                     @Override
                     protected void deliverResult(UpgradeActivity receiver,
@@ -291,7 +257,8 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         }
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        CustomProgressDialog dialog =
+            CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         return dialog;
     }

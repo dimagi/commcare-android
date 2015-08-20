@@ -44,11 +44,6 @@ public class UpgradeTask
     private int currentProgress = 0;
     private int maxProgress = 0;
 
-    public static final String KEY_START_OVER = "start_over_uprgrade";
-
-    // 1 week in milliseconds
-    private static final long START_OVER_THRESHOLD = 604800000;
-
     private UpgradeTask() {
     }
 
@@ -105,12 +100,11 @@ public class UpgradeTask
             CommCareResourceManager resourceManager =
                     new CommCareResourceManager(platform, global, upgradeTable, recovery);
 
-            resourceManager.setListeners(this);
-
-            boolean startOverUpgrade = ResourceDownloadStats.calcResourceFreshness();
-            if (startOverUpgrade) {
-                upgradeTable.clear();
-            }
+            // TODO PLM: detect if we are resuming a download and restore an
+            // old download stat object
+            ResourceDownloadStats resourceDownloadStats =
+                new ResourceDownloadStats();
+            resourceManager.setListeners(this, resourceDownloadStats);
 
             try {
                 resourceManager.instantiateLatestProfile(profileRef);
@@ -196,6 +190,16 @@ public class UpgradeTask
     @Override
     protected void onPostExecute(ResourceEngineOutcomes result) {
         super.onPostExecute(result);
+
+        boolean reusePartialTable =
+                (result == ResourceEngineOutcomes.StatusFailState ||
+                        result == ResourceEngineOutcomes.StatusNoLocalStorage);
+
+        if (!reusePartialTable) {
+            ResourceTable upgradeTable = platform.getUpgradeResourceTable();
+            upgradeTable.clear();
+        }
+
 
         if (taskListener != null) {
             taskListener.processTaskResult(result);
