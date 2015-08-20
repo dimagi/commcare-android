@@ -197,29 +197,26 @@ public class CommCareSessionService extends Service  {
             this.startForeground(NOTIFICATION, notification);
         }
     }
-    
-    /*
+
+    /**
      * Notify the user that they've been timed out and need to relog in
      */
     private void showLoggedOutNotification() {
         this.stopForeground(true);
-        
-        String text = "Click here to log back into your session";
-        
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
-        // The PendingIntent to launch our activity if the user selects this notification
         Intent i = new Intent(this, CommCareHomeActivity.class);
-        
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.expirenotification), text, contentIntent);
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(this.getString(R.string.expirenotification))
+                .setContentText("Click here to log back into your session")
+                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                .setContentIntent(contentIntent)
+                .build();
 
         // Send the notification.
         mNM.notify(NOTIFICATION, notification);
-
     }
     
     //Start CommCare Specific Functionality

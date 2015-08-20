@@ -6,40 +6,34 @@
     android:focusable="false"
     android:orientation="vertical" >
 
+    <Button
+        android:id="@+id/entity_select_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/cc_attention_positive_bg"
+        android:drawableRight="@drawable/icon_chevron_right_attnpos"
+        android:text="Continue"
+        android:textColor="@color/cc_attention_positive_text"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="@dimen/content_min_margin"
+        android:paddingRight="@dimen/content_min_margin"
+        android:layout_below="@+id/universal_frame_tile"
+        android:textSize="@dimen/text_large" />
 
    <org.commcare.android.view.TabbedDetailView
        android:id="@+id/entity_detail_tabs"
        android:layout_width="fill_parent"
        android:layout_height="wrap_content"
        android:orientation="vertical"
-       android:layout_below="@+id/universal_frame_tile"
-       android:layout_above="@+id/entity_detail_bottom_pane" />
-	
-	<FrameLayout
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:id="@+id/entity_detail_bottom_pane"
-	    android:layout_alignParentBottom="true"
-	    android:background="@drawable/border_top_black"
-	    android:paddingTop="1dp">
-	
-	    <Button
-	        android:id="@+id/entity_select_button"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:drawableRight="@drawable/icon_next"
-	        android:text="Continue"
-	        android:textSize="@dimen/text_large" >
-		</Button>
+       android:layout_below="@id/entity_select_button"
+	   />
 
-	</FrameLayout>
-		    
 	<FrameLayout
 	    android:id="@+id/universal_frame_tile"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentTop="true">
-	
+
 	</FrameLayout>
 
 </RelativeLayout>

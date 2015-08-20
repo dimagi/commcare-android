@@ -75,7 +75,6 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -85,10 +84,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
@@ -194,7 +189,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         ACRAUtil.registerAppData();
 
         // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
-        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
+        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
@@ -859,17 +854,18 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
      */
     private void startNextFetch() {
 
-        final CommCareSession session = CommCareApplication._().getCurrentSession();
+        final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+        CommCareSession session = asw.getSession();
         String needed = session.getNeededData();
 
         if (needed == null) {
-            readyToProceed(session);
+            readyToProceed(asw);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
             handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
             handleGetDatum(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            handleCompute(session);
+            handleCompute(asw);
         }
     }
 
@@ -877,15 +873,15 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     // region: private helper methods used by startNextFetch(), to prevent it from being one
     // extremely long method
 
-    private void readyToProceed(final CommCareSession session) {
-        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
+    private void readyToProceed(final AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
         //See if we failed any of our assertions
-        Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
+        Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
         if (text != null) {
             createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
-                    session.stepBack();
+                    asw.getSession().stepBack();
                     CommCareHomeActivity.this.startNextFetch();
                 }
             });
@@ -915,27 +911,12 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         startActivityForResult(i, GET_CASE);
     }
 
-    private void handleCompute(CommCareSession session) {
-        SessionDatum datum = session.getNeededDatum();
-        XPathExpression form;
+    private void handleCompute(AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
         try {
-            form = XPathParseTool.parseXPath(datum.getValue());
-        } catch (XPathSyntaxException e) {
-            //TODO: What.
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
-        }
-        EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-        if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-            session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-            session.setDatum("", "awful");
-        } else {
-            try {
-                session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
-            } catch (XPathException e) {
-                displayException(e);
-                return;
-            }
+            asw.getSession().setComputedDatum(ec);
+        } catch (XPathException e) {
+            displayException(e);
         }
         startNextFetch();
     }
