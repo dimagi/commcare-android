@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
-import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpdateTask;
@@ -24,7 +24,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
-        implements TaskListener<Integer, ResourceEngineOutcomes> {
+        implements TaskListener<Integer, AppInstallStatus> {
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
@@ -159,8 +159,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void processTaskResult(ResourceEngineOutcomes result) {
-        if (result == ResourceEngineOutcomes.StatusUpdateStaged) {
+    public void processTaskResult(AppInstallStatus result) {
+        if (result == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailable();
         } else {
             uiController.upToDate();
@@ -172,7 +172,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void processTaskCancel(ResourceEngineOutcomes result) {
+    public void processTaskCancel(AppInstallStatus result) {
         unregisterTask();
 
         uiController.idle();
@@ -217,8 +217,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
                     @Override
                     protected void deliverResult(UpdateActivity receiver,
-                                                 ResourceEngineOutcomes result) {
-                        if (result == ResourceEngineOutcomes.StatusInstalled) {
+                                                 AppInstallStatus result) {
+                        if (result == AppInstallStatus.Installed) {
                             uiController.updateInstalled();
                         } else {
                             uiController.error();

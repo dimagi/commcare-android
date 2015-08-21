@@ -6,7 +6,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.analytics.UpdateStatPersistence;
 import org.commcare.android.resource.analytics.UpdateStats;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
-import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -43,21 +42,21 @@ public class AndroidResourceManager extends ResourceManager {
     /**
      * Download the latest profile; if it is new, download and stage the entire update.
      *
-     * @param profileRef
+     * @param profileRef Reference that resolves to the profile file used to seed the update
      * @return
      */
-    public ResourceEngineOutcomes checkAndPrepareUpgradeResources(String profileRef) {
+    public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef) {
         try {
             instantiateLatestProfile(profileRef);
 
             if (isUpgradeTableStaged()) {
-                return ResourceEngineOutcomes.StatusUpdateStaged;
+                return AppInstallStatus.UpdateStaged;
             }
 
             if (updateIsntNewer(getMasterProfile())) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                 clearUpgradeTable();
-                return ResourceEngineOutcomes.StatusUpToDate;
+                return AppInstallStatus.UpToDate;
             }
 
             updateStats.incRestartCount();
@@ -65,24 +64,24 @@ public class AndroidResourceManager extends ResourceManager {
             prepareUpgradeResources();
         } catch (InstallCancelledException e) {
             // The user cancelled the upgrade check process
-            return ResourceEngineOutcomes.StatusFailUnknown;
+            return AppInstallStatus.UnknownFailure;
         } catch (LocalStorageUnavailableException e) {
             ResourceInstallUtils.logInstallError(e,
                     "Couldn't install file to local storage|");
-            return ResourceEngineOutcomes.StatusNoLocalStorage;
+            return AppInstallStatus.NoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
             if (e.isDuplicateException()) {
-                return ResourceEngineOutcomes.StatusDuplicateApp;
+                return AppInstallStatus.DuplicateApp;
             } else {
                 ResourceInstallUtils.logInstallError(e,
                         "App resources are incompatible with this device|");
-                return ResourceEngineOutcomes.StatusBadReqs;
+                return AppInstallStatus.IncompatibleReqs;
             }
         } catch (UnresolvedResourceException e) {
             return ResourceInstallUtils.processUnresolvedResource(e);
         }
 
-        return ResourceEngineOutcomes.StatusUpdateStaged;
+        return AppInstallStatus.UpdateStaged;
     }
 
     /**

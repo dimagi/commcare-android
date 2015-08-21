@@ -390,10 +390,6 @@ notification.install.badarchive.action=Download this fule and place it on your p
 notification.install.unknown.title=Unknown failure during app install
 notification.install.unknown.detail=An unexpected failure happened while trying to install/upgrade your app. Please try again, and contact a supervisor if you cannot install.
 
-notification.install.badstate.title=Attempt to install multiple apps
-notification.install.badstate.detail=There is already an CommCare app installed on this phone. Multiple apps are not currently supported. Please click below to login to your existing application, or clear application data from your device's Settings to install a new app.
-notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare ODK. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
-
 notification.install.nolocal.title=Couldn't install files to storage
 notification.install.nolocal.detail=CommCare couldn't open your local storage to write your app's files.
 notification.install.nolocal.action=This almost always occurs because the SD card from your device has been removed, or your application is currently connected to a computer in Mass Storage mode. Please ensure that external storage is available for your device. If you have an SD card, ensure it is inserted. If you are connected to USB, set the USB transfer mode to "Charge Only"

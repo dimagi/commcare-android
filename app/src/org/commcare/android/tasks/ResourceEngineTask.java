@@ -3,6 +3,7 @@ package org.commcare.android.tasks;
 import android.os.SystemClock;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -23,7 +24,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public abstract class ResourceEngineTask<R>
-        extends CommCareTask<String, int[], ResourceEngineOutcomes, R>
+        extends CommCareTask<String, int[], AppInstallStatus, R>
         implements TableStateListener {
 
     private final CommCareApp app;
@@ -60,7 +61,7 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
+    protected AppInstallStatus doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
         ResourceInstallUtils.recordUpdateAttempt(app);
 
@@ -83,10 +84,10 @@ public abstract class ResourceEngineTask<R>
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
-                return ResourceEngineOutcomes.StatusNoLocalStorage;
+                return AppInstallStatus.NoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
                 if (e.isDuplicateException()) {
-                    return ResourceEngineOutcomes.StatusDuplicateApp;
+                    return AppInstallStatus.DuplicateApp;
                 } else {
                     badReqCode = e.getRequirementCode();
                     vAvailable = e.getAvailableVesionString();
@@ -95,12 +96,12 @@ public abstract class ResourceEngineTask<R>
 
                     ResourceInstallUtils.logInstallError(e,
                             "App resources are incompatible with this device|");
-                    return ResourceEngineOutcomes.StatusBadReqs;
+                    return AppInstallStatus.IncompatibleReqs;
                 }
             } catch (UnresolvedResourceException e) {
-                ResourceEngineOutcomes outcome =
+                AppInstallStatus outcome =
                     ResourceInstallUtils.processUnresolvedResource(e);
-                if (outcome != ResourceEngineOutcomes.StatusBadCertificate) {
+                if (outcome != AppInstallStatus.BadCertificate) {
                     missingResourceException = e;
                 }
                 return outcome;
@@ -108,12 +109,12 @@ public abstract class ResourceEngineTask<R>
 
             ResourceInstallUtils.initAndCommitApp(app, profileRef);
 
-            return ResourceEngineOutcomes.StatusInstalled;
+            return AppInstallStatus.Installed;
         } catch (Exception e) {
             e.printStackTrace();
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
-            return ResourceEngineOutcomes.StatusFailUnknown;
+            return AppInstallStatus.UnknownFailure;
         }
     }
 

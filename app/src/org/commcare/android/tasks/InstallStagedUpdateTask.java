@@ -1,6 +1,7 @@
 package org.commcare.android.tasks;
 
 import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -12,7 +13,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class InstallStagedUpdateTask<R>
-        extends CommCareTask<Void, int[], ResourceEngineOutcomes, R> {
+        extends CommCareTask<Void, int[], AppInstallStatus, R> {
 
     public InstallStagedUpdateTask(int taskId) {
         this.taskId = taskId;
@@ -20,7 +21,7 @@ public abstract class InstallStagedUpdateTask<R>
     }
 
     @Override
-    protected ResourceEngineOutcomes doTaskBackground(Void... params) {
+    protected AppInstallStatus doTaskBackground(Void... params) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         app.setupSandbox();
 
@@ -29,17 +30,17 @@ public abstract class InstallStagedUpdateTask<R>
             new AndroidResourceManager(platform);
 
         if (!resourceManager.isUpgradeTableStaged()) {
-            return ResourceEngineOutcomes.StatusFailState;
+            return AppInstallStatus.UnknownFailure;
         }
 
         try {
             resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
-            return ResourceEngineOutcomes.StatusFailState;
+            return AppInstallStatus.UnknownFailure;
         }
 
         ResourceInstallUtils.initAndCommitApp(app);
 
-        return ResourceEngineOutcomes.StatusInstalled;
+        return AppInstallStatus.Installed;
     }
 }

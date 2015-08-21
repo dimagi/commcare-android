@@ -2,6 +2,7 @@ package org.commcare.android.tasks;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -23,12 +24,12 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateTask
-        extends ManagedAsyncTask<String, Integer, ResourceEngineOutcomes>
+        extends ManagedAsyncTask<String, Integer, AppInstallStatus>
         implements TableStateListener, ProcessCancelled {
 
     private static final String TAG = UpdateTask.class.getSimpleName();
 
-    private TaskListener<Integer, ResourceEngineOutcomes> taskListener = null;
+    private TaskListener<Integer, AppInstallStatus> taskListener = null;
 
     private static UpdateTask singletonRunningInstance = null;
 
@@ -67,7 +68,7 @@ public class UpdateTask
     }
 
     @Override
-    protected final ResourceEngineOutcomes doInBackground(String... params) {
+    protected final AppInstallStatus doInBackground(String... params) {
         profileRef = params[0];
 
         setupUpgrade();
@@ -77,7 +78,7 @@ public class UpdateTask
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
-            return ResourceEngineOutcomes.StatusFailUnknown;
+            return AppInstallStatus.UnknownFailure;
         }
     }
 
@@ -90,13 +91,13 @@ public class UpdateTask
                 "Beginning install attempt for profile " + profileRef);
     }
 
-    private ResourceEngineOutcomes performUpgrade() {
+    private AppInstallStatus performUpgrade() {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
 
         if (!appInstalled) {
-            return ResourceEngineOutcomes.StatusFailState;
+            return AppInstallStatus.UnknownFailure;
         }
 
         String profileRefWithParams =
@@ -115,15 +116,15 @@ public class UpdateTask
     }
 
     @Override
-    protected void onPostExecute(ResourceEngineOutcomes result) {
+    protected void onPostExecute(AppInstallStatus result) {
         super.onPostExecute(result);
 
         boolean reusePartialTable =
-                (result == ResourceEngineOutcomes.StatusFailState ||
-                        result == ResourceEngineOutcomes.StatusNoLocalStorage);
+                (result == AppInstallStatus.UnknownFailure ||
+                        result == AppInstallStatus.NoLocalStorage);
 
-        boolean inIncompleteState = !(result == ResourceEngineOutcomes.StatusUpdateStaged ||
-                result == ResourceEngineOutcomes.StatusUpToDate);
+        boolean inIncompleteState = !(result == AppInstallStatus.UpdateStaged ||
+                result == AppInstallStatus.UpToDate);
         if (inIncompleteState && !reusePartialTable) {
             resourceManager.clearUpgradeTable();
         }
@@ -136,7 +137,7 @@ public class UpdateTask
     }
 
     @Override
-    protected void onCancelled(ResourceEngineOutcomes result) {
+    protected void onCancelled(AppInstallStatus result) {
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             super.onCancelled(result);
         } else {
@@ -152,7 +153,7 @@ public class UpdateTask
         singletonRunningInstance = null;
     }
 
-    public void registerTaskListener(TaskListener<Integer, ResourceEngineOutcomes> listener)
+    public void registerTaskListener(TaskListener<Integer, AppInstallStatus> listener)
             throws TaskListenerException {
         if (taskListener != null) {
             throw new TaskListenerException("This " + TAG +
@@ -161,7 +162,7 @@ public class UpdateTask
         taskListener = listener;
     }
 
-    public void unregisterTaskListener(TaskListener<Integer, ResourceEngineOutcomes> listener)
+    public void unregisterTaskListener(TaskListener<Integer, AppInstallStatus> listener)
             throws TaskListenerException {
         if (listener != taskListener) {
             throw new TaskListenerException("The provided listener wasn't " +

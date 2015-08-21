@@ -21,8 +21,8 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineListener;
-import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -351,36 +351,36 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
                 @Override
                 protected void deliverResult(CommCareSetupActivity receiver,
-                                             ResourceEngineOutcomes result) {
+                                             AppInstallStatus result) {
                     switch (result) {
-                        case StatusInstalled:
+                        case Installed:
                             receiver.reportSuccess(true);
                             break;
-                        case StatusUpToDate:
+                        case UpToDate:
                             receiver.reportSuccess(false);
                             break;
-                        case StatusMissingDetails:
+                        case MissingResourcesWithMessage:
                             // fall through to more general case:
-                        case StatusMissing:
+                        case MissingResources:
                             receiver.failMissingResource(this.missingResourceException, result);
                             break;
-                        case StatusBadReqs:
+                        case IncompatibleReqs:
                             receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                             break;
                         case StatusFailState:
-                            receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+                            receiver.failWithNotification(AppInstallStatus.StatusFailState);
                             break;
-                        case StatusNoLocalStorage:
-                            receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+                        case NoLocalStorage:
+                            receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
                             break;
-                        case StatusBadCertificate:
-                            receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+                        case BadCertificate:
+                            receiver.failWithNotification(AppInstallStatus.BadCertificate);
                             break;
-                        case StatusDuplicateApp:
-                            receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+                        case DuplicateApp:
+                            receiver.failWithNotification(AppInstallStatus.DuplicateApp);
                             break;
                         default:
-                            receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+                            receiver.failUnknown(AppInstallStatus.UnknownFailure);
                             break;
                      }
                 }
@@ -394,7 +394,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 @Override
                 protected void deliverError(CommCareSetupActivity receiver,
                                             Exception e) {
-                    receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+                    receiver.failUnknown(AppInstallStatus.UnknownFailure);
                 }
             };
 
@@ -483,7 +483,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failMissingResource(UnresolvedResourceException ure, ResourceEngineOutcomes statusMissing) {
+    public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
         fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
     }
 
@@ -498,11 +498,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             error=Localization.get("install.minor.mismatch");
         }
         
-        fail(NotificationMessageFactory.message(ResourceEngineOutcomes.StatusBadReqs, new String[] {null, versionMismatch, error}), true);
+        fail(NotificationMessageFactory.message(AppInstallStatus.IncompatibleReqs, new String[] {null, versionMismatch, error}), true);
     }
 
     @Override
-    public void failUnknown(ResourceEngineOutcomes unknown) {
+    public void failUnknown(AppInstallStatus unknown) {
         fail(NotificationMessageFactory.message(unknown), false);
     }
     
@@ -513,7 +513,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failWithNotification(ResourceEngineOutcomes statusfailstate) {
+    public void failWithNotification(AppInstallStatus statusfailstate) {
         fail(NotificationMessageFactory.message(statusfailstate), true);
     }
 

@@ -3,7 +3,6 @@ package org.commcare.android.resource;
 import android.content.SharedPreferences;
 
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -81,21 +80,21 @@ public class ResourceInstallUtils {
         edit.commit();
     }
 
-    public static ResourceEngineOutcomes processUnresolvedResource(UnresolvedResourceException e) {
+    public static AppInstallStatus processUnresolvedResource(UnresolvedResourceException e) {
         // couldn't find a resource, which isn't good.
         e.printStackTrace();
 
         if (ResourceInstallUtils.isBadCertificateError(e)) {
-            return ResourceEngineOutcomes.StatusBadCertificate;
+            return AppInstallStatus.BadCertificate;
         }
 
         Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                 "A resource couldn't be found, almost certainly due to the network|" +
                         e.getMessage());
         if (e.isMessageUseful()) {
-            return ResourceEngineOutcomes.StatusMissingDetails;
+            return AppInstallStatus.MissingResourcesWithMessage;
         } else {
-            return ResourceEngineOutcomes.StatusMissing;
+            return AppInstallStatus.MissingResources;
         }
     }
 
