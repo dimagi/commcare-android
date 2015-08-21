@@ -313,7 +313,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if(tile != null) {
             ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);

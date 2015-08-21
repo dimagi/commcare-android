@@ -113,7 +113,7 @@ public class CommCareSessionService extends Service  {
     }
 
     @Override
-    protected void onCreate() {
+    public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
         pool = new CipherPool() {
@@ -158,7 +158,7 @@ public class CommCareSessionService extends Service  {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         // Cancel the persistent notification.
         this.stopForeground(true);
     }
