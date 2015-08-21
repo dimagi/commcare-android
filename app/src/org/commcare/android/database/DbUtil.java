@@ -102,14 +102,12 @@ public class DbUtil {
                        classNames.add(cn);
                    }
                }
-           } catch(IllegalAccessError e) {
+           } catch(IllegalAccessError | SecurityException e) {
                //nothing
-           } catch (SecurityException e) {
-               
            } catch(Exception e) {
-               
+
            } catch(Error e) {
-               
+
            }
        }
        

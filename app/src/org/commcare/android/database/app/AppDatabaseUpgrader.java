@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 
 /**
@@ -50,7 +51,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -63,7 +64,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -76,9 +77,13 @@ public class AppDatabaseUpgrader {
     private  boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX global_index_id ON " + 
+                    CommCareApp.GLOBAL_STORAGE_TABLE + 
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE +
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE + 
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
             db.setTransactionSuccessful();
             return true;
         } finally {

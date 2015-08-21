@@ -12,6 +12,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 
@@ -75,7 +76,7 @@ public class LegacyCommCareUpgrader {
 
     public boolean upgradeOneTwo(SQLiteDatabase database) {
         database.beginTransaction();
-        LegacyTableBuilder builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
+        LegacyTableBuilder builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE);
         builder.addData(new Resource());
         database.execSQL(builder.getTableCreateString());
         
@@ -98,8 +99,8 @@ public class LegacyCommCareUpgrader {
         
         database.beginTransaction();
         
-        database.execSQL("delete from GLOBAL_RESOURCE_TABLE");
-        database.execSQL("delete from UPGRADE_RESOURCE_TABLE");
+        database.execSQL("delete from " + CommCareApp.GLOBAL_STORAGE_TABLE);
+        database.execSQL("delete from " + CommCareApp.UPGRADE_STORAGE_TABLE);
         database.execSQL("delete from android_cc_session");
         database.setTransactionSuccessful();
         database.endTransaction();

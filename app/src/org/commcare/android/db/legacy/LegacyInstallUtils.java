@@ -136,7 +136,7 @@ public class LegacyInstallUtils {
         //Ok, so now we need to see whether there's app on the legacy db.
         //Use the name of the Pre-DB3 Global Resource table (in case it has changed).
         //Note: ResourceModelUpdater is mandatory here to read pre-db3 resource records.
-        LegacySqlIndexedStorageUtility<Resource> legacyResources = new LegacySqlIndexedStorageUtility<Resource>("GLOBAL_RESOURCE_TABLE", ResourceModelUpdater.class, ldbh);
+        LegacySqlIndexedStorageUtility<Resource> legacyResources = new LegacySqlIndexedStorageUtility<Resource>(CommCareApp.GLOBAL_STORAGE_TABLE, ResourceModelUpdater.class, ldbh);
         
         //see if the resource table is installed
         boolean hasProfile = false;
@@ -187,7 +187,7 @@ public class LegacyInstallUtils {
         
         //1) DB Records
         //   The following models need to be moved: Resource Table entries, fixtures, and logs
-        SqlStorage<Resource> newInstallTable = app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class);
+        SqlStorage<Resource> newInstallTable = app.getStorage(CommCareApp.GLOBAL_STORAGE_TABLE, Resource.class);
         SqlStorage.cleanCopy(legacyResources, newInstallTable);
         
         //Fixtures
