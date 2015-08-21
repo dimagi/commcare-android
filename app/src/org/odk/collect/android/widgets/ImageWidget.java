@@ -20,11 +20,13 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.jr.extensions.ImageRestrictionExtension;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
 
@@ -50,6 +52,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
     private final TextView mErrorTextView;
 
+    private int mMaxDimen;
 
     public ImageWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
@@ -296,6 +299,13 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mChooseButton.cancelLongPress();
         if (mImageView != null) {
             mImageView.cancelLongPress();
+        }
+    }
+
+    @Override
+    public void applyExtension(QuestionDataExtension extension) {
+        if (extension instanceof ImageRestrictionExtension) {
+            this.mMaxDimen = ((ImageRestrictionExtension) extension).getMaxDimen();
         }
     }
 }

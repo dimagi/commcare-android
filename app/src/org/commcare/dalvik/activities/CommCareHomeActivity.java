@@ -953,33 +953,33 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
      * @param state Needed for FormRecord manipulations
      */
     private void startFormEntry(AndroidSessionWrapper state) {
-            if (state.getFormRecordId() == -1) {
-                if (CommCarePreferences.isIncompleteFormsEnabled()) {
-                    // Are existing (incomplete) forms using the same case?
-                    SessionStateDescriptor existing =
-                        state.getExistingIncompleteCaseDescriptor();
+        if (state.getFormRecordId() == -1) {
+            if (CommCarePreferences.isIncompleteFormsEnabled()) {
+                // Are existing (incomplete) forms using the same case?
+                SessionStateDescriptor existing =
+                    state.getExistingIncompleteCaseDescriptor();
 
-                    if (existing != null) {
-                        // Ask user if they want to just edit existing form that
-                        // uses the same case.
-                        createAskUseOldDialog(state, existing);
-                        return;
-                    }
+                if (existing != null) {
+                    // Ask user if they want to just edit existing form that
+                    // uses the same case.
+                    createAskUseOldDialog(state, existing);
+                    return;
                 }
-
-                // Generate a stub form record and commit it
-                state.commitStub();
-            } else {
-                Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
             }
 
-            FormRecord record = state.getFormRecord();
+            // Generate a stub form record and commit it
+            state.commitStub();
+        } else {
+            Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
+        }
 
-            if (CommCareApplication._().getCurrentApp() != null) {
-                platform = CommCareApplication._().getCommCarePlatform();
-            }
+        FormRecord record = state.getFormRecord();
 
-            formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
+        if (CommCareApplication._().getCurrentApp() != null) {
+            platform = CommCareApplication._().getCommCarePlatform();
+        }
+
+        formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
     @Override

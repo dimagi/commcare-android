@@ -33,6 +33,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.odk.collect.android.jr.extensions.ImageRestrictionExtensionParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 
@@ -73,6 +74,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
         XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        XFormParser.registerExtensionParser(new ImageRestrictionExtensionParser("upload"));
         
         FormDef formDef;
         try {

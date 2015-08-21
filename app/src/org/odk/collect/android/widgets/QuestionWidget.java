@@ -32,6 +32,7 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryCaption;
@@ -186,6 +187,10 @@ public abstract class QuestionWidget extends LinearLayout {
     public abstract void setFocus(Context context);
 
     public abstract void setOnLongClickListener(OnLongClickListener l);
+
+    public void applyExtension(QuestionDataExtension extension) {
+
+    }
 
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
