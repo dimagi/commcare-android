@@ -517,35 +517,36 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 mProgressDialog.updateProgressBar(progress, max);
             }
             else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, 
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Attempting to update a progress dialog whose taskId does not match the"
                         + "task for which the update message was intended.");
             }
         }
     }
-    
+
     @Override
     public void showProgressDialog(int taskId) {
         CustomProgressDialog dialog = generateProgressDialog(taskId);
-        if (dialog != null) {
-            dialog.show(getSupportFragmentManager(), KEY_DIALOG_FRAG);
-        }
+//        if (dialog != null) {
+//            dialog.show(getSupportFragmentManager(), KEY_DIALOG_FRAG);
+//        }
     }
-    
+
     @Override
     public CustomProgressDialog getCurrentDialog() {
-        return (CustomProgressDialog) getSupportFragmentManager().
-                findFragmentByTag(KEY_DIALOG_FRAG);
+        return null;
+//        return (CustomProgressDialog) getSupportFragmentManager().
+//                findFragmentByTag(KEY_DIALOG_FRAG);
     }
 
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
-        if (mProgressDialog != null && mProgressDialog.isAdded()) {
-            mProgressDialog.dismissAllowingStateLoss();
-        }
+//        if (mProgressDialog != null && mProgressDialog.isAdded()) {
+//            mProgressDialog.dismissAllowingStateLoss();
+//        }
     }
-    
+
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
