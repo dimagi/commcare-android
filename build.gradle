@@ -42,6 +42,7 @@ dependencies {
     compile 'com.etsy.android.grid:library:1.0.4'
     compile 'com.android.support:support-v4:22.1.1'
     compile 'com.android.support:gridlayout-v7:21.0.0'
+    compile 'com.android.support:appcompat-v7:22.1.+'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }
