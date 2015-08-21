@@ -27,6 +27,7 @@ public class AndroidResourceManager extends ResourceManager {
     private final String TAG = AndroidResourceManager.class.getSimpleName();
     private final UpdateStats updateStats;
     private final CommCareApp app;
+    private String profileRef;
 
     public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(),
@@ -40,14 +41,18 @@ public class AndroidResourceManager extends ResourceManager {
     }
 
     /**
-     * Download the latest profile; if it is new, download and stage the entire update.
+     * Download the latest profile; if it is new, download and stage the entire
+     * update.
      *
-     * @param profileRef Reference that resolves to the profile file used to seed the update
-     * @return
+     * @param profileRef Reference that resolves to the profile file used to
+     *                   seed the update
+     * @return UpdateStaged upon update download, UpToDate if no new update,
+     * otherwise an error status.
      */
     public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef) {
+        this.profileRef = profileRef;
         try {
-            instantiateLatestProfile(profileRef);
+            instantiateLatestProfile();
 
             if (isUpgradeTableStaged()) {
                 return AppInstallStatus.UpdateStaged;
@@ -63,7 +68,8 @@ public class AndroidResourceManager extends ResourceManager {
 
             prepareUpgradeResources();
         } catch (InstallCancelledException e) {
-            // The user cancelled the upgrade check process
+            // The user cancelled the upgrade check process. The calling task
+            // should have caught and handled the cancellation
             return AppInstallStatus.UnknownFailure;
         } catch (LocalStorageUnavailableException e) {
             ResourceInstallUtils.logInstallError(e,
@@ -85,9 +91,10 @@ public class AndroidResourceManager extends ResourceManager {
     }
 
     /**
-     * Load the latest profile into the upgrade table.
+     * Load the latest profile into the upgrade table. Clears the upgrade table
+     * if it's partially populated with an out-of-date version.
      */
-    private void instantiateLatestProfile(String profileRef)
+    private void instantiateLatestProfile()
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -106,11 +113,17 @@ public class AndroidResourceManager extends ResourceManager {
         if (upgradeProfile == null) {
             loadProfile(upgradeTable, profileRef);
         } else {
-            loadProfileViaTemp(profileRef, upgradeProfile);
+            loadProfileViaTemp(upgradeProfile);
         }
     }
 
-    private void loadProfileViaTemp(String profileRef, Resource upgradeProfile)
+    /**
+     * Download the latest profile into the temporary table and if the version
+     * higher than the upgrade table's profile, copy it into the upgrade table.
+     *
+     * @param upgradeProfile the profile currently in the upgrade table.
+     */
+    private void loadProfileViaTemp(Resource upgradeProfile)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -133,7 +146,9 @@ public class AndroidResourceManager extends ResourceManager {
         tempTable.destroy();
     }
 
-
+    /**
+     * Remove upgrade table entries, corresponding files, and download stats.
+     */
     public void clearUpgradeTable() {
         upgradeTable.clear();
         Log.i(TAG, "Clearing upgrade table, here are the stats collected");
@@ -141,7 +156,10 @@ public class AndroidResourceManager extends ResourceManager {
         UpdateStatPersistence.clearPersistedStats(app);
     }
 
-
+    /**
+     * Clear upgrade stats if the upgrade was cancelled and wasn't complete at
+     * that time.
+     */
     public void upgradeCancelled() {
         if (!isUpgradeTableStaged()) {
             UpdateStatPersistence.saveStatsPersistently(app, updateStats);

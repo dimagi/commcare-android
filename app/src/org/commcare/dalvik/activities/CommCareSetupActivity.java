@@ -367,9 +367,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         case IncompatibleReqs:
                             receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                             break;
-                        case StatusFailState:
-                            receiver.failWithNotification(AppInstallStatus.StatusFailState);
-                            break;
                         case NoLocalStorage:
                             receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
                             break;
