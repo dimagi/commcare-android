@@ -1,6 +1,7 @@
 package org.commcare.android.framework;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,8 +9,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -51,15 +52,15 @@ import org.odk.collect.android.views.media.AudioController;
 import java.lang.reflect.Field;
 
 /**
- * Base class for CommCareActivities to simplify 
+ * Base class for CommCareActivities to simplify
  * common localization and workflow tasks
- * 
+ *
  * @author ctsims
  */
-public abstract class CommCareActivity<R> extends FragmentActivity
+public abstract class CommCareActivity<R> extends AppCompatActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
-    
+
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     StateFragment stateHolder;
@@ -114,18 +115,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             loadFields(true);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getActionBar().setDisplayShowCustomEnabled(true);
+            ActionBar actionBar = getActionBar();
+            if(actionBar != null){
+                actionBar.setDisplayShowCustomEnabled(true);
+            }
 
             // Add breadcrumb bar
             BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
-            
+
             // If the state holder is null, create a new one for this activity
             if (bar == null) {
                 bar = new BreadcrumbBarFragment();
                 fm.beginTransaction().add(bar, "breadcrumbs").commit();
             }
         }
-        
+
         mGestureDetector = new GestureDetector(this, this);
     }
 
