@@ -112,7 +112,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFields(savedInstanceState);
     }

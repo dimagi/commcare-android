@@ -16,7 +16,8 @@ import org.commcare.dalvik.R;
  *
  */
 public class PhoneLogActivity extends TabActivity {
-    public void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.phone_logs);
         

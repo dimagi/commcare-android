@@ -28,7 +28,7 @@ public class IntentReceiverTest extends Activity  {
     
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.intent_receiver);
         b = (Button)this.findViewById(R.id.btn_intent_listen);
