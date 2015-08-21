@@ -26,7 +26,6 @@ import org.javarosa.xform.util.XFormUtils;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
-import org.odk.collect.android.jr.extensions.ImageRestrictionExtensionParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.listeners.FormLoaderListener;
