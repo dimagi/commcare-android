@@ -258,7 +258,7 @@ public class CommCareVerificationActivity
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == DIALOG_VERIFY_PROGRESS) {
             CustomProgressDialog dialog = CustomProgressDialog.newInstance
-                    (Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
+                    (this, Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
             dialog.addProgressBar();
             return dialog;
         }

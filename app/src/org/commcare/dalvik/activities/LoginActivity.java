@@ -541,11 +541,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         CustomProgressDialog dialog;
         switch (taskId) {
         case TASK_KEY_EXCHANGE:
-            dialog = CustomProgressDialog.newInstance(Localization.get("key.manage.title"), 
+            dialog = CustomProgressDialog.newInstance(this, Localization.get("key.manage.title"),
                     Localization.get("key.manage.start"), taskId);
             break;
         case DataPullTask.DATA_PULL_TASK_ID:
-            dialog = CustomProgressDialog.newInstance(Localization.get("sync.progress.title"),
+            dialog = CustomProgressDialog.newInstance(this, Localization.get("sync.progress.title"),
                     Localization.get("sync.progress.starting"), taskId);
             dialog.addCancelButton();
             dialog.addProgressBar();

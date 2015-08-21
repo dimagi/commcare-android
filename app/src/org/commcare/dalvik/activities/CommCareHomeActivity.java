@@ -1695,7 +1695,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                         + "any valid possibilities in CommCareHomeActivity");
                 return null;
         }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(this, title, message, taskId);
         if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
             dialog.addProgressBar();
         }
