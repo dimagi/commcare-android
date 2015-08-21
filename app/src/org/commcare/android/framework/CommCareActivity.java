@@ -90,6 +90,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * on activity pause/resume.
      */
     private int dialogId = -1;
+    private CustomProgressDialog dialog;
 
     @Override
     @TargetApi(14)
@@ -526,15 +527,16 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public void showProgressDialog(int taskId) {
-        CustomProgressDialog dialog = generateProgressDialog(taskId);
-//        if (dialog != null) {
+        dialog = generateProgressDialog(taskId);
+        if (dialog != null) {
+            dialog.show();
 //            dialog.show(getSupportFragmentManager(), KEY_DIALOG_FRAG);
-//        }
+        }
     }
 
     @Override
     public CustomProgressDialog getCurrentDialog() {
-        return null;
+        return dialog;
 //        return (CustomProgressDialog) getSupportFragmentManager().
 //                findFragmentByTag(KEY_DIALOG_FRAG);
     }
@@ -542,9 +544,12 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog mProgressDialog = getCurrentDialog();
-//        if (mProgressDialog != null && mProgressDialog.isAdded()) {
+        if (mProgressDialog != null
+//                && mProgressDialog.isAdded()
+                ) {
+            mProgressDialog.dismiss();
 //            mProgressDialog.dismissAllowingStateLoss();
-//        }
+        }
     }
 
     @Override
