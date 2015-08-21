@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpdateTask;
-import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -118,7 +118,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void pendingUpdateOrIdle() {
-        if (InstallAndUpdateUtils.isUpdateInstallReady()) {
+        if (ResourceInstallUtils.isUpdateInstallReady()) {
             uiController.unappliedUpdateAvailable();
         } else {
             uiController.idle();

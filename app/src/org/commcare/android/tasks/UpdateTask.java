@@ -1,10 +1,10 @@
 package org.commcare.android.tasks;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.AndroidCommCareResourceManager;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidCommCareResourceManager;
-import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.ProcessCancelled;
@@ -74,14 +74,14 @@ public class UpdateTask
         try {
             return performUpgrade(profileRef);
         } catch (Exception e) {
-            InstallAndUpdateUtils.logInstallError(e,
+            ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
         }
     }
 
     private void setupUpgrade(String profileRef) {
-        InstallAndUpdateUtils.recordUpdateAttempt(app);
+        ResourceInstallUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
 
@@ -99,7 +99,7 @@ public class UpdateTask
         }
 
         profileRef =
-                InstallAndUpdateUtils.addParamsToProfileReference(profileRef);
+                ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
         return resourceManager.checkAndPrepareUpgradeResources(profileRef);
     }

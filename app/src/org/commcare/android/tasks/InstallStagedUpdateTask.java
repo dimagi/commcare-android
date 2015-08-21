@@ -1,8 +1,8 @@
 package org.commcare.android.tasks;
 
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.ResourceTable;
@@ -42,7 +42,7 @@ public abstract class InstallStagedUpdateTask<R>
         }
         // TODO PLM
         String profileRef = null;
-        InstallAndUpdateUtils.initAndCommitApp(app, profileRef);
+        ResourceInstallUtils.initAndCommitApp(app, profileRef);
         return ResourceEngineOutcomes.StatusInstalled;
     }
 }

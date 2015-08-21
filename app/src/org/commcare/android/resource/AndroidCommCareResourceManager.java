@@ -1,12 +1,13 @@
-package org.commcare.android.util;
+package org.commcare.android.resource;
 
 import android.util.Log;
 
-import org.commcare.android.analytics.DownloadStatUtils;
-import org.commcare.android.analytics.ResourceDownloadStats;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.analytics.ResourceDownloadStats;
+import org.commcare.android.resource.analytics.UpdateStatPersistence;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.InstallCancelledException;
@@ -30,7 +31,7 @@ public class AndroidCommCareResourceManager extends CommCareResourceManager {
 
         app = CommCareApplication._().getCurrentApp();
 
-        installStatListener = DownloadStatUtils.loadPersistentStats(app);
+        installStatListener = UpdateStatPersistence.loadUpdateStats(app);
         upgradeTable.setInstallStatListener(installStatListener);
     }
 
@@ -38,12 +39,12 @@ public class AndroidCommCareResourceManager extends CommCareResourceManager {
         upgradeTable.clear();
         Log.i(TAG, "Clearing upgrade table, here are the stats collected");
         Log.i(TAG, installStatListener.toString());
-        DownloadStatUtils.clearPersistedStats(app);
+        UpdateStatPersistence.clearPersistedStats(app);
     }
 
     public void upgradeCancelled() {
         if (!isUpgradeTableStaged()) {
-            DownloadStatUtils.saveStatsPersistently(app, installStatListener);
+            UpdateStatPersistence.saveStatsPersistently(app, installStatListener);
         } else {
             Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
             Log.i(TAG, installStatListener.toString());
@@ -71,19 +72,19 @@ public class AndroidCommCareResourceManager extends CommCareResourceManager {
             // The user cancelled the upgrade check process
             return ResourceEngineOutcomes.StatusFailUnknown;
         } catch (LocalStorageUnavailableException e) {
-            InstallAndUpdateUtils.logInstallError(e,
+            ResourceInstallUtils.logInstallError(e,
                     "Couldn't install file to local storage|");
             return ResourceEngineOutcomes.StatusNoLocalStorage;
         } catch (UnfullfilledRequirementsException e) {
             if (e.isDuplicateException()) {
                 return ResourceEngineOutcomes.StatusDuplicateApp;
             } else {
-                InstallAndUpdateUtils.logInstallError(e,
+                ResourceInstallUtils.logInstallError(e,
                         "App resources are incompatible with this device|");
                 return ResourceEngineOutcomes.StatusBadReqs;
             }
         } catch (UnresolvedResourceException e) {
-            return InstallAndUpdateUtils.processUnresolvedResource(e);
+            return ResourceInstallUtils.processUnresolvedResource(e);
         }
 
         return ResourceEngineOutcomes.StatusUpdateStaged;

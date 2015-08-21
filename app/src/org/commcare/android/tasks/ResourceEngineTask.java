@@ -3,10 +3,10 @@ package org.commcare.android.tasks;
 import android.os.SystemClock;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -64,7 +64,7 @@ public abstract class ResourceEngineTask<R>
     @Override
     protected ResourceEngineOutcomes doTaskBackground(String... profileRefs) {
         String profileRef = profileRefs[0];
-        InstallAndUpdateUtils.recordUpdateAttempt(app);
+        ResourceInstallUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
 
@@ -83,7 +83,7 @@ public abstract class ResourceEngineTask<R>
             try {
                 CommCareResourceManager.init(platform, profileRef, global, false);
             } catch (LocalStorageUnavailableException e) {
-                InstallAndUpdateUtils.logInstallError(e,
+                ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
                 return ResourceEngineOutcomes.StatusNoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
@@ -95,25 +95,25 @@ public abstract class ResourceEngineTask<R>
                     vRequired = e.getRequiredVersionString();
                     majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
 
-                    InstallAndUpdateUtils.logInstallError(e,
+                    ResourceInstallUtils.logInstallError(e,
                             "App resources are incompatible with this device|");
                     return ResourceEngineOutcomes.StatusBadReqs;
                 }
             } catch (UnresolvedResourceException e) {
                 ResourceEngineOutcomes outcome =
-                    InstallAndUpdateUtils.processUnresolvedResource(e);
+                    ResourceInstallUtils.processUnresolvedResource(e);
                 if (outcome != ResourceEngineOutcomes.StatusBadCertificate) {
                     missingResourceException = e;
                 }
                 return outcome;
             }
 
-            InstallAndUpdateUtils.initAndCommitApp(app, profileRef);
+            ResourceInstallUtils.initAndCommitApp(app, profileRef);
 
             return ResourceEngineOutcomes.StatusInstalled;
         } catch (Exception e) {
             e.printStackTrace();
-            InstallAndUpdateUtils.logInstallError(e,
+            ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return ResourceEngineOutcomes.StatusFailUnknown;
         }

@@ -1,10 +1,11 @@
-package org.commcare.android.util;
+package org.commcare.android.resource;
 
 import android.content.SharedPreferences;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -26,7 +27,7 @@ import javax.net.ssl.SSLHandshakeException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class InstallAndUpdateUtils {
+public class ResourceInstallUtils {
     public static boolean isUpdateInstallReady() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
@@ -77,7 +78,7 @@ public class InstallAndUpdateUtils {
         // couldn't find a resource, which isn't good.
         e.printStackTrace();
 
-        if (InstallAndUpdateUtils.isBadCertificateError(e)) {
+        if (ResourceInstallUtils.isBadCertificateError(e)) {
             return ResourceEngineOutcomes.StatusBadCertificate;
         }
 

@@ -6,7 +6,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.android.util.InstallAndUpdateUtils;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -127,7 +127,7 @@ class UpdateUiController {
         updateProgressBar(0, 100);
         progressBar.setEnabled(false);
 
-        int version = InstallAndUpdateUtils.upgradeTableVersion();
+        int version = ResourceInstallUtils.upgradeTableVersion();
         String versionMsg =
                 Localization.get("update.staged.version",
                         new String[]{Integer.toString(version)});

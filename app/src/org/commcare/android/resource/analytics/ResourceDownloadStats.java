@@ -1,4 +1,4 @@
-package org.commcare.android.analytics;
+package org.commcare.android.resource.analytics;
 
 import android.util.Base64;
 
