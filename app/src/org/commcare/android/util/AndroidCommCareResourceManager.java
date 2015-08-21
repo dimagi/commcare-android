@@ -4,6 +4,9 @@ import android.util.Log;
 
 import org.commcare.android.analytics.DownloadStatUtils;
 import org.commcare.android.analytics.ResourceDownloadStats;
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.resource.installers.LocalStorageUnavailableException;
+import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.InstallCancelledException;
@@ -11,6 +14,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.CommCareResourceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
@@ -18,7 +22,7 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
  */
 public class AndroidCommCareResourceManager extends CommCareResourceManager {
     private final String TAG = AndroidCommCareResourceManager.class.getSimpleName();
-    private ResourceDownloadStats installStatListener;
+    private final ResourceDownloadStats installStatListener;
     private final CommCareApp app;
 
     public AndroidCommCareResourceManager(AndroidCommCarePlatform platform) {
@@ -46,10 +50,49 @@ public class AndroidCommCareResourceManager extends CommCareResourceManager {
         }
     }
 
+    public ResourceEngineOutcomes checkAndPrepareUpgradeResources(String profileRef) {
+        try {
+            instantiateLatestProfile(profileRef);
+
+            if (isUpgradeTableStaged()) {
+                return ResourceEngineOutcomes.StatusUpdateStaged;
+            }
+
+            if (updateIsntNewer(getMasterProfile())) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                clearUpgradeTable();
+                return ResourceEngineOutcomes.StatusUpToDate;
+            }
+
+            installStatListener.incRestartCount();
+
+            prepareUpgradeResources();
+        } catch (InstallCancelledException e) {
+            // The user cancelled the upgrade check process
+            return ResourceEngineOutcomes.StatusFailUnknown;
+        } catch (LocalStorageUnavailableException e) {
+            InstallAndUpdateUtils.logInstallError(e,
+                    "Couldn't install file to local storage|");
+            return ResourceEngineOutcomes.StatusNoLocalStorage;
+        } catch (UnfullfilledRequirementsException e) {
+            if (e.isDuplicateException()) {
+                return ResourceEngineOutcomes.StatusDuplicateApp;
+            } else {
+                InstallAndUpdateUtils.logInstallError(e,
+                        "App resources are incompatible with this device|");
+                return ResourceEngineOutcomes.StatusBadReqs;
+            }
+        } catch (UnresolvedResourceException e) {
+            return InstallAndUpdateUtils.processUnresolvedResource(e);
+        }
+
+        return ResourceEngineOutcomes.StatusUpdateStaged;
+    }
+
     /**
      * Load the latest profile into the upgrade table.
      */
-    public void instantiateLatestProfile(String profileRef)
+    private void instantiateLatestProfile(String profileRef)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {

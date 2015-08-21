@@ -124,6 +124,7 @@ class UpgradeUiController {
         stopUpgradeButton.setEnabled(false);
         installUpgradeButton.setEnabled(true);
 
+        updateProgressBar(0, 100);
         progressBar.setEnabled(false);
 
         int version = InstallAndUpdateUtils.upgradeTableVersion();

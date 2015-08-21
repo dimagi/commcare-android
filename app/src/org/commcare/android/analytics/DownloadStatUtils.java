@@ -21,7 +21,6 @@ public class DownloadStatUtils {
             try {
                 String serializedObj = prefs.getString(UPGRADE_STATS, "");
                 ResourceDownloadStats stats = (ResourceDownloadStats)ResourceDownloadStats.deserialize(serializedObj);
-                stats.incRestartCount();
                 return stats;
             } catch (Exception e) {
                 e.printStackTrace();
