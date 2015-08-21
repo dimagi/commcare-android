@@ -189,7 +189,8 @@ public abstract class QuestionWidget extends LinearLayout {
     public abstract void setOnLongClickListener(OnLongClickListener l);
 
     public void applyExtension(QuestionDataExtension extension) {
-
+        // Intentionally empty method body -- subclasses of QuestionWidget that expect
+        // to ever receive an extension should override this method and implement it accordingly
     }
 
     private class URLSpanNoUnderline extends URLSpan {
