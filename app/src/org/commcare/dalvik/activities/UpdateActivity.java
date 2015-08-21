@@ -59,7 +59,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
-    public void setupUpdateTask() {
+    private void setupUpdateTask() {
         updateTask = UpdateTask.getRunningInstance();
 
         try {
@@ -101,7 +101,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.refreshStatusText();
     }
 
-    protected void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+    private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
                 uiController.downloading();
@@ -117,7 +117,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
-    protected void pendingUpdateOrIdle() {
+    private void pendingUpdateOrIdle() {
         if (InstallAndUpdateUtils.isUpdateInstallReady()) {
             uiController.unappliedUpdateAvailable();
         } else {

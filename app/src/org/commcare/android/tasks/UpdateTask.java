@@ -176,13 +176,10 @@ public class UpdateTask
 
         currentProgress = 0;
         for (Resource r : resources) {
-            switch (r.getStatus()) {
-                case Resource.RESOURCE_STATUS_UPGRADE:
-                    currentProgress += 1;
-                    break;
-                case Resource.RESOURCE_STATUS_INSTALLED:
-                    currentProgress += 1;
-                    break;
+            int resourceStatus = r.getStatus();
+            if (resourceStatus == Resource.RESOURCE_STATUS_UPGRADE ||
+                    resourceStatus == Resource.RESOURCE_STATUS_INSTALLED) {
+                currentProgress += 1;
             }
         }
         maxProgress = resources.size();

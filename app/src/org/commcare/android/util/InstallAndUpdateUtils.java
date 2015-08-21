@@ -91,7 +91,7 @@ public class InstallAndUpdateUtils {
         }
     }
 
-    public static boolean isBadCertificateError(UnresolvedResourceException e) {
+    private static boolean isBadCertificateError(UnresolvedResourceException e) {
         Throwable mExceptionCause = e.getCause();
 
         if (mExceptionCause instanceof SSLHandshakeException) {
