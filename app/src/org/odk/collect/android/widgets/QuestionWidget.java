@@ -366,6 +366,7 @@ public abstract class QuestionWidget extends LinearLayout {
         String imageURI = p.getImageText();
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
+        String inlineVideoUri = p.getSpecialFormQuestionText("video-inline");
         String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
         String markdownText = p.getMarkdownText();
 
@@ -409,7 +410,7 @@ public abstract class QuestionWidget extends LinearLayout {
         // Create the layout for audio, image, text
         MediaLayout mediaLayout = new MediaLayout(getContext());
 
-        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent);
+        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri);
 
         addView(mediaLayout, mLayout);
     }
