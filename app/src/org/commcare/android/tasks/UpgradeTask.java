@@ -4,8 +4,8 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidCommCareResourceManager;
 import org.commcare.android.util.InstallAndUpdateUtils;
-import org.commcare.android.util.ResourceDownloadStats;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.InstallCancelledException;
@@ -14,7 +14,6 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
@@ -40,7 +39,7 @@ public class UpgradeTask
     private int currentProgress = 0;
     private int maxProgress = 0;
 
-    private final CommCareResourceManager resourceManager;
+    private final AndroidCommCareResourceManager resourceManager;
     private final CommCareApp app;
 
     private UpgradeTask() {
@@ -52,13 +51,9 @@ public class UpgradeTask
         ResourceTable recovery = platform.getRecoveryTable();
 
         resourceManager =
-                new CommCareResourceManager(platform, global, upgradeTable, recovery);
+                new AndroidCommCareResourceManager(platform, global, upgradeTable, recovery);
 
-        // TODO PLM: detect if we are resuming a download and restore an
-        // old download stat object
-
-        ResourceDownloadStats installStatListener = ResourceDownloadStats.loadPersistentStats(app);
-        resourceManager.setUpgradeListeners(this, this, installStatListener);
+        resourceManager.setUpgradeListeners(this, this);
     }
 
     public static UpgradeTask getNewInstance() {
@@ -124,7 +119,6 @@ public class UpgradeTask
             if (resourceManager.updateIsntNewer(profile)) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                 resourceManager.clearUpgradeTable();
-                ResourceDownloadStats.clearPersistedStats(app);
                 return ResourceEngineOutcomes.StatusUpToDate;
             }
 
@@ -168,9 +162,10 @@ public class UpgradeTask
                 (result == ResourceEngineOutcomes.StatusFailState ||
                         result == ResourceEngineOutcomes.StatusNoLocalStorage);
 
-        if (!reusePartialTable) {
+        boolean inIncompleteState = !(result == ResourceEngineOutcomes.StatusUpdateStaged ||
+                result == ResourceEngineOutcomes.StatusUpToDate);
+        if (inIncompleteState && !reusePartialTable) {
             resourceManager.clearUpgradeTable();
-            ResourceDownloadStats.clearPersistedStats(app);
         }
 
         if (taskListener != null) {
@@ -192,8 +187,7 @@ public class UpgradeTask
             taskListener.processTaskCancel(result);
         }
 
-        // TODO PLM: create android level resourcemanager
-        // ResourceDownloadStats.saveStatsPersistently(app, resourceManager.getDownloadStats());
+        resourceManager.saveDownloadStats();
 
         singletonRunningInstance = null;
     }
@@ -218,7 +212,8 @@ public class UpgradeTask
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
-        Vector<Resource> resources = CommCareResourceManager.getResourceListFromProfile(table);
+        Vector<Resource> resources =
+                AndroidCommCareResourceManager.getResourceListFromProfile(table);
 
         currentProgress = 0;
         for (Resource r : resources) {

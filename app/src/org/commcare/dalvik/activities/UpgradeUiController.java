@@ -6,7 +6,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.android.framework.UiElement;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -21,25 +20,12 @@ import java.util.Date;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class UpgradeUiController {
-    @UiElement(R.id.check_for_upgrade_button)
     private Button checkUpgradeButton;
-
-    @UiElement(R.id.stop_upgrade_download_button)
     private Button stopUpgradeButton;
-
-    @UiElement(R.id.install_upgrade_button)
     private Button installUpgradeButton;
-
-    @UiElement(R.id.upgrade_progress_bar)
     private ProgressBar progressBar;
-
-    @UiElement(R.id.pending_upgrade_status_text)
     private TextView pendingUpgradeStatus;
-
-    @UiElement(R.id.current_version_text)
     private TextView currentVersionText;
-
-    @UiElement(R.id.upgrade_progress_text)
     private TextView progressText;
 
     private final UpgradeActivity activity;
@@ -52,6 +38,9 @@ class UpgradeUiController {
             Localization.get("updates.install.finished");
     private final String cancellingMsg =
             Localization.get("updates.check.cancelling");
+    private final String beginCheckingText =
+            Localization.get("updates.check.begin");
+
 
     public UpgradeUiController(UpgradeActivity upgradeActivity) {
         activity = upgradeActivity;
@@ -126,6 +115,8 @@ class UpgradeUiController {
 
         progressBar.setEnabled(true);
         updateProgressBar(0, 100);
+        updateProgressText(beginCheckingText);
+        pendingUpgradeStatus.setText("");
     }
 
     protected void unappliedUpdateAvailable() {
@@ -158,7 +149,7 @@ class UpgradeUiController {
         installUpgradeButton.setEnabled(false);
 
         progressBar.setEnabled(false);
-        updateProgressText("");
+        updateProgressText("Error!");
     }
 
     protected void upgradeInstalled() {

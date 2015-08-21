@@ -2,11 +2,9 @@ package org.commcare.android.util;
 
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.util.Pair;
 
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.InstallStatListener;
-import org.commcare.resources.model.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,32 +22,34 @@ import java.util.Vector;
 public class ResourceDownloadStats implements InstallStatListener, Serializable {
     private static final String TAG = ResourceDownloadStats.class.getSimpleName();
 
-    private Hashtable<Resource, InstallAttempts<Exception>> installStats;
+    private Hashtable<String, InstallAttempts<Exception>> installStats;
     private long startInstallTime;
+    private int restartCount = 0;
 
     private static final String UPGRADE_STATS = "upgrade_table_stats";
 
     public ResourceDownloadStats() {
+        startInstallTime = new Date().getTime();
         installStats = new Hashtable<>();
     }
 
     @Override
-    public void recordResourceInstallFailure(Resource resource,
+    public void recordResourceInstallFailure(String resourceName,
                                              Exception e) {
-        InstallAttempts<Exception> attempts = installStats.get(resource);
+        InstallAttempts<Exception> attempts = installStats.get(resourceName);
         if (attempts == null) {
-            attempts = new InstallAttempts<>(resource.getResourceId());
-            installStats.put(resource, attempts);
+            attempts = new InstallAttempts<>(resourceName);
+            installStats.put(resourceName, attempts);
         }
         attempts.add(e);
     }
 
     @Override
-    public void recordResourceInstallSuccess(Resource resource) {
-        InstallAttempts<Exception> attempts = installStats.get(resource);
+    public void recordResourceInstallSuccess(String resourceName) {
+        InstallAttempts<Exception> attempts = installStats.get(resourceName);
         if (attempts == null) {
-            attempts = new InstallAttempts<>(resource.getResourceId());
-            installStats.put(resource, attempts);
+            attempts = new InstallAttempts<>(resourceName);
+            installStats.put(resourceName, attempts);
         }
         attempts.wasSuccessful = true;
     }
@@ -61,6 +61,7 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
             try {
                 return ResourceDownloadStats.deserialize(prefs.getString(UPGRADE_STATS, ""));
             } catch (Exception e) {
+                clearPersistedStats(app);
                 return new ResourceDownloadStats();
             }
         } else {
@@ -75,6 +76,7 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
             editor.putString(UPGRADE_STATS, installStatListener.serialize());
             editor.commit();
         } catch (IOException e) {
+            e.printStackTrace();
             Log.w(TAG, "Failed to serialize and store resource installation stats");
         }
     }
@@ -86,11 +88,11 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
         editor.commit();
     }
 
-    private class InstallAttempts<A> {
+    private class InstallAttempts<A> implements Serializable {
         public boolean wasSuccessful = false;
 
         private final String resourceName;
-        private final Vector<Pair<A, Date>> failures;
+        private final Vector<FailureEvent<A>> failures;
 
         public InstallAttempts(String resourceName) {
             failures = new Vector<>();
@@ -102,7 +104,7 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
         }
 
         public void add(A failureData) {
-            failures.add(new Pair<>(failureData, new Date()));
+            failures.add(new FailureEvent<>(failureData));
         }
 
         public String toString() {
@@ -119,10 +121,10 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
                         .append(" failed attempts:");
             }
 
-            for (Pair<A, Date> msgAndTime : failures) {
-                failureLog.append(msgAndTime.second.toString())
+            for (FailureEvent<A> event : failures) {
+                failureLog.append(event.time.toString())
                         .append(": ")
-                        .append(msgAndTime.first.toString())
+                        .append(event.data.toString())
                         .append("\n");
             }
             return failureLog.toString();
@@ -145,5 +147,12 @@ public class ResourceDownloadStats implements InstallStatListener, Serializable 
         return (ResourceDownloadStats)si.readObject();
     }
 
+    private class FailureEvent<A> implements Serializable {
+        public A data;
+        public Date time;
+        public FailureEvent(A data) {
+            this.data = data;
+            time = new Date();
+        }
+    }
 }
-
