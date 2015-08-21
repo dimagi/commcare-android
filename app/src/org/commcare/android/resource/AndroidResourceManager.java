@@ -10,23 +10,23 @@ import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class AndroidCommCareResourceManager extends CommCareResourceManager {
-    private final String TAG = AndroidCommCareResourceManager.class.getSimpleName();
+public class AndroidResourceManager extends ResourceManager {
+    private final String TAG = AndroidResourceManager.class.getSimpleName();
     private final ResourceDownloadStats installStatListener;
     private final CommCareApp app;
 
-    public AndroidCommCareResourceManager(AndroidCommCarePlatform platform) {
+    public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(), platform.getUpgradeResourceTable(), platform.getRecoveryTable());
 
         app = CommCareApplication._().getCurrentApp();

@@ -5,9 +5,9 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareResourceManager;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -29,10 +29,10 @@ public abstract class InstallStagedUpdateTask<R>
         ResourceTable global = platform.getGlobalResourceTable();
         ResourceTable temporary = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
-        CommCareResourceManager resourceManager =
-            new CommCareResourceManager(platform, global, temporary, recovery);
+        ResourceManager resourceManager =
+            new ResourceManager(platform, global, temporary, recovery);
 
-        if (!CommCareResourceManager.isTableStaged(temporary)) {
+        if (!ResourceManager.isTableStaged(temporary)) {
             return ResourceEngineOutcomes.StatusFailState;
         }
 

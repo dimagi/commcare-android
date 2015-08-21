@@ -8,11 +8,11 @@ import org.commcare.android.resource.installers.LocalStorageUnavailableException
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCareResourceManager;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -81,7 +81,7 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                CommCareResourceManager.init(platform, profileRef, global, false);
+                ResourceManager.init(platform, profileRef, global, false);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
@@ -128,7 +128,7 @@ public abstract class ResourceEngineTask<R>
         }
 
         Vector<Resource> resources =
-                CommCareResourceManager.getResourceListFromProfile(table);
+                ResourceManager.getResourceListFromProfile(table);
 
         int score = 0;
         for (Resource r : resources) {

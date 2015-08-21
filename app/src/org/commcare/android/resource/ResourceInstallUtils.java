@@ -10,11 +10,11 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareResourceManager;
 import org.javarosa.core.services.Logger;
 
 import java.net.MalformedURLException;
@@ -32,7 +32,7 @@ public class ResourceInstallUtils {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
-        return CommCareResourceManager.isTableStaged(upgradeTable);
+        return ResourceManager.isTableStaged(upgradeTable);
     }
 
     public static int upgradeTableVersion() {

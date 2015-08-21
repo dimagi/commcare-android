@@ -1,7 +1,7 @@
 package org.commcare.android.tasks;
 
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.resource.AndroidCommCareResourceManager;
+import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -35,7 +35,7 @@ public class UpdateTask
     private int currentProgress = 0;
     private int maxProgress = 0;
 
-    private final AndroidCommCareResourceManager resourceManager;
+    private final AndroidResourceManager resourceManager;
     private final CommCareApp app;
 
     private UpdateTask() {
@@ -43,7 +43,7 @@ public class UpdateTask
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         resourceManager =
-                new AndroidCommCareResourceManager(platform);
+                new AndroidResourceManager(platform);
 
         resourceManager.setUpgradeListeners(this, this);
     }
@@ -172,7 +172,7 @@ public class UpdateTask
     @Override
     public void resourceStateUpdated(ResourceTable table) {
         Vector<Resource> resources =
-                AndroidCommCareResourceManager.getResourceListFromProfile(table);
+                AndroidResourceManager.getResourceListFromProfile(table);
 
         currentProgress = 0;
         for (Resource r : resources) {
