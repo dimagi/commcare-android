@@ -183,7 +183,7 @@ public class UpgradeTask
             taskListener.processTaskCancel(result);
         }
 
-        resourceManager.saveDownloadStats();
+        resourceManager.upgradeCancelled();
 
         singletonRunningInstance = null;
     }
