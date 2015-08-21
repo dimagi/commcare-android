@@ -374,6 +374,7 @@ public class GraphView {
         } else {
             currentRenderer.setColor(Color.parseColor(lineColor));
         }
+        currentRenderer.setLineWidth(2);
         
         fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
         fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
