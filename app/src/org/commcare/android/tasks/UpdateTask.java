@@ -22,15 +22,15 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeTask
+public class UpdateTask
         extends ManagedAsyncTask<String, Integer, ResourceEngineOutcomes>
         implements TableStateListener, ProcessCancelled {
 
-    private static final String TAG = UpgradeTask.class.getSimpleName();
+    private static final String TAG = UpdateTask.class.getSimpleName();
 
     private TaskListener<Integer, ResourceEngineOutcomes> taskListener = null;
 
-    private static UpgradeTask singletonRunningInstance = null;
+    private static UpdateTask singletonRunningInstance = null;
 
     private int currentProgress = 0;
     private int maxProgress = 0;
@@ -38,7 +38,7 @@ public class UpgradeTask
     private final AndroidCommCareResourceManager resourceManager;
     private final CommCareApp app;
 
-    private UpgradeTask() {
+    private UpdateTask() {
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
@@ -48,16 +48,16 @@ public class UpgradeTask
         resourceManager.setUpgradeListeners(this, this);
     }
 
-    public static UpgradeTask getNewInstance() {
+    public static UpdateTask getNewInstance() {
         if (singletonRunningInstance == null) {
-            singletonRunningInstance = new UpgradeTask();
+            singletonRunningInstance = new UpdateTask();
             return singletonRunningInstance;
         } else {
             throw new IllegalStateException("There is a " + TAG + " instance.");
         }
     }
 
-    public static UpgradeTask getRunningInstance() {
+    public static UpdateTask getRunningInstance() {
         if (singletonRunningInstance != null &&
                 singletonRunningInstance.getStatus() == Status.RUNNING) {
             return singletonRunningInstance;

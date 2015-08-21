@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -248,7 +247,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
-        Intent i = new Intent(getApplicationContext(), UpgradeActivity.class);
+        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
     }

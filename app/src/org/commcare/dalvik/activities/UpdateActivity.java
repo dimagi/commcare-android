@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.tasks.InstallStagedUpgradeTask;
+import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
-import org.commcare.android.tasks.UpgradeTask;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.InstallAndUpdateUtils;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -20,24 +20,24 @@ import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Allow user to manage app upgrading:
- * - Check and download the latest upgrade
- * - Stop a downloading upgrade
- * - Apply a downloaded upgrade
+ * Allow user to manage app updating:
+ * - Check and download the latest update
+ * - Stop a downloading update
+ * - Apply a downloaded update
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
+public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, ResourceEngineOutcomes> {
 
-    private static final String TAG = UpgradeActivity.class.getSimpleName();
-    private static final String TASK_CANCELLING_KEY = "upgrade_task_cancelling";
+    private static final String TAG = UpdateActivity.class.getSimpleName();
+    private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
 
     private boolean taskIsCancelling;
 
-    private UpgradeTask upgradeTask;
+    private UpdateTask updateTask;
 
-    private UpgradeUiController uiController;
+    private UpdateUiController uiController;
 
     private static final int DIALOG_UPGRADE_INSTALL = 4;
 
@@ -45,12 +45,11 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        uiController = new UpgradeUiController(this);
+        uiController = new UpdateUiController(this);
 
         loadSaveInstanceState(savedInstanceState);
 
-        setupUpgradeTask();
+        setupUpdateTask();
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -60,12 +59,12 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         }
     }
 
-    public void setupUpgradeTask() {
-        upgradeTask = UpgradeTask.getRunningInstance();
+    public void setupUpdateTask() {
+        updateTask = UpdateTask.getRunningInstance();
 
         try {
-            if (upgradeTask != null) {
-                upgradeTask.registerTaskListener(this);
+            if (updateTask != null) {
+                updateTask.registerTaskListener(this);
             }
         } catch (TaskListenerException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
@@ -87,16 +86,16 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
 
         int currentProgress = 0;
         int maxProgress = 0;
-        if (upgradeTask != null) {
-            currentProgress = upgradeTask.getProgress();
-            maxProgress = upgradeTask.getMaxProgress();
+        if (updateTask != null) {
+            currentProgress = updateTask.getProgress();
+            maxProgress = updateTask.getMaxProgress();
             if (taskIsCancelling) {
                 uiController.cancelling();
             } else {
-                setUiStateFromRunningTask(upgradeTask.getStatus());
+                setUiStateFromRunningTask(updateTask.getStatus());
             }
         } else {
-            pendingUpgradeOrIdle();
+            pendingUpdateOrIdle();
         }
         uiController.updateProgressBar(currentProgress, maxProgress);
         uiController.refreshStatusText();
@@ -108,7 +107,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
                 uiController.downloading();
                 break;
             case PENDING:
-                pendingUpgradeOrIdle();
+                pendingUpdateOrIdle();
                 break;
             case FINISHED:
                 uiController.error();
@@ -118,8 +117,8 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         }
     }
 
-    protected void pendingUpgradeOrIdle() {
-        if (InstallAndUpdateUtils.isUpgradeInstallReady()) {
+    protected void pendingUpdateOrIdle() {
+        if (InstallAndUpdateUtils.isUpdateInstallReady()) {
             uiController.unappliedUpdateAvailable();
         } else {
             uiController.idle();
@@ -135,14 +134,14 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
     }
 
     private void unregisterTask() {
-        if (upgradeTask != null) {
+        if (updateTask != null) {
             try {
-                upgradeTask.unregisterTaskListener(this);
+                updateTask.unregisterTaskListener(this);
             } catch (TaskListenerException e) {
                 Log.e(TAG, "Attempting to unregister a not previously " +
                         "registered TaskListener.");
             }
-            upgradeTask = null;
+            updateTask = null;
         }
     }
 
@@ -183,12 +182,12 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         uiController.idle();
     }
 
-    protected void startUpgradeCheck() {
+    protected void startUpdateCheck() {
         try {
-            upgradeTask = UpgradeTask.getNewInstance();
-            upgradeTask.registerTaskListener(this);
+            updateTask = UpdateTask.getNewInstance();
+            updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
-            enterErrorState("There is already an existing upgrade task instance.");
+            enterErrorState("There is already an existing update task instance.");
             return;
         } catch (TaskListenerException e) {
             enterErrorState("Attempting to register a TaskListener to an " +
@@ -200,7 +199,7 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
-        upgradeTask.execute(ref);
+        updateTask.execute(ref);
         uiController.downloading();
     }
 
@@ -209,9 +208,9 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         uiController.error();
     }
 
-    public void stopUpgradeCheck() {
-        if (upgradeTask != null) {
-            upgradeTask.cancel(true);
+    public void stopUpdateCheck() {
+        if (updateTask != null) {
+            updateTask.cancel(true);
             taskIsCancelling = true;
             uiController.cancelling();
         } else {
@@ -219,29 +218,29 @@ public class UpgradeActivity extends CommCareActivity<UpgradeActivity>
         }
     }
 
-    protected void launchUpgradeInstallTask() {
-        InstallStagedUpgradeTask<UpgradeActivity> task =
-                new InstallStagedUpgradeTask<UpgradeActivity>(DIALOG_UPGRADE_INSTALL) {
+    protected void lauchUpdateInstallTask() {
+        InstallStagedUpdateTask<UpdateActivity> task =
+                new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
                     @Override
-                    protected void deliverResult(UpgradeActivity receiver,
+                    protected void deliverResult(UpdateActivity receiver,
                                                  ResourceEngineOutcomes result) {
                         if (result == ResourceEngineOutcomes.StatusInstalled) {
-                            uiController.upgradeInstalled();
+                            uiController.updateInstalled();
                         } else {
                             uiController.error();
                         }
                     }
 
                     @Override
-                    protected void deliverUpdate(UpgradeActivity receiver,
+                    protected void deliverUpdate(UpdateActivity receiver,
                                                  int[]... update) {
                     }
 
                     @Override
-                    protected void deliverError(UpgradeActivity receiver,
+                    protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
-                        uiController.upgradeInstalled();
+                        uiController.updateInstalled();
                     }
                 };
         task.connect(this);

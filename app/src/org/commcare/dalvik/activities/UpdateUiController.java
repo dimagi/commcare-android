@@ -19,16 +19,16 @@ import java.util.Date;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-class UpgradeUiController {
-    private Button checkUpgradeButton;
-    private Button stopUpgradeButton;
-    private Button installUpgradeButton;
+class UpdateUiController {
+    private Button checkUpdateButton;
+    private Button stopUpdateButton;
+    private Button installUpdateButton;
     private ProgressBar progressBar;
-    private TextView pendingUpgradeStatus;
+    private TextView pendingUpdateStatus;
     private TextView currentVersionText;
     private TextView progressText;
 
-    private final UpgradeActivity activity;
+    private final UpdateActivity activity;
 
     private final String upToDateText =
             Localization.get("updates.success");
@@ -42,19 +42,19 @@ class UpgradeUiController {
             Localization.get("updates.check.begin");
 
 
-    public UpgradeUiController(UpgradeActivity upgradeActivity) {
-        activity = upgradeActivity;
+    public UpdateUiController(UpdateActivity updateActivity) {
+        activity = updateActivity;
 
         setupUi();
     }
 
     private void setupUi() {
-        activity.setContentView(R.layout.upgrade_activity);
+        activity.setContentView(R.layout.update_activity);
 
-        progressBar = (ProgressBar)activity.findViewById(R.id.upgrade_progress_bar);
-        progressText = (TextView)activity.findViewById(R.id.upgrade_progress_text);
-        pendingUpgradeStatus =
-                (TextView)activity.findViewById(R.id.pending_upgrade_status_text);
+        progressBar = (ProgressBar)activity.findViewById(R.id.update_progress_bar);
+        progressText = (TextView)activity.findViewById(R.id.update_progress_text);
+        pendingUpdateStatus =
+                (TextView)activity.findViewById(R.id.pending_update_status_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
 
@@ -62,31 +62,31 @@ class UpgradeUiController {
     }
 
     private void setupButtonListeners() {
-        checkUpgradeButton =
-                (Button)activity.findViewById(R.id.check_for_upgrade_button);
-        checkUpgradeButton.setOnClickListener(new View.OnClickListener() {
+        checkUpdateButton =
+                (Button)activity.findViewById(R.id.check_for_update_button);
+        checkUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.startUpgradeCheck();
+                activity.startUpdateCheck();
             }
         });
 
-        stopUpgradeButton =
-                (Button)activity.findViewById(R.id.stop_upgrade_download_button);
-        stopUpgradeButton.setOnClickListener(new View.OnClickListener() {
+        stopUpdateButton =
+                (Button)activity.findViewById(R.id.stop_update_download_button);
+        stopUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.stopUpgradeCheck();
+                activity.stopUpdateCheck();
             }
         });
-        stopUpgradeButton.setText(stopCheckingText);
+        stopUpdateButton.setText(stopCheckingText);
 
-        installUpgradeButton =
-                (Button)activity.findViewById(R.id.install_upgrade_button);
-        installUpgradeButton.setOnClickListener(new View.OnClickListener() {
+        installUpdateButton =
+                (Button)activity.findViewById(R.id.install_update_button);
+        installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.launchUpgradeInstallTask();
+                activity.lauchUpdateInstallTask();
             }
         });
     }
@@ -98,31 +98,31 @@ class UpgradeUiController {
     }
 
     protected void idle() {
-        checkUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setEnabled(false);
-        installUpgradeButton.setEnabled(false);
+        checkUpdateButton.setEnabled(true);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(false);
 
         progressBar.setEnabled(false);
         updateProgressText("");
         updateProgressBar(0, 100);
-        pendingUpgradeStatus.setText("");
+        pendingUpdateStatus.setText("");
     }
 
     protected void downloading() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(true);
-        installUpgradeButton.setEnabled(false);
+        checkUpdateButton.setEnabled(false);
+        stopUpdateButton.setEnabled(true);
+        installUpdateButton.setEnabled(false);
 
         progressBar.setEnabled(true);
         updateProgressBar(0, 100);
         updateProgressText(beginCheckingText);
-        pendingUpgradeStatus.setText("");
+        pendingUpdateStatus.setText("");
     }
 
     protected void unappliedUpdateAvailable() {
-        checkUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setEnabled(false);
-        installUpgradeButton.setEnabled(true);
+        checkUpdateButton.setEnabled(true);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(true);
 
         updateProgressBar(0, 100);
         progressBar.setEnabled(false);
@@ -131,34 +131,34 @@ class UpgradeUiController {
         String versionMsg =
                 Localization.get("update.staged.version",
                         new String[]{Integer.toString(version)});
-        pendingUpgradeStatus.setText(versionMsg);
+        pendingUpdateStatus.setText(versionMsg);
         updateProgressText("");
     }
 
     protected void cancelling() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(false);
-        installUpgradeButton.setEnabled(false);
+        checkUpdateButton.setEnabled(false);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(false);
 
         progressBar.setEnabled(false);
         updateProgressText(cancellingMsg);
     }
 
     protected void error() {
-        checkUpgradeButton.setEnabled(false);
-        stopUpgradeButton.setEnabled(false);
-        installUpgradeButton.setEnabled(false);
+        checkUpdateButton.setEnabled(false);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(false);
 
         progressBar.setEnabled(false);
         updateProgressText("Error!");
     }
 
-    protected void upgradeInstalled() {
-        checkUpgradeButton.setEnabled(true);
-        stopUpgradeButton.setEnabled(false);
-        installUpgradeButton.setEnabled(false);
+    protected void updateInstalled() {
+        checkUpdateButton.setEnabled(true);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(false);
 
-        pendingUpgradeStatus.setText(upgradeFinishedText);
+        pendingUpdateStatus.setText(upgradeFinishedText);
         progressBar.setEnabled(false);
         updateProgressText("");
 

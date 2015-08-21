@@ -10,13 +10,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Base64;
@@ -55,7 +52,7 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.SendTask;
-import org.commcare.android.tasks.UpgradeTask;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -1262,8 +1259,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
 
         try {
-            UpgradeTask upgradeTask = UpgradeTask.getNewInstance();
-            upgradeTask.execute(ref);
+            UpdateTask updateTask = UpdateTask.getNewInstance();
+            updateTask.execute(ref);
         } catch (IllegalStateException e) {
         }
     }
@@ -1546,7 +1543,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
-                Intent i = new Intent(getApplicationContext(), UpgradeActivity.class);
+                Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivityForResult(i, UPGRADE_APP);
                 return true;
             case MENU_CALL_LOG:

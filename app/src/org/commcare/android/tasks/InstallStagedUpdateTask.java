@@ -12,12 +12,12 @@ import org.commcare.util.CommCareResourceManager;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class InstallStagedUpgradeTask<R>
+public abstract class InstallStagedUpdateTask<R>
         extends CommCareTask<String, int[], ResourceEngineOutcomes, R> {
 
-    public InstallStagedUpgradeTask(int taskId) {
+    public InstallStagedUpdateTask(int taskId) {
         this.taskId = taskId;
-        TAG = InstallStagedUpgradeTask.class.getSimpleName();
+        TAG = InstallStagedUpdateTask.class.getSimpleName();
     }
 
     @Override

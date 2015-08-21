@@ -195,7 +195,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.UpgradeActivity"
+            android:name=".activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
