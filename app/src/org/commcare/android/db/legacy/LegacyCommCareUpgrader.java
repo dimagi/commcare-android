@@ -76,7 +76,7 @@ public class LegacyCommCareUpgrader {
 
     public boolean upgradeOneTwo(SQLiteDatabase database) {
         database.beginTransaction();
-        LegacyTableBuilder builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE);
+        LegacyTableBuilder builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
         builder.addData(new Resource());
         database.execSQL(builder.getTableCreateString());
         
@@ -99,8 +99,8 @@ public class LegacyCommCareUpgrader {
         
         database.beginTransaction();
         
-        database.execSQL("delete from " + CommCareApp.GLOBAL_STORAGE_TABLE);
-        database.execSQL("delete from " + CommCareApp.UPGRADE_STORAGE_TABLE);
+        database.execSQL("delete from " + CommCareApp.GLOBAL_STORAGE_TABLE_KEY);
+        database.execSQL("delete from " + CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
         database.execSQL("delete from android_cc_session");
         database.setTransactionSuccessful();
         database.endTransaction();

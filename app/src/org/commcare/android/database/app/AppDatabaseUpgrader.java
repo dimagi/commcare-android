@@ -51,7 +51,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE);
+            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -64,7 +64,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE);
+            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -78,11 +78,11 @@ public class AppDatabaseUpgrader {
         db.beginTransaction();
         try {
             db.execSQL("CREATE INDEX global_index_id ON " + 
-                    CommCareApp.GLOBAL_STORAGE_TABLE + 
+                    CommCareApp.GLOBAL_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE +
+            db.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE + 
+            db.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
             db.setTransactionSuccessful();
             return true;

@@ -55,11 +55,11 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new LegacyTableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE);
+            builder = new LegacyTableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE);
+            builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             

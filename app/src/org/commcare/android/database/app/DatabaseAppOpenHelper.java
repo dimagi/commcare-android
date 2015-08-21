@@ -49,15 +49,15 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            TableBuilder builder = new TableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE);
+            TableBuilder builder = new TableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE);
+            builder = new TableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE);
+            builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
@@ -68,11 +68,11 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
             
-            database.execSQL("CREATE INDEX global_index_id ON " + CommCareApp.GLOBAL_STORAGE_TABLE +
+            database.execSQL("CREATE INDEX global_index_id ON " + CommCareApp.GLOBAL_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            database.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE +
+            database.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            database.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE + 
+            database.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE_KEY +
                     " ( " + Resource.META_INDEX_PARENT_GUID + " )");
 
             DbUtil.createNumbersTable(database);

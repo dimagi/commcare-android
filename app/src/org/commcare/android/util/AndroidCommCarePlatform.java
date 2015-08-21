@@ -57,7 +57,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public ResourceTable getGlobalResourceTable() {
         if (global == null) {
             IStorageUtilityIndexed globalStorage =
-                    app.getStorage(CommCareApp.GLOBAL_STORAGE_TABLE, Resource.class);
+                    app.getStorage(CommCareApp.GLOBAL_STORAGE_TABLE_KEY, Resource.class);
             global = ResourceTable.RetrieveTable(globalStorage,
                     new AndroidResourceInstallerFactory(app));
         }
@@ -67,7 +67,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public ResourceTable getUpgradeResourceTable() {
         if (upgrade == null) {
             IStorageUtilityIndexed upgradeStorage =
-                    app.getStorage(CommCareApp.UPGRADE_STORAGE_TABLE, Resource.class);
+                    app.getStorage(CommCareApp.UPGRADE_STORAGE_TABLE_KEY, Resource.class);
             upgrade = ResourceTable.RetrieveTable(upgradeStorage,
                     new AndroidResourceInstallerFactory(app));
         }
@@ -77,7 +77,7 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public ResourceTable getRecoveryTable() {
         if (recovery == null) {
             IStorageUtilityIndexed recoveryStorage =
-                    app.getStorage(CommCareApp.RECOVERY_STORAGE_TABLE, Resource.class);
+                    app.getStorage(CommCareApp.RECOVERY_STORAGE_TABLE_KEY, Resource.class);
             recovery = ResourceTable.RetrieveTable(recoveryStorage,
                     new AndroidResourceInstallerFactory(app));
         }
