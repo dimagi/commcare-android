@@ -37,6 +37,7 @@ public class UpdateTask
 
     private final AndroidResourceManager resourceManager;
     private final CommCareApp app;
+    private String profileRef;
 
     private UpdateTask() {
         app = CommCareApplication._().getCurrentApp();
@@ -67,12 +68,12 @@ public class UpdateTask
 
     @Override
     protected final ResourceEngineOutcomes doInBackground(String... params) {
-        String profileRef = params[0];
+        profileRef = params[0];
 
-        setupUpgrade(profileRef);
+        setupUpgrade();
 
         try {
-            return performUpgrade(profileRef);
+            return performUpgrade();
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -80,7 +81,7 @@ public class UpdateTask
         }
     }
 
-    private void setupUpgrade(String profileRef) {
+    private void setupUpgrade() {
         ResourceInstallUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
@@ -89,7 +90,7 @@ public class UpdateTask
                 "Beginning install attempt for profile " + profileRef);
     }
 
-    private ResourceEngineOutcomes performUpgrade(String profileRef) {
+    private ResourceEngineOutcomes performUpgrade() {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -98,10 +99,10 @@ public class UpdateTask
             return ResourceEngineOutcomes.StatusFailState;
         }
 
-        profileRef =
+        String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        return resourceManager.checkAndPrepareUpgradeResources(profileRef);
+        return resourceManager.checkAndPrepareUpgradeResources(profileRefWithParams);
     }
 
     @Override

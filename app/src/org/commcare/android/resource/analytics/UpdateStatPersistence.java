@@ -17,28 +17,28 @@ public class UpdateStatPersistence {
 
     private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
 
-    public static ResourceDownloadStats loadUpdateStats(CommCareApp app) {
+    public static UpdateStats loadUpdateStats(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         if (prefs.contains(UPGRADE_STATS_KEY)) {
             try {
                 String serializedObj = prefs.getString(UPGRADE_STATS_KEY, "");
-                return (ResourceDownloadStats)ResourceDownloadStats.deserialize(serializedObj);
+                return (UpdateStats)UpdateStats.deserialize(serializedObj);
             } catch (Exception e) {
                 Log.w(TAG, "Failed to deserialize update stats, defaulting to new instance.");
                 e.printStackTrace();
                 clearPersistedStats(app);
-                return new ResourceDownloadStats();
+                return new UpdateStats();
             }
         } else {
-            return new ResourceDownloadStats();
+            return new UpdateStats();
         }
     }
 
-    public static void saveStatsPersistently(CommCareApp app, ResourceDownloadStats installStatListener) {
+    public static void saveStatsPersistently(CommCareApp app, UpdateStats installStatListener) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         try {
-            String serializedObj = ResourceDownloadStats.serialize(installStatListener);
+            String serializedObj = UpdateStats.serialize(installStatListener);
             editor.putString(UPGRADE_STATS_KEY, serializedObj);
             editor.commit();
         } catch (IOException e) {

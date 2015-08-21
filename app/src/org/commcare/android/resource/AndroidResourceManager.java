@@ -3,8 +3,8 @@ package org.commcare.android.resource;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.resource.analytics.ResourceDownloadStats;
 import org.commcare.android.resource.analytics.UpdateStatPersistence;
+import org.commcare.android.resource.analytics.UpdateStats;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -19,38 +19,33 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 /**
+ * Manages app installations and updates. Extends the ResourceManager with the
+ * ability to stage but not apply updates.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AndroidResourceManager extends ResourceManager {
     private final String TAG = AndroidResourceManager.class.getSimpleName();
-    private final ResourceDownloadStats installStatListener;
+    private final UpdateStats updateStats;
     private final CommCareApp app;
 
     public AndroidResourceManager(AndroidCommCarePlatform platform) {
-        super(platform, platform.getGlobalResourceTable(), platform.getUpgradeResourceTable(), platform.getRecoveryTable());
+        super(platform, platform.getGlobalResourceTable(),
+                platform.getUpgradeResourceTable(),
+                platform.getRecoveryTable());
 
         app = CommCareApplication._().getCurrentApp();
 
-        installStatListener = UpdateStatPersistence.loadUpdateStats(app);
-        upgradeTable.setInstallStatListener(installStatListener);
+        updateStats = UpdateStatPersistence.loadUpdateStats(app);
+        upgradeTable.setInstallStatListener(updateStats);
     }
 
-    public void clearUpgradeTable() {
-        upgradeTable.clear();
-        Log.i(TAG, "Clearing upgrade table, here are the stats collected");
-        Log.i(TAG, installStatListener.toString());
-        UpdateStatPersistence.clearPersistedStats(app);
-    }
-
-    public void upgradeCancelled() {
-        if (!isUpgradeTableStaged()) {
-            UpdateStatPersistence.saveStatsPersistently(app, installStatListener);
-        } else {
-            Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
-            Log.i(TAG, installStatListener.toString());
-        }
-    }
-
+    /**
+     * Download the latest profile; if it is new, download and stage the entire update.
+     *
+     * @param profileRef
+     * @return
+     */
     public ResourceEngineOutcomes checkAndPrepareUpgradeResources(String profileRef) {
         try {
             instantiateLatestProfile(profileRef);
@@ -65,7 +60,7 @@ public class AndroidResourceManager extends ResourceManager {
                 return ResourceEngineOutcomes.StatusUpToDate;
             }
 
-            installStatListener.incRestartCount();
+            updateStats.incRestartCount();
 
             prepareUpgradeResources();
         } catch (InstallCancelledException e) {
@@ -100,7 +95,7 @@ public class AndroidResourceManager extends ResourceManager {
 
         ensureValidState();
 
-        if (installStatListener.isUpgradeStale()) {
+        if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Clearing upgrade table because resource downloads " +
                     "failed too many times or started too long ago");
             upgradeTable.destroy();
@@ -137,5 +132,23 @@ public class AndroidResourceManager extends ResourceManager {
         }
 
         tempTable.destroy();
+    }
+
+
+    public void clearUpgradeTable() {
+        upgradeTable.clear();
+        Log.i(TAG, "Clearing upgrade table, here are the stats collected");
+        Log.i(TAG, updateStats.toString());
+        UpdateStatPersistence.clearPersistedStats(app);
+    }
+
+
+    public void upgradeCancelled() {
+        if (!isUpgradeTableStaged()) {
+            UpdateStatPersistence.saveStatsPersistently(app, updateStats);
+        } else {
+            Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
+            Log.i(TAG, updateStats.toString());
+        }
     }
 }

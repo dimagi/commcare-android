@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,12 +8,9 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
-import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerException;
 import org.commcare.android.tasks.UpdateTask;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.javarosa.core.services.locale.Localization;
@@ -195,10 +191,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
-        // TODO PLM: is this the correct way to get the ref?
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        SharedPreferences prefs = app.getAppPreferences();
-        String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
+        String ref = ResourceInstallUtils.getDefaultProfile();
         updateTask.execute(ref);
         uiController.downloading();
     }
@@ -240,7 +233,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     @Override
                     protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
-                        uiController.updateInstalled();
+                        uiController.error();
                     }
                 };
         task.connect(this);

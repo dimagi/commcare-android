@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ResourceEngineOutcomes;
-import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -28,6 +27,8 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
+    private static final String DEFAULT_APP_SERVER = "default_app_server";
+
     public static boolean isUpdateInstallReady() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
@@ -48,6 +49,12 @@ public class ResourceInstallUtils {
         return temporaryProfile.getVersion();
     }
 
+    public static void initAndCommitApp(CommCareApp app) {
+        SharedPreferences prefs = app.getAppPreferences();
+        String profileRef = prefs.getString(DEFAULT_APP_SERVER, null);
+
+        initAndCommitApp(app, profileRef);
+    }
     public static void initAndCommitApp(CommCareApp app,
                                         String profileRef) {
         // Initializes app resources and the app itself, including doing a
@@ -67,9 +74,9 @@ public class ResourceInstallUtils {
     private static void updateProfileRef(SharedPreferences prefs, String authRef, String profileRef) {
         SharedPreferences.Editor edit = prefs.edit();
         if (authRef != null) {
-            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, authRef);
+            edit.putString(DEFAULT_APP_SERVER, authRef);
         } else {
-            edit.putString(ResourceEngineTask.DEFAULT_APP_SERVER, profileRef);
+            edit.putString(DEFAULT_APP_SERVER, profileRef);
         }
         edit.commit();
     }
@@ -147,5 +154,12 @@ public class ResourceInstallUtils {
         }
 
         return profileRef;
+    }
+
+    public static String getDefaultProfile() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        SharedPreferences prefs = app.getAppPreferences();
+
+        return prefs.getString(DEFAULT_APP_SERVER, null);
     }
 }

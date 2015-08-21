@@ -16,15 +16,15 @@ import java.util.Hashtable;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ResourceDownloadStats implements InstallStatListener, Serializable {
-    private static final String TAG = ResourceDownloadStats.class.getSimpleName();
+public class UpdateStats implements InstallStatListener, Serializable {
+    private static final String TAG = UpdateStats.class.getSimpleName();
 
     private Hashtable<String, InstallAttempts<String>> installStats;
     private long startInstallTime;
     private int restartCount = 0;
     private static long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
 
-    public ResourceDownloadStats() {
+    public UpdateStats() {
         startInstallTime = new Date().getTime();
         installStats = new Hashtable<>();
     }

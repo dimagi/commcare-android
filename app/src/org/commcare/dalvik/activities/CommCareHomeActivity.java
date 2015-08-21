@@ -46,11 +46,11 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.tasks.WipeTask;
@@ -1253,11 +1253,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void handlePendingUpdate() {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
-        SharedPreferences prefs = 
-            CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        String ref = prefs.getString(ResourceEngineTask.DEFAULT_APP_SERVER, null);
-
+        String ref = ResourceInstallUtils.getDefaultProfile();
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.execute(ref);

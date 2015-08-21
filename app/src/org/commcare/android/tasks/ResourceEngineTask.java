@@ -36,8 +36,6 @@ public abstract class ResourceEngineTask<R>
      */
     private static final long STATUS_UPDATE_WAIT_TIME = 1000;
 
-    public static final String DEFAULT_APP_SERVER = "default_app_server";
-
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
     private int phase = -1;
