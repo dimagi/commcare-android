@@ -56,7 +56,11 @@ public class CommCareApp {
     private static Stylizer mStylizer;
 
     private int resourceState;
-    
+
+    public static final String GLOBAL_STORAGE_TABLE_KEY = "GLOBAL_RESOURCE_TABLE";
+    public static final String UPGRADE_STORAGE_TABLE_KEY = "UPGRADE_RESOURCE_TABLE";
+    public static final String RECOVERY_STORAGE_TABLE_KEY = "RECOVERY_RESOURCE_TABLE";
+
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
 

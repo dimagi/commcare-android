@@ -1,7 +1,5 @@
 package org.commcare.android.database.app;
 
-import android.content.Context;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
@@ -12,10 +10,7 @@ import org.commcare.resources.model.Resource;
  * @author ctsims
  */
 public class AppDatabaseUpgrader {
-    private Context c;
-    
-    public AppDatabaseUpgrader(Context c) {
-        this.c = c;
+    public AppDatabaseUpgrader() {
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -76,9 +71,9 @@ public class AppDatabaseUpgrader {
     private  boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( PGUID )");
+            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( PGUID )");
+            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( PGUID )");
             db.setTransactionSuccessful();
             return true;
         } finally {

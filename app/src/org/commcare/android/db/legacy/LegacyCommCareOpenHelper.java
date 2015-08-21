@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.db.legacy;
 
 import android.content.Context;
@@ -56,11 +53,11 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
             builder = new LegacyTableBuilder("USER");
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new LegacyTableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());

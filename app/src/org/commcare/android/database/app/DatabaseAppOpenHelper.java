@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -48,15 +49,15 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
+            TableBuilder builder = new TableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
+            builder = new TableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
-            builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             
@@ -67,9 +68,12 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
             
-            database.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            database.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            database.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            database.execSQL("CREATE INDEX global_index_id ON " + CommCareApp.GLOBAL_STORAGE_TABLE_KEY +
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            database.execSQL("CREATE INDEX upgrade_index_id ON " + CommCareApp.UPGRADE_STORAGE_TABLE_KEY +
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            database.execSQL("CREATE INDEX recovery_index_id ON " + CommCareApp.RECOVERY_STORAGE_TABLE_KEY +
+                    " ( " + Resource.META_INDEX_PARENT_GUID + " )");
 
             DbUtil.createNumbersTable(database);
             
@@ -92,7 +96,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader().upgrade(db, oldVersion, newVersion);
     }
 
 }
