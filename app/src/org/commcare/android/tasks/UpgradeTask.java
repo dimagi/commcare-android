@@ -46,12 +46,8 @@ public class UpgradeTask
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
-        ResourceTable global = platform.getGlobalResourceTable();
-        ResourceTable upgradeTable = platform.getUpgradeResourceTable();
-        ResourceTable recovery = platform.getRecoveryTable();
-
         resourceManager =
-                new AndroidCommCareResourceManager(platform, global, upgradeTable, recovery);
+                new AndroidCommCareResourceManager(platform);
 
         resourceManager.setUpgradeListeners(this, this);
     }
