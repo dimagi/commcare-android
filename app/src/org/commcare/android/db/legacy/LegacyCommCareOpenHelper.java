@@ -13,7 +13,6 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -55,11 +54,11 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new LegacyTableBuilder(CommCareApp.GLOBAL_STORAGE_TABLE_KEY);
+            builder = new LegacyTableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
-            builder = new LegacyTableBuilder(CommCareApp.UPGRADE_STORAGE_TABLE_KEY);
+            builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
             

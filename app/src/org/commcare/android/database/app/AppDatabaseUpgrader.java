@@ -4,7 +4,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.Resource;
 
 /**
@@ -46,7 +45,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
+            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -59,7 +58,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder(CommCareApp.RECOVERY_STORAGE_TABLE_KEY);
+            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
