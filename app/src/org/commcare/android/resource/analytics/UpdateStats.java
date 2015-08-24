@@ -2,7 +2,7 @@ package org.commcare.android.resource.analytics;
 
 import android.util.Base64;
 
-import org.commcare.resources.model.InstallStatListener;
+import org.commcare.resources.model.InstallStatsLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +18,7 @@ import java.util.Hashtable;
  * 
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpdateStats implements InstallStatListener, Serializable {
+public class UpdateStats implements InstallStatsLogger, Serializable {
     private static final String TAG = UpdateStats.class.getSimpleName();
 
     private Hashtable<String, InstallAttempts<String>> installStats;

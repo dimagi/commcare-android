@@ -37,7 +37,7 @@ public class AndroidResourceManager extends ResourceManager {
         app = CommCareApplication._().getCurrentApp();
 
         updateStats = UpdateStatPersistence.loadUpdateStats(app);
-        upgradeTable.setInstallStatListener(updateStats);
+        upgradeTable.setInstallStatsLogger(updateStats);
     }
 
     /**
