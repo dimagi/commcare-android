@@ -63,7 +63,7 @@ public class ChartDemo extends ListActivity {
 
   /** Called when the activity is first created. */
   @Override
-  public void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     int length = mCharts.length;
     mMenuText = new String[length + 3];

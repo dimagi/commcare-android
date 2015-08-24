@@ -53,7 +53,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     private boolean mNetworkOn = false;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 

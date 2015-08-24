@@ -102,7 +102,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public FormRecord[] cachedRecords;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
