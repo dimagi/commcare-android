@@ -15,13 +15,20 @@ public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
     }
 
     @Override
-    public QuestionDataExtension parse(Element e) {
-        String s = e.getAttributeValue(XFormParser.NAMESPACE_JAVAROSA,
+    public QuestionDataExtension parse(Element elt) {
+        String s = elt.getAttributeValue(XFormParser.NAMESPACE_JAVAROSA,
                 "imageDimensionScaledMax");
         if (s != null) {
             // Parse off the "px" and cast to int
-            int maxDimens = Integer.parseInt(s.substring(0, s.length() - 2));
-            return new ImageRestrictionExtension(maxDimens);
+            if (s.endsWith("px")) {
+                s = s.substring(0, s.length() - 2);
+            }
+            try {
+                int maxDimens = Integer.parseInt(s);
+                return new ImageRestrictionExtension(maxDimens);
+            } catch (NumberFormatException e) {
+                return null;
+            }
         }
         return null;
     }
