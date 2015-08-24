@@ -25,6 +25,7 @@ import java.util.Vector;
  * Will be cancelled on user logout, but can still run if no user is logged in.
  *
  * TODO PLM: App Manager must cancel this task upon UpdateActivity exit.
+ * TODO PLM: use 'synchronized' when manipulating static singleton
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */

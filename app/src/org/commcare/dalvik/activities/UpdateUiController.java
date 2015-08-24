@@ -2,11 +2,11 @@ package org.commcare.dalvik.activities;
 
 import android.content.SharedPreferences;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -20,9 +20,9 @@ import java.util.Date;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class UpdateUiController {
-    private Button checkUpdateButton;
-    private Button stopUpdateButton;
-    private Button installUpdateButton;
+    private SquareButtonWithText checkUpdateButton;
+    private SquareButtonWithText stopUpdateButton;
+    private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView pendingUpdateStatus;
     private TextView currentVersionText;
@@ -63,7 +63,7 @@ class UpdateUiController {
 
     private void setupButtonListeners() {
         checkUpdateButton =
-                (Button)activity.findViewById(R.id.check_for_update_button);
+                (SquareButtonWithText)activity.findViewById(R.id.check_for_update_button);
         checkUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +72,7 @@ class UpdateUiController {
         });
 
         stopUpdateButton =
-                (Button)activity.findViewById(R.id.stop_update_download_button);
+                (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
         stopUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +82,7 @@ class UpdateUiController {
         stopUpdateButton.setText(stopCheckingText);
 
         installUpdateButton =
-                (Button)activity.findViewById(R.id.install_update_button);
+                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

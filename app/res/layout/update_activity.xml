@@ -1,83 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@color/cc_core_bg"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
 
-    <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+                    android:id="@+id/screen_first_start_main"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/current_version_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
-            android:padding="@dimen/content_min_margin"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                >
+                <TextView
+                    android:id="@+id/current_version_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginBottom="@dimen/content_min_margin"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_small" />
 
-        <TextView
-            android:id="@+id/update_progress_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/current_version_text"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:padding="@dimen/content_min_margin"/>
+                <TextView
+                    android:id="@+id/update_progress_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/current_version_text"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginBottom="@dimen/content_min_margin"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_small" />
 
-        <ProgressBar
-            android:id="@+id/update_progress_bar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/update_progress_text"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"/>
+                <ProgressBar
+                    android:id="@+id/update_progress_bar"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/update_progress_text"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginBottom="@dimen/content_min_margin"
+                    android:gravity="center" />
 
-        <Button
-            android:id="@+id/check_for_update_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/update_progress_bar"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Check for upgrade"/>
+                <LinearLayout
+                    android:id="@+id/update_check_cancel_buttons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/content_min_margin"
+                    android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/stop_update_download_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/check_for_update_button"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Stop upgrade"/>
+                    <org.commcare.android.view.SquareButtonWithText
+                        android:id="@+id/check_for_update_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/content_min_margin"
+                        android:layout_marginRight="@dimen/content_start"
+                        android:layout_weight="1"
+                        SquareButtonWithText:subtitle="Check"
+                        SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
+                        SquareButtonWithText:img="@drawable/update_download"
+                        SquareButtonWithText:colorText="@color/white" />
 
-        <TextView
-            android:id="@+id/pending_update_status_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/stop_update_download_button"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
-            android:padding="@dimen/content_min_margin"/>
+                    <org.commcare.android.view.SquareButtonWithText
+                        android:id="@+id/stop_update_download_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/content_start"
+                        android:layout_marginRight="@dimen/content_min_margin"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        SquareButtonWithText:subtitle="Stop"
+                        SquareButtonWithText:backgroundcolor="@color/cc_dark_warm_accent_text"
+                        SquareButtonWithText:img="@drawable/update_cancel"
+                        SquareButtonWithText:colorText="@color/white"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="100dp"
+                    android:paddingRight="100dp">
 
-        <Button
-            android:id="@+id/install_update_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/pending_update_status_text"
-            android:layout_marginBottom="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Install upgrade"/>
-
+                    <TextView
+                        android:id="@+id/pending_update_status_text"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/content_min_margin"
+                        android:layout_marginRight="@dimen/content_min_margin"
+                        android:layout_marginBottom="@dimen/content_min_margin"
+                        android:gravity="center"
+                        android:textSize="@dimen/text_small" />
+                    <org.commcare.android.view.SquareButtonWithText
+                        android:id="@+id/install_update_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/content_min_margin"
+                        android:layout_marginRight="@dimen/content_start"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        SquareButtonWithText:subtitle="Install"
+                        SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
+                        SquareButtonWithText:img="@drawable/update_install"
+                        SquareButtonWithText:colorText="@color/white" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
