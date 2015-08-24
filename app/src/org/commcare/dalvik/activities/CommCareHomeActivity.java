@@ -32,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etsy.android.grid.StaggeredGridView;
+
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -41,7 +43,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -62,6 +64,7 @@ import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -72,7 +75,6 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -82,10 +84,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
@@ -96,7 +94,7 @@ import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
+public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     private static final int LOGIN_USER = 0;
@@ -150,7 +148,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    
+
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
@@ -164,10 +162,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
+    private StaggeredGridView newGridView;
     private ImageView topBannerImageView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //This is a workaround required by Android Bug #2373, which is that Apps are launched from the
@@ -189,14 +188,33 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
 
         ACRAUtil.registerAppData();
 
-        setContentView(R.layout.mainnew_modern);
+        // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
+        setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
         final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
         this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
-        gridView = (GridViewWithHeaderAndFooter)findViewById(R.id.home_gridview_buttons);
-        gridView.addHeaderView(topBanner);
-        gridView.setAdapter(adapter);
-        gridView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        final View grid = findViewById(R.id.home_gridview_buttons);
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "Grid is: " + grid + ", build version: " + Build.VERSION.SDK_INT + ", tag is: " + grid.getTag());
+        }
+        if (grid instanceof StaggeredGridView) {
+            newGridView = (StaggeredGridView)grid;
+            newGridView.addHeaderView(topBanner);
+            newGridView.setAdapter(adapter);
+        } else {
+            gridView = (GridViewWithHeaderAndFooter)grid;
+            gridView.addHeaderView(topBanner);
+            gridView.setAdapter(adapter);
+        }
+        //region Asserting that we're using the correct grid view for each version
+        if (!(((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) && newGridView != null) || ((Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD_MR1) && gridView != null))) {
+            Log.v(TAG, "Mismatch when loading grid view! Current grid is " + grid + ", but should be the other version");
+            if (BuildConfig.DEBUG) {
+                throw new AssertionError("Mismatch when loading grid view! Current grid is " + grid + ", but should be the other version");
+            }
+        }
+        //endregion
+        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")
             @Override
             public void onGlobalLayout() {
@@ -204,11 +222,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     Log.e("configUi", "Items still not instantiated by gridView, configUi is going to crash!");
                 }
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    gridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                 } else {
-                    gridView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
-                gridView.requestLayout();
+                grid.requestLayout();
                 adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
                 configUi();
             }
@@ -262,7 +280,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         View.OnClickListener logoutButtonListener = new OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
-                SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
+                returnToLogin();
             }
         };
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, logoutButtonListener);
@@ -549,7 +567,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 }
             case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
                     this.finish();
                     return;
                 } else if(resultCode == RESULT_OK) {
@@ -830,75 +847,82 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         mAlertDialog.show();
     }
 
+    /**
+     * Polls the CommCareSession to determine what information is needed in order to proceed with
+     * the next entry step in the session and then executes the action to get that info, OR
+     * proceeds with trying to enter the form if no more info is needed
+     */
     private void startNextFetch() {
-        //TODO: feels like this logic should... not be in a big disgusting ifghetti.
-        //Interface out the transitions, maybe?
 
-        final CommCareSession session = CommCareApplication._().getCurrentSession();
+        final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+        CommCareSession session = asw.getSession();
         String needed = session.getNeededData();
-        StackFrameStep lastPopped = session.getPoppedStep();
 
         if (needed == null) {
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            //See if we failed any of our asseertions
-            Text text = session.getCurrentEntry().getAssertions().getAssertionFailure(ec);
-            if (text != null) {
-                createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        session.stepBack();
-                        CommCareHomeActivity.this.startNextFetch();
-                    }
-                });
-                return;
-            }
-            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+            readyToProceed(asw);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
-            Intent i;
-
-            if (DeveloperPreferences.isGridMenuEnabled()) {
-                i = new Intent(getApplicationContext(), MenuGrid.class);
-            } else {
-                i = new Intent(getApplicationContext(), MenuList.class);
-            }
-
-            i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            startActivityForResult(i, GET_COMMAND);
+            handleGetCommand(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
-
-            i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
-            if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
-            }
-
-            startActivityForResult(i, GET_CASE);
+            handleGetDatum(session);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            //compute
-            SessionDatum datum = session.getNeededDatum();
-            XPathExpression form;
-            try {
-                form = XPathParseTool.parseXPath(datum.getValue());
-            } catch (XPathSyntaxException e) {
-                //TODO: What.
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
-            EvaluationContext ec = session.getEvaluationContext(new CommCareInstanceInitializer(session));
-            if (datum.getType() == SessionDatum.DATUM_TYPE_FORM) {
-                session.setXmlns(XPathFuncExpr.toString(form.eval(ec)));
-                session.setDatum("", "awful");
-            } else {
-                try {
-                    session.setDatum(datum.getDataId(), XPathFuncExpr.toString(form.eval(ec)));
-                } catch (XPathException e) {
-                    displayException(e);
-                    return;
-                }
-            }
-            startNextFetch();
+            handleCompute(asw);
         }
     }
+
+
+    // region: private helper methods used by startNextFetch(), to prevent it from being one
+    // extremely long method
+
+    private void readyToProceed(final AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
+        //See if we failed any of our assertions
+        Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
+        if (text != null) {
+            createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    asw.getSession().stepBack();
+                    CommCareHomeActivity.this.startNextFetch();
+                }
+            });
+            return;
+        }
+        startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+    }
+
+    private void handleGetCommand(CommCareSession session) {
+        Intent i;
+        if (DeveloperPreferences.isGridMenuEnabled()) {
+            i = new Intent(getApplicationContext(), MenuGrid.class);
+        } else {
+            i = new Intent(getApplicationContext(), MenuList.class);
+        }
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        startActivityForResult(i, GET_COMMAND);
+    }
+
+    private void handleGetDatum(CommCareSession session) {
+        Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        StackFrameStep lastPopped = session.getPoppedStep();
+        if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
+            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+        }
+        startActivityForResult(i, GET_CASE);
+    }
+
+    private void handleCompute(AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
+        try {
+            asw.getSession().setComputedDatum(ec);
+        } catch (XPathException e) {
+            displayException(e);
+        }
+        startNextFetch();
+    }
+
+    // endregion
+
 
     /**
      * Create (or re-use) a form record and pass it to the form entry activity
@@ -1029,7 +1053,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    SessionActivityRegistration.returnToLogin(CommCareHomeActivity.this);
+                    returnToLogin();
                     return;
                 }
                 receiver.refreshView();
@@ -1118,7 +1142,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    SessionActivityRegistration.returnToLogin(this);
+                    returnToLogin();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -1136,7 +1160,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                     refreshView();
                 }
             } catch (SessionUnavailableException sue) {
-                SessionActivityRegistration.returnToLogin(this);
+                returnToLogin();
             }
         }
 
@@ -1153,7 +1177,6 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
     }
 
-
     // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
     // extremely long method
 
@@ -1167,7 +1190,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
                 showDialog(DIALOG_CORRUPTED);
             } catch(SessionUnavailableException e) {
                 // Otherwise, log in first
-                SessionActivityRegistration.returnToLogin(this);
+                returnToLogin();
             }
         }
     }
@@ -1336,7 +1359,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         try {
             syncDetails = CommCareApplication._().getSyncDisplayParameters();
         } catch (UserStorageClosedException e) {
-            SessionActivityRegistration.returnToLogin(this);
+            returnToLogin();
             return;
         }
 
@@ -1681,5 +1704,11 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
     @Override
     public boolean isBackEnabled() {
         return false;
+    }
+
+    private void returnToLogin() {
+        Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        this.startActivityForResult(i, LOGIN_USER);
     }
 }

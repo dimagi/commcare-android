@@ -1,8 +1,6 @@
 package org.commcare.android.models;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
@@ -10,16 +8,12 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -34,14 +28,10 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathStringLiteral;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -393,21 +383,10 @@ public class AndroidSessionWrapper {
         // form modified the case database before stack ops fire
         initializer = null;
         
-        //TODO: should this section get wrapped up in the session, maybe?
-        Vector<StackOperation> ops = session.getCurrentEntry().getPostEntrySessionOperations();
-        
-        //Let the session know that the current frame shouldn't work its way back onto the stack
-        session.markCurrentFrameForDeath();
-        
-        //First, see if we have operations to run
-        if(ops.size() > 0) {
-            EvaluationContext ec = getEvaluationContext();
-            session.executeStackOperations(ops, ec);
-        }
-        
+
         // Ok, now we just need to figure out if it's time to go home, or time
         // to fire up a new session from the stack
-        if(session.finishAndPop()) {
+        if(session.finishExecuteAndPop(getEvaluationContext())) {
             //We just built a new session stack into the session, so we want to keep that,
             //clear out the internal state vars, though.
             cleanVolatiles();

@@ -110,9 +110,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private CommCareApp ccApp;
 
     /**
-     * Indicates whether this activity was launched from the AppManagerActivity
+     * Indicates that this activity was launched from the AppManagerActivity
      */
-    private boolean mFromManager;
+    private boolean fromManager;
+
+    /**
+     * Indicates that this activity was launched from an outside application (such as a bit.ly
+     * url entered in a browser)
+     */
+    private boolean fromExternal;
 
     /**
      * Whether this needs to be interactive (if it's automatic, we want to skip
@@ -137,10 +143,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     //endregion
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
-        this.mFromManager = this.getIntent().
+        this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
@@ -148,6 +154,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
             if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
                 //We got called from an outside application, it's gonna be a wild ride!
+                fromExternal = true;
                 incomingRef = this.getIntent().getData().toString();
                 if(incomingRef.contains(".ccz")) {
                     // make sure this is in the file system
@@ -205,12 +212,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!mFromManager && !inUpgradeMode && CommCareApplication._().usableAppsPresent()) {
+        if (!fromManager && !fromExternal && !inUpgradeMode &&
+                CommCareApplication._().usableAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
         }
@@ -276,11 +284,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-    
-    @Override
     protected void onStart() {
         super.onStart();
         uiStateScreenTransition();
@@ -297,10 +300,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

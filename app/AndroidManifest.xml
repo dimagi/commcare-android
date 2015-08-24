@@ -5,6 +5,10 @@
           android:versionCode="106"
           android:versionName="2.22">
 
+    <uses-sdk
+        tools:overrideLibrary="com.etsy.android.grid"
+        tools:replace="minSdkVersion" />
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
@@ -268,6 +272,8 @@
             android:name=".activities.PhoneLogActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
+        <activity android:name="org.achartengine.GraphicalActivity" >
+        </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"
@@ -367,9 +373,11 @@
             android:theme="@style/Theme.Dialog.NoTitle" >
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.SeatAppActivity" >
         </activity>
 
         <!-- Start Collect Manifest -->

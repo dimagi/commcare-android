@@ -40,7 +40,7 @@ public class SingleAppManagerActivity extends Activity {
     private static final int LOGOUT_FOR_ARCHIVE = 2;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
 
@@ -62,7 +62,7 @@ public class SingleAppManagerActivity extends Activity {
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         refresh();
     }
@@ -126,7 +126,7 @@ public class SingleAppManagerActivity extends Activity {
                     Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                 } else if (resultCode == RESULT_OK) {
                     if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                        Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, Localization.get("update.success"), Toast.LENGTH_LONG).show();
                         CommCareApplication._().expireUserSession();
                     }
                     return;

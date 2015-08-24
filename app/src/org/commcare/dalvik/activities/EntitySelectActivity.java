@@ -10,12 +10,15 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -137,7 +140,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private OnClickListener barcodeScanOnClickListener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
@@ -200,7 +203,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         } else {
             setContentView(R.layout.entity_select_layout);
         }
-        ((ListView)this.findViewById(R.id.screen_entity_select_list)).setOnItemClickListener(this);
+        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        view.setOnItemClickListener(this);
+        setupDivider(view);
 
 
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
@@ -250,7 +255,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             adapter = oldActivity.adapter;
             // on orientation change
             if (adapter != null) {
-                ((ListView)this.findViewById(R.id.screen_entity_select_list)).setAdapter(adapter);
+                view.setAdapter(adapter);
+                setupDivider(view);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
                 //Disconnect the old adapter
@@ -345,7 +351,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private boolean resuming = false;
     private boolean startOther = false;
 
-    public void onResume() {
+    @Override
+    protected void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
         if (this.isFinishing() || startOther) {
@@ -817,7 +824,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         if (loader != null) {
             if (isFinishing()) {
@@ -863,6 +870,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 
+        setupDivider(view);
+
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
 
         view.setAdapter(adapter);
@@ -882,6 +891,35 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         rebuildMenus();
 
         this.startTimer();
+    }
+
+    private void setupDivider(ListView view) {
+        int viewWidth = view.getWidth();
+        float density = getResources().getDisplayMetrics().density;
+        int viewWidthDP = (int)(viewWidth / density);
+        // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+        int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(0.15 * viewWidth);
+
+        Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+
+        //region ListView divider information
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
+        }
+        //endregion
+
+        //region Asserting divider instanceof LayerDrawable
+        if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
+            throw new AssertionError("Divider should be a LayerDrawable!");
+        }
+        //endregion
+
+        LayerDrawable layerDrawable = (LayerDrawable) divider;
+
+        layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+        view.setDivider(layerDrawable);
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {

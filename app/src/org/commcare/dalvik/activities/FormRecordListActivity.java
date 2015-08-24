@@ -144,7 +144,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             platform = CommCareApplication._().getCommCarePlatform();
@@ -636,7 +636,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
 

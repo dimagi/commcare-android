@@ -448,6 +448,7 @@ public class CommCareApplication extends Application {
             currentApp = app;
             if (currentApp.initializeApplication()) {
                 resourceState = STATE_READY;
+                this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
             } else {
                 //????
                 resourceState = STATE_CORRUPTED;

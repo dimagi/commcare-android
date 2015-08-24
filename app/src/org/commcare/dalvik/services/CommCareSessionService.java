@@ -25,7 +25,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
@@ -75,8 +74,6 @@ public class CommCareSessionService extends Service  {
     private CipherPool pool;
 
     private byte[] key = null;
-
-    private boolean multimediaIsVerified=false;
 
     private Date sessionExpireDate;
 
@@ -200,30 +197,26 @@ public class CommCareSessionService extends Service  {
             this.startForeground(NOTIFICATION, notification);
         }
     }
-    
-    /*
+
+    /**
      * Notify the user that they've been timed out and need to relog in
      */
     private void showLoggedOutNotification() {
-        
         this.stopForeground(true);
-        
-        String text = "Click here to log back into your session";
-        
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(org.commcare.dalvik.R.drawable.notification, text, System.currentTimeMillis());
 
-        // The PendingIntent to launch our activity if the user selects this notification
-        Intent i = new Intent(this, LoginActivity.class);
-        
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, notification.flags |= Notification.FLAG_AUTO_CANCEL);
+        Intent i = new Intent(this, CommCareHomeActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, this.getString(org.commcare.dalvik.R.string.expirenotification), text, contentIntent);
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(this.getString(R.string.expirenotification))
+                .setContentText("Click here to log back into your session")
+                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                .setContentIntent(contentIntent)
+                .build();
 
         // Send the notification.
         mNM.notify(NOTIFICATION, notification);
-
     }
     
     //Start CommCare Specific Functionality
@@ -589,13 +582,5 @@ public class CommCareSessionService extends Service  {
      */
     private void setSessionLength(){
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
-    }
-
-    public boolean isMultimediaVerified(){
-        return multimediaIsVerified;
-    }
-    
-    public void setMultiMediaVerified(boolean toggle){
-        multimediaIsVerified = toggle;
     }
 }

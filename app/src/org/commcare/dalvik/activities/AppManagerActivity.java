@@ -35,14 +35,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_manager);
         ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         refreshView();
     }

@@ -11,14 +11,14 @@ import org.commcare.dalvik.activities.AppManagerActivity;
 public class ManagerShortcut extends Activity {
 
     @Override
-    public void onCreate(Bundle bundle) {
+    protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         Intent shortcutIntent = new Intent(getApplicationContext(), AppManagerActivity.class);
         shortcutIntent.addCategory(Intent.CATEGORY_HOME);
         
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, R.string.manager_activity_name);
+        intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.manager_activity_name));
         Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this,  R.drawable.icon);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
         
