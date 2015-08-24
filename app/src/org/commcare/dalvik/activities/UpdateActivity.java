@@ -9,7 +9,7 @@ import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.TaskListener;
-import org.commcare.android.tasks.TaskListenerException;
+import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.utils.ConnectivityStatus;
@@ -62,7 +62,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             if (updateTask != null) {
                 updateTask.registerTaskListener(this);
             }
-        } catch (TaskListenerException e) {
+        } catch (TaskListenerRegistrationException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
                     "registered task.");
             uiController.error();
@@ -133,7 +133,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         if (updateTask != null) {
             try {
                 updateTask.unregisterTaskListener(this);
-            } catch (TaskListenerException e) {
+            } catch (TaskListenerRegistrationException e) {
                 Log.e(TAG, "Attempting to unregister a not previously " +
                         "registered TaskListener.");
             }
@@ -185,7 +185,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } catch (IllegalStateException e) {
             enterErrorState("There is already an existing update task instance.");
             return;
-        } catch (TaskListenerException e) {
+        } catch (TaskListenerRegistrationException e) {
             enterErrorState("Attempting to register a TaskListener to an " +
                     "already registered task.");
             return;

@@ -154,18 +154,18 @@ public class UpdateTask
     }
 
     public void registerTaskListener(TaskListener<Integer, AppInstallStatus> listener)
-            throws TaskListenerException {
+            throws TaskListenerRegistrationException {
         if (taskListener != null) {
-            throw new TaskListenerException("This " + TAG +
+            throw new TaskListenerRegistrationException("This " + TAG +
                     " was already registered with a TaskListener");
         }
         taskListener = listener;
     }
 
     public void unregisterTaskListener(TaskListener<Integer, AppInstallStatus> listener)
-            throws TaskListenerException {
+            throws TaskListenerRegistrationException {
         if (listener != taskListener) {
-            throw new TaskListenerException("The provided listener wasn't " +
+            throw new TaskListenerRegistrationException("The provided listener wasn't " +
                     "registered with this " + TAG);
         }
         taskListener = null;

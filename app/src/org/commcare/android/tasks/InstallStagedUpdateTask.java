@@ -10,6 +10,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.UnresolvedResourceException;
 
 /**
+ * Blocks user while performing installation of staged update table.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class InstallStagedUpdateTask<R>
