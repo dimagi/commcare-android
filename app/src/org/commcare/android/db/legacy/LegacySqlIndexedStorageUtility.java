@@ -4,11 +4,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
 
 /**
  * @author ctsims

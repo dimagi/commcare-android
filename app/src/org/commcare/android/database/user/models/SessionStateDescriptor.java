@@ -1,15 +1,16 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.core.models.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.util.MD5;
+
 
 /**
  * A Session State Descriptor contains all of the information that can be persisted

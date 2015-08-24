@@ -27,20 +27,20 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.core.models.EncryptedModel;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.modern.models.EncryptedModel;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.CommCarePlatform;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -62,6 +62,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
 
 /**
  * @author ctsims

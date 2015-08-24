@@ -72,9 +72,4 @@ public class AndroidSandbox implements UserDataInterface {
     public String getSyncToken() {
         return null;
     }
-
-    @Override
-    public void updateLastSync() {
-
-    }
 }

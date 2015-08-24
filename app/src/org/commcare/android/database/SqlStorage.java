@@ -11,7 +11,7 @@ import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.core.models.EncryptedModel;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;

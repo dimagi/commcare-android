@@ -9,10 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DbUtil;
-import org.commcare.core.models.EncryptedModel;
 import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.util.Base64;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;

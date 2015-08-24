@@ -10,8 +10,8 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.core.models.EncryptedModel;
-import org.commcare.core.database.DatabaseHelper;
+import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -57,7 +57,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     }
 
     public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){
-        org.commcare.core.util.Pair<String, String[]> mPair = DatabaseHelper.createWhere(fieldNames, values, em, p);
+        org.commcare.modern.util.Pair<String, String[]> mPair = DatabaseHelper.createWhere(fieldNames, values, em, p);
         Pair<String, String[]> returnPair = new Pair<String, String[]>(mPair.first, mPair.second);
         return returnPair;
 
