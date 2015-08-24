@@ -144,9 +144,11 @@ public class IntentCallout implements Externalizable {
     private void processResponseItem(TreeReference ref, String responseValue,
                                      TreeReference contextRef,  File destinationFile) {
         EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
-        AbstractTreeElement node = context.resolveReference(ref);
+        TreeReference fullRef = ref.contextualize(contextRef);
+        AbstractTreeElement node = context.resolveReference(fullRef);
 
         if (node == null) {
+            Log.e(TAG, "Unable to resolve ref " + ref);
             return;
         }
         int dataType = node.getDataType();
@@ -158,7 +160,7 @@ public class IntentCallout implements Externalizable {
             //We need to copy the binary data at this address into the appropriate location
             if (responseValue == null || responseValue.equals("")) {
                 //If the response was blank, wipe out any data that was present before
-                form.setValue(null, ref);
+                form.setValue(null, fullRef);
                 return;
             }
 
@@ -168,7 +170,7 @@ public class IntentCallout implements Externalizable {
                 //TODO: How hard should we be failing here?
                 Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
                 //Wipe out any reference that exists
-                form.setValue(null, ref);
+                form.setValue(null, fullRef);
                 return;
             }
 
@@ -179,19 +181,18 @@ public class IntentCallout implements Externalizable {
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {
-                form.setValue(new StringData(newFile.toString()), ref);
+                form.setValue(new StringData(newFile.toString()), fullRef);
                 return;
             } else {
                 Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
-                form.setValue(null, ref);
+                form.setValue(null, fullRef);
                 return;
             }
         }
 
         //otherwise, just load it up
         IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-
-        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
+        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), fullRef);
     }
 
     @Override
