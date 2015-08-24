@@ -80,7 +80,7 @@ public abstract class ResourceEngineTask<R>
 
             global.setStateListener(this);
             try {
-                ResourceManager.init(platform, profileRef, global, false);
+                ResourceManager.installAppResources(platform, profileRef, global, false);
             } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "Couldn't install file to local storage|");
