@@ -68,7 +68,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
     TabbedDetailView mDetailView;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {        
+    protected void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
         
         try {

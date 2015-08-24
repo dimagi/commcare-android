@@ -39,7 +39,7 @@ public class SingleAppManagerActivity extends Activity {
     private static final int LOGOUT_FOR_ARCHIVE = 2;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
 
@@ -61,7 +61,7 @@ public class SingleAppManagerActivity extends Activity {
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         refresh();
     }

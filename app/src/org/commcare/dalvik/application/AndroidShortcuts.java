@@ -26,7 +26,7 @@ public class AndroidShortcuts extends Activity {
     String[] names;
     
     @Override
-    public void onCreate(Bundle bundle) {
+    protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
         final Intent intent = getIntent();

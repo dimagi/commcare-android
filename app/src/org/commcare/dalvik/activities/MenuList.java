@@ -53,7 +53,7 @@ public class MenuList extends SessionAwareCommCareActivity implements OnItemClic
     private TextView header;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);

@@ -242,7 +242,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     @Override
     @SuppressLint("NewApi")
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         addBreadcrumbBar();
