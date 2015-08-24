@@ -128,6 +128,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
+        errorBox.setVisibility(View.GONE);
     }
 
     public enum LoginBoxesStatus {
@@ -154,7 +155,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         LoginBoxesStatus.Normal.setStatus(this);
@@ -426,7 +427,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                         break;
-                    case UnkownError:
+                    case UnknownError:
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
@@ -557,20 +558,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         return dialog;
     }
 
-    @Override
-    public boolean isBackEnabled() {
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent i = new Intent();
-        setResult(RESULT_CANCELED, i);
-
-        finish();
-    }
-
     private void refreshView() {
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
@@ -636,6 +623,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     private void refreshForNewApp() {
+        // Remove any error content from trying to log into a different app
+        setStyleDefault();
+
         // Refresh the breadcrumb bar for new app name
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();

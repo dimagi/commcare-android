@@ -140,7 +140,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private OnClickListener barcodeScanOnClickListener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
@@ -351,7 +351,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private boolean resuming = false;
     private boolean startOther = false;
 
-    public void onResume() {
+    @Override
+    protected void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
         if (this.isFinishing() || startOther) {
@@ -823,7 +824,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         if (loader != null) {
             if (isFinishing()) {

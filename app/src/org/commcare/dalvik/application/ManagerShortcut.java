@@ -11,7 +11,7 @@ import org.commcare.dalvik.activities.AppManagerActivity;
 public class ManagerShortcut extends Activity {
 
     @Override
-    public void onCreate(Bundle bundle) {
+    protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         Intent shortcutIntent = new Intent(getApplicationContext(), AppManagerActivity.class);
         shortcutIntent.addCategory(Intent.CATEGORY_HOME);

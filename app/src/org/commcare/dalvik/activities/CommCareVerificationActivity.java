@@ -72,7 +72,8 @@ public class CommCareVerificationActivity
     private boolean fromSettings;
 
 
-    public void onCreate(Bundle savedInstanceState){
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
 
         super.onCreate(savedInstanceState);
         
@@ -97,7 +98,7 @@ public class CommCareVerificationActivity
     }
     
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
 
         // It is possible that the CommCare screen was left off in the VerificationActivity, but

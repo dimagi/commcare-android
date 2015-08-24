@@ -22,7 +22,7 @@ public class MessageLogActivity extends ListActivity {
     boolean isMessages = false;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         setTitle(getString(R.string.application_name) + " > " + "Message Logs");

@@ -51,7 +51,7 @@ public class GeneratedChartDemo extends ListActivity {
 
   /** Called when the activity is first created. */
   @Override
-  public void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // I know, I know, this should go into strings.xml and accessed using
     // getString(R.string....)
