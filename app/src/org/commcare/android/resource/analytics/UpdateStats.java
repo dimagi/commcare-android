@@ -14,17 +14,16 @@ import java.util.Date;
 import java.util.Hashtable;
 
 /**
- * Statistics associated with attempting to stage resources into the app's update table.
- * 
+ * Statistics associated with attempting to stage resources into the app's
+ * update table.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateStats implements InstallStatsLogger, Serializable {
-    private static final String TAG = UpdateStats.class.getSimpleName();
-
-    private Hashtable<String, InstallAttempts<String>> installStats;
-    private long startInstallTime;
+    private final Hashtable<String, InstallAttempts<String>> installStats;
+    private final long startInstallTime;
     private int restartCount = 0;
-    private static long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
+    private static final long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
 
     public UpdateStats() {
         startInstallTime = new Date().getTime();
@@ -39,12 +38,14 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     }
 
     /**
-     * @return Should the update be considered stale due to elapse time or too many unsuccessful installs?
+     * @return Should the update be considered stale due to elapse time or too
+     * many unsuccessful installs?
      */
     public boolean isUpgradeStale() {
         // TODO PLM: test this!
         long currentTime = new Date().getTime();
-        return (restartCount > 3 || (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
+        return (restartCount > 3 ||
+                (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
     }
 
     @Override
