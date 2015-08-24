@@ -24,7 +24,7 @@ import java.util.Date;
 import javax.net.ssl.SSLHandshakeException;
 
 /**
- * Helpers to track state surounding app installation and updates
+ * Helpers to track app state and handle errors for installation and updates.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -62,7 +62,7 @@ public class ResourceInstallUtils {
 
     /**
      * Initialize app's resources and database, write the app record, and
-     * overwrite app preference's profile reference with the authorative
+     * overwrite app preference's profile reference with the authoritative
      * reference if present.
      */
     public static void initAndCommitApp(CommCareApp app) {

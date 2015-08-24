@@ -17,6 +17,12 @@ public class UpdateStatPersistence {
 
     private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
 
+    /**
+     * Load update statistics associated with upgrade table from app preferences
+     *
+     * @return Persistently-stored update stats or if no stats found then a new
+     * update stats object.
+     */
     public static UpdateStats loadUpdateStats(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         if (prefs.contains(UPGRADE_STATS_KEY)) {
@@ -34,11 +40,15 @@ public class UpdateStatPersistence {
         }
     }
 
-    public static void saveStatsPersistently(CommCareApp app, UpdateStats installStatListener) {
+    /**
+     * Save update stats to app preferences for reuse if the update is ever resumed.
+     */
+    public static void saveStatsPersistently(CommCareApp app,
+                                             UpdateStats updateStats) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         try {
-            String serializedObj = UpdateStats.serialize(installStatListener);
+            String serializedObj = UpdateStats.serialize(updateStats);
             editor.putString(UPGRADE_STATS_KEY, serializedObj);
             editor.commit();
         } catch (IOException e) {
@@ -47,6 +57,9 @@ public class UpdateStatPersistence {
         }
     }
 
+    /**
+     * Wipe stats associated with upgrade table from app preferences.
+     */
     public static void clearPersistedStats(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();

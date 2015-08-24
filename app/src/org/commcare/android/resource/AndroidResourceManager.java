@@ -64,7 +64,7 @@ public class AndroidResourceManager extends ResourceManager {
                 return AppInstallStatus.UpToDate;
             }
 
-            updateStats.incRestartCount();
+            updateStats.registerStagingAttempt();
 
             prepareUpgradeResources();
         } catch (InstallCancelledException e) {

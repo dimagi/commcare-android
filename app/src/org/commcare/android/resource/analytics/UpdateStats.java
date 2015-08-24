@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Hashtable;
 
 /**
+ * Statistics associated with attempting to stage resources into the app's update table.
+ * 
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateStats implements InstallStatListener, Serializable {
@@ -29,11 +31,18 @@ public class UpdateStats implements InstallStatListener, Serializable {
         installStats = new Hashtable<>();
     }
 
-    public void incRestartCount() {
+    /**
+     * Register attempt to download resources into update table.
+     */
+    public void registerStagingAttempt() {
         restartCount++;
     }
 
+    /**
+     * @return Should the update be considered stale due to elapse time or too many unsuccessful installs?
+     */
     public boolean isUpgradeStale() {
+        // TODO PLM: test this!
         long currentTime = new Date().getTime();
         return (restartCount > 3 || (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
     }
@@ -46,7 +55,7 @@ public class UpdateStats implements InstallStatListener, Serializable {
             attempts = new InstallAttempts<>(resourceName);
             installStats.put(resourceName, attempts);
         }
-        attempts.add(errorMsg);
+        attempts.addFailure(errorMsg);
     }
 
     @Override

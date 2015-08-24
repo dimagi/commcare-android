@@ -5,6 +5,12 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
+ * Stores install attempt data for a given resource in the update table.
+ * Parameterized by 'A', which is the type of data stored at each install
+ * attempt
+ *
+ * NOTE: 'A' must be instantiated with a class that implements Serializeable.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class InstallAttempts<A> implements Serializable {
@@ -22,7 +28,7 @@ class InstallAttempts<A> implements Serializable {
         return failures.size();
     }
 
-    public void add(A failureData) {
+    public void addFailure(A failureData) {
         failures.add(new FailureEvent<>(failureData));
     }
 
