@@ -110,9 +110,11 @@ import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.views.ResizingImageView;
 import org.odk.collect.android.widgets.DateTimeWidget;
+import org.odk.collect.android.widgets.ImageWidget;
 import org.odk.collect.android.widgets.IntentWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
+import org.odk.collect.android.widgets.IBinaryWidget;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -472,21 +474,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (resultCode == RESULT_CANCELED) {
-            
-            if(requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
-                //they pressed 'back' on the first heirarchy screen. we should assume they want to
-                //back out of form entry all together
+            if (requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
+                // They pressed 'back' on the first hierarchy screen, so we should assume they want
+                // to back out of form entry all together
                 finishReturnInstance(false);
-            } else if(requestCode == INTENT_CALLOUT){
+            } else if (requestCode == INTENT_CALLOUT){
                 processIntentResponse(intent, true);
             }
-            
             // request was canceled, so do nothing
             return;
         }
 
-        ContentValues values;
-        Uri imageURI;
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
@@ -497,109 +495,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 processIntentResponse(intent);
                 break;
             case IMAGE_CAPTURE:
+                processCaptureResponse(true);
+                break;
             case SIGNATURE_CAPTURE:
-                /*
-                 * We saved the image to the tempfile_path, but we really want it to be in:
-                 * /sdcard/odk/instances/[current instnace]/something.jpg so we move it there before
-                 * inserting it into the content provider. Once the android image capture bug gets
-                 * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
-                 * video
-                 */
-                // The intent is empty, but we know we saved the image to the temp file
-                File fi = new File(Collect.TMPFILE_PATH);
-
-                String mInstanceFolder =
-                    mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-                String s = mInstanceFolder + "/" + System.currentTimeMillis() + ".jpg";
-
-                File nf = new File(s);
-                if (!fi.renameTo(nf)) {
-                    Log.e(TAG, "Failed to rename " + fi.getAbsolutePath());
-                } else {
-                    Log.i(TAG, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
-                }
-
-                // Add the new image to the Media content provider so that the
-                // viewing is fast in Android 2.0+
-                values = new ContentValues(6);
-                values.put(Images.Media.TITLE, nf.getName());
-                values.put(Images.Media.DISPLAY_NAME, nf.getName());
-                values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-                values.put(Images.Media.MIME_TYPE, "image/jpeg");
-                values.put(Images.Media.DATA, nf.getAbsolutePath());
-
-                imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
-
-                ((ODKView) mCurrentView).setBinaryData(imageURI);
-                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                refreshCurrentView();
+                processCaptureResponse(false);
                 break;
             case IMAGE_CHOOSER:
-                /*
-                 * We have a saved image somewhere, but we really want it to be in:
-                 * /sdcard/odk/instances/[current instnace]/something.jpg so we move it there before
-                 * inserting it into the content provider. Once the android image capture bug gets
-                 * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
-                 * video
-                 */
-
-                // get gp of chosen file
-                String sourceImagePath = null;
-                Uri selectedImage = intent.getData();
-                
-                sourceImagePath = FileUtils.getPath(this, selectedImage);
-
-                // Copy file to sdcard
-                String mInstanceFolder1 =
-                    mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-                String destImagePath = mInstanceFolder1 + "/" + System.currentTimeMillis() + ".jpg";
-
-                File source = new File(sourceImagePath);
-                File newImage = new File(destImagePath);
-                FileUtils.copyFile(source, newImage);
-
-                if (newImage.exists()) {
-                    // Add the new image to the Media content provider so that the
-                    // viewing is fast in Android 2.0+
-                    values = new ContentValues(6);
-                    values.put(Images.Media.TITLE, newImage.getName());
-                    values.put(Images.Media.DISPLAY_NAME, newImage.getName());
-                    values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-                    values.put(Images.Media.MIME_TYPE, "image/jpeg");
-                    values.put(Images.Media.DATA, newImage.getAbsolutePath());
-
-                    imageURI =
-                        getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-                    Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
-
-                    ((ODKView) mCurrentView).setBinaryData(imageURI);
-                    saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                } else {
-                    Log.e(TAG, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
-                }
-                refreshCurrentView();
+                processChooserResponse(intent, true);
                 break;
             case AUDIO_CAPTURE:
             case VIDEO_CAPTURE:
             case AUDIO_CHOOSER:
             case VIDEO_CHOOSER:
-                // For audio/video capture/chooser, we get the URI from the content provider
-                // then the widget copies the file and makes a new entry in the content provider.
-                Uri media = intent.getData();
-                String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
-                if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-                    // don't let the user select a file that won't be included in the
-                    // upload to the server
-                    ((ODKView) mCurrentView).clearAnswer();
-                    Toast.makeText(FormEntryActivity.this,
-                            Localization.get("form.attachment.invalid"),
-                            Toast.LENGTH_LONG).show();
-                } else {
-                    ((ODKView) mCurrentView).setBinaryData(media);
-                }
-                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                refreshCurrentView();
+                processChooserResponse(intent, false);
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
@@ -611,6 +519,135 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 refreshCurrentView(false);
                 break;
         }
+    }
+
+    private QuestionWidget getCurrentBinaryWidget() {
+        QuestionWidget bestMatch = null;
+        for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+            if (q instanceof IBinaryWidget) {
+                if (((IBinaryWidget)q).isWaitingForBinaryData() || bestMatch == null) {
+                    bestMatch = q;
+                }
+            }
+        }
+        return bestMatch;
+    }
+
+    private void processCaptureResponse(boolean isImage) {
+        /* We saved the image to the tempfile_path, but we really want it to be in:
+         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
+         * inserting it into the content provider. Once the android image capture bug gets
+         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
+         * video
+         */
+        Log.i("8/24", "in processCaptureResponse");
+        // The intent is empty, but we know we saved the image to the temp file
+        File fi = new File(Collect.TMPFILE_PATH);
+
+        // If this is was an image capture, scale it based on max dimens, if they were set
+        if (isImage) {
+            ImageWidget currentWidget = (ImageWidget) getCurrentBinaryWidget();
+            int maxDimen = currentWidget.getMaxDimen();
+            if (maxDimen != -1) {
+                Log.i("8/24", "Got maxDimen in FormEntryActivity: " + maxDimen);
+            }
+        }
+
+        // Save the image in the instance folder for this form, so it will get sent to HQ with the form
+        String mInstanceFolder =
+                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+        String s = mInstanceFolder + "/" + System.currentTimeMillis() + ".jpg";
+        File nf = new File(s);
+        if (!fi.renameTo(nf)) {
+            Log.e(TAG, "Failed to rename " + fi.getAbsolutePath());
+        } else {
+            Log.i(TAG, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
+        }
+
+        // Add the new image to the Media content provider so that the
+        // viewing is fast in Android 2.0+
+        ContentValues values = new ContentValues(6);
+        values.put(Images.Media.TITLE, nf.getName());
+        values.put(Images.Media.DISPLAY_NAME, nf.getName());
+        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(Images.Media.DATA, nf.getAbsolutePath());
+
+        Uri imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+
+        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        refreshCurrentView();
+
+    }
+
+    private void processChooserResponse(Intent intent, boolean isImage) {
+        if (isImage) {
+            processImageChooserResponse(intent);
+            return;
+        }
+        // For audio/video capture/chooser, we get the URI from the content provider
+        // then the widget copies the file and makes a new entry in the content provider.
+        Uri media = intent.getData();
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+            // don't let the user select a file that won't be included in the
+            // upload to the server
+            ((ODKView) mCurrentView).clearAnswer();
+            Toast.makeText(FormEntryActivity.this,
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+        } else {
+            ((ODKView) mCurrentView).setBinaryData(media);
+        }
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        refreshCurrentView();
+    }
+
+    private void processImageChooserResponse(Intent intent) {
+        /* We have a saved image somewhere, but we really want it to be in:
+         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
+         * inserting it into the content provider. Once the android image capture bug gets
+         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
+         * video
+         */
+
+        // get gp of chosen file
+        String sourceImagePath = null;
+        Uri selectedImage = intent.getData();
+
+        sourceImagePath = FileUtils.getPath(this, selectedImage);
+
+        // Copy file to sdcard
+        String mInstanceFolder1 =
+                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+        String destImagePath = mInstanceFolder1 + "/" + System.currentTimeMillis() + ".jpg";
+
+        File source = new File(sourceImagePath);
+        File newImage = new File(destImagePath);
+        FileUtils.copyFile(source, newImage);
+
+        if (newImage.exists()) {
+            // Add the new image to the Media content provider so that the
+            // viewing is fast in Android 2.0+
+            ContentValues values = new ContentValues(6);
+            values.put(Images.Media.TITLE, newImage.getName());
+            values.put(Images.Media.DISPLAY_NAME, newImage.getName());
+            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            values.put(Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(Images.Media.DATA, newImage.getAbsolutePath());
+
+            Uri imageURI =
+                    getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+
+            ((ODKView) mCurrentView).setBinaryData(imageURI);
+            saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        } else {
+            Log.e(TAG, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
+        }
+        refreshCurrentView();
     }
     
     private void processIntentResponse(Intent response){
@@ -624,20 +661,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         boolean quick = false;
         
         //We need to go grab our intent callout object to process the results here
+        IntentWidget bestMatch = (IntentWidget) getCurrentBinaryWidget();
         
-        IntentWidget bestMatch = null;
-        
-        //Ugh, copied from the odkview mostly, that's stupid
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            //Figure out if we have a pending intent widget
-            if (q instanceof IntentWidget) {
-                if(((IntentWidget) q).isWaitingForBinaryData() || bestMatch == null) {
-                    bestMatch = (IntentWidget)q;
-                }
-            }
-        }
-        
-        if(bestMatch != null) {
+        if (bestMatch != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
             

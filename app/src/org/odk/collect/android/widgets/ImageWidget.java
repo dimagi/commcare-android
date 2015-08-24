@@ -57,6 +57,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     public ImageWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
+        mMaxDimen = -1;
         mWaitingForData = false;
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
@@ -307,5 +308,9 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         if (extension instanceof ImageRestrictionExtension) {
             this.mMaxDimen = ((ImageRestrictionExtension) extension).getMaxDimen();
         }
+    }
+
+    public int getMaxDimen() {
+        return this.mMaxDimen;
     }
 }
