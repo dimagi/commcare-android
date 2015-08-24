@@ -1,8 +1,8 @@
 package org.commcare.android.tasks;
 
 public interface TaskListener<B, C> {
-    void processTaskUpdate(B... updateVals);
-    void processTaskResult(C result);
-    void processTaskCancel(C result);
+    void handleTaskUpdate(B... updateVals);
+    void handleTaskCompletion(C result);
+    void handleTaskCancellation(C result);
 }
 

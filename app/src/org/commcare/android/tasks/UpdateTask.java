@@ -17,9 +17,10 @@ import org.javarosa.core.services.Logger;
 import java.util.Vector;
 
 /**
- * Stages an update for the seated app in the background. If the user opens the
- * Update activity, this task will report its progress to that activity.
- * Enforces the constraint that only one instance is ever running.
+ * Stages an update for the seated app in the background. Does not perform
+ * actual update. If the user opens the Update activity, this task will report
+ * its progress to that activity.  Enforces the constraint that only one
+ * instance is ever running.
  *
  * Will be cancelled on user logout, but can still run if no user is logged in.
  *
@@ -74,10 +75,10 @@ public class UpdateTask
     protected final AppInstallStatus doInBackground(String... params) {
         profileRef = params[0];
 
-        setupUpgrade();
+        setupUpdate();
 
         try {
-            return performUpgrade();
+            return stageUpdate();
         } catch (Exception e) {
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
@@ -85,7 +86,7 @@ public class UpdateTask
         }
     }
 
-    private void setupUpgrade() {
+    private void setupUpdate() {
         ResourceInstallUtils.recordUpdateAttempt(app);
 
         app.setupSandbox();
@@ -94,7 +95,7 @@ public class UpdateTask
                 "Beginning install attempt for profile " + profileRef);
     }
 
-    private AppInstallStatus performUpgrade() {
+    private AppInstallStatus stageUpdate() {
         Resource profile = resourceManager.getMasterProfile();
         boolean appInstalled = (profile != null &&
                 profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED);
@@ -114,7 +115,7 @@ public class UpdateTask
         super.onProgressUpdate(values);
 
         if (taskListener != null) {
-            taskListener.processTaskUpdate(values);
+            taskListener.handleTaskUpdate(values);
         }
     }
 
@@ -133,7 +134,7 @@ public class UpdateTask
         }
 
         if (taskListener != null) {
-            taskListener.processTaskResult(result);
+            taskListener.handleTaskCompletion(result);
         }
 
         singletonRunningInstance = null;
@@ -148,7 +149,7 @@ public class UpdateTask
         }
 
         if (taskListener != null) {
-            taskListener.processTaskCancel(result);
+            taskListener.handleTaskCancellation(result);
         }
 
         resourceManager.upgradeCancelled();
@@ -156,6 +157,12 @@ public class UpdateTask
         singletonRunningInstance = null;
     }
 
+    /**
+     * Start reporting progress with a listener process.
+     *
+     * @throws TaskListenerRegistrationException If this task was already
+     *                                           registered with a listener
+     */
     public void registerTaskListener(TaskListener<Integer, AppInstallStatus> listener)
             throws TaskListenerRegistrationException {
         if (taskListener != null) {
@@ -165,6 +172,12 @@ public class UpdateTask
         taskListener = listener;
     }
 
+    /**
+     * Stop reporting progress with a listener process
+     *
+     * @throws TaskListenerRegistrationException If this task wasn't registered
+     *                                           with the unregistering listener.
+     */
     public void unregisterTaskListener(TaskListener<Integer, AppInstallStatus> listener)
             throws TaskListenerRegistrationException {
         if (listener != taskListener) {
@@ -196,6 +209,9 @@ public class UpdateTask
         this.publishProgress(complete, total);
     }
 
+    /**
+     * Allows resource installation process to check if this task was cancelled
+     */
     @Override
     public boolean wasInstallCancelled() {
         return isCancelled();

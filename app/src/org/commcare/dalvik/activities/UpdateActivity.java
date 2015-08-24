@@ -28,14 +28,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
+    private static final int DIALOG_UPGRADE_INSTALL = 6;
 
     private boolean taskIsCancelling;
-
     private UpdateTask updateTask;
-
     private UpdateUiController uiController;
-
-    private static final int DIALOG_UPGRADE_INSTALL = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +72,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         if (ConnectivityStatus.isNetworkNotConnected(this) &&
                 ConnectivityStatus.isAirplaneModeOn(this)) {
-            // TODO
+            // TODO PLM: show message that updates aren't checked w/o connectivity
             uiController.error();
             return;
         }
@@ -121,7 +118,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -149,7 +145,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void processTaskUpdate(Integer... vals) {
+    public void handleTaskUpdate(Integer... vals) {
         int progress = vals[0];
         int max = vals[1];
         uiController.updateProgressBar(progress, max);
@@ -159,7 +155,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void processTaskResult(AppInstallStatus result) {
+    public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailable();
         } else {
@@ -172,7 +168,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     @Override
-    public void processTaskCancel(AppInstallStatus result) {
+    public void handleTaskCancellation(AppInstallStatus result) {
         unregisterTask();
 
         uiController.idle();
@@ -250,7 +246,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog =
-            CustomProgressDialog.newInstance(title, message, taskId);
+                CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         return dialog;
     }
