@@ -15,7 +15,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.Date;
 
 /**
- * Controls the UI for the upgrade activity.
+ * Handles upgrade activity UI.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -24,14 +24,11 @@ class UpdateUiController {
     private SquareButtonWithText stopUpdateButton;
     private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
-    private TextView pendingUpdateStatus;
     private TextView currentVersionText;
     private TextView progressText;
 
     private final UpdateActivity activity;
 
-    private final String upToDateText =
-            Localization.get("updates.success");
     private final String stopCheckingText =
             Localization.get("updates.check.cancel");
     private final String upgradeFinishedText =
@@ -40,7 +37,10 @@ class UpdateUiController {
             Localization.get("updates.check.cancelling");
     private final String beginCheckingText =
             Localization.get("updates.check.begin");
-
+    private final String noConnectivityMsg =
+            Localization.get("updates.check.network_unavailable");
+    private final String errorMsg = Localization.get("updates.error");
+    private final String upToDateText = Localization.get("updates.success");
 
     public UpdateUiController(UpdateActivity updateActivity) {
         activity = updateActivity;
@@ -53,8 +53,6 @@ class UpdateUiController {
 
         progressBar = (ProgressBar)activity.findViewById(R.id.update_progress_bar);
         progressText = (TextView)activity.findViewById(R.id.update_progress_text);
-        pendingUpdateStatus =
-                (TextView)activity.findViewById(R.id.pending_update_status_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
 
@@ -105,7 +103,6 @@ class UpdateUiController {
         progressBar.setEnabled(false);
         updateProgressText("");
         updateProgressBar(0, 100);
-        pendingUpdateStatus.setText("");
     }
 
     protected void downloading() {
@@ -116,7 +113,6 @@ class UpdateUiController {
         progressBar.setEnabled(true);
         updateProgressBar(0, 100);
         updateProgressText(beginCheckingText);
-        pendingUpdateStatus.setText("");
     }
 
     protected void unappliedUpdateAvailable() {
@@ -131,7 +127,7 @@ class UpdateUiController {
         String versionMsg =
                 Localization.get("update.staged.version",
                         new String[]{Integer.toString(version)});
-        pendingUpdateStatus.setText(versionMsg);
+        installUpdateButton.setText(versionMsg);
         updateProgressText("");
     }
 
@@ -150,7 +146,16 @@ class UpdateUiController {
         installUpdateButton.setEnabled(false);
 
         progressBar.setEnabled(false);
-        updateProgressText("Error!");
+        updateProgressText(errorMsg);
+    }
+
+    protected void noConnectivity() {
+        checkUpdateButton.setEnabled(false);
+        stopUpdateButton.setEnabled(false);
+        installUpdateButton.setEnabled(false);
+
+        progressBar.setEnabled(false);
+        updateProgressText(noConnectivityMsg);
     }
 
     protected void updateInstalled() {
@@ -158,9 +163,8 @@ class UpdateUiController {
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
 
-        pendingUpdateStatus.setText(upgradeFinishedText);
         progressBar.setEnabled(false);
-        updateProgressText("");
+        updateProgressText(upgradeFinishedText);
 
         refreshStatusText();
     }

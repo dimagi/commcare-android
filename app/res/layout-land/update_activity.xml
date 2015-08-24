@@ -85,32 +85,21 @@
                         android:layout_marginRight="@dimen/content_min_margin"
                         android:layout_marginStart="@dimen/content_start"
                         android:layout_weight="1"
-                        android:gravity="end"
                         SquareButtonWithText:backgroundcolor="@color/cc_dark_warm_accent_text"
                         SquareButtonWithText:colorText="@color/white"
                         SquareButtonWithText:img="@drawable/update_cancel"
                         SquareButtonWithText:subtitle="Stop"
                         />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingLeft="100dp"
-                    android:paddingRight="100dp">
-
                     <org.commcare.android.view.SquareButtonWithText
                         android:id="@+id/install_update_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/content_start"
                         android:layout_marginLeft="@dimen/content_min_margin"
                         android:layout_marginRight="@dimen/content_start"
                         android:layout_marginStart="@dimen/content_min_margin"
                         android:layout_weight="1"
-                        android:gravity="center"
+                        android:gravity="end"
                         SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
                         SquareButtonWithText:colorText="@color/white"
                         SquareButtonWithText:img="@drawable/update_install"

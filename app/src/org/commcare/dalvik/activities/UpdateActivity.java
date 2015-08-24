@@ -72,8 +72,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         if (ConnectivityStatus.isNetworkNotConnected(this) &&
                 ConnectivityStatus.isAirplaneModeOn(this)) {
-            // TODO PLM: show message that updates aren't checked w/o connectivity
-            uiController.error();
+            uiController.noConnectivity();
             return;
         }
 

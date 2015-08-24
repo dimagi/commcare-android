@@ -13,8 +13,9 @@ updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
 updates.install.finished=Just finished updating!
 updates.check.last=Last checked for updates: ${0}
-update.staged.version=Update ready for install: ${0}
-update.error=Error encountered during update download
+updates.check.network_unavailable=No network connectivity
+updates.staged.version=Update to version ${0}
+updates.error=Error encountered during update download
 install.current.version=Version currently installed: ${0}
 
 verify.title=CommCare Resource Verification

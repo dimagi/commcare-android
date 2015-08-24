@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.StateSet;
 import android.widget.RelativeLayout;
@@ -15,22 +16,18 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
 /**
- * Created by dancluna on 3/14/15.
+ * @author Daniel Luna (dluna@dimagi.com)
  */
 @ManagedUi(R.layout.square_button_text)
 public class SquareButtonWithText extends RelativeLayout {
     @UiElement(R.id.square_button)
-    SquareButton squareButton;
+    private SquareButton squareButton;
 
     @UiElement(R.id.text_view)
-    TextView textView;
+    private TextView textView;
 
-    Drawable backgroundImg;
-    int backgroundColor = android.R.drawable.btn_default;
-    String text = "";
-    private int colorButtonText = R.color.cc_core_bg;
-
-    //region Constructors
+    private final ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
+    private final ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
 
     public SquareButtonWithText(Context context) {
         super(context);
@@ -48,19 +45,16 @@ public class SquareButtonWithText extends RelativeLayout {
         inflateAndExtractCustomParams(context, attrs);
     }
 
-    //endregion
-
-    //region Custom parameter processing
-
     private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
-        backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
-        backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
-        text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
-        colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, colorButtonText);
+        Drawable backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
+        int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
+        String text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
+
+        int colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, R.color.cc_core_bg);
 
         typedArray.recycle();
 
@@ -81,10 +75,6 @@ public class SquareButtonWithText extends RelativeLayout {
         setTextColor(colorButtonText);
     }
 
-    //endregion
-
-    //region Compatibility methods
-
     public void setText(String text) {
         if (textView != null) {
             textView.setText(text);
@@ -96,24 +86,34 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     public void setColor(int backgroundColor) {
-        // shows a bluish background when pressed, otherwise shows the chosen color
-        ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
-        ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
         StateListDrawable sld = new StateListDrawable();
+
+        ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
+        sld.addState(new int[]{android.R.attr.state_enabled}, colorDrawable);
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
-        sld.addState(StateSet.WILD_CARD, colorDrawable);
-        squareButton.setBackgroundDrawable(sld);
+        sld.addState(StateSet.WILD_CARD, disabledColor);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            squareButton.setBackgroundDrawable(sld);
+        } else {
+            squareButton.setBackground(sld);
+        }
     }
 
     public void setTextColor(int textColor) {
         textView.setTextColor(getResources().getColor(textColor));
     }
 
-    //endregion
-
     @Override
     public void setOnClickListener(OnClickListener l) {
         // attach the listener to the squareButton instead of the layout
         squareButton.setOnClickListener(l);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        squareButton.setEnabled(enabled);
     }
 }
