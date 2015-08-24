@@ -6,7 +6,7 @@ package org.commcare.android.javarosa;
 import android.content.Context;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;

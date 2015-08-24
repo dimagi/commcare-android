@@ -18,7 +18,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
 /**

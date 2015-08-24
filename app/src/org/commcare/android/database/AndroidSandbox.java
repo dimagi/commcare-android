@@ -6,7 +6,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserDataInterface;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 

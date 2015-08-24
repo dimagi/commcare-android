@@ -319,6 +319,9 @@ public class GridEntityView extends GridLayout {
 			GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
 			mGridParams.width = (int)cellWidth * currentCoordinate.getWidth();
 			mGridParams.height = (int)cellHeight * currentCoordinate.getHeight();
+
+			System.out.println("mGridParams width: " + mGridParams.width);
+			System.out.println("mGridParams height: " + mGridParams.height);
 			
 			// get style attributes
 			String horzAlign = mStyle.getHorzAlign();

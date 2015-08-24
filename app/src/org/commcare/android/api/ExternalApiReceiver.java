@@ -24,7 +24,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
 import java.math.BigInteger;

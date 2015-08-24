@@ -10,7 +10,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;

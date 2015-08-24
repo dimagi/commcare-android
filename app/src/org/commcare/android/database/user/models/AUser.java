@@ -18,7 +18,7 @@ package org.commcare.android.database.user.models;
 
 
 import org.commcare.android.storage.framework.Table;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;

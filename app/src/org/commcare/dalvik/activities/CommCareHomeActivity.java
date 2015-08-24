@@ -79,7 +79,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
-import org.commcare.suite.model.User;
+import org.javarosa.core.model.User;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
