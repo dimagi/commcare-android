@@ -12,6 +12,7 @@ import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
@@ -23,59 +24,87 @@ import java.util.Date;
 import javax.net.ssl.SSLHandshakeException;
 
 /**
+ * Helpers to track state surounding app installation and updates
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
-    private static final String DEFAULT_APP_SERVER = "default_app_server";
+    private static final String DEFAULT_APP_SERVER_KEY = "default_app_server";
 
+    /**
+     * @return Is the current app's designated upgrade table staged and ready
+     * for installation?
+     */
     public static boolean isUpdateInstallReady() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
-        return ResourceManager.isTableStaged(upgradeTable);
+        return ResourceManager.isTableStagedForUpgrade(upgradeTable);
     }
 
+    /**
+     * @return Version from profile in the app's upgrade table; -1 if upgrade
+     * profile not found.
+     */
     public static int upgradeTableVersion() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
-        ResourceTable temporary = platform.getUpgradeResourceTable();
+        ResourceTable upgradeTable = platform.getUpgradeResourceTable();
 
-        Resource temporaryProfile = temporary.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
-        if (temporaryProfile == null) {
+        Resource upgradeProfile =
+                upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        if (upgradeProfile == null) {
             return -1;
         }
-        return temporaryProfile.getVersion();
+        return upgradeProfile.getVersion();
     }
 
+    /**
+     * Initialize app's resources and database, write the app record, and
+     * overwrite app preference's profile reference with the authorative
+     * reference if present.
+     */
     public static void initAndCommitApp(CommCareApp app) {
+        // use the profile reference currently stored as a backup to the
+        // authorative reference.
         SharedPreferences prefs = app.getAppPreferences();
-        String profileRef = prefs.getString(DEFAULT_APP_SERVER, null);
+        String profileRef = prefs.getString(DEFAULT_APP_SERVER_KEY, null);
 
         initAndCommitApp(app, profileRef);
     }
-    public static void initAndCommitApp(CommCareApp app,
+
+    /**
+     * Initialize app's resources and database, write the app record, and store
+     * reference to profile in app's preferences.
+     *
+     * @param profileRef Store backup reference to profile if authoritative
+     *                   reference isn't present in the app's profile
+     */
+    public static void initAndCommitApp(CommCareApp currentApp,
                                         String profileRef) {
         // Initializes app resources and the app itself, including doing a
         // check to see if this app record was converted by the db upgrader
-        CommCareApplication._().initializeGlobalResources(app);
+        CommCareApplication._().initializeGlobalResources(currentApp);
 
         // Write this App Record to storage -- needs to be performed after
         // localizations have been initialized (by
         // initializeGlobalResources), so that getDisplayName() works
-        app.writeInstalled();
+        currentApp.writeInstalled();
 
-        String authRef = app.getCommCarePlatform().getCurrentProfile().getAuthReference();
+        Profile profile = currentApp.getCommCarePlatform().getCurrentProfile();
+        String authRef = profile.getAuthReference();
 
-        updateProfileRef(app.getAppPreferences(), authRef, profileRef);
+        updateProfileRef(currentApp.getAppPreferences(), authRef, profileRef);
     }
 
-    private static void updateProfileRef(SharedPreferences prefs, String authRef, String profileRef) {
+    private static void updateProfileRef(SharedPreferences prefs,
+                                         String authRef, String profileRef) {
         SharedPreferences.Editor edit = prefs.edit();
         if (authRef != null) {
-            edit.putString(DEFAULT_APP_SERVER, authRef);
+            edit.putString(DEFAULT_APP_SERVER_KEY, authRef);
         } else {
-            edit.putString(DEFAULT_APP_SERVER, profileRef);
+            edit.putString(DEFAULT_APP_SERVER_KEY, profileRef);
         }
         edit.commit();
     }
@@ -125,8 +154,6 @@ public class ResourceInstallUtils {
     }
 
     public static String addParamsToProfileReference(final String profileRef) {
-        // TODO PLM: move to commcare repo and unify with util usage of this
-        // logic
         URL profileUrl;
         try {
             profileUrl = new URL(profileRef);
@@ -159,6 +186,6 @@ public class ResourceInstallUtils {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
 
-        return prefs.getString(DEFAULT_APP_SERVER, null);
+        return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
     }
 }
