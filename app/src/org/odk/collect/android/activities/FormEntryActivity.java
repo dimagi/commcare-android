@@ -13,9 +13,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -117,6 +119,8 @@ import org.odk.collect.android.widgets.TimeWidget;
 import org.odk.collect.android.widgets.IBinaryWidget;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -540,38 +544,100 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
          * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
          * video
          */
-        Log.i("8/24", "in processCaptureResponse");
-        // The intent is empty, but we know we saved the image to the temp file
-        File fi = new File(Collect.TMPFILE_PATH);
 
-        // If this is was an image capture, scale it based on max dimens, if they were set
+        // The intent is empty, but we know we saved the image to the temp file
+        File tempFile = new File(Collect.TMPFILE_PATH);
+
+        // This is where we want to end up saving our final image file, so that it will get sent to
+        // HQ with the form
+        String instanceFolder =
+                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+        String imageFilename = System.currentTimeMillis() + ".jpg";
+        String finalFilePath = instanceFolder + imageFilename;
+
+        // First, see if we're going to scale the image down
+        boolean savedScaledImage = false;
         if (isImage) {
             ImageWidget currentWidget = (ImageWidget) getCurrentBinaryWidget();
             int maxDimen = currentWidget.getMaxDimen();
             if (maxDimen != -1) {
-                Log.i("8/24", "Got maxDimen in FormEntryActivity: " + maxDimen);
+                // If this was an image capture question with a max image dimen set, create a
+                // bitmap out of the image file to see if we need to scale it down
+                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                Bitmap bitmap = BitmapFactory.decodeFile(tempFile.getAbsolutePath(),bmOptions);
+                int height = bitmap.getHeight();
+                int width = bitmap.getWidth();
+                Log.i("8/24", "original image height: " + height);
+                Log.i("8/24", "original image width: " + width);
+                int largerDimen = Math.max(height, width);
+                int smallerDimen = Math.min(height, width);
+                if (largerDimen > maxDimen) {
+                    // If the larger dimension exceeds our max dimension, scale down accordingly
+                    double aspectRatio = ((double) smallerDimen) / largerDimen;
+                    largerDimen = maxDimen;
+                    smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
+                    if (width > height) {
+                        bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
+                    } else {
+                        bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
+                    }
+                    // Write this scaled bitmap to the final file location
+                    Log.i("8/24", "new image height: " + bitmap.getHeight());
+                    Log.i("8/24", "new image width: " + bitmap.getWidth());
+                    FileOutputStream out = null;
+                    try {
+                        out = new FileOutputStream(finalFilePath);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                        savedScaledImage = true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (out != null) {
+                                out.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
             }
         }
 
-        // Save the image in the instance folder for this form, so it will get sent to HQ with the form
-        String mInstanceFolder =
-                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-        String s = mInstanceFolder + "/" + System.currentTimeMillis() + ".jpg";
-        File nf = new File(s);
-        if (!fi.renameTo(nf)) {
-            Log.e(TAG, "Failed to rename " + fi.getAbsolutePath());
+        File finalFile = new File(finalFilePath);
+        if (!savedScaledImage) {
+            // If we didn't create a scaled image and save it to the final path, then relocate the
+            // original image from the temp filepath to our final path
+            if (!tempFile.renameTo(finalFile)) {
+                Log.e(TAG, "Failed to rename " + tempFile.getAbsolutePath());
+            } else {
+                Log.i(TAG, "renamed " + tempFile.getAbsolutePath() + " to " + finalFile.getAbsolutePath());
+            }
         } else {
-            Log.i(TAG, "renamed " + fi.getAbsolutePath() + " to " + nf.getAbsolutePath());
+            // Otherwise, relocate the original image to a raw/ folder, so that we still have access
+            // to the unmodified version
+            String rawDirPath = instanceFolder + "/raw";
+            File rawDir = new File(rawDirPath);
+            if (!rawDir.exists()) {
+                rawDir.mkdir();
+            }
+            File rawImageFile = new File (rawDirPath + "/" + imageFilename);
+            if (!tempFile.renameTo(rawImageFile)) {
+                Log.e(TAG, "Failed to rename " + tempFile.getAbsolutePath());
+            } else {
+                Log.i(TAG, "renamed " + tempFile.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
+            }
         }
 
         // Add the new image to the Media content provider so that the
         // viewing is fast in Android 2.0+
         ContentValues values = new ContentValues(6);
-        values.put(Images.Media.TITLE, nf.getName());
-        values.put(Images.Media.DISPLAY_NAME, nf.getName());
+        values.put(Images.Media.TITLE, finalFile.getName());
+        values.put(Images.Media.DISPLAY_NAME, finalFile.getName());
         values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
         values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.DATA, nf.getAbsolutePath());
+        values.put(Images.Media.DATA, finalFile.getAbsolutePath());
 
         Uri imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
@@ -579,7 +645,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         ((ODKView) mCurrentView).setBinaryData(imageURI);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
-
     }
 
     private void processChooserResponse(Intent intent, boolean isImage) {
