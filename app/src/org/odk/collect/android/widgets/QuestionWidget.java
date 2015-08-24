@@ -33,6 +33,7 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.QuestionExtensionReceiver;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryCaption;
@@ -46,7 +47,7 @@ import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
 
-public abstract class QuestionWidget extends LinearLayout {
+public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
