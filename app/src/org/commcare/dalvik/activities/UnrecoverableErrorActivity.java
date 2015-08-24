@@ -25,7 +25,7 @@ public class UnrecoverableErrorActivity extends Activity {
     String message;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
         message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);

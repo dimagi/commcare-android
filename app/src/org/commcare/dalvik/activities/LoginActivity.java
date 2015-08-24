@@ -155,7 +155,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         LoginBoxesStatus.Normal.setStatus(this);

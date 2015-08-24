@@ -60,7 +60,7 @@ public class MenuGrid extends SessionAwareCommCareActivity implements OnItemClic
     private GridView grid;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         platform = CommCareApplication._().getCommCarePlatform();
         
