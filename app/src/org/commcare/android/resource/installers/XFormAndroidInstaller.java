@@ -74,11 +74,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
         XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-        XFormParser.registerExtensionParser(new ImageRestrictionExtensionParser("upload"));
-        
+
         FormDef formDef;
         try {
-            formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
+            XFormParser parser = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8"));
+            parser.registerExtensionParser(new ImageRestrictionExtensionParser("upload"));
+            formDef = parser.parse();
         } catch(XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }
