@@ -8,7 +8,7 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.resources.model.ProcessCancelled;
+import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -17,28 +17,31 @@ import org.javarosa.core.services.Logger;
 import java.util.Vector;
 
 /**
- * Upgrades the seated app in the background. If the user opens the Upgrade
- * activity, this task will report its progress to that activity. Enforces the
- * constraint that only one instance is ever running.
+ * Stages an update for the seated app in the background. If the user opens the
+ * Update activity, this task will report its progress to that activity.
+ * Enforces the constraint that only one instance is ever running.
+ *
+ * Will be cancelled on user logout, but can still run if no user is logged in.
+ *
+ * TODO PLM: App Manager must cancel this task upon UpdateActivity exit.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateTask
         extends ManagedAsyncTask<String, Integer, AppInstallStatus>
-        implements TableStateListener, ProcessCancelled {
+        implements TableStateListener, InstallCancelled {
 
     private static final String TAG = UpdateTask.class.getSimpleName();
 
-    private TaskListener<Integer, AppInstallStatus> taskListener = null;
-
     private static UpdateTask singletonRunningInstance = null;
-
-    private int currentProgress = 0;
-    private int maxProgress = 0;
 
     private final AndroidResourceManager resourceManager;
     private final CommCareApp app;
+
+    private TaskListener<Integer, AppInstallStatus> taskListener = null;
     private String profileRef;
+    private int currentProgress = 0;
+    private int maxProgress = 0;
 
     private UpdateTask() {
         app = CommCareApplication._().getCurrentApp();
@@ -55,7 +58,7 @@ public class UpdateTask
             singletonRunningInstance = new UpdateTask();
             return singletonRunningInstance;
         } else {
-            throw new IllegalStateException("There is a " + TAG + " instance.");
+            throw new IllegalStateException("An instance of " + TAG + " already exists.");
         }
     }
 
@@ -194,7 +197,7 @@ public class UpdateTask
     }
 
     @Override
-    public boolean processWasCancelled() {
+    public boolean wasInstallCancelled() {
         return isCancelled();
     }
 
