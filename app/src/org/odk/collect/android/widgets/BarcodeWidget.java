@@ -47,6 +47,8 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
 
     public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic,
                          PendingCalloutInterface pendingCalloutInterface) {
+        // todo: I don't think pendingCalloutInterface is actually useful for BarcodeWidget
+        // todo: it's only here because it subclasses IntentWidget
         super(context, prompt, i, ic, pendingCalloutInterface, FormEntryActivity.BARCODE_CAPTURE);
 
         mWaitingForData = false;

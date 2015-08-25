@@ -105,6 +105,7 @@ public class IntentCallout implements Externalizable {
     }
 
     private void setNodeValue(TreeReference reference, String stringValue) {
+        // todo: this code is very similar to SetValueAction.processAction, could be unified?
         if (stringValue != null) {
             EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
             AbstractTreeElement node = evaluationContext.resolveReference(reference);
