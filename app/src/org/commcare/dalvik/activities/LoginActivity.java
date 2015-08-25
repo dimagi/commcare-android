@@ -64,45 +64,45 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     
-    public static final int MENU_DEMO = Menu.FIRST;
+    private static final int MENU_DEMO = Menu.FIRST;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
 
-    public static final int SEAT_APP_ACTIVITY = 0;
+    private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
     @UiElement(value=R.id.login_button, locale="login.button")
-    Button login;
+    private Button login;
     
     @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
-    TextView errorBox;
+    private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
-    EditText username;
+    private EditText username;
     
     @UiElement(value=R.id.edit_password, locale="login.password")
-    EditText password;
+    private EditText password;
     
     @UiElement(R.id.screen_login_banner_pane)
-    View banner;
+    private View banner;
     
     @UiElement(R.id.str_version)
-    TextView versionDisplay;
+    private TextView versionDisplay;
 
     @UiElement(R.id.login_button)
-    Button loginButton;
+    private Button loginButton;
 
     @UiElement(R.id.app_selection_spinner)
-    Spinner spinner;
+    private Spinner spinner;
 
     @UiElement(R.id.welcome_msg)
-    TextView welcomeMessage;
+    private TextView welcomeMessage;
     
-    public static final int TASK_KEY_EXCHANGE = 1;
+    private static final int TASK_KEY_EXCHANGE = 1;
     
-    SqlStorage<UserKeyRecord> storage;
-    private ArrayList<String> appIdDropdownList = new ArrayList<>();
+    private SqlStorage<UserKeyRecord> storage;
+    private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private final TextWatcher textWatcher = new TextWatcher() {
 
@@ -146,7 +146,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         login.setOnClickListener(new OnClickListener() {
-
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
@@ -205,7 +204,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        // TODO Auto-generated method stub
         // TODO: we don't actually always want to do this. We need to have an
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
