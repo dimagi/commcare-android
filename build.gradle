@@ -29,11 +29,11 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
 
     // release build type expects javarosa and commcare jars to be in app/libs
-    debugCompile project(path: ':javarosa')
-    debugCompile project(path: ':commcare')
+    debugCompile project(':javarosa')
+    debugCompile project(':commcare')
 
-    compile project(path: ':javarosa')
-    compile project(path: ':commcare')
+    compile project(':javarosa')
+    compile project(':commcare')
 
     compile project(':libraries:mapballoons')
     compile project(':libraries:achartengine')
