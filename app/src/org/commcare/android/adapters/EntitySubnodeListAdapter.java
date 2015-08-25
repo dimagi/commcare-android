@@ -16,15 +16,18 @@ import java.util.Vector;
 
 /**
  * Created by jschweers on 8/24/2015.
+ * <p/>
+ * Adapter for taking a nodeset, contextualizing it against an entity,
+ * and then displaying one item for each node in the resulting set.
  */
-public class EntityReferencesAdapter implements ListAdapter {
+public class EntitySubnodeListAdapter implements ListAdapter {
 
     private Context context;
     private Detail detail;
     private NodeEntityFactory factory;
     private Vector<TreeReference> references;
 
-    public EntityReferencesAdapter(Context context, Detail detail, NodeEntityFactory factory, Vector<TreeReference> references) {
+    public EntitySubnodeListAdapter(Context context, Detail detail, NodeEntityFactory factory, Vector<TreeReference> references) {
         this.context = context;
         this.detail = detail;
         this.factory = factory;
@@ -63,7 +66,6 @@ public class EntityReferencesAdapter implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // TODO: display headers
         EntityView view = (EntityView) convertView;
         Entity entity = factory.getEntity(references.get(position));
         if (view == null) {

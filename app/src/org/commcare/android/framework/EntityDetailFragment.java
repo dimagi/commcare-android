@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.adapters.EntityReferencesAdapter;
+import org.commcare.android.adapters.EntitySubnodeListAdapter;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -105,7 +105,7 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
             TreeReference nodeset = childDetail.getNodeset();
             TreeReference contextualizedNodeset = nodeset.contextualize(SerializationUtil.deserializeFromBundle(args, CHILD_REFERENCE, TreeReference.class));
             Vector<TreeReference> references = asw.getEvaluationContext().expandReference(contextualizedNodeset);
-            adapter = new EntityReferencesAdapter(thisActivity, childDetail, factory, references);
+            adapter = new EntitySubnodeListAdapter(thisActivity, childDetail, factory, references);
 
             // stolen from EntitySelectActivity, make DRYer
             String[] headers = new String[childDetail.getFields().length];
@@ -149,11 +149,6 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
 
         loader = null;
         int[] order = childDetail.getSortOrder();
-
-        //theloader.execute(childDetail.getNodeset());
-
-        System.out.println("[jls] # of references: " + references.size());
-        System.out.println("[jls] # of entities: " + entities.size());
         adapter = new EntityListAdapter(getActivity(), childDetail, references, entities, order, null, factory);
     }
 
