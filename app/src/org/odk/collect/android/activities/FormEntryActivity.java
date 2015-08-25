@@ -549,8 +549,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param originalImage the image file returned by the image capture or chooser intent
      * @param isImage if false, indicates that the image is from a signature capture, so should
      *                not attempt to scale
-     * @return the final image file, properly scaled and in the correct final location (the form's
-     * instance folder)
+     * @return a version of the image that is in its final location but has NOT been scaled, for
+     * use in displaying the captured/chosen image on the device screen when this question widget
+     * is in view (since the purpose of scaling is to limit the size of images sent to HQ, but we
+     * still want best possible quality on the device)
      */
     private File processImage(File originalImage, boolean isImage) {
         // We want to save our final image file in the instance folder for this form, so that it
@@ -565,13 +567,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             savedScaledImage = scaleImage(originalImage, finalFilePath);
         }
 
-        File finalFile = new File(finalFilePath);
+        File fileToReturn;
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path
+            File finalFile = new File(finalFilePath);
             if (!originalImage.renameTo(finalFile)) {
+                fileToReturn = originalImage;
                 Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
+                fileToReturn = finalFile;
                 Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + finalFile.getAbsolutePath());
             }
         } else {
@@ -584,12 +589,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
             File rawImageFile = new File (rawDirPath + "/" + imageFilename);
             if (!originalImage.renameTo(rawImageFile)) {
+                fileToReturn = originalImage;
                 Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
+                fileToReturn = rawImageFile;
                 Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
             }
         }
-        return finalFile;
+        return fileToReturn;
     }
 
     /**
@@ -662,17 +669,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
          */
 
         // The intent is empty, but we know we saved the image to the temp file
-        File tempFile = new File(Collect.TMPFILE_PATH);
-        File finalFile = processImage(tempFile, isImage);
+        File originalImage = new File(Collect.TMPFILE_PATH);
+        File unscaledFinalImage = processImage(originalImage, isImage);
 
-        // Add the new image to the Media content provider so that the
-        // viewing is fast in Android 2.0+
+        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
         ContentValues values = new ContentValues(6);
-        values.put(Images.Media.TITLE, finalFile.getName());
-        values.put(Images.Media.DISPLAY_NAME, finalFile.getName());
+        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
+        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
         values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
         values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.DATA, finalFile.getAbsolutePath());
+        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
 
         Uri imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
@@ -692,28 +698,23 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         // get gp of chosen file
         Uri selectedImage = intent.getData();
-        File sourceImage = new File(FileUtils.getPath(this, selectedImage));
-        File newImage = processImage(sourceImage, true);
+        File originalImage = new File(FileUtils.getPath(this, selectedImage));
+        File unscaledFinalImage = processImage(originalImage, true);
 
-        if (newImage.exists()) {
-            // Add the new image to the Media content provider so that the
-            // viewing is fast in Android 2.0+
-            ContentValues values = new ContentValues(6);
-            values.put(Images.Media.TITLE, newImage.getName());
-            values.put(Images.Media.DISPLAY_NAME, newImage.getName());
-            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            values.put(Images.Media.MIME_TYPE, "image/jpeg");
-            values.put(Images.Media.DATA, newImage.getAbsolutePath());
+        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
+        ContentValues values = new ContentValues(6);
+        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
+        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
+        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
 
-            Uri imageURI =
-                    getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+        Uri imageURI =
+                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
-            ((ODKView) mCurrentView).setBinaryData(imageURI);
-            saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        } else {
-            Log.e(TAG, "NO IMAGE EXISTS at: " + sourceImage.getAbsolutePath());
-        }
+        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
 
