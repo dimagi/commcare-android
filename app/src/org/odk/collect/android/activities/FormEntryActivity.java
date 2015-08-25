@@ -612,7 +612,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 refreshCurrentView(false);
                 break;
         }
-        mFormController.setPendingCalloutFormIndex(null);
     }
 
     private IntentWidget getPendingIntentWidget() {
@@ -2376,6 +2375,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         } catch(Exception e) {
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
+        }
+        if (mFormController != null) {
+            mFormController.setPendingCalloutFormIndex(null);
         }
     }
 
