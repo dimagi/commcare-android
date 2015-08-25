@@ -57,16 +57,6 @@ public class NodeEntityFactory {
         String[] sortDetails = new String[length];
         String[] backgroundDetails = new String[length];
         boolean[] relevancyDetails = new boolean[length];
-        if (this.getDetail().getNodeset() != null) {
-            //nodeContext = new EvaluationContext(nodeContext, this.getDetail().getNodeset());
-            //TreeReference contextualizedNodeset = this.getDetail().getNodeset().contextualize(data);
-
-            /*
-             TreeReference contextualizedNodeset = detailNodeset.contextualize(this.mCurrentSelection);
-                this.mCurrentScreen = new EntityListSubscreen(this.mLongDetailList[index], subContext.expandReference(contextualizedNodeset), subContext);
-
-             */
-        }
         int count = 0;
         for (DetailField f : this.getDetail().getFields()) {
             try {
