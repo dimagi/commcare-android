@@ -659,23 +659,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             quick = "quick".equals(ic.getAppearance());
 
             //And process it 
-            advance = ic.processResponse(
-                    response, (ODKView) mCurrentView, mFormController.getInstance(), context,
-                    new File(destination));
+            advance = ic.processResponse(response, context, new File(destination));
             
             ic.setCancelled(cancelled);
             
         }
-        
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
+
+        refreshCurrentView();
+
         // auto advance if we got a good result and are in quick mode
         if(advance && quick){
             showNextView();
         }
-        
     }
-
 
     public void updateFormRelevencies(){
         

@@ -14,7 +14,6 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -26,7 +25,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ODKView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -106,16 +104,27 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
-    public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance,
-                                   TreeReference context, File destination) {
+    private void setNodeValue(TreeReference reference, String stringValue) {
+        if (stringValue != null) {
+            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
+            AbstractTreeElement node = evaluationContext.resolveReference(reference);
+            int dataType = node.getDataType();
+            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
+            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
+        } else {
+            form.setValue(null, reference);
+        }
+    }
+
+    public boolean processResponse(Intent intent, TreeReference context, File destination) {
         
         if(intent == null){
             return false;
         }
         
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
-        ((ODKView) currentView).setBinaryData(result);
-        
+        setNodeValue(context, result);
+
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
         
