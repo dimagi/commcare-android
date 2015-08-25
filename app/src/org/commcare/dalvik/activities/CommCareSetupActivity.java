@@ -216,13 +216,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ActionBar actionBar = getActionBar();
-            if(actionBar != null){
-                if (BuildConfig.DEBUG) {
-                    Log.v(TAG, "Disabling back button in actionbar");
-                }
-                actionBar.setDisplayHomeAsUpEnabled(false); // removes the back button from the action bar
+            if (actionBar != null) {
+                // removes the back button from the action bar
+                actionBar.setDisplayHomeAsUpEnabled(false);
             }
         }
     }
