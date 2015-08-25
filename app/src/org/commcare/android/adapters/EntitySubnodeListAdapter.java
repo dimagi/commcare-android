@@ -9,6 +9,7 @@ import android.widget.ListAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -27,11 +28,13 @@ public class EntitySubnodeListAdapter implements ListAdapter {
     private NodeEntityFactory factory;
     private Vector<TreeReference> references;
 
-    public EntitySubnodeListAdapter(Context context, Detail detail, NodeEntityFactory factory, Vector<TreeReference> references) {
+    public EntitySubnodeListAdapter(Context context, Detail detail, TreeReference contextReference, NodeEntityFactory factory) {
         this.context = context;
         this.detail = detail;
         this.factory = factory;
-        this.references = references;
+
+        TreeReference contextualizedNodeset = detail.getNodeset().contextualize(contextReference);
+        this.references = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext().expandReference(contextualizedNodeset);
     }
 
     @Override

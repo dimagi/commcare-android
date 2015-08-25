@@ -19,7 +19,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
@@ -29,7 +28,6 @@ import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Fragment to display Detail content. Not meant for handling nested Detail objects.
@@ -90,9 +88,7 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
         }
 
         NodeEntityFactory factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
-        final Entity entity = factory.getEntity(SerializationUtil.deserializeFromBundle(
-                        args, CHILD_REFERENCE, TreeReference.class)
-        );
+        TreeReference childReference = SerializationUtil.deserializeFromBundle(args, CHILD_REFERENCE, TreeReference.class);
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
@@ -102,24 +98,18 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
         final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
         final LinearLayout headerLayout = ((LinearLayout) rootView.findViewById(R.id.entity_detail_header));
         if (childDetail.getNodeset() != null && !"".equals(childDetail.getNodeset())) {
-            TreeReference nodeset = childDetail.getNodeset();
-            TreeReference contextualizedNodeset = nodeset.contextualize(SerializationUtil.deserializeFromBundle(args, CHILD_REFERENCE, TreeReference.class));
-            Vector<TreeReference> references = asw.getEvaluationContext().expandReference(contextualizedNodeset);
-            adapter = new EntitySubnodeListAdapter(thisActivity, childDetail, factory, references);
+            adapter = new EntitySubnodeListAdapter(thisActivity, childDetail, childReference, factory);
 
-            // stolen from EntitySelectActivity, make DRYer
             String[] headers = new String[childDetail.getFields().length];
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = childDetail.getFields()[i].getHeader().evaluate();
             }
-            int[] colors = AndroidUtil.getThemeColorIDs(thisActivity, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
-            EntityView headerView = new EntityView(thisActivity, childDetail, headers, colors[1]);
-            headerView.setBackgroundColor(colors[0]);
+            EntityView headerView = new EntityView(thisActivity, childDetail, headers);
             headerLayout.removeAllViews();
             headerLayout.addView(headerView);
             headerLayout.setVisibility(View.VISIBLE);
         } else {
-            Vector<TreeReference> references = null;
+            final Entity entity = factory.getEntity(childReference);
             adapter = new EntityDetailAdapter(
                     thisActivity, asw.getSession(), childDetail, entity,
                     detailCalloutListener, args.getInt(DETAIL_INDEX)

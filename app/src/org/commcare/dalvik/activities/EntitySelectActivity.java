@@ -46,7 +46,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -145,7 +144,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         this.createDataSetObserver();
 
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
+        EntitySelectActivity oldActivity = (EntitySelectActivity) this.getDestroyedActivityState();
 
         if (savedInstanceState != null) {
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -168,12 +167,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
                 //Inflate and set up the normal view for now.
                 setContentView(R.layout.screen_compound_select);
-                View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+                View.inflate(this, R.layout.entity_select_layout, (ViewGroup) findViewById(R.id.screen_compound_select_left_pane));
                 inAwesomeMode = true;
 
-                rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+                rightFrame = (FrameLayout) findViewById(R.id.screen_compound_select_right_pane);
 
-                TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+                TextView message = (TextView) findViewById(R.id.screen_compound_select_prompt);
                 //use the old method here because some Android versions don't like Spannables for titles
                 message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
             } else {
@@ -203,12 +202,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         } else {
             setContentView(R.layout.entity_select_layout);
         }
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
         setupDivider(view);
 
 
-        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        TextView searchLabel = (TextView) findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
         searchLabel.setOnClickListener(new OnClickListener() {
@@ -217,25 +216,25 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 // get the focus on the edittext by performing click
                 searchbox.performClick();
                 // then force the keyboard up since performClick() apparently isn't enough on some devices
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 // only will trigger it if no physical keyboard is open
                 inputMethodManager.showSoftInput(searchbox, InputMethodManager.SHOW_IMPLICIT);
             }
         });
 
-        searchbox = (EditText)findViewById(R.id.searchbox);
+        searchbox = (EditText) findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
-        searchResultStatus = (TextView)findViewById(R.id.no_search_results);
-        header = (LinearLayout)findViewById(R.id.entity_select_header);
+        searchResultStatus = (TextView) findViewById(R.id.no_search_results);
+        header = (LinearLayout) findViewById(R.id.entity_select_header);
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        barcodeButton = (ImageButton) findViewById(R.id.barcodeButton);
 
         mViewMode = session.isViewCommand(session.getCommand());
 
         final Callout callout = shortSelect.getCallout();
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        barcodeButton = (ImageButton) findViewById(R.id.barcodeButton);
 
         barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
                 EntitySelectActivity.this, callout,
@@ -282,7 +281,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * new id and source
      */
     private void setupImageLayout(View layout, final String imagePath) {
-        ImageView iv = (ImageView)layout;
+        ImageView iv = (ImageView) layout;
         Bitmap b;
         if (!imagePath.equals("")) {
             try {
@@ -402,17 +401,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             }
 
-            //Hm, sadly we possibly need to rebuild this each time.
-            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
-            Log.i("DEBUG-i", "Background color is: " + colors[0] + ", text color is: " + colors[1]);
-            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
-                header.addView(v, params);
+                //Hm, sadly we possibly need to rebuild this each time.
+                EntityView v = new EntityView(this, shortSelect, headers);
+                header.addView(v);
             }
 
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
@@ -868,7 +863,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
 
         setupDivider(view);
 
@@ -896,9 +891,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private void setupDivider(ListView view) {
         int viewWidth = view.getWidth();
         float density = getResources().getDisplayMetrics().density;
-        int viewWidthDP = (int)(viewWidth / density);
+        int viewWidthDP = (int) (viewWidth / density);
         // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-        int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(0.15 * viewWidth);
+        int dividerWidth = viewWidth == 0 ? (int) getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int) (0.15 * viewWidth);
 
         Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
 
@@ -919,7 +914,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
 
         view.setDivider(layerDrawable);
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+        view.setDividerHeight((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -937,7 +932,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
             if (forceMove) {
-                ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+                ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
                 view.setSelection(adapter.getPosition(selected));
             }
         }
@@ -984,7 +979,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
             View.inflate(this, R.layout.entity_detail, rightFrame);
-            Button next = (Button)findViewById(R.id.entity_select_button);
+            Button next = (Button) findViewById(R.id.entity_select_button);
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
@@ -1006,7 +1001,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
 
             detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
+            detailView.setRoot((ViewGroup) rightFrame.findViewById(R.id.entity_detail_tabs));
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
             Detail detail = factory.getDetail();
