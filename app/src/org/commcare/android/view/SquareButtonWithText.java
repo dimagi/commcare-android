@@ -1,10 +1,12 @@
 package org.commcare.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.StateSet;
 import android.widget.RelativeLayout;
@@ -95,6 +97,7 @@ public class SquareButtonWithText extends RelativeLayout {
         squareButton.setImageDrawable(backgroundImg);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void setColor(int backgroundColor) {
         // shows a bluish background when pressed, otherwise shows the chosen color
         ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
@@ -102,7 +105,12 @@ public class SquareButtonWithText extends RelativeLayout {
         StateListDrawable sld = new StateListDrawable();
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
         sld.addState(StateSet.WILD_CARD, colorDrawable);
-        squareButton.setBackgroundDrawable(sld);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.setBackground(sld);
+        } else {
+            this.setBackgroundDrawable(sld);
+        }
+
     }
 
     public void setTextColor(int textColor) {

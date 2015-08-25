@@ -210,7 +210,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
