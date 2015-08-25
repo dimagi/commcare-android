@@ -61,7 +61,6 @@ public class FileUtil {
                 }
             }
         }
-        Log.i(LOG_TOKEN, "Attempting to delete file: " + f.getAbsolutePath());
         return f.delete();
     }
 
