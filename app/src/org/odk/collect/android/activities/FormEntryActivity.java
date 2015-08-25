@@ -593,8 +593,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     /**
-     * Attempts to scale down an image file based on the max dimension in the current
-     * ImageWidget, if it is set
+     * Attempts to scale down an image file based on the max dimension in the current ImageWidget.
+     * If a max dimension is set, and at least one of the dimensions of the original image exceeds
+     * that maximum, then make the larger side's dimension equal to the max dimension, and scale
+     * down the smaller side such that the original aspect ratio is maintained
      */
     private boolean scaleImage(File originalImage, String finalFilePath) {
         boolean scaledImage = false;
