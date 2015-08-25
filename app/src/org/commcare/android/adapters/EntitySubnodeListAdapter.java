@@ -8,7 +8,9 @@ import android.widget.ListAdapter;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.view.EntityView;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
@@ -27,6 +29,7 @@ public class EntitySubnodeListAdapter implements ListAdapter {
     private Detail detail;
     private NodeEntityFactory factory;
     private Vector<TreeReference> references;
+    private int[] rowColors;
 
     public EntitySubnodeListAdapter(Context context, Detail detail, TreeReference contextReference, NodeEntityFactory factory) {
         this.context = context;
@@ -35,6 +38,9 @@ public class EntitySubnodeListAdapter implements ListAdapter {
 
         TreeReference contextualizedNodeset = detail.getNodeset().contextualize(contextReference);
         this.references = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext().expandReference(contextualizedNodeset);
+
+        this.rowColors = AndroidUtil.getThemeColorIDs(this.context,
+                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
     }
 
     @Override
@@ -75,6 +81,10 @@ public class EntitySubnodeListAdapter implements ListAdapter {
             view = new EntityView(context, detail, entity, null, null, position, false);
         } else {
             view.refreshViewsForNewEntity(entity, false, position);
+        }
+        int color = this.rowColors[position % 2];
+        if (color != -1) {
+            view.setBackgroundColor(color);
         }
         return view;
     }
