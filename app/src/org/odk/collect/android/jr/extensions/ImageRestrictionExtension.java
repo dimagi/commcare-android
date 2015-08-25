@@ -17,6 +17,10 @@ public class ImageRestrictionExtension implements QuestionDataExtension {
 
     private int maxDimen;
 
+    public ImageRestrictionExtension() {
+        // for deserialization
+    }
+
     public ImageRestrictionExtension(int maxDimen) {
         this.maxDimen = maxDimen;
     }
