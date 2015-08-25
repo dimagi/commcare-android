@@ -71,7 +71,7 @@ public class LegacyInstallUtils {
     public static final String LEGACY_UPGRADE_PROGRESS = "legacy_upgrade_progress";
     public static final String UPGRADE_COMPLETE = "complete";
 
-    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) SessionUnavailableException {
+    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws SessionUnavailableException {
         SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         if(globalPreferences.getString(LEGACY_UPGRADE_PROGRESS, "").equals(UPGRADE_COMPLETE)) { return; }
         //Check to see if the legacy database exists on this system
