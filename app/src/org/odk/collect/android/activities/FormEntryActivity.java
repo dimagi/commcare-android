@@ -669,7 +669,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
          */
 
         // The intent is empty, but we know we saved the image to the temp file
-        File originalImage = new File(Collect.TMPFILE_PATH);
+        File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
         File unscaledFinalImage = processImage(originalImage, isImage);
 
         // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+

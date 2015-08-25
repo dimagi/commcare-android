@@ -40,6 +40,7 @@ import java.io.File;
  */
 public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
+    public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(Collect.TMPFILE_PATH);
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -88,11 +89,8 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 // 2010, G1 phones only run 1.6. Without specifying the path the
                 // images returned by the camera in 1.6 (and earlier) are ~1/4
                 // the size. boo.
-
-                // if this gets modified, the onActivityResult in
-                // FormEntyActivity will also need to be updated.
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(new File(Collect.TMPFILE_PATH)));
+                        Uri.fromFile(TEMP_FILE_FOR_IMAGE_CAPTURE));
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
