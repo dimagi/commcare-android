@@ -219,7 +219,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
              }
         });
     }
-    
+
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;
@@ -463,7 +463,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         finish();
     }
     
-    private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
+    private SqlStorage<UserKeyRecord> storage() {
         if(storage == null) {
             storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
@@ -597,24 +597,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Retrieve the app record corresponding to the app selected
-        String appId = appIdDropdownList.get(position);
-
-        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
-        if (appChanged) {
-            // Set the id of the last selected app
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putString(KEY_LAST_APP, appId).commit();
-
-            // Launch the activity to seat the new app
-            Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(KEY_APP_TO_SEAT, appId);
-            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
             case SEAT_APP_ACTIVITY:
@@ -641,8 +623,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // Retrieve the app record corresponding to the app selected
+        String appId = appIdDropdownList.get(position);
+
+        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (appChanged) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+    }
+
+    @Override
     public void onNothingSelected(AdapterView<?> parent) {
         return;
     }
-
 }
