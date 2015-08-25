@@ -108,7 +108,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 results[i] = FormUploadUtil.sendInstance(counter,f,url, user);
                 
                 if(results[i] == FormUploadUtil.FULL_SUCCESS){
-                    FileUtil.deleteFile(f);
+                    FileUtil.deleteFileOrDir(f);
                 }
                 else if(results[i] == FormUploadUtil.TRANSPORT_FAILURE){
                     allSuccessful = false;
