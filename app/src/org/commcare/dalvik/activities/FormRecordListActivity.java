@@ -54,7 +54,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.odk.collect.android.listeners.BarcodeScanListener;
 
 import java.io.IOException;
@@ -376,7 +375,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         adapter.resetRecords();
                         adapter.notifyDataSetChanged();
                         return true;
-                    } catch (StorageFullException e) {
                     } catch (IOException e) {
                         Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "error restoring quarantined record: " + e.getMessage());
                     }

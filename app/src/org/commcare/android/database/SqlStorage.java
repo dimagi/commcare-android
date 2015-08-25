@@ -16,7 +16,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -237,7 +236,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public int add(Externalizable e) throws StorageFullException {
+    public int add(Externalizable e) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -561,7 +560,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void update(int id, Externalizable e) throws StorageFullException {
+    public void update(int id, Externalizable e) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -578,7 +577,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void write(Persistable p) throws StorageFullException {
+    public void write(Persistable p) {
         if(p.getID() != -1) {
             update(p.getID(), p);
             return;
@@ -619,11 +618,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         // TODO Auto-generated method stub
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
     
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try{

@@ -45,7 +45,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -301,9 +300,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
-                    } catch (StorageFullException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
                     } 
                 } else if(responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
@@ -549,9 +545,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
         } 
         
         //These last two aren't a sign that the incoming data is bad, but
@@ -586,7 +579,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
 
-    private void updateUserSyncToken(String syncToken) throws StorageFullException {
+    private void updateUserSyncToken(String syncToken) {
         SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);

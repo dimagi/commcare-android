@@ -82,7 +82,6 @@ import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xpath.XPathException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
@@ -1299,27 +1298,23 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
         DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-                try {
-                    switch (i) {
-                        case DialogInterface.BUTTON_POSITIVE:
-                            // use the old form instance and load the it's state from the descriptor
-                            state.loadFromStateDescription(existing);
-                            formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                            break;
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            // delete the old incomplete form
-                            FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
-                            // fallthrough to new now that old record is gone
-                        case DialogInterface.BUTTON_NEUTRAL:
-                            // create a new form record and begin form entry
-                            state.commitStub();
-                            formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (StorageFullException e) {
-                    throw new RuntimeException(e);
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        // use the old form instance and load the it's state from the descriptor
+                        state.loadFromStateDescription(existing);
+                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        // delete the old incomplete form
+                        FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
+                        // fallthrough to new now that old record is gone
+                    case DialogInterface.BUTTON_NEUTRAL:
+                        // create a new form record and begin form entry
+                        state.commitStub();
+                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                        break;
+                    default:
+                        break;
                 }
             }
         };

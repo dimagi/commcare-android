@@ -26,7 +26,6 @@ import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -168,7 +167,7 @@ public class AndroidSessionWrapper {
         return null;
     }
 
-    public void commitStub() throws StorageFullException {
+    public void commitStub() {
         //TODO: This should now be locked somehow
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);

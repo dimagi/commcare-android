@@ -28,7 +28,6 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.MetaDataXmlParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -198,11 +197,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             SqlStorage<SessionStateDescriptor> ssdStorage =
                 CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-            try {
-                ssdStorage.write(asw.getSessionStateDescriptor());
-            } catch (StorageFullException e) {
-                // TODO PLM should we abort completely here?
-            }
+            ssdStorage.write(asw.getSessionStateDescriptor());
         }
 
         storage.write(updated);

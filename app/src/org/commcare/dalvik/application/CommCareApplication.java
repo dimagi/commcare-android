@@ -87,7 +87,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
@@ -208,7 +207,7 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch(SessionUnavailableException | StorageFullException sfe) {
+        } catch(SessionUnavailableException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!

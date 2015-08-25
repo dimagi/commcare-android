@@ -36,7 +36,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.IOException;
 import java.util.List;
@@ -183,11 +182,7 @@ public class EntityMapActivity extends MapActivity {
                                         int lng = (int) (a.getLongitude() * 1E6);
                                         gp = new GeoPoint(lat, lng);
                                         
-                                        try {
-                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
-                                        } catch (StorageFullException e1) {
-                                            //this is the worst exception ever.
-                                        }
+                                        geoCache.write(new GeocodeCacheModel(val, lat, lng));
                                         legit++;
                                         break;
                                     }
@@ -195,11 +190,7 @@ public class EntityMapActivity extends MapActivity {
                                 
                                 //We didn't find an address, make a miss record
                                 if(gp == null) {
-                                    try {
-                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
-                                    } catch (StorageFullException e1) {
-                                        //this is the worst exception ever.
-                                    }
+                                    geoCache.write(GeocodeCacheModel.NoHitRecord(val));
                                 }
                             } catch (IOException e1) {
                                 e1.printStackTrace();
