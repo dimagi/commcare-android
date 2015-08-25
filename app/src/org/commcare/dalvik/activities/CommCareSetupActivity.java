@@ -145,7 +145,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     //endregion
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
         this.fromManager = this.getIntent().
@@ -228,7 +228,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
@@ -299,11 +299,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return fragment;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-    
     @Override
     protected void onStart() {
         super.onStart();

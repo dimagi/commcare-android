@@ -166,7 +166,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private ImageView topBannerImageView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //This is a workaround required by Android Bug #2373, which is that Apps are launched from the
@@ -567,7 +567,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
             case LOGIN_USER:
                 if(resultCode == RESULT_CANCELED) {
-                    //quit somehow.
                     this.finish();
                     return;
                 } else if(resultCode == RESULT_OK) {

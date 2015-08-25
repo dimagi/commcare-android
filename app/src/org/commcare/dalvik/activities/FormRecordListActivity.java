@@ -144,7 +144,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             platform = CommCareApplication._().getCommCarePlatform();

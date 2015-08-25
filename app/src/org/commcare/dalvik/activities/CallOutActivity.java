@@ -39,7 +39,7 @@ public class CallOutActivity extends Activity {
     CallListener listener;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
         listener = new CallListener(); 
@@ -53,7 +53,7 @@ public class CallOutActivity extends Activity {
         }
     }
     
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         if(listener.isFinished()) {
             long duration = listener.getCallDuration();

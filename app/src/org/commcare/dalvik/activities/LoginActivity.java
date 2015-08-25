@@ -155,7 +155,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         LoginBoxesStatus.Normal.setStatus(this);
@@ -427,7 +427,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                         break;
-                    case UnkownError:
+                    case UnknownError:
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
@@ -556,20 +556,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             return null;
         }
         return dialog;
-    }
-
-    @Override
-    public boolean isBackEnabled() {
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent i = new Intent();
-        setResult(RESULT_CANCELED, i);
-
-        finish();
     }
 
     private void refreshView() {

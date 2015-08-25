@@ -33,7 +33,7 @@ public class IntentCalloutTest extends Activity {
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_callout);
         returnToForm = (Button)this.findViewById(R.id.button_return);
