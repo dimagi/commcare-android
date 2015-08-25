@@ -12,7 +12,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.adapters.EntitySubnodeListAdapter;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -21,7 +20,6 @@ import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
-import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -45,6 +43,7 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
     private EntityDetailAdapter.EntityDetailViewModifier modifier;
 
     private EntityLoaderTask loader;
+    private ListView listView;
 
     public EntityDetailFragment() {
         super();
@@ -92,24 +91,19 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        final DetailCalloutListener detailCalloutListener =
-                thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener) thisActivity) : null;
 
-        final ListView listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
+        this.listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
         final LinearLayout headerLayout = ((LinearLayout) rootView.findViewById(R.id.entity_detail_header));
-        if (childDetail.getNodeset() != null && !"".equals(childDetail.getNodeset())) {
-            adapter = new EntitySubnodeListAdapter(thisActivity, childDetail, childReference, factory);
-
-            String[] headers = new String[childDetail.getFields().length];
-            for (int i = 0; i < headers.length; ++i) {
-                headers[i] = childDetail.getFields()[i].getHeader().evaluate();
+        if (childDetail.getNodeset() != null) {
+            if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
+                EntityLoaderTask theloader = new EntityLoaderTask(childDetail, asw.getEvaluationContext());
+                theloader.attachListener(this);
+                theloader.execute(childDetail.getNodeset().contextualize(childReference));
             }
-            EntityView headerView = new EntityView(thisActivity, childDetail, headers);
-            headerLayout.removeAllViews();
-            headerLayout.addView(headerView);
-            headerLayout.setVisibility(View.VISIBLE);
         } else {
             final Entity entity = factory.getEntity(childReference);
+            final DetailCalloutListener detailCalloutListener =
+                    thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener) thisActivity) : null;
             adapter = new EntityDetailAdapter(
                     thisActivity, asw.getSession(), childDetail, entity,
                     detailCalloutListener, args.getInt(DETAIL_INDEX)
@@ -138,8 +132,8 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
         }
 
         loader = null;
-        int[] order = childDetail.getSortOrder();
-        adapter = new EntityListAdapter(getActivity(), childDetail, references, entities, order, null, factory);
+        adapter = new EntitySubnodeListAdapter(getActivity(), childDetail, references, entities);
+        this.listView.setAdapter(adapter);
     }
 
     @Override

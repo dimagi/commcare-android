@@ -7,15 +7,13 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * Created by jschweers on 8/24/2015.
@@ -27,17 +25,15 @@ public class EntitySubnodeListAdapter implements ListAdapter {
 
     private Context context;
     private Detail detail;
-    private NodeEntityFactory factory;
-    private Vector<TreeReference> references;
+    private List<TreeReference> references;
+    private List<Entity<TreeReference>> entities;
     private int[] rowColors;
 
-    public EntitySubnodeListAdapter(Context context, Detail detail, TreeReference contextReference, NodeEntityFactory factory) {
+    public EntitySubnodeListAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> entities) {
         this.context = context;
         this.detail = detail;
-        this.factory = factory;
-
-        TreeReference contextualizedNodeset = detail.getNodeset().contextualize(contextReference);
-        this.references = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext().expandReference(contextualizedNodeset);
+        this.references = references;
+        this.entities = entities;
 
         this.rowColors = AndroidUtil.getThemeColorIDs(this.context,
                 new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
@@ -76,7 +72,7 @@ public class EntitySubnodeListAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         EntityView view = (EntityView) convertView;
-        Entity entity = factory.getEntity(references.get(position));
+        Entity entity = this.entities.get(position);
         if (view == null) {
             view = new EntityView(context, detail, entity, null, null, position, false);
         } else {
