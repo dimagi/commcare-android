@@ -17,9 +17,11 @@ verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
-install.barcode=Welcome to CommCare! Please choose an installation method below 
+install.barcode.top=Welcome to CommCare!
+install.barcode.bottom=Please choose an installation method below
 install.manual=Please enter the URL
-install.ready=Almost there! Press the button below to install your app.
+install.ready.top=Almost there!
+install.ready.bottom=Press the button below to install your app.
 install.netwarn=If you are attempting to install from a server, make sure you have an internet connection.
 install.button.enter=Enter URL
 install.button.startover=Start Over
