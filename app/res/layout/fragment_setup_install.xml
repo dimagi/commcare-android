@@ -10,11 +10,12 @@
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:background="@color/cc_core_bg"
         android:scrollbars="none">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <!--&lt;!&ndash; TODO: extract style definition &ndash;&gt;-->
         <ImageView
@@ -23,8 +24,10 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:layout_marginRight="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
             android:paddingBottom="@dimen/content_start"
             android:paddingLeft="@dimen/content_start"
+            android:paddingRight="@dimen/content_start"
             android:paddingTop="@dimen/content_start"
             android:layout_marginBottom="@dimen/content_min_margin"
             android:scaleType="fitCenter"
@@ -67,8 +70,10 @@
                     android:id="@+id/btn_fetch_uri"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/content_min_margin"
-                    android:layout_marginRight="@dimen/content_start"
+                    android:layout_marginLeft="@dimen/content_start"
+                    android:layout_marginStart="@dimen/content_start"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginEnd="@dimen/content_min_margin"
                     android:layout_weight="1"
                     SquareButtonWithText:subtitle="Scan application barcode"
                     SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
@@ -81,9 +86,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/content_start"
+                    android:layout_marginStart="@dimen/content_start"
                     android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginEnd="@dimen/content_min_margin"
                     android:layout_weight="1"
-                    android:gravity="right"
+                    android:gravity="end"
                     SquareButtonWithText:subtitle="Enter URL"
                     SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
                     SquareButtonWithText:img="@drawable/startup_url"
@@ -91,6 +98,6 @@
                     />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 </RelativeLayout>
