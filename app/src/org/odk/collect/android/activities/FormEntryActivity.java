@@ -505,13 +505,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 processCaptureResponse(false);
                 break;
             case IMAGE_CHOOSER:
-                processChooserResponse(intent, true);
+                processImageChooserResponse(intent);
                 break;
             case AUDIO_CAPTURE:
             case VIDEO_CAPTURE:
             case AUDIO_CHOOSER:
             case VIDEO_CHOOSER:
-                processChooserResponse(intent, false);
+                processChooserResponse(intent);
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
@@ -525,6 +525,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
+    /**
+     * Returns the QuestionWidget corresponding to the current view of this activity, if it is
+     * an IBinaryWidget. Used when an onActivityResult processing method needs information from
+     * the widget that originated it.
+     */
     private QuestionWidget getCurrentBinaryWidget() {
         QuestionWidget bestMatch = null;
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
@@ -537,82 +542,37 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return bestMatch;
     }
 
-    private void processCaptureResponse(boolean isImage) {
-        /* We saved the image to the tempfile_path, but we really want it to be in:
-         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
-         * inserting it into the content provider. Once the android image capture bug gets
-         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
-         * video
-         */
-
-        // The intent is empty, but we know we saved the image to the temp file
-        File tempFile = new File(Collect.TMPFILE_PATH);
-
-        // This is where we want to end up saving our final image file, so that it will get sent to
-        // HQ with the form
+    /**
+     * Performs any necessary relocating and scaling of an image coming from either a
+     * SignatureWidget or ImageWidget (capture or choose)
+     *
+     * @param originalImage the image file returned by the image capture or chooser intent
+     * @param isImage if false, indicates that the image is from a signature capture, so should
+     *                not attempt to scale
+     * @return the final image file, properly scaled and in the correct final location (the form's
+     * instance folder)
+     */
+    private File processImage(File originalImage, boolean isImage) {
+        // We want to save our final image file in the instance folder for this form, so that it
+        // gets sent to HQ with the form
         String instanceFolder =
                 mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
         String imageFilename = System.currentTimeMillis() + ".jpg";
         String finalFilePath = instanceFolder + imageFilename;
 
-        // First, see if we're going to scale the image down
         boolean savedScaledImage = false;
         if (isImage) {
-            ImageWidget currentWidget = (ImageWidget) getCurrentBinaryWidget();
-            int maxDimen = currentWidget.getMaxDimen();
-            if (maxDimen != -1) {
-                // If this was an image capture question with a max image dimen set, create a
-                // bitmap out of the image file to see if we need to scale it down
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                Bitmap bitmap = BitmapFactory.decodeFile(tempFile.getAbsolutePath(),bmOptions);
-                int height = bitmap.getHeight();
-                int width = bitmap.getWidth();
-                Log.i("8/24", "original image height: " + height);
-                Log.i("8/24", "original image width: " + width);
-                int largerDimen = Math.max(height, width);
-                int smallerDimen = Math.min(height, width);
-                if (largerDimen > maxDimen) {
-                    // If the larger dimension exceeds our max dimension, scale down accordingly
-                    double aspectRatio = ((double) smallerDimen) / largerDimen;
-                    largerDimen = maxDimen;
-                    smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
-                    if (width > height) {
-                        bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
-                    } else {
-                        bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
-                    }
-                    // Write this scaled bitmap to the final file location
-                    Log.i("8/24", "new image height: " + bitmap.getHeight());
-                    Log.i("8/24", "new image width: " + bitmap.getWidth());
-                    FileOutputStream out = null;
-                    try {
-                        out = new FileOutputStream(finalFilePath);
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                        savedScaledImage = true;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            if (out != null) {
-                                out.close();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }
-            }
+            savedScaledImage = scaleImage(originalImage, finalFilePath);
         }
 
         File finalFile = new File(finalFilePath);
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path
-            if (!tempFile.renameTo(finalFile)) {
-                Log.e(TAG, "Failed to rename " + tempFile.getAbsolutePath());
+            if (!originalImage.renameTo(finalFile)) {
+                Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
-                Log.i(TAG, "renamed " + tempFile.getAbsolutePath() + " to " + finalFile.getAbsolutePath());
+                Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + finalFile.getAbsolutePath());
             }
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
@@ -623,12 +583,85 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 rawDir.mkdir();
             }
             File rawImageFile = new File (rawDirPath + "/" + imageFilename);
-            if (!tempFile.renameTo(rawImageFile)) {
-                Log.e(TAG, "Failed to rename " + tempFile.getAbsolutePath());
+            if (!originalImage.renameTo(rawImageFile)) {
+                Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
-                Log.i(TAG, "renamed " + tempFile.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
+                Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
             }
         }
+        return finalFile;
+    }
+
+    /**
+     * Attempts to scale down an image file based on the max dimension in the current
+     * ImageWidget, if it is set
+     */
+    private boolean scaleImage(File originalImage, String finalFilePath) {
+        boolean scaledImage = false;
+        ImageWidget currentWidget = (ImageWidget) getCurrentBinaryWidget();
+        int maxDimen = currentWidget.getMaxDimen();
+        if (maxDimen != -1) {
+            // If a max image dimen was set, create a bitmap out of the image file to see if we
+            // need to scale it down
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath(), bmOptions);
+            int height = bitmap.getHeight();
+            int width = bitmap.getWidth();
+            Log.i("8/24", "original image height: " + height);
+            Log.i("8/24", "original image width: " + width);
+            int largerDimen = Math.max(height, width);
+            int smallerDimen = Math.min(height, width);
+            if (largerDimen > maxDimen) {
+                // If the larger dimension exceeds our max dimension, scale down accordingly
+                double aspectRatio = ((double) smallerDimen) / largerDimen;
+                largerDimen = maxDimen;
+                smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
+                if (width > height) {
+                    bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
+                } else {
+                    bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
+                }
+                // Write this scaled bitmap to the final file location
+                Log.i("8/24", "new image height: " + bitmap.getHeight());
+                Log.i("8/24", "new image width: " + bitmap.getWidth());
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(finalFilePath);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    scaledImage = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return scaledImage;
+    }
+
+    /**
+     * Processes the return from an image capture intent, launched by either an ImageWidget or
+     * SignatureWidget
+     *
+     * @param isImage true if this was from an ImageWidget, false if it was a SignatureWidget
+     */
+    private void processCaptureResponse(boolean isImage) {
+        /* We saved the image to the tempfile_path, but we really want it to be in:
+         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
+         * inserting it into the content provider. Once the android image capture bug gets
+         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
+         * video
+         */
+
+        // The intent is empty, but we know we saved the image to the temp file
+        File tempFile = new File(Collect.TMPFILE_PATH);
+        File finalFile = processImage(tempFile, isImage);
 
         // Add the new image to the Media content provider so that the
         // viewing is fast in Android 2.0+
@@ -647,29 +680,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         refreshCurrentView();
     }
 
-    private void processChooserResponse(Intent intent, boolean isImage) {
-        if (isImage) {
-            processImageChooserResponse(intent);
-            return;
-        }
-        // For audio/video capture/chooser, we get the URI from the content provider
-        // then the widget copies the file and makes a new entry in the content provider.
-        Uri media = intent.getData();
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
-        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
-            // don't let the user select a file that won't be included in the
-            // upload to the server
-            ((ODKView) mCurrentView).clearAnswer();
-            Toast.makeText(FormEntryActivity.this,
-                    Localization.get("form.attachment.invalid"),
-                    Toast.LENGTH_LONG).show();
-        } else {
-            ((ODKView) mCurrentView).setBinaryData(media);
-        }
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        refreshCurrentView();
-    }
-
     private void processImageChooserResponse(Intent intent) {
         /* We have a saved image somewhere, but we really want it to be in:
          * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
@@ -679,19 +689,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
          */
 
         // get gp of chosen file
-        String sourceImagePath = null;
         Uri selectedImage = intent.getData();
-
-        sourceImagePath = FileUtils.getPath(this, selectedImage);
-
-        // Copy file to sdcard
-        String mInstanceFolder1 =
-                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-        String destImagePath = mInstanceFolder1 + "/" + System.currentTimeMillis() + ".jpg";
-
-        File source = new File(sourceImagePath);
-        File newImage = new File(destImagePath);
-        FileUtils.copyFile(source, newImage);
+        File sourceImage = new File(FileUtils.getPath(this, selectedImage));
+        File newImage = processImage(sourceImage, true);
 
         if (newImage.exists()) {
             // Add the new image to the Media content provider so that the
@@ -710,8 +710,27 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             ((ODKView) mCurrentView).setBinaryData(imageURI);
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         } else {
-            Log.e(TAG, "NO IMAGE EXISTS at: " + source.getAbsolutePath());
+            Log.e(TAG, "NO IMAGE EXISTS at: " + sourceImage.getAbsolutePath());
         }
+        refreshCurrentView();
+    }
+
+    private void processChooserResponse(Intent intent) {
+        // For audio/video capture/chooser, we get the URI from the content provider
+        // then the widget copies the file and makes a new entry in the content provider.
+        Uri media = intent.getData();
+        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(), media);
+        if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
+            // don't let the user select a file that won't be included in the
+            // upload to the server
+            ((ODKView) mCurrentView).clearAnswer();
+            Toast.makeText(FormEntryActivity.this,
+                    Localization.get("form.attachment.invalid"),
+                    Toast.LENGTH_LONG).show();
+        } else {
+            ((ODKView) mCurrentView).setBinaryData(media);
+        }
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
     
