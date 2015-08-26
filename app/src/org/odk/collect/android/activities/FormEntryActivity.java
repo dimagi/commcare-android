@@ -538,7 +538,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * is in view (since the purpose of scaling is to limit the size of images sent to HQ, but we
      * still want best possible quality on the device)
      */
-    private File processImage(File originalImage, boolean isImage) {
+    private File moveAndScaleImage(File originalImage, boolean isImage) {
         // We want to save our final image file in the instance folder for this form, so that it
         // gets sent to HQ with the form
         String instanceFolder =
@@ -596,12 +596,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if (maxDimen != -1) {
             // If a max image dimen was set, create a bitmap out of the image file to see if we
             // need to scale it down
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath(), bmOptions);
+            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath(),
+                    new BitmapFactory.Options());
             int height = bitmap.getHeight();
             int width = bitmap.getWidth();
-            Log.i("8/24", "original image height: " + height);
-            Log.i("8/24", "original image width: " + width);
             int largerDimen = Math.max(height, width);
             int smallerDimen = Math.min(height, width);
             if (largerDimen > maxDimen) {
@@ -615,8 +613,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
                 }
                 // Write this scaled bitmap to the final file location
-                Log.i("8/24", "new image height: " + bitmap.getHeight());
-                Log.i("8/24", "new image width: " + bitmap.getWidth());
                 FileOutputStream out = null;
                 try {
                     out = new FileOutputStream(finalFilePath);
@@ -654,7 +650,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
-        File unscaledFinalImage = processImage(originalImage, isImage);
+        File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
 
         // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
         ContentValues values = new ContentValues(6);
@@ -683,7 +679,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // get gp of chosen file
         Uri selectedImage = intent.getData();
         File originalImage = new File(FileUtils.getPath(this, selectedImage));
-        File unscaledFinalImage = processImage(originalImage, true);
+        File unscaledFinalImage = moveAndScaleImage(originalImage, true);
 
         // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
         ContentValues values = new ContentValues(6);

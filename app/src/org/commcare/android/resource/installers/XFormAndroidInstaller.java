@@ -78,7 +78,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         FormDef formDef;
         try {
             XFormParser parser = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8"));
-            parser.registerExtensionParser(new ImageRestrictionExtensionParser("upload"));
+            parser.registerExtensionParser(new ImageRestrictionExtensionParser());
             formDef = parser.parse();
         } catch(XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);

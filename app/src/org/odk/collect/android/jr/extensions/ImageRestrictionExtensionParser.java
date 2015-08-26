@@ -6,12 +6,15 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Element;
 
 /**
- * Created by amstone326 on 8/20/15.
+ * An additional parser for the "upload" question type that looks for an extra attribute
+ * specifying the maximum allowable dimension for an image
+ *
+ * @author amstone
  */
 public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
 
-    public ImageRestrictionExtensionParser(String elementName) {
-        super(elementName);
+    public ImageRestrictionExtensionParser() {
+        setElementName("upload");
     }
 
     @Override
@@ -19,7 +22,6 @@ public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
         String s = elt.getAttributeValue(XFormParser.NAMESPACE_JAVAROSA,
                 "imageDimensionScaledMax");
         if (s != null) {
-            // Parse off the "px" and cast to int
             if (s.endsWith("px")) {
                 s = s.substring(0, s.length() - 2);
             }

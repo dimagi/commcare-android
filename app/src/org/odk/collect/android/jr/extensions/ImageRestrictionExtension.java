@@ -12,6 +12,8 @@ import java.io.IOException;
 /**
  * Represents an extension to the "upload" question type, for setting a maximum
  * dimension for the size of an image capture
+ *
+ * @author amstone
  */
 public class ImageRestrictionExtension implements QuestionDataExtension {
 
