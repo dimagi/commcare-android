@@ -52,7 +52,9 @@ public class SetupKeepInstallFragment extends Fragment {
         btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(Localization.get("install.button.startover"));
         TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.ready"));
+        setupMsg.setText(Localization.get("install.ready.top"));
+        TextView setupMsg2 = (TextView) view.findViewById(R.id.str_setup_message_2);
+        setupMsg2.setText(Localization.get("install.ready.bottom"));
         TextView netWarn = (TextView) view.findViewById(R.id.net_warn);
         netWarn.setText(Localization.get("install.netwarn"));
         btnStartInstall.setOnClickListener(new View.OnClickListener() {

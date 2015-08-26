@@ -1,7 +1,9 @@
 package org.commcare.dalvik.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.Fragment;
@@ -209,6 +211,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         uiStateScreenTransition();
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                // removes the back button from the action bar
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
+        }
     }
 
     @Override
