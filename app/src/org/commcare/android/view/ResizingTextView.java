@@ -16,11 +16,11 @@ import org.commcare.dalvik.R;
  */
 public class ResizingTextView extends TextView {
 
-    boolean mIsResizing = false;
-    int mSmallTextPixels;
-    float mOriginalTextSize;
+    private boolean mIsResizing = false;
+    private int mSmallTextPixels;
+    private float mOriginalTextSize;
 
-    boolean mHasTriedSmallLayout = false;
+    private boolean mHasTriedSmallLayout = false;
 
     public ResizingTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
