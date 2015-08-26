@@ -82,6 +82,7 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
@@ -612,7 +613,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 break;
         }
     }
-    
+
+    private IntentWidget getPendingIntentWidget() {
+        IntentWidget bestMatch = null;
+
+        //Ugh, copied from the odkview mostly, that's stupid
+        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+            //Figure out if we have a pending intent widget
+            if (q instanceof IntentWidget) {
+                if(((IntentWidget) q).getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
+                    bestMatch = (IntentWidget)q;
+                }
+            }
+        }
+        return bestMatch;
+    }
+
     private void processIntentResponse(Intent response){
         processIntentResponse(response, false);
     }
@@ -625,43 +641,36 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         //We need to go grab our intent callout object to process the results here
         
-        IntentWidget bestMatch = null;
-        
-        //Ugh, copied from the odkview mostly, that's stupid
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            //Figure out if we have a pending intent widget
-            if (q instanceof IntentWidget) {
-                if(((IntentWidget) q).isWaitingForBinaryData() || bestMatch == null) {
-                    bestMatch = (IntentWidget)q;
-                }
-            }
+        IntentWidget pendingIntentWidget = getPendingIntentWidget();
+        TreeReference context;
+        if (mFormController.getPendingCalloutFormIndex() != null) {
+            context = mFormController.getPendingCalloutFormIndex().getReference();
+        } else {
+            context = null;
         }
-        
-        if(bestMatch != null) {
+        if(pendingIntentWidget != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
             
             //get the original intent callout
-            IntentCallout ic = bestMatch.getIntentCallout();
+            IntentCallout ic = pendingIntentWidget.getIntentCallout();
             
             quick = "quick".equals(ic.getAppearance());
-            
+
             //And process it 
-            advance = ic.processResponse(response, (ODKView)mCurrentView, mFormController.getInstance(), new File(destination));
+            advance = ic.processResponse(response, context, new File(destination));
             
             ic.setCancelled(cancelled);
             
         }
-        
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
+
+        refreshCurrentView();
+
         // auto advance if we got a good result and are in quick mode
         if(advance && quick){
             showNextView();
         }
-        
     }
-
 
     public void updateFormRelevencies(){
         
@@ -2366,6 +2375,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         } catch(Exception e) {
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
+        }
+        if (mFormController != null) {
+            mFormController.setPendingCalloutFormIndex(null);
         }
     }
 
