@@ -29,10 +29,12 @@ import java.util.Vector;
  * 
  * @author carlhartung
  */
-public class FormController {
+public class FormController implements PendingCalloutInterface {
 
     private static final String t = "FormController";
     private FormEntryController mFormEntryController;
+
+    private FormIndex mPendingCalloutFormIndex = null;
     
     private boolean mReadOnly;
 
@@ -764,11 +766,17 @@ public class FormController {
         return new InstanceMetadata(instanceId);
     }
 
+    public FormIndex getPendingCalloutFormIndex() {
+        return mPendingCalloutFormIndex;
+    }
+
+    public void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex) {
+        mPendingCalloutFormIndex = pendingCalloutFormIndex;
+    }
 
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
     //this ended up in the "logic" division. 
     public WidgetFactory getWidgetFactory() {
-        return new WidgetFactory(mFormEntryController.getModel().getForm());
+        return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
     }
-
 }
