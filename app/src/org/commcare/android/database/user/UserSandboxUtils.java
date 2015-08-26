@@ -210,7 +210,7 @@ public class UserSandboxUtils {
             for(DeviceReportRecord r : reports) {
                 File oldPath = new File(r.getFilePath());
                 if(oldPath.exists()) {
-                    FileUtil.deleteFile(oldPath);
+                    FileUtil.deleteFileOrDir(oldPath);
                 }
             }
             
