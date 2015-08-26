@@ -20,6 +20,7 @@ import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
+import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -96,9 +97,20 @@ public class EntityDetailFragment extends Fragment implements EntityLoaderListen
         final LinearLayout headerLayout = ((LinearLayout) rootView.findViewById(R.id.entity_detail_header));
         if (childDetail.getNodeset() != null) {
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
+                // Set up task to fetch entity data
                 EntityLoaderTask theloader = new EntityLoaderTask(childDetail, asw.getEvaluationContext());
                 theloader.attachListener(this);
                 theloader.execute(childDetail.getNodeset().contextualize(childReference));
+
+                // Add header row
+                String[] headers = new String[childDetail.getFields().length];
+                for (int i = 0; i < headers.length; ++i) {
+                    headers[i] = childDetail.getFields()[i].getHeader().evaluate();
+                }
+                EntityView headerView = new EntityView(thisActivity, childDetail, headers);
+                headerLayout.removeAllViews();
+                headerLayout.addView(headerView);
+                headerLayout.setVisibility(View.VISIBLE);
             }
         } else {
             final Entity entity = factory.getEntity(childReference);
