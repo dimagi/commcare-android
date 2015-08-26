@@ -591,13 +591,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean scaleImage(File originalImage, String finalFilePath) {
         boolean scaledImage = false;
-        ImageWidget currentWidget = (ImageWidget) getCurrentWidget();
+        ImageWidget currentWidget = getCurrentImageWidget();
         int maxDimen = currentWidget.getMaxDimen();
         if (maxDimen != -1) {
             // If a max image dimen was set, create a bitmap out of the image file to see if we
             // need to scale it down
-            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath(),
-                    new BitmapFactory.Options());
+            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
             int height = bitmap.getHeight();
             int width = bitmap.getWidth();
             int largerDimen = Math.max(height, width);
@@ -679,22 +678,30 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // get gp of chosen file
         Uri selectedImage = intent.getData();
         File originalImage = new File(FileUtils.getPath(this, selectedImage));
-        File unscaledFinalImage = moveAndScaleImage(originalImage, true);
 
-        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-        ContentValues values = new ContentValues(6);
-        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
-        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
-        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
+        if (originalImage.exists()) {
+            File unscaledFinalImage = moveAndScaleImage(originalImage, true);
 
-        Uri imageURI =
-                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+            // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
+            ContentValues values = new ContentValues(6);
+            values.put(Images.Media.TITLE, unscaledFinalImage.getName());
+            values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
+            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            values.put(Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
 
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+            Uri imageURI =
+                    getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+            Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+
+            ((ODKView) mCurrentView).setBinaryData(imageURI);
+            saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+        } else {
+            // The user has managed to select a file from the image browser that doesn't actually
+            // exist on the file system anymore
+            CommCareActivity.createErrorDialog(this, Localization.get("invalid.image.selection"), false);
+        }
+
         refreshCurrentView();
     }
 
@@ -718,14 +725,31 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     /**
-     * Returns the QuestionWidget corresponding to the current view of this activity. Used when an
-     * onActivityResult processing method needs information from the widget that originated it.
+     * Returns the ImageWidget that is currently waiting to receive binary data from this
+     * activity (as a result of image capture or chooser)
      */
-    private QuestionWidget getCurrentWidget() {
+    private ImageWidget getCurrentImageWidget() {
         QuestionWidget bestMatch = null;
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            if (q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
-                bestMatch = q;
+            if (q instanceof IBinaryWidget) {
+                if (((IBinaryWidget)q).isWaitingForBinaryData()) {
+                    bestMatch = q;
+                }
+            }
+        }
+        return (ImageWidget)bestMatch;
+    }
+
+    private IntentWidget getPendingIntentWidget() {
+        IntentWidget bestMatch = null;
+
+        //Ugh, copied from the odkview mostly, that's stupid
+        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+            //Figure out if we have a pending intent widget
+            if (q instanceof IntentWidget) {
+                if(q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
+                    bestMatch = (IntentWidget)q;
+                }
             }
         }
         return bestMatch;
@@ -741,7 +765,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         boolean advance = false;
         boolean quick = false;
 
-        IntentWidget pendingIntentWidget = (IntentWidget) getCurrentWidget();
+        IntentWidget pendingIntentWidget = getPendingIntentWidget();
         TreeReference context;
         if (mFormController.getPendingCalloutFormIndex() != null) {
             context = mFormController.getPendingCalloutFormIndex().getReference();

@@ -487,3 +487,5 @@ wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
+
+invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
