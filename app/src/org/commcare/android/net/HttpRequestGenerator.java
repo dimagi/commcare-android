@@ -175,7 +175,7 @@ public class HttpRequestGenerator {
         if(username == null) { 
             return null;
         }
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
         Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
         //should be exactly one user
         if(users.size() != 1) {

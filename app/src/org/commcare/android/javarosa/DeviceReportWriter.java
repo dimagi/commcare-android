@@ -103,7 +103,7 @@ public class DeviceReportWriter {
     }
     
     private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
         
         serializer.startTag(XMLNS, "user_subreport");
         

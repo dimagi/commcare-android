@@ -602,7 +602,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>(); 
-        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.class).iterate(); userIterator.hasMore();) {
+        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
             String id = userIterator.nextRecord().getUniqueId();
             owners.addElement(id);
             users.addElement(id);
