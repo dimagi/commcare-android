@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +15,7 @@ import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -21,7 +23,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +38,9 @@ import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
@@ -61,6 +67,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private static final String TAG = CommCareActivity.class.getSimpleName();
     
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
+
+    private boolean mBannerOverriden = false;
 
     StateFragment stateHolder;
 
@@ -234,7 +242,53 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         AudioController.INSTANCE.playPreviousAudio();
     }
-    
+
+    protected View getBannerHost() {
+        return this.findViewById(android.R.id.content);
+    }
+
+    protected void updateCommCareBanner() {
+        View hostView = getBannerHost();
+        if(hostView == null) {
+            return;
+        }
+        ImageView topBannerImageView = (ImageView)hostView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        if(topBannerImageView == null) {
+            return;
+        }
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if(app == null) {
+            return;
+        }
+
+        boolean resetBanner = mBannerOverriden;
+
+        Display display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int screenHeight = display.getHeight();
+
+        int maxBannerHeight = screenHeight / 3;
+
+        // Override default CommCare banner if requested
+        String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+        if (!"".equals(customBannerURI)) {
+            Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
+            if (bitmap != null) {
+                if (topBannerImageView != null) {
+                    topBannerImageView.setMaxHeight(maxBannerHeight);
+                    topBannerImageView.setImageBitmap(bitmap);
+                    mBannerOverriden = true;
+                    resetBanner = false;
+                } else {
+                    Log.i(TAG, "Coudln't load custom banner at: " + customBannerURI);
+                }
+            }
+        }
+
+        if(resetBanner) {
+            topBannerImageView.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
