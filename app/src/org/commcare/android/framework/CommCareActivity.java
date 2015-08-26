@@ -266,7 +266,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         Display display = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int screenHeight = display.getHeight();
 
-        int maxBannerHeight = screenHeight / 3;
+        int maxBannerHeight = screenHeight / 4;
 
         // Override default CommCare banner if requested
         String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
