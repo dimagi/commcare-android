@@ -3,24 +3,20 @@
  */
 package org.commcare.android.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Vector;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.widget.Toast;
+import java.util.Vector;
 
 /**
  * Basically Copy+Paste code from CCJ2ME that needs to be unified or re-indexed to somewhere more reasonable.
@@ -87,19 +83,6 @@ public class CommCareUtil {
         return preds;
     }
     
-    public static void printInstance(String instanceRef) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
-            
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
-            System.out.println(new String(bos.toByteArray()));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
     public static void triggerLogSubmission(Context c) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         String url = settings.getString("PostURL", null);

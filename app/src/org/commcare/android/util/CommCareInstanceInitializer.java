@@ -8,6 +8,7 @@ import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
+import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
@@ -15,13 +16,13 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 
 /**
  * @author ctsims
- *
  */
 public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     CommCareSession session;
@@ -31,10 +32,13 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     public CommCareInstanceInitializer(){ 
         this(null);
     }
+
     public CommCareInstanceInitializer(CommCareSession session) {
         this.session = session;
+
+        ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
     }
-    
+
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         CommCareApplication app = CommCareApplication._();
         String ref = instance.getReference();
