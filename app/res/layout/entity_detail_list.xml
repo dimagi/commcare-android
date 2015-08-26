@@ -10,7 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/screen_entity_detail_list"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
     </LinearLayout>
 
     <ListView
