@@ -71,6 +71,8 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.cases.instance.CaseDataInstance;
+import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
@@ -80,6 +82,7 @@ import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.externalizable.AndroidClassHasher;
+import org.javarosa.core.model.instance.ExternalDataInstanceFactory;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -446,6 +449,10 @@ public class CommCareApplication extends Application {
         int resourceState;
         try {
             currentApp = app;
+
+            // register data instance logic to handle casedb instances
+            ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+
             if (currentApp.initializeApplication()) {
                 resourceState = STATE_READY;
                 this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
