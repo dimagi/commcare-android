@@ -527,23 +527,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     /**
-     * Returns the QuestionWidget corresponding to the current view of this activity, if it is
-     * an IBinaryWidget. Used when an onActivityResult processing method needs information from
-     * the widget that originated it.
-     */
-    private QuestionWidget getCurrentBinaryWidget() {
-        QuestionWidget bestMatch = null;
-        for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            if (q instanceof IBinaryWidget) {
-                if (((IBinaryWidget)q).isWaitingForBinaryData() || bestMatch == null) {
-                    bestMatch = q;
-                }
-            }
-        }
-        return bestMatch;
-    }
-
-    /**
      * Performs any necessary relocating and scaling of an image coming from either a
      * SignatureWidget or ImageWidget (capture or choose)
      *
@@ -608,7 +591,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean scaleImage(File originalImage, String finalFilePath) {
         boolean scaledImage = false;
-        ImageWidget currentWidget = (ImageWidget) getCurrentBinaryWidget();
+        ImageWidget currentWidget = (ImageWidget) getCurrentWidget();
         int maxDimen = currentWidget.getMaxDimen();
         if (maxDimen != -1) {
             // If a max image dimen was set, create a bitmap out of the image file to see if we
@@ -738,16 +721,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         refreshCurrentView();
     }
 
-    private IntentWidget getPendingIntentWidget() {
-        IntentWidget bestMatch = null;
-
-        //Ugh, copied from the odkview mostly, that's stupid
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            //Figure out if we have a pending intent widget
-            if (q instanceof IntentWidget) {
-                if(((IntentWidget) q).getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
-                    bestMatch = (IntentWidget)q;
-                }
+    /**
+     * Returns the QuestionWidget corresponding to the current view of this activity. Used when an
+     * onActivityResult processing method needs information from the widget that originated it.
+     */
+    private QuestionWidget getCurrentWidget() {
+        QuestionWidget bestMatch = null;
+        for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+            if (q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
+                bestMatch = q;
             }
         }
         return bestMatch;
@@ -762,12 +744,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // keep track of whether we should auto advance
         boolean advance = false;
         boolean quick = false;
-        
-        //We need to go grab our intent callout object to process the results here
-        IntentWidget bestMatch = (IntentWidget) getCurrentBinaryWidget();
 
-
-        IntentWidget pendingIntentWidget = getPendingIntentWidget();
+        IntentWidget pendingIntentWidget = (IntentWidget) getCurrentWidget();
         TreeReference context;
         if (mFormController.getPendingCalloutFormIndex() != null) {
             context = mFormController.getPendingCalloutFormIndex().getReference();
