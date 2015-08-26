@@ -82,6 +82,8 @@ public class SetupEnterURLFragment extends Fragment {
                 listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
             }
         });
+
+        view.findViewById(R.id.edit_profile_location).requestFocus();
         return view;
     }
 

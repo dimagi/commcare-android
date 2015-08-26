@@ -99,7 +99,7 @@
                         android:gravity="end"
 
                         SquareButtonWithText:subtitle="Start over"
-                        SquareButtonWithText:backgroundcolor="@color/cc_dark_warm_accent_text"
+                        SquareButtonWithText:backgroundcolor="@color/cc_neutral_color"
                         SquareButtonWithText:img="@drawable/install_stop"
                         SquareButtonWithText:colorText="@color/white"
                         />
