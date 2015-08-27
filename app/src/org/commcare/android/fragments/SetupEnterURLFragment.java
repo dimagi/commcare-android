@@ -1,12 +1,14 @@
 package org.commcare.android.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,7 +61,7 @@ public class SetupEnterURLFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedText = profileLocation.getText().toString();
-                if((position == prefixURLSpinner.getCount() -1) &&
+                if ((position == prefixURLSpinner.getCount() - 1) &&
                         (selectedText == null || selectedText.length() == 0)) {
                     // automatically sets text to the default location for offline installs
                     profileLocation.setText(R.string.default_app_server);
@@ -83,8 +85,21 @@ public class SetupEnterURLFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.edit_profile_location).requestFocus();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Activity activity = this.getActivity();
+
+
+        if(activity != null ) {
+            View editBox = activity.findViewById(R.id.edit_profile_location);
+            editBox.requestFocus();
+            InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     @Override
