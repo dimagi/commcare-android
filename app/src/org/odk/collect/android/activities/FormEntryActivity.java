@@ -1721,7 +1721,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
             SpannableStringBuilder groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
-            if(!"".equals(groupLabelText)) {
+            if(groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
                 groupLabel.setText(groupLabelText);
                 header.setVisibility(View.VISIBLE);
                 groupLabel.setVisibility(View.VISIBLE);
