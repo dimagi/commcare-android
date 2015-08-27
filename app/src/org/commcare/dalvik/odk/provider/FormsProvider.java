@@ -119,24 +119,13 @@ public class FormsProvider extends ContentProvider {
         //This is so stupid.
         return true;
     }
-
-    private static String getCurrentApplicationId() {
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
-        if (currentApp != null) {
-            return currentApp.getAppRecord().getApplicationId();
-        } else {
-            return CommCareApplication._().getAppBeingInstalled().getAppRecord().getApplicationId();
-        }
-    }
-
-    public static String getFormsDbNameForApp(String applicationId) {
-        return "forms_" + applicationId + ".db";
-    }
     
     public void init() {
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {
-            String dbName = getFormsDbNameForApp(getCurrentApplicationId());
+        if (mDbHelper == null || mDbHelper.getAppId() != ProviderUtils.getSeatedOrInstallingAppId()) {
+            String dbName = ProviderUtils.getProviderDbName(
+                    ProviderUtils.ProviderType.TYPE_FORMS,
+                    ProviderUtils.getSeatedOrInstallingAppId());
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }
     }

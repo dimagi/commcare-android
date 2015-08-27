@@ -4,7 +4,6 @@
 package org.commcare.android.database.global;
 
 import android.content.Context;
-import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -15,6 +14,8 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProvider;
+import org.commcare.dalvik.odk.provider.InstanceProvider;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.File;
@@ -55,7 +56,7 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
-        return upgradeAppRecords(db) && upgradeFormsDb(db);
+        return upgradeAppRecords(db) && upgradeFormsDb(db) && upgradeInstancesDb(db);
     }
 
     /**
@@ -99,10 +100,31 @@ public class GlobalDatabaseUpgrader {
      */
     private boolean upgradeFormsDb(SQLiteDatabase db) {
         File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
-        ApplicationRecord currentApp = getInstalledAppRecord(c, db);
         if (oldDbFile.exists()) {
             File newDbFile = CommCareApplication._().getDatabasePath(
-                    FormsProvider.getFormsDbNameForApp(currentApp.getApplicationId()));
+                    ProviderUtils.getProviderDbName(
+                            ProviderUtils.ProviderType.TYPE_FORMS,
+                            getInstalledAppRecord(c, db).getApplicationId()));
+            if (!oldDbFile.renameTo(newDbFile)) {
+                // Big problem, should potentially crash here ?
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Perform same logic as described above, but for the InstanceProvider db
+     */
+    private boolean upgradeInstancesDb(SQLiteDatabase db) {
+        File oldDbFile = CommCareApplication._().getDatabasePath(InstanceProvider.OLD_DATABASE_NAME);
+        if (oldDbFile.exists()) {
+            File newDbFile = CommCareApplication._().getDatabasePath(
+                    ProviderUtils.getProviderDbName(
+                            ProviderUtils.ProviderType.TYPE_INSTANCES,
+                            getInstalledAppRecord(c, db).getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
                 // Big problem, should potentially crash here ?
                 return false;

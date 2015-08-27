@@ -45,7 +45,7 @@ import javax.crypto.SecretKey;
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
-    private static final String DATABASE_NAME = "instances.db";
+    public static final String OLD_DATABASE_NAME = "instances.db";
     private static final int DATABASE_VERSION = 2;
     private static final String INSTANCES_TABLE_NAME = "instances";
 
@@ -61,8 +61,23 @@ public class InstanceProvider extends ContentProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
+        // the application id of the CCApp for which this db is storing instances
+        private String appId;
+
         public DatabaseHelper(Context c, String databaseName) {
             super(c, databaseName, null, DATABASE_VERSION);
+
+            // If this is a helper for the new version of instnace databases where we include the
+            // app id in the db name, grab the id
+            int startIndex = databaseName.indexOf("_");
+            if (startIndex != -1) {
+                int endIndex = databaseName.indexOf(".db");
+                this.appId = databaseName.substring(startIndex+1, endIndex);
+            }
+        }
+
+        public String getAppId() {
+            return this.appId;
         }
 
         @Override
@@ -97,13 +112,13 @@ public class InstanceProvider extends ContentProvider {
         return true;
     }
 
-    /**
-     * Setup helper to access database.
-     */
     void init() {
-        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if(mDbHelper == null) {
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+        // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+        if (mDbHelper == null || mDbHelper.getAppId() != ProviderUtils.getSeatedOrInstallingAppId()) {
+            String dbName = ProviderUtils.getProviderDbName(
+                    ProviderUtils.ProviderType.TYPE_INSTANCES,
+                    ProviderUtils.getSeatedOrInstallingAppId());
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }
     }
 
