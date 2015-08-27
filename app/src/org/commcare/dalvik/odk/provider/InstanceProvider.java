@@ -45,7 +45,6 @@ import javax.crypto.SecretKey;
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
-    public static final String OLD_DATABASE_NAME = "instances.db";
     private static final int DATABASE_VERSION = 2;
     private static final String INSTANCES_TABLE_NAME = "instances";
 

@@ -56,7 +56,9 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
-        return upgradeAppRecords(db) && upgradeFormsDb(db) && upgradeInstancesDb(db);
+        return upgradeAppRecords(db) &&
+                upgradeProviderDb(db, ProviderUtils.ProviderType.TYPE_FORMS) &&
+                upgradeProviderDb(db, ProviderUtils.ProviderType.TYPE_INSTANCES);
     }
 
     /**
@@ -93,38 +95,17 @@ public class GlobalDatabaseUpgrader {
     }
 
     /**
-     * Prior to multiple application seating, the FormsProvider used one global database for all
-     * forms. Now that we can have multiple apps installed at once, we have one forms db per app.
-     * This method will perform the necessary one-time migration from the global forms db to the
-     * new per-app system
+     * Prior to multiple application seating, the FormsProvider and the InstanceProvider were both
+     * using one global database for all forms/instances. Now that we can have multiple apps
+     * installed at once, we need to have one forms db and one instances db per app. This method
+     * performs the necessary one-time migration from a global db that still exists on a device
+     * to the new per-app system
      */
-    private boolean upgradeFormsDb(SQLiteDatabase db) {
-        File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
+    private boolean upgradeProviderDb(SQLiteDatabase db, ProviderUtils.ProviderType type) {
+        File oldDbFile = CommCareApplication._().getDatabasePath(type.getOldDbName());
         if (oldDbFile.exists()) {
             File newDbFile = CommCareApplication._().getDatabasePath(
-                    ProviderUtils.getProviderDbName(
-                            ProviderUtils.ProviderType.TYPE_FORMS,
-                            getInstalledAppRecord(c, db).getApplicationId()));
-            if (!oldDbFile.renameTo(newDbFile)) {
-                // Big problem, should potentially crash here ?
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Perform same logic as described above, but for the InstanceProvider db
-     */
-    private boolean upgradeInstancesDb(SQLiteDatabase db) {
-        File oldDbFile = CommCareApplication._().getDatabasePath(InstanceProvider.OLD_DATABASE_NAME);
-        if (oldDbFile.exists()) {
-            File newDbFile = CommCareApplication._().getDatabasePath(
-                    ProviderUtils.getProviderDbName(
-                            ProviderUtils.ProviderType.TYPE_INSTANCES,
-                            getInstalledAppRecord(c, db).getApplicationId()));
+                    ProviderUtils.getProviderDbName(type, getInstalledAppRecord(c, db).getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
                 // Big problem, should potentially crash here ?
                 return false;

@@ -4,14 +4,25 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
- * Some utility methods used by InstanceProvider and FormsProvider
+ * Some utility methods used by InstanceProvider and FormsProvider, and by the db upgrade methods
+ * for both
  *
  * @author amstone
  */
 public class ProviderUtils {
 
     public enum ProviderType {
-        TYPE_FORMS, TYPE_INSTANCES;
+        TYPE_FORMS("forms.db"), TYPE_INSTANCES("instances.db");
+
+        private String oldDbName;
+
+        ProviderType(String oldDbName) {
+            this.oldDbName = oldDbName;
+        }
+
+        public String getOldDbName() {
+            return this.oldDbName;
+        }
     }
 
     public static String getSeatedOrInstallingAppId() {

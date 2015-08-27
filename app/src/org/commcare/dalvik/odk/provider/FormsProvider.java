@@ -47,8 +47,6 @@ public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
 
-    public static final String OLD_DATABASE_NAME = "forms.db";
-
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
 
