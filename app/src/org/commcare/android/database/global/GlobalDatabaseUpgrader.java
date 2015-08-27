@@ -31,14 +31,20 @@ public class GlobalDatabaseUpgrader {
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion == 1) {
-            if(upgradeOneTwo(db, oldVersion, newVersion)) {
+        Log.i("FormsProvider", "in upgrade()");
+        if (oldVersion == 1) {
+            if (upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
             }
         }
         if (oldVersion == 2) {
-            if(upgradeTwoThree(db)) {
+            if (upgradeTwoThree(db)) {
                 oldVersion = 3;
+            }
+        }
+        if (oldVersion == 3) {
+            if (upgradeThreeFour(db)) {
+                oldVersion = 4;
             }
         }
     }
@@ -55,8 +61,13 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
-        Log.i("FormsProvider", "in upgradeTwoThree");
-        return upgradeAppRecords(db) && upgradeFormsDb(db);
+        Log.i("FormsProvider", "in upgradeTwoThree()");
+        return upgradeAppRecords(db);
+    }
+
+    private boolean upgradeThreeFour(SQLiteDatabase db) {
+        Log.i("FormsProvider", "in upgradeThreeFour()");
+        return upgradeFormsDb(db);
     }
 
     // Migrate all old ApplicationRecords in storage to the new version
