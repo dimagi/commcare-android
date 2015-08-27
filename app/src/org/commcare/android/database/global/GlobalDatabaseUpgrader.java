@@ -55,10 +55,14 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
+        Log.i("FormsProvider", "in upgradeTwoThree");
+        return upgradeAppRecords(db) && upgradeFormsDb(db);
+    }
+
+    // Migrate all old ApplicationRecords in storage to the new version
+    private boolean upgradeAppRecords(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-
-            // Migrate all old ApplicationRecords in storage to the new version
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
@@ -80,26 +84,31 @@ public class GlobalDatabaseUpgrader {
                 storage.write(newRecord);
             }
             db.setTransactionSuccessful();
-
-            // Migrate the old global forms db to the new per-app system
-            File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
-            ApplicationRecord currentApp = getInstalledAppRecord(c, db);
-            if (oldDbFile.exists()) {
-                Log.i("FormsProvider", "performing forms db migration");
-                File newDbFile = CommCareApplication._().getDatabasePath(
-                        FormsProvider.getFormsDbNameForApp(currentApp.getApplicationId()));
-                if (!oldDbFile.renameTo(newDbFile)) {
-                    // Big problem, should probably crash here
-                } else {
-                    Log.i("FormsProvider", "Successfully migrated old global db file to " +
-                            newDbFile.getAbsolutePath());
-                }
-            }
-
             return true;
         } finally {
             db.endTransaction();
         }
+    }
+
+    // Migrate the old global forms db to the new per-app system
+    private boolean upgradeFormsDb(SQLiteDatabase db) {
+        Log.i("FormsProvider", "in upgradeFormsDb()");
+        File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
+        ApplicationRecord currentApp = getInstalledAppRecord(c, db);
+        if (oldDbFile.exists()) {
+            Log.i("FormsProvider", "performing forms db migration");
+            File newDbFile = CommCareApplication._().getDatabasePath(
+                    FormsProvider.getFormsDbNameForApp(currentApp.getApplicationId()));
+            if (!oldDbFile.renameTo(newDbFile)) {
+                // Big problem, should probably crash here
+                return false;
+            } else {
+                Log.i("FormsProvider", "Successfully migrated old global db file to " +
+                        newDbFile.getAbsolutePath());
+                return true;
+            }
+        }
+        return false;
     }
 
     private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
