@@ -19,6 +19,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 public class AndroidSandbox implements UserDataInterface {
 
     CommCareApplication app;
+    String syncToken;
 
     public AndroidSandbox(CommCareApplication app){
         this.app = app;
@@ -65,11 +66,11 @@ public class AndroidSandbox implements UserDataInterface {
 
     @Override
     public void setSyncToken(String syncToken) {
-
+        this.syncToken = syncToken;
     }
 
     @Override
     public String getSyncToken() {
-        return null;
+        return syncToken;
     }
 }

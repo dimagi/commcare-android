@@ -123,8 +123,4 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             }
         };
     }
-
-    public String getSyncToken() {
-        return syncToken;
-    }
 }

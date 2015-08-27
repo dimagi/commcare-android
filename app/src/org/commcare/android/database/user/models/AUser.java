@@ -31,6 +31,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+/**
+ * Old Android user model now deprecated by combined User model in javarosa
+ */
 
 @Table(AUser.STORAGE_KEY)
 public class AUser implements Persistable, IMetaData
