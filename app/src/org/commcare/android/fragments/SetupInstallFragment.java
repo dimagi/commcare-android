@@ -34,7 +34,9 @@ public class SetupInstallFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_install, container, false);
         TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.barcode"));
+        TextView setupMsg2 = (TextView) view.findViewById(R.id.str_setup_message_2);
+        setupMsg.setText(Localization.get("install.barcode.top"));
+        setupMsg2.setText(Localization.get("install.barcode.bottom"));
         scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
         enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {

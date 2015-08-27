@@ -157,7 +157,7 @@ public class FileServerFragment extends Fragment {
                     Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
                     final File f = new File(finalFileName);
                     if(f.exists()){
-                        FileUtil.deleteFile(f);
+                        FileUtil.deleteFileOrDir(f);
                     }
                     publishProgress("File Server crashed with an IO Exception: " + e.getMessage());
                     return null;

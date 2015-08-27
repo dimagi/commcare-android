@@ -19,6 +19,7 @@
     <dimen name="tab_gradient_radius">300dp</dimen>
     
     <dimen name="spacer_small">5dp</dimen>
+    <dimen name="standard_spacer_half">4dp</dimen>
     <dimen name="standard_spacer">8dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
@@ -75,7 +76,7 @@
 
     <dimen name="list_soundicon_padding">15dp</dimen>
     <dimen name="list_soundicon_margin">5dp</dimen>
-    <dimen name="content_start">16dp</dimen>
+    <dimen name="content_start">8dp</dimen>
     <dimen name="content_start_quadruple">32dp</dimen>
     <dimen name="list_height">48dp</dimen>
 
