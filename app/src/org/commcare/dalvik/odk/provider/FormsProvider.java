@@ -46,7 +46,8 @@ public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
 
-    private static final String DATABASE_NAME = "forms.db";
+    private static final String OLD_DATABASE_NAME = "forms.db";
+
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
 
@@ -62,10 +63,24 @@ public class FormsProvider extends ContentProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
+        // the application id of the CCApp for which this db is storing forms
+        private String appId;
+
         public DatabaseHelper(Context c, String databaseName) {
             super(c, databaseName, null, DATABASE_VERSION);
+
+            // If this is a helper for the new version of form databases where we include the app
+            // id in the db name, grab the id
+            int startIndex = databaseName.indexOf("_");
+            if (startIndex != -1) {
+                int endIndex = databaseName.indexOf(".db");
+                this.appId = databaseName.substring(startIndex+1, endIndex);
+            }
         }
 
+        public String getAppId() {
+            return this.appId;
+        }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
@@ -104,11 +119,49 @@ public class FormsProvider extends ContentProvider {
         //This is so stupid.
         return true;
     }
+
+    /**
+     * Prior to multiple application seating, the FormsProvider used one global database for all
+     * forms. Now that we can have multiple apps installed at once, we have one forms db per app.
+     * This method will perform the necessary one-time migration for any user who still has the
+     * old global database
+     */
+    private void migrateOldGlobalDB() {
+        String dbRoot = getDbFileRoot();
+        String pathToOldDb = dbRoot + OLD_DATABASE_NAME;
+        File oldDbFile = new File(pathToOldDb);
+        if (oldDbFile.exists()) {
+            Log.i(t, "MIGRATING");
+            File newDbFile = new File(dbRoot + getDbNameForCurrentApp());
+            oldDbFile.renameTo(newDbFile);
+
+            Log.i(t, "old db file exists: " + oldDbFile.exists());
+            Log.i(t, "new db file exists: " + newDbFile.exists());
+            Log.i(t, "new db file path : " + newDbFile.getAbsolutePath());
+        }
+    }
+
+    // This is hacky...
+    private String getDbFileRoot() {
+        String dummyDbName = "dummy_name.db";
+        DatabaseHelper helper = new DatabaseHelper(CommCareApplication._(), dummyDbName);
+        SQLiteDatabase db = helper.getReadableDatabase();
+        String path = db.getPath();
+        return path.substring(0, path.indexOf(dummyDbName));
+    }
+
+    private String getDbNameForCurrentApp() {
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        return "forms_" + currentAppId + ".db";
+    }
     
     public void init() {
+        migrateOldGlobalDB();
+
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
         //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if(mDbHelper == null) {
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+        if (mDbHelper == null || mDbHelper.getAppId() != currentAppId) {
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), getDbNameForCurrentApp());
         }
     }
 
