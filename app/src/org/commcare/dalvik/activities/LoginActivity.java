@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -45,7 +44,6 @@ import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -123,7 +121,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     };
 
     public void setStyleDefault() {
-        LoginBoxesStatus.Normal.setStatus(this);
+        setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
@@ -131,34 +129,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         errorBox.setVisibility(View.GONE);
     }
 
-    public enum LoginBoxesStatus {
-        Normal(R.color.login_edit_text_color),
-        Error(R.color.login_edit_text_color_error);
-
-        private final int colorAttr;
-
-        LoginBoxesStatus(int colorAttr){
-            this.colorAttr = colorAttr;
-        }
-
-        public int getColor(Context ctx){
-            int color = ctx.getResources().getColor(colorAttr);
-            if (BuildConfig.DEBUG) {
-                Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
-            }
-            return color;
-        }
-
-        public void setStatus(LoginActivity lact){
-            lact.setLoginBoxesColor(this.getColor(lact));
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        LoginBoxesStatus.Normal.setStatus(this);
+        setLoginBoxesColorNormal();
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
@@ -509,8 +484,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     new String[] {toastText});
         }
         
-        //either way
-        LoginBoxesStatus.Error.setStatus(this);
+        setLoginBoxesColorError();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
@@ -522,15 +496,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * Sets the login boxes (user/pass) to the given color.
-     * @param color Color code
-     */
-    private void setLoginBoxesColor(int color) {
-        username.setTextColor(color);
-        password.setTextColor(color);
+    private void setLoginBoxesColorNormal() {
+        int normalColor = getResources().getColor(R.color.login_edit_text_color);
+
+        username.setTextColor(normalColor);
+        password.setTextColor(normalColor);
     }
 
+    private void setLoginBoxesColorError() {
+        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
+
+        username.setTextColor(errorColor);
+        password.setTextColor(errorColor);
+    }
 
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
