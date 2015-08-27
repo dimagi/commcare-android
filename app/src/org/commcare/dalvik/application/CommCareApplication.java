@@ -368,7 +368,7 @@ public class CommCareApplication extends Application {
             currentApp = app;
 
             // register data instance logic to handle casedb instances
-            ExternalDataInstanceFactory.registerInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
+            ExternalDataInstanceFactory.registerExternalDataInstanceBuilder(CaseInstanceTreeElement.MODEL_NAME, new CaseDataInstance());
 
             if (currentApp.initializeApplication()) {
                 return STATE_READY;
