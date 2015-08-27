@@ -47,7 +47,7 @@ public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
 
-    private static final String OLD_DATABASE_NAME = "forms.db";
+    public static final String OLD_DATABASE_NAME = "forms.db";
 
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
@@ -140,7 +140,7 @@ public class FormsProvider extends ContentProvider {
         }
     }
 
-    private String getCurrentApplicationId() {
+    private static String getCurrentApplicationId() {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp != null) {
             return currentApp.getAppRecord().getApplicationId();
@@ -154,7 +154,7 @@ public class FormsProvider extends ContentProvider {
     }
     
     public void init() {
-        migrateOldGlobalDB();
+        //migrateOldGlobalDB();
 
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {

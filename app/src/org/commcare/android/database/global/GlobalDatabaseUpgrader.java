@@ -4,6 +4,7 @@
 package org.commcare.android.database.global;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -12,7 +13,11 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.FormsProvider;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.io.File;
 
 /**
  * @author ctsims
@@ -52,6 +57,8 @@ public class GlobalDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
+
+            // Migrate all old ApplicationRecords in storage to the new version
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
@@ -73,9 +80,41 @@ public class GlobalDatabaseUpgrader {
                 storage.write(newRecord);
             }
             db.setTransactionSuccessful();
+
+            // Migrate the old global forms db to the new per-app system
+            File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
+            ApplicationRecord currentApp = getInstalledAppRecord(c, db);
+            if (oldDbFile.exists()) {
+                Log.i("FormsProvider", "performing forms db migration");
+                File newDbFile = CommCareApplication._().getDatabasePath(
+                        FormsProvider.getFormsDbNameForApp(currentApp.getApplicationId()));
+                if (!oldDbFile.renameTo(newDbFile)) {
+                    // Big problem, should probably crash here
+                } else {
+                    Log.i("FormsProvider", "Successfully migrated old global db file to " +
+                            newDbFile.getAbsolutePath());
+                }
+            }
+
             return true;
         } finally {
             db.endTransaction();
         }
+    }
+
+    private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+        SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                ApplicationRecord.STORAGE_KEY,
+                ApplicationRecord.class,
+                new ConcreteDbHelper(c, db));
+        for (Persistable p : storage) {
+            ApplicationRecord r = (ApplicationRecord) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                Log.i("FormsProvider", "YAY getInstalledAppRecord in GlobalDatabaseUpgrader NOT returning null");
+                return r;
+            }
+        }
+        Log.i("FormsProvider", "BAD getInstalledAppRecord in GlobalDatabaseUpgrader IS returning null");
+        return null;
     }
 }
