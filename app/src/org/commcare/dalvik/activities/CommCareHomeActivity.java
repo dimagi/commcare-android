@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -25,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +60,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
@@ -163,7 +160,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
     private StaggeredGridView newGridView;
-    private ImageView topBannerImageView;
+    private View mTopBanner;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,19 +189,19 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
         setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(this);
-        final View topBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
-        this.topBannerImageView = (ImageView)topBanner.findViewById(R.id.main_top_banner);
+        mTopBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+
         final View grid = findViewById(R.id.home_gridview_buttons);
         if (BuildConfig.DEBUG) {
             Log.v(TAG, "Grid is: " + grid + ", build version: " + Build.VERSION.SDK_INT + ", tag is: " + grid.getTag());
         }
         if (grid instanceof StaggeredGridView) {
             newGridView = (StaggeredGridView)grid;
-            newGridView.addHeaderView(topBanner);
+            newGridView.addHeaderView(mTopBanner);
             newGridView.setAdapter(adapter);
         } else {
             gridView = (GridViewWithHeaderAndFooter)grid;
-            gridView.addHeaderView(topBanner);
+            gridView.addHeaderView(mTopBanner);
             gridView.setAdapter(adapter);
         }
         //region Asserting that we're using the correct grid view for each version
@@ -1372,19 +1370,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             logoutMessageKey = "home.logout.demo";
         }
 
-        // Override default CommCare banner if requested
-        String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_HOME, "");
-        if (!"".equals(customBannerURI)) {
-            Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
-            if (bitmap != null) {
-                if (topBannerImageView != null) {
-                    topBannerImageView.setImageBitmap(bitmap);
-                } else {
-                    Log.i("TopBanner", "TopBanner is null!");
-                }
-            }
-        }
-
         if (startButton != null) {
             startButton.setText(Localization.get(homeMessageKey));
         }
@@ -1446,7 +1431,14 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
         adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
 
+        updateCommCareBanner();
+
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected View getBannerHost() {
+        return mTopBanner;
     }
 
     private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
