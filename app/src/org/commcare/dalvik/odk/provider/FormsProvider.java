@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 
@@ -113,7 +114,6 @@ public class FormsProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-
     @Override
     public boolean onCreate() {
         //This is so stupid.
@@ -124,44 +124,43 @@ public class FormsProvider extends ContentProvider {
      * Prior to multiple application seating, the FormsProvider used one global database for all
      * forms. Now that we can have multiple apps installed at once, we have one forms db per app.
      * This method will perform the necessary one-time migration for any user who still has the
-     * old global database
+     * old global database. Once it has been called the first time for a given device, it will
+     * have no effect when called subsequent times because oldDbFile will not exist
      */
     private void migrateOldGlobalDB() {
-        String dbRoot = getDbFileRoot();
-        String pathToOldDb = dbRoot + OLD_DATABASE_NAME;
-        File oldDbFile = new File(pathToOldDb);
+        // Migrate the old global forms db to the new per-app system
+        File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
         if (oldDbFile.exists()) {
-            Log.i(t, "MIGRATING");
-            File newDbFile = new File(dbRoot + getDbNameForCurrentApp());
-            oldDbFile.renameTo(newDbFile);
-
-            Log.i(t, "old db file exists: " + oldDbFile.exists());
-            Log.i(t, "new db file exists: " + newDbFile.exists());
-            Log.i(t, "new db file path : " + newDbFile.getAbsolutePath());
+            File newDbFile = CommCareApplication._().getDatabasePath(getDbNameForCurrentApp());
+            if (!oldDbFile.renameTo(newDbFile)) {
+                // Big problem, should probably crash here
+            } else {
+                Log.i(t, "Moved old global db file to " + newDbFile.getAbsolutePath());
+            }
         }
     }
 
-    // This is hacky...
-    private String getDbFileRoot() {
-        String dummyDbName = "dummy_name.db";
-        DatabaseHelper helper = new DatabaseHelper(CommCareApplication._(), dummyDbName);
-        SQLiteDatabase db = helper.getReadableDatabase();
-        String path = db.getPath();
-        return path.substring(0, path.indexOf(dummyDbName));
+    private String getCurrentApplicationId() {
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        if (currentApp != null) {
+            return currentApp.getAppRecord().getApplicationId();
+        } else {
+            return CommCareApplication._().getAppBeingInstalled().getAppRecord().getApplicationId();
+        }
     }
 
     private String getDbNameForCurrentApp() {
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
-        return "forms_" + currentAppId + ".db";
+        return "forms_" + getCurrentApplicationId() + ".db";
     }
     
     public void init() {
         migrateOldGlobalDB();
 
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
-        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if (mDbHelper == null || mDbHelper.getAppId() != currentAppId) {
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), getDbNameForCurrentApp());
+        // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+        if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {
+            String dbName = getDbNameForCurrentApp();
+            Log.i(t, "Name of db being used in FormsProvider.init(): " + dbName);
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }
     }
 

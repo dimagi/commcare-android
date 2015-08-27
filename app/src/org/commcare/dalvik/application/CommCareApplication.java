@@ -130,6 +130,7 @@ public class CommCareApplication extends Application {
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
+    private CommCareApp appBeingInstalled;
 
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
@@ -316,6 +317,14 @@ public class CommCareApplication extends Application {
         } else {
             return this.currentApp.getCommCarePlatform();
         }
+    }
+
+    public void setAppBeingInstalled(CommCareApp app) {
+        this.appBeingInstalled = app;
+    }
+
+    public CommCareApp getAppBeingInstalled() {
+        return this.appBeingInstalled;
     }
 
     public CommCareApp getCurrentApp() {

@@ -236,7 +236,8 @@ public abstract class ResourceEngineTask<R>
             }
 
             // Initializes app resources and the app itself, including doing a check to see if this
-            // app record was converted by the db upgrader
+            // app record was converted by the db upgrader. This is also where
+            // CommCareApplication's currentApp gets set
             CommCareApplication._().initializeGlobalResources(app);
 
             // Write this App Record to storage -- needs to be performed after localizations have
