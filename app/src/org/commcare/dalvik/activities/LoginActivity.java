@@ -210,7 +210,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
@@ -561,6 +561,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void refreshView() {
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
+
+        updateCommCareBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();

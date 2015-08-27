@@ -18,21 +18,7 @@
             android:orientation="vertical">
 
         <!--&lt;!&ndash; TODO: extract style definition &ndash;&gt;-->
-        <ImageView
-            android:id="@+id/screen_first_start_banner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:layout_marginRight="@dimen/content_start"
-            android:layout_marginEnd="@dimen/content_start"
-            android:paddingBottom="@dimen/content_start"
-            android:paddingLeft="@dimen/content_start"
-            android:paddingRight="@dimen/content_start"
-            android:paddingTop="@dimen/content_start"
-            android:layout_marginBottom="@dimen/content_min_margin"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/commcare_logo" />
+        <include layout="@layout/grid_header_top_banner"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -66,36 +52,41 @@
                 android:paddingBottom="@dimen/content_min_margin"
                 android:orientation="horizontal" >
 
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/standard_spacer"
+                    android:layout_weight="1"
+                    android:background="@drawable/tile_drop_shadow_small_margins">
                 <org.commcare.android.view.SquareButtonWithText
                     android:id="@+id/btn_fetch_uri"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/content_start"
-                    android:layout_marginStart="@dimen/content_start"
-                    android:layout_marginRight="@dimen/content_min_margin"
-                    android:layout_marginEnd="@dimen/content_min_margin"
-                    android:layout_weight="1"
-                    SquareButtonWithText:subtitle="Scan application barcode"
+                    android:layout_height="match_parent"
+                    SquareButtonWithText:subtitle="Scan Application Barcode"
                     SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
                     SquareButtonWithText:img="@drawable/startup_barcode"
                     SquareButtonWithText:colorText="@color/white"
                     />
+                </FrameLayout>
 
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="@dimen/standard_spacer"
+                    android:layout_weight="1"
+                    android:background="@drawable/tile_drop_shadow_small_margins">
                 <org.commcare.android.view.SquareButtonWithText
                     android:id="@+id/enter_app_location"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/content_start"
-                    android:layout_marginStart="@dimen/content_start"
-                    android:layout_marginRight="@dimen/content_min_margin"
-                    android:layout_marginEnd="@dimen/content_min_margin"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
                     android:gravity="end"
                     SquareButtonWithText:subtitle="Enter URL"
                     SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
                     SquareButtonWithText:img="@drawable/startup_url"
                     SquareButtonWithText:colorText="@color/white"
+                    android:background="@drawable/tile_drop_shadow_small_margins"
                     />
+                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
         </LinearLayout>

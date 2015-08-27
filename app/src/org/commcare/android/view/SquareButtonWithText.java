@@ -1,10 +1,13 @@
 package org.commcare.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.StateSet;
 import android.widget.RelativeLayout;
@@ -54,6 +57,7 @@ public class SquareButtonWithText extends RelativeLayout {
 
     private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
+        this.setClickable(true);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
@@ -91,18 +95,34 @@ public class SquareButtonWithText extends RelativeLayout {
         }
     }
 
+
     public void setImage(Drawable backgroundImg) {
         squareButton.setImageDrawable(backgroundImg);
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void setColor(int backgroundColor) {
-        // shows a bluish background when pressed, otherwise shows the chosen color
-        ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
+
+        int color = colorDrawable.getColor();
+        float[] hsvOutput = new float[3];
+        Color.colorToHSV(color, hsvOutput);
+
+        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
+
+        int selectedColor = Color.HSVToColor(hsvOutput);
+
+        ColorDrawable pressedBackground = new ColorDrawable(selectedColor);
+
         StateListDrawable sld = new StateListDrawable();
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
         sld.addState(StateSet.WILD_CARD, colorDrawable);
-        squareButton.setBackgroundDrawable(sld);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.setBackground(sld);
+        } else {
+            this.setBackgroundDrawable(sld);
+        }
+
     }
 
     public void setTextColor(int textColor) {
@@ -110,10 +130,4 @@ public class SquareButtonWithText extends RelativeLayout {
     }
 
     //endregion
-
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        // attach the listener to the squareButton instead of the layout
-        squareButton.setOnClickListener(l);
-    }
 }
