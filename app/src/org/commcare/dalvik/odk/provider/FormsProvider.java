@@ -137,7 +137,6 @@ public class FormsProvider extends ContentProvider {
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {
             String dbName = getFormsDbNameForApp(getCurrentApplicationId());
-            Log.i(t, "Name of db being used in FormsProvider.init(): " + dbName);
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }
     }

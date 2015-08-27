@@ -31,7 +31,6 @@ public class GlobalDatabaseUpgrader {
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.i("FormsProvider", "in upgrade()");
         if (oldVersion == 1) {
             if (upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
@@ -56,7 +55,6 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
-        Log.i("FormsProvider", "in upgradeTwoThree()");
         return upgradeAppRecords(db) && upgradeFormsDb(db);
     }
 
@@ -100,19 +98,15 @@ public class GlobalDatabaseUpgrader {
      * new per-app system
      */
     private boolean upgradeFormsDb(SQLiteDatabase db) {
-        Log.i("FormsProvider", "in upgradeFormsDb()");
         File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
         ApplicationRecord currentApp = getInstalledAppRecord(c, db);
         if (oldDbFile.exists()) {
-            Log.i("FormsProvider", "performing forms db migration");
             File newDbFile = CommCareApplication._().getDatabasePath(
                     FormsProvider.getFormsDbNameForApp(currentApp.getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
-                // Big problem, should probably crash here
+                // Big problem, should potentially crash here ?
                 return false;
             } else {
-                Log.i("FormsProvider", "Successfully migrated old global db file to " +
-                        newDbFile.getAbsolutePath());
                 return true;
             }
         }
@@ -127,11 +121,9 @@ public class GlobalDatabaseUpgrader {
         for (Persistable p : storage) {
             ApplicationRecord r = (ApplicationRecord) p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                Log.i("FormsProvider", "YAY getInstalledAppRecord in GlobalDatabaseUpgrader NOT returning null");
                 return r;
             }
         }
-        Log.i("FormsProvider", "BAD getInstalledAppRecord in GlobalDatabaseUpgrader IS returning null");
         return null;
     }
 }
