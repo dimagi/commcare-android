@@ -131,7 +131,7 @@ public class FormsProvider extends ContentProvider {
         // Migrate the old global forms db to the new per-app system
         File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
         if (oldDbFile.exists()) {
-            File newDbFile = CommCareApplication._().getDatabasePath(getDbNameForCurrentApp());
+            File newDbFile = CommCareApplication._().getDatabasePath(getFormsDbNameForApp(getCurrentApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
                 // Big problem, should probably crash here
             } else {
@@ -149,8 +149,8 @@ public class FormsProvider extends ContentProvider {
         }
     }
 
-    private String getDbNameForCurrentApp() {
-        return "forms_" + getCurrentApplicationId() + ".db";
+    public static String getFormsDbNameForApp(String applicationId) {
+        return "forms_" + applicationId + ".db";
     }
     
     public void init() {
@@ -158,7 +158,7 @@ public class FormsProvider extends ContentProvider {
 
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {
-            String dbName = getDbNameForCurrentApp();
+            String dbName = getFormsDbNameForApp(getCurrentApplicationId());
             Log.i(t, "Name of db being used in FormsProvider.init(): " + dbName);
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }

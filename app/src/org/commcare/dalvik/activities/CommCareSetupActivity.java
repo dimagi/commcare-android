@@ -385,7 +385,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void startResourceInstall() {
         CommCareApp ccApp = getCommCareApp();
-        CommCareApplication._().setAppBeingInstalled(ccApp);
         long lastInstallTime = ccApp.getAppPreferences().getLong(KEY_LAST_INSTALL, -1);
         if (System.currentTimeMillis() - lastInstallTime > START_OVER_THRESHOLD) {
             // If we are triggering a start over install due to the time
@@ -424,12 +423,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
-
             ccApp = app;
+            CommCareApplication._().setAppBeingInstalled(ccApp);
 
-             // store what the state of the resource table was before this
-             // install, so we can compare it to the state after and decide if
-             // this should count as a 'last install time'
+            // store what the state of the resource table was before this
+            // install, so we can compare it to the state after and decide if
+            // this should count as a 'last install time'
             int tableStateBeforeInstall =
                 ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 

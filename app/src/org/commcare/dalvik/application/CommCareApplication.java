@@ -75,6 +75,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
+import org.commcare.dalvik.odk.provider.FormsProvider;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
@@ -595,37 +596,43 @@ public class CommCareApplication extends Application {
         getGlobalStorage(ApplicationRecord.class).write(record);
 
         // 3) Delete the directory containing all of this app's resources
-        FileUtil.deleteFileOrDir(app.storageRoot());
+        if (!FileUtil.deleteFileOrDir(app.storageRoot())) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "App storage root was unable to be " +
+                    "deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
 
         // 3) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
             File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
-            if (f.exists()) {
-                boolean deleted = f.delete();
-                if (!deleted) {
-                    Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
-                            "deleted during app uninstall. Aborting uninstall process for now.");
-                    // If we failed to delete a file, it is likely because there is an open pointer
-                    // to that db still in use, so stop the uninstall for now, and rely on it to
-                    // complete the next time the app starts up
-                    return;
-                }
+            if (!FileUtil.deleteFileOrDir(f)) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
+                        "deleted during app uninstall. Aborting uninstall process for now.");
+                // If we failed to delete a file, it is likely because there is an open pointer
+                // to that db still in use, so stop the uninstall for now, and rely on it to
+                // complete the next time the app starts up
+                return;
             }
         }
 
         // 4) Delete the app database
         File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
-        if (f.exists()) {
-            boolean deleted = f.delete();
-            if (!deleted) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
-                        "during app uninstall. Aborting uninstall process for now.");
-                return;
-            }
+        if (!FileUtil.deleteFileOrDir(f)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
+                    "during app uninstall. Aborting uninstall process for now.");
+            return;
         }
 
-        // 5) Delete the ApplicationRecord
+        // 5) Delete the forms database for this app
+        File formsDb = getDatabasePath(FormsProvider.getFormsDbNameForApp(app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(formsDb)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be deleted" +
+                    "during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 6) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 
