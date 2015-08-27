@@ -42,11 +42,6 @@ public class GlobalDatabaseUpgrader {
                 oldVersion = 3;
             }
         }
-        if (oldVersion == 3) {
-            if (upgradeThreeFour(db)) {
-                oldVersion = 4;
-            }
-        }
     }
 
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -62,15 +57,12 @@ public class GlobalDatabaseUpgrader {
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         Log.i("FormsProvider", "in upgradeTwoThree()");
-        return upgradeAppRecords(db);
+        return upgradeAppRecords(db) && upgradeFormsDb(db);
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
-        Log.i("FormsProvider", "in upgradeThreeFour()");
-        return upgradeFormsDb(db);
-    }
-
-    // Migrate all old ApplicationRecords in storage to the new version
+    /**
+     * Migrate all old ApplicationRecords in storage to the new version being used for multiple apps
+     */
     private boolean upgradeAppRecords(SQLiteDatabase db) {
         db.beginTransaction();
         try {
@@ -101,7 +93,12 @@ public class GlobalDatabaseUpgrader {
         }
     }
 
-    // Migrate the old global forms db to the new per-app system
+    /**
+     * Prior to multiple application seating, the FormsProvider used one global database for all
+     * forms. Now that we can have multiple apps installed at once, we have one forms db per app.
+     * This method will perform the necessary one-time migration from the global forms db to the
+     * new per-app system
+     */
     private boolean upgradeFormsDb(SQLiteDatabase db) {
         Log.i("FormsProvider", "in upgradeFormsDb()");
         File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);

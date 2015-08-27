@@ -120,26 +120,6 @@ public class FormsProvider extends ContentProvider {
         return true;
     }
 
-    /**
-     * Prior to multiple application seating, the FormsProvider used one global database for all
-     * forms. Now that we can have multiple apps installed at once, we have one forms db per app.
-     * This method will perform the necessary one-time migration for any user who still has the
-     * old global database. Once it has been called the first time for a given device, it will
-     * have no effect when called subsequent times because oldDbFile will not exist
-     */
-    private void migrateOldGlobalDB() {
-        // Migrate the old global forms db to the new per-app system
-        File oldDbFile = CommCareApplication._().getDatabasePath(FormsProvider.OLD_DATABASE_NAME);
-        if (oldDbFile.exists()) {
-            File newDbFile = CommCareApplication._().getDatabasePath(getFormsDbNameForApp(getCurrentApplicationId()));
-            if (!oldDbFile.renameTo(newDbFile)) {
-                // Big problem, should probably crash here
-            } else {
-                Log.i(t, "Moved old global db file to " + newDbFile.getAbsolutePath());
-            }
-        }
-    }
-
     private static String getCurrentApplicationId() {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp != null) {
@@ -154,8 +134,6 @@ public class FormsProvider extends ContentProvider {
     }
     
     public void init() {
-        //migrateOldGlobalDB();
-
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if (mDbHelper == null || mDbHelper.getAppId() != getCurrentApplicationId()) {
             String dbName = getFormsDbNameForApp(getCurrentApplicationId());
