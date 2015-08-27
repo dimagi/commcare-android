@@ -576,6 +576,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 fileToReturn = originalImage;
                 Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
+                Log.i(TAG, "Returning the rawImageFile from moveAndScaleImage: " + rawImageFile.getAbsolutePath());
                 fileToReturn = rawImageFile;
                 Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
             }
@@ -591,7 +592,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private boolean scaleImage(File originalImage, String finalFilePath) {
         boolean scaledImage = false;
-        ImageWidget currentWidget = getCurrentImageWidget();
+        ImageWidget currentWidget = (ImageWidget)getPendingWidget();
         int maxDimen = currentWidget.getMaxDimen();
         if (maxDimen != -1) {
             // If a max image dimen was set, create a bitmap out of the image file to see if we
@@ -599,6 +600,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
             int height = bitmap.getHeight();
             int width = bitmap.getWidth();
+            Log.i(TAG, "original width: " + width);
+            Log.i(TAG, "original height: " + height);
             int largerDimen = Math.max(height, width);
             int smallerDimen = Math.min(height, width);
             if (largerDimen > maxDimen) {
@@ -611,6 +614,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 } else {
                     bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
                 }
+                Log.i(TAG, "scaled width: " + bitmap.getWidth());
+                Log.i(TAG, "scaled height: " + bitmap.getHeight());
                 // Write this scaled bitmap to the final file location
                 FileOutputStream out = null;
                 try {
@@ -724,32 +729,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         refreshCurrentView();
     }
 
-    /**
-     * Returns the ImageWidget that is currently waiting to receive binary data from this
-     * activity (as a result of image capture or chooser)
-     */
-    private ImageWidget getCurrentImageWidget() {
+    // In order for this method to successfully return the "current" widget, the subclass of
+    // QuestionWidget that you wish to use it for must take in a PendingCalloutInterface in its
+    // constructor (passed from WidgetFactory) and call setPendingCalloutFormIndex() when it
+    // launches its intent (See IntentWidget or ImageWidget for examples)
+    private QuestionWidget getPendingWidget() {
         QuestionWidget bestMatch = null;
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            if (q instanceof IBinaryWidget) {
-                if (((IBinaryWidget)q).isWaitingForBinaryData()) {
-                    bestMatch = q;
-                }
-            }
-        }
-        return (ImageWidget)bestMatch;
-    }
-
-    private IntentWidget getPendingIntentWidget() {
-        IntentWidget bestMatch = null;
-
-        //Ugh, copied from the odkview mostly, that's stupid
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            //Figure out if we have a pending intent widget
-            if (q instanceof IntentWidget) {
-                if(q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
-                    bestMatch = (IntentWidget)q;
-                }
+            if (q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
+                bestMatch = q;
             }
         }
         return bestMatch;
@@ -765,7 +753,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         boolean advance = false;
         boolean quick = false;
 
-        IntentWidget pendingIntentWidget = getPendingIntentWidget();
+        IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         TreeReference context;
         if (mFormController.getPendingCalloutFormIndex() != null) {
             context = mFormController.getPendingCalloutFormIndex().getReference();

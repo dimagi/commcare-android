@@ -27,6 +27,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.ImageRestrictionExtension;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
 
@@ -54,8 +55,14 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
+    private PendingCalloutInterface pendingCalloutInterface;
 
-    public ImageWidget(Context context, FormEntryPrompt prompt) {
+    public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
+        this(context, prompt);
+        this.pendingCalloutInterface = pic;
+    }
+
+    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
 
         mMaxDimen = -1;
@@ -94,6 +101,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -123,6 +131,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                     mWaitingForData = true;
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),

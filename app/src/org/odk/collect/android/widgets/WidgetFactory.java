@@ -118,7 +118,7 @@ public class WidgetFactory {
                 if (appearance != null && appearance.equals("signature")) {
                     questionWidget = new SignatureWidget(context, fep);
                 } else {
-                    questionWidget = new ImageWidget(context, fep);
+                    questionWidget = new ImageWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
