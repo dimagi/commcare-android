@@ -12,8 +12,8 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
                     android:id="@+id/screen_first_start_main"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:orientation="vertical"
         >
         <LinearLayout
@@ -106,7 +106,7 @@
                     </FrameLayout>
                 </LinearLayout>
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent">
                     <ImageView
                         android:layout_width="wrap_content"
