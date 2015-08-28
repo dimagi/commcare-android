@@ -75,7 +75,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
-import org.commcare.dalvik.odk.provider.FormsProvider;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
@@ -603,7 +602,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        // 3) Delete all the user databases associated with this app
+        // 4) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
             File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
@@ -617,7 +616,7 @@ public class CommCareApplication extends Application {
             }
         }
 
-        // 4) Delete the forms database for this app
+        // 5) Delete the forms database for this app
         File formsDb = getDatabasePath(ProviderUtils.getProviderDbName(
                 ProviderUtils.ProviderType.TYPE_FORMS,
                 app.getAppRecord().getApplicationId()));
@@ -627,7 +626,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        // 5) Delete the instances database for this app
+        // 6) Delete the instances database for this app
         File instancesDb = getDatabasePath(ProviderUtils.getProviderDbName(
                 ProviderUtils.ProviderType.TYPE_INSTANCES,
                 app.getAppRecord().getApplicationId()));
@@ -637,7 +636,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        // 6) Delete the app database
+        // 7) Delete the app database
         File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(f)) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
@@ -645,7 +644,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        // 7) Delete the ApplicationRecord
+        // 8) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 

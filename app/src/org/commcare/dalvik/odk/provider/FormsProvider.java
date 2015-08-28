@@ -30,7 +30,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 
