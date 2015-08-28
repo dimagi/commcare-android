@@ -28,8 +28,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     /**
      * V.2 - all sqlstorage objects now need numbers tables
      * V.3 - ApplicationRecord has new fields to support multiple app seating
+     * V.4 - FormsProvider and InstanceProvider have one db for each app, instead of a global db
      */
-    private static final int GLOBAL_DB_VERSION = 3;
+    private static final int GLOBAL_DB_VERSION = 4;
     
     private static final String GLOBAL_DB_LOCATOR = "database_global";
     
