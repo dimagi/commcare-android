@@ -34,13 +34,10 @@ public class GlobalDatabaseUpgrader {
             if (upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
             }
-        } if (oldVersion == 2) {
+        }
+        if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
-            }
-        } if (oldVersion == 3) {
-            if (upgradeThreeFour(db)) {
-                oldVersion = 4;
             }
         }
     }
@@ -56,15 +53,16 @@ public class GlobalDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
-        return upgradeProviderDb(db, ProviderUtils.ProviderType.FORMS) &&
+    private boolean upgradeTwoThree(SQLiteDatabase db) {
+        return upgradeAppRecords(db) &&
+                upgradeProviderDb(db, ProviderUtils.ProviderType.FORMS) &&
                 upgradeProviderDb(db, ProviderUtils.ProviderType.INSTANCES);
     }
 
     /**
      * Migrate all old ApplicationRecords in storage to the new version being used for multiple apps
      */
-    private boolean upgradeTwoThree(SQLiteDatabase db) {
+    private boolean upgradeAppRecords(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
