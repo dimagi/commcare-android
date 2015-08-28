@@ -76,6 +76,7 @@ import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.odk.provider.FormsProvider;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
@@ -616,7 +617,27 @@ public class CommCareApplication extends Application {
             }
         }
 
-        // 4) Delete the app database
+        // 4) Delete the forms database for this app
+        File formsDb = getDatabasePath(ProviderUtils.getProviderDbName(
+                ProviderUtils.ProviderType.TYPE_FORMS,
+                app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(formsDb)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be " +
+                    "deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 5) Delete the instances database for this app
+        File instancesDb = getDatabasePath(ProviderUtils.getProviderDbName(
+                ProviderUtils.ProviderType.TYPE_INSTANCES,
+                app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(instancesDb)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's instances database was unable to" +
+                    " be deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 6) Delete the app database
         File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(f)) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
@@ -624,15 +645,7 @@ public class CommCareApplication extends Application {
             return;
         }
 
-        // 5) Delete the forms database for this app
-        File formsDb = getDatabasePath(FormsProvider.getFormsDbNameForApp(app.getAppRecord().getApplicationId()));
-        if (!FileUtil.deleteFileOrDir(formsDb)) {
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be deleted" +
-                    "during app uninstall. Aborting uninstall process for now.");
-            return;
-        }
-
-        // 6) Delete the ApplicationRecord
+        // 7) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 
