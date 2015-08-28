@@ -25,7 +25,6 @@ import java.util.Vector;
  * Will be cancelled on user logout, but can still run if no user is logged in.
  *
  * TODO PLM: App Manager must cancel this task upon UpdateActivity exit.
- * TODO PLM: use 'synchronized' when manipulating static singleton
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -34,6 +33,7 @@ public class UpdateTask
         implements TableStateListener, InstallCancelled {
 
     private static final String TAG = UpdateTask.class.getSimpleName();
+    private static final Object lock = new Object();
 
     private static UpdateTask singletonRunningInstance = null;
 
@@ -56,20 +56,24 @@ public class UpdateTask
     }
 
     public static UpdateTask getNewInstance() {
-        if (singletonRunningInstance == null) {
-            singletonRunningInstance = new UpdateTask();
-            return singletonRunningInstance;
-        } else {
-            throw new IllegalStateException("An instance of " + TAG + " already exists.");
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new UpdateTask();
+                return singletonRunningInstance;
+            } else {
+                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+            }
         }
     }
 
     public static UpdateTask getRunningInstance() {
-        if (singletonRunningInstance != null &&
-                singletonRunningInstance.getStatus() == Status.RUNNING) {
-            return singletonRunningInstance;
+        synchronized (lock) {
+            if (singletonRunningInstance != null &&
+                    singletonRunningInstance.getStatus() == Status.RUNNING) {
+                return singletonRunningInstance;
+            }
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -138,7 +142,9 @@ public class UpdateTask
             taskListener.handleTaskCompletion(result);
         }
 
-        singletonRunningInstance = null;
+        synchronized (lock) {
+            singletonRunningInstance = null;
+        }
     }
 
     @Override
@@ -155,7 +161,9 @@ public class UpdateTask
 
         resourceManager.upgradeCancelled();
 
-        singletonRunningInstance = null;
+        synchronized (lock) {
+            singletonRunningInstance = null;
+        }
     }
 
     /**
