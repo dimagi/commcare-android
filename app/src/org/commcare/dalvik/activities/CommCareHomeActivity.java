@@ -1254,10 +1254,10 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         String ref = ResourceInstallUtils.getDefaultProfile();
         try {
             // TODO PLM: handle restart logic
-            // TODO PLM: this will crash if there is already a running instance
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.execute(ref);
         } catch (IllegalStateException e) {
+            Log.w(TAG, "Trying trigger auto-update when it is already running, this should never happen!");
         }
     }
 
