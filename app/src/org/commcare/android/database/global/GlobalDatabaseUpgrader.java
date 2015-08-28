@@ -55,8 +55,8 @@ public class GlobalDatabaseUpgrader {
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         return upgradeAppRecords(db) &&
-                upgradeProviderDb(db, ProviderUtils.ProviderType.TYPE_FORMS) &&
-                upgradeProviderDb(db, ProviderUtils.ProviderType.TYPE_INSTANCES);
+                upgradeProviderDb(db, ProviderUtils.ProviderType.FORMS) &&
+                upgradeProviderDb(db, ProviderUtils.ProviderType.INSTANCES);
     }
 
     /**

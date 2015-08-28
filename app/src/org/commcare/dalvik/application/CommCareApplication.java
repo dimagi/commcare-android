@@ -618,7 +618,7 @@ public class CommCareApplication extends Application {
 
         // 5) Delete the forms database for this app
         File formsDb = getDatabasePath(ProviderUtils.getProviderDbName(
-                ProviderUtils.ProviderType.TYPE_FORMS,
+                ProviderUtils.ProviderType.FORMS,
                 app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(formsDb)) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be " +
@@ -628,7 +628,7 @@ public class CommCareApplication extends Application {
 
         // 6) Delete the instances database for this app
         File instancesDb = getDatabasePath(ProviderUtils.getProviderDbName(
-                ProviderUtils.ProviderType.TYPE_INSTANCES,
+                ProviderUtils.ProviderType.INSTANCES,
                 app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(instancesDb)) {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's instances database was unable to" +

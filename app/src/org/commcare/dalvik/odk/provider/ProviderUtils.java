@@ -12,7 +12,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 public class ProviderUtils {
 
     public enum ProviderType {
-        TYPE_FORMS("forms.db"), TYPE_INSTANCES("instances.db");
+        FORMS("forms.db"), INSTANCES("instances.db");
 
         private String oldDbName;
 
@@ -35,7 +35,7 @@ public class ProviderUtils {
     }
 
     public static String getProviderDbName(ProviderType type, String applicationId) {
-        if (type == ProviderType.TYPE_FORMS) {
+        if (type == ProviderType.FORMS) {
             return "forms_" + applicationId + ".db";
         } else {
             return "instances_" + applicationId + ".db";

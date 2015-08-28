@@ -115,7 +115,7 @@ public class InstanceProvider extends ContentProvider {
         // this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
         if (mDbHelper == null || mDbHelper.getAppId() != ProviderUtils.getSeatedOrInstallingAppId()) {
             String dbName = ProviderUtils.getProviderDbName(
-                    ProviderUtils.ProviderType.TYPE_INSTANCES,
+                    ProviderUtils.ProviderType.INSTANCES,
                     ProviderUtils.getSeatedOrInstallingAppId());
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
         }
