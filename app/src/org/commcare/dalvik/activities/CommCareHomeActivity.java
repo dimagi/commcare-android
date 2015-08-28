@@ -1700,7 +1700,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
     private void returnToLogin() {
         Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivityForResult(i, LOGIN_USER);
     }
 }
