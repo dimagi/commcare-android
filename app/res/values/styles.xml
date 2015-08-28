@@ -156,7 +156,7 @@
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/dark_brown</item>
+        <item name="android:textColor">@color/cc_light_warm_accent_text</item>
         <item name="android:clickable">false</item>
         <item name="android:longClickable">false</item>
     </style>
