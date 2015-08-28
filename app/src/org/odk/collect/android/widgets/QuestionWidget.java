@@ -189,6 +189,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public abstract void setOnLongClickListener(OnLongClickListener l);
 
+    @Override
     public void applyExtension(QuestionDataExtension extension) {
         // Intentionally empty method body -- subclasses of QuestionWidget that expect
         // to ever receive an extension should override this method and implement it accordingly

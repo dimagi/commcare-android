@@ -531,14 +531,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * SignatureWidget or ImageWidget (capture or choose)
      *
      * @param originalImage the image file returned by the image capture or chooser intent
-     * @param isImage if false, indicates that the image is from a signature capture, so should
+     * @param shouldScale if false, indicates that the image is from a signature capture, so should
      *                not attempt to scale
      * @return a version of the image that is in its final location but has NOT been scaled, for
      * use in displaying the captured/chosen image on the device screen when this question widget
      * is in view (since the purpose of scaling is to limit the size of images sent to HQ, but we
      * still want best possible quality on the device)
      */
-    private File moveAndScaleImage(File originalImage, boolean isImage) {
+    private File moveAndScaleImage(File originalImage, boolean shouldScale) {
         // We want to save our final image file in the instance folder for this form, so that it
         // gets sent to HQ with the form
         String instanceFolder =
@@ -547,7 +547,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         String finalFilePath = instanceFolder + imageFilename;
 
         boolean savedScaledImage = false;
-        if (isImage) {
+        if (shouldScale) {
             savedScaledImage = scaleImage(originalImage, finalFilePath);
         }
 
