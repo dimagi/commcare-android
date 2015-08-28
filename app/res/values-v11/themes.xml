@@ -40,6 +40,10 @@
         <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
         <item name="android:logo">@drawable/actionbar_modern_spacing</item>
         <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+
+        <!-- Disable action bar elevation on lolipop+ (re-implementing w/a gradient) -->
+        <item name="android:shadowDy">0</item>
+        <item name="android:shadowRadius">0</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">

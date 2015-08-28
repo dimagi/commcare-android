@@ -18,7 +18,7 @@
         >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <!--&lt;!&ndash; TODO: extract style definition &ndash;&gt;-->
@@ -39,7 +39,7 @@
                 android:src="@drawable/commcare_logo" />
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center_horizontal"
                 >
