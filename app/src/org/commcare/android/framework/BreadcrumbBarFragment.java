@@ -243,8 +243,8 @@ public class BreadcrumbBarFragment extends Fragment {
             public void onClick(View v) {
                 if(isClosed){
                     if(mInternalDetailView == null ) {
-                        mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
-                        mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
+                        mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
+                        mInternalDetailView.setRoot(mInternalDetailView);
 
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();

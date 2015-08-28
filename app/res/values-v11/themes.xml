@@ -6,8 +6,8 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
-        <item name="entity_detail_odd_row_color">@color/transparent</item>
+        <item name="detail_even_row_color">@color/cc_core_bg</item>
+        <item name="detail_odd_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
         <item name="entity_view_header_text_color">@color/cc_core_bg</item>
         <item name="searchbox_action_bar_color">@color/white</item>
