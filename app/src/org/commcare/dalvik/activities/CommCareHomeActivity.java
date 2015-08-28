@@ -458,9 +458,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             switch(requestCode) {
             case INIT_APP:
                 if (resultCode == RESULT_CANCELED) {
-                    // User pressed back button from install screen, need to just keep them there
-                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                    this.startActivityForResult(i, INIT_APP);
+                    // User pressed back button from install screen, so take them out of CommCare
+                    this.finish();
                     return;
                 } else if (resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
