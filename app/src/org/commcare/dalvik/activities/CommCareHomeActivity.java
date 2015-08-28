@@ -335,12 +335,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         rebuildMenus();
     }
 
-    private boolean isNetworkNotConnected() {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo == null || !netInfo.isConnectedOrConnecting());
-    }
-
     private void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }

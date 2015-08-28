@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -507,6 +509,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             titleBuf.append(" > ").append(local);
         }
         return titleBuf.toString();
+    }
+
+    public boolean isNetworkNotConnected() {
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo == null || !netInfo.isConnectedOrConnecting());
     }
 
     protected void createErrorDialog(String errorMsg, boolean shouldExit) {
