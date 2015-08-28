@@ -165,12 +165,17 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
+            // Check if we have a raw folder, and if so pull the image to display from there
+            File toDisplay = new File(mInstanceFolder + "/raw/" + mBinaryName);
+            if (!toDisplay.exists()) {
+                // Otherwise, just use the image in the instance folder
+                toDisplay = new File(mInstanceFolder + "/" + mBinaryName);
+            }
 
-            checkFileSize(f);
+            checkFileSize(toDisplay);
 
-            if (f.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f,
+            if (toDisplay.exists()) {
+                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(toDisplay,
                         screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);

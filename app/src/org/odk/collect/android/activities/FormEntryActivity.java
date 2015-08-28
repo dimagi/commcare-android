@@ -576,7 +576,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 fileToReturn = originalImage;
                 Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
             } else {
-                Log.i(TAG, "Returning the rawImageFile from moveAndScaleImage: " + rawImageFile.getAbsolutePath());
                 fileToReturn = rawImageFile;
                 Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
             }
@@ -2656,7 +2655,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         .format(Calendar.getInstance().getTime());
             String file =
                 mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
-            String path = mInstanceDestination + "/" + file + "_" + time;
+            String path = mInstanceDestination + file + "_" + time;
             if (FileUtils.createFolder(path)) {
                 mInstancePath = path + "/" + file + "_" + time + ".xml";
             }
