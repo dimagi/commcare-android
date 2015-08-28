@@ -125,7 +125,7 @@ class UpdateUiController {
 
         int version = ResourceInstallUtils.upgradeTableVersion();
         String versionMsg =
-                Localization.get("update.staged.version",
+                Localization.get("updates.staged.version",
                         new String[]{Integer.toString(version)});
         installUpdateButton.setText(versionMsg);
         updateProgressText("");
