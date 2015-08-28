@@ -13,6 +13,7 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -127,6 +128,24 @@ public class GraphView {
         mRenderer.setPanEnabled(allow, allow);
         mRenderer.setZoomEnabled(allow, allow);
         mRenderer.setZoomButtonsVisible(allow);
+        if (allow) {
+            DefaultRenderer.Location loc = stringToLocation(mData.getConfiguration("zoom-location", "bottom-right"));
+            mRenderer.setZoomLocation(loc);
+        }
+    }
+
+    private DefaultRenderer.Location stringToLocation(String str) {
+        // Java, why don't you have a concise way to define a hashmap?
+        if (str.equals("top-left")) {
+            return DefaultRenderer.Location.TOP_LEFT;
+        }
+        if (str.equals("top-right")) {
+            return DefaultRenderer.Location.TOP_RIGHT;
+        }
+        if (str.equals("bottom-left")) {
+            return DefaultRenderer.Location.BOTTOM_LEFT;
+        }
+        return DefaultRenderer.Location.BOTTOM_RIGHT;
     }
 
     /*
