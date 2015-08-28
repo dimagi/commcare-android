@@ -11,7 +11,7 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
@@ -33,10 +33,10 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     private final boolean[] hiddenButtons = new boolean[buttonsResources.length];
 
-    private final LinkedList<SquareButtonWithNotification> visibleButtons;
+    private final ArrayList<SquareButtonWithNotification> visibleButtons;
 
     public HomeScreenAdapter(Context c) {
-        visibleButtons = new LinkedList<SquareButtonWithNotification>();
+        visibleButtons = new ArrayList<SquareButtonWithNotification>();
         LayoutInflater inflater = LayoutInflater.from(c);
         for (int i = 0; i < buttons.length; i++) {
             if (buttons[i] == null) {
@@ -105,17 +105,12 @@ public class HomeScreenAdapter extends BaseAdapter {
         if (position < 0 || position >= getCount()) {
             return null;
         }
-        if (convertView != null) {
-            return convertView;
-        } else {
-            SquareButtonWithNotification btn = visibleButtons.get(position);
+        SquareButtonWithNotification btn = visibleButtons.get(position);
 
-            if (btn == null) {
-                Log.i(TAG, "Unexpected null button");
-            }
-
-            return btn;
+        if (btn == null) {
+            Log.i(TAG, "Unexpected null button");
         }
+        return btn;
     }
 
     /**
