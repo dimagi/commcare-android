@@ -105,6 +105,7 @@
 
     <FrameLayout
         android:id="@+id/form_entry_pane"
+        android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_pane"

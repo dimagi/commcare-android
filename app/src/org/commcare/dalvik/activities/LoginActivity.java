@@ -562,6 +562,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
 
+        updateCommCareBanner();
+
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
         if (readyApps.size() == 1) {

@@ -98,6 +98,7 @@
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize" >
         </activity>
+
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
 
@@ -131,7 +132,7 @@
         </activity>
         <activity
             android:name=".activities.CommCareSetupActivity"
-            android:windowSoftInputMode="adjustPan" >
+            android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
