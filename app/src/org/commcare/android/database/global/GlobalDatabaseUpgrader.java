@@ -13,8 +13,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProvider;
-import org.commcare.dalvik.odk.provider.InstanceProvider;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -113,7 +111,7 @@ public class GlobalDatabaseUpgrader {
                 return true;
             }
         }
-        return false;
+        return true;
     }
 
     private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
