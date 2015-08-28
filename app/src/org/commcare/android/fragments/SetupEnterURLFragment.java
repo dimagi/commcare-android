@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -89,6 +90,21 @@ public class SetupEnterURLFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        Activity activity = this.getActivity();
+
+        if(activity != null) {
+            if (activity.getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow( activity.getCurrentFocus().getWindowToken(), 0);
+            }
+
+        }
+
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         Activity activity = this.getActivity();
@@ -97,13 +113,16 @@ public class SetupEnterURLFragment extends Fragment {
         if(activity != null ) {
             View editBox = activity.findViewById(R.id.edit_profile_location);
             editBox.requestFocus();
-            InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
+
+            InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 
     @Override
     public void onAttach(Activity activity) {
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
         super.onAttach(activity);
         if(!(activity instanceof URLInstaller)){
             throw new ClassCastException(activity + " must implemement " + interfaceName);
