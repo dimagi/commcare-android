@@ -34,6 +34,8 @@ public class TabbedDetailView extends RelativeLayout {
     private ViewPager mViewPager;
     private View mViewPagerWrapper;
 
+    private View mViewPageTabStrip;
+
     private int mAlternateId = -1;
 
     public TabbedDetailView(Context context) {
@@ -78,6 +80,8 @@ public class TabbedDetailView extends RelativeLayout {
         }
         mViewPagerWrapper = root.findViewById(R.id.tabbed_detail_pager_wrapper);
 
+        mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);
+
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             
             @Override
@@ -106,9 +110,8 @@ public class TabbedDetailView extends RelativeLayout {
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         if(!detail.isCompound()) {
-            View pagerTabStrip = getRootView().findViewById(R.id.pager_tab_strip);
-            if (pagerTabStrip != null) {
-                pagerTabStrip.setVisibility(GONE);
+            if (mViewPageTabStrip != null) {
+                mViewPageTabStrip.setVisibility(GONE);
             }
         }
     }

@@ -500,15 +500,14 @@ public class EntityListAdapter implements ListAdapter {
         // if we use a <grid>, setup an AdvancedEntityView
         if(usesGridView){
             GridEntityView emv =(GridEntityView)convertView;
-
+            int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
             if(emv == null) {
                 emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
-                int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
-                emv.setTitleTextColor(titleColor[0]);
             } else{
                emv.setSearchTerms(currentSearchTerms);
                 emv.setViews(context, detail, entity);
             }
+            emv.setTitleTextColor(titleColor[0]);
             return emv;
 
         } 
