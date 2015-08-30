@@ -78,6 +78,11 @@ public class GraphView {
             bottomMargin += textAllowance;
         }
 
+        // AChartEngine doesn't handle x label margins as desired, so do it here
+        if (mRenderer.isShowLabels()) {
+            bottomMargin += textAllowance;
+        }
+
         // Bar charts have text labels that are likely to be long (names, etc.).
         // At some point there'll need to be a more robust solution for setting
         // margins that respond to data and screen size. For now, give them no margin
@@ -486,6 +491,7 @@ public class GraphView {
         // Legend
         boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
+        mRenderer.setFitLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
         // Labels
