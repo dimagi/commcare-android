@@ -27,11 +27,11 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.5 - Added numbers table
      */
     private static final int DB_VERSION_APP = 5;
-    
+
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
-    
+
     private Context context;
-    
+
     private String mAppId;
 
     public DatabaseAppOpenHelper(Context context, String appId) {
@@ -39,7 +39,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         this.mAppId = appId;
         this.context = context;
     }
-    
+
     public static String getDbName(String appId) {
         return DB_LOCATOR_PREF_APP + appId;
     }
@@ -51,39 +51,39 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             TableBuilder builder = new TableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new TableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new TableBuilder("fixture");
             builder.addData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             database.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
             database.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
             database.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
 
             DbUtil.createNumbersTable(database);
-            
+
             database.setTransactionSuccessful();
-            
+
         } finally {
             database.endTransaction();
         }
     }
-    
+
     public SQLiteDatabase getWritableDatabase(String key) {
-        try{ 
+        try {
             return super.getWritableDatabase(key);
-        } catch(SQLiteException sqle) {
+        } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
             return super.getWritableDatabase(key);
         }

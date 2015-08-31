@@ -37,14 +37,14 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     //region Public methods
 
-    public void setOnClickListener(OnClickListener l){
+    public void setOnClickListener(OnClickListener l) {
         buttonWithText.setOnClickListener(l);
     }
 
     public void setNotificationText(String textNotification) {
-        this.setNotificationText((Spannable)(textNotification == null ? null : new SpannableString(textNotification)));
+        this.setNotificationText((Spannable) (textNotification == null ? null : new SpannableString(textNotification)));
     }
-    
+
     public void setNotificationText(Spannable textNotification) {
         if (textNotification != null && textNotification.length() != 0) {
             subText.setVisibility(VISIBLE);
@@ -55,12 +55,14 @@ public class SquareButtonWithNotification extends RelativeLayout {
         }
     }
 
-    public void setText(String text){
+    public void setText(String text) {
         buttonWithText.setText(text);
     }
 
 
-    public void setText(Spannable text) { buttonWithText.setText(text.toString()); }
+    public void setText(Spannable text) {
+        buttonWithText.setText(text.toString());
+    }
 
     //endregion
 
@@ -84,10 +86,10 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     private void setUI(Context context, AttributeSet attrs) {
         View view = inflate(context, R.layout.square_button_notification, this);
-        buttonWithText = (SquareButtonWithText)view.findViewById(R.id.square_button_text);
-        subText = (TextView)view.findViewById(R.id.button_subtext);
+        buttonWithText = (SquareButtonWithText) view.findViewById(R.id.square_button_text);
+        subText = (TextView) view.findViewById(R.id.button_subtext);
 
-        if(attrs != null) {
+        if (attrs != null) {
             TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SquareButtonWithNotification, 0, 0);
 
             backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithNotification_sbn_img);
