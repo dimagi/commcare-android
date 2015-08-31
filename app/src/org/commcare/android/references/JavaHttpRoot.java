@@ -9,7 +9,7 @@ import org.javarosa.core.reference.ReferenceFactory;
  * @author ctsims
  */
 public class JavaHttpRoot implements ReferenceFactory {
-    
+
     HttpRequestGenerator generator = new HttpRequestGenerator();
 
     @Override
@@ -19,7 +19,7 @@ public class JavaHttpRoot implements ReferenceFactory {
 
     @Override
     public Reference derive(String URI, String context) throws InvalidReferenceException {
-        context = context.substring(0, context.lastIndexOf('/')+1);
+        context = context.substring(0, context.lastIndexOf('/') + 1);
         return new JavaHttpReference(context + URI, generator);
     }
 
