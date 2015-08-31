@@ -43,10 +43,10 @@ import java.util.List;
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- * 
+ *
  * If the startup activity identifies that the app is installed properly it
- * should not ever require interaction or be visible to the user. 
- * 
+ * should not ever require interaction or be visible to the user.
+ *
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
@@ -82,9 +82,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-    
+
     private static final int MODE_ARCHIVE = Menu.FIRST;
-    
+
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
     private static final int DIALOG_INSTALL_PROGRESS = 4;
@@ -117,7 +117,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
 
     //endregion
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,23 +126,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
-            if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
+            if (Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
                 //We got called from an outside application, it's gonna be a wild ride!
                 fromExternal = true;
                 incomingRef = this.getIntent().getData().toString();
-                if(incomingRef.contains(".ccz")) {
+                if (incomingRef.contains(".ccz")) {
                     // make sure this is in the file system
                     boolean isFile = incomingRef.contains("file://");
-                    if(isFile){
+                    if (isFile) {
                         // remove file:// prepend
-                        incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
+                        incomingRef = incomingRef.substring(incomingRef.indexOf("//") + 2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
                         i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
                         startActivityForResult(i, ARCHIVE_INSTALL);
-                    }
-                    else{
+                    } else {
                         // currently down allow other locations like http://
                         fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
                     }
@@ -156,7 +155,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
             this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
-            Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
+            Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
             // Uggggh, this might not be 100% legit depending on timing, what
@@ -164,11 +163,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
         // reclaim ccApp for resuming installation
-        if(oldActivity != null) {
+        if (oldActivity != null) {
             this.ccApp = oldActivity.ccApp;
         }
 
-        Log.v("UiState","Current vars: " +
+        Log.v("UiState", "Current vars: " +
                         "UIState is: " + this.uiState + " " +
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
@@ -202,10 +201,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startActivity(i);
         }
     }
-    
+
     @Override
     public void onURLChosen(String url) {
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "SetupEnterURLFragment returned: " + url);
         }
         incomingRef = url;
@@ -217,10 +216,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         Fragment fragment;
         FragmentTransaction ft = fm.beginTransaction();
 
-        switch (uiState){
+        switch (uiState) {
             case READY_TO_INSTALL:
-                if(incomingRef == null || incomingRef.length() == 0){
-                    Log.e(TAG,"During install: IncomingRef is empty!");
+                if (incomingRef == null || incomingRef.length() == 0) {
+                    Log.e(TAG, "During install: IncomingRef is empty!");
                     Toast.makeText(getApplicationContext(), "Invalid URL: '" +
                             incomingRef + "'", Toast.LENGTH_SHORT).show();
                     return;
@@ -248,13 +247,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         Fragment fragment = null;
         List<Fragment> fgmts = fm.getFragments();
         int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
-        if(lastIndex > -1) {
+        if (lastIndex > -1) {
             fragment = fgmts.get(lastIndex);
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Last fragment: " + fragment);
             }
         }
-        if(!(fragment instanceof SetupEnterURLFragment)){
+        if (!(fragment instanceof SetupEnterURLFragment)) {
             // last fragment wasn't url entry, so default to the installation method chooser
             fragment = installFragment;
         }
@@ -281,12 +280,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean("startAllowed", startAllowed);
         Log.v("UiState", "Saving instance state: " + outState);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
-        switch(requestCode) {
+        switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
                     result = data.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
@@ -300,7 +299,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
         }
-        if(result == null) return;
+        if (result == null) return;
         incomingRef = result;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -319,14 +318,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         uiStateScreenTransition();
     }
 
-    private String getRef(){
+    private String getRef() {
         return incomingRef;
     }
 
-    private CommCareApp getCommCareApp(){
+    private CommCareApp getCommCareApp() {
         ApplicationRecord newRecord =
-            new ApplicationRecord(PropertyUtils.genUUID().replace("-",""),
-                    ApplicationRecord.STATUS_UNINITIALIZED);
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
 
         return new CommCareApp(newRecord);
     }
@@ -344,66 +343,66 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void startResourceInstall() {
-        if(startAllowed) {
+        if (startAllowed) {
             CommCareApp app = getCommCareApp();
 
             ccApp = app;
 
             CustomProgressDialog lastDialog = getCurrentDialog();
-             // used to tell the ResourceEngineTask whether or not it should
-             // sleep before it starts, set based on whether we are currently
-             // in keep trying mode.
+            // used to tell the ResourceEngineTask whether or not it should
+            // sleep before it starts, set based on whether we are currently
+            // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
             ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(app,
-                        DIALOG_INSTALL_PROGRESS, shouldSleep) {
+                    new ResourceEngineTask<CommCareSetupActivity>(app,
+                            DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
-                @Override
-                protected void deliverResult(CommCareSetupActivity receiver,
-                                             AppInstallStatus result) {
-                    switch (result) {
-                        case Installed:
-                            receiver.reportSuccess(true);
-                            break;
-                        case UpToDate:
-                            receiver.reportSuccess(false);
-                            break;
-                        case MissingResourcesWithMessage:
-                            // fall through to more general case:
-                        case MissingResources:
-                            receiver.failMissingResource(this.missingResourceException, result);
-                            break;
-                        case IncompatibleReqs:
-                            receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
-                            break;
-                        case NoLocalStorage:
-                            receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
-                            break;
-                        case BadCertificate:
-                            receiver.failWithNotification(AppInstallStatus.BadCertificate);
-                            break;
-                        case DuplicateApp:
-                            receiver.failWithNotification(AppInstallStatus.DuplicateApp);
-                            break;
-                        default:
+                        @Override
+                        protected void deliverResult(CommCareSetupActivity receiver,
+                                                     AppInstallStatus result) {
+                            switch (result) {
+                                case Installed:
+                                    receiver.reportSuccess(true);
+                                    break;
+                                case UpToDate:
+                                    receiver.reportSuccess(false);
+                                    break;
+                                case MissingResourcesWithMessage:
+                                    // fall through to more general case:
+                                case MissingResources:
+                                    receiver.failMissingResource(this.missingResourceException, result);
+                                    break;
+                                case IncompatibleReqs:
+                                    receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
+                                    break;
+                                case NoLocalStorage:
+                                    receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
+                                    break;
+                                case BadCertificate:
+                                    receiver.failWithNotification(AppInstallStatus.BadCertificate);
+                                    break;
+                                case DuplicateApp:
+                                    receiver.failWithNotification(AppInstallStatus.DuplicateApp);
+                                    break;
+                                default:
+                                    receiver.failUnknown(AppInstallStatus.UnknownFailure);
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        protected void deliverUpdate(CommCareSetupActivity receiver,
+                                                     int[]... update) {
+                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
+                        }
+
+                        @Override
+                        protected void deliverError(CommCareSetupActivity receiver,
+                                                    Exception e) {
                             receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                            break;
-                     }
-                }
-
-                @Override
-                protected void deliverUpdate(CommCareSetupActivity receiver,
-                                             int[]... update) {
-                    receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
-                }
-
-                @Override
-                protected void deliverError(CommCareSetupActivity receiver,
-                                            Exception e) {
-                    receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                }
-            };
+                        }
+                    };
 
             task.connect(this);
             task.execute(getRef());
@@ -422,15 +421,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MODE_ARCHIVE) {
-             Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
-             startActivityForResult(i, ARCHIVE_INSTALL);
+            Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
+            startActivityForResult(i, ARCHIVE_INSTALL);
         }
         return true;
     }
@@ -440,7 +439,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
-     * @param failed did installation occur successfully?
+     * @param failed         did installation occur successfully?
      */
     void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
@@ -463,7 +462,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
-        
+
         if (alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
@@ -471,19 +470,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         setResult(RESULT_CANCELED, i);
         finish();
     }
-    
+
     // All final paths from the Update are handled here (Important! Some
     // interaction modes should always auto-exit this activity) Everything here
     // should call one of: fail() or done() 
     
     /* All methods for implementation of ResourceEngineListener */
-    
+
     @Override
     public void reportSuccess(boolean appChanged) {
         //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
-        
-        if(!appChanged) {
+
+        if (!appChanged) {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
         done(appChanged, false);
@@ -491,31 +490,31 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
-        fail(NotificationMessageFactory.message(statusMissing, new String[] {null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
+        fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
     }
 
     @Override
     public void failBadReqs(int code, String vRequired, String vAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[] {vRequired,vAvailable});
-        
+        String versionMismatch = Localization.get("install.version.mismatch", new String[]{vRequired, vAvailable});
+
         String error;
-        if (majorIsProblem){
-            error=Localization.get("install.major.mismatch");
+        if (majorIsProblem) {
+            error = Localization.get("install.major.mismatch");
         } else {
-            error=Localization.get("install.minor.mismatch");
+            error = Localization.get("install.minor.mismatch");
         }
-        
-        fail(NotificationMessageFactory.message(AppInstallStatus.IncompatibleReqs, new String[] {null, versionMismatch, error}), true);
+
+        fail(NotificationMessageFactory.message(AppInstallStatus.IncompatibleReqs, new String[]{null, versionMismatch, error}), true);
     }
 
     @Override
     public void failUnknown(AppInstallStatus unknown) {
         fail(NotificationMessageFactory.message(unknown), false);
     }
-    
+
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        updateProgress(Localization.get("profile.found", new String[]{""+done,""+total}), DIALOG_INSTALL_PROGRESS);
+        updateProgress(Localization.get("profile.found", new String[]{"" + done, "" + total}), DIALOG_INSTALL_PROGRESS);
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 

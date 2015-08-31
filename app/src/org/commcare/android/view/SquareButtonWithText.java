@@ -108,7 +108,7 @@ public class SquareButtonWithText extends RelativeLayout {
         sld.addState(new int[]{android.R.attr.state_enabled}, colorDrawable);
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
         sld.addState(StateSet.WILD_CARD, disabledColor);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             this.setBackground(sld);
         } else {
             this.setBackgroundDrawable(sld);
