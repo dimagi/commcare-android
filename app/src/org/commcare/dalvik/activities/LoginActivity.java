@@ -135,7 +135,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         setLoginBoxesColorNormal();
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        
         //Only on the initial creation
         if(savedInstanceState == null) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
@@ -585,6 +584,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void refreshForNewApp() {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
+
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        if (lastUser != null) {
+            // If there was a last user for this app, show it
+            username.setText(lastUser);
+            password.requestFocus();
+        } else {
+            // Otherwise, clear the username text so it does not show a username from a different app
+            username.setText("");
+        }
 
         // Refresh the breadcrumb bar for new app name
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

@@ -1005,8 +1005,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
+            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView.setRoot(detailView);
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
             Detail detail = factory.getDetail();
