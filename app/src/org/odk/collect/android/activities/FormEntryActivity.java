@@ -13,11 +13,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.BitmapFactory;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -117,11 +115,8 @@ import org.odk.collect.android.widgets.ImageWidget;
 import org.odk.collect.android.widgets.IntentWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
-import org.odk.collect.android.widgets.IBinaryWidget;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -548,7 +543,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         boolean savedScaledImage = false;
         if (shouldScale) {
-            savedScaledImage = scaleImage(originalImage, finalFilePath);
+            ImageWidget currentWidget = (ImageWidget)getPendingWidget();
+            int maxDimen = currentWidget.getMaxDimen();
+            if (maxDimen != -1) {
+                savedScaledImage = FileUtils.scaleImage(originalImage, finalFilePath, maxDimen);
+            }
         }
 
         File fileToReturn;
@@ -583,59 +582,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return fileToReturn;
     }
 
-    /**
-     * Attempts to scale down an image file based on the max dimension in the current ImageWidget.
-     * If a max dimension is set, and at least one of the dimensions of the original image exceeds
-     * that maximum, then make the larger side's dimension equal to the max dimension, and scale
-     * down the smaller side such that the original aspect ratio is maintained
-     */
-    private boolean scaleImage(File originalImage, String finalFilePath) {
-        boolean scaledImage = false;
-        ImageWidget currentWidget = (ImageWidget)getPendingWidget();
-        int maxDimen = currentWidget.getMaxDimen();
-        if (maxDimen != -1) {
-            // If a max image dimen was set, create a bitmap out of the image file to see if we
-            // need to scale it down
-            Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-            int height = bitmap.getHeight();
-            int width = bitmap.getWidth();
-            Log.i(TAG, "original width: " + width);
-            Log.i(TAG, "original height: " + height);
-            int largerDimen = Math.max(height, width);
-            int smallerDimen = Math.min(height, width);
-            if (largerDimen > maxDimen) {
-                // If the larger dimension exceeds our max dimension, scale down accordingly
-                double aspectRatio = ((double) smallerDimen) / largerDimen;
-                largerDimen = maxDimen;
-                smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
-                if (width > height) {
-                    bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
-                } else {
-                    bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
-                }
-                Log.i(TAG, "scaled width: " + bitmap.getWidth());
-                Log.i(TAG, "scaled height: " + bitmap.getHeight());
-                // Write this scaled bitmap to the final file location
-                FileOutputStream out = null;
-                try {
-                    out = new FileOutputStream(finalFilePath);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                    scaledImage = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        if (out != null) {
-                            out.close();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return scaledImage;
-    }
 
     /**
      * Processes the return from an image capture intent, launched by either an ImageWidget or

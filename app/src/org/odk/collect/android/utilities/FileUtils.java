@@ -199,6 +199,53 @@ public class FileUtils {
 
     }
 
+    /**
+     * Attempts to scale down an image file based on the max dimension given. If at least one of
+     * the dimensions of the original image exceeds that maximum, then make the larger side's
+     * dimension equal to the max dimension, and scale down the smaller side such that the
+     * original aspect ratio is maintained
+     */
+    public static boolean scaleImage(File originalImage, String finalFilePath, int maxDimen) {
+        boolean scaledImage = false;
+
+        // Create a bitmap out of the image file to see if we need to scale it down
+        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
+        int height = bitmap.getHeight();
+        int width = bitmap.getWidth();
+        int largerDimen = Math.max(height, width);
+        int smallerDimen = Math.min(height, width);
+        if (largerDimen > maxDimen) {
+            // If the larger dimension exceeds our max dimension, scale down accordingly
+            double aspectRatio = ((double) smallerDimen) / largerDimen;
+            largerDimen = maxDimen;
+            smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
+            if (width > height) {
+                bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
+            } else {
+                bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
+            }
+            // Write this scaled bitmap to the final file location
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(finalFilePath);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                scaledImage = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return scaledImage;
+    }
+
+
 
     public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
         // Determine image size of f
