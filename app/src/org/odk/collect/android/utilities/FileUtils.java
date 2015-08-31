@@ -33,6 +33,7 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -199,6 +200,20 @@ public class FileUtils {
 
     }
 
+    public static String getExtension(String filePath) {
+        if (filePath.contains(".")) {
+            return last(filePath.split("\\."));
+        }
+        return "";
+    }
+
+    /**
+     * Get the last element of a String array.
+     */
+    private static String last(String[] strings) {
+        return strings[strings.length - 1];
+    }
+
     /**
      * Attempts to scale down an image file based on the max dimension given. If at least one of
      * the dimensions of the original image exceeds that maximum, then make the larger side's
@@ -207,6 +222,13 @@ public class FileUtils {
      */
     public static boolean scaleImage(File originalImage, String finalFilePath, int maxDimen) {
         boolean scaledImage = false;
+        String extension = getExtension(originalImage.getAbsolutePath());
+        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
+        if (type == null) {
+            // The selected image is not of a type that can be decoded to or from a bitmap
+            Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
+            return false;
+        }
 
         // Create a bitmap out of the image file to see if we need to scale it down
         Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
@@ -228,7 +250,7 @@ public class FileUtils {
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(finalFilePath);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                bitmap.compress(type.getCompressFormat(), 100, out);
                 scaledImage = true;
             } catch (Exception e) {
                 e.printStackTrace();

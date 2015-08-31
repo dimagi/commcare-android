@@ -43,6 +43,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.odk.collect.android.utilities.FileUtils;
 
 public class CommCarePreferences extends SessionAwarePreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -149,7 +150,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = TemplatePrinterUtils.getExtension(filePath);
+                String extension = FileUtils.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();

@@ -325,4 +325,32 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     public int getMaxDimen() {
         return this.mMaxDimen;
     }
+
+    public enum ImageType {
+        JPEG(Bitmap.CompressFormat.JPEG),
+        PNG(Bitmap.CompressFormat.PNG);
+
+        private Bitmap.CompressFormat format;
+
+        ImageType(Bitmap.CompressFormat format) {
+            this.format = format;
+        }
+
+        public Bitmap.CompressFormat getCompressFormat() {
+            return this.format;
+        }
+
+        public static ImageType fromExtension(String extension) {
+            switch(extension.toLowerCase()) {
+                case "jpeg":
+                case "jpg":
+                    return JPEG;
+                case "png":
+                    return PNG;
+                default:
+                    return null;
+            }
+        }
+
+    }
 }
