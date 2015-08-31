@@ -1708,20 +1708,20 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mViewPane.addView(mCurrentView, lp);
 
         mCurrentView.startAnimation(mInAnimation);
-        
+
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        header.setVisibility(View.GONE);
+        groupLabel.setVisibility(View.GONE);
+
         if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
 
-            FrameLayout header = (FrameLayout)mCurrentView.findViewById(R.id.form_entry_header);
-
-            TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-            header.setVisibility(View.GONE);
-            groupLabel.setVisibility(View.GONE);
-
             SpannableStringBuilder groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
 
-            if(!"".equals(groupLabelText)) {
+            if(groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
                 groupLabel.setText(groupLabelText);
                 header.setVisibility(View.VISIBLE);
                 groupLabel.setVisibility(View.VISIBLE);

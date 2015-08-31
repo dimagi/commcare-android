@@ -3,8 +3,8 @@
         <attr name="ratio_width" format="float" />
         <attr name="ratio_height" format="float" />
     </declare-styleable>
-    <attr name="entity_detail_even_row_color" format="reference"></attr>
-    <attr name="entity_detail_odd_row_color" format="reference"></attr>
+    <attr name="detail_even_row_color" format="reference"></attr>
+    <attr name="detail_odd_row_color" format="reference"></attr>
     <attr name="entity_view_header_background_color" format="reference"></attr>
     <attr name="entity_view_header_text_color" format="reference"></attr>
     <attr name="searchbox_action_bar_color" format="reference"></attr>
@@ -35,4 +35,9 @@
     </declare-styleable>
     <attr name="filter_select_background_color" format="reference"></attr>
     <attr name="filter_select_text_color" format="reference"></attr>
+
+    <declare-styleable name="TabbedDetailView">
+        <attr name="even_row_color" format="reference|color"/>
+        <attr name="odd_row_color" format="reference|color"/>
+    </declare-styleable>
 </resources>

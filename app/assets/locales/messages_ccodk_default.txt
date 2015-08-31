@@ -400,6 +400,10 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
 
+notification.install.no.connection.title=No internet connection
+notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
+notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
+
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
 
