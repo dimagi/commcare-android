@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.models.notifications;
 
@@ -11,9 +11,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 
 /**
  * Broadcast receiver to clear pending notifications.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class NotificationClearReceiver extends BroadcastReceiver {
 

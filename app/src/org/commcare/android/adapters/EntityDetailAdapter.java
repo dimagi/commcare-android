@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.adapters;
 
@@ -20,14 +20,13 @@ import java.util.List;
 
 /**
  * @author ctsims
- *
  */
 public class EntityDetailAdapter implements ListAdapter {
 
     public interface EntityDetailViewModifier {
         void modifyEntityDetailView(EntityDetailView edv);
     }
-    
+
     Context context;
     CommCareSession session;
     Detail detail;
@@ -42,16 +41,16 @@ public class EntityDetailAdapter implements ListAdapter {
 
     EntityDetailViewModifier modifier;
 
-    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
-            DetailCalloutListener listener, int detailIndex) {
+    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity,
+                               DetailCalloutListener listener, int detailIndex) {
         this.context = context;
         this.session = session;
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;
         valid = new ArrayList<Integer>();
-        for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
-            if(entity.isValidField(i)) {
+        for (int i = 0; i < entity.getNumFields(); ++i) {
+            if (entity.isValidField(i)) {
                 valid.add(i);
             }
         }
@@ -90,16 +89,16 @@ public class EntityDetailAdapter implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        EntityDetailView dv =(EntityDetailView)convertView;
+        EntityDetailView dv = (EntityDetailView) convertView;
         if (dv == null) {
             dv = new EntityDetailView(context, session, detail, entity,
                     valid.get(position), detailIndex);
             dv.setCallListener(listener);
-        } else{
+        } else {
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
         }
-        if(modifier != null){
+        if (modifier != null) {
             modifier.modifyEntityDetailView(dv);
         }
         dv.setLineColor((position % 2) != 0);
@@ -120,7 +119,7 @@ public class EntityDetailAdapter implements ListAdapter {
     public boolean isEmpty() {
         return getCount() > 0;
     }
-    
+
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }

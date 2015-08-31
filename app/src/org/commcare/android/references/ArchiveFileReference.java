@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.references;
 
@@ -13,9 +13,8 @@ import java.io.OutputStream;
 
 /**
  * @author wspride
- * this class associates a GUID and relative path with a corresponding 
- * real directory in the filesystem
- *
+ *         this class associates a GUID and relative path with a corresponding
+ *         real directory in the filesystem
  */
 public class ArchiveFileReference implements Reference {
 
@@ -40,7 +39,7 @@ public class ArchiveFileReference implements Reference {
     public InputStream getStream() throws IOException {
         File file = new File(getLocalURI());
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
-        if(!file.exists()) {
+        if (!file.exists()) {
             throw new IOException("No file exists at " + file.getAbsolutePath());
         }
         return new FileInputStream(file);
@@ -60,10 +59,10 @@ public class ArchiveFileReference implements Reference {
     }
 
     public String getLocalURI() {
-        return localroot +"/"+ archiveURI;
+        return localroot + "/" + archiveURI;
     }
 
     public Reference[] probeAlternativeReferences() {
-        return new Reference [0];
+        return new Reference[0];
     }
 }

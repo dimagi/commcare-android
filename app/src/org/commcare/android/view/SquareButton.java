@@ -25,7 +25,7 @@ public class SquareButton extends ImageButton {
         int width = MeasureSpec.getSize(widthMeasureSpec);
 
         int height;
-        if(getDrawable() == null) {
+        if (getDrawable() == null) {
             height = width;
         } else {
             height = width * getDrawable().getIntrinsicHeight() / getDrawable().getIntrinsicWidth();

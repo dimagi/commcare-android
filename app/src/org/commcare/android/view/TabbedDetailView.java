@@ -30,7 +30,7 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 public class TabbedDetailView extends RelativeLayout {
     private FragmentActivity mContext;
-    
+
     private LinearLayout mMenu;
     private EntityDetailPagerAdapter mEntityDetailPagerAdapter;
     private ViewPager mViewPager;
@@ -47,7 +47,7 @@ public class TabbedDetailView extends RelativeLayout {
 
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        if(isInEditMode()) return;
+        if (isInEditMode()) return;
         mContext = (FragmentActivity) context;
 
         loadViewConfig(context, attrs);
@@ -68,7 +68,7 @@ public class TabbedDetailView extends RelativeLayout {
         super(context, attrs, defStyle);
         mContext = (FragmentActivity) context;
     }
-    
+
     /*
      * Attach this view to a layout.
      */
@@ -86,24 +86,30 @@ public class TabbedDetailView extends RelativeLayout {
         mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            
+
             @Override
-            public void onPageSelected(int position) { markSelectedTab(position); }
-            
+            public void onPageSelected(int position) {
+                markSelectedTab(position);
+            }
+
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) { }
-            
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+
             @Override
-            public void onPageScrollStateChanged(int arg0) { }
+            public void onPageScrollStateChanged(int arg0) {
+            }
 
         });
     }
-    
+
     /*
      * Populate view with content from given Detail.
      */
-    public void setDetail(Detail detail) { mMenu.setVisibility(VISIBLE); }
-    
+    public void setDetail(Detail detail) {
+        mMenu.setVisibility(VISIBLE);
+    }
+
     /*
      * Get form list from database and insert into view.
      */
@@ -112,7 +118,7 @@ public class TabbedDetailView extends RelativeLayout {
                 hasDetailCalloutListener, new DefaultEDVModifier(this.mOddColor, mEvenColor)
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
-        if(!detail.isCompound()) {
+        if (!detail.isCompound()) {
             if (mViewPageTabStrip != null) {
                 mViewPageTabStrip.setVisibility(GONE);
             }
@@ -126,23 +132,25 @@ public class TabbedDetailView extends RelativeLayout {
         if (mMenu.getChildCount() <= position) {
             return;
         }
-        
+
         for (int i = 0; i < mMenu.getChildCount(); i++) {
             mMenu.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
         }
         mMenu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
     }
-    
+
     /**
      * Get the position of the current tab.
+     *
      * @return Zero-indexed integer
      */
     public int getCurrentTab() {
         return mViewPager.getCurrentItem();
     }
-    
+
     /**
      * Get the number of tabs.
+     *
      * @return Integer
      */
     public int getTabCount() {

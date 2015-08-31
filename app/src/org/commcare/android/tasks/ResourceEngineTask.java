@@ -86,7 +86,12 @@ public abstract class ResourceEngineTask<R>
         /**
          * Certificate was bad
          */
-        StatusBadCertificate("notification.install.badcert");
+        StatusBadCertificate("notification.install.badcert"),
+
+        /**
+         * There is no internet connectivity
+         */
+        StatusNoConnection("notification.install.no.connection");
 
 
         ResourceEngineOutcomes(String root) {

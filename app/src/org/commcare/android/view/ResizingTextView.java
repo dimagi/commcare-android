@@ -11,7 +11,7 @@ import org.commcare.dalvik.R;
 /**
  * A basic text view that will resize itself to update its text size if text wraps longer than
  * a single line
- *
+ * <p/>
  * Created by ctsims on 3/14/15.
  */
 public class ResizingTextView extends TextView {
@@ -39,20 +39,20 @@ public class ResizingTextView extends TextView {
     }
 
     private void reset() {
-        if(!mIsResizing) {
+        if (!mIsResizing) {
             return;
         }
-        if(mHasTriedSmallLayout) {
+        if (mHasTriedSmallLayout) {
             this.setTextSize(TypedValue.COMPLEX_UNIT_PX, mOriginalTextSize);
             this.mHasTriedSmallLayout = false;
         }
     }
 
     private void setParams(Context context, AttributeSet attrs) {
-        if(attrs != null) {
+        if (attrs != null) {
             TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ResizingTextView, 0, 0);
             mSmallTextPixels = typedArray.getDimensionPixelSize(R.styleable.ResizingTextView_text_size_small, -1);
-            if(mSmallTextPixels != -1 ) {
+            if (mSmallTextPixels != -1) {
                 mIsResizing = true;
             }
         }
@@ -63,11 +63,11 @@ public class ResizingTextView extends TextView {
                             int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        if(!mIsResizing) {
+        if (!mIsResizing) {
             return;
         }
 
-        if(!mHasTriedSmallLayout && this.getLineCount() > 1) {
+        if (!mHasTriedSmallLayout && this.getLineCount() > 1) {
             setTextSizeToSmall();
         }
     }
