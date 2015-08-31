@@ -565,7 +565,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onStartInstallClicked() {
         if (!offlineInstall && isNetworkNotConnected()) {
-            failWithNotification(ResourceEngineOutcomes.StatusNoConnection);
+            failWithNotification(AppInstallStatus.NoConnection);
         } else {
             startResourceInstall();
         }

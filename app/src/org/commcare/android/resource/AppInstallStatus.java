@@ -17,6 +17,7 @@ public enum AppInstallStatus implements MessageTag {
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
+    NoConnection("notification.install.no.connection"),
 
     /**
      * Attempting to install an app that is already installed
