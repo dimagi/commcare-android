@@ -33,7 +33,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormUtils;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
