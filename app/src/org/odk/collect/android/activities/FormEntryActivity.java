@@ -528,10 +528,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param originalImage the image file returned by the image capture or chooser intent
      * @param shouldScale if false, indicates that the image is from a signature capture, so should
      *                not attempt to scale
-     * @return a version of the image that is in its final location but has NOT been scaled, for
-     * use in displaying the captured/chosen image on the device screen when this question widget
-     * is in view (since the purpose of scaling is to limit the size of images sent to HQ, but we
-     * still want best possible quality on the device)
+     * @return the image file that should be displayed on the device screen when this question
+     * widget is in view
      */
     private File moveAndScaleImage(File originalImage, boolean shouldScale) {
         // We want to save our final image file in the instance folder for this form, so that it
@@ -600,21 +598,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
         File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
-
-        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-        ContentValues values = new ContentValues(6);
-        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
-        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
-        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
-
-        Uri imageURI = getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
-
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        refreshCurrentView();
+        saveImageWidgetAnswer(unscaledFinalImage);
     }
 
     private void processImageChooserResponse(Intent intent) {
@@ -631,27 +615,29 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         if (originalImage.exists()) {
             File unscaledFinalImage = moveAndScaleImage(originalImage, true);
-
-            // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-            ContentValues values = new ContentValues(6);
-            values.put(Images.Media.TITLE, unscaledFinalImage.getName());
-            values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
-            values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-            values.put(Images.Media.MIME_TYPE, "image/jpeg");
-            values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
-
-            Uri imageURI =
-                    getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-            Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
-
-            ((ODKView) mCurrentView).setBinaryData(imageURI);
-            saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+            saveImageWidgetAnswer(unscaledFinalImage);
         } else {
             // The user has managed to select a file from the image browser that doesn't actually
             // exist on the file system anymore
             CommCareActivity.createErrorDialog(this, Localization.get("invalid.image.selection"), false);
         }
+    }
 
+    private void saveImageWidgetAnswer(File unscaledFinalImage) {
+        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
+        ContentValues values = new ContentValues(6);
+        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
+        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
+        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
+
+        Uri imageURI =
+                getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
+        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+
+        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
 
