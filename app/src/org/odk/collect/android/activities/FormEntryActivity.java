@@ -117,6 +117,7 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -531,7 +532,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return the image file that should be displayed on the device screen when this question
      * widget is in view
      */
-    private File moveAndScaleImage(File originalImage, boolean shouldScale) {
+    private File moveAndScaleImage(File originalImage, boolean shouldScale) throws IOException {
         // We want to save our final image file in the instance folder for this form, so that it
         // gets sent to HQ with the form
         String instanceFolder =
@@ -554,11 +555,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // original image from the temp filepath to our final path
             File finalFile = new File(finalFilePath);
             if (!originalImage.renameTo(finalFile)) {
-                fileToReturn = originalImage;
-                Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
+                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
+                        " to " + finalFile.getAbsolutePath());
             } else {
                 fileToReturn = finalFile;
-                Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + finalFile.getAbsolutePath());
             }
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
@@ -570,11 +570,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
             File rawImageFile = new File (rawDirPath + "/" + imageFilename);
             if (!originalImage.renameTo(rawImageFile)) {
-                fileToReturn = originalImage;
-                Log.e(TAG, "Failed to rename " + originalImage.getAbsolutePath());
+                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
+                        " to " + rawImageFile.getAbsolutePath());
             } else {
                 fileToReturn = rawImageFile;
-                Log.i(TAG, "renamed " + originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
             }
         }
         return fileToReturn;
@@ -597,8 +596,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
-        File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
-        saveImageWidgetAnswer(unscaledFinalImage);
+        try {
+            File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
+            saveImageWidgetAnswer(unscaledFinalImage);
+        } catch (IOException e) {
+            showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
+        }
     }
 
     private void processImageChooserResponse(Intent intent) {
@@ -614,12 +617,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         File originalImage = new File(FileUtils.getPath(this, selectedImage));
 
         if (originalImage.exists()) {
-            File unscaledFinalImage = moveAndScaleImage(originalImage, true);
-            saveImageWidgetAnswer(unscaledFinalImage);
+            try {
+                File unscaledFinalImage = moveAndScaleImage(originalImage, true);
+                saveImageWidgetAnswer(unscaledFinalImage);
+            } catch (IOException e) {
+                showCustomToast(Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG);
+            }
         } else {
             // The user has managed to select a file from the image browser that doesn't actually
             // exist on the file system anymore
-            CommCareActivity.createErrorDialog(this, Localization.get("invalid.image.selection"), false);
+            showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
         }
     }
 
