@@ -2,6 +2,7 @@ package org.odk.collect.android.jr.extensions;
 
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.xform.parse.QuestionExtensionParser;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Element;
 
@@ -29,7 +30,7 @@ public class ImageRestrictionExtensionParser extends QuestionExtensionParser {
                 int maxDimens = Integer.parseInt(s);
                 return new ImageRestrictionExtension(maxDimens);
             } catch (NumberFormatException e) {
-                return null;
+                throw new XFormParseException("Invalid input for image max dimension: " + s);
             }
         }
         return null;
