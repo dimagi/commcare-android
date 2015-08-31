@@ -457,12 +457,11 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
-                if(resultCode == RESULT_CANCELED) {
-                    // app install failed, take user back to installation view
-                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                    this.startActivityForResult(i, INIT_APP);
+                if (resultCode == RESULT_CANCELED) {
+                    // User pressed back button from install screen, so take them out of CommCare
+                    this.finish();
                     return;
-                } else if(resultCode == RESULT_OK) {
+                } else if (resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
                     //We do, however, need to re-init this screen to include new translations
                     configUi();
