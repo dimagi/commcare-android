@@ -33,7 +33,8 @@
                 android:layout_marginRight="@dimen/content_min_margin"
                 android:gravity="center"
                 android:text="Welcome to CommCare!"
-                android:textSize="@dimen/text_small" />
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/str_setup_message_2"
                 android:layout_width="fill_parent"
@@ -57,6 +58,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginLeft="@dimen/standard_spacer"
                     android:layout_weight="1"
+                    android:id="@+id/btn_fetch_uri_container"
                     android:background="@drawable/tile_drop_shadow_small_margins">
                 <org.commcare.android.view.SquareButtonWithText
                     android:id="@+id/btn_fetch_uri"

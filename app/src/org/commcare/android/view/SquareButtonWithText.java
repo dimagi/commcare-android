@@ -93,7 +93,8 @@ public class SquareButtonWithText extends RelativeLayout {
     public void setColor(int backgroundColor) {
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
 
-        int color = colorDrawable.getColor();
+        int color = ViewUtil.getColorDrawableColor(colorDrawable);
+
         float[] hsvOutput = new float[3];
         Color.colorToHSV(color, hsvOutput);
 
