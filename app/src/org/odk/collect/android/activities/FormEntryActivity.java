@@ -674,18 +674,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         refreshCurrentView();
     }
 
-    // In order for this method to successfully return the "current" widget, the subclass of
-    // QuestionWidget that you wish to use it for must take in a PendingCalloutInterface in its
-    // constructor (passed from WidgetFactory) and call setPendingCalloutFormIndex() when it
-    // launches its intent (See IntentWidget or ImageWidget for examples)
+    // Search the the current view's widgets for one that has registered a pending callout with
+    // the form controller
     private QuestionWidget getPendingWidget() {
-        QuestionWidget bestMatch = null;
+        FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
+        if (pendingIndex == null) {
+            return null;
+        }
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
-            if (q.getFormId().equals(mFormController.getPendingCalloutFormIndex())) {
-                bestMatch = q;
+            if (q.getFormId().equals(pendingIndex)) {
+                return q;
             }
         }
-        return bestMatch;
+        return null;
     }
 
     private void processIntentResponse(Intent response){
