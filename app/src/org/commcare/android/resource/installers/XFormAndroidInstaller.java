@@ -33,9 +33,10 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.odk.collect.android.jr.extensions.ImageRestrictionExtensionParser;
+import org.javarosa.xform.util.XFormUtils;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
+import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -77,9 +78,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
         FormDef formDef;
         try {
-            XFormParser parser = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8"));
-            parser.registerExtensionParser(new ImageRestrictionExtensionParser());
-            formDef = parser.parse();
+            formDef = XFormExtensionUtils.getFormFromInputStream(local.getStream());
         } catch(XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }

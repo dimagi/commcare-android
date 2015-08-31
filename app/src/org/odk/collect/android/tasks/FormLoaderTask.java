@@ -24,11 +24,9 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.javarosa.xform.util.XFormUtils;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
-import org.odk.collect.android.jr.extensions.ImageRestrictionExtensionParser;
+import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.listeners.FormLoaderListener;
@@ -136,7 +134,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 fis = new FileInputStream(formXml);
                 XFormParser.registerHandler("intent", new IntentExtensionParser());
                 XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-                fd = XFormUtils.getFormFromInputStream(fis, new ImageRestrictionExtensionParser());
+                fd = XFormExtensionUtils.getFormFromInputStream(fis);
                 if (fd == null) {
                     mErrorMsg = "Error reading XForm file";
                 }
