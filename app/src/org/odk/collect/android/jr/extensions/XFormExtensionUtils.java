@@ -1,6 +1,7 @@
 package org.odk.collect.android.jr.extensions;
 
 import org.javarosa.core.model.FormDef;
+import org.javarosa.xform.parse.ImageRestrictionExtensionParser;
 import org.javarosa.xform.parse.QuestionExtensionParser;
 import org.javarosa.xform.util.XFormUtils;
 

@@ -20,13 +20,13 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.ImageRestrictionExtension;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.jr.extensions.ImageRestrictionExtension;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
