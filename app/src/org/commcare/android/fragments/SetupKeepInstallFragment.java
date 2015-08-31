@@ -26,6 +26,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
     public interface StartStopInstallCommands {
         void onStartInstallClicked();
+
         void onStopInstallClicked();
     }
 
@@ -38,7 +39,7 @@ public class SetupKeepInstallFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if(!(activity instanceof StartStopInstallCommands)){
+        if (!(activity instanceof StartStopInstallCommands)) {
             throw new ClassCastException(activity + " must implemement " + StartStopInstallCommands.class.getName());
         }
         setButtonCommands((StartStopInstallCommands) activity);
@@ -60,13 +61,13 @@ public class SetupKeepInstallFragment extends Fragment {
         btnStartInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(buttonCommands != null) buttonCommands.onStartInstallClicked();
+                if (buttonCommands != null) buttonCommands.onStartInstallClicked();
             }
         });
         btnStopInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(buttonCommands != null) buttonCommands.onStopInstallClicked();
+                if (buttonCommands != null) buttonCommands.onStopInstallClicked();
             }
         });
         return view;

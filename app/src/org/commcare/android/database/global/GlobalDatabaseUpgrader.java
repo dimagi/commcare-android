@@ -20,7 +20,6 @@ import java.io.File;
 
 /**
  * @author ctsims
- *
  */
 public class GlobalDatabaseUpgrader {
     private Context c;

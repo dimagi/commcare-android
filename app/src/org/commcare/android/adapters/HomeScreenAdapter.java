@@ -1,5 +1,6 @@
 package org.commcare.android.adapters;
 
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +42,7 @@ public class HomeScreenAdapter extends BaseAdapter {
         for (int i = 0; i < buttons.length; i++) {
             if (buttons[i] == null) {
                 SquareButtonWithNotification button =
-                        (SquareButtonWithNotification)inflater.inflate(buttonsResources[i], null, false);
+                        (SquareButtonWithNotification) inflater.inflate(buttonsResources[i], null, false);
                 buttons[i] = button;
                 Log.i(TAG, "Added button " + button + "to position " + i);
 
@@ -60,7 +61,7 @@ public class HomeScreenAdapter extends BaseAdapter {
      */
     public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
         int buttonIndex = getButtonIndex(resourceCode);
-        SquareButtonWithNotification button = (SquareButtonWithNotification)getItem(buttonIndex);
+        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
         if (button != null) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Preexisting button when calling setOnClickListenerForButton");
