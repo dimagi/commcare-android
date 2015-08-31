@@ -27,7 +27,6 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -319,11 +318,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // upgrade app if needed
         if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
-            if(AndroidUtil.isNetworkAvailable(this)){
-                startResourceInstall(true);
-            } else {
+            if (isNetworkNotConnected()){
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Remote_NoNetwork, "INSTALL_NO_NETWORK"));
                 finish();
+            } else {
+                startResourceInstall(true);
             }
         }
     }
