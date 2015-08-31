@@ -1,11 +1,14 @@
 package org.commcare.android.view;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -154,6 +157,20 @@ public final class ViewUtil {
                     }
                 }
             }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static int getColorDrawableColor(ColorDrawable drawable) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            Bitmap bitmap= Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444);
+            Canvas canvas= new Canvas(bitmap);
+            drawable.draw(canvas);
+            int pix = bitmap.getPixel(0, 0);
+            bitmap.recycle();
+            return pix;
+        } else {
+            return drawable.getColor();
         }
     }
 }

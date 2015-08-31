@@ -2,6 +2,8 @@ package org.commcare.android.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
@@ -34,27 +36,31 @@ public class TabbedDetailView extends RelativeLayout {
     private ViewPager mViewPager;
     private View mViewPagerWrapper;
 
-    private int mAlternateId = -1;
+    private View mViewPageTabStrip;
+
+    int mEvenColor;
+    int mOddColor;
 
     public TabbedDetailView(Context context) {
-        this(context, -1);
-    }
-
-    /**
-     * Create a tabbed detail view with a specific root pager ID
-     * (this is necessary in any context where multiple detail views
-     * will be used at once)
-     */
-    public TabbedDetailView(Context context, int alternateId) {
         super(context);
-        mContext = (FragmentActivity) context;
-        this.mAlternateId = alternateId;
     }
 
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (isInEditMode()) return;
         mContext = (FragmentActivity) context;
+
+        loadViewConfig(context, attrs);
+    }
+
+    private void loadViewConfig(Context context, AttributeSet attrs) {
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.TabbedDetailView);
+
+        Resources.Theme theme = context.getTheme();
+        int[] defaults = AndroidUtil.getThemeColorIDs(context, new int[] {R.attr.detail_even_row_color, R.attr.detail_odd_row_color});
+
+        mEvenColor = typedArray.getColor(R.styleable.TabbedDetailView_even_row_color, defaults[0]);
+        mOddColor = typedArray.getColor(R.styleable.TabbedDetailView_odd_row_color, defaults[1]);
     }
 
     @SuppressLint("NewApi")
@@ -73,10 +79,11 @@ public class TabbedDetailView extends RelativeLayout {
 
         mMenu = (LinearLayout) root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = (ViewPager) root.findViewById(R.id.tabbed_detail_pager);
-        if (mAlternateId != -1) {
-            mViewPager.setId(mAlternateId);
-        }
+        mViewPager.setId(AndroidUtil.generateViewId());
+
         mViewPagerWrapper = root.findViewById(R.id.tabbed_detail_pager_wrapper);
+
+        mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -108,13 +115,12 @@ public class TabbedDetailView extends RelativeLayout {
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
-                hasDetailCalloutListener, new DefaultEDVModifier()
+                hasDetailCalloutListener, new DefaultEDVModifier(this.mOddColor, mEvenColor)
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         if (!detail.isCompound()) {
-            View pagerTabStrip = getRootView().findViewById(R.id.pager_tab_strip);
-            if (pagerTabStrip != null) {
-                pagerTabStrip.setVisibility(GONE);
+            if (mViewPageTabStrip != null) {
+                mViewPageTabStrip.setVisibility(GONE);
             }
         }
     }
@@ -155,20 +161,22 @@ public class TabbedDetailView extends RelativeLayout {
 
     @SuppressLint("ParcelCreator")
     private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
-        final int[] rowColors = AndroidUtil.getThemeColorIDs(getContext(),
-                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
+        int mEvenColor;
+        int mOddColor;
 
-        public DefaultEDVModifier() {
+        public DefaultEDVModifier(int oddColor, int evenColor) {
+            this.mOddColor = oddColor;
+            this.mEvenColor = evenColor;
         }
 
         @Override
         public void modifyEntityDetailView(EntityDetailView edv) {
-            edv.setOddEvenRowColors(rowColors[0], rowColors[1]);
+            edv.setOddEvenRowColors(mOddColor, mEvenColor);
         }
 
         @Override
         public int describeContents() {
-            return rowColors[0] ^ rowColors[1];
+            return mOddColor ^ mEvenColor;
         }
 
         @Override
