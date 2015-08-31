@@ -335,7 +335,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         rebuildMenus();
     }
 
-
     private void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }

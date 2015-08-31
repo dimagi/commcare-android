@@ -57,6 +57,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     private static final String KEY_UI_STATE = "current_install_ui_state";
+    private static final String KEY_OFFLINE =  "offline_install";
+    private static final String KEY_FROM_EXTERNAL = "from_external";
+    private static final String KEY_FROM_MANAGER = "from_manager";
 
     /**
      * Should the user be logged out when this activity is done?
@@ -103,6 +106,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * url entered in a browser)
      */
     private boolean fromExternal;
+
+    /**
+     * Indicates that the current install attempt will be made from a .ccz file, so we do
+     * not need to check for internet connectivity
+     */
+    private boolean offlineInstall;
 
     /**
      * Keeps track of whether the previous resource table was in a 'fresh'
@@ -158,6 +167,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
+            fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
+            fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
+            offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
             // Uggggh, this might not be 100% legit depending on timing, what
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -231,9 +243,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case IN_URL_ENTRY:
                 fragment = restoreInstallSetupFragment();
+                this.offlineInstall = false;
                 break;
             case CHOOSE_INSTALL_ENTRY_METHOD:
                 fragment = installFragment;
+                this.offlineInstall = false;
                 break;
             default:
                 return;
@@ -278,6 +292,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putString(KEY_UI_STATE, uiState.toString());
         outState.putString("profileref", incomingRef);
         outState.putBoolean("startAllowed", startAllowed);
+        outState.putBoolean(KEY_OFFLINE, offlineInstall);
+        outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
+        outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -295,6 +312,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
+                    offlineInstall = true;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
                 }
                 break;
@@ -546,7 +564,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onStartInstallClicked() {
-        startResourceInstall();
+        if (!offlineInstall && isNetworkNotConnected()) {
+            failWithNotification(ResourceEngineOutcomes.StatusNoConnection);
+        } else {
+            startResourceInstall();
+        }
     }
 
     @Override

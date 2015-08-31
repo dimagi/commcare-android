@@ -406,6 +406,9 @@ notification.install.uptodate.detail=A newer version of CommCare is not availabl
 
 notification.install.updatestaged.title=CommCare update ready to install
 notification.install.updatestaged.detail=A newer version of CommCare is ready to install on next login
+notification.install.no.connection.title=No internet connection
+notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
+notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted

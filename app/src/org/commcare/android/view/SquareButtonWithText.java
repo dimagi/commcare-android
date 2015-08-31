@@ -61,8 +61,8 @@ public class SquareButtonWithText extends RelativeLayout {
 
         typedArray.recycle();
 
-        squareButton = (SquareButton)findViewById(R.id.square_button);
-        textView = (TextView)findViewById(R.id.text_view);
+        squareButton = (SquareButton) findViewById(R.id.square_button);
+        textView = (TextView) findViewById(R.id.text_view);
 
         if (isInEditMode()) {
             setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
@@ -97,7 +97,7 @@ public class SquareButtonWithText extends RelativeLayout {
         float[] hsvOutput = new float[3];
         Color.colorToHSV(color, hsvOutput);
 
-        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
+        hsvOutput[2] = (float) (hsvOutput[2] / 1.5);
 
         int selectedColor = Color.HSVToColor(hsvOutput);
 

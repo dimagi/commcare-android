@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.user.models;
 
@@ -22,36 +22,35 @@ import java.util.Vector;
  * A model extension which reads Resource models from the
  * Version 6 db, and writes them back into the Version 7
  * db.
- * 
- * 
+ * <p/>
+ * <p/>
  * NOTE: This updater is _NOT ROBUST AGAINST METADATA
  * CHANGES_. If the Resource model metadata changes, this
- * needs to be modified to reflect the V6/7 metadata.  
- * 
- * @author ctsims
+ * needs to be modified to reflect the V6/7 metadata.
  *
+ * @author ctsims
  */
 public class ACasePreV6Model extends ACase {
-    
+
     /**
-     Blank constructor for deserialization only!
-    */
+     * Blank constructor for deserialization only!
+     */
     public ACasePreV6Model() {
-        
+
     }
-    
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         typeId = ExtUtil.readString(in);
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         closed = ExtUtil.readBool(in);
-        dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+        dateOpened = (Date) ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class));
-        data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
+        indices = (Vector<CaseIndex>) ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class));
+        data = (Hashtable) ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
-    
+
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, typeId);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(id));
@@ -62,14 +61,14 @@ public class ACasePreV6Model extends ACase {
         ExtUtil.write(out, new ExtWrapList(indices));
         ExtUtil.write(out, new ExtWrapMapPoly(data));
     }
-    
+
     public static class CaseIndexUpdater extends CaseIndex {
-        
+
         /*
          * serialization only!
          */
         public CaseIndexUpdater() {
-            
+
         }
 
         @Override
