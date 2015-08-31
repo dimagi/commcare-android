@@ -602,9 +602,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
-        Intent i = new Intent(getIntent());
-        setResult(RESULT_CANCELED, i);
-        finish();
+
+        // Last install attempt failed, so restore to starting uistate to try again
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+        uiStateScreenTransition();
     }
     
     // All final paths from the Update are handled here (Important! Some
