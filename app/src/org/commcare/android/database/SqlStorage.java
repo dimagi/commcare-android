@@ -58,9 +58,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         this.helper = helper;
 
         try {
-            T e = (T)ctype.newInstance();
+            T e = (T) ctype.newInstance();
             if (e instanceof EncryptedModel) {
-                em = (EncryptedModel)e;
+                em = (EncryptedModel) e;
             }
         } catch (InstantiationException ie) {
             ie.printStackTrace();
@@ -214,7 +214,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public T newObject(byte[] data) {
         try {
-            T e = (T)ctype.newInstance();
+            T e = (T) ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;
@@ -253,7 +253,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            i = (int)ret;
+            i = (int) ret;
 
             db.setTransactionSuccessful();
         } finally {
@@ -348,7 +348,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data.
-     *
      * Useful for getting an overview of data for querying into without wasting the bits to transfer over
      * the huge full records.
      *
@@ -374,9 +373,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
             SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DbUtil.ID_COL + ") from " + table);
 
-            int minValue = (int)min.simpleQueryForLong();
-            int maxValue = (int)max.simpleQueryForLong() + 1;
-            int countValue = (int)count.simpleQueryForLong();
+            int minValue = (int) min.simpleQueryForLong();
+            int maxValue = (int) max.simpleQueryForLong() + 1;
+            int countValue = (int) count.simpleQueryForLong();
 
             min.close();
             max.close();
@@ -601,7 +600,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            int id = (int)ret;
+            int id = (int) ret;
             //Now we need to put the id into the record
 
             p.setID(id);
@@ -680,6 +679,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Cursor c = db.rawQuery(stmt, args);
 
         //Return a covering iterator 
-        return new IndexSpanningIterator<T>(c, this, (int)minValue, (int)maxValue, (int)countValue);
+        return new IndexSpanningIterator<T>(c, this, (int) minValue, (int) maxValue, (int) countValue);
     }
 }

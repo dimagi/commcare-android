@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -45,7 +44,6 @@ import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -66,45 +64,45 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     
-    public static final int MENU_DEMO = Menu.FIRST;
+    private static final int MENU_DEMO = Menu.FIRST;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
 
-    public static final int SEAT_APP_ACTIVITY = 0;
+    private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
     @UiElement(value=R.id.login_button, locale="login.button")
-    Button login;
+    private Button login;
     
     @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
-    TextView errorBox;
+    private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
-    EditText username;
+    private EditText username;
     
     @UiElement(value=R.id.edit_password, locale="login.password")
-    EditText password;
+    private EditText password;
     
     @UiElement(R.id.screen_login_banner_pane)
-    View banner;
+    private View banner;
     
     @UiElement(R.id.str_version)
-    TextView versionDisplay;
+    private TextView versionDisplay;
 
     @UiElement(R.id.login_button)
-    Button loginButton;
+    private Button loginButton;
 
     @UiElement(R.id.app_selection_spinner)
-    Spinner spinner;
+    private Spinner spinner;
 
     @UiElement(R.id.welcome_msg)
-    TextView welcomeMessage;
+    private TextView welcomeMessage;
     
-    public static final int TASK_KEY_EXCHANGE = 1;
+    private static final int TASK_KEY_EXCHANGE = 1;
     
-    SqlStorage<UserKeyRecord> storage;
-    private ArrayList<String> appIdDropdownList = new ArrayList<>();
+    private SqlStorage<UserKeyRecord> storage;
+    private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private final TextWatcher textWatcher = new TextWatcher() {
 
@@ -123,7 +121,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     };
 
     public void setStyleDefault() {
-        LoginBoxesStatus.Normal.setStatus(this);
+        setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
@@ -131,34 +129,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         errorBox.setVisibility(View.GONE);
     }
 
-    public enum LoginBoxesStatus {
-        Normal(R.color.login_edit_text_color),
-        Error(R.color.login_edit_text_color_error);
-
-        private final int colorAttr;
-
-        LoginBoxesStatus(int colorAttr){
-            this.colorAttr = colorAttr;
-        }
-
-        public int getColor(Context ctx){
-            int color = ctx.getResources().getColor(colorAttr);
-            if (BuildConfig.DEBUG) {
-                Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
-            }
-            return color;
-        }
-
-        public void setStatus(LoginActivity lact){
-            lact.setLoginBoxesColor(this.getColor(lact));
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        LoginBoxesStatus.Normal.setStatus(this);
+        setLoginBoxesColorNormal();
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         
         //Only on the initial creation
@@ -171,7 +146,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         login.setOnClickListener(new OnClickListener() {
-
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
@@ -210,7 +184,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
@@ -219,7 +193,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
              }
         });
     }
-    
+
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;
@@ -230,7 +204,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        // TODO Auto-generated method stub
         // TODO: we don't actually always want to do this. We need to have an
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
@@ -463,7 +436,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         finish();
     }
     
-    private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
+    private SqlStorage<UserKeyRecord> storage() {
         if(storage == null) {
             storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
@@ -509,8 +482,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     new String[] {toastText});
         }
         
-        //either way
-        LoginBoxesStatus.Error.setStatus(this);
+        setLoginBoxesColorError();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
@@ -522,15 +494,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * Sets the login boxes (user/pass) to the given color.
-     * @param color Color code
-     */
-    private void setLoginBoxesColor(int color) {
-        username.setTextColor(color);
-        password.setTextColor(color);
+    private void setLoginBoxesColorNormal() {
+        int normalColor = getResources().getColor(R.color.login_edit_text_color);
+
+        username.setTextColor(normalColor);
+        password.setTextColor(normalColor);
     }
 
+    private void setLoginBoxesColorError() {
+        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
+
+        username.setTextColor(errorColor);
+        password.setTextColor(errorColor);
+    }
 
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
@@ -561,6 +537,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void refreshView() {
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
+
+        updateCommCareBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
@@ -595,24 +573,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Retrieve the app record corresponding to the app selected
-        String appId = appIdDropdownList.get(position);
-
-        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
-        if (appChanged) {
-            // Set the id of the last selected app
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putString(KEY_LAST_APP, appId).commit();
-
-            // Launch the activity to seat the new app
-            Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(KEY_APP_TO_SEAT, appId);
-            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
             case SEAT_APP_ACTIVITY:
@@ -639,8 +599,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // Retrieve the app record corresponding to the app selected
+        String appId = appIdDropdownList.get(position);
+
+        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (appChanged) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+    }
+
+    @Override
     public void onNothingSelected(AdapterView<?> parent) {
         return;
     }
-
 }

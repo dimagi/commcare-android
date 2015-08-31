@@ -17,9 +17,11 @@ verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
-install.barcode=Welcome to CommCare! Please choose an installation method below 
+install.barcode.top=Welcome to CommCare!
+install.barcode.bottom=Please choose an installation method below
 install.manual=Please enter the URL
-install.ready=Almost there! Press the button below to install your app.
+install.ready.top=Almost there!
+install.ready.bottom=Press the button below to install your app.
 install.netwarn=If you are attempting to install from a server, make sure you have an internet connection.
 install.button.enter=Enter URL
 install.button.startover=Start Over
@@ -27,7 +29,7 @@ install.button.retry=Retry Installation
 install.button.start=Start Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 install.bad.login=Login to Existing App
-install.appprofile=Application Profile
+install.appprofile=Enter your app install address
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
@@ -397,6 +399,10 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
+
+notification.install.no.connection.title=No internet connection
+notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
+notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted

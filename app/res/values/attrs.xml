@@ -19,6 +19,11 @@
         <attr name="img" format="reference" />
         <attr name="colorText" format="reference|color" />
     </declare-styleable>
+
+    <declare-styleable name="ResizingTextView">
+        <attr name="text_size_small" format="reference|dimension"/>
+    </declare-styleable>
+
     <declare-styleable name="SquareButtonWithNotification">
         <attr name="colorButtonText" format="reference|color" />
         <attr name="colorNotificationText" format="reference|color" />

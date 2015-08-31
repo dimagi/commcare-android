@@ -16,7 +16,6 @@ import org.javarosa.core.services.storage.Persistable;
 
 /**
  * @author ctsims
- *
  */
 public class GlobalDatabaseUpgrader {
     private Context c;
@@ -26,13 +25,13 @@ public class GlobalDatabaseUpgrader {
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion == 1) {
-            if(upgradeOneTwo(db, oldVersion, newVersion)) {
+        if (oldVersion == 1) {
+            if (upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
             }
         }
         if (oldVersion == 2) {
-            if(upgradeTwoThree(db)) {
+            if (upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }

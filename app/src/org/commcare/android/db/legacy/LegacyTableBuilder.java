@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.db.legacy;
 
@@ -16,92 +16,92 @@ import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class LegacyTableBuilder {
-    
+
     private String name;
-    
+
     private Vector<String> cols;
     private Vector<String> rawCols;
-    
+
     public LegacyTableBuilder(String name) {
         this.name = name;
         cols = new Vector<String>();
         rawCols = new Vector<String>();
     }
-    
+
     public void addData(Persistable p) {
         cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
         rawCols.add(DbUtil.ID_COL);
-        
-        if(p instanceof IMetaData) {
-            String[] keys = ((IMetaData)p).getMetaDataFields();
-            for(String key : keys) {
+
+        if (p instanceof IMetaData) {
+            String[] keys = ((IMetaData) p).getMetaDataFields();
+            for (String key : keys) {
                 String columnName = scrubName(key);
                 rawCols.add(columnName);
                 String columnDef;
-                if(p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
+                if (p instanceof EncryptedModel && ((EncryptedModel) p).isEncrypted(key)) {
                     columnDef = columnName + " BLOB";
                 } else {
                     columnDef = columnName;
                 }
-                
+
                 //Modifiers
-                if(unique.contains(columnName)) {
+                if (unique.contains(columnName)) {
                     columnDef += " UNIQUE";
                 }
                 cols.add(columnDef);
             }
         }
-        
+
         cols.add(DbUtil.DATA_COL + " BLOB");
         rawCols.add(DbUtil.DATA_COL);
     }
-    
+
     HashSet<String> unique = new HashSet<String>();
+
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
     }
-    
+
     public String getTableCreateString() {
-        
+
         String built = "CREATE TABLE " + scrubName(name) + " (";
-        for(int i = 0 ; i < cols.size() ; ++i) {
+        for (int i = 0; i < cols.size(); ++i) {
             built += cols.elementAt(i);
-            if(i < cols.size() - 1) {
+            if (i < cols.size() - 1) {
                 built += ",";
             }
         }
         built += ");";
         return built;
     }
-    
+
     public static String scrubName(String input) {
         //Scrub
         return input.replace("-", "_");
     }
-    
+
     public static Pair<String, String[]> sqlList(Collection<Integer> input) {
         //I want list comprehensions so bad right now.
         String ret = "(";
-        for(int i : input) {
+        for (int i : input) {
             ret += "?" + ",";
         }
-        
+
         String[] array = new String[input.size()];
-        int count = 0 ;
-        for(Integer i : input) {
+        int count = 0;
+        for (Integer i : input) {
             array[count++] = String.valueOf(i);
         }
-        return new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array);
+        return new Pair<String, String[]>(ret.substring(0, ret.length() - 1) + ")", array);
     }
 
     public String getColumns() {
         String columns = "";
-        for(int i = 0 ; i < rawCols.size() ; ++i) {
+        for (int i = 0; i < rawCols.size(); ++i) {
             columns += rawCols.elementAt(i);
-            if(i < rawCols.size() - 1) {
+            if (i < rawCols.size() - 1) {
                 columns += ",";
             }
         }

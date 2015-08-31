@@ -1,12 +1,14 @@
 package org.commcare.android.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +33,7 @@ public class SetupEnterURLFragment extends Fragment {
         /**
          * Called when user fills in an URL and presses 'Start Install'.
          * The parent activity is responsible for implementing this interface and doing something with the URL.
+         *
          * @param url URL typed by the user
          */
         public void onURLChosen(String url);
@@ -59,7 +62,7 @@ public class SetupEnterURLFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedText = profileLocation.getText().toString();
-                if((position == prefixURLSpinner.getCount() -1) &&
+                if ((position == prefixURLSpinner.getCount() - 1) &&
                         (selectedText == null || selectedText.length() == 0)) {
                     // automatically sets text to the default location for offline installs
                     profileLocation.setText(R.string.default_app_server);
@@ -82,13 +85,28 @@ public class SetupEnterURLFragment extends Fragment {
                 listener.onURLChosen(getURL()); // returns the chosen URL to the parent Activity
             }
         });
+
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Activity activity = this.getActivity();
+
+
+        if(activity != null ) {
+            View editBox = activity.findViewById(R.id.edit_profile_location);
+            editBox.requestFocus();
+            InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if(!(activity instanceof URLInstaller)){
+        if (!(activity instanceof URLInstaller)) {
             throw new ClassCastException(activity + " must implemement " + interfaceName);
         } else {
             listener = (URLInstaller) activity;
@@ -97,9 +115,10 @@ public class SetupEnterURLFragment extends Fragment {
 
     /**
      * Returns the chosen URL in the UI, prefixing it with http:// if not set.
+     *
      * @return The current URL
      */
-    public String getURL(){
+    public String getURL() {
         int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();
         if (url == null || url.length() == 0) {
@@ -109,10 +128,10 @@ public class SetupEnterURLFragment extends Fragment {
         if (BuildConfig.DEBUG) {
             Log.v(TAG, "Selected prefix: " + selectedPrefix + ", selected item is: " + prefixURLSpinner.getSelectedItem());
         }
-        if(selectedPrefix < prefixURLSpinner.getCount() - 1) {
+        if (selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }
-        if(!url.contains("://")){ // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
+        if (!url.contains("://")) { // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
             url = "http://" + url;
         }
         return url;

@@ -41,9 +41,9 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         this.helper = helper;
 
         try {
-            T e = (T)ctype.newInstance();
+            T e = (T) ctype.newInstance();
             if (e instanceof EncryptedModel) {
-                em = (EncryptedModel)e;
+                em = (EncryptedModel) e;
             }
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
@@ -151,7 +151,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     public T newObject(byte[] data) {
         try {
-            T e = (T)ctype.newInstance();
+            T e = (T) ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;
@@ -184,7 +184,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            i = (int)ret;
+            i = (int) ret;
 
             db.setTransactionSuccessful();
         } finally {
@@ -401,7 +401,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            int id = (int)ret;
+            int id = (int) ret;
             //Now we need to put the id into the record
 
             p.setID(id);
