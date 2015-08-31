@@ -23,7 +23,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     boolean hasDetailCalloutListener;
     TreeReference mEntityReference;
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
