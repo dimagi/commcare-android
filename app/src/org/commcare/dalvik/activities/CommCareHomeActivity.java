@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -333,12 +331,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         adapter.setOnClickListenerForButton(R.layout.home_sync_button, syncButtonListener);
 
         rebuildMenus();
-    }
-
-    private boolean isNetworkNotConnected() {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo == null || !netInfo.isConnectedOrConnecting());
     }
 
     private void goToFormArchive(boolean incomplete) {
@@ -1700,7 +1692,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
     private void returnToLogin() {
         Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivityForResult(i, LOGIN_USER);
     }
 }
