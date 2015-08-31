@@ -4,7 +4,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserDataInterface;
+import org.commcare.core.interfaces.AbstractUserSandbox;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -16,10 +16,9 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
  *
  * Created by wpride1 on 8/11/15.
  */
-public class AndroidSandbox implements UserDataInterface {
+public class AndroidSandbox extends AbstractUserSandbox {
 
     CommCareApplication app;
-    String syncToken;
 
     public AndroidSandbox(CommCareApplication app){
         this.app = app;
@@ -62,15 +61,5 @@ public class AndroidSandbox implements UserDataInterface {
     @Override
     public void setLoggedInUser(User user) {
 
-    }
-
-    @Override
-    public void setSyncToken(String syncToken) {
-        this.syncToken = syncToken;
-    }
-
-    @Override
-    public String getSyncToken() {
-        return syncToken;
     }
 }
