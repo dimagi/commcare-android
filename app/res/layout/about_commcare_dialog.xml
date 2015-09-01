@@ -2,8 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@color/cc_core_bg"
               android:orientation="vertical"
-              android:padding="@dimen/content_min_margin" >
+              android:padding="@dimen/content_min_margin">
 
     <ScrollView
         android:layout_width="wrap_content"

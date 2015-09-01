@@ -2,6 +2,7 @@ package org.commcare.android.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.os.Build;
 import android.text.Spannable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +20,15 @@ public class DialogCreationHelpers {
 
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.about_commcare_dialog, null);
-        TextView label=(TextView)view.findViewById(R.id.about_commcare_text);
+        TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
 
         String msg = activity.getString(R.string.aboutdialog, commcareVersion);
         Spannable markdownText = MarkupUtil.returnMarkdown(activity, msg);
-        label.setText(markdownText);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            aboutText.setText(markdownText);
+        } else {
+            aboutText.setText(markdownText.toString());
+        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("About CommCare");
