@@ -214,7 +214,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private AlertDialog mRepeatDialog;
     private AlertDialog mAlertDialog;
-    private ProgressDialog mProgressDialog;
 
     private boolean mIncompleteEnabled = true;
 
@@ -2311,9 +2310,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     protected Dialog onCreateDialog(int id) {
+        ProgressDialog progressDialog;
         switch (id) {
             case PROGRESS_DIALOG:
-                mProgressDialog = new ProgressDialog(this);
+                progressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener loadingButtonListener =
                     new DialogInterface.OnClickListener() {
                         @Override
@@ -2324,16 +2324,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             finish();
                         }
                     };
-                mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
-                        mProgressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
+                progressDialog.setIcon(android.R.drawable.ic_dialog_info);
+                progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
+                        progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
+                                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
                         loadingButtonListener);
-                return mProgressDialog;
+                return progressDialog;
             case SAVING_DIALOG:
-                mProgressDialog = new ProgressDialog(this);
+                progressDialog = new ProgressDialog(this);
                 DialogInterface.OnClickListener savingButtonListener =
                     new DialogInterface.OnClickListener() {
                         @Override
@@ -2343,15 +2343,15 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                             mSaveToDiskTask.cancel(true);
                         }
                     };
-                mProgressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                mProgressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
-                        mProgressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel), savingButtonListener);
-                        mProgressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel_saving_form),
+                progressDialog.setIcon(android.R.drawable.ic_dialog_info);
+                progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
+                        progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
+                                progressDialog.setIndeterminate(true);
+                progressDialog.setCancelable(false);
+                progressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel), savingButtonListener);
+                        progressDialog.setButton(StringUtils.getStringSpannableRobust(this, R.string.cancel_saving_form),
                                 savingButtonListener);
-                return mProgressDialog;
+                return progressDialog;
         }
         return null;
     }
