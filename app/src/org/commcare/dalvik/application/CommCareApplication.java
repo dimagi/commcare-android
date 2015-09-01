@@ -35,6 +35,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -123,6 +124,8 @@ public class CommCareApplication extends Application {
     public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_DELETE_REQUESTED = 8;
+    public static final int STATE_MIGRATION_FAILED = 16;
+    public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
@@ -220,8 +223,9 @@ public class CommCareApplication extends Application {
 
         intializeDefaultLocalizerData();
 
-        //The fallback in case the db isn't installed
-        initializeAppResourcesOnStartup();
+        if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
+            initializeAppResourcesOnStartup();
+        }
 
         ACRAUtil.initACRA(this);
     }
@@ -231,9 +235,15 @@ public class CommCareApplication extends Application {
     }
 
     public void triggerHandledAppExit(Context c, String message, String title) {
+        triggerHandledAppExit(c, message, title, true);
+    }
+
+    public void triggerHandledAppExit(Context c, String message, String title,
+                                      boolean useExtraMessage) {
         Intent i = new Intent(c, UnrecoverableErrorActivity.class);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
+        i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
 
         // start a new stack and forget where we were (so we don't restart the
         // app from there)
@@ -318,14 +328,6 @@ public class CommCareApplication extends Application {
         } else {
             return this.currentApp.getCommCarePlatform();
         }
-    }
-
-    public void setAppBeingInstalled(CommCareApp app) {
-        this.appBeingInstalled = app;
-    }
-
-    public CommCareApp getAppBeingInstalled() {
-        return this.appBeingInstalled;
     }
 
     public CommCareApp getCurrentApp() {
@@ -657,6 +659,12 @@ public class CommCareApplication extends Application {
         } catch (SQLiteException e) {
             //Only thrown if DB isn't there
             return STATE_UNINSTALLED;
+        } catch (MigrationException e) {
+            if (e.isDefiniteFailure()) {
+                return STATE_MIGRATION_FAILED;
+            } else {
+                return STATE_MIGRATION_QUESTIONABLE;
+            }
         }
     }
 

@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.etsy.android.grid.StaggeredGridView;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -230,6 +231,12 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void configUi() {
+        if (CommCareApplication._().getCurrentApp() == null) {
+            // This method depends on there being a seated app, so don't proceed with it if we
+            // don't have one
+            return;
+        }
+
         TextView version = (TextView)findViewById(R.id.str_version);
         if (version != null) {
             version.setText(CommCareApplication._().getCurrentVersionString());
@@ -1108,17 +1115,32 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void dispatchHomeScreen() {
+
+        // Before anything else, see if we're in a failing db state
+        int dbState = CommCareApplication._().getDatabaseState();
+        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                        MigrationException.DEFINITE_FAILURE_MESSAGE,
+                        MigrationException.FAILURE_TITLE, false);
+            return;
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                        MigrationException.POSSIBLE_FAILURE_MESSAGE,
+                        MigrationException.FAILURE_TITLE, false);
+            return;
+        } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
+            handleDamagedApp();
+        }
+
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         // Path 1: There is a seated app
         if (currentApp != null) {
-            boolean appResourcesCorrupted = currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
-            boolean dbCorrupted = CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED;
             ApplicationRecord currentRecord = currentApp.getAppRecord();
 
             // Note that the order in which these conditions are checked matters!!
             try {
-                if (appResourcesCorrupted || dbCorrupted) {
+                if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // Path 1a: The seated app is damaged or corrupted
                     handleDamagedApp();
                 } else if (!currentRecord.isUsable()) {

@@ -441,7 +441,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
             ccApp = app;
-            CommCareApplication._().setAppBeingInstalled(ccApp);
 
             // store what the state of the resource table was before this
             // install, so we can compare it to the state after and decide if

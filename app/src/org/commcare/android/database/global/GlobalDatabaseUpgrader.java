@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteDbHelper;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
@@ -59,7 +60,7 @@ public class GlobalDatabaseUpgrader {
     }
 
     /**
-     * Migrate all old ApplicationRecords in storage to the new version being used for multiple apps
+     * Migrate the old ApplicationRecord in storage to the new version being used for multiple apps.
      */
     private boolean upgradeAppRecords(SQLiteDatabase db) {
         db.beginTransaction();
@@ -68,6 +69,13 @@ public class GlobalDatabaseUpgrader {
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
                     new ConcreteDbHelper(c, db));
+
+            if (multipleInstalledAppRecords(storage)) {
+                // If a device has multiple installed ApplicationRecords before the multiple apps
+                // db upgrade has occurred, something has definitely gone wrong
+                throw new MigrationException(true);
+            }
+
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
                 ApplicationRecord newRecord =
@@ -104,13 +112,23 @@ public class GlobalDatabaseUpgrader {
             File newDbFile = CommCareApplication._().getDatabasePath(
                     ProviderUtils.getProviderDbName(type, getInstalledAppRecord(c, db).getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
-                // Big problem, should potentially crash here ?
-                return false;
+                throw new MigrationException(false);
             } else {
                 return true;
             }
         }
         return true;
+    }
+
+    private static boolean multipleInstalledAppRecords(SqlStorage<Persistable> storage) {
+        int count = 0;
+        for (Persistable p : storage) {
+            ApplicationRecordV1 r = (ApplicationRecordV1) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                count++;
+            }
+        }
+        return (count > 1);
     }
 
     private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
@@ -126,4 +144,5 @@ public class GlobalDatabaseUpgrader {
         }
         return null;
     }
+
 }
