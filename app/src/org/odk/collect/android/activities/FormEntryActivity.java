@@ -1008,8 +1008,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private void updateFloatingLabels(View currentView) {
         //TODO: this should actually be set up to scale per screen size.
-        ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<Pair<String, FloatingLabel>>();
-        ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<Pair<String, FloatingLabel>>();
+        ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
+        ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();
         
         FloatingLabel[] labelTypes = FloatingLabel.values();
         
@@ -1021,9 +1021,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     if(type.getAppearance().equals(hint)) {
                         String widgetText = widget.getPrompt().getQuestionText();
                         if(widgetText != null && widgetText.length() < 15) {
-                            smallLabels.add(new Pair(widgetText, type));
+                            smallLabels.add(new Pair<>(widgetText, type));
                         } else {
-                            largeLabels.add(new Pair(widgetText, type));
+                            largeLabels.add(new Pair<>(widgetText, type));
                         }
                     }
                 }
@@ -2906,7 +2906,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             if (fragmentClass != null) {
                 final FragmentManager fm = this.getSupportFragmentManager();
 
-                Fragment bar = (Fragment) fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
+                Fragment bar = fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
                 if (bar == null) {
                     try {
                         bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
