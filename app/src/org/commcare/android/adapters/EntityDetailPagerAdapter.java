@@ -40,7 +40,7 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment;
-        if (detail.isCompound() && detail.getDetails()[i].getNodeset() != null) {
+        if (detail.getNodeset() != null || (detail.isCompound() && detail.getDetails()[i].getNodeset() != null)) {
             fragment = new EntitySubnodeDetailFragment();
         } else {
             fragment = new EntityDetailFragment();
