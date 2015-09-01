@@ -18,7 +18,7 @@ public class DialogCreationHelpers {
         final String commcareVersion = CommCareApplication._().getCurrentVersionString();
 
         LayoutInflater li = LayoutInflater.from(activity);
-        View view = li.inflate(R.layout.formatted_about_dialog, null);
+        View view = li.inflate(R.layout.about_commcare_dialog, null);
         TextView label=(TextView)view.findViewById(R.id.about_commcare_text);
 
         String msg = activity.getString(R.string.aboutdialog, commcareVersion);
