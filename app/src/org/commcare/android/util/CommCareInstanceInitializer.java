@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
@@ -8,12 +5,14 @@ import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
+import org.commcare.cases.instance.CaseDataInstance;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -27,14 +26,20 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
     AndroidCaseInstanceTreeElement casebase;
     LedgerInstanceTreeElement stockbase;
     
-    public CommCareInstanceInitializer(){ 
-        this(null);
-    }
-
     public CommCareInstanceInitializer(CommCareSession session) {
         this.session = session;
     }
 
+    @Override
+    public DataInstance getSpecializedInstance(ExternalDataInstance instance) {
+        if (CaseInstanceTreeElement.MODEL_NAME.equals(instance.getInstanceId())) {
+            return new CaseDataInstance(instance);
+        } else {
+            return instance;
+        }
+    }
+
+    @Override
     public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
         CommCareApplication app = CommCareApplication._();
         String ref = instance.getReference();
