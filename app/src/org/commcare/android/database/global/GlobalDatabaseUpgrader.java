@@ -54,16 +54,10 @@ public class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeTwoThree(SQLiteDatabase db) {
-        return upgradeAppRecords(db) &&
-                upgradeProviderDb(db, ProviderUtils.ProviderType.FORMS) &&
-                upgradeProviderDb(db, ProviderUtils.ProviderType.INSTANCES);
-    }
-
-    /**
-     * Migrate the old ApplicationRecord in storage to the new version being used for multiple apps.
-     */
-    private boolean upgradeAppRecords(SQLiteDatabase db) {
         db.beginTransaction();
+
+        //First, migrate the old ApplicationRecord in storage to the new version being used for
+        // multiple apps.
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
@@ -92,8 +86,14 @@ public class GlobalDatabaseUpgrader {
                 newRecord.setPreMultipleAppsProfile(true);
                 storage.write(newRecord);
             }
-            db.setTransactionSuccessful();
-            return true;
+
+            // Then migrate the databases for both providers
+            if (upgradeProviderDb(db, ProviderUtils.ProviderType.FORMS) &&
+                    upgradeProviderDb(db, ProviderUtils.ProviderType.INSTANCES)) {
+                db.setTransactionSuccessful();
+                return true;
+            }
+            return false;
         } finally {
             db.endTransaction();
         }
