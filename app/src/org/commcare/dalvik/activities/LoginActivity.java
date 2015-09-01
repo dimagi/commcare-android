@@ -42,6 +42,7 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -65,6 +66,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final String TAG = LoginActivity.class.getSimpleName();
     
     private static final int MENU_DEMO = Menu.FIRST;
+    private static final int MENU_ABOUT = Menu.FIRST + 1;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
@@ -446,6 +448,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         return true;
     }
 
@@ -460,6 +463,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             //Now try to log in as the demo user
             tryLocalLogin(DemoUserUtil.DEMO_USER, DemoUserUtil.DEMO_USER, false);
             
+            return true;
+        case MENU_ABOUT:
+            DialogCreationHelpers.buildAboutCommCareDialog(this).show();
             return true;
         default:
             return otherResult;

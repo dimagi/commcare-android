@@ -20,7 +20,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,8 +54,8 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
@@ -1573,7 +1572,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 goToFormArchive(false);
                 return true;
             case MENU_ABOUT:
-                createAboutCommCareDialog();
+                showAboutCommCareDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1617,23 +1616,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
     }
 
-    private void createAboutCommCareDialog() {
-        final String commcareVersion = CommCareApplication._().getCurrentVersionString();
-
-        LayoutInflater li = LayoutInflater.from(this);
-        View view = li.inflate(R.layout.formatted_about_dialog, null);
-        TextView label=(TextView)view.findViewById(R.id.about_commcare_text);
-
-        String msg = this.getString(R.string.aboutdialog, commcareVersion);
-        Spannable markdownText = MarkupUtil.returnMarkdown(this, msg);
-        label.setText(markdownText);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("About CommCare");
-        builder.setView(view);
-
-
-        AlertDialog dialog = builder.create();
+    private void showAboutCommCareDialog() {
+        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
