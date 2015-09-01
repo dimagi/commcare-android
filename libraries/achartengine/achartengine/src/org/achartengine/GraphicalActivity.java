@@ -62,7 +62,6 @@ public class GraphicalActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                System.out.println("[jls] this was unexpected");
                 this.onBackPressed();
                 return true;
             default:
