@@ -1173,13 +1173,13 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         menu.add(0, MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
                 R.drawable.ic_menu_goto);
-        
+
+        boolean hasMultipleLanguages =
+                (!(mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
         menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
                 .setIcon(R.drawable.ic_menu_start_conversation)
-                .setEnabled(
-                        (mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1) ? false
-                                : true);
-        
+                .setEnabled(hasMultipleLanguages);
+
         
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.general_preferences)).setIcon(
                 android.R.drawable.ic_menu_preferences);
