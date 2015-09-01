@@ -31,7 +31,6 @@ import android.widget.Toast;
 import com.etsy.android.grid.StaggeredGridView;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
-import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -1120,13 +1119,13 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         int dbState = CommCareApplication._().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             CommCareApplication._().triggerHandledAppExit(this,
-                        MigrationException.DEFINITE_FAILURE_MESSAGE,
-                        MigrationException.FAILURE_TITLE, false);
+                    getString(R.string.migration_definite_failure),
+                    getString(R.string.migration_failure_title), false);
             return;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
             CommCareApplication._().triggerHandledAppExit(this,
-                        MigrationException.POSSIBLE_FAILURE_MESSAGE,
-                        MigrationException.FAILURE_TITLE, false);
+                        getString(R.string.migration_possible_failure),
+                        getString(R.string.migration_failure_title), false);
             return;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();
