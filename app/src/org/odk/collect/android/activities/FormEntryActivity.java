@@ -154,19 +154,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public static final int AUDIO_CAPTURE = 3;
     public static final int VIDEO_CAPTURE = 4;
     public static final int LOCATION_CAPTURE = 5;
-    public static final int HIERARCHY_ACTIVITY = 6;
+    private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
     public static final int AUDIO_CHOOSER = 8;
     public static final int VIDEO_CHOOSER = 9;
     public static final int INTENT_CALLOUT = 10;
-    public static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
+    private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
 
     // Identifies the gp of the form used to launch form entry
-    public static final String KEY_FORMPATH = "formpath";
+    private static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
     public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
@@ -175,7 +175,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public static final String KEY_HEADER_STRING = "form_header";
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
-    public static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+    private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -229,7 +229,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     private static String mHeaderString;
     
     // Was the form saved? Used to set activity return code.
-    public boolean hasSaved = false;
+    private boolean hasSaved = false;
 
     private BroadcastReceiver mLocationServiceIssueReceiver;
 
@@ -723,7 +723,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    public void updateFormRelevencies(){
+    private void updateFormRelevencies(){
         
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         
@@ -907,7 +907,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * 
      * @param view ODKView to update
      */
-    public void updateNavigationCues(View view) {
+    private void updateNavigationCues(View view) {
         updateFloatingLabels(view);
 
         ProgressBarMode mode = PreferencesActivity.getProgressBarMode(this);
@@ -992,9 +992,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         caution ("floating-caution", R.drawable.label_floating_caution, R.color.cc_light_warm_accent_color),
         bad ("floating-bad", R.drawable.label_floating_bad, R.color.cc_attention_negative_color);
         
-        String label;
-        int resourceId;
-        int colorId;
+        final String label;
+        final int resourceId;
+        final int colorId;
         FloatingLabel(String label, int resourceId, int colorId) {
             this.label = label;
             this.resourceId = resourceId;
@@ -1123,7 +1123,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Refreshes the current view. the controller and the displayed view can get out of sync due to
      * dialogs and restarts caused by screen orientation changes, so they're resynchronized here.
      */
-    public void refreshCurrentView() {
+    private void refreshCurrentView() {
         refreshCurrentView(true);
     }
     
@@ -1131,7 +1131,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Refreshes the current view. the controller and the displayed view can get out of sync due to
      * dialogs and restarts caused by screen orientation changes, so they're resynchronized here.
      */
-    public void refreshCurrentView(boolean animateLastView) {
+    private void refreshCurrentView(boolean animateLastView) {
         if(mFormController == null) { throw new RuntimeException("Form state is lost! Cannot refresh current view. This shouldn't happen, please submit a bug report."); }
         int event = mFormController.getEvent();
 
@@ -1726,8 +1726,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * Displays the View specified by the parameter 'next', animating both the current view and next
      * appropriately given the AnimationType. Also updates the progress bar.
      */
-    public void showView(View next, AnimationType from) { showView(next, from, true); }
-    public void showView(View next, AnimationType from, boolean animateLastView) {
+    private void showView(View next, AnimationType from) { showView(next, from, true); }
+    private void showView(View next, AnimationType from, boolean animateLastView) {
         switch (from) {
             case RIGHT:
                 mInAnimation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
@@ -2696,7 +2696,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @param evaluateConstraints Should form contraints be checked when saving answer?
      * @return status as determined in FormEntryController
      */
-    public int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
+    private int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
 
         try {
             if (evaluateConstraints) {
@@ -2758,7 +2758,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
 
-    public void next() {
+    private void next() {
         if (!mBeenSwiped) {
             mBeenSwiped = true;
             showNextView();
