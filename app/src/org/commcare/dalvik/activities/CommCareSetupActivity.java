@@ -440,12 +440,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
-
             ccApp = app;
 
-             // store what the state of the resource table was before this
-             // install, so we can compare it to the state after and decide if
-             // this should count as a 'last install time'
+            // store what the state of the resource table was before this
+            // install, so we can compare it to the state after and decide if
+            // this should count as a 'last install time'
             int tableStateBeforeInstall =
                 ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 
