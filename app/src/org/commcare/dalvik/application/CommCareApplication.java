@@ -458,6 +458,7 @@ public class CommCareApplication extends Application {
         int resourceState;
         try {
             currentApp = app;
+
             if (currentApp.initializeApplication()) {
                 resourceState = STATE_READY;
                 this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
