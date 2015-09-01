@@ -20,6 +20,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1619,9 +1620,20 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void createAboutCommCareDialog() {
         final String commcareVersion = CommCareApplication._().getCurrentVersionString();
 
-        Spannable markdownSpannable = MarkupUtil.returnMarkdown(this, this.getString(R.string.aboutdialog, commcareVersion));
-        String msg = markdownSpannable.toString();
-        AlertDialog dialog = new AlertDialog.Builder(this).setMessage(msg).create();
+        LayoutInflater li = LayoutInflater.from(this);
+        View view = li.inflate(R.layout.formatted_about_dialog, null);
+        TextView label=(TextView)view.findViewById(R.id.about_commcare_text);
+
+        String msg = this.getString(R.string.aboutdialog, commcareVersion);
+        Spannable markdownText = MarkupUtil.returnMarkdown(this, msg);
+        label.setText(markdownText);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("About CommCare");
+        builder.setView(view);
+
+
+        AlertDialog dialog = builder.create();
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
