@@ -766,10 +766,12 @@ public class FormController implements PendingCalloutInterface {
         return new InstanceMetadata(instanceId);
     }
 
+    @Override
     public FormIndex getPendingCalloutFormIndex() {
         return mPendingCalloutFormIndex;
     }
 
+    @Override
     public void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex) {
         mPendingCalloutFormIndex = pendingCalloutFormIndex;
     }
