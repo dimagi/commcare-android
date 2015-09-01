@@ -1,6 +1,7 @@
 package org.odk.collect.android.activities;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -1405,8 +1406,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 // this is arbitrarily silly
                 bitImage = new BitmapDrawable(mediaDir + "/form_logo.png");
 
-                if (bitImage != null && bitImage.getBitmap() != null
-                        && bitImage.getIntrinsicHeight() > 0 && bitImage.getIntrinsicWidth() > 0) {
+                if (bitImage.getBitmap() != null &&
+                        bitImage.getIntrinsicHeight() > 0 &&
+                        bitImage.getIntrinsicWidth() > 0) {
                     image = bitImage;
                 }
 
@@ -1542,22 +1544,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //We need to ignore this even if it's processed by the action
         //bar (if one exists)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            View customView = getActionBar().getCustomView();
-            if(customView != null) {
-                if(customView.dispatchTouchEvent(mv)) {
-                    return true;
+            ActionBar bar = getActionBar();
+            if (bar != null) {
+                View customView = bar.getCustomView();
+                if (customView != null) {
+                    if (customView.dispatchTouchEvent(mv)) {
+                        return true;
+                    }
                 }
             }
         }
 
-        
-        
         boolean handled = mGestureDetector.onTouchEvent(mv);
-        if (!handled) {
-            return super.dispatchTouchEvent(mv);
-        }
-
-        return handled; // this is always true
+        return handled || super.dispatchTouchEvent(mv);
     }
 
 
@@ -1917,12 +1916,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         });
         
         
-        
-        
         back.setText(StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back));
 
-                //Load up our icons
-                Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
+        //Load up our icons
+        Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
         exitIcon.setBounds(0, 0, exitIcon.getIntrinsicWidth(), exitIcon.getIntrinsicHeight());
 
         Drawable doneIcon = getResources().getDrawable(R.drawable.icon_done);
@@ -2827,7 +2824,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             } else {
                 int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
                 boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
-                if(!navBar || (navBar && event != FormEntryController.EVENT_END_OF_FORM)) {
+                if(!navBar || event != FormEntryController.EVENT_END_OF_FORM) {
                     showNextView();
                 }
             }
@@ -2893,8 +2890,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     try {
                         bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
 
-                        getActionBar().setDisplayShowCustomEnabled(true);
-                        getActionBar().setDisplayShowTitleEnabled(false);
+                        ActionBar actionBar = getActionBar();
+                        if (actionBar != null) {
+                            actionBar.setDisplayShowCustomEnabled(true);
+                            actionBar.setDisplayShowTitleEnabled(false);
+                        }
                         fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
                     } catch(Exception e) {
                         Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
