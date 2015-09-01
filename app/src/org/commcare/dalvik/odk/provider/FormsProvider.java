@@ -64,16 +64,9 @@ public class FormsProvider extends ContentProvider {
         // the application id of the CCApp for which this db is storing forms
         private String appId;
 
-        public DatabaseHelper(Context c, String databaseName) {
+        public DatabaseHelper(Context c, String databaseName, String appId) {
             super(c, databaseName, null, DATABASE_VERSION);
-
-            // If this is a helper for the new version of form databases where we include the app
-            // id in the db name, grab the id
-            int startIndex = databaseName.indexOf("_");
-            if (startIndex != -1) {
-                int endIndex = databaseName.indexOf(".db");
-                this.appId = databaseName.substring(startIndex+1, endIndex);
-            }
+            this.appId = appId;
         }
 
         public String getAppId() {
@@ -118,11 +111,10 @@ public class FormsProvider extends ContentProvider {
     }
     
     public void init() {
-        if (mDbHelper == null || mDbHelper.getAppId() != ProviderUtils.getSeatedOrInstallingAppId()) {
-            String dbName = ProviderUtils.getProviderDbName(
-                    ProviderUtils.ProviderType.FORMS,
-                    ProviderUtils.getSeatedOrInstallingAppId());
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName);
+        String appId = ProviderUtils.getSeatedOrInstallingAppId();
+        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
+            String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.FORMS, appId);
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
     }
 
