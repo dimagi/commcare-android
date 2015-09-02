@@ -599,6 +599,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
             saveImageWidgetAnswer(unscaledFinalImage);
         } catch (IOException e) {
+            e.printStackTrace();
             showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
         }
     }
