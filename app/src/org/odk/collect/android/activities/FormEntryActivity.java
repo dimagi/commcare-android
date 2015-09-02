@@ -537,7 +537,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // gets sent to HQ with the form
         String instanceFolder =
                 mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-        String imageFilename = System.currentTimeMillis() + ".jpg";
+        String extension =  FileUtils.getExtension(originalImage.getAbsolutePath());
+        String imageFilename = System.currentTimeMillis() + "." + extension;
         String finalFilePath = instanceFolder + imageFilename;
 
         boolean savedScaledImage = false;
@@ -588,8 +589,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private void processCaptureResponse(boolean isImage) {
         /* We saved the image to the tempfile_path, but we really want it to be in:
-         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
-         * inserting it into the content provider. Once the android image capture bug gets
+         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
+         * before inserting it into the content provider. Once the android image capture bug gets
          * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
          * video
          */
@@ -606,8 +607,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private void processImageChooserResponse(Intent intent) {
         /* We have a saved image somewhere, but we really want it to be in:
-         * /sdcard/odk/instances/[current instance]/something.jpg so we move it there before
-         * inserting it into the content provider. Once the android image capture bug gets
+         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
+         * before inserting it into the content provider. Once the android image capture bug gets
          * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
          * video
          */
