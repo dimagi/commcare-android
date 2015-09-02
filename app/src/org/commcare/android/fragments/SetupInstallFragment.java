@@ -37,19 +37,20 @@ public class SetupInstallFragment extends Fragment {
         TextView setupMsg2 = (TextView) view.findViewById(R.id.str_setup_message_2);
         setupMsg.setText(Localization.get("install.barcode.top"));
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
-        scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
-        enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
+        scanBarcodeButton = (SquareButtonWithText) view.findViewById(R.id.btn_fetch_uri);
+        enterURLButton = (SquareButtonWithText) view.findViewById(R.id.enter_app_location);
+        final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     //Barcode only
-                    i.putExtra("SCAN_FORMATS","QR_CODE");
+                    i.putExtra("SCAN_FORMATS", "QR_CODE");
                     getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
-                    scanBarcodeButton.setVisibility(View.GONE);
+                    barcodeButtonContainer.setVisibility(View.GONE);
                 }
             }
         });
@@ -59,7 +60,7 @@ public class SetupInstallFragment extends Fragment {
                 SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
                 Activity currentActivity = getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
-                    ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                    ((CommCareSetupActivity) currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
                 }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
