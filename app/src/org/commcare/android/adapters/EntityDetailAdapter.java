@@ -89,7 +89,7 @@ public class EntityDetailAdapter implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        EntityDetailView dv = (EntityDetailView) convertView;
+        EntityDetailView dv = (EntityDetailView)convertView;
         if (dv == null) {
             dv = new EntityDetailView(context, session, detail, entity,
                     valid.get(position), detailIndex);

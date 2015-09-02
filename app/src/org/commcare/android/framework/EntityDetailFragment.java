@@ -32,7 +32,7 @@ public class EntityDetailFragment extends Fragment {
     public static final String DETAIL_INDEX = "edf_detail_index";
     public static final String CHILD_REFERENCE = "edf_detail_reference";
 
-    private EntityDetailAdapter.EntityDetailViewModifier modifier;
+    protected EntityDetailAdapter.EntityDetailViewModifier modifier;
 
     AndroidSessionWrapper asw;
     ListAdapter adapter;
@@ -45,7 +45,7 @@ public class EntityDetailFragment extends Fragment {
     public void setEntityDetailModifier(EntityDetailAdapter.EntityDetailViewModifier edvm) {
         this.modifier = edvm;
         if (adapter != null) {
-            ((EntityDetailAdapter) adapter).setModifier(edvm);
+            ((EntityDetailAdapter)adapter).setModifier(edvm);
         }
     }
 
@@ -55,7 +55,7 @@ public class EntityDetailFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (modifier instanceof Parcelable) {
-            outState.putParcelable(MODIFIER_KEY, (Parcelable) modifier);
+            outState.putParcelable(MODIFIER_KEY, (Parcelable)modifier);
         } else {
             throw new IllegalArgumentException(modifier + " must implement Parcelable!");
         }
@@ -76,13 +76,13 @@ public class EntityDetailFragment extends Fragment {
         final Activity thisActivity = getActivity();
         final Entity entity = factory.getEntity(childReference);
         final DetailCalloutListener detailCalloutListener =
-                thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener) thisActivity) : null;
+                thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
         adapter = new EntityDetailAdapter(
                 thisActivity, asw.getSession(), childDetail, entity,
                 detailCalloutListener, getArguments().getInt(DETAIL_INDEX)
         );
-        ((EntityDetailAdapter) adapter).setModifier(modifier);
-        ((ListView) rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+        ((EntityDetailAdapter)adapter).setModifier(modifier);
+        ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
 
         return rootView;
     }

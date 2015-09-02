@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import org.commcare.android.adapters.EntitySubnodeListAdapter;
+import org.commcare.android.adapters.EntitySubnodeDetailAdapter;
+import org.commcare.android.adapters.ListItemViewModifier;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
@@ -30,19 +31,25 @@ import java.util.List;
 public class EntitySubnodeDetailFragment extends EntityDetailFragment implements EntityLoaderListener {
     private EntityLoaderTask loader;
     private ListView listView;
+    private ListItemViewModifier livm;
 
-    public EntitySubnodeDetailFragment() {
+    public EntitySubnodeDetailFragment(ListItemViewModifier livm) {
         super();
+        this.livm = livm;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            this.modifier = savedInstanceState.getParcelable(MODIFIER_KEY);
+        }
+
         Detail childDetail = getChildDetail();
         TreeReference childReference = SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
-        this.listView = ((ListView) rootView.findViewById(R.id.screen_entity_detail_list));
+        this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theloader = new EntityLoaderTask(childDetail, asw.getEvaluationContext());
@@ -50,7 +57,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             theloader.execute(childDetail.getNodeset().contextualize(childReference));
 
             // Add header row
-            final LinearLayout headerLayout = ((LinearLayout) rootView.findViewById(R.id.entity_detail_header));
+            final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
             String[] headers = new String[childDetail.getFields().length];
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = childDetail.getFields()[i].getHeader().evaluate();
@@ -80,12 +87,12 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         this.loader = null;
-        this.adapter = new EntitySubnodeListAdapter(getActivity(), childDetail, references, entities);
+        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, livm);
         this.listView.setAdapter(this.adapter);
     }
 
     @Override
     public void deliverError(Exception e) {
-        ((CommCareActivity) getActivity()).displayException(e);
+        ((CommCareActivity)getActivity()).displayException(e);
     }
 }

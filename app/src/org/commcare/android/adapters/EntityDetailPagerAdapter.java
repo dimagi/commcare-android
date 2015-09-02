@@ -19,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference;
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 
     private EntityDetailAdapter.EntityDetailViewModifier modifier;
+    private ListItemViewModifier livm;
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
@@ -32,16 +33,17 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier, ListItemViewModifier livm) {
         this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
         this.modifier = modifier;
+        this.livm = livm;
     }
 
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment;
         if (detail.getNodeset() != null || (detail.isCompound() && detail.getDetails()[i].getNodeset() != null)) {
-            fragment = new EntitySubnodeDetailFragment();
+            fragment = new EntitySubnodeDetailFragment(livm);
         } else {
             fragment = new EntityDetailFragment();
         }

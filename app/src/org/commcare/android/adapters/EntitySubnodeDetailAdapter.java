@@ -7,9 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import org.commcare.android.models.Entity;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.view.EntityView;
-import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -21,23 +19,22 @@ import java.util.List;
  * Adapter for taking a nodeset, contextualizing it against an entity,
  * and then displaying one item for each node in the resulting set.
  */
-public class EntitySubnodeListAdapter implements ListAdapter {
+public class EntitySubnodeDetailAdapter implements ListAdapter {
 
     private Context context;
     private Detail detail;
     private List<TreeReference> references;
     private List<Entity<TreeReference>> entities;
-    private int[] rowColors;
+    private ListItemViewModifier modifier;
 
-    public EntitySubnodeListAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> entities) {
+    public EntitySubnodeDetailAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> entities, ListItemViewModifier modifier) {
         this.context = context;
         this.detail = detail;
         this.references = references;
         this.entities = entities;
-
-        this.rowColors = AndroidUtil.getThemeColorIDs(this.context,
-                new int[]{R.attr.drawer_pulldown_even_row_color, R.attr.drawer_pulldown_odd_row_color});
+        this.modifier = modifier;
     }
+
 
     @Override
     public boolean areAllItemsEnabled() {
@@ -71,16 +68,15 @@ public class EntitySubnodeListAdapter implements ListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        EntityView view = (EntityView) convertView;
+        EntityView view = (EntityView)convertView;
         Entity entity = this.entities.get(position);
         if (view == null) {
             view = new EntityView(context, detail, entity, null, null, position, false);
         } else {
             view.refreshViewsForNewEntity(entity, false, position);
         }
-        int color = this.rowColors[position % 2];
-        if (color != -1) {
-            view.setBackgroundColor(color);
+        if (modifier != null) {
+            modifier.modify(view, position);
         }
         return view;
     }
