@@ -1,8 +1,8 @@
 package org.odk.collect.android.jr.extensions;
 
 import org.javarosa.core.model.FormDef;
-import org.javarosa.xform.parse.ImageRestrictionExtensionParser;
 import org.javarosa.xform.parse.QuestionExtensionParser;
+import org.javarosa.xform.parse.UploadQuestionExtensionParser;
 import org.javarosa.xform.util.XFormUtils;
 
 import java.io.InputStream;
@@ -15,7 +15,7 @@ public class XFormExtensionUtils {
 
     public static Vector<QuestionExtensionParser> getAllAndroidExtensionParsers() {
         Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
-        extensionParsers.add(new ImageRestrictionExtensionParser());
+        extensionParsers.add(new UploadQuestionExtensionParser());
         // Add any future extension parsers for CommCare Android here
         return extensionParsers;
     }

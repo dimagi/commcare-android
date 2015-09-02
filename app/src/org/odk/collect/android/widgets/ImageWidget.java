@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.ImageRestrictionExtension;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -317,8 +317,8 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
     @Override
     public void applyExtension(QuestionDataExtension extension) {
-        if (extension instanceof ImageRestrictionExtension) {
-            this.mMaxDimen = ((ImageRestrictionExtension) extension).getMaxDimen();
+        if (extension instanceof UploadQuestionExtension) {
+            this.mMaxDimen = ((UploadQuestionExtension) extension).getMaxDimen();
         }
     }
 
