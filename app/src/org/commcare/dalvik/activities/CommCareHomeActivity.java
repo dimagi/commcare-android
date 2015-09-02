@@ -54,6 +54,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -130,6 +131,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
+    private static final int MENU_ABOUT = Menu.FIRST + 9;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -147,6 +149,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
+
+    private int mDeveloperModeClicks = 0;
 
     private AndroidCommCarePlatform platform;
 
@@ -1513,13 +1517,15 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
                 android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_WIFI_DIRECT, 0, Localization.get("home.menu.wifi.direct")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_share);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                R.drawable.notebook_full);
+                android.R.drawable.ic_menu_save);
+        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
+                android.R.drawable.ic_menu_help);
         return true;
     }
 
@@ -1538,6 +1544,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
         } catch (SessionUnavailableException sue) {
             //Nothing
         }
@@ -1549,7 +1556,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
-                //CommCareUtil.printInstance("jr://instance/stockdb");
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
@@ -1585,6 +1591,9 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
+                return true;
+            case MENU_ABOUT:
+                showAboutCommCareDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1626,6 +1635,26 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void startMenuConnectionActivity() {
         Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
         CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
+    }
+
+    private void showAboutCommCareDialog() {
+        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                mDeveloperModeClicks++;
+                if (mDeveloperModeClicks == 4) {
+                    CommCareApplication._().getCurrentApp().getAppPreferences().
+                            edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, "yes").commit();
+                    Toast.makeText(CommCareHomeActivity.this,
+                            Localization.get("home.developer.options.enabled"),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+        dialog.show();
     }
 
     private boolean isAirplaneModeOn() {
@@ -1671,11 +1700,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         return mAttemptFixDialog;
     }
-
-    /**
-     * All methods for implementation of DialogController that are not already handled in CommCareActivity *
-     */
-    
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
