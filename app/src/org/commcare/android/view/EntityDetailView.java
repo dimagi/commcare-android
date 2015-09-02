@@ -138,8 +138,8 @@ public class EntityDetailView extends FrameLayout {
         setParams(session, d, e, index, detailNumber);
 
         int[] colorAttr = new int[] {
-                R.attr.entity_detail_odd_row_color,
-                R.attr.entity_detail_even_row_color
+                R.attr.detail_odd_row_color,
+                R.attr.detail_even_row_color
         };
         Resources.Theme theme = context.getTheme();
         for (int i = 0; i < colorAttr.length; i++) {

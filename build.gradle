@@ -37,11 +37,11 @@ dependencies {
 
     compile project(':libraries:mapballoons')
     compile project(':libraries:achartengine')
+    compile project(':libraries:AndroidStaggeredGrid:library')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
-    compile 'com.etsy.android.grid:library:1.0.4'
-    compile 'com.android.support:support-v4:22.1.1'
-    compile 'com.android.support:gridlayout-v7:21.0.0'
+    compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:gridlayout-v7:22.2.1'
 
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
 }
@@ -49,6 +49,12 @@ dependencies {
 project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:22"
     buildToolsVersion = "22.0.1"
+}
+project(':libraries:AndroidStaggeredGrid:library') {
+  android{
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+  }
 }
 
 project(':libraries:mapballoons') {
@@ -115,6 +121,22 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    signingConfigs {
+       release {
+           storeFile file(project.ext.RELEASE_STORE_FILE)
+           storePassword project.ext.RELEASE_STORE_PASSWORD
+           keyAlias project.ext.RELEASE_KEY_ALIAS
+           keyPassword project.ext.RELEASE_KEY_PASSWORD
+       }
+    }
+
+    defaultConfig {
+        buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
+        buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
+        buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
+        buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
+    }
+
     def sourceLocations = ['app/src']
 
     sourceSets {
@@ -127,38 +149,7 @@ android {
         renderscript.srcDirs = ['app/src']
         res.srcDirs = ['app/res']
         assets.srcDirs = ['app/assets']
-        signingConfigs {
-           release {
-               storeFile file(project.ext.RELEASE_STORE_FILE)
-               storePassword project.ext.RELEASE_STORE_PASSWORD
-               keyAlias project.ext.RELEASE_KEY_ALIAS
-               keyPassword project.ext.RELEASE_KEY_PASSWORD
-           }
-        }
 
-        buildTypes {
-
-          debug {
-            debuggable true
-            java.srcDirs = sourceLocations + ['debug']
-            // applicationIdSuffix ".debug"
-
-            buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-            buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-            buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
-            buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
-          }
-          release {
-            buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-            buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-            buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
-            buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
-            signingConfig signingConfigs.release
-            java.srcDirs = sourceLocations + ['release']
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
-          }
-        }
       }
 
       // Move the tests to tests/java, tests/res, etc...
@@ -173,4 +164,19 @@ android {
       debug.setRoot('build-types/debug')
       release.setRoot('build-types/release')
     }
+
+    buildTypes {
+      debug {
+        sourceSets.main.java.srcDirs = sourceLocations + ['debug']
+        debuggable true
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
+      }
+
+      release {
+        sourceSets.main.java.srcDirs = sourceLocations + ['release']
+        signingConfig signingConfigs.release
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
+      }
+    }
+
 }

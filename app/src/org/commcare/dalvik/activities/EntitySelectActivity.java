@@ -140,7 +140,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private OnClickListener barcodeScanOnClickListener;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
@@ -351,7 +351,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private boolean resuming = false;
     private boolean startOther = false;
 
-    public void onResume() {
+    @Override
+    protected void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
         if (this.isFinishing() || startOther) {
@@ -823,7 +824,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         if (loader != null) {
             if (isFinishing()) {
@@ -1004,8 +1005,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
+            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView.setRoot(detailView);
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
             Detail detail = factory.getDetail();

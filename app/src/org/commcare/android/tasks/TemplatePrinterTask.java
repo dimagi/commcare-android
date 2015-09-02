@@ -3,11 +3,11 @@ package org.commcare.android.tasks;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.commcare.android.util.PrintValidationException;
 import org.commcare.android.util.TemplatePrinterUtils;
+
+import java.io.File;
+import java.io.IOException;
 
 
 /**
@@ -73,7 +73,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * Populates an html print template based on the given set of key-value pairings
      * and save the newly-populated template to a temp location
      *
-     * @param input the html print template
+     * @param input   the html print template
      * @param mapping the mapping of keywords to case property values
      * @throws IOException, PrintValidationException
      */
@@ -101,14 +101,14 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * Populate an input string with attribute keys formatted as {{ attr_key }} with attribute
      * values.
      *
-     * @param input String input
+     * @param input   String input
      * @param mapping Bundle of key-value mappings with which to complete replacements
      * @return The populated String
      */
     private static String replace(String input, Bundle mapping) {
         // Split input into tokens bounded by {{ and }}
         String[] tokens = TemplatePrinterUtils.splitKeepDelimiter(input, "\\{{2}", "\\}{2}");
-        for (int i=0; i<tokens.length; i++) {
+        for (int i = 0; i < tokens.length; i++) {
             String token = tokens[i];
 
             // Every 2nd token is a attribute enclosed in {{ }}
@@ -118,7 +118,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
                 String[] tokenSplits = TemplatePrinterUtils.splitKeepDelimiter(token, "<|(\\}{2})", ">|(\\{{2})");
 
                 // First and last tokenSplits are {{ and }}
-                for (int j=1; j<tokenSplits.length-1; j++) {
+                for (int j = 1; j < tokenSplits.length - 1; j++) {
                     String tokenSplit = tokenSplits[j];
 
                     // tokenSplit is key or whitespace
@@ -142,7 +142,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
 
                 // Remove {{ and }}
                 tokenSplits[0] = "";
-                tokenSplits[tokenSplits.length-1] = "";
+                tokenSplits[tokenSplits.length - 1] = "";
 
                 // Reconstruct token
                 tokens[i] = TemplatePrinterUtils.join(tokenSplits);
@@ -158,7 +158,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      * If malformed, throws an exception that will be caught by
      * doInBackground(), and trigger the appropriate result code to be
      * sent back to the attached PopulateListener
-     * 
+     *
      * @param input String to validate
      */
     private static void validateString(String input) throws PrintValidationException {

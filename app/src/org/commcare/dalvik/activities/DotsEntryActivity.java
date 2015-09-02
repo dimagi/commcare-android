@@ -69,7 +69,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     int zY = -1;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         if(savedInstanceState != null) {
