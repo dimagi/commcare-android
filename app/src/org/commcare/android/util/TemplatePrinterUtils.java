@@ -38,13 +38,6 @@ public abstract class TemplatePrinterUtils {
     private static final String FORMAT_REGEX_WITH_DELIMITER = "((?<=%2$s)|(?=%1$s))";
     private static final SecretKey KEY = CryptUtil.generateSemiRandomKey();
 
-    public static String getExtension(String filePath) {
-        if (filePath.contains(".")) {
-            return last(filePath.split("\\."));
-        }
-        return "";
-    }
-
     /**
      * Concatenate all Strings in a String array to one String.
      *
@@ -53,16 +46,6 @@ public abstract class TemplatePrinterUtils {
      */
     public static String join(String[] strings) {
         return TextUtils.join("", strings);
-    }
-
-    /**
-     * Get the last element of a String array.
-     *
-     * @param strings String array
-     * @return Last element
-     */
-    private static String last(String[] strings) {
-        return strings[strings.length - 1];
     }
 
     /**
