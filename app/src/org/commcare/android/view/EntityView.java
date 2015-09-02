@@ -102,8 +102,7 @@ public class EntityView extends LinearLayout {
         String[] headerForms = d.getHeaderForms();
 
         int[] colors = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
-        Log.i("DEBUG-i", "Background color is: " + colors[0] + ", text color is: " + colors[1]);
-
+        
         if (colors[0] != -1) {
             this.setBackgroundColor(colors[0]);
         }
