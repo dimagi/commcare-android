@@ -11,6 +11,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
+import org.commcare.android.adapters.ListItemViewModifier;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -32,20 +33,20 @@ public class EntityDetailFragment extends Fragment {
     public static final String DETAIL_INDEX = "edf_detail_index";
     public static final String CHILD_REFERENCE = "edf_detail_reference";
 
-    protected EntityDetailAdapter.EntityDetailViewModifier modifier;
+    protected ListItemViewModifier modifier;
 
     AndroidSessionWrapper asw;
-    ListAdapter adapter;
+    ModifiableEntityDetailAdapter adapter;
 
     public EntityDetailFragment() {
         super();
         this.asw = CommCareApplication._().getCurrentSessionWrapper();
     }
 
-    public void setEntityDetailModifier(EntityDetailAdapter.EntityDetailViewModifier edvm) {
-        this.modifier = edvm;
+    public void setModifier(ListItemViewModifier modifier) {
+        this.modifier = modifier;
         if (adapter != null) {
-            ((EntityDetailAdapter)adapter).setModifier(edvm);
+            adapter.setModifier(modifier);
         }
     }
 
@@ -79,10 +80,10 @@ public class EntityDetailFragment extends Fragment {
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
         adapter = new EntityDetailAdapter(
                 thisActivity, asw.getSession(), childDetail, entity,
-                detailCalloutListener, getArguments().getInt(DETAIL_INDEX)
+                detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
+                modifier
         );
-        ((EntityDetailAdapter)adapter).setModifier(modifier);
-        ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter(adapter);
+        ((ListView)rootView.findViewById(R.id.screen_entity_detail_list)).setAdapter((ListAdapter)adapter);
 
         return rootView;
     }

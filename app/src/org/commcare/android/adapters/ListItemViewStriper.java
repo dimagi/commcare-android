@@ -1,11 +1,15 @@
 package org.commcare.android.adapters;
 
+import android.annotation.SuppressLint;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.View;
 
 /**
  * Created by jschweers on 9/2/2015.
  */
-public class ListItemViewStriper implements ListItemViewModifier {
+@SuppressLint("ParcelCreator")
+public class ListItemViewStriper implements ListItemViewModifier, Parcelable {
     private int mOddColor;
     private int mEvenColor;
 
@@ -22,5 +26,15 @@ public class ListItemViewStriper implements ListItemViewModifier {
         } else {
             view.setBackgroundColor(mOddColor);
         }
+    }
+
+    @Override
+    public int describeContents() {
+        return mOddColor ^ mEvenColor;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        // do nothing
     }
 }

@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import org.commcare.android.framework.ModifiableEntityDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
@@ -19,7 +20,7 @@ import java.util.List;
  * Adapter for taking a nodeset, contextualizing it against an entity,
  * and then displaying one item for each node in the resulting set.
  */
-public class EntitySubnodeDetailAdapter implements ListAdapter {
+public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
 
     private Context context;
     private Detail detail;
@@ -104,4 +105,8 @@ public class EntitySubnodeDetailAdapter implements ListAdapter {
     public void unregisterDataSetObserver(DataSetObserver observer) {
     }
 
+    @Override
+    public void setModifier(ListItemViewModifier modifier) {
+        this.modifier = modifier;
+    }
 }

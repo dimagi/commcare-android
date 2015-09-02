@@ -6,10 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.commcare.android.adapters.EntitySubnodeDetailAdapter;
-import org.commcare.android.adapters.ListItemViewModifier;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
@@ -31,11 +31,9 @@ import java.util.List;
 public class EntitySubnodeDetailFragment extends EntityDetailFragment implements EntityLoaderListener {
     private EntityLoaderTask loader;
     private ListView listView;
-    private ListItemViewModifier livm;
 
-    public EntitySubnodeDetailFragment(ListItemViewModifier livm) {
+    public EntitySubnodeDetailFragment() {
         super();
-        this.livm = livm;
     }
 
     @Override
@@ -87,8 +85,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         this.loader = null;
-        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, livm);
-        this.listView.setAdapter(this.adapter);
+        this.adapter = new EntitySubnodeDetailAdapter(getActivity(), childDetail, references, entities, modifier);
+        this.listView.setAdapter((ListAdapter)this.adapter);
     }
 
     @Override

@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -15,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.EntityDetailPagerAdapter;
 import org.commcare.android.adapters.ListItemViewStriper;
 import org.commcare.android.util.AndroidUtil;
@@ -56,7 +53,6 @@ public class TabbedDetailView extends RelativeLayout {
 
     private void loadViewConfig(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.TabbedDetailView);
-
         Resources.Theme theme = context.getTheme();
         int[] defaults = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.detail_even_row_color, R.attr.detail_odd_row_color});
 
@@ -116,7 +112,7 @@ public class TabbedDetailView extends RelativeLayout {
      */
     public void refresh(Detail detail, TreeReference reference, int index, boolean hasDetailCalloutListener) {
         mEntityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
-                hasDetailCalloutListener, new DefaultEDVModifier(this.mOddColor, mEvenColor), new ListItemViewStriper(this.mOddColor, this.mEvenColor)
+                hasDetailCalloutListener, new ListItemViewStriper(this.mOddColor, this.mEvenColor)
         );
         mViewPager.setAdapter(mEntityDetailPagerAdapter);
         if (!detail.isCompound()) {
@@ -158,32 +154,4 @@ public class TabbedDetailView extends RelativeLayout {
         return mViewPager.getAdapter().getCount();
     }
 
-    //region Private classes
-
-    @SuppressLint("ParcelCreator")
-    private class DefaultEDVModifier implements EntityDetailAdapter.EntityDetailViewModifier, Parcelable {
-        int mEvenColor;
-        int mOddColor;
-
-        public DefaultEDVModifier(int oddColor, int evenColor) {
-            this.mOddColor = oddColor;
-            this.mEvenColor = evenColor;
-        }
-
-        @Override
-        public void modifyEntityDetailView(EntityDetailView edv) {
-            edv.setOddEvenRowColors(mOddColor, mEvenColor);
-        }
-
-        @Override
-        public int describeContents() {
-            return mOddColor ^ mEvenColor;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-        }
-    }
-
-    //endregion
 }

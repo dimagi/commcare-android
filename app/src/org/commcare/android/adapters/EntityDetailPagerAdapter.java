@@ -18,8 +18,7 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 
-    private EntityDetailAdapter.EntityDetailViewModifier modifier;
-    private ListItemViewModifier livm;
+    private ListItemViewModifier modifier;
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
@@ -33,21 +32,20 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier, ListItemViewModifier livm) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, ListItemViewModifier modifier) {
         this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
         this.modifier = modifier;
-        this.livm = livm;
     }
 
     @Override
     public Fragment getItem(int i) {
         EntityDetailFragment fragment;
         if (detail.getNodeset() != null || (detail.isCompound() && detail.getDetails()[i].getNodeset() != null)) {
-            fragment = new EntitySubnodeDetailFragment(livm);
+            fragment = new EntitySubnodeDetailFragment();
         } else {
             fragment = new EntityDetailFragment();
         }
-        fragment.setEntityDetailModifier(modifier);
+        fragment.setModifier(modifier);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {
