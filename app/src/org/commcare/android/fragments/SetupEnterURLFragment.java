@@ -92,6 +92,7 @@ public class SetupEnterURLFragment extends Fragment {
 
     @Override
     public void onPause() {
+        super.onPause();
         Activity activity = this.getActivity();
 
         if(activity != null) {
@@ -101,8 +102,6 @@ public class SetupEnterURLFragment extends Fragment {
             }
 
         }
-
-        super.onPause();
     }
 
     @Override

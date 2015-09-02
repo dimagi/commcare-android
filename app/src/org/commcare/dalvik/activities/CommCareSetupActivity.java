@@ -113,12 +113,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean offlineInstall;
 
-    /**
-     * Keeps track of whether the previous resource table was in a 'fresh'
-     * (empty or installed) state before the last install ran.
-     */
-    private boolean resourceTableWasFresh;
-
     //region UIState fragments
 
     private final FragmentManager fm = getSupportFragmentManager();
@@ -363,7 +357,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall() {
         if (startAllowed) {
             CommCareApp app = getCommCareApp();
-
             ccApp = app;
 
             CustomProgressDialog lastDialog = getCurrentDialog();

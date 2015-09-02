@@ -140,17 +140,16 @@ public class GraphView {
     }
 
     private DefaultRenderer.Location stringToLocation(String str) {
-        // Java, why don't you have a concise way to define a hashmap?
-        if (str.equals("top-left")) {
-            return DefaultRenderer.Location.TOP_LEFT;
+        switch (str) {
+            case "top-left":
+                return DefaultRenderer.Location.TOP_LEFT;
+            case "top-right":
+                return DefaultRenderer.Location.TOP_RIGHT;
+            case "bottom-left":
+                return DefaultRenderer.Location.BOTTOM_LEFT;
+            default:
+                return DefaultRenderer.Location.BOTTOM_RIGHT;
         }
-        if (str.equals("top-right")) {
-            return DefaultRenderer.Location.TOP_RIGHT;
-        }
-        if (str.equals("bottom-left")) {
-            return DefaultRenderer.Location.BOTTOM_LEFT;
-        }
-        return DefaultRenderer.Location.BOTTOM_RIGHT;
     }
 
     /*
