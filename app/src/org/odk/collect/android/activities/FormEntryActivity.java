@@ -550,7 +550,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
 
-        File fileToReturn;
         if (!savedScaledImage) {
             // If we didn't create a scaled image and save it to the final path, then relocate the
             // original image from the temp filepath to our final path
@@ -559,7 +558,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + finalFile.getAbsolutePath());
             } else {
-                fileToReturn = finalFile;
+                return finalFile;
             }
         } else {
             // Otherwise, relocate the original image to a raw/ folder, so that we still have access
@@ -574,10 +573,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
             } else {
-                fileToReturn = rawImageFile;
+                return rawImageFile;
             }
         }
-        return fileToReturn;
     }
 
 
@@ -622,6 +620,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 File unscaledFinalImage = moveAndScaleImage(originalImage, true);
                 saveImageWidgetAnswer(unscaledFinalImage);
             } catch (IOException e) {
+                e.printStackTrace();
                 showCustomToast(Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG);
             }
         } else {
