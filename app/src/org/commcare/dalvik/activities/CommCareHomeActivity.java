@@ -886,7 +886,16 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             });
             return;
         }
-        startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+
+        if(asw.getSession().getForm() == null) {
+            if(asw.terminateSession()) {
+                startNextFetch();
+            } else {
+                this.refreshView();
+            }
+        } else {
+            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+        }
     }
 
     private void handleGetCommand(CommCareSession session) {
