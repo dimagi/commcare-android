@@ -3,10 +3,6 @@
  */
 package org.commcare.android.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Hashtable;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
@@ -34,6 +30,10 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
 import org.robolectric.Robolectric;
 import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 /**
  * @author ctsims
@@ -146,7 +146,7 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+        CaseDataInstance edi = new CaseDataInstance("jr://instance/casedb", "casedb");
                 
         edi.initialize(new InstanceInitializationFactory() {
             public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

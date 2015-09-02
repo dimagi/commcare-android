@@ -3,9 +3,10 @@
  */
 package org.commcare.android.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Vector;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
+import android.widget.Toast;
 
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.dalvik.R;
@@ -18,9 +19,9 @@ import org.javarosa.core.util.ArrayUtilities;
 import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.widget.Toast;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * Basically Copy+Paste code from CCJ2ME that needs to be unified or re-indexed to somewhere more reasonable.
@@ -93,7 +94,7 @@ public class CommCareUtil {
             DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
             
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
-            System.out.println(new String(bos.toByteArray()));
+            Log.d(TAG, new String(bos.toByteArray()));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
