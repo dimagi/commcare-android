@@ -602,6 +602,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             username.setText("");
         }
 
+        // Clear any password text that was entered for a different app
+        password.setText("");
+
         // Refresh the breadcrumb bar for new app name
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
