@@ -91,6 +91,17 @@ ext {
   RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
 }
 
+/**
+ * Get the version code from command line param
+ * 
+ * @return int If the param -PversionCode is present then return int value or -1
+ */
+def getVersionCode = { ->
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    println "VersionCode is set to $code"
+    return code
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -114,6 +125,13 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 22
+
+        versionCode getVersionCode()
+
+        buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
+        buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
+        buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
+        buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
     }
 
     compileOptions {
@@ -128,13 +146,6 @@ android {
            keyAlias project.ext.RELEASE_KEY_ALIAS
            keyPassword project.ext.RELEASE_KEY_PASSWORD
        }
-    }
-
-    defaultConfig {
-        buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-        buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-        buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
-        buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
     }
 
     def sourceLocations = ['app/src']
