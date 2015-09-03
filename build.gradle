@@ -55,20 +55,6 @@ project(':libraries:mapballoons') {
   }
 }
 
-project(':commcare') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
-project(':javarosa') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-
 ext {
   // Obtained from ~/.gradle/gradle.properites on build server or load default
   // empty strings.
