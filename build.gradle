@@ -122,9 +122,6 @@ android {
 
         versionCode getVersionCode()
 
-        buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
-        buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
-        buildConfigField "String", "ACRA_USER", "\"${project.ext.ACRA_USER}\""
         buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
         buildConfigField "String", "BUILD_DATE", "\"" + getDate() + "\""
         buildConfigField "String", "BUILD_NUMBER", "\"" + getVersionCode() + "\""
