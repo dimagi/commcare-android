@@ -46,6 +46,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -564,8 +565,8 @@ public class CommCareApplication extends Application {
         }
 
 
-        String buildDate = getString(R.string.app_build_date);
-        String buildNumber = getString(R.string.app_build_number);
+        String buildDate = BuildConfig.BUILD_DATE;
+        String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
