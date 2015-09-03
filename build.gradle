@@ -82,10 +82,10 @@ ext {
 /**
  * Get the version code from command line param
  * 
- * @return String If the param -PversionCode is present then return int value or "Dev
+ * @return int If the param -PversionCode is present then return int value or -1
  */
 def getVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode : "Dev"
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
     println "VersionCode is set to $code"
     return code
 }
