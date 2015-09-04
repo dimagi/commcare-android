@@ -19,13 +19,7 @@
     <attr name="img" format="reference" />
     <attr name="colorText" format="reference|color" />
 
-    <declare-styleable name="SquareButtonWithText">
-        <attr name="backgroundcolor"/>
-        <attr name="subtitle"/>
-        <attr name="img"/>
-        <attr name="colorText"/>
-    </declare-styleable>
-    <declare-styleable name="RectangleButtonWithText">
+    <declare-styleable name="CustomButtonWithText">
         <attr name="backgroundcolor"/>
         <attr name="subtitle"/>
         <attr name="img"/>

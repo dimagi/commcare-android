@@ -8,7 +8,7 @@
     >
 
     <org.commcare.android.view.ResizingTextView
-        android:id="@+id/rectangle_text_view"
+        android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -20,7 +20,7 @@
         app:text_size_small="@dimen/font_size_medium"
         />
     <ImageButton
-        android:id="@+id/rectangle_button"
+        android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
