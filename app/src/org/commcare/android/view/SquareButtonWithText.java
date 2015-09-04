@@ -19,13 +19,10 @@ import org.commcare.dalvik.R;
  * @author Daniel Luna (dluna@dimagi.com)
  */
 public class SquareButtonWithText extends RelativeLayout {
-    SquareButton squareButton;
-    TextView textView;
+    private SquareButton squareButton;
+    private TextView textView;
 
-    Drawable backgroundImg;
-    int backgroundColor = android.R.drawable.btn_default;
-    String text = "";
-    private int colorButtonText = R.color.cc_core_bg;
+    private static final int DEFAULT_TEXT_COLOR = R.color.cc_core_bg;
 
     public SquareButtonWithText(Context context) {
         super(context);
@@ -49,10 +46,10 @@ public class SquareButtonWithText extends RelativeLayout {
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.SquareButtonWithText);
 
-        backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
-        backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
-        text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
-        colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, colorButtonText);
+        Drawable backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
+        int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
+        String text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
+        int colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, DEFAULT_TEXT_COLOR);
 
         typedArray.recycle();
 
