@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.UiElement;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
@@ -21,13 +20,11 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
- * Created by dancluna on 3/17/15.
+ *
+ * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupInstallFragment extends Fragment {
-    @UiElement(R.id.btn_fetch_uri)
     SquareButtonWithText scanBarcodeButton;
-
-    @UiElement(R.id.enter_app_location)
     SquareButtonWithText enterURLButton;
 
     @Override

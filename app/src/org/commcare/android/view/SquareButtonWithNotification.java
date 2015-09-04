@@ -10,20 +10,14 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
 /**
- * Created by dancluna on 3/18/15.
+ * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SquareButtonWithNotification extends RelativeLayout {
-    @UiElement(R.id.square_button_text)
     SquareButtonWithText buttonWithText;
-
-    @UiElement(R.id.button_subtext)
     TextView subText;
-
-    //region View parameters
 
     Drawable backgroundImg;
     int backgroundColorButton = android.R.drawable.btn_default;
@@ -32,10 +26,6 @@ public class SquareButtonWithNotification extends RelativeLayout {
     String textNotification = "";
     private int colorButtonText = R.color.white;
     private int colorNotificationText = R.color.black;
-
-    //endregion
-
-    //region Public methods
 
     public void setOnClickListener(OnClickListener l) {
         buttonWithText.setOnClickListener(l);
@@ -64,10 +54,6 @@ public class SquareButtonWithNotification extends RelativeLayout {
         buttonWithText.setText(text.toString());
     }
 
-    //endregion
-
-    //region Constructors
-
     public SquareButtonWithNotification(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -79,10 +65,6 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
         setUI(context, attrs);
     }
-
-    //endregion
-
-    //region Private methods
 
     private void setUI(Context context, AttributeSet attrs) {
         View view = inflate(context, R.layout.square_button_notification, this);
@@ -110,6 +92,4 @@ public class SquareButtonWithNotification extends RelativeLayout {
             subText.setTextColor(getResources().getColor(colorNotificationText));
         }
     }
-
-    //endregion
 }

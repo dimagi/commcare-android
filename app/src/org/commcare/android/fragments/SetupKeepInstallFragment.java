@@ -8,29 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.commcare.android.framework.UiElement;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
  * Fragment to start, update or cancel an app installation.
- * Created by dancluna on 4/10/15.
+ *
+ * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupKeepInstallFragment extends Fragment {
-    @UiElement(R.id.btn_start_install)
     SquareButtonWithText btnStartInstall;
-
-    @UiElement(R.id.btn_stop_install)
     SquareButtonWithText btnStopInstall;
+    StartStopInstallCommands buttonCommands;
 
     public interface StartStopInstallCommands {
         void onStartInstallClicked();
 
         void onStopInstallClicked();
     }
-
-    StartStopInstallCommands buttonCommands;
 
     public void setButtonCommands(StartStopInstallCommands buttonCommands) {
         this.buttonCommands = buttonCommands;

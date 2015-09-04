@@ -24,11 +24,19 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Fragment for inputting app installation URL, "returned" through the URLInstaller interface.
- * Created by dancluna on 3/17/15.
+ *
+ * @author Daniel Luna (dcluna@dimagi.com)
  */
-@ManagedUi(R.layout.fragment_setup_enter_url)
 public class SetupEnterURLFragment extends Fragment {
     public static final String TAG = SetupEnterURLFragment.class.getSimpleName();
+    public static final String interfaceName = URLInstaller.class.getName();
+
+    private URLInstaller listener;
+
+    Button installButton;
+    Spinner prefixURLSpinner;
+    EditText profileLocation;
+
 
     public interface URLInstaller {
         /**
@@ -37,21 +45,8 @@ public class SetupEnterURLFragment extends Fragment {
          *
          * @param url URL typed by the user
          */
-        public void onURLChosen(String url);
+        void onURLChosen(String url);
     }
-
-    public static final String interfaceName = URLInstaller.class.getName();
-
-    private URLInstaller listener;
-
-    @UiElement(R.id.start_install)
-    Button installButton;
-
-    @UiElement(R.id.url_spinner)
-    Spinner prefixURLSpinner;
-
-    @UiElement(R.id.edit_profile_location)
-    EditText profileLocation;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
