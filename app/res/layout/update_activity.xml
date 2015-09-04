@@ -73,8 +73,8 @@
                         android:id="@+id/check_for_update_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
-                        SquareButtonWithText:colorText="@color/white"
+                        SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                        SquareButtonWithText:textColor="@color/white"
                         SquareButtonWithText:img="@drawable/update_download"
                         SquareButtonWithText:subtitle="Check"/>
                     </FrameLayout>
@@ -89,8 +89,8 @@
                         android:id="@+id/stop_update_download_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        SquareButtonWithText:colorText="@color/white"
-                        SquareButtonWithText:backgroundcolor="@color/cc_neutral_color"
+                        SquareButtonWithText:textColor="@color/white"
+                        SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
                         SquareButtonWithText:img="@drawable/install_stop"
                         SquareButtonWithText:subtitle="Stop"
                         />
@@ -115,8 +115,8 @@
                         android:id="@+id/install_update_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        RectangleButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
-                        RectangleButtonWithText:colorText="@color/white"
+                        RectangleButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                        RectangleButtonWithText:textColor="@color/white"
                         RectangleButtonWithText:img="@drawable/install_start"
                         RectangleButtonWithText:subtitle="Install"/>
                     </FrameLayout>
