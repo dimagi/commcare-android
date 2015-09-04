@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -38,7 +39,7 @@ public class RectangleButtonWithText extends CustomButtonWithText {
 
         typedArray.recycle();
 
-        button = (RectangleButton) findViewById(R.id.rectangle_button);
+        button = (ImageButton) findViewById(R.id.rectangle_button);
         textView = (TextView) findViewById(R.id.rectangle_text_view);
 
         if (isInEditMode()) {
