@@ -50,9 +50,9 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CustomButtonWithText);
 
         Drawable backgroundImg = typedArray.getDrawable(R.styleable.CustomButtonWithText_img);
-        int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.CustomButtonWithText_backgroundcolor, android.R.color.transparent));
+        int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.CustomButtonWithText_backgroundColor, android.R.color.transparent));
         String text = typedArray.getString(R.styleable.CustomButtonWithText_subtitle);
-        int colorButtonText = typedArray.getResourceId(R.styleable.CustomButtonWithText_colorText, DEFAULT_TEXT_COLOR);
+        int colorButtonText = typedArray.getResourceId(R.styleable.CustomButtonWithText_textColor, DEFAULT_TEXT_COLOR);
 
         typedArray.recycle();
 
