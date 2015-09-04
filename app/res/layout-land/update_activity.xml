@@ -62,48 +62,54 @@
                     android:orientation="horizontal"
                     android:paddingBottom="@dimen/content_min_margin">
 
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:background="@drawable/tile_drop_shadow_small_margins">
                     <org.commcare.android.view.SquareButtonWithText
                         android:id="@+id/check_for_update_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/content_start"
-                        android:layout_marginLeft="@dimen/content_min_margin"
-                        android:layout_marginRight="@dimen/content_start"
-                        android:layout_marginStart="@dimen/content_min_margin"
-                        android:layout_weight="1"
                         SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
                         SquareButtonWithText:colorText="@color/white"
                         SquareButtonWithText:img="@drawable/update_download"
                         SquareButtonWithText:subtitle="Check"/>
+                    </FrameLayout>
 
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:background="@drawable/tile_drop_shadow_small_margins">
                     <org.commcare.android.view.SquareButtonWithText
                         android:id="@+id/stop_update_download_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/content_min_margin"
-                        android:layout_marginLeft="@dimen/content_start"
-                        android:layout_marginRight="@dimen/content_min_margin"
-                        android:layout_marginStart="@dimen/content_start"
-                        android:layout_weight="1"
-                        SquareButtonWithText:backgroundcolor="@color/cc_dark_warm_accent_text"
+                        SquareButtonWithText:backgroundcolor="@color/cc_neutral_color"
                         SquareButtonWithText:colorText="@color/white"
-                        SquareButtonWithText:img="@drawable/update_cancel"
+                        SquareButtonWithText:img="@drawable/install_stop"
                         SquareButtonWithText:subtitle="Stop"
                         />
+                    </FrameLayout>
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:background="@drawable/tile_drop_shadow_small_margins">
                     <org.commcare.android.view.SquareButtonWithText
                         android:id="@+id/install_update_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/content_start"
-                        android:layout_marginLeft="@dimen/content_min_margin"
-                        android:layout_marginRight="@dimen/content_start"
-                        android:layout_marginStart="@dimen/content_min_margin"
-                        android:layout_weight="1"
-                        android:gravity="end"
                         SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
                         SquareButtonWithText:colorText="@color/white"
-                        SquareButtonWithText:img="@drawable/update_install"
+                        SquareButtonWithText:img="@drawable/install_start"
                         SquareButtonWithText:subtitle="Install"/>
+                    </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
