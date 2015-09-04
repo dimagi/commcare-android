@@ -16,8 +16,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -28,14 +26,13 @@ import org.javarosa.core.services.locale.Localization;
  * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupEnterURLFragment extends Fragment {
-    public static final String TAG = SetupEnterURLFragment.class.getSimpleName();
-    public static final String interfaceName = URLInstaller.class.getName();
+    private static final String TAG = SetupEnterURLFragment.class.getSimpleName();
+    private static final String interfaceName = URLInstaller.class.getName();
 
     private URLInstaller listener;
 
-    Button installButton;
-    Spinner prefixURLSpinner;
-    EditText profileLocation;
+    private Spinner prefixURLSpinner;
+    private EditText profileLocation;
 
 
     public interface URLInstaller {
@@ -51,7 +48,7 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_enter_url, container, false);
-        installButton = (Button) view.findViewById(R.id.start_install);
+        Button installButton = (Button) view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
         prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);
         prefixURLSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -131,7 +128,7 @@ public class SetupEnterURLFragment extends Fragment {
      *
      * @return The current URL
      */
-    public String getURL() {
+    private String getURL() {
         int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();
         if (url == null || url.length() == 0) {

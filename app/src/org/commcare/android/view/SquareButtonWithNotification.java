@@ -16,14 +16,10 @@ import org.commcare.dalvik.R;
  * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SquareButtonWithNotification extends RelativeLayout {
-    SquareButtonWithText buttonWithText;
-    TextView subText;
-
-    Drawable backgroundImg;
-    int backgroundColorButton = android.R.drawable.btn_default;
-    int backgroundColorNotification = R.color.solid_green;
-    String subtitleButton = "";
-    String textNotification = "";
+    private SquareButtonWithText buttonWithText;
+    private TextView subText;
+    private int backgroundColorButton = android.R.drawable.btn_default;
+    private int backgroundColorNotification = R.color.solid_green;
     private int colorButtonText = R.color.white;
     private int colorNotificationText = R.color.black;
 
@@ -32,7 +28,7 @@ public class SquareButtonWithNotification extends RelativeLayout {
     }
 
     public void setNotificationText(String textNotification) {
-        this.setNotificationText((Spannable) (textNotification == null ? null : new SpannableString(textNotification)));
+        this.setNotificationText(textNotification == null ? null : new SpannableString(textNotification));
     }
 
     public void setNotificationText(Spannable textNotification) {
@@ -74,11 +70,11 @@ public class SquareButtonWithNotification extends RelativeLayout {
         if (attrs != null) {
             TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SquareButtonWithNotification, 0, 0);
 
-            backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithNotification_sbn_img);
+            Drawable backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithNotification_sbn_img);
             backgroundColorButton = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_backgroundcolorButton, backgroundColorButton);
             backgroundColorNotification = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_backgroundcolorNotification, backgroundColorNotification);
-            subtitleButton = typedArray.getString(R.styleable.SquareButtonWithNotification_sbn_subtitle);
-            textNotification = typedArray.getString(R.styleable.SquareButtonWithNotification_notificationText);
+            String subtitleButton = typedArray.getString(R.styleable.SquareButtonWithNotification_sbn_subtitle);
+            String textNotification = typedArray.getString(R.styleable.SquareButtonWithNotification_notificationText);
             colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_colorButtonText, colorButtonText);
             colorNotificationText = typedArray.getResourceId(R.styleable.SquareButtonWithNotification_colorNotificationText, colorNotificationText);
 

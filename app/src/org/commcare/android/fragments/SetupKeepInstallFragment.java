@@ -18,9 +18,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupKeepInstallFragment extends Fragment {
-    SquareButtonWithText btnStartInstall;
-    SquareButtonWithText btnStopInstall;
-    StartStopInstallCommands buttonCommands;
+    private StartStopInstallCommands buttonCommands;
 
     public interface StartStopInstallCommands {
         void onStartInstallClicked();
@@ -28,7 +26,7 @@ public class SetupKeepInstallFragment extends Fragment {
         void onStopInstallClicked();
     }
 
-    public void setButtonCommands(StartStopInstallCommands buttonCommands) {
+    private void setButtonCommands(StartStopInstallCommands buttonCommands) {
         this.buttonCommands = buttonCommands;
     }
 
@@ -44,9 +42,9 @@ public class SetupKeepInstallFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_keepinstall, container, false);
-        btnStartInstall = (SquareButtonWithText) view.findViewById(R.id.btn_start_install);
+        SquareButtonWithText btnStartInstall = (SquareButtonWithText) view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
-        btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);
+        SquareButtonWithText btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(Localization.get("install.button.startover"));
         TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.ready.top"));

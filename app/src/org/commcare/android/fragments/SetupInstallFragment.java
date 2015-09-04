@@ -24,9 +24,6 @@ import org.javarosa.core.services.locale.Localization;
  * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupInstallFragment extends Fragment {
-    SquareButtonWithText scanBarcodeButton;
-    SquareButtonWithText enterURLButton;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_install, container, false);
@@ -34,8 +31,8 @@ public class SetupInstallFragment extends Fragment {
         TextView setupMsg2 = (TextView) view.findViewById(R.id.str_setup_message_2);
         setupMsg.setText(Localization.get("install.barcode.top"));
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
-        scanBarcodeButton = (SquareButtonWithText) view.findViewById(R.id.btn_fetch_uri);
-        enterURLButton = (SquareButtonWithText) view.findViewById(R.id.enter_app_location);
+        SquareButtonWithText scanBarcodeButton = (SquareButtonWithText) view.findViewById(R.id.btn_fetch_uri);
+        SquareButtonWithText enterURLButton = (SquareButtonWithText) view.findViewById(R.id.enter_app_location);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
