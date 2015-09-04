@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <org.commcare.android.view.SquareButton
-        android:id="@+id/square_button"
+        android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@null"
@@ -15,10 +15,10 @@
         />
 
     <org.commcare.android.view.ResizingTextView
-        android:id="@+id/square_text_view"
+        android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/square_button"
+        android:layout_below="@+id/button"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:paddingBottom="@dimen/standard_spacer"

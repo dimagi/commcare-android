@@ -2,6 +2,7 @@ package org.commcare.android.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,6 +17,9 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 
 /**
+ * Custom button that allows setting image, text, and color
+ *
+ * @author Daniel Luna (dluna@dimagi.com)
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public abstract class CustomButtonWithText extends RelativeLayout {
@@ -39,7 +43,30 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         inflateAndExtractCustomParams(context, attrs);
     }
 
-    protected abstract void inflateAndExtractCustomParams(Context context, AttributeSet attrs);
+    protected void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
+        inflate(context, getLayoutResourceId(), this);
+        this.setClickable(true);
+
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CustomButtonWithText);
+
+        Drawable backgroundImg = typedArray.getDrawable(R.styleable.CustomButtonWithText_img);
+        int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.CustomButtonWithText_backgroundcolor, android.R.color.transparent));
+        String text = typedArray.getString(R.styleable.CustomButtonWithText_subtitle);
+        int colorButtonText = typedArray.getResourceId(R.styleable.CustomButtonWithText_colorText, DEFAULT_TEXT_COLOR);
+
+        typedArray.recycle();
+
+        button = (ImageButton)findViewById(R.id.button);
+        textView = (TextView) findViewById(R.id.text_view);
+
+        if (isInEditMode()) {
+            setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
+        }
+
+        setUI(backgroundColor, backgroundImg, text, colorButtonText);
+    }
+
+    abstract int getLayoutResourceId();
 
     protected void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
         setColor(backgroundColor);
