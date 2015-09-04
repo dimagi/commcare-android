@@ -83,6 +83,7 @@ public class UpdateTask
         try {
             return stageUpdate();
         } catch (Exception e) {
+            resourceManager.storeUpdateException(e);
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;

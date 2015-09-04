@@ -168,4 +168,8 @@ public class AndroidResourceManager extends ResourceManager {
             Log.i(TAG, updateStats.toString());
         }
     }
+
+    public void storeUpdateException(Exception e) {
+        updateStats.registerUpdateException(e);
+    }
 }
