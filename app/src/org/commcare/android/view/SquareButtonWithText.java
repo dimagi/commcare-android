@@ -13,23 +13,19 @@ import android.util.StateSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
 /**
  * @author Daniel Luna (dluna@dimagi.com)
  */
-@ManagedUi(R.layout.square_button_text)
 public class SquareButtonWithText extends RelativeLayout {
-    @UiElement(R.id.square_button)
-    private SquareButton squareButton;
-
-    @UiElement(R.id.text_view)
-    private TextView textView;
+    private static final int DEFAULT_TEXT_COLOR = R.color.cc_core_bg;
 
     private final ColorDrawable pressedBackground = new ColorDrawable(getResources().getColor(R.color.blue_light));
     private final ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
+
+    private SquareButton squareButton;
+    private TextView textView;
 
     public SquareButtonWithText(Context context) {
         super(context);
@@ -56,8 +52,7 @@ public class SquareButtonWithText extends RelativeLayout {
         Drawable backgroundImg = typedArray.getDrawable(R.styleable.SquareButtonWithText_img);
         int backgroundColor = getResources().getColor(typedArray.getResourceId(R.styleable.SquareButtonWithText_backgroundcolor, android.R.color.transparent));
         String text = typedArray.getString(R.styleable.SquareButtonWithText_subtitle);
-
-        int colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, R.color.cc_core_bg);
+        int colorButtonText = typedArray.getResourceId(R.styleable.SquareButtonWithText_colorText, DEFAULT_TEXT_COLOR);
 
         typedArray.recycle();
 
@@ -83,7 +78,6 @@ public class SquareButtonWithText extends RelativeLayout {
             textView.setText(text);
         }
     }
-
 
     public void setImage(Drawable backgroundImg) {
         squareButton.setImageDrawable(backgroundImg);
