@@ -19,7 +19,7 @@
         android:textSize="@dimen/font_size_large"
         app:text_size_small="@dimen/font_size_medium"
         />
-    <org.commcare.android.view.RectangleButton
+    <ImageButton
         android:id="@+id/rectangle_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
