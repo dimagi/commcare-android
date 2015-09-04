@@ -6,6 +6,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.view.CustomButtonWithText;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -22,7 +23,7 @@ import java.util.Date;
 class UpdateUiController {
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
-    private SquareButtonWithText installUpdateButton;
+    private CustomButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView currentVersionText;
     private TextView progressText;
@@ -80,7 +81,7 @@ class UpdateUiController {
         stopUpdateButton.setText(stopCheckingText);
 
         installUpdateButton =
-                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
+                (CustomButtonWithText)activity.findViewById(R.id.install_update_button);
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
