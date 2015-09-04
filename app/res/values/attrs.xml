@@ -13,11 +13,23 @@
     <attr name="drawer_pulldown_odd_row_color" format="reference"></attr>
     <attr name="menu_tile_title_text_color" format="reference"></attr>
     <attr name="entity_select_title_text_color" format="reference"></attr>
+
+    <attr name="backgroundcolor" format="reference|color" />
+    <attr name="subtitle" format="string" />
+    <attr name="img" format="reference" />
+    <attr name="colorText" format="reference|color" />
+
     <declare-styleable name="SquareButtonWithText">
-        <attr name="backgroundcolor" format="reference|color" />
-        <attr name="subtitle" format="string" />
-        <attr name="img" format="reference" />
-        <attr name="colorText" format="reference|color" />
+        <attr name="backgroundcolor"/>
+        <attr name="subtitle"/>
+        <attr name="img"/>
+        <attr name="colorText"/>
+    </declare-styleable>
+    <declare-styleable name="RectangleButtonWithText">
+        <attr name="backgroundcolor"/>
+        <attr name="subtitle"/>
+        <attr name="img"/>
+        <attr name="colorText"/>
     </declare-styleable>
 
     <declare-styleable name="ResizingTextView">
