@@ -3,16 +3,16 @@
         <attr name="ratio_width" format="float" />
         <attr name="ratio_height" format="float" />
     </declare-styleable>
-    <attr name="detail_even_row_color" format="reference"></attr>
-    <attr name="detail_odd_row_color" format="reference"></attr>
-    <attr name="entity_view_header_background_color" format="reference"></attr>
-    <attr name="entity_view_header_text_color" format="reference"></attr>
-    <attr name="searchbox_action_bar_color" format="reference"></attr>
-    <attr name="drawer_pulldown_text_color" format="reference"></attr>
-    <attr name="drawer_pulldown_even_row_color" format="reference"></attr>
-    <attr name="drawer_pulldown_odd_row_color" format="reference"></attr>
-    <attr name="menu_tile_title_text_color" format="reference"></attr>
-    <attr name="entity_select_title_text_color" format="reference"></attr>
+    <attr name="detail_even_row_color" format="reference"/>
+    <attr name="detail_odd_row_color" format="reference"/>
+    <attr name="entity_view_header_background_color" format="reference"/>
+    <attr name="entity_view_header_text_color" format="reference"/>
+    <attr name="searchbox_action_bar_color" format="reference"/>
+    <attr name="drawer_pulldown_text_color" format="reference"/>
+    <attr name="drawer_pulldown_even_row_color" format="reference"/>
+    <attr name="drawer_pulldown_odd_row_color" format="reference"/>
+    <attr name="menu_tile_title_text_color" format="reference"/>
+    <attr name="entity_select_title_text_color" format="reference"/>
 
     <attr name="backgroundcolor" format="reference|color" />
     <attr name="subtitle" format="string" />
@@ -39,8 +39,8 @@
         <attr name="notificationText" format="string" />
         <attr name="sbn_img" format="reference" />
     </declare-styleable>
-    <attr name="filter_select_background_color" format="reference"></attr>
-    <attr name="filter_select_text_color" format="reference"></attr>
+    <attr name="filter_select_background_color" format="reference"/>
+    <attr name="filter_select_text_color" format="reference"/>
 
     <declare-styleable name="TabbedDetailView">
         <attr name="even_row_color" format="reference|color"/>
