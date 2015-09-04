@@ -166,7 +166,8 @@ public class AndroidResourceManager extends ResourceManager {
 
     public void registerUpdateFailure(Exception e) {
         updateStats.registerUpdateException(e);
-        // retry logic
+
+        retryUpdateOrGiveUp();
     }
 
     public void registerUpdateFailure(AppInstallStatus result) {
@@ -178,10 +179,16 @@ public class AndroidResourceManager extends ResourceManager {
             upgradeTable.clear();
         }
 
+        retryUpdateOrGiveUp();
+    }
+
+    private void retryUpdateOrGiveUp() {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
             Log.i(TAG, updateStats.toString());
+            // TODO PLM: Do more with these stats?
             UpdateStatPersistence.clearPersistedStats(app);
+
             upgradeTable.clear();
         } else {
             Log.w(TAG, "Retrying auto-update");
