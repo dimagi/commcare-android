@@ -23,33 +23,6 @@ public class SquareButtonWithNotification extends RelativeLayout {
     private int colorButtonText = R.color.white;
     private int colorNotificationText = R.color.black;
 
-    public void setOnClickListener(OnClickListener l) {
-        buttonWithText.setOnClickListener(l);
-    }
-
-    public void setNotificationText(String textNotification) {
-        this.setNotificationText(textNotification == null ? null : new SpannableString(textNotification));
-    }
-
-    public void setNotificationText(Spannable textNotification) {
-        if (textNotification != null && textNotification.length() != 0) {
-            subText.setVisibility(VISIBLE);
-            subText.setText(textNotification);
-            subText.setBackgroundResource(backgroundColorNotification);
-        } else {
-            subText.setVisibility(GONE);
-        }
-    }
-
-    public void setText(String text) {
-        buttonWithText.setText(text);
-    }
-
-
-    public void setText(Spannable text) {
-        buttonWithText.setText(text.toString());
-    }
-
     public SquareButtonWithNotification(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -88,4 +61,32 @@ public class SquareButtonWithNotification extends RelativeLayout {
             subText.setTextColor(getResources().getColor(colorNotificationText));
         }
     }
+
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        buttonWithText.setOnClickListener(l);
+    }
+
+    public void setNotificationText(String textNotification) {
+        this.setNotificationText(textNotification == null ? null : new SpannableString(textNotification));
+    }
+
+    public void setNotificationText(Spannable textNotification) {
+        if (textNotification != null && textNotification.length() != 0) {
+            subText.setVisibility(VISIBLE);
+            subText.setText(textNotification);
+            subText.setBackgroundResource(backgroundColorNotification);
+        } else {
+            subText.setVisibility(GONE);
+        }
+    }
+
+    public void setText(String text) {
+        buttonWithText.setText(text);
+    }
+
+    public void setText(Spannable text) {
+        buttonWithText.setText(text.toString());
+    }
+
 }

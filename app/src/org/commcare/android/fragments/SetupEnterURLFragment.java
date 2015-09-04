@@ -34,7 +34,6 @@ public class SetupEnterURLFragment extends Fragment {
     private Spinner prefixURLSpinner;
     private EditText profileLocation;
 
-
     public interface URLInstaller {
         /**
          * Called when user fills in an URL and presses 'Start Install'.
@@ -82,47 +81,6 @@ public class SetupEnterURLFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        Activity activity = this.getActivity();
-
-        if (activity != null) {
-            if (activity.getCurrentFocus() != null) {
-                InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
-            }
-
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Activity activity = this.getActivity();
-
-
-        if (activity != null) {
-            View editBox = activity.findViewById(R.id.edit_profile_location);
-            editBox.requestFocus();
-
-            InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
-        }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-
-        super.onAttach(activity);
-        if (!(activity instanceof URLInstaller)) {
-            throw new ClassCastException(activity + " must implemement " + interfaceName);
-        } else {
-            listener = (URLInstaller)activity;
-        }
-    }
-
     /**
      * Returns the chosen URL in the UI, prefixing it with http:// if not set.
      *
@@ -145,5 +103,44 @@ public class SetupEnterURLFragment extends Fragment {
             url = "http://" + url;
         }
         return url;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Activity activity = this.getActivity();
+
+        if (activity != null) {
+            if (activity.getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Activity activity = this.getActivity();
+
+        if (activity != null) {
+            View editBox = activity.findViewById(R.id.edit_profile_location);
+            editBox.requestFocus();
+
+            InputMethodManager inputMethodManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.showSoftInput(editBox, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+
+        super.onAttach(activity);
+        if (!(activity instanceof URLInstaller)) {
+            throw new ClassCastException(activity + " must implemement " + interfaceName);
+        } else {
+            listener = (URLInstaller)activity;
+        }
     }
 }

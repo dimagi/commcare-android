@@ -27,12 +27,14 @@ public class SetupInstallFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_install, container, false);
+
         TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
-        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
         setupMsg.setText(Localization.get("install.barcode.top"));
+
+        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
+
         SquareButtonWithText scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
-        SquareButtonWithText enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +50,8 @@ public class SetupInstallFragment extends Fragment {
                 }
             }
         });
+
+        SquareButtonWithText enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,6 +68,7 @@ public class SetupInstallFragment extends Fragment {
                 ft.commit();
             }
         });
+
         return view;
     }
 }
