@@ -920,7 +920,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
             view.setDivider(layerDrawable);
         } else {
-            Drawable plainDivider = getResources().getDrawable(R.drawable.divider_case_list_default);
             view.setDivider(null);
 
         }
