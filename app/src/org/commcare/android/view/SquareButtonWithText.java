@@ -13,27 +13,19 @@ import android.util.StateSet;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 
 /**
- * Created by dancluna on 3/14/15.
+ * @author Daniel Luna (dluna@dimagi.com)
  */
-@ManagedUi(R.layout.square_button_text)
 public class SquareButtonWithText extends RelativeLayout {
-    @UiElement(R.id.square_button)
     SquareButton squareButton;
-
-    @UiElement(R.id.text_view)
     TextView textView;
 
     Drawable backgroundImg;
     int backgroundColor = android.R.drawable.btn_default;
     String text = "";
     private int colorButtonText = R.color.cc_core_bg;
-
-    //region Constructors
 
     public SquareButtonWithText(Context context) {
         super(context);
@@ -50,10 +42,6 @@ public class SquareButtonWithText extends RelativeLayout {
 
         inflateAndExtractCustomParams(context, attrs);
     }
-
-    //endregion
-
-    //region Custom parameter processing
 
     private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, R.layout.square_button_text, this);
@@ -85,16 +73,11 @@ public class SquareButtonWithText extends RelativeLayout {
         setTextColor(colorButtonText);
     }
 
-    //endregion
-
-    //region Compatibility methods
-
     public void setText(String text) {
         if (textView != null) {
             textView.setText(text);
         }
     }
-
 
     public void setImage(Drawable backgroundImg) {
         squareButton.setImageDrawable(backgroundImg);
@@ -123,12 +106,9 @@ public class SquareButtonWithText extends RelativeLayout {
         } else {
             this.setBackgroundDrawable(sld);
         }
-
     }
 
     public void setTextColor(int textColor) {
         textView.setTextColor(getResources().getColor(textColor));
     }
-
-    //endregion
 }
