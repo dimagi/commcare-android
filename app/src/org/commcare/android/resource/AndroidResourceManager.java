@@ -1,11 +1,13 @@
 package org.commcare.android.resource;
 
+import android.os.Handler;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.analytics.UpdateStatPersistence;
 import org.commcare.android.resource.analytics.UpdateStats;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -28,6 +30,9 @@ public class AndroidResourceManager extends ResourceManager {
     private final UpdateStats updateStats;
     private final CommCareApp app;
     private String profileRef;
+
+    // 5 minutes
+    private final static long UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 5;
 
     public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(),
@@ -60,7 +65,7 @@ public class AndroidResourceManager extends ResourceManager {
 
             if (updateIsntNewer(getMasterProfile())) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                clearUpgradeTable();
+                upgradeTable.clear();
                 return AppInstallStatus.UpToDate;
             }
 
@@ -147,16 +152,6 @@ public class AndroidResourceManager extends ResourceManager {
     }
 
     /**
-     * Remove upgrade table entries, corresponding files, and download stats.
-     */
-    public void clearUpgradeTable() {
-        upgradeTable.clear();
-        Log.i(TAG, "Clearing upgrade table, here are the stats collected");
-        Log.i(TAG, updateStats.toString());
-        UpdateStatPersistence.clearPersistedStats(app);
-    }
-
-    /**
      * Clear upgrade stats if the upgrade was cancelled and wasn't complete at
      * that time.
      */
@@ -169,7 +164,45 @@ public class AndroidResourceManager extends ResourceManager {
         }
     }
 
-    public void storeUpdateException(Exception e) {
+    public void registerUpdateFailure(Exception e) {
         updateStats.registerUpdateException(e);
+        // retry logic
+    }
+
+    public void registerUpdateFailure(AppInstallStatus result) {
+        boolean reusePartialTable =
+                (result == AppInstallStatus.UnknownFailure ||
+                        result == AppInstallStatus.NoLocalStorage);
+
+        if (!reusePartialTable) {
+            upgradeTable.clear();
+        }
+
+        if (updateStats.isUpgradeStale()) {
+            Log.i(TAG, "Stop trying to download update. Here are the update stats:");
+            Log.i(TAG, updateStats.toString());
+            UpdateStatPersistence.clearPersistedStats(app);
+            upgradeTable.clear();
+        } else {
+            Log.w(TAG, "Retrying auto-update");
+            scheduleUpdateTask();
+        }
+    }
+
+    private void scheduleUpdateTask() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                String ref = ResourceInstallUtils.getDefaultProfile();
+                try {
+                    UpdateTask updateTask = UpdateTask.getNewInstance();
+                    updateTask.execute(ref);
+                } catch (IllegalStateException e) {
+                    // The user may have started the update process in the meantime
+                    Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
+                }
+            }
+        }, UPDATE_RETRY_DELAY_IN_MS);
     }
 }

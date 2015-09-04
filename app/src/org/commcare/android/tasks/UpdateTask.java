@@ -83,7 +83,7 @@ public class UpdateTask
         try {
             return stageUpdate();
         } catch (Exception e) {
-            resourceManager.storeUpdateException(e);
+            resourceManager.registerUpdateFailure(e);
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
@@ -127,14 +127,11 @@ public class UpdateTask
     protected void onPostExecute(AppInstallStatus result) {
         super.onPostExecute(result);
 
-        boolean reusePartialTable =
-                (result == AppInstallStatus.UnknownFailure ||
-                        result == AppInstallStatus.NoLocalStorage);
-
         boolean inIncompleteState = !(result == AppInstallStatus.UpdateStaged ||
                 result == AppInstallStatus.UpToDate);
-        if (inIncompleteState && !reusePartialTable) {
-            resourceManager.clearUpgradeTable();
+
+        if (inIncompleteState) {
+            resourceManager.registerUpdateFailure(result);
         }
 
         if (taskListener != null) {
