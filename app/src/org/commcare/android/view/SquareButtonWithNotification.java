@@ -64,8 +64,8 @@ public class SquareButtonWithNotification extends RelativeLayout {
 
     private void setUI(Context context, AttributeSet attrs) {
         View view = inflate(context, R.layout.square_button_notification, this);
-        buttonWithText = (SquareButtonWithText) view.findViewById(R.id.square_button_text);
-        subText = (TextView) view.findViewById(R.id.button_subtext);
+        buttonWithText = (SquareButtonWithText)view.findViewById(R.id.square_button_text);
+        subText = (TextView)view.findViewById(R.id.button_subtext);
 
         if (attrs != null) {
             TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SquareButtonWithNotification, 0, 0);

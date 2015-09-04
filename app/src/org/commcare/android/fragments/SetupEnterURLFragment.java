@@ -48,9 +48,9 @@ public class SetupEnterURLFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_enter_url, container, false);
-        Button installButton = (Button) view.findViewById(R.id.start_install);
+        Button installButton = (Button)view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
-        prefixURLSpinner = (Spinner) view.findViewById(R.id.url_spinner);
+        prefixURLSpinner = (Spinner)view.findViewById(R.id.url_spinner);
         prefixURLSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -66,8 +66,8 @@ public class SetupEnterURLFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        profileLocation = (EditText) view.findViewById(R.id.edit_profile_location);
-        TextView appProfile = (TextView) view.findViewById(R.id.app_profile_txt_view);
+        profileLocation = (EditText)view.findViewById(R.id.edit_profile_location);
+        TextView appProfile = (TextView)view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
 
         installButton.setOnClickListener(new View.OnClickListener() {
@@ -87,10 +87,10 @@ public class SetupEnterURLFragment extends Fragment {
         super.onPause();
         Activity activity = this.getActivity();
 
-        if(activity != null) {
+        if (activity != null) {
             if (activity.getCurrentFocus() != null) {
-                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow( activity.getCurrentFocus().getWindowToken(), 0);
+                InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
             }
 
         }
@@ -102,7 +102,7 @@ public class SetupEnterURLFragment extends Fragment {
         Activity activity = this.getActivity();
 
 
-        if(activity != null ) {
+        if (activity != null) {
             View editBox = activity.findViewById(R.id.edit_profile_location);
             editBox.requestFocus();
 
@@ -119,7 +119,7 @@ public class SetupEnterURLFragment extends Fragment {
         if (!(activity instanceof URLInstaller)) {
             throw new ClassCastException(activity + " must implemement " + interfaceName);
         } else {
-            listener = (URLInstaller) activity;
+            listener = (URLInstaller)activity;
         }
     }
 

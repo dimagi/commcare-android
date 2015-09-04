@@ -36,21 +36,21 @@ public class SetupKeepInstallFragment extends Fragment {
         if (!(activity instanceof StartStopInstallCommands)) {
             throw new ClassCastException(activity + " must implemement " + StartStopInstallCommands.class.getName());
         }
-        setButtonCommands((StartStopInstallCommands) activity);
+        setButtonCommands((StartStopInstallCommands)activity);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_keepinstall, container, false);
-        SquareButtonWithText btnStartInstall = (SquareButtonWithText) view.findViewById(R.id.btn_start_install);
+        SquareButtonWithText btnStartInstall = (SquareButtonWithText)view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
-        SquareButtonWithText btnStopInstall = (SquareButtonWithText) view.findViewById(R.id.btn_stop_install);
+        SquareButtonWithText btnStopInstall = (SquareButtonWithText)view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(Localization.get("install.button.startover"));
-        TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
+        TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.ready.top"));
-        TextView setupMsg2 = (TextView) view.findViewById(R.id.str_setup_message_2);
+        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.ready.bottom"));
-        TextView netWarn = (TextView) view.findViewById(R.id.net_warn);
+        TextView netWarn = (TextView)view.findViewById(R.id.net_warn);
         netWarn.setText(Localization.get("install.netwarn"));
         btnStartInstall.setOnClickListener(new View.OnClickListener() {
             @Override
