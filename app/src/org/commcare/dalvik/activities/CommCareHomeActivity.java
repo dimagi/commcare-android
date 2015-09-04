@@ -1281,7 +1281,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         // TODO PLM: handle restart logic
         try {
-            UpdateTask updateTask = UpdateTask.getNewInstance();
+            UpdateTask updateTask = UpdateTask.getNewInstance(this);
             updateTask.execute(ref);
         } catch(IllegalStateException e) {
             Log.w(TAG, "Trying trigger auto-update when it is already running, this should never happen!");

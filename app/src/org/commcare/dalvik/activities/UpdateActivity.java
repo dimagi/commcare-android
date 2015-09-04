@@ -175,7 +175,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     protected void startUpdateCheck() {
         try {
-            updateTask = UpdateTask.getNewInstance();
+            updateTask = UpdateTask.getNewInstance(this);
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
             enterErrorState("There is already an existing update task instance.");

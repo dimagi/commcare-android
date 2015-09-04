@@ -1,5 +1,7 @@
 package org.commcare.android.tasks;
 
+import android.content.Context;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.AppInstallStatus;
@@ -8,6 +10,7 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.PinnedNotificationWithProgress;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -39,24 +42,26 @@ public class UpdateTask
     private final CommCareApp app;
 
     private TaskListener<Integer, AppInstallStatus> taskListener = null;
+    private PinnedNotificationWithProgress pinnedNotificationProgress;
     private String profileRef;
     private int currentProgress = 0;
     private int maxProgress = 0;
 
-    private UpdateTask() {
+    private UpdateTask(Context ctx) {
+        pinnedNotificationProgress = new PinnedNotificationWithProgress(ctx, 123111);
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         resourceManager =
-                new AndroidResourceManager(platform);
+                new AndroidResourceManager(platform, ctx);
 
         resourceManager.setUpgradeListeners(this, this);
     }
 
-    public static UpdateTask getNewInstance() {
+    public static UpdateTask getNewInstance(Context ctx) {
         synchronized (lock) {
             if (singletonRunningInstance == null) {
-                singletonRunningInstance = new UpdateTask();
+                singletonRunningInstance = new UpdateTask(ctx);
                 return singletonRunningInstance;
             } else {
                 throw new IllegalStateException("An instance of " + TAG + " already exists.");
@@ -118,6 +123,7 @@ public class UpdateTask
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
 
+        pinnedNotificationProgress.handleTaskUpdate(values);
         if (taskListener != null) {
             taskListener.handleTaskUpdate(values);
         }
@@ -134,6 +140,7 @@ public class UpdateTask
             resourceManager.registerUpdateFailure(result);
         }
 
+        pinnedNotificationProgress.handleTaskCompletion(result);
         if (taskListener != null) {
             taskListener.handleTaskCompletion(result);
         }
@@ -151,6 +158,7 @@ public class UpdateTask
             super.onCancelled();
         }
 
+        pinnedNotificationProgress.handleTaskCancellation(result);
         if (taskListener != null) {
             taskListener.handleTaskCancellation(result);
         }

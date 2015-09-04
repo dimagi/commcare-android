@@ -1,5 +1,6 @@
 package org.commcare.android.resource;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -29,20 +30,27 @@ public class AndroidResourceManager extends ResourceManager {
     private final String TAG = AndroidResourceManager.class.getSimpleName();
     private final UpdateStats updateStats;
     private final CommCareApp app;
+    private final Context ctx;
     private String profileRef;
 
     // 5 minutes
     private final static long UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 5;
 
-    public AndroidResourceManager(AndroidCommCarePlatform platform) {
+    public AndroidResourceManager(AndroidCommCarePlatform platform, Context ctx) {
         super(platform, platform.getGlobalResourceTable(),
                 platform.getUpgradeResourceTable(),
                 platform.getRecoveryTable());
 
         app = CommCareApplication._().getCurrentApp();
+        this.ctx = ctx;
 
         updateStats = UpdateStatPersistence.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);
+
+    }
+
+    public AndroidResourceManager(AndroidCommCarePlatform platform) {
+        this(platform, null);
     }
 
     /**
@@ -203,7 +211,7 @@ public class AndroidResourceManager extends ResourceManager {
             public void run() {
                 String ref = ResourceInstallUtils.getDefaultProfile();
                 try {
-                    UpdateTask updateTask = UpdateTask.getNewInstance();
+                    UpdateTask updateTask = UpdateTask.getNewInstance(ctx);
                     updateTask.execute(ref);
                 } catch (IllegalStateException e) {
                     // The user may have started the update process in the meantime

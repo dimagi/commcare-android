@@ -22,6 +22,7 @@
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
     <string name="update_canceled">Your update was paused</string>
+    <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
