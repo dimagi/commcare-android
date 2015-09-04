@@ -14,16 +14,16 @@
     <attr name="menu_tile_title_text_color" format="reference"/>
     <attr name="entity_select_title_text_color" format="reference"/>
 
-    <attr name="backgroundcolor" format="reference|color" />
+    <attr name="backgroundColor" format="reference|color" />
     <attr name="subtitle" format="string" />
     <attr name="img" format="reference" />
-    <attr name="colorText" format="reference|color" />
+    <attr name="textColor" format="reference|color" />
 
     <declare-styleable name="CustomButtonWithText">
-        <attr name="backgroundcolor"/>
+        <attr name="backgroundColor"/>
         <attr name="subtitle"/>
         <attr name="img"/>
-        <attr name="colorText"/>
+        <attr name="textColor"/>
     </declare-styleable>
 
     <declare-styleable name="ResizingTextView">
@@ -31,14 +31,16 @@
     </declare-styleable>
 
     <declare-styleable name="SquareButtonWithNotification">
-        <attr name="colorButtonText" format="reference|color" />
-        <attr name="colorNotificationText" format="reference|color" />
-        <attr name="backgroundcolorButton" format="reference|color" />
-        <attr name="backgroundcolorNotification" format="reference|color" />
-        <attr name="sbn_subtitle" format="string" />
+        <attr name="notificationBackgroundColor" format="reference|color" />
         <attr name="notificationText" format="string" />
-        <attr name="sbn_img" format="reference" />
+        <attr name="notificationTextColor" format="reference|color" />
+
+        <attr name="backgroundColor"/>
+        <attr name="subtitle"/>
+        <attr name="img"/>
+        <attr name="textColor"/>
     </declare-styleable>
+
     <attr name="filter_select_background_color" format="reference"/>
     <attr name="filter_select_text_color" format="reference"/>
 

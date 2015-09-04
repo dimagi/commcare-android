@@ -65,9 +65,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     SquareButtonWithText:subtitle="Scan Application Barcode"
-                    SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
+                    SquareButtonWithText:backgroundColor="@color/cc_brand_color"
                     SquareButtonWithText:img="@drawable/startup_barcode"
-                    SquareButtonWithText:colorText="@color/white"
+                    SquareButtonWithText:textColor="@color/white"
                     />
                 </FrameLayout>
 
@@ -83,9 +83,9 @@
                     android:layout_height="match_parent"
                     android:gravity="end"
                     SquareButtonWithText:subtitle="Enter URL"
-                    SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
+                    SquareButtonWithText:backgroundColor="@color/cc_light_cool_accent_color"
                     SquareButtonWithText:img="@drawable/startup_url"
-                    SquareButtonWithText:colorText="@color/white"
+                    SquareButtonWithText:textColor="@color/white"
                     android:background="@drawable/tile_drop_shadow_small_margins"
                     />
                 </FrameLayout>
