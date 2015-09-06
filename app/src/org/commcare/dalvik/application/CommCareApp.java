@@ -15,6 +15,7 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.Stylizer;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -145,6 +146,7 @@ public class CommCareApp {
             }
             initializeFileRoots();
             currentSandbox = this;
+            ProviderUtils.setCurrentSandbox(currentSandbox);
         }
     }
 
@@ -255,6 +257,7 @@ public class CommCareApp {
                     appDatabase.close();
                 }
                 appDatabase = null;
+                ProviderUtils.setCurrentSandbox(null);
             }
         }
     }

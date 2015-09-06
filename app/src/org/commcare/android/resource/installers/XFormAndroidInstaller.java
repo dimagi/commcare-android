@@ -35,6 +35,7 @@ import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
+import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -76,8 +77,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
 
         FormDef formDef;
         try {
-            formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
-        } catch (XFormParseException xfpe) {
+            formDef = XFormExtensionUtils.getFormFromInputStream(local.getStream());
+        } catch(XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }
 

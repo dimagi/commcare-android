@@ -46,7 +46,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CommCareInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -402,17 +401,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             }
 
-            //Hm, sadly we possibly need to rebuild this each time.
-            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
-            Log.i("DEBUG-i", "Background color is: " + colors[0] + ", text color is: " + colors[1]);
-            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
-                header.addView(v, params);
+                //Hm, sadly we possibly need to rebuild this each time.
+                EntityView v = new EntityView(this, shortSelect, headers);
+                header.addView(v);
             }
 
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
@@ -914,7 +909,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
         //endregion
 
-        LayerDrawable layerDrawable = (LayerDrawable) divider;
+        LayerDrawable layerDrawable = (LayerDrawable)divider;
 
         layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
 
@@ -1005,8 +1000,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
+            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView.setRoot(detailView);
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
             Detail detail = factory.getDetail();

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- NOTICE:
-This resources file should not be edited unless you really know what you're doing 
--->
-<resources>
-    <!--@BUILDDATE@--><string name="app_build_date">UNKNOWN_DATE</string><!--@ENDBUILDDATE-->
-    <!--@BUILDNUMBER@--><string name="app_build_number">CUSTOM_BUILD</string><!--@BUILDNUMBER-->
-</resources>

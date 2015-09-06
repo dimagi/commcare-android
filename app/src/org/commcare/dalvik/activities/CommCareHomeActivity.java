@@ -54,6 +54,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -129,6 +130,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
+    private static final int MENU_ABOUT = Menu.FIRST + 9;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -146,6 +148,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
+
+    private int mDeveloperModeClicks = 0;
 
     private AndroidCommCarePlatform platform;
 
@@ -229,6 +233,12 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void configUi() {
+        if (CommCareApplication._().getCurrentApp() == null) {
+            // This method depends on there being a seated app, so don't proceed with it if we
+            // don't have one
+            return;
+        }
+
         TextView version = (TextView)findViewById(R.id.str_version);
         if (version != null) {
             version.setText(CommCareApplication._().getCurrentVersionString());
@@ -456,12 +466,11 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
-                if(resultCode == RESULT_CANCELED) {
-                    // app install failed, take user back to installation view
-                    Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                    this.startActivityForResult(i, INIT_APP);
+                if (resultCode == RESULT_CANCELED) {
+                    // User pressed back button from install screen, so take them out of CommCare
+                    this.finish();
                     return;
-                } else if(resultCode == RESULT_OK) {
+                } else if (resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
                     //We do, however, need to re-init this screen to include new translations
                     configUi();
@@ -876,7 +885,16 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             });
             return;
         }
-        startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+
+        if(asw.getSession().getForm() == null) {
+            if(asw.terminateSession()) {
+                startNextFetch();
+            } else {
+                this.refreshView();
+            }
+        } else {
+            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+        }
     }
 
     private void handleGetCommand(CommCareSession session) {
@@ -921,33 +939,33 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
      * @param state Needed for FormRecord manipulations
      */
     private void startFormEntry(AndroidSessionWrapper state) {
-            if (state.getFormRecordId() == -1) {
-                if (CommCarePreferences.isIncompleteFormsEnabled()) {
-                    // Are existing (incomplete) forms using the same case?
-                    SessionStateDescriptor existing =
-                        state.getExistingIncompleteCaseDescriptor();
+        if (state.getFormRecordId() == -1) {
+            if (CommCarePreferences.isIncompleteFormsEnabled()) {
+                // Are existing (incomplete) forms using the same case?
+                SessionStateDescriptor existing =
+                    state.getExistingIncompleteCaseDescriptor();
 
-                    if (existing != null) {
-                        // Ask user if they want to just edit existing form that
-                        // uses the same case.
-                        createAskUseOldDialog(state, existing);
-                        return;
-                    }
+                if (existing != null) {
+                    // Ask user if they want to just edit existing form that
+                    // uses the same case.
+                    createAskUseOldDialog(state, existing);
+                    return;
                 }
-
-                // Generate a stub form record and commit it
-                state.commitStub();
-            } else {
-                Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
             }
 
-            FormRecord record = state.getFormRecord();
+            // Generate a stub form record and commit it
+            state.commitStub();
+        } else {
+            Logger.log("form-entry", "Somehow ended up starting form entry with old state?");
+        }
 
-            if (CommCareApplication._().getCurrentApp() != null) {
-                platform = CommCareApplication._().getCommCarePlatform();
-            }
+        FormRecord record = state.getFormRecord();
 
-            formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
+        if (CommCareApplication._().getCurrentApp() != null) {
+            platform = CommCareApplication._().getCommCarePlatform();
+        }
+
+        formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
     @Override
@@ -1108,17 +1126,32 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void dispatchHomeScreen() {
+
+        // Before anything else, see if we're in a failing db state
+        int dbState = CommCareApplication._().getDatabaseState();
+        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                    getString(R.string.migration_definite_failure),
+                    getString(R.string.migration_failure_title), false);
+            return;
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                        getString(R.string.migration_possible_failure),
+                        getString(R.string.migration_failure_title), false);
+            return;
+        } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
+            handleDamagedApp();
+        }
+
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         // Path 1: There is a seated app
         if (currentApp != null) {
-            boolean appResourcesCorrupted = currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED;
-            boolean dbCorrupted = CommCareApplication._().getDatabaseState() == CommCareApplication.STATE_CORRUPTED;
             ApplicationRecord currentRecord = currentApp.getAppRecord();
 
             // Note that the order in which these conditions are checked matters!!
             try {
-                if (appResourcesCorrupted || dbCorrupted) {
+                if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // Path 1a: The seated app is damaged or corrupted
                     handleDamagedApp();
                 } else if (!currentRecord.isUsable()) {
@@ -1488,13 +1521,15 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
                 android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_WIFI_DIRECT, 0, Localization.get("home.menu.wifi.direct")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_share);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
-                android.R.drawable.ic_menu_upload);
+                android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                R.drawable.notebook_full);
+                android.R.drawable.ic_menu_save);
+        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
+                android.R.drawable.ic_menu_help);
         return true;
     }
 
@@ -1513,6 +1548,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
         } catch (SessionUnavailableException sue) {
             //Nothing
         }
@@ -1524,7 +1560,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
-                //CommCareUtil.printInstance("jr://instance/stockdb");
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
@@ -1560,6 +1595,9 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 return true;
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
+                return true;
+            case MENU_ABOUT:
+                showAboutCommCareDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1601,6 +1639,26 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void startMenuConnectionActivity() {
         Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
         CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
+    }
+
+    private void showAboutCommCareDialog() {
+        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                mDeveloperModeClicks++;
+                if (mDeveloperModeClicks == 4) {
+                    CommCareApplication._().getCurrentApp().getAppPreferences().
+                            edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, "yes").commit();
+                    Toast.makeText(CommCareHomeActivity.this,
+                            Localization.get("home.developer.options.enabled"),
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+        dialog.show();
     }
 
     private boolean isAirplaneModeOn() {
@@ -1646,11 +1704,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         return mAttemptFixDialog;
     }
-
-    /**
-     * All methods for implementation of DialogController that are not already handled in CommCareActivity *
-     */
-    
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {

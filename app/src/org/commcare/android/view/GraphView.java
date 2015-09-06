@@ -13,6 +13,7 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
+import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -78,6 +79,11 @@ public class GraphView {
             bottomMargin += textAllowance;
         }
 
+        // AChartEngine doesn't handle x label margins as desired, so do it here
+        if (mRenderer.isShowLabels()) {
+            bottomMargin += textAllowance;
+        }
+
         // Bar charts have text labels that are likely to be long (names, etc.).
         // At some point there'll need to be a more robust solution for setting
         // margins that respond to data and screen size. For now, give them no margin
@@ -127,6 +133,23 @@ public class GraphView {
         mRenderer.setPanEnabled(allow, allow);
         mRenderer.setZoomEnabled(allow, allow);
         mRenderer.setZoomButtonsVisible(allow);
+        if (allow) {
+            DefaultRenderer.Location loc = stringToLocation(mData.getConfiguration("zoom-location", "bottom-right"));
+            mRenderer.setZoomLocation(loc);
+        }
+    }
+
+    private DefaultRenderer.Location stringToLocation(String str) {
+        switch (str) {
+            case "top-left":
+                return DefaultRenderer.Location.TOP_LEFT;
+            case "top-right":
+                return DefaultRenderer.Location.TOP_RIGHT;
+            case "bottom-left":
+                return DefaultRenderer.Location.BOTTOM_LEFT;
+            default:
+                return DefaultRenderer.Location.BOTTOM_RIGHT;
+        }
     }
 
     /*
@@ -486,6 +509,7 @@ public class GraphView {
         // Legend
         boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
+        mRenderer.setFitLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
         // Labels

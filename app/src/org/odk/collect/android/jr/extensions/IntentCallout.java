@@ -118,7 +118,7 @@ public class IntentCallout implements Externalizable {
     }
 
     public boolean processResponse(Intent intent, TreeReference context, File destination) {
-        
+
         if(intent == null){
             return false;
         }
@@ -130,7 +130,7 @@ public class IntentCallout implements Externalizable {
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
         
         //Load all of the data from the incoming bundle
-        if(responses != null) {
+        if(responses != null && response != null) {
             for (String key : responses.keySet()) {
                 //See if the value exists at all, if not, skip it
                 if (!response.containsKey(key)) {

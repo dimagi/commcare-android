@@ -70,6 +70,9 @@ home.menu.formdump=Manage SD
 home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
+home.menu.about=About CommCare
+
+home.developer.options.enabled=Developer Mode Enabled
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -491,3 +494,7 @@ wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
+
+invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
+image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
+image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.

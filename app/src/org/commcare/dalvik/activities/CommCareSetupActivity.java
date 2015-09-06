@@ -27,7 +27,6 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -319,11 +318,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // upgrade app if needed
         if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
-            if(AndroidUtil.isNetworkAvailable(this)){
-                startResourceInstall(true);
-            } else {
+            if (isNetworkNotConnected()){
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Remote_NoNetwork, "INSTALL_NO_NETWORK"));
                 finish();
+            } else {
+                startResourceInstall(true);
             }
         }
     }
@@ -441,12 +440,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
-
             ccApp = app;
 
-             // store what the state of the resource table was before this
-             // install, so we can compare it to the state after and decide if
-             // this should count as a 'last install time'
+            // store what the state of the resource table was before this
+            // install, so we can compare it to the state after and decide if
+            // this should count as a 'last install time'
             int tableStateBeforeInstall =
                 ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 
@@ -603,9 +601,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
-        Intent i = new Intent(getIntent());
-        setResult(RESULT_CANCELED, i);
-        finish();
+
+        // Last install attempt failed, so restore to starting uistate to try again
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+        uiStateScreenTransition();
     }
     
     // All final paths from the Update are handled here (Important! Some

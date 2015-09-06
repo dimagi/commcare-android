@@ -22,6 +22,7 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
 import org.odk.collect.android.jr.extensions.IntentCallout;
@@ -117,7 +118,7 @@ public class WidgetFactory {
                 if (appearance != null && appearance.equals("signature")) {
                     questionWidget = new SignatureWidget(context, fep);
                 } else {
-                questionWidget = new ImageWidget(context, fep);
+                    questionWidget = new ImageWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
@@ -198,6 +199,12 @@ public class WidgetFactory {
             default:
                 questionWidget = new StringWidget(context, fep, false);
                 break;
+        }
+
+        // Apply all of the QuestionDataExtensions registered with this widget's associated
+        // QuestionDef to the widget
+        for (QuestionDataExtension extension : fep.getQuestion().getExtensions()) {
+            questionWidget.applyExtension(extension);
         }
         return questionWidget;
     }
