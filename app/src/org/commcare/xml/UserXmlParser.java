@@ -9,6 +9,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -103,6 +104,9 @@ public class UserXmlParser extends TransactionParser<User> {
         } catch (SessionUnavailableException e) {
             e.printStackTrace();
             throw new UserStorageClosedException("User databse closed while writing case.");
+        } catch (StorageFullException e) {
+            e.printStackTrace();
+            throw new IOException("Storage full while writing case!");
         }
     }
 

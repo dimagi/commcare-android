@@ -45,6 +45,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -300,6 +301,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
+                    } catch (StorageFullException e) {
+                        e.printStackTrace();
+                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
                     } 
                 } else if(responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
@@ -543,6 +547,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             e.printStackTrace();
             failureReason = e.getMessage();
         } catch (UnfullfilledRequirementsException e) {
+            e.printStackTrace();
+            failureReason = e.getMessage();
+        } catch (StorageFullException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } 

@@ -6,6 +6,7 @@ import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.services.storage.EntityFilter;
+import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,7 +99,12 @@ public class AndroidLogger implements ILogger {
 
     @Override
     public void log(String type, String message, Date logDate) {
-        storage.write(new AndroidLogEntry(type, message, logDate));
+        try {
+            storage.write(new AndroidLogEntry(type, message, logDate));
+        } catch (StorageFullException e) {
+            e.printStackTrace();
+            panic();
+        }
     }
 
     @Override

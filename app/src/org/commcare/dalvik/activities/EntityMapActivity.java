@@ -36,6 +36,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.IOException;
 import java.util.List;
@@ -192,9 +193,8 @@ public class EntityMapActivity extends MapActivity {
                                 if(gp == null) {
                                     geoCache.write(GeocodeCacheModel.NoHitRecord(val));
                                 }
-                            } catch (IOException e1) {
+                            } catch (StorageFullException | IOException e1) {
                                 e1.printStackTrace();
-                                //Yo. What? I guess bad connection?
                             }
                         }
                         
