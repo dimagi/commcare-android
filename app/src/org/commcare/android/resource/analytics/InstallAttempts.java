@@ -6,15 +6,13 @@ import java.util.Vector;
 
 /**
  * Stores install attempt data for a given resource in the update table.
- * Parameterized by 'A', which is the type of data stored at each install
- * attempt
  *
- * NOTE: 'A' must be instantiated with a class that implements Serializeable.
- *
+ * @param <A> Type of data stored at each install attempt. Must be
+ *            instantiated with a class that implements Serializeable.
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class InstallAttempts<A> implements Serializable {
-    public boolean wasSuccessful = false;
+    private boolean wasSuccessful = false;
 
     private final String resourceName;
     private final Vector<FailureEvent<A>> failures;
@@ -24,12 +22,12 @@ class InstallAttempts<A> implements Serializable {
         this.resourceName = resourceName;
     }
 
-    public int attempts() {
-        return failures.size();
-    }
-
     public void addFailure(A failureData) {
         failures.add(new FailureEvent<>(failureData));
+    }
+
+    public void registerSuccesfulInstall() {
+        wasSuccessful = true;
     }
 
     public String toString() {
@@ -55,11 +53,15 @@ class InstallAttempts<A> implements Serializable {
         return failureLog.toString();
     }
 
-    private class FailureEvent<A> implements Serializable {
-        public A data;
-        public Date time;
+    /**
+     * @param <B> Type of data stored in the failure event. Must be
+     *            instantiated with a class that implements Serializeable.
+     */
+    private static class FailureEvent<B> implements Serializable {
+        public final B data;
+        public final Date time;
 
-        public FailureEvent(A data) {
+        public FailureEvent(B data) {
             this.data = data;
             time = new Date();
         }

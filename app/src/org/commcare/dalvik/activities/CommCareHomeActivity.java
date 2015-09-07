@@ -1277,9 +1277,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void handlePendingUpdate() {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
 
-        String ref = ResourceInstallUtils.getDefaultProfile();
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
 
-        // TODO PLM: handle restart logic
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);

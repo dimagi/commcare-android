@@ -43,7 +43,7 @@ public class UpdateTask
     private final CommCareApp app;
 
     private TaskListener<Integer, AppInstallStatus> taskListener = null;
-    private PinnedNotificationWithProgress pinnedNotificationProgress;
+    private PinnedNotificationWithProgress pinnedNotificationProgress = null;
     private Context ctx;
     private String profileRef;
     private int currentProgress = 0;
@@ -80,6 +80,12 @@ public class UpdateTask
         }
     }
 
+    /**
+     * Attaches pinned notification with a progress bar the task, which will
+     * report updates to and close down the notification.
+     *
+     * @param ctx For launching notification and localizing text.
+     */
     public void startPinnedNotification(Context ctx) {
         this.ctx = ctx;
 
@@ -98,7 +104,7 @@ public class UpdateTask
         try {
             return stageUpdate();
         } catch (Exception e) {
-            resourceManager.registerUpdateFailure(e, ctx);
+            resourceManager.processUpdateFailure(e, ctx);
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
@@ -149,7 +155,7 @@ public class UpdateTask
                 result == AppInstallStatus.UpToDate);
 
         if (inIncompleteState) {
-            resourceManager.registerUpdateFailure(result, ctx);
+            resourceManager.processUpdateFailure(result, ctx);
         }
 
         if (pinnedNotificationProgress != null) {
@@ -217,6 +223,9 @@ public class UpdateTask
         taskListener = null;
     }
 
+    /**
+     * Calculate and report the resource install progress a table has made.
+     */
     @Override
     public void resourceStateUpdated(ResourceTable table) {
         Vector<Resource> resources =

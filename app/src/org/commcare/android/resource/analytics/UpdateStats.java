@@ -89,7 +89,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
             attempts = new InstallAttempts<>(resourceName);
             resourceInstallStats.put(resourceName, attempts);
         }
-        attempts.wasSuccessful = true;
+        attempts.registerSuccesfulInstall();
     }
 
     public static Object deserialize(String s) throws IOException,

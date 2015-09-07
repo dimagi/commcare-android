@@ -109,18 +109,24 @@ public class ResourceInstallUtils {
         edit.commit();
     }
 
-    public static AppInstallStatus processUnresolvedResource(UnresolvedResourceException e) {
+    /**
+     * Handle exception that occurs when a resource can't be found during an
+     * install or update
+     *
+     * @return Appropriate failure status based on exception properties
+     */
+    public static AppInstallStatus processUnresolvedResource(UnresolvedResourceException exception) {
         // couldn't find a resource, which isn't good.
-        e.printStackTrace();
+        exception.printStackTrace();
 
-        if (ResourceInstallUtils.isBadCertificateError(e)) {
+        if (ResourceInstallUtils.isBadCertificateError(exception)) {
             return AppInstallStatus.BadCertificate;
         }
 
         Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
                 "A resource couldn't be found, almost certainly due to the network|" +
-                        e.getMessage());
-        if (e.isMessageUseful()) {
+                        exception.getMessage());
+        if (exception.isMessageUseful()) {
             return AppInstallStatus.MissingResourcesWithMessage;
         } else {
             return AppInstallStatus.MissingResources;
@@ -139,6 +145,9 @@ public class ResourceInstallUtils {
         return false;
     }
 
+    /**
+     * Set app's last update attempt time to now in the shared preferences
+     */
     public static void recordUpdateAttempt(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
@@ -153,6 +162,11 @@ public class ResourceInstallUtils {
                 logMessage + e.getMessage());
     }
 
+    /**
+     * Add url query parameters to profile reference based on preference settings.
+     * For instance, to point the reference to the latest app build instead of
+     * the latest release.
+     */
     public static String addParamsToProfileReference(final String profileRef) {
         URL profileUrl;
         try {
@@ -182,7 +196,10 @@ public class ResourceInstallUtils {
         return profileRef;
     }
 
-    public static String getDefaultProfile() {
+    /**
+     * @return default profile reference stored in the app's shared preferences
+     */
+    public static String getDefaultProfileRef() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
 

@@ -44,7 +44,6 @@ public class AndroidResourceManager extends ResourceManager {
 
         updateStats = UpdateStatPersistence.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);
-
     }
 
     /**
@@ -106,7 +105,7 @@ public class AndroidResourceManager extends ResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
 
-        ensureValidState();
+        ensureMasterTableValid();
 
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Clearing upgrade table because resource downloads " +
@@ -154,7 +153,7 @@ public class AndroidResourceManager extends ResourceManager {
     }
 
     /**
-     * Clear upgrade stats if the upgrade was cancelled and wasn't complete at
+     * Save upgrade stats if the upgrade was cancelled and wasn't complete at
      * that time.
      */
     public void upgradeCancelled() {
@@ -166,13 +165,35 @@ public class AndroidResourceManager extends ResourceManager {
         }
     }
 
-    public void registerUpdateFailure(Exception e, Context ctx) {
-        updateStats.registerUpdateException(e);
-
-        retryUpdateOrGiveUp(ctx);
+    /**
+     * Log update failure that occurs while trying to install the staged update table
+     */
+    public void recordUpdateInstallFailure(Exception exception) {
+        updateStats.registerUpdateException(exception);
     }
 
-    public void registerUpdateFailure(AppInstallStatus result, Context ctx) {
+    public void recordUpdateInstallFailure(AppInstallStatus result) {
+        updateStats.registerUpdateException(new Exception(result.toString()));
+    }
+
+    /**
+     * Clear update table, log failure with update stats,
+     * and, if appropriate, schedule a update retry
+     *
+     * @param exception Log error with update statistics
+     * @param context   Used for showing pinned notification of update task retry
+     */
+    public void processUpdateFailure(Exception exception, Context context) {
+        updateStats.registerUpdateException(exception);
+
+        upgradeTable.clear();
+
+        retryUpdateOrGiveUp(context);
+    }
+
+    public void processUpdateFailure(AppInstallStatus result, Context ctx) {
+        updateStats.registerUpdateException(new Exception(result.toString()));
+
         boolean reusePartialTable =
                 (result == AppInstallStatus.UnknownFailure ||
                         result == AppInstallStatus.NoLocalStorage);
@@ -188,12 +209,13 @@ public class AndroidResourceManager extends ResourceManager {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
             Log.i(TAG, updateStats.toString());
-            // TODO PLM: Do more with these stats?
+
             UpdateStatPersistence.clearPersistedStats(app);
 
             upgradeTable.clear();
         } else {
             Log.w(TAG, "Retrying auto-update");
+            UpdateStatPersistence.saveStatsPersistently(app, updateStats);
             scheduleUpdateTask(ctx);
         }
     }
@@ -203,7 +225,7 @@ public class AndroidResourceManager extends ResourceManager {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                String ref = ResourceInstallUtils.getDefaultProfile();
+                String ref = ResourceInstallUtils.getDefaultProfileRef();
                 try {
                     UpdateTask updateTask = UpdateTask.getNewInstance();
                     updateTask.startPinnedNotification(ctx);

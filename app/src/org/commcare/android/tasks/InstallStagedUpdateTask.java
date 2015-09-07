@@ -32,12 +32,14 @@ public abstract class InstallStagedUpdateTask<R>
             new AndroidResourceManager(platform);
 
         if (!resourceManager.isUpgradeTableStaged()) {
+            resourceManager.recordUpdateInstallFailure(AppInstallStatus.UnknownFailure);
             return AppInstallStatus.UnknownFailure;
         }
 
         try {
             resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
+            resourceManager.recordUpdateInstallFailure(e);
             return AppInstallStatus.UnknownFailure;
         }
 

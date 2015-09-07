@@ -187,7 +187,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
-        String ref = ResourceInstallUtils.getDefaultProfile();
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
         updateTask.execute(ref);
         uiController.downloading();
     }
@@ -207,6 +207,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
+    /**
+     * Block the user with a dialog while the update is finalized.
+     */
     protected void lauchUpdateInstallTask() {
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {

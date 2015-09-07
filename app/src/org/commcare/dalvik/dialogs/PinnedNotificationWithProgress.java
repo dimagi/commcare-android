@@ -18,29 +18,34 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class PinnedNotificationWithProgress implements TaskListener<Integer, AppInstallStatus> {
+public class PinnedNotificationWithProgress
+        implements TaskListener<Integer, AppInstallStatus> {
     private final NotificationManager notificationManager;
     private final int notificationId;
     private final NotificationCompat.Builder notificationBuilder;
 
     private final String progressText;
 
-    public PinnedNotificationWithProgress(Context ctx, String titleText, String progressText, int largeIconResource) {
+    public PinnedNotificationWithProgress(Context ctx, String titleText,
+                                          String progressText,
+                                          int largeIconResource) {
         this.notificationId = titleText.hashCode();
         this.progressText = progressText;
 
-        notificationManager = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager =
+                (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 
         PendingIntent contentIntent = buildPendingIntent(ctx);
 
-        Bitmap icon = BitmapFactory.decodeResource(ctx.getResources(), largeIconResource);
+        Bitmap largeIcon =
+                BitmapFactory.decodeResource(ctx.getResources(), largeIconResource);
 
         notificationBuilder = new NotificationCompat.Builder(ctx)
                 .setContentText(getProgressText(0, 0))
                 .setContentTitle(Localization.get(titleText))
                 .setProgress(100, 0, false)
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
-                .setLargeIcon(icon)
+                .setLargeIcon(largeIcon)
                 .setContentIntent(contentIntent)
                 .setWhen(System.currentTimeMillis())
                 .setOngoing(true);
