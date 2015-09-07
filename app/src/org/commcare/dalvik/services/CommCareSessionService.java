@@ -499,13 +499,12 @@ public class CommCareSessionService extends Service  {
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
-                RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
-                contentView.setImageViewResource(R.id.image, R.drawable.notification);
-                contentView.setTextViewText(R.id.submitTitle, getString(notificationId));
-                contentView.setTextViewText(R.id.progressText, text);
-                contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
+                RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.pinned_notification_with_progress);
+                contentView.setImageViewResource(R.id.notification_icon, R.drawable.notification);
+                contentView.setTextViewText(R.id.title_text, getString(notificationId));
+                contentView.setTextViewText(R.id.progress_text, text);
+                contentView.setTextViewText(R.id.detail_text ,"0b transmitted");
 
-                
                 // Set the info for the views that show in the notification panel.
                 submissionNotification.setLatestEventInfo(CommCareSessionService.this, getString(notificationId), text, contentIntent);
                 
@@ -522,8 +521,8 @@ public class CommCareSessionService extends Service  {
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
                 
-                submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
-                submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
+                submissionNotification.contentView.setTextViewText(R.id.progress_text, getSubmissionText(itemNumber + 1, totalItems));
+                submissionNotification.contentView.setProgressBar(R.id.progress_bar, 100, 0, false);
                 mNM.notify(notificationId, submissionNotification);
             }
 
@@ -544,11 +543,11 @@ public class CommCareSessionService extends Service  {
                     
                     int pending = ProcessAndSendTask.pending();
                     if(pending > 1) {
-                        submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
+                        submissionNotification.contentView.setTextViewText(R.id.pending_work, pending -1 + " Pending");
                     }
                     
-                    submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
-                    submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
+                    submissionNotification.contentView.setTextViewText(R.id.detail_text,progressDetails);
+                    submissionNotification.contentView.setProgressBar(R.id.progress_bar, 100, progressPercent, false);
                     mNM.notify(notificationId, submissionNotification);
                     lastUpdate = progressPercent;
                 }
