@@ -8,6 +8,7 @@ import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.PinnedNotificationWithProgress;
@@ -43,25 +44,25 @@ public class UpdateTask
 
     private TaskListener<Integer, AppInstallStatus> taskListener = null;
     private PinnedNotificationWithProgress pinnedNotificationProgress;
+    private Context ctx;
     private String profileRef;
     private int currentProgress = 0;
     private int maxProgress = 0;
 
-    private UpdateTask(Context ctx) {
-        pinnedNotificationProgress = new PinnedNotificationWithProgress(ctx, 123111);
+    private UpdateTask() {
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
         resourceManager =
-                new AndroidResourceManager(platform, ctx);
+                new AndroidResourceManager(platform);
 
         resourceManager.setUpgradeListeners(this, this);
     }
 
-    public static UpdateTask getNewInstance(Context ctx) {
+    public static UpdateTask getNewInstance() {
         synchronized (lock) {
             if (singletonRunningInstance == null) {
-                singletonRunningInstance = new UpdateTask(ctx);
+                singletonRunningInstance = new UpdateTask();
                 return singletonRunningInstance;
             } else {
                 throw new IllegalStateException("An instance of " + TAG + " already exists.");
@@ -79,6 +80,15 @@ public class UpdateTask
         }
     }
 
+    public void startPinnedNotification(Context ctx) {
+        this.ctx = ctx;
+
+        pinnedNotificationProgress =
+                new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
+                        "updates.pinned.progress", R.drawable.update_download_icon);
+
+    }
+
     @Override
     protected final AppInstallStatus doInBackground(String... params) {
         profileRef = params[0];
@@ -88,7 +98,7 @@ public class UpdateTask
         try {
             return stageUpdate();
         } catch (Exception e) {
-            resourceManager.registerUpdateFailure(e);
+            resourceManager.registerUpdateFailure(e, ctx);
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
@@ -123,7 +133,9 @@ public class UpdateTask
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
 
-        pinnedNotificationProgress.handleTaskUpdate(values);
+        if (pinnedNotificationProgress != null) {
+            pinnedNotificationProgress.handleTaskUpdate(values);
+        }
         if (taskListener != null) {
             taskListener.handleTaskUpdate(values);
         }
@@ -137,10 +149,12 @@ public class UpdateTask
                 result == AppInstallStatus.UpToDate);
 
         if (inIncompleteState) {
-            resourceManager.registerUpdateFailure(result);
+            resourceManager.registerUpdateFailure(result, ctx);
         }
 
-        pinnedNotificationProgress.handleTaskCompletion(result);
+        if (pinnedNotificationProgress != null) {
+            pinnedNotificationProgress.handleTaskCompletion(result);
+        }
         if (taskListener != null) {
             taskListener.handleTaskCompletion(result);
         }
@@ -158,7 +172,10 @@ public class UpdateTask
             super.onCancelled();
         }
 
-        pinnedNotificationProgress.handleTaskCancellation(result);
+        if (pinnedNotificationProgress != null) {
+            pinnedNotificationProgress.handleTaskCancellation(result);
+        }
+
         if (taskListener != null) {
             taskListener.handleTaskCancellation(result);
         }

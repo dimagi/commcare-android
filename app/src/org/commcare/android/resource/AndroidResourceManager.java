@@ -30,27 +30,21 @@ public class AndroidResourceManager extends ResourceManager {
     private final String TAG = AndroidResourceManager.class.getSimpleName();
     private final UpdateStats updateStats;
     private final CommCareApp app;
-    private final Context ctx;
     private String profileRef;
 
     // 5 minutes
     private final static long UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 5;
 
-    public AndroidResourceManager(AndroidCommCarePlatform platform, Context ctx) {
+    public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(),
                 platform.getUpgradeResourceTable(),
                 platform.getRecoveryTable());
 
         app = CommCareApplication._().getCurrentApp();
-        this.ctx = ctx;
 
         updateStats = UpdateStatPersistence.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);
 
-    }
-
-    public AndroidResourceManager(AndroidCommCarePlatform platform) {
-        this(platform, null);
     }
 
     /**
@@ -172,13 +166,13 @@ public class AndroidResourceManager extends ResourceManager {
         }
     }
 
-    public void registerUpdateFailure(Exception e) {
+    public void registerUpdateFailure(Exception e, Context ctx) {
         updateStats.registerUpdateException(e);
 
-        retryUpdateOrGiveUp();
+        retryUpdateOrGiveUp(ctx);
     }
 
-    public void registerUpdateFailure(AppInstallStatus result) {
+    public void registerUpdateFailure(AppInstallStatus result, Context ctx) {
         boolean reusePartialTable =
                 (result == AppInstallStatus.UnknownFailure ||
                         result == AppInstallStatus.NoLocalStorage);
@@ -187,10 +181,10 @@ public class AndroidResourceManager extends ResourceManager {
             upgradeTable.clear();
         }
 
-        retryUpdateOrGiveUp();
+        retryUpdateOrGiveUp(ctx);
     }
 
-    private void retryUpdateOrGiveUp() {
+    private void retryUpdateOrGiveUp(Context ctx) {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
             Log.i(TAG, updateStats.toString());
@@ -200,18 +194,19 @@ public class AndroidResourceManager extends ResourceManager {
             upgradeTable.clear();
         } else {
             Log.w(TAG, "Retrying auto-update");
-            scheduleUpdateTask();
+            scheduleUpdateTask(ctx);
         }
     }
 
-    private void scheduleUpdateTask() {
+    private void scheduleUpdateTask(final Context ctx) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 String ref = ResourceInstallUtils.getDefaultProfile();
                 try {
-                    UpdateTask updateTask = UpdateTask.getNewInstance(ctx);
+                    UpdateTask updateTask = UpdateTask.getNewInstance();
+                    updateTask.startPinnedNotification(ctx);
                     updateTask.execute(ref);
                 } catch (IllegalStateException e) {
                     // The user may have started the update process in the meantime

@@ -500,7 +500,7 @@ public class CommCareSessionService extends Service  {
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
                 RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.pinned_notification_with_progress);
-                contentView.setImageViewResource(R.id.notification_icon, R.drawable.notification);
+                //contentView.setImageViewResource(R.id.notification_icon, R.drawable.notification);
                 contentView.setTextViewText(R.id.title_text, getString(notificationId));
                 contentView.setTextViewText(R.id.progress_text, text);
                 contentView.setTextViewText(R.id.detail_text ,"0b transmitted");

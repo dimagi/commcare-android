@@ -8,21 +8,11 @@
                 android:paddingRight="2dp"
                 android:paddingTop="2dp">
 
-    <ImageView
-        android:id="@+id/notification_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/title_text"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/notification"/>
-
     <TextView
         android:id="@+id/title_text"
         style="@android:style/TextAppearance.Small"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/notification_icon"
         android:text="@string/submission_notification_title"
         android:textColor="@color/black"
         android:textStyle="bold"/>

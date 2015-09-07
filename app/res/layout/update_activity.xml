@@ -30,6 +30,7 @@
                     android:id="@+id/current_version_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/content_min_margin"
                     android:layout_marginBottom="@dimen/content_min_margin"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
