@@ -129,7 +129,7 @@ login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 
-login.update.install.success=App updated successfully applied!
+login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
 version.id.long=CommCare ODK, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
