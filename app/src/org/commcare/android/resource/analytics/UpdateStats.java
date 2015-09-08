@@ -56,7 +56,6 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
      * many unsuccessful installs?
      */
     public boolean isUpgradeStale() {
-        // TODO PLM: test this!
         long currentTime = new Date().getTime();
         return (restartCount > ATTEMPTS_UNTIL_UPDATE_STALE ||
                 (currentTime - startInstallTime) > TWO_WEEKS_IN_MS);
@@ -81,7 +80,6 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return sw.toString();
     }
 
-
     @Override
     public void recordResourceInstallSuccess(String resourceName) {
         InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
@@ -90,6 +88,25 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
             resourceInstallStats.put(resourceName, attempts);
         }
         attempts.registerSuccesfulInstall();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder statsStringBuilder = new StringBuilder();
+
+        statsStringBuilder.append("Update first started: ").append(new Date(startInstallTime).toString()).append(".\n");
+        statsStringBuilder.append("Update restarted ").append(restartCount).append(" times.\n");
+
+        statsStringBuilder.append("Failures logged to the update table: \n");
+        statsStringBuilder.append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString()).append("\n");
+
+        for (String resourceName : resourceInstallStats.keySet()) {
+            if (!resourceName.equals(TOP_LEVEL_STATS_KEY)) {
+                statsStringBuilder.append(resourceInstallStats.get(resourceName).toString()).append("\n");
+            }
+        }
+
+        return statsStringBuilder.toString();
     }
 
     public static Object deserialize(String s) throws IOException,

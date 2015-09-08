@@ -82,8 +82,6 @@ public class AndroidResourceManager extends ResourceManager {
                     return AppInstallStatus.UpToDate;
                 }
 
-                updateStats.registerStagingAttempt();
-
                 prepareUpgradeResources();
             } catch (InstallCancelledException e) {
                 // The user cancelled the upgrade check process. The calling task
@@ -188,6 +186,10 @@ public class AndroidResourceManager extends ResourceManager {
             Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
             Log.i(TAG, updateStats.toString());
         }
+    }
+
+    public void incrementUpdateAttempts() {
+        updateStats.registerStagingAttempt();
     }
 
     /**

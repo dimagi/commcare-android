@@ -104,7 +104,6 @@ public class UpdateTask
         try {
             return stageUpdate();
         } catch (Exception e) {
-            resourceManager.processUpdateFailure(e, ctx);
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;
@@ -112,7 +111,8 @@ public class UpdateTask
     }
 
     private void setupUpdate() {
-        ResourceInstallUtils.recordUpdateAttempt(app);
+        ResourceInstallUtils.recordUpdateAttemptTime(app);
+        resourceManager.incrementUpdateAttempts();
 
         app.setupSandbox();
 

@@ -148,7 +148,7 @@ public class ResourceInstallUtils {
     /**
      * Set app's last update attempt time to now in the shared preferences
      */
-    public static void recordUpdateAttempt(CommCareApp app) {
+    public static void recordUpdateAttemptTime(CommCareApp app) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, new Date().getTime());
