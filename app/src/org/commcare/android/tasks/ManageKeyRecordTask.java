@@ -271,9 +271,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             return false;
         }
         
+        Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         try {
-            Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
-            SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
             //We successfully received and parsed out some key records! Let's update the db
             for(UserKeyRecord record : keyRecords) {
                 //See if we already have a key record for this sandbox and user  (There should _definitely_ only be one if there is one)
@@ -289,17 +289,16 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     UserKeyRecord ukr = new UserKeyRecord(record.getUsername(), record.getPasswordHash(), record.getEncryptedKey(), record.getValidFrom(), record.getValidTo(), record.getUuid(), existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
-
                 } catch(NoSuchElementException nsee) {
                     //If there's no existing record, write this new one (we'll handle updating the status later)
                     storage.write(record);
                 }
             }
-            return true;
         } catch (StorageFullException e) {
             e.printStackTrace();
             return false;
         }
+        return true;
     }
     
     @Override
