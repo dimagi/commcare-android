@@ -25,7 +25,6 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Date;
 
-
 /**
  * Catch exceptions that are going to crash the phone, grab the stack trace,
  * and upload to developers.
@@ -34,6 +33,7 @@ import java.util.Date;
  **/
 public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
     private static final String TAG = ExceptionReportTask.class.getSimpleName();
+
     @Override
     protected String doInBackground(Throwable... values) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -45,7 +45,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
         } catch(IOException e){
             report = null;
         }
-        
 
         String fallbacktext = null;
         for(Throwable ex : values) {
@@ -78,7 +77,6 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             //D-oh. Really?
         }
         
-        
         //TODO: Send this with the standard logging subsystem
         String payload = new String(data);
         Log.d(TAG, "Outgoing payload: " + payload);
@@ -94,11 +92,8 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
                 }
             };
             entity.addPart("xml_submission_file", body);
-        } catch (IllegalCharsetNameException e1) {
-            e1.printStackTrace();
-        } catch (UnsupportedCharsetException e1) {
-            e1.printStackTrace();
-        } catch (UnsupportedEncodingException e1) {
+        } catch (IllegalCharsetNameException | UnsupportedEncodingException
+                | UnsupportedCharsetException e1) {
             e1.printStackTrace();
         }
         
@@ -114,17 +109,14 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             generator = new HttpRequestGenerator();
         }
         
-        
         try {
             HttpResponse response = generator.postData(URI, entity);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             response.getEntity().writeTo(bos);
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));
         } catch (ClientProtocolException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         //We seem to have to return something...
@@ -134,8 +126,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
     public static String getStackTrace(Throwable e) {
         return getStackTrace(e, false);
     }
-    
-    
+
     public static String getStackTrace(Throwable e, boolean fullContext) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         e.printStackTrace(new PrintStream(bos));
@@ -146,5 +137,4 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
         }
         return retString;
     }
-    
 }
