@@ -14,9 +14,11 @@ import org.commcare.android.util.AndroidResourceInstallerFactory;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.ResourceManager;
+import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
+import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
@@ -144,9 +146,6 @@ public class AndroidResourceManager extends ResourceManager {
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
-        // TODO PLM: this doesn't collect any resource download stats because
-        // the resources are first being downloaded into tempTable which isn't
-        // being tracked by ResourceDownloadStats
         tempUpgradeTable.destroy();
         loadProfile(tempUpgradeTable, profileRef);
         Resource tempProfile =
@@ -158,6 +157,24 @@ public class AndroidResourceManager extends ResourceManager {
         }
 
         tempUpgradeTable.destroy();
+    }
+
+    /**
+     * Set listeners and checkers that enable communication between low-level
+     * resource installation and top-level app update/installation process.
+     *
+     * @param tableListener  allows resource table to report its progress to the
+     *                       launching process
+     * @param cancelCheckker allows resource installers to check if the
+     *                       launching process was cancelled
+     */
+    @Override
+    public void setUpgradeListeners(TableStateListener tableListener,
+                                    InstallCancelled cancelCheckker) {
+        super.setUpgradeListeners(tableListener, cancelCheckker);
+
+        tempUpgradeTable.setStateListener(tableListener);
+        tempUpgradeTable.setInstallCancellationChecker(cancelCheckker);
     }
 
     /**
