@@ -56,44 +56,46 @@ public class AndroidResourceManager extends ResourceManager {
      * otherwise an error status.
      */
     public AppInstallStatus checkAndPrepareUpgradeResources(String profileRef) {
-        this.profileRef = profileRef;
-        try {
-            instantiateLatestProfile();
+        synchronized (updateLock) {
+            this.profileRef = profileRef;
+            try {
+                instantiateLatestProfile();
 
-            if (isUpgradeTableStaged()) {
-                return AppInstallStatus.UpdateStaged;
-            }
+                if (isUpgradeTableStaged()) {
+                    return AppInstallStatus.UpdateStaged;
+                }
 
-            if (updateIsntNewer(getMasterProfile())) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
-                upgradeTable.clear();
-                return AppInstallStatus.UpToDate;
-            }
+                if (updateIsntNewer(getMasterProfile())) {
+                    Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                    upgradeTable.clear();
+                    return AppInstallStatus.UpToDate;
+                }
 
-            updateStats.registerStagingAttempt();
+                updateStats.registerStagingAttempt();
 
-            prepareUpgradeResources();
-        } catch (InstallCancelledException e) {
-            // The user cancelled the upgrade check process. The calling task
-            // should have caught and handled the cancellation
-            return AppInstallStatus.UnknownFailure;
-        } catch (LocalStorageUnavailableException e) {
-            ResourceInstallUtils.logInstallError(e,
-                    "Couldn't install file to local storage|");
-            return AppInstallStatus.NoLocalStorage;
-        } catch (UnfullfilledRequirementsException e) {
-            if (e.isDuplicateException()) {
-                return AppInstallStatus.DuplicateApp;
-            } else {
+                prepareUpgradeResources();
+            } catch (InstallCancelledException e) {
+                // The user cancelled the upgrade check process. The calling task
+                // should have caught and handled the cancellation
+                return AppInstallStatus.UnknownFailure;
+            } catch (LocalStorageUnavailableException e) {
                 ResourceInstallUtils.logInstallError(e,
-                        "App resources are incompatible with this device|");
-                return AppInstallStatus.IncompatibleReqs;
+                        "Couldn't install file to local storage|");
+                return AppInstallStatus.NoLocalStorage;
+            } catch (UnfullfilledRequirementsException e) {
+                if (e.isDuplicateException()) {
+                    return AppInstallStatus.DuplicateApp;
+                } else {
+                    ResourceInstallUtils.logInstallError(e,
+                            "App resources are incompatible with this device|");
+                    return AppInstallStatus.IncompatibleReqs;
+                }
+            } catch (UnresolvedResourceException e) {
+                return ResourceInstallUtils.processUnresolvedResource(e);
             }
-        } catch (UnresolvedResourceException e) {
-            return ResourceInstallUtils.processUnresolvedResource(e);
-        }
 
-        return AppInstallStatus.UpdateStaged;
+            return AppInstallStatus.UpdateStaged;
+        }
     }
 
     /**
