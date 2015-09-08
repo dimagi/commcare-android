@@ -40,18 +40,16 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
- *
  */
 public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> implements DataSubmissionListener {
 
     //Stole from the process and send task. See if we can unify a lot of this behavior
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
+    private static final long SUBMISSION_BEGIN = 16;
+    private static final long SUBMISSION_START = 32;
+    private static final long SUBMISSION_NOTIFY = 64;
+    private static final long SUBMISSION_DONE = 128;
     
     public enum LogSubmitOutcomes implements MessageTag {
-        
         /** Logs successfully submitted **/
         Submitted("notification.logger.submitted"),
         
@@ -65,12 +63,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         private final String root;
         public String getLocaleKeyBase() { return root;}
         public String getCategory() { return "log_submission"; }
-    
     }
     
     private boolean serializeCurrentLogs = false;
-    private DataSubmissionListener listener;
-    private String submissionUrl;
+    private final DataSubmissionListener listener;
+    private final String submissionUrl;
     
     public LogSubmissionTask(boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
         this.serializeCurrentLogs = serializeCurrentLogs;
@@ -141,8 +138,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             this.beginSubmissionProcess(numberOfLogsToSubmit);
             
             int index = 0;
-            ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<Integer>();
-            ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<DeviceReportRecord>();
+            ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
+            ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
             for(DeviceReportRecord slr : storage) {
                 try {
                     if(submit(slr, index)) {
@@ -194,11 +191,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private boolean submit(DeviceReportRecord slr, int index) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
-        
-        
-        /**
-         * Bad (Empty) record. Wipe
-         */
+
+        // Bad (Empty) record. Wipe
         if(f.length() == 0) {
             return true;
         }
@@ -226,7 +220,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), "text/xml");
         entity.addPart("xml_submission_file", fb);
         
-        HttpResponse response = null;
+        HttpResponse response;
         try {
             response = generator.postData(submissionUrl, entity);
         } catch (ClientProtocolException e) {
@@ -246,20 +240,12 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         
         try {
             AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
-        } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
         }
         //TODO: Anything with the response?
         
-        if(responseCode >= 200 && responseCode < 300) {
-            return true;
-        } else {
-            return false;
-        }
+        return (responseCode >= 200 && responseCode < 300);
     }
     
 
@@ -270,19 +256,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             cipher.init(Cipher.DECRYPT_MODE, key);
             return cipher;
             //TODO: Something smart here;
-        } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            // TODO Auto-generated catch block
+        } catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
             e.printStackTrace();
         }
         return null;
     }
-
 
     @Override
     public void beginSubmissionProcess(int totalItems) {
@@ -303,7 +281,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     public void endSubmissionProcess() {
         this.publishProgress(LogSubmissionTask.SUBMISSION_DONE);
     }
-    
 
     @Override
     protected void onProgressUpdate(Long... values) {
@@ -330,5 +307,4 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             CommCareApplication._().clearNotifications(result.getCategory());
         }
     }
-
 }

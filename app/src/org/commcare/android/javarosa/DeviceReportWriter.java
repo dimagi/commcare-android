@@ -49,7 +49,6 @@ public class DeviceReportWriter {
             serializer.startDocument("UTF-8", null);
             serializer.startTag(XMLNS, "device_report");
             try {
-
                 //All inner elements are supposed to catch their errors and wrap them, so we
                 //can safely catch any of the processing issues
                 try {
@@ -67,9 +66,6 @@ public class DeviceReportWriter {
                     } catch (Exception e) {
                     }
                 }
-
-            } catch (Exception e) {
-
             } finally {
                 serializer.endTag(XMLNS, "device_report");
             }
