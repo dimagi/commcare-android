@@ -125,61 +125,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private LogSubmitOutcomes checkSubmissionResult(int numberOfLogsToSubmit,
-                                                    ArrayList<DeviceReportRecord> submittedSuccesfully) {
-        if (submittedSuccesfully.size() > 0) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
-        }
-        //Whether this is a full or partial success depends on how many logs were pending
-        if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
-            return LogSubmitOutcomes.Submitted;
-        } else {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
-            //Some remain unsent
-            return LogSubmitOutcomes.Serialized;
-        }
-    }
-
-    private boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
-                                       ArrayList<Integer> submittedSuccesfullyIds,
-                                       ArrayList<DeviceReportRecord> submittedSuccesfully) {
-        try {
-            //Wipe the DB entries
-            storage.remove(submittedSuccesfullyIds);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
-            return false;
-        }
-        //Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
-        for (DeviceReportRecord record : submittedSuccesfully) {
-            try {
-                File f = new File(record.getFilePath());
-                f.delete();
-            } catch (Exception e) {
-                //TODO: Anything useful here?
-            }
-        }
-        return true;
-    }
-
-    private void submitReports(SqlStorage<DeviceReportRecord> storage,
-                               ArrayList<Integer> submittedSuccesfullyIds,
-                               ArrayList<DeviceReportRecord> submittedSuccesfully) {
-        int index = 0;
-        for (DeviceReportRecord slr : storage) {
-            try {
-                if (submit(slr, index)) {
-                    submittedSuccesfullyIds.add(slr.getID());
-                    submittedSuccesfully.add(slr);
-                }
-                index++;
-            } catch (Exception e) {
-
-            }
-        }
-    }
-
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
@@ -224,6 +169,23 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
         return true;
+    }
+
+    private void submitReports(SqlStorage<DeviceReportRecord> storage,
+                               ArrayList<Integer> submittedSuccesfullyIds,
+                               ArrayList<DeviceReportRecord> submittedSuccesfully) {
+        int index = 0;
+        for (DeviceReportRecord slr : storage) {
+            try {
+                if (submit(slr, index)) {
+                    submittedSuccesfullyIds.add(slr.getID());
+                    submittedSuccesfully.add(slr);
+                }
+                index++;
+            } catch (Exception e) {
+
+            }
+        }
     }
 
     private boolean submit(DeviceReportRecord slr, int index) {
@@ -286,6 +248,43 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         return (responseCode >= 200 && responseCode < 300);
     }
 
+    private boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
+                                       ArrayList<Integer> submittedSuccesfullyIds,
+                                       ArrayList<DeviceReportRecord> submittedSuccesfully) {
+        try {
+            //Wipe the DB entries
+            storage.remove(submittedSuccesfullyIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
+            return false;
+        }
+        //Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
+        for (DeviceReportRecord record : submittedSuccesfully) {
+            try {
+                File f = new File(record.getFilePath());
+                f.delete();
+            } catch (Exception e) {
+                //TODO: Anything useful here?
+            }
+        }
+        return true;
+    }
+
+    private LogSubmitOutcomes checkSubmissionResult(int numberOfLogsToSubmit,
+                                                    ArrayList<DeviceReportRecord> submittedSuccesfully) {
+        if (submittedSuccesfully.size() > 0) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
+        }
+        //Whether this is a full or partial success depends on how many logs were pending
+        if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
+            return LogSubmitOutcomes.Submitted;
+        } else {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
+            //Some remain unsent
+            return LogSubmitOutcomes.Serialized;
+        }
+    }
 
     private static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
