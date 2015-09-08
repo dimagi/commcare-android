@@ -104,7 +104,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             // See how many we have pending to submit.
             int numberOfLogsToSubmit = storage.getNumRecords();
             if (numberOfLogsToSubmit == 0) {
-                //Good to go.
                 return LogSubmitOutcomes.Submitted;
             }
 
@@ -119,22 +118,28 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return LogSubmitOutcomes.Serialized;
             }
 
-            if (submittedSuccesfully.size() > 0) {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
-            }
-            //Whether this is a full or partial success depends on how many logs were pending
-            if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
-                return LogSubmitOutcomes.Submitted;
-            } else {
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
-                //Some remain unsent
-                return LogSubmitOutcomes.Serialized;
-            }
+            return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
         } catch (UserStorageClosedException e) {
             // The user database closed on us
             return LogSubmitOutcomes.Error;
         }
     }
+
+    private LogSubmitOutcomes checkSubmissionResult(int numberOfLogsToSubmit,
+                                                    ArrayList<DeviceReportRecord> submittedSuccesfully) {
+        if (submittedSuccesfully.size() > 0) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
+        }
+        //Whether this is a full or partial success depends on how many logs were pending
+        if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
+            return LogSubmitOutcomes.Submitted;
+        } else {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
+            //Some remain unsent
+            return LogSubmitOutcomes.Serialized;
+        }
+    }
+
     private boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
                                        ArrayList<Integer> submittedSuccesfullyIds,
                                        ArrayList<DeviceReportRecord> submittedSuccesfully) {
@@ -216,8 +221,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } catch (Exception e) {
             //Bad times!
             e.printStackTrace();
-            return LogSubmitOutcomes.Error;
+            return false;
         }
+        return true;
     }
 
     private boolean submit(DeviceReportRecord slr, int index) {
