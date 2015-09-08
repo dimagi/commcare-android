@@ -48,27 +48,42 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private static final long SUBMISSION_START = 32;
     private static final long SUBMISSION_NOTIFY = 64;
     private static final long SUBMISSION_DONE = 128;
-    
+
     public enum LogSubmitOutcomes implements MessageTag {
-        /** Logs successfully submitted **/
+        /**
+         * Logs successfully submitted
+         **/
         Submitted("notification.logger.submitted"),
-        
-        /** Logs saved, but not actually submitted **/
+
+        /**
+         * Logs saved, but not actually submitted
+         **/
         Serialized("notification.logger.serialized"),
-        
-        /** Something went wrong **/
+
+        /**
+         * Something went wrong
+         **/
         Error("notification.logger.error");
-        
-        LogSubmitOutcomes(String root) {this.root = root;}
+
+        LogSubmitOutcomes(String root) {
+            this.root = root;
+        }
+
         private final String root;
-        public String getLocaleKeyBase() { return root;}
-        public String getCategory() { return "log_submission"; }
+
+        public String getLocaleKeyBase() {
+            return root;
+        }
+
+        public String getCategory() {
+            return "log_submission";
+        }
     }
-    
+
     private boolean serializeCurrentLogs = false;
     private final DataSubmissionListener listener;
     private final String submissionUrl;
-    
+
     public LogSubmissionTask(boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
         this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
@@ -81,12 +96,12 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 
             //First, see if we're supposed to serialize the current logs
-            if(serializeCurrentLogs) {
+            if (serializeCurrentLogs) {
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-                
+
                 //update the last recorded record
                 settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
-    
+
                 DeviceReportRecord record;
                 try {
                     record = DeviceReportRecord.generateNewRecordStub();
@@ -101,22 +116,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     try {
                         //Create a report writer
                         reporter = new DeviceReportWriter(record);
-                    } catch(IOException e) {
+                    } catch (IOException e) {
                         //TODO: Bad local file (almost certainly). Throw a better message! 
                         e.printStackTrace();
                         return LogSubmitOutcomes.Error;
                     }
-                    
+
                     //Add the logs as the primary payload
                     AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
                     reporter.addReportElement(serializer);
-                    
+
                     //serialize logs
                     reporter.write();
-                    
+
                     //Write the record for where the logs are now saved to.
                     storage.write(record);
-                    
+
                     //The logs are saved and recorded, so we can feel safe clearing the logs we serialized. 
                     serializer.purge();
                 } catch (Exception e) {
@@ -127,62 +142,62 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
             //Alright, now regardless of whether or not we serialized one, we should see how many we have pending
             //to submit.
-            
+
             int numberOfLogsToSubmit = storage.getNumRecords();
-            if(numberOfLogsToSubmit == 0) {
+            if (numberOfLogsToSubmit == 0) {
                 //Good to go.
                 return LogSubmitOutcomes.Submitted;
             }
 
             //Signal to the listener that we're ready to submit
             this.beginSubmissionProcess(numberOfLogsToSubmit);
-            
+
             int index = 0;
             ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
             ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-            for(DeviceReportRecord slr : storage) {
+            for (DeviceReportRecord slr : storage) {
                 try {
-                    if(submit(slr, index)) {
+                    if (submit(slr, index)) {
                         submittedSuccesfullyIds.add(slr.getID());
                         submittedSuccesfully.add(slr);
                     }
                     index++;
-                } catch(Exception e) {
-                    
+                } catch (Exception e) {
+
                 }
             }
             try {
-            //Wipe the DB entries
-            storage.remove(submittedSuccesfullyIds);
-    
-            } catch(Exception e) {
+                //Wipe the DB entries
+                storage.remove(submittedSuccesfullyIds);
+
+            } catch (Exception e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
                 return LogSubmitOutcomes.Serialized;
             }
             //Try to wipe the files, too, now that the file's submitted. (Not a huge deal if this fails, though)
-            for(DeviceReportRecord record : submittedSuccesfully) {
-                try{
+            for (DeviceReportRecord record : submittedSuccesfully) {
+                try {
                     File f = new File(record.getFilePath());
                     f.delete();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     //TODO: Anything useful here?
                 }
             }
-            if(submittedSuccesfully.size() > 0) {
+            if (submittedSuccesfully.size() > 0) {
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully submitted " + submittedSuccesfully.size() + " device reports to server.");
             }
             //Whether this is a full or partial success depends on how many logs were pending
-            if(submittedSuccesfully.size() == numberOfLogsToSubmit) {
+            if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
                 //Submitted all the logs we had
                 return LogSubmitOutcomes.Submitted;
             } else {
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
-    
+
                 //Some remain unsent
                 return LogSubmitOutcomes.Serialized;
             }
-        } catch(UserStorageClosedException e) {
+        } catch (UserStorageClosedException e) {
             // The user database closed on us
             return LogSubmitOutcomes.Error;
         }
@@ -193,10 +208,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         File f = new File(slr.getFilePath());
 
         // Bad (Empty) record. Wipe
-        if(f.length() == 0) {
+        if (f.length() == 0) {
             return true;
         }
-        
+
         //signal that it's time to start submitting the file
         this.startSubmission(index, f.length());
         HttpRequestGenerator generator;
@@ -213,13 +228,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } else {
             generator = new HttpRequestGenerator(user);
         }
-        
+
         // mime post
         MultipartEntity entity = new DataSubmissionEntity(this, index);
-        
+
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), "text/xml");
         entity.addPart("xml_submission_file", fb);
-        
+
         HttpResponse response;
         try {
             response = generator.postData(submissionUrl, entity);
@@ -232,22 +247,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         } catch (IllegalStateException e) {
             e.printStackTrace();
             return false;
-        }    
+        }
 
         int responseCode = response.getStatusLine().getStatusCode();
-        
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        
+
         try {
             AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
         } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
         }
         //TODO: Anything with the response?
-        
+
         return (responseCode >= 200 && responseCode < 300);
     }
-    
+
 
     private static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;
@@ -285,25 +300,25 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected void onProgressUpdate(Long... values) {
         super.onProgressUpdate(values);
-        
-        if(values[0] == LogSubmissionTask.SUBMISSION_BEGIN) {
+
+        if (values[0] == LogSubmissionTask.SUBMISSION_BEGIN) {
             listener.beginSubmissionProcess(values[1].intValue());
-        } else if(values[0] == LogSubmissionTask.SUBMISSION_START) {
+        } else if (values[0] == LogSubmissionTask.SUBMISSION_START) {
             listener.startSubmission(values[1].intValue(), values[2]);
-        } else if(values[0] == LogSubmissionTask.SUBMISSION_NOTIFY) {
+        } else if (values[0] == LogSubmissionTask.SUBMISSION_NOTIFY) {
             listener.notifyProgress(values[1].intValue(), values[2]);
-        } else if(values[0] == LogSubmissionTask.SUBMISSION_DONE) {
+        } else if (values[0] == LogSubmissionTask.SUBMISSION_DONE) {
             listener.endSubmissionProcess();
-        } 
+        }
     }
 
     @Override
     protected void onPostExecute(LogSubmitOutcomes result) {
         super.onPostExecute(result);
         listener.endSubmissionProcess();
-        if(result != LogSubmitOutcomes.Submitted) {
+        if (result != LogSubmitOutcomes.Submitted) {
             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
-        } else{
+        } else {
             CommCareApplication._().clearNotifications(result.getCategory());
         }
     }
