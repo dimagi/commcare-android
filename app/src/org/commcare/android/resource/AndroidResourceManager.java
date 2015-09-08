@@ -10,11 +10,13 @@ import org.commcare.android.resource.analytics.UpdateStats;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.AndroidResourceInstallerFactory;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelledException;
 import org.commcare.resources.model.Resource;
+import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
@@ -27,10 +29,12 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AndroidResourceManager extends ResourceManager {
-    private final String TAG = AndroidResourceManager.class.getSimpleName();
+    private final static String TAG = AndroidResourceManager.class.getSimpleName();
+    public final static String TEMP_UPGRADE_TABLE_KEY = "TEMP_UPGRADE_RESOURCE_TABLE";
     private final UpdateStats updateStats;
     private final CommCareApp app;
     private String profileRef;
+    private final ResourceTable tempUpgradeTable;
 
     // 5 minutes
     private final static long UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 5;
@@ -42,8 +46,13 @@ public class AndroidResourceManager extends ResourceManager {
 
         app = CommCareApplication._().getCurrentApp();
 
+        tempUpgradeTable =
+                ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
+                        new AndroidResourceInstallerFactory(app));
+
         updateStats = UpdateStatPersistence.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);
+        tempUpgradeTable.setInstallStatsLogger(updateStats);
     }
 
     /**
@@ -138,20 +147,17 @@ public class AndroidResourceManager extends ResourceManager {
         // TODO PLM: this doesn't collect any resource download stats because
         // the resources are first being downloaded into tempTable which isn't
         // being tracked by ResourceDownloadStats
-        if (!tempTable.isEmpty()) {
-            throw new RuntimeException("Expected temp table to be empty");
-        }
-        tempTable.destroy();
-        loadProfile(tempTable, profileRef);
+        tempUpgradeTable.destroy();
+        loadProfile(tempUpgradeTable, profileRef);
         Resource tempProfile =
-                tempTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+                tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
         if (tempProfile != null && tempProfile.isNewer(upgradeProfile)) {
             upgradeTable.destroy();
-            tempTable.copyToTable(upgradeTable);
+            tempUpgradeTable.copyToTable(upgradeTable);
         }
 
-        tempTable.destroy();
+        tempUpgradeTable.destroy();
     }
 
     /**

@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -56,6 +57,10 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
 
+            builder = new TableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            builder.addData(new Resource());
+            database.execSQL(builder.getTableCreateString());
+
             builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
@@ -70,11 +75,11 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(tableIndexQuery("GLOBAL_RESOURCE_TABLE", "global_index_id"));
             database.execSQL(tableIndexQuery("UPGRADE_RESOURCE_TABLE", "upgrade_index_id"));
             database.execSQL(tableIndexQuery("RECOVERY_RESOURCE_TABLE", "recovery_index_id"));
+            database.execSQL(tableIndexQuery(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY, "temp_upgrade_index_id"));
 
             DbUtil.createNumbersTable(database);
 
             database.setTransactionSuccessful();
-
         } finally {
             database.endTransaction();
         }
