@@ -183,11 +183,7 @@ public class EntityMapActivity extends MapActivity {
                                         int lng = (int) (a.getLongitude() * 1E6);
                                         gp = new GeoPoint(lat, lng);
                                         
-                                        try {
-                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
-                                        } catch (StorageFullException e1) {
-                                            //this is the worst exception ever.
-                                        }
+                                        geoCache.write(new GeocodeCacheModel(val, lat, lng));
                                         legit++;
                                         break;
                                     }
@@ -195,15 +191,10 @@ public class EntityMapActivity extends MapActivity {
                                 
                                 //We didn't find an address, make a miss record
                                 if(gp == null) {
-                                    try {
-                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
-                                    } catch (StorageFullException e1) {
-                                        //this is the worst exception ever.
-                                    }
+                                    geoCache.write(GeocodeCacheModel.NoHitRecord(val));
                                 }
-                            } catch (IOException e1) {
+                            } catch (StorageFullException | IOException e1) {
                                 e1.printStackTrace();
-                                //Yo. What? I guess bad connection?
                             }
                         }
                         

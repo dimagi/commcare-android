@@ -29,7 +29,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -569,7 +568,7 @@ public class InstanceProvider extends ContentProvider {
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
             throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
-        } catch (StorageFullException | UnfullfilledRequirementsException e) {
+        } catch (UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
     }
