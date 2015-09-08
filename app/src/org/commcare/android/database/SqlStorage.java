@@ -16,7 +16,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -238,7 +237,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public int add(Externalizable e) throws StorageFullException {
+    public int add(Externalizable e) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -349,7 +348,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data.
-     * <p/>
      * Useful for getting an overview of data for querying into without wasting the bits to transfer over
      * the huge full records.
      *
@@ -405,11 +403,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data, and
      * additionally collects a primary ID that will be returned and available during iteration.
-     * <p/>
+     *
      * Useful for situations where the iterator is loading data that will be indexed by the primary id
      * since it will prevent the need to turn that primary id into the storage key for retrieving each
      * record.
-     * <p/>
+     *
      * TODO: This is a bit too close to comfort to the other custom iterator. It's possible we should just
      * have a method to query for all metadata?
      *
@@ -566,7 +564,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void update(int id, Externalizable e) throws StorageFullException {
+    public void update(int id, Externalizable e) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
@@ -583,7 +581,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     @Override
-    public void write(Persistable p) throws StorageFullException {
+    public void write(Persistable p) {
         if (p.getID() != -1) {
             update(p.getID(), p);
             return;
@@ -624,11 +622,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         // TODO Auto-generated method stub
     }
 
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws StorageFullException, SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
 
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws StorageFullException, SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, CopyMapper<T> mapper) throws SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try {

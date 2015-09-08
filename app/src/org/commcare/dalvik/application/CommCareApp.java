@@ -25,7 +25,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import java.io.File;
@@ -293,11 +292,7 @@ public class CommCareApp {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setResourcesStatus(areMMResourcesValidated());
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
-        try {
-            CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
-        } catch (StorageFullException e) {
-            throw new RuntimeException(e);
-        }
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
     public String getUniqueId() {

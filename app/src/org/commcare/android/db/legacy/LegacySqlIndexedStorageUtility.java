@@ -12,7 +12,6 @@ import org.commcare.android.database.TableBuilder;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -174,7 +173,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public int add(Externalizable e) throws StorageFullException {
+    public int add(Externalizable e) {
         SQLiteDatabase db = helper.getHandle();
         int i = -1;
         try {
@@ -375,7 +374,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void update(int id, Externalizable e) throws StorageFullException {
+    public void update(int id, Externalizable e) {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
@@ -387,7 +386,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void write(Persistable p) throws StorageFullException {
+    public void write(Persistable p) {
         if (p.getID() != -1) {
             update(p.getID(), p);
             return;
