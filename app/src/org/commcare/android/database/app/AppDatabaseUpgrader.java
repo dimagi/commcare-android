@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 
 /**
@@ -39,6 +40,9 @@ public class AppDatabaseUpgrader {
             if (upgradeFourFive(db)) {
                 oldVersion = 5;
             }
+        }
+        if (oldVersion == 5) {
+            upgradeFiveSix(db);
         }
 
         //NOTE: If metadata changes are made to the Resource model, they need to be
@@ -89,6 +93,25 @@ public class AppDatabaseUpgrader {
         db.beginTransaction();
         try {
             DbUtil.createNumbersTable(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Create temporary upgrade table. Used to check for new updates without
+     * wiping progress from the main upgrade table
+     */
+    private boolean upgradeFiveSix(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            TableBuilder builder = new TableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            builder.addData(new Resource());
+            db.execSQL(builder.getTableCreateString());
+            db.execSQL(DatabaseAppOpenHelper.tableIndexQuery(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY, "temp_upgrade_index_id"));
+
             db.setTransactionSuccessful();
             return true;
         } finally {

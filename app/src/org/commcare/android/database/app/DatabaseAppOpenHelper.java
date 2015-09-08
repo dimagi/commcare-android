@@ -26,8 +26,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.3 - Upgraded Resource models to have an optional descriptor field
      * V.4 - Table parent resource indices
      * V.5 - Added numbers table
+     * V.6 - Added temporary upgrade table for ease of checking for new updates
      */
-    private static final int DB_VERSION_APP = 5;
+    private static final int DB_VERSION_APP = 6;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -85,7 +86,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    private String tableIndexQuery(String tableName, String indexName) {
+    public static String tableIndexQuery(String tableName, String indexName) {
         return "CREATE INDEX " + indexName + " ON " +
                 tableName + "( " + Resource.META_INDEX_PARENT_GUID + " )";
     }
@@ -98,7 +99,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             return super.getWritableDatabase(key);
         }
     }
-
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
