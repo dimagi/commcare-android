@@ -100,9 +100,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     return LogSubmitOutcomes.Error;
                 }
             }
-            //Alright, now regardless of whether or not we serialized one, we should see how many we have pending
-            //to submit.
 
+            // See how many we have pending to submit.
             int numberOfLogsToSubmit = storage.getNumRecords();
             if (numberOfLogsToSubmit == 0) {
                 //Good to go.
@@ -112,24 +111,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             //Signal to the listener that we're ready to submit
             this.beginSubmissionProcess(numberOfLogsToSubmit);
 
-            int index = 0;
             ArrayList<Integer> submittedSuccesfullyIds = new ArrayList<>();
             ArrayList<DeviceReportRecord> submittedSuccesfully = new ArrayList<>();
-            for (DeviceReportRecord slr : storage) {
-                try {
-                    if (submit(slr, index)) {
-                        submittedSuccesfullyIds.add(slr.getID());
-                        submittedSuccesfully.add(slr);
-                    }
-                    index++;
-                } catch (Exception e) {
+            submitReports(storage, submittedSuccesfullyIds, submittedSuccesfully);
 
-                }
-            }
             try {
                 //Wipe the DB entries
                 storage.remove(submittedSuccesfullyIds);
-
             } catch (Exception e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Error deleting logs!" + e.getMessage());
@@ -162,6 +150,24 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return LogSubmitOutcomes.Error;
         }
     }
+
+    private void submitReports(SqlStorage<DeviceReportRecord> storage,
+                               ArrayList<Integer> submittedSuccesfullyIds,
+                               ArrayList<DeviceReportRecord> submittedSuccesfully) {
+        int index = 0;
+        for (DeviceReportRecord slr : storage) {
+            try {
+                if (submit(slr, index)) {
+                    submittedSuccesfullyIds.add(slr.getID());
+                    submittedSuccesfully.add(slr);
+                }
+                index++;
+            } catch (Exception e) {
+
+            }
+        }
+    }
+
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
