@@ -95,48 +95,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         try {
             SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 
-            //First, see if we're supposed to serialize the current logs
             if (serializeCurrentLogs) {
-                SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-                //update the last recorded record
-                settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
-
-                DeviceReportRecord record;
-                try {
-                    record = DeviceReportRecord.generateNewRecordStub();
-                } catch (SessionUnavailableException e) {
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit logs");
-                    return LogSubmitOutcomes.Error;
-                }
-
-                //Ok, so first, we're going to write the logs to disk in an encrypted file 
-                try {
-                    DeviceReportWriter reporter;
-                    try {
-                        //Create a report writer
-                        reporter = new DeviceReportWriter(record);
-                    } catch (IOException e) {
-                        //TODO: Bad local file (almost certainly). Throw a better message! 
-                        e.printStackTrace();
-                        return LogSubmitOutcomes.Error;
-                    }
-
-                    //Add the logs as the primary payload
-                    AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-                    reporter.addReportElement(serializer);
-
-                    //serialize logs
-                    reporter.write();
-
-                    //Write the record for where the logs are now saved to.
-                    storage.write(record);
-
-                    //The logs are saved and recorded, so we can feel safe clearing the logs we serialized. 
-                    serializer.purge();
-                } catch (Exception e) {
-                    //Bad times!
-                    e.printStackTrace();
+                if (!serializeLogs(storage)) {
                     return LogSubmitOutcomes.Error;
                 }
             }
@@ -199,6 +159,50 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
         } catch (UserStorageClosedException e) {
             // The user database closed on us
+            return LogSubmitOutcomes.Error;
+        }
+    }
+    private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
+        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        //update the last recorded record
+        settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
+
+        DeviceReportRecord record;
+        try {
+            record = DeviceReportRecord.generateNewRecordStub();
+        } catch (SessionUnavailableException e) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit logs");
+            return false;
+        }
+
+        //Ok, so first, we're going to write the logs to disk in an encrypted file
+        try {
+            DeviceReportWriter reporter;
+            try {
+                //Create a report writer
+                reporter = new DeviceReportWriter(record);
+            } catch (IOException e) {
+                //TODO: Bad local file (almost certainly). Throw a better message!
+                e.printStackTrace();
+                return false;
+            }
+
+            //Add the logs as the primary payload
+            AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(serializer);
+
+            //serialize logs
+            reporter.write();
+
+            //Write the record for where the logs are now saved to.
+            storage.write(record);
+
+            //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
+            serializer.purge();
+        } catch (Exception e) {
+            //Bad times!
+            e.printStackTrace();
             return LogSubmitOutcomes.Error;
         }
     }
