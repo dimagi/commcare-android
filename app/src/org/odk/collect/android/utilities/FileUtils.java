@@ -234,9 +234,7 @@ public class FileUtils {
         try {
             return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
         } catch (OutOfMemoryError e) {
-            scale = scale + 1;
-            depth = depth + 1;
-            return performSafeScaleDown(f, scale, depth);
+            return performSafeScaleDown(f, scale + 1, depth + 1);
         }
     }
 
