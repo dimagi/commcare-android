@@ -1,0 +1,66 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingLeft="@dimen/login_box_margins"
+        android:paddingRight="@dimen/login_box_margins" >
+
+        <ImageView
+            android:id="@+id/CommCareLogo"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:paddingBottom="@dimen/content_min_margin"
+            android:paddingLeft="@dimen/content_min_margin"
+            android:paddingTop="@dimen/content_min_margin"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:src="@drawable/commcare_logo"/>
+
+        <TextView
+            android:id="@+id/WarningDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/CommCareLogo"
+            android:textIsSelectable="true"
+            android:textColor="@color/cc_neutral_color"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/content_min_margin"
+            android:textSize="@dimen/text_medium"
+            android:padding="@dimen/content_min_margin"
+            tools:context=".CrashWarningActivity" />
+
+        <TextView
+            android:id="@+id/HowToProceedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/WarningDetails"
+            android:textIsSelectable="true"
+            android:textColor="@color/cc_neutral_color"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/content_min_margin"
+            android:textSize="@dimen/text_medium"
+            android:padding="@dimen/content_min_margin"
+            tools:context=".CrashWarningActivity" />
+
+        <Button
+            android:id="@+id/CloseWarning"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/HowToProceedText"
+            android:paddingTop="@dimen/content_start"
+            android:paddingBottom="@dimen/content_start"
+            android:layout_gravity="bottom"
+            android:textColor="@color/cc_neutral_bg"
+            android:background="@color/cc_brand_color"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+</ScrollView>
