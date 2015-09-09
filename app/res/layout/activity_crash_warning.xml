@@ -41,7 +41,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/WarningDetails"
-            android:textIsSelectable="true"
             android:textColor="@color/cc_neutral_color"
             android:layout_gravity="center"
             android:layout_margin="@dimen/content_min_margin"
