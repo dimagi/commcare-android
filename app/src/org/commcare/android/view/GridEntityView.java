@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
@@ -152,6 +153,9 @@ public class GridEntityView extends GridLayout {
 			screenWidth = display.getWidth();
 			screenHeight = display.getHeight();
 		}
+		
+		// need to account for the scroll bar width so we don't overlap.
+		screenWidth = screenWidth - new ListView(context).getVerticalScrollbarWidth();
 
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
