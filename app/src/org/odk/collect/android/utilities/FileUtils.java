@@ -14,6 +14,26 @@
 
 package org.odk.collect.android.utilities;
 
+import android.annotation.SuppressLint;
+import android.content.ContentUris;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.util.Log;
+
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.xform.parse.XFormParseException;
+import org.javarosa.xform.parse.XFormParser;
+import org.kxml2.kdom.Document;
+import org.kxml2.kdom.Element;
+import org.kxml2.kdom.Node;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,26 +54,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
-import org.kxml2.kdom.Node;
-
-import android.annotation.SuppressLint;
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.util.Log;
 
 /**
  * Static methods used for common file operations.
@@ -199,32 +199,41 @@ public class FileUtils {
 
     }
 
-
     public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
-        // Determine image size of f
+        // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+        int imageHeight = o.outHeight;
+        int imageWidth = o.outWidth;
 
-        int heightScale = o.outHeight / screenHeight;
-        int widthScale = o.outWidth / screenWidth;
-
-        // Powers of 2 work faster, sometimes, according to the doc.
-        // We're just doing closest size that still fills the screen.
+        // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
+        // just doing closest size that still fills the screen
+        int heightScale = Math.round((float)imageHeight / screenHeight);
+        int widthScale = Math.round((float)imageWidth / screenWidth);
         int scale = Math.max(widthScale, heightScale);
-
-        // get bitmap with scale ( < 1 is the same as 1)
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = scale;
-        Bitmap b = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
-        if (b != null) {
-        Log.i(t,
-            "Screen is " + screenHeight + "x" + screenWidth + ".  Image has been scaled down by "
-                    + scale + " to " + b.getHeight() + "x" + b.getWidth());
+        if (scale == 0) {
+            // Rounding could possibly have resulted in a scale factor of 0, which is invalid
+            scale = 1;
         }
-        return b;
+
+        return performSafeScaleDown(f, scale);
     }
 
+    /**
+     * Returns a scaled-down bitmap for the given image file, progressively increasing the
+     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
+     */
+    private static Bitmap performSafeScaleDown(File f, int scale) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = scale;
+        try {
+            return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+        } catch (OutOfMemoryError e) {
+            scale++;
+            return performSafeScaleDown(f, scale);
+        }
+    }
 
     /**
      * Copies from sourceFile to destFile (either a directory, or a path
