@@ -153,7 +153,7 @@ public class GridEntityView extends GridLayout {
 			screenWidth = display.getWidth();
 			screenHeight = display.getHeight();
 		}
-		
+
 		// need to account for the scroll bar width so we don't overlap.
 		screenWidth = screenWidth - new ListView(context).getVerticalScrollbarWidth();
 
