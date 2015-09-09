@@ -129,12 +129,12 @@ public class StringUtils {
      * meet CommCare's fuzzy match definition, false otherwise. Second value is the actual string
      * distance that was matched, in order to be able to rank or otherwise interpret results.
      */
-    public static Pair<Boolean, Integer> fuzzyMatch(String a, String b) {
+    public static Pair<Boolean, Integer> fuzzyMatch(String source, String target) {
         //tweakable parameter: Minimum length before edit distance
         //starts being used (this is probably not necessary, and
         //basically only makes sure that "at" doesn't match "or" or similar
-        if (b.length() > 3) {
-            int distance = StringUtils.LevenshteinDistance(a, b);
+        if (source.length() > 3) {
+            int distance = StringUtils.LevenshteinDistance(source, target);
             //tweakable parameter: edit distance past string length disparity
             if (distance <= 2) {
                 return Pair.create(true, distance);
