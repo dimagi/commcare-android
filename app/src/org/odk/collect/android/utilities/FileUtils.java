@@ -302,7 +302,7 @@ public class FileUtils {
         try {
             return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
         } catch (OutOfMemoryError e) {
-            return performSafeScaleDown(f, ++scale, ++depth);
+            return performSafeScaleDown(f, scale + 1, depth + 1);
         }
     }
 
