@@ -28,6 +28,8 @@ import org.joda.time.DateTime;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
@@ -114,14 +116,26 @@ public class DateWidget extends QuestionWidget {
             mDateListener);
     }
 
+    // see http://stackoverflow.com/a/5451245
 
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();
-        DateTime ldt = new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+        try {
+            DateTime ldt = new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
                     mDatePicker.getDayOfMonth(), 0, 0);
-       // DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
-        return new DateData(ldt.toDate());
+            return new DateData(ldt.toDate());
+        } catch(IllegalArgumentException e){
+            Calendar mCalendar = new GregorianCalendar();
+            TimeZone mTimeZone = mCalendar.getTimeZone();
+            int offsetMillis = mTimeZone.getRawOffset();
+            int offsetSeconds = offsetMillis / 1000;
+            int offsetMinutes = offsetSeconds / 60;
+            int offsetHours = offsetMinutes / 60;
+            DateTime ldt = new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+                    mDatePicker.getDayOfMonth(), offsetHours % 24, offsetMinutes % 60);
+            return new DateData(ldt.toDate());
+        }
     }
 
 
