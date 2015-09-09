@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.dalvik.activities.CrashWarningActivity;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -20,8 +19,8 @@ import java.lang.Thread.UncaughtExceptionHandler;
 public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     private final UncaughtExceptionHandler parent;
     private final Context ctx;
+
     public static final String WARNING_MESSAGE_KEY = "warning-message";
-    public static final String HOW_TO_FIX_MESSAGE_KEY = "fix-message";
 
     public CommCareExceptionHandler(UncaughtExceptionHandler parent,
                                     Context ctx) {
@@ -34,20 +33,25 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         ExceptionReportTask task = new ExceptionReportTask();
         task.execute(ex);
 
-        if (warnUserBeforeExit(ex)) {
+        if (warnUserAndExit(ex)) {
+            // You must close the crashed thread in order to start a new activity.
             System.exit(0);
         } else {
+            // handle error normally (report to ACRA/play store)
             parent.uncaughtException(thread, ex);
         }
     }
 
-    private boolean warnUserBeforeExit(Throwable ex) {
+    /**
+     * Launch activity showing user details of the crash if it is something
+     * they can fix.
+     */
+    private boolean warnUserAndExit(Throwable ex) {
         if (ex instanceof NoLocalizedTextException) {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
-            i.putExtra(HOW_TO_FIX_MESSAGE_KEY, Localization.get("crash.proceed.localization"));
             ctx.startActivity(i);
             return true;
         }

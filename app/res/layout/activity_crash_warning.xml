@@ -24,42 +24,44 @@
             android:src="@drawable/commcare_logo"/>
 
         <TextView
-            android:id="@+id/WarningDetails"
+            android:id="@+id/SimpleWarningMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/CommCareLogo"
-            android:textIsSelectable="true"
             android:textColor="@color/cc_neutral_color"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/content_min_margin"
             android:textSize="@dimen/text_medium"
-            android:padding="@dimen/content_min_margin"
-            tools:context=".CrashWarningActivity" />
-
-        <TextView
-            android:id="@+id/HowToProceedText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/WarningDetails"
-            android:textColor="@color/cc_neutral_color"
             android:layout_gravity="center"
-            android:layout_margin="@dimen/content_min_margin"
-            android:textSize="@dimen/text_medium"
-            android:padding="@dimen/content_min_margin"
+            android:paddingBottom="@dimen/content_min_margin"
             tools:context=".CrashWarningActivity" />
 
         <Button
-            android:id="@+id/CloseWarning"
+            android:id="@+id/ShowError"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/HowToProceedText"
-            android:paddingTop="@dimen/content_start"
-            android:paddingBottom="@dimen/content_start"
-            android:layout_gravity="bottom"
+            android:layout_below="@+id/SimpleWarningMessage"
+            android:layout_margin="@dimen/content_min_margin"
             android:textColor="@color/cc_neutral_bg"
-            android:background="@color/cc_brand_color"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:background="@color/cc_brand_color" />
+
+        <TextView
+            android:id="@+id/ErrorMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ShowError"
+            android:textColor="@color/cc_neutral_color"
+            android:textIsSelectable="true"
+            android:layout_gravity="center"
+            android:textSize="@dimen/text_medium"
+            android:paddingBottom="@dimen/content_min_margin" />
+
+        <Button
+            android:id="@+id/RestartCommCare"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ErrorMessage"
+            android:layout_margin="@dimen/content_min_margin"
+            android:textColor="@color/cc_neutral_bg"
+            android:background="@color/cc_brand_color" />
 
     </RelativeLayout>
 </ScrollView>
