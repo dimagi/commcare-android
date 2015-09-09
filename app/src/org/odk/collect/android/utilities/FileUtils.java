@@ -293,7 +293,7 @@ public class FileUtils {
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
      */
     private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
-        if (depth == 8) {
+        if (depth == 5) {
             // Limit the number of recursive calls
             return null;
         }
