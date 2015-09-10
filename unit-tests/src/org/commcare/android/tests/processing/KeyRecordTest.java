@@ -17,8 +17,7 @@ import org.robolectric.annotation.Config;
  */
 @Config(shadows={SQLiteDatabaseNative.class},
         application=org.commcare.dalvik.application.CommCareApplication.class,
-        constants = BuildConfig.class,
-        sdk = 21)
+        constants = BuildConfig.class)
 @RunWith(RobolectricGradleTestRunner.class)
 public class KeyRecordTest {
 
