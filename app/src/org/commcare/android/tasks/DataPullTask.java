@@ -40,11 +40,13 @@ import org.commcare.xml.CommCareTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
@@ -91,6 +93,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int UNREACHABLE_HOST = 8;
     public static final int CONNECTION_TIMEOUT = 16;
     public static final int SERVER_ERROR = 32;
+    public static final int STORAGE_FULL = 64;
     
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
@@ -304,7 +307,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (StorageFullException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                    } 
+                        return STORAGE_FULL;
+                    }
                 } else if(responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
                     int returnCode = recover(requestor, factory);
@@ -635,7 +639,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
+    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException, StorageFullException {
         DataModelPullParser parser;
         
         factory.initCaseParser();
@@ -655,12 +660,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
         factory.initFormInstanceParser(formNamespaces);
         
-//        SqlIndexedStorageUtility<FormRecord> formRecordStorge = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-//
-//        for(SqlStorageIterator<FormRecord> i = formRecordStorge.iterate(); i.hasNext() ;) {
-//            
-//        }
-        
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
         try {
@@ -671,8 +670,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         } finally {
             db.endTransaction();
         }
-        
-        
+
         //Return the sync token ID
         return factory.getSyncToken();
     }

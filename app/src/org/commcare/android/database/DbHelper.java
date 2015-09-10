@@ -12,6 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.util.SessionUnavailableException;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -77,7 +78,7 @@ public abstract class DbHelper {
         return new Pair<String, String[]>(ret, arguments);
     }
     
-    public ContentValues getContentValues(Externalizable e) {
+    public ContentValues getContentValues(Externalizable e) throws StorageFullException {
         boolean encrypt = e instanceof EncryptedModel;
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -102,6 +103,12 @@ public abstract class DbHelper {
                 String value = o.toString();
                 values.put(TableBuilder.scrubName(key), value);
             }
+        }
+
+        if(blob.length > 1000000){
+           throw new StorageFullException("You tried to restore some data sized "
+                   + (blob.length / 1000000) + " MB which exceeds" +
+                   "the maximum allowed size of 1MB. Please reduce the size of this fixture.");
         }
         
         values.put(DbUtil.DATA_COL,blob);
