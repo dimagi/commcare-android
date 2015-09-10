@@ -158,8 +158,8 @@ android {
 
       }
       test {
-        java.srcDirs = ['unit-tests/src/org']
-        res.srcDirs = ['unit-tests/src/resources']
+        java.srcDirs = ['unit-tests/src/']
+        res.srcDirs = ['unit-tests/resources/']
       }
 
       // Move the tests to tests/java, tests/res, etc...

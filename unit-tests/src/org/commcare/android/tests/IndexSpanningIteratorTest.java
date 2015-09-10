@@ -2,6 +2,7 @@ package org.commcare.android.tests;
 
 import org.commcare.android.database.IndexSpanningIterator;
 import org.commcare.android.mocks.ExtendedTestCursor;
+import org.commcare.dalvik.BuildConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +15,10 @@ import java.util.Vector;
 
 import static junit.framework.Assert.assertEquals;
 
-@Config(shadows={org.commcare.android.shadows.SQLiteDatabaseNative.class}, application=org.commcare.dalvik.application.CommCareApplication.class)
+@Config(shadows={org.commcare.android.shadows.SQLiteDatabaseNative.class},
+        application=org.commcare.dalvik.application.CommCareApplication.class,
+        constants = BuildConfig.class,
+        sdk = 21)
 @RunWith(RobolectricGradleTestRunner.class)
 public class IndexSpanningIteratorTest {
 

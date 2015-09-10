@@ -4,6 +4,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;
+import org.commcare.dalvik.BuildConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +16,10 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(shadows={SQLiteDatabaseNative.class}, application=org.commcare.dalvik.application.CommCareApplication.class)
+@Config(shadows={SQLiteDatabaseNative.class},
+        application=org.commcare.dalvik.application.CommCareApplication.class,
+        constants = BuildConfig.class,
+        sdk = 21)
 @RunWith(RobolectricGradleTestRunner.class)
 public class ProcessingTest {
 
