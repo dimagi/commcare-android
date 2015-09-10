@@ -1,11 +1,11 @@
 package org.commcare.android.tests.processing;
 
-import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
 import org.commcare.android.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
 /**
@@ -14,8 +14,8 @@ import org.robolectric.annotation.Config;
  * @author ctsims
  *
  */
-@Config(shadows={SQLiteDatabaseNative.class}, emulateSdk = 18, application=org.commcare.dalvik.application.CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
+@Config(shadows={SQLiteDatabaseNative.class}, application=org.commcare.dalvik.application.CommCareApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class KeyRecordTest {
 
     @Before

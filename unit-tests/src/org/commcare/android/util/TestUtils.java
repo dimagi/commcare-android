@@ -24,7 +24,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
-import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -37,7 +37,8 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    public static LivePrototypeFactory factory = new LivePrototypeFactory();
+    public static org.commcare.android.util.LivePrototypeFactory factory =
+            new org.commcare.android.util.LivePrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -106,7 +107,7 @@ public class TestUtils {
      * @return The hook for the test user-db 
      */
     public static SQLiteDatabase getTestDb() {
-        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(Robolectric.application, "Test");
+        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(RuntimeEnvironment.application, "Test");
         final SQLiteDatabase db = helper.getWritableDatabase("Test");
         return db;
     }
@@ -123,7 +124,7 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
         
-        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(Robolectric.application, db) {
+        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(RuntimeEnvironment.application, db) {
 
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -141,7 +142,7 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        CaseDataInstance edi = new CaseDataInstance("jr://instance/casedb", "casedb");
+        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
                 
         edi.initialize(new InstanceInitializationFactory() {
             public AbstractTreeElement generateRoot(ExternalDataInstance instance) {

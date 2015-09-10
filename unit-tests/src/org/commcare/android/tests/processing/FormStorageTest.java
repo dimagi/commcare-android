@@ -1,8 +1,5 @@
 package org.commcare.android.tests.processing;
 
-import java.io.IOException;
-
-import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
 import org.commcare.android.util.TestUtils;
 import org.javarosa.core.model.FormDef;
@@ -12,17 +9,18 @@ import org.javarosa.xform.util.XFormUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.io.IOException;
+
 /**
- * 
  * Tests for the serializaiton and deserialzation of XForms.
  * 
  * @author ctsims
- *
  */
-@Config(shadows={SQLiteDatabaseNative.class}, emulateSdk = 18, application=org.commcare.dalvik.application.CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
+@Config(shadows={SQLiteDatabaseNative.class}, application=org.commcare.dalvik.application.CommCareApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class FormStorageTest {
     @Before
     public void setupTests() {

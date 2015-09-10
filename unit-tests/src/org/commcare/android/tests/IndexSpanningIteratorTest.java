@@ -1,16 +1,21 @@
 package org.commcare.android.tests;
 
-import static junit.framework.Assert.assertEquals;
-
-import java.util.Arrays;
-import java.util.Vector;
-
 import org.commcare.android.database.IndexSpanningIterator;
 import org.commcare.android.mocks.ExtendedTestCursor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
+import java.util.Arrays;
+import java.util.Vector;
+
+import static junit.framework.Assert.assertEquals;
+
+@Config(shadows={org.commcare.android.shadows.SQLiteDatabaseNative.class}, application=org.commcare.dalvik.application.CommCareApplication.class)
+@RunWith(RobolectricGradleTestRunner.class)
 public class IndexSpanningIteratorTest {
 
     @Before
@@ -55,11 +60,11 @@ public class IndexSpanningIteratorTest {
         testSpans(i(4,8,9,12), i(1, 2, 3, 5, 6, 7, 10, 11));
     }
     
-    public void testSpans(int[] inputs, int[] expected) {
+    private void testSpans(int[] inputs, int[] expected) {
         testSpans(inputs, expected,expected[0], inputs[inputs.length - 1], expected.length);
     }
     
-    public void testSpans(int[] inputs, int[] expected, int min, int max, int count) {
+    private void testSpans(int[] inputs, int[] expected, int min, int max, int count) {
         Integer[][] master = new Integer[inputs.length][1];
         for(int i = 0 ; i < inputs.length; ++i ) {
             master[i] = new Integer[] {inputs[i]};
