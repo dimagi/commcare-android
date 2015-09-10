@@ -1,6 +1,6 @@
 package org.commcare.android.tests.queries;
 
-import org.commcare.android.shadows.SQLiteDatabaseNative;
+import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -11,7 +11,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
@@ -20,10 +19,9 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(shadows={SQLiteDatabaseNative.class},
-        application=org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
         constants = BuildConfig.class)
-@RunWith(RobolectricGradleTestRunner.class)
+@RunWith(CommCareTestRunner.class)
 public class CaseDbQueryTest {
 
 
