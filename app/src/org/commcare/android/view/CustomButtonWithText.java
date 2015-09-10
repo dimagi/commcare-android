@@ -23,9 +23,9 @@ import org.commcare.dalvik.R;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public abstract class CustomButtonWithText extends RelativeLayout {
-    static final int DEFAULT_TEXT_COLOR = R.color.cc_core_bg;
-    ImageButton button;
-    TextView textView;
+    private static final int DEFAULT_TEXT_COLOR = R.color.cc_core_bg;
+    private ImageButton button;
+    private TextView textView;
 
     public CustomButtonWithText(Context context) {
         super(context);
@@ -43,7 +43,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         inflateAndExtractCustomParams(context, attrs);
     }
 
-    protected void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
+    private void inflateAndExtractCustomParams(Context context, AttributeSet attrs) {
         inflate(context, getLayoutResourceId(), this);
         this.setClickable(true);
 
@@ -81,12 +81,12 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         }
     }
 
-    public void setImage(Drawable backgroundImg) {
+    private void setImage(Drawable backgroundImg) {
         button.setImageDrawable(backgroundImg);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void setColor(int backgroundColor) {
+    private void setColor(int backgroundColor) {
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
         ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
 
@@ -113,7 +113,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         }
     }
 
-    public void setTextColor(int textColor) {
+    private void setTextColor(int textColor) {
         textView.setTextColor(getResources().getColor(textColor));
     }
 
