@@ -95,10 +95,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         try {
             SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 
-            if (serializeCurrentLogs) {
-                if (!serializeLogs(storage)) {
-                    return LogSubmitOutcomes.Error;
-                }
+            if (serializeCurrentLogs && !serializeLogs(storage)) {
+                return LogSubmitOutcomes.Error;
             }
 
             // See how many we have pending to submit.
