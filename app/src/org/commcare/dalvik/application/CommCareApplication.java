@@ -196,7 +196,7 @@ public class CommCareApplication extends Application {
 
         PropertyManager.setPropertyManager(new ODKPropertyManager());
 
-        //SQLiteDatabase.loadLibs(this);
+        SQLiteDatabase.loadLibs(this);
 
         setRoots();
 
