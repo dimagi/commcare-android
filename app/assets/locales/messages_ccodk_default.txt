@@ -365,7 +365,7 @@ notification.restore.baddata.detail=CommCare had trouble processing the network 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.
 
-notification.install.missing.title=Couldn't locate part of your app
+notification.install.missing.title=Couldn't find your application.  Please check and retype your code, or verify your internet connection. 
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
 
