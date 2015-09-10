@@ -72,8 +72,8 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
@@ -196,7 +196,7 @@ public class CommCareApplication extends Application {
 
         PropertyManager.setPropertyManager(new ODKPropertyManager());
 
-        SQLiteDatabase.loadLibs(this);
+        //SQLiteDatabase.loadLibs(this);
 
         setRoots();
 
