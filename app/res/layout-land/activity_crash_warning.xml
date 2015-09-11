@@ -4,30 +4,19 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <LinearLayout
+        <!-- Shadow text box -->
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_above="@+id/RestartCommCare"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="@dimen/content_min_margin">
 
-        <ImageView
-            android:id="@+id/CommCareLogo"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/content_min_margin"
-            android:adjustViewBounds="true"
-            android:paddingBottom="@dimen/content_min_margin"
-            android:paddingLeft="@dimen/content_min_margin"
-            android:paddingTop="@dimen/content_min_margin"
-            android:scaleType="fitCenter"
-            android:src="@drawable/commcare_logo"/>
-
-        <!-- Shadow text box -->
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_margin="@dimen/content_min_margin"
             android:background="@drawable/tile_drop_shadow_small_margins"
+            android:layout_above="@+id/RestartCommCare"
             android:orientation="vertical"
             android:padding="@dimen/content_min_margin">
 
@@ -73,12 +62,6 @@
                     android:layout_margin="@dimen/content_min_margin"
                     android:background="@android:color/darker_gray"/>
 
-                <ScrollView
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:orientation="vertical"
-                    android:padding="@dimen/content_min_margin">
-
                     <TextView
                         android:id="@+id/ErrorText"
                         android:layout_width="wrap_content"
@@ -88,11 +71,10 @@
                         android:textSize="@dimen/text_medium"
                         tools:context=".CrashWarningActivity"/>
 
-                </ScrollView>
 
             </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/RestartCommCare"
