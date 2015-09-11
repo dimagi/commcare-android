@@ -2,15 +2,12 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.commcare.android.util.CommCareExceptionHandler;
@@ -24,8 +21,8 @@ public class CrashWarningActivity extends Activity {
     private int errorMessageVisibility = View.GONE;
     private static final String ERROR_VISIBLE = "error-message-is-visible";
 
-    private TextView errorMessageView;
-    private Button showErrorButton;
+    private LinearLayout errorView;
+    private ImageButton infoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +57,14 @@ public class CrashWarningActivity extends Activity {
             }
         });
 
-        showErrorButton = (Button)findViewById(R.id.ShowError);
-        showErrorButton.setText(Localization.get("crash.show.error.button"));
-        showErrorButton.setOnClickListener(new View.OnClickListener() {
+        infoButton = (ImageButton)findViewById(R.id.InfoButton);
+        infoButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 toggleErrorMessageVisibility();
             }
         });
+
+
     }
 
     private void restartCommCare() {
@@ -84,46 +82,39 @@ public class CrashWarningActivity extends Activity {
     }
 
     private void setupWarningText() {
-        SpannableStringBuilder warningText =
-                new SpannableStringBuilder(Localization.get("crash.warning.header") + "\n");
-        warningText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD),
-                0, warningText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
         TextView simpleWarningView = (TextView)findViewById(R.id.SimpleWarningMessage);
-        simpleWarningView.setText(warningText);
+        simpleWarningView.setText(Localization.get("crash.warning.header"));
     }
 
     private void setupErrorMessage() {
-        Intent intent = getIntent();
-         errorMessageView = (TextView)findViewById(R.id.ErrorMessage);
+        TextView errorMessageView = (TextView)findViewById(R.id.ErrorText);
 
+        Intent intent = getIntent();
         if (intent.hasExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY)) {
             String warningMessage =
                     intent.getStringExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY);
-            SpannableStringBuilder errorText =
-                    new SpannableStringBuilder(warningMessage);
-            errorText.setSpan(new ForegroundColorSpan(Color.RED),
-                    0, errorText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            errorMessageView.setText(errorText);
+            errorMessageView.setText(Localization.get("crash.warning.detail") + "\n" + warningMessage);
         }
-        errorMessageView.setVisibility(errorMessageVisibility);
-        updateErrorButtonText();
+
+        errorView = (LinearLayout)findViewById(R.id.Error);
+        errorView.setVisibility(errorMessageVisibility);
+        updateButtonState();
     }
 
     private void toggleErrorMessageVisibility() {
-        if (errorMessageView.getVisibility() == View.GONE) {
-            errorMessageView.setVisibility(View.VISIBLE);
+        if (errorView.getVisibility() == View.GONE) {
+            errorView.setVisibility(View.VISIBLE);
         } else {
-            errorMessageView.setVisibility(View.GONE);
+            errorView.setVisibility(View.GONE);
         }
-        updateErrorButtonText();
+        updateButtonState();
     }
 
-    private void updateErrorButtonText() {
-        if (errorMessageView.getVisibility() == View.GONE) {
-            showErrorButton.setText(Localization.get("crash.show.error.button"));
+    private void updateButtonState() {
+        if (errorView.getVisibility() == View.GONE) {
+            infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
         } else {
-            showErrorButton.setText(Localization.get("crash.hide.error.button"));
+            infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
         }
     }
 
@@ -131,6 +122,6 @@ public class CrashWarningActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putInt(ERROR_VISIBLE, errorMessageView.getVisibility());
+        outState.putInt(ERROR_VISIBLE, errorView.getVisibility());
     }
 }

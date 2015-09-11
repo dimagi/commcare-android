@@ -460,9 +460,8 @@ notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
 crash.warning.button=Restart CommCare
-crash.show.error.button=Show Error Message
-crash.hide.error.button=Hide Error Message
-crash.warning.header=CommCare crashed and needs to restart. There's likely something wrong with your app that needs to be fixed.
+crash.warning.header=CommCare crashed and needs to restart.
+crash.warning.detail=The following error was likely caused by a misconfiguration in your app:
 
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below. Please be sure to state where you encountered the problem, step-by-step instructions for reproducing the error, what exactly happened, and any text or error message that occurred.
