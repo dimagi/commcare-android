@@ -90,7 +90,6 @@ public class CrashWarningActivity extends Activity {
         if (intent.hasExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY)) {
             String warningMessage =
                     intent.getStringExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY);
-            warningMessage = warningMessage + warningMessage + warningMessage;
             errorMessageView.setText(Localization.get("crash.warning.detail") + "\n" + warningMessage);
         }
 
