@@ -29,6 +29,7 @@ import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
@@ -131,7 +132,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
             });
 
             if (mViewMode) {
-                next.setText("Done");
+                next.setText(Localization.get("select.detail.bypass"));
             }
 
             mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
