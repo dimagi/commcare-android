@@ -80,9 +80,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         SquareButtonWithText:subtitle="Start install"
-                        SquareButtonWithText:backgroundcolor="@color/cc_attention_positive_color"
+                        SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
                         SquareButtonWithText:img="@drawable/install_start"
-                        SquareButtonWithText:colorText="@color/white"
+                        SquareButtonWithText:textColor="@color/white"
                         />
                     </FrameLayout>
 
@@ -99,9 +99,9 @@
                         android:gravity="end"
 
                         SquareButtonWithText:subtitle="Start over"
-                        SquareButtonWithText:backgroundcolor="@color/cc_neutral_color"
+                        SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
                         SquareButtonWithText:img="@drawable/install_stop"
-                        SquareButtonWithText:colorText="@color/white"
+                        SquareButtonWithText:textColor="@color/white"
                         />
                     </FrameLayout>
                 </LinearLayout>
