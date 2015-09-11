@@ -1,19 +1,18 @@
 /**
- * 
+ *
  */
 package org.commcare.android.models.notifications;
-
-import org.commcare.dalvik.application.CommCareApplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.commcare.dalvik.application.CommCareApplication;
+
 /**
  * Broadcast receiver to clear pending notifications.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class NotificationClearReceiver extends BroadcastReceiver {
 

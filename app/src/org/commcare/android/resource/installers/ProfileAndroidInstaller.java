@@ -1,16 +1,17 @@
 /**
- * 
+ *
  */
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -18,47 +19,49 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.xml.CommCareElementParser;
 import org.commcare.xml.ProfileParser;
-import org.javarosa.xml.util.InvalidStructureException;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
- *
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
-        
+
     public ProfileAndroidInstaller() {
-        
+
     }
-    
+
     public ProfileAndroidInstaller(String localDestination, String upgradeDestination) {
         super(localDestination, upgradeDestination);
     }
-    
+
 
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         try {
-        
+
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null, 
+
+            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
                     Resource.RESOURCE_STATUS_INSTALLED, false);
-            
+
             Profile p = parser.parse();
             instance.setProfile(p);
-            
+
             return true;
         } catch (InvalidReferenceException e) {
             // TODO Auto-generated catch block
@@ -76,26 +79,29 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         return false;
     }
-    
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException{
+
+    public boolean install(Resource r, ResourceLocation location, Reference ref,
+                           ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-    
-            
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(), 
+
+
+            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
                     upgrade ? Resource.RESOURCE_STATUS_UNINITIALIZED : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
-            
+
             Profile p = parser.parse();
-            
-            if(!upgrade) {
+
+            if (!upgrade) {
                 initProperties(p);
+                checkDuplicate(p);
             }
-            
+
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (InvalidReferenceException e) {
@@ -110,35 +116,49 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         return false;
     }
-    
+
+    // Check that this app is not already installed on the phone
+    private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
+        String newAppId = p.getUniqueId();
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
+                getInstalledAppRecords();
+        for (ApplicationRecord record : installedApps) {
+            if (record.getUniqueId().equals(newAppId)) {
+                throw new UnfullfilledRequirementsException(
+                        "The app you are trying to install already exists on this device",
+                        CommCareElementParser.SEVERITY_PROMPT, true);
+            }
+        }
+    }
+
     private void initProperties(Profile profile) {
         //Baaaaaad. Encapsulate this better!!!
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
-        for(PropertySetter p : profile.getPropertySetters()) {
+        for (PropertySetter p : profile.getPropertySetters()) {
             editor.putString(p.getKey(), p.isForce() ? p.getValue() : prefs.getString(p.getKey(), p.getValue()));
         }
         editor.commit();
     }
-    
+
     @Override
     public boolean upgrade(Resource r) {
-        if(!super.upgrade(r)) {
+        if (!super.upgrade(r)) {
             return false;
         }
-        
+
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            
+
             //Create a parser with no side effects
-            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,  Resource.RESOURCE_STATUS_INSTALLED, false);
-            
+            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
+
             //Parse just the file (for the properties)
             Profile p = parser.parse();
-            
+
             initProperties(p);
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
@@ -160,7 +180,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
         return true;
     }
-    
+
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }

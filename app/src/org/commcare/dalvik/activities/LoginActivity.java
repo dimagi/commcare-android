@@ -1,10 +1,33 @@
 package org.commcare.dalvik.activities;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -19,127 +42,101 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DemoUserUtil;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 
 /**
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> {
+public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
+
     private static final String TAG = LoginActivity.class.getSimpleName();
     
-    public final static int MENU_DEMO = Menu.FIRST;
-    public final static String NOTIFICATION_MESSAGE_LOGIN = "login_message";
+    private static final int MENU_DEMO = Menu.FIRST;
+    private static final int MENU_ABOUT = Menu.FIRST + 1;
+    public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
+    public final static String KEY_LAST_APP = "id_of_last_selected";
+
+    private static final int SEAT_APP_ACTIVITY = 0;
+    public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
     @UiElement(value=R.id.login_button, locale="login.button")
-    Button login;
+    private Button login;
     
     @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
-    TextView errorBox;
+    private TextView errorBox;
     
-    @UiElement(R.id.edit_username)
-    EditText username;
+    @UiElement(value=R.id.edit_username, locale="login.username")
+    private EditText username;
     
-    @UiElement(R.id.edit_password)
-    EditText password;
+    @UiElement(value=R.id.edit_password, locale="login.password")
+    private EditText password;
     
     @UiElement(R.id.screen_login_banner_pane)
-    View banner;
+    private View banner;
     
     @UiElement(R.id.str_version)
-    TextView versionDisplay;
+    private TextView versionDisplay;
 
     @UiElement(R.id.login_button)
-    Button loginButton;
-    
-    public static final int TASK_KEY_EXCHANGE = 1;
-    
-    SqlStorage<UserKeyRecord> storage;
+    private Button loginButton;
 
-    private int editTextColor;
-    private View.OnKeyListener l;
+    @UiElement(R.id.app_selection_spinner)
+    private Spinner spinner;
+
+    @UiElement(R.id.welcome_msg)
+    private TextView welcomeMessage;
+    
+    private static final int TASK_KEY_EXCHANGE = 1;
+    
+    private SqlStorage<UserKeyRecord> storage;
+    private final ArrayList<String> appIdDropdownList = new ArrayList<>();
+
     private final TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                setStyleDefault();
-            }
-        };
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            setStyleDefault();
+        }
+    };
 
     public void setStyleDefault() {
-        LoginBoxesStatus.Normal.setStatus(this);
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50),  null, null, null);
+        setLoginBoxesColorNormal();
+        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
-    }
-
-    public enum LoginBoxesStatus {
-        Normal(R.color.login_edit_text_color),
-        Error(R.color.login_edit_text_color_error);
-
-        private final int colorAttr;
-
-        LoginBoxesStatus(int colorAttr){
-            this.colorAttr = colorAttr;
-        }
-
-        public int getColor(Context ctx){
-            int color = ctx.getResources().getColor(colorAttr);
-            if (BuildConfig.DEBUG) {
-                Log.d("LoginBoxesStatus", "Color for status " + this.toString() + " is: " + color);
-            }
-            return color;
-        }
-
-        public void setStatus(LoginActivity lact){
-            lact.setLoginBoxesColor(this.getColor(lact));
-        }
+        errorBox.setVisibility(View.GONE);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        LoginBoxesStatus.Normal.setStatus(this);
+        setLoginBoxesColorNormal();
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        
         //Only on the initial creation
         if(savedInstanceState == null) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
@@ -150,7 +147,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
 
         login.setOnClickListener(new OnClickListener() {
-
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
@@ -189,7 +185,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.screen_login_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
@@ -198,7 +194,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
              }
         });
     }
-    
+
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;
@@ -209,7 +205,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        // TODO Auto-generated method stub
         // TODO: we don't actually always want to do this. We need to have an
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
@@ -237,9 +232,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         case DataPullTask.DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true)) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                            } else {
-                                break;
                             }
+                            break;
                         case DataPullTask.UNREACHABLE_HOST:
                             receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                             break;
@@ -288,26 +282,34 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     @Override
     protected void onResume() {
         super.onResume();
-        
         try {
             //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-        if(CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
-            Intent i = new Intent();
-            i.putExtra(ALREADY_LOGGED_IN, true);
-            setResult(RESULT_OK, i);
-            
-            CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-            finish();
+            if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
+                Intent i = new Intent();
+                i.putExtra(ALREADY_LOGGED_IN, true);
+                setResult(RESULT_OK, i);
+                
+                CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+                finish();
+                return;
+            }
+        } catch (SessionUnavailableException sue) {
+            // Nothing, we're logging in here anyway
+        }
+
+        // It is possible that we left off at the LoginActivity last time we were on the main CC
+        // screen, but have since done something in the app manager to either leave no seated app
+        // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
+        // either case
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
             return;
         }
-        }catch(SessionUnavailableException sue) {
-            //Nothing, we're logging in here anyway
-        }
-        
+
+        // Otherwise, refresh the login screen for current conditions
         refreshView();
-    }
-    
-    private void refreshView() {
     }
 
     private String getUsername() {
@@ -320,7 +322,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     }
         
     private boolean tryLocalLogin(final String username, String password,
-            final boolean warnMultipleAccounts) {
+                                  final boolean warnMultipleAccounts) {
         try{
             // TODO: We don't actually even use this anymore other than for hte
             // local login count, which seems super silly.
@@ -399,7 +401,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                         Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
                         r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
                         break;
-                    case UnkownError:
+                    case UnknownError:
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
@@ -425,29 +427,28 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
     }
     
     private void done() {
-        Intent i = new Intent();
-        setResult(RESULT_OK, i);
-
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+
+        Intent i = new Intent();
+        setResult(RESULT_OK, i);
+
         finish();
     }
     
-    private SqlStorage<UserKeyRecord> storage() throws SessionUnavailableException{
+    private SqlStorage<UserKeyRecord> storage() {
         if(storage == null) {
-            storage=  CommCareApplication._().getAppStorage(UserKeyRecord.class);
+            storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
         return storage;
-    }
-
-    public void finished(int status) {
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         return true;
     }
 
@@ -462,6 +463,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
             //Now try to log in as the demo user
             tryLocalLogin(DemoUserUtil.DEMO_USER, DemoUserUtil.DEMO_USER, false);
             
+            return true;
+        case MENU_ABOUT:
+            DialogCreationHelpers.buildAboutCommCareDialog(this).show();
             return true;
         default:
             return otherResult;
@@ -483,8 +487,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
                     new String[] {toastText});
         }
         
-        //either way
-        LoginBoxesStatus.Error.setStatus(this);
+        setLoginBoxesColorError();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),  null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
@@ -496,15 +499,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
 
-    /**
-     * Sets the login boxes (user/pass) to the given color.
-     * @param color Color code
-     */
-    private void setLoginBoxesColor(int color) {
-        username.setTextColor(color);
-        password.setTextColor(color);
+    private void setLoginBoxesColorNormal() {
+        int normalColor = getResources().getColor(R.color.login_edit_text_color);
+
+        username.setTextColor(normalColor);
+        password.setTextColor(normalColor);
     }
 
+    private void setLoginBoxesColorError() {
+        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
+
+        username.setTextColor(errorColor);
+        password.setTextColor(errorColor);
+    }
 
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
@@ -531,9 +538,105 @@ public class LoginActivity extends CommCareActivity<LoginActivity> {
         }
         return dialog;
     }
-    
+
+    private void refreshView() {
+        // In case the seated app has changed since last time we were in LoginActivity
+        refreshForNewApp();
+
+        updateCommCareBanner();
+
+        // Decide whether or not to show the app selection spinner based upon # of usable apps
+        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
+        if (readyApps.size() == 1) {
+            spinner.setVisibility(View.GONE);
+            welcomeMessage.setText(Localization.get("login.welcome.single"));
+            // Set this app as the last selected app, for use in choosing what app to initialize
+            // on first startup
+            ApplicationRecord r = readyApps.get(0);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
+        }
+        else {
+            welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+            ArrayList<String> appNames = new ArrayList<>();
+            appIdDropdownList.clear();
+            for (ApplicationRecord r : readyApps) {
+                appNames.add(r.getDisplayName());
+                appIdDropdownList.add(r.getUniqueId());
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_text_view, appNames);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+            spinner.setOnItemSelectedListener(this);
+
+            // Set the spinner's selection to match whatever the currently seated app is
+            String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+            int position = appIdDropdownList.indexOf(currAppId);
+            spinner.setSelection(position);
+            spinner.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
-    public boolean isBackEnabled() {
-        return false;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case SEAT_APP_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    refreshForNewApp();
+                }
+        }
+    }
+
+    private void refreshForNewApp() {
+        // Remove any error content from trying to log into a different app
+        setStyleDefault();
+
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        if (lastUser != null) {
+            // If there was a last user for this app, show it
+            username.setText(lastUser);
+            password.requestFocus();
+        } else {
+            // Otherwise, clear the username text so it does not show a username from a different app
+            username.setText("");
+        }
+
+        // Clear any password text that was entered for a different app
+        password.setText("");
+
+        // Refresh the breadcrumb bar for new app name
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            refreshActionBar();
+        }
+
+        // Refresh UI for potential new language
+        loadFields(false);
+
+        // Refresh welcome msg separately bc cannot set a single locale for its UiElement
+        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // Retrieve the app record corresponding to the app selected
+        String appId = appIdDropdownList.get(position);
+
+        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (appChanged) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        return;
     }
 }

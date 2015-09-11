@@ -1,32 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import org.commcare.dalvik.BuildConfig;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Vector;
-
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
-import org.commcare.android.util.SerializationUtil;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.geo.EntityOverlay;
-import org.commcare.dalvik.geo.EntityOverlayItemFactory;
-import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.UncastData;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -43,6 +16,32 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
+
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.models.Entity;
+import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.geo.EntityOverlay;
+import org.commcare.dalvik.geo.EntityOverlayItemFactory;
+import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.SessionDatum;
+import org.commcare.util.CommCareSession;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.storage.StorageFullException;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -184,11 +183,7 @@ public class EntityMapActivity extends MapActivity {
                                         int lng = (int) (a.getLongitude() * 1E6);
                                         gp = new GeoPoint(lat, lng);
                                         
-                                        try {
-                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
-                                        } catch (StorageFullException e1) {
-                                            //this is the worst exception ever.
-                                        }
+                                        geoCache.write(new GeocodeCacheModel(val, lat, lng));
                                         legit++;
                                         break;
                                     }
@@ -196,15 +191,10 @@ public class EntityMapActivity extends MapActivity {
                                 
                                 //We didn't find an address, make a miss record
                                 if(gp == null) {
-                                    try {
-                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
-                                    } catch (StorageFullException e1) {
-                                        //this is the worst exception ever.
-                                    }
+                                    geoCache.write(GeocodeCacheModel.NoHitRecord(val));
                                 }
-                            } catch (IOException e1) {
+                            } catch (StorageFullException | IOException e1) {
                                 e1.printStackTrace();
-                                //Yo. What? I guess bad connection?
                             }
                         }
                         

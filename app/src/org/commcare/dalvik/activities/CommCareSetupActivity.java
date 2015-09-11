@@ -1,9 +1,11 @@
 package org.commcare.dalvik.activities;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.apache.commons.codec.binary.Base64;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.fragments.SetupInstallFragment;
@@ -21,12 +24,13 @@ import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -39,6 +43,16 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -60,6 +74,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
+    private static final String KEY_UI_STATE = "current_install_ui_state";
+    private static final String KEY_OFFLINE =  "offline_install";
+    private static final String KEY_FROM_EXTERNAL = "from_external";
+    private static final String KEY_FROM_MANAGER = "from_manager";
 
     public static final String COMMCAREHQ_PHONE_NUMBER = "6173062055";
 
@@ -67,6 +85,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Should the user be logged out when this activity is done?
      */
     public static final String KEY_REQUIRE_REFRESH = "require_referesh";
+    public static final String KEY_INSTALL_FAILED = "install_failed";
 
     /**
      * Activity is being launched by auto update, instead of being triggered
@@ -80,38 +99,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * UI configuration states.
      */
     public enum UiState {
-        /**
-         * First install, user can enter bit.ly or URL directly, or return to
-         * basic mode
-         */
-        advanced,
-
-        /**
-         * First install, user can scan barcode and move to ready mode or
-         * select advanced mode
-         */
-        basic,
-
-        /**
-         * First install, barcode has been scanned. Can move to advanced mode
-         * to inspect URL, or proceed to install
-         */
-        ready,
-
-        /**
-         * Installation or Upgrade has failed, offer to retry or restart.
-         * upgrade/install differentiated with inUpgradeMode boolean
-         */
-        error,
+        IN_URL_ENTRY,
+        CHOOSE_INSTALL_ENTRY_METHOD,
+        READY_TO_INSTALL,
+        ERROR,
 
         /**
          * App installed already. Buttons aren't shown, trying to update app
          * with no user input
          */
-        upgrade
+        UPGRADE
     }
 
-    private UiState uiState = UiState.basic;
+    private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
 
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
@@ -124,10 +124,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private boolean startAllowed = true;
     private boolean inUpgradeMode = false;
-
     private String incomingRef;
-
     private CommCareApp ccApp;
+
+    /**
+     * Indicates that this activity was launched from the AppManagerActivity
+     */
+    private boolean fromManager;
+
+    /**
+     * Indicates that this activity was launched from an outside application (such as a bit.ly
+     * url entered in a browser)
+     */
+    private boolean fromExternal;
+
+    /**
+     * Indicates that the current install attempt will be made from a .ccz file, so we do
+     * not need to check for internet connectivity
+     */
+    private boolean offlineInstall;
 
     /**
      * Whether this needs to be interactive (if it's automatic, we want to skip
@@ -152,21 +167,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     //endregion
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
+        this.fromManager = this.getIntent().
+                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //Retrieve instance state
         if(savedInstanceState == null) {
             Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");
             if(Intent.ACTION_VIEW.equals(this.getIntent().getAction())) {
                 //We got called from an outside application, it's gonna be a wild ride!
+                fromExternal = true;
                 incomingRef = this.getIntent().getData().toString();
                 if(incomingRef.contains(".ccz")) {
                     // make sure this is in the file system
                     boolean isFile = incomingRef.contains("file://");
-                    if(isFile){
+                    if (isFile) {
                         // remove file:// prepend
                         incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
@@ -178,31 +195,33 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
                     }
                 } else {
-                    this.uiState = UiState.ready;
+                    this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else{
+            } else {
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
             inUpgradeMode = this.getIntent().getBooleanExtra(KEY_UPGRADE_MODE, false);
             isAuto = this.getIntent().getBooleanExtra(KEY_AUTO, false);
         } else {
-            String uiStateEncoded = savedInstanceState.getString("advanced");
-            this.uiState = uiStateEncoded == null ? UiState.basic : UiState.valueOf(UiState.class, uiStateEncoded);
+            String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
+            this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
             Log.v("UiState","uiStateEncoded is: " + uiStateEncoded +
                     ", so my uiState is: " + uiState);
             incomingRef = savedInstanceState.getString("profileref");
             inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
             isAuto = savedInstanceState.getBoolean(KEY_AUTO);
+            fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
+            fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
+            offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
             // Uggggh, this might not be 100% legit depending on timing, what
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
-
         // if we are in upgrade mode we want the UiState to reflect that,
         // unless we are showing an error
-        if (inUpgradeMode && this.uiState != UiState.error){
-            this.uiState = UiState.upgrade;
+        if (inUpgradeMode && this.uiState != UiState.ERROR){
+            this.uiState = UiState.UPGRADE;
         }
 
         // reclaim ccApp for resuming installation
@@ -221,12 +240,38 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null) {
+                // removes the back button from the action bar
+                actionBar.setDisplayHomeAsUpEnabled(false);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // If clicking the regular app icon brought us to CommCareSetupActivity
+        // (because that's where we were last time the app was up), but there are now
+        // 1 or more available apps, we want to redirect to CCHomeActivity
+        if (!fromManager && !fromExternal && !inUpgradeMode &&
+                CommCareApplication._().usableAppsPresent()) {
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            startActivity(i);
+        }
+    }
+    
+    @Override
     public void onURLChosen(String url) {
         if(BuildConfig.DEBUG) {
             Log.d(TAG, "SetupEnterURLFragment returned: " + url);
         }
         incomingRef = url;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
         uiStateScreenTransition();
     }
 
@@ -235,8 +280,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (uiState){
-            case upgrade:
-            case ready:
+            case UPGRADE:
+            case READY_TO_INSTALL:
                 if(incomingRef == null || incomingRef.length() == 0){
                     Log.e(TAG,"During install: IncomingRef is empty!");
                     Toast.makeText(getApplicationContext(), "Invalid URL: '" +
@@ -248,20 +293,37 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 // attached, no need to set them here
                 fragment = startInstall;
                 break;
-
-            default:
-                fragment = installFragment;
+            case IN_URL_ENTRY:
+                fragment = restoreInstallSetupFragment();
+                this.offlineInstall = false;
                 break;
+            case CHOOSE_INSTALL_ENTRY_METHOD:
+                fragment = installFragment;
+                this.offlineInstall = false;
+                break;
+            default:
+                return;
         }
-
         ft.replace(R.id.setup_fragment_container, fragment);
 
         ft.commit();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    private Fragment restoreInstallSetupFragment() {
+        Fragment fragment = null;
+        List<Fragment> fgmts = fm.getFragments();
+        int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
+        if(lastIndex > -1) {
+            fragment = fgmts.get(lastIndex);
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Last fragment: " + fragment);
+            }
+        }
+        if(!(fragment instanceof SetupEnterURLFragment)){
+            // last fragment wasn't url entry, so default to the installation method chooser
+            fragment = installFragment;
+        }
+        return fragment;
     }
 
     @Override
@@ -269,31 +331,34 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onStart();
         uiStateScreenTransition();
         // upgrade app if needed
-        if(uiState == UiState.upgrade &&
+        if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
-            if(AndroidUtil.isNetworkAvailable(this)){
-                startResourceInstall(true);
-            } else {
+            if (isNetworkNotConnected()){
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Remote_NoNetwork, "INSTALL_NO_NETWORK"));
                 finish();
+            } else {
+                startResourceInstall(true);
             }
         }
     }
 
     @Override
-    protected int getWakeLockingLevel() {
+    protected int getWakeLockLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("advanced", uiState.toString());
+        outState.putString(KEY_UI_STATE, uiState.toString());
         outState.putString("profileref", incomingRef);
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
-        Log.v("UiState","Saving instance state: " + outState);
+        outState.putBoolean(KEY_OFFLINE, offlineInstall);
+        outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
+        outState.putBoolean(KEY_FROM_MANAGER, fromManager);
+        Log.v("UiState", "Saving instance state: " + outState);
     }
 
     @Override
@@ -303,20 +368,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch(requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    result = data.getStringExtra("SCAN_RESULT");
+                    result = data.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
                     String dbg = "Got url from barcode scanner: " + result;
                     Log.i(TAG, dbg);
                 }
                 break;
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
+                    offlineInstall = true;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
                 }
                 break;
         }
         if(result == null) return;
         incomingRef = result;
-        this.uiState = UiState.ready;
+        this.uiState = UiState.READY_TO_INSTALL;
 
         try {
             // check if the reference can be derived without erroring out
@@ -328,7 +394,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(getApplicationContext(),
                     Localization.get("install.bad.ref"),
                     Toast.LENGTH_LONG).show();
-            this.uiState = UiState.basic;
+            this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
         uiStateScreenTransition();
     }
@@ -389,12 +455,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
-
             ccApp = app;
 
-             // store what the state of the resource table was before this
-             // install, so we can compare it to the state after and decide if
-             // this should count as a 'last install time'
+            // store what the state of the resource table was before this
+            // install, so we can compare it to the state after and decide if
+            // this should count as a 'last install time'
             int tableStateBeforeInstall =
                 ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 
@@ -448,6 +513,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                             break;
                         case StatusBadCertificate:
                             receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+                            break;
+                        case StatusDuplicateApp:
+                            startOverInstall = true;
+                            receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
                             break;
                         default:
                             startOverInstall = true;
@@ -519,7 +588,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             if(installAutomatically) {
                 startResourceInstall();
             } else{
-                uiState = UiState.ready;
+                uiState = UiState.READY_TO_INSTALL;
                 Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
             }
         } else{
@@ -532,20 +601,58 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public String scanSMSLinks(){
         String installLink = null;
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "address = ?",
-                new String[] {CommCareSetupActivity.COMMCAREHQ_PHONE_NUMBER}, "date desc limit 1");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc limit 1");
         if(cursor.moveToFirst()) {
             // Do something
             Log.v("Body", cursor.getString(cursor.getColumnIndex("body")));
             String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-            int startIndex = textMessageBody.indexOf('{');
-            int endIndex = textMessageBody.indexOf('}');
-            if(startIndex > 0 && endIndex > startIndex){
-                installLink = textMessageBody.substring(startIndex + 1, endIndex);
-            }
+            String url = parseAndVerifySMS(textMessageBody);
+            return url;
         }
         cursor.close();
         return installLink;
+    }
+
+    public String parseAndVerifySMS(String text){
+        String downloadLink = text.substring(text.indexOf("ccapp:") + 7, text.indexOf(","));
+        String signature = text.substring(text.indexOf("signature:") + 11);
+        System.out.println("Download link : " + downloadLink + " signature: " + signature);
+        boolean verified = verifySignature(signature, downloadLink);
+        return downloadLink;
+    }
+
+    public boolean verifySignature(String text, String url){
+
+        try {
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(url.getBytes("UTF-8"));
+            byte[] messageDigest = md.digest();
+
+            String keyString = text;
+            byte[] keyBytes = GlobalConstants.CCHQ_PUBLIC_KEY.getBytes();
+
+            System.out.println("key bytes: " + Arrays.toString(keyBytes));
+
+            keyBytes = Base64.decodeBase64(keyString.getBytes("utf-8"));
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey key = keyFactory.generatePublic(spec);
+
+            byte[] keyDigest = md.digest(key.getEncoded());
+
+            System.out.println("messageDigest: " + Arrays.toString(messageDigest));
+            System.out.println("keyDigest: " + Arrays.toString(keyDigest));
+
+            return true;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
@@ -559,14 +666,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         return true;
     }
-    
+
     /**
      * Return to or launch home activity.
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
+     * @param failed did installation occur successfully?
      */
-    void done(boolean requireRefresh) {
+    void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
@@ -576,6 +684,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             //Good to go
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
+            i.putExtra(KEY_INSTALL_FAILED, failed);
             setResult(RESULT_OK, i);
         }
         finish();
@@ -590,9 +699,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
-        Intent i = new Intent(getIntent());
-        setResult(RESULT_CANCELED, i);
-        finish();
+
+        // Last install attempt failed, so restore to starting uistate to try again
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+        uiStateScreenTransition();
     }
     
     // All final paths from the Update are handled here (Important! Some
@@ -609,7 +719,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if(!appChanged) {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged);
+        done(appChanged, false);
     }
 
     @Override
@@ -669,7 +779,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         String title, message;
-        if (uiState == UiState.upgrade) {
+        if (uiState == UiState.UPGRADE) {
             title = Localization.get("updates.title");
             message = Localization.get("updates.checking");
         } else {
@@ -690,14 +800,22 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onStartInstallClicked() {
-        startResourceInstall();
+        if (!offlineInstall && isNetworkNotConnected()) {
+            failWithNotification(ResourceEngineOutcomes.StatusNoConnection);
+        } else {
+            startResourceInstall();
+        }
     }
 
     @Override
     public void onStopInstallClicked() {
         incomingRef = null;
-        uiState = UiState.basic;
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
+    }
+
+    public void setUiState(UiState newState) {
+        uiState = newState;
     }
 
     //endregion

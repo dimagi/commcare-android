@@ -14,7 +14,14 @@
 
 package org.odk.collect.android.widgets;
 
-import java.util.Vector;
+import android.content.Context;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ImageView;
+import android.widget.RadioButton;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
@@ -25,14 +32,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.views.media.MediaLayout;
 
-import android.content.Context;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.ImageView;
-import android.widget.RadioButton;
+import java.util.Vector;
 
 /**
  * SelectOneWidgets handles select-one fields using radio buttons.

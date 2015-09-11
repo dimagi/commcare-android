@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:id="@+id/screen_manager_banner_pane">
+
+        <ImageView
+            android:id="@+id/screen_manager_top_banner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitStart"
+            android:src="@drawable/commcare_logo"
+            android:adjustViewBounds="true"/>
+
+    </FrameLayout>
+    
+    <TextView
+        android:id="@+id/manager_instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/manager_instructions" 
+        android:layout_below="@id/screen_manager_banner_pane"
+        android:paddingTop="@dimen/standard_spacer"
+        android:paddingBottom="@dimen/standard_spacer"
+        android:textSize="@dimen/font_size_large"
+        android:textColor="@color/darkest_grey"
+        android:layout_centerHorizontal="true"
+        android:gravity="center" />
+    
+    <Button
+         android:id="@+id/install_app_button"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+         android:layout_below="@id/manager_instructions"
+         android:layout_marginTop="@dimen/standard_spacer"
+         android:onClick="installAppClicked"
+         android:text="@string/install_app"
+         android:textColor="@color/darkest_grey"
+         android:textSize="@dimen/font_size_xlarger" />
+    
+    <ListView
+    	android:id="@+id/apps_list_view"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+        android:layout_below="@id/install_app_button" 
+    	android:listSelector="@drawable/selector" >
+	</ListView>     	
+
+</RelativeLayout>
+

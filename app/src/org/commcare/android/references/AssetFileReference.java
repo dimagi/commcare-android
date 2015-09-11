@@ -1,27 +1,26 @@
 /**
- * 
+ *
  */
 package org.commcare.android.references;
+
+import android.content.Context;
+
+import org.javarosa.core.reference.Reference;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.javarosa.core.reference.Reference;
-
-import android.content.Context;
-
 /**
  * Reference to an asset file
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class AssetFileReference implements Reference {
-    
+
     String assetURI;
     Context c;
-    
+
     public AssetFileReference(Context c, String assetURI) {
         this.c = c;
         this.assetURI = assetURI;

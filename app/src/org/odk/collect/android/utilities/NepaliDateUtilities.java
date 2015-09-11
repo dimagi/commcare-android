@@ -1,10 +1,10 @@
 package org.odk.collect.android.utilities;
 
-import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
+import android.util.SparseArray;
 
 import java.util.Date;
 
-import android.util.SparseArray;
+import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
 
 /**
  * Date manipulation utility functions for the Nepali calendar system.

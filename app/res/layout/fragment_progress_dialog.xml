@@ -13,7 +13,7 @@
    		android:layout_width="wrap_content"
    		android:layout_height="wrap_content"
    		android:visibility="visible"
-   		android:paddingBottom="15sp"
+   		android:layout_centerVertical="true"
    		android:layout_marginLeft="5dp" />
     
     <TextView

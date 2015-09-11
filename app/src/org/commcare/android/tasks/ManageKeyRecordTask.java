@@ -1,8 +1,6 @@
 package org.commcare.android.tasks;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -26,7 +24,9 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.kxml2.io.KXmlParser;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -77,25 +77,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
     @Override
-    protected void onCancelled() {
-        super.onCancelled();
-    }
-    
-
-    @Override
     protected void deliverResult(R receiver, HttpCalloutOutcomes result) {        
         //If this task completed and we logged in.
         if(result == HttpCalloutOutcomes.Success) {
-            
             if(loggedIn == null) {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
-                try {
-                    CommCareApplication._().getSession().closeSession(false);
-                } catch (SessionUnavailableException e) {
-                    // if the session isn't available, we don't need to logout
-                }
+                CommCareApplication._().releaseUserResourcesAndServices();
                 listener.keysReadyForSync(receiver);
                 return;
             } else {
@@ -103,27 +92,23 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 return;
             }
         } else if(result == HttpCalloutOutcomes.NetworkFailure) {
-            
             if(calloutNeeded && userRecordExists){
                 result = HttpCalloutOutcomes.NetworkFailureBadPassword;
             }
         }
 
-        //For any other result make sure we're logged out. 
-        try {
-            CommCareApplication._().getSession().closeSession(false);
-        } catch (SessionUnavailableException e) {
-            // if the session isn't available, we don't need to logout
-        }
-        
+        //For any other result make sure we're logged out.
+        CommCareApplication._().releaseUserResourcesAndServices();
+
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
         listener.keysDoneOther(receiver, result);
     }
-    
+
+    @Override
     protected void deliverError(R receiver, Exception e) {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
-        listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnkownError);
+        listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
 
 
@@ -286,9 +271,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             return false;
         }
         
+        Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         try {
-            Logger.log(AndroidLogger.TYPE_USER, "Key record request complete. Received: " + keyRecords.size() + " key records from server");
-            SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
             //We successfully received and parsed out some key records! Let's update the db
             for(UserKeyRecord record : keyRecords) {
                 //See if we already have a key record for this sandbox and user  (There should _definitely_ only be one if there is one)
@@ -304,17 +289,16 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     UserKeyRecord ukr = new UserKeyRecord(record.getUsername(), record.getPasswordHash(), record.getEncryptedKey(), record.getValidFrom(), record.getValidTo(), record.getUuid(), existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
-
                 } catch(NoSuchElementException nsee) {
                     //If there's no existing record, write this new one (we'll handle updating the status later)
                     storage.write(record);
                 }
             }
-            return true;
         } catch (StorageFullException e) {
             e.printStackTrace();
             return false;
         }
+        return true;
     }
     
     @Override
@@ -323,17 +307,20 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         
         //First, check for consistency in our key records
         cleanupUserKeyRecords();
-        
-        //Now identify the current record (If we didn't get one, something bad happened)
-        UserKeyRecord current = getCurrentValidRecord(app, username, password, !HttpCalloutNeeded() || (calloutFailed && !HttpCalloutRequired()));
-        
-        if(current == null)  {
-            //TODO: What is this failure mode
+
+        // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
+        // true. Eventually we will enforce user key record expiration, but
+        // can't do so until we proactively refresh records that are going to
+        // expire in the next few months. Otherwise, devices that haven't
+        // accessed the internet in a while won't be able to perform logins.
+        UserKeyRecord current = getCurrentValidRecord(app, username, password, true);
+
+        if (current == null)  {
+            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
         }
-        
-        
+
         //Now, see if we need to do anything to process our new record. 
-        if(current.getType() != UserKeyRecord.TYPE_NORMAL) {
+        if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
             if(current.getType() == UserKeyRecord.TYPE_NEW) {
                 //See if we can migrate an old sandbox's data to the new sandbox.
                 if(!lookForAndMigrateOldSandbox(current)) {
@@ -347,7 +334,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return HttpCalloutTask.HttpCalloutOutcomes.UnkownError; 
+                        return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                     }
                     
                     //otherwise we're now keyed up with the old DB and we should be fine to log in
@@ -365,13 +352,13 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     //Or just leave the old one?
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
                     //For now, fail.
-                    return HttpCalloutTask.HttpCalloutOutcomes.UnkownError;
+                    return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                 }
             }
         }
         
         //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().logIn(current.unWrapKey(password), current);
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current);
         
         //So we may have logged in a key record but not a user (if we just received the
         //key, but not the user's data, for instance). 
@@ -461,28 +448,33 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
     }
 
-    //TODO: this shouldn't go here. Where should it go?
-    public static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String password, boolean acceptExpired) {
-        UserKeyRecord validIsh = null;
+    /**
+     * @return User record that matches username/password. Null if not found
+     * or user record validity date is expired.
+     */
+    public static UserKeyRecord getCurrentValidRecord(CommCareApp app,
+                                                      String username,
+                                                      String password,
+                                                      boolean acceptExpired) {
+        UserKeyRecord invalidRecord = null;
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
 
-        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            if(!ukr.isPasswordValid(password)) {
-                //This record is for a different password
-                continue;
-            }
-            
-            //ok, now check whether this record is fully valid, or we need to look for an update
-            if(ukr.isCurrentlyValid()) {
-                return ukr;
-            } else {
-                validIsh = ukr;
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isPasswordValid(password)) {
+                if (ukr.isCurrentlyValid()) {
+                    return ukr;
+                } else {
+                    invalidRecord = ukr;
+                }
             }
         }
-        
-        if(acceptExpired) { return validIsh; }
+
+        if (acceptExpired) {
+            return invalidRecord;
+        }
         return null;
     }
+
     @Override
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;

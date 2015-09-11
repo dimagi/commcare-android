@@ -1,28 +1,27 @@
 package org.commcare.android.references;
 
+import org.commcare.android.net.HttpRequestGenerator;
+import org.javarosa.core.reference.Reference;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import org.commcare.android.net.HttpRequestGenerator;
-import org.javarosa.core.reference.Reference;
-
 /**
  * @author ctsims
- *
  */
 public class JavaHttpReference implements Reference {
 
     private String uri;
     HttpRequestGenerator generator;
-    
+
     public JavaHttpReference(String uri, HttpRequestGenerator generator) {
         this.uri = uri;
         this.generator = generator;
     }
-    
-    
+
+
     @Override
     public boolean doesBinaryExist() throws IOException {
         //For now....
@@ -61,7 +60,7 @@ public class JavaHttpReference implements Reference {
     }
 
     public Reference[] probeAlternativeReferences() {
-        return new Reference [0];
+        return new Reference[0];
     }
 
 

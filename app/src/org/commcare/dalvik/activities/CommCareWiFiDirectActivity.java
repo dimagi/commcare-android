@@ -26,12 +26,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
 import org.commcare.android.framework.FileServerFragment;
 import org.commcare.android.framework.FileServerFragment.FileServerListener;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
 import org.commcare.android.tasks.FormTransferTask;
@@ -62,7 +62,7 @@ import java.util.Vector;
  * WiFi state related events.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
+public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 
     public static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
@@ -102,7 +102,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     public FormRecord[] cachedRecords;
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
@@ -411,8 +411,8 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
         mWipeTask.connect(CommCareWiFiDirectActivity.this);
         mWipeTask.execute();
 
-        FileUtil.deleteFile(new File(sourceDirectory));
-        FileUtil.deleteFile(new File(sourceZipDirectory));
+        FileUtil.deleteFileOrDir(new File(sourceDirectory));
+        FileUtil.deleteFileOrDir(new File(sourceZipDirectory));
 
         this.cachedRecords = null;
 
@@ -730,7 +730,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
     }
 
     public void onZipError(){
-        FileUtil.deleteFile(new File(sourceDirectory));
+        FileUtil.deleteFileOrDir(new File(sourceDirectory));
 
         Logger.log(TAG, "Error zipping files");
 
@@ -746,7 +746,7 @@ public class CommCareWiFiDirectActivity extends CommCareActivity<CommCareWiFiDir
 
         myStatusText.setText("Receive Successful!");
 
-        if(!FileUtil.deleteFile(new File(receiveDirectory))){
+        if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
             Log.d(TAG, "source zip not succesfully deleted");
         }
 

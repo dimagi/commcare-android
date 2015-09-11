@@ -14,16 +14,6 @@
 
 package org.commcare.dalvik.odk.provider;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
-
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -35,8 +25,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * 
@@ -45,7 +46,6 @@ public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
 
-    private static final String DATABASE_NAME = "forms.db";
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
 
@@ -61,10 +61,17 @@ public class FormsProvider extends ContentProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
-        public DatabaseHelper(Context c, String databaseName) {
+        // the application id of the CCApp for which this db is storing forms
+        private String appId;
+
+        public DatabaseHelper(Context c, String databaseName, String appId) {
             super(c, databaseName, null, DATABASE_VERSION);
+            this.appId = appId;
         }
 
+        public String getAppId() {
+            return this.appId;
+        }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
@@ -97,7 +104,6 @@ public class FormsProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
-
     @Override
     public boolean onCreate() {
         //This is so stupid.
@@ -105,9 +111,10 @@ public class FormsProvider extends ContentProvider {
     }
     
     public void init() {
-        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if(mDbHelper == null) {
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+        String appId = ProviderUtils.getSandboxedAppId();
+        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
+            String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.FORMS, appId);
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
     }
 
@@ -173,14 +180,14 @@ public class FormsProvider extends ContentProvider {
             values = new ContentValues();
         }
 
-        Long now = Long.valueOf(System.currentTimeMillis());
+        Long now = System.currentTimeMillis();
 
         // Make sure that the necessary fields are all set
-        if (values.containsKey(FormsColumns.DATE) == false) {
+        if (!values.containsKey(FormsColumns.DATE)) {
             values.put(FormsColumns.DATE, now);
         }
 
-        if (values.containsKey(FormsColumns.DISPLAY_SUBTEXT) == false) {
+        if (!values.containsKey(FormsColumns.DISPLAY_SUBTEXT)) {
             Date today = new Date();
             String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
             values.put(FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
@@ -188,11 +195,11 @@ public class FormsProvider extends ContentProvider {
 
         // if we don't have a path to the file, the rest are irrelevant.
         // it should fail anyway because you can't have a null file path.
-        if (values.containsKey(FormsColumns.FORM_FILE_PATH) == true) {
+        if (values.containsKey(FormsColumns.FORM_FILE_PATH)) {
             String filePath = values.getAsString(FormsColumns.FORM_FILE_PATH);
             File form = new File(filePath);
 
-            if (values.containsKey(FormsColumns.DISPLAY_NAME) == false) {
+            if (!values.containsKey(FormsColumns.DISPLAY_NAME)) {
                 values.put(FormsColumns.DISPLAY_NAME, form.getName());
             }
 
@@ -203,11 +210,11 @@ public class FormsProvider extends ContentProvider {
             String md5 = FileUtil.getMd5Hash(form);
             values.put(FormsColumns.MD5_HASH, md5);
 
-            if (values.containsKey(FormsColumns.JRCACHE_FILE_PATH) == false) {
-                String cachePath = "/sdcard/odk/.cache/" + md5 + ".formdef";
+            if (!values.containsKey(FormsColumns.JRCACHE_FILE_PATH)) {
+                String cachePath = Environment.getExternalStorageDirectory().getPath() + "odk/.cache/" + md5 + ".formdef";
                 values.put(FormsColumns.JRCACHE_FILE_PATH, cachePath);
             }
-            if (values.containsKey(FormsColumns.FORM_MEDIA_PATH) == false) {
+            if (!values.containsKey(FormsColumns.FORM_MEDIA_PATH)) {
                 String pathNoExtension = filePath.substring(0, filePath.lastIndexOf("."));
                 String mediaPath = pathNoExtension + "-media";
                 values.put(FormsColumns.FORM_MEDIA_PATH, mediaPath);
@@ -321,7 +328,7 @@ public class FormsProvider extends ContentProvider {
                 //app is responsible for those resources;
 
                 // Make sure that the necessary fields are all set
-                if (values.containsKey(FormsColumns.DATE) == true) {
+                if (values.containsKey(FormsColumns.DATE)) {
                     Date today = new Date();
                     String ts = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
                     values.put(FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
@@ -378,12 +385,12 @@ public class FormsProvider extends ContentProvider {
                                     .getColumnIndex(FormsColumns.JRCACHE_FILE_PATH)));
                             String newMd5 = FileUtil.getMd5Hash(new File(formFile));
                             values.put(FormsColumns.MD5_HASH, newMd5);
-                            values.put(FormsColumns.JRCACHE_FILE_PATH, "/sdcard/odk/.cache" + newMd5
+                            values.put(FormsColumns.JRCACHE_FILE_PATH, Environment.getExternalStorageDirectory().getPath() + "odk/.cache" + newMd5
                                     + ".formdef");
                         }
     
                         // Make sure that the necessary fields are all set
-                        if (values.containsKey(FormsColumns.DATE) == true) {
+                        if (values.containsKey(FormsColumns.DATE)) {
                             Date today = new Date();
                             String ts =
                                 new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);

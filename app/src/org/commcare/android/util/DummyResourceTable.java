@@ -1,10 +1,5 @@
 package org.commcare.android.util;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Vector;
-
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -13,11 +8,15 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.core.reference.Reference;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -145,17 +144,16 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException {
+    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) {
     }
 
     @Override
     public void addResource(Resource resource, ResourceInstaller initializer,
-            String parentId) throws StorageFullException {
+            String parentId) {
     }
 
     @Override
-    public void addResource(Resource resource, int status)
-            throws StorageFullException {
+    public void addResource(Resource resource, int status) {
     }
 
     @Override

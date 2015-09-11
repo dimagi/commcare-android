@@ -1,16 +1,7 @@
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Date;
-
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -35,8 +26,17 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
@@ -286,22 +286,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
     @Override
     public void beginSubmissionProcess(int totalItems) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems});        
+        this.publishProgress(LogSubmissionTask.SUBMISSION_BEGIN, (long)totalItems);
     }
 
     @Override
     public void startSubmission(int itemNumber, long length) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_START, (long)itemNumber, length);
     }
 
     @Override
     public void notifyProgress(int itemNumber, long progress) {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_NOTIFY, (long)itemNumber, progress);
     }
 
     @Override
     public void endSubmissionProcess() {
-        this.publishProgress(new Long[] {LogSubmissionTask.SUBMISSION_DONE});
+        this.publishProgress(LogSubmissionTask.SUBMISSION_DONE);
     }
     
 

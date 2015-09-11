@@ -5,7 +5,10 @@ import org.javarosa.core.util.SizeBoundVector;
 
 public interface VerificationTaskListener {
     public void onFinished(SizeBoundVector<MissingMediaException> problems);
+
     public void updateVerifyProgress(int done, int pending);
+
     public void success();
+
     public void failUnknown();
 }

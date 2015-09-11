@@ -1,14 +1,7 @@
 package org.commcare.android.tasks;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import javax.crypto.spec.SecretKeySpec;
+import android.content.Context;
+import android.os.AsyncTask;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.User;
@@ -23,14 +16,20 @@ import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
+import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.Context;
-import android.os.AsyncTask;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
@@ -295,11 +294,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } else {
                     results[i] = FormUploadUtil.FULL_SUCCESS;
                 }
-                
-                
-            } catch (StorageFullException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
-                throw new RuntimeException(e);
             } catch(SessionUnavailableException sue) {
                 throw sue;
             } catch (Exception e) {

@@ -50,4 +50,9 @@ public class GlobalConstants {
     //All of the app state is contained in these values
     public static final String STATE_USER_KEY = "COMMCARE_USER";
     public static final String STATE_USER_LOGIN = "USER_LOGIN";
+
+    public static final String CCHQ_PUBLIC_KEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
+            "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
+            "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
+            "HaAJkjpnc165Os+aYwIDAQAB";
 }

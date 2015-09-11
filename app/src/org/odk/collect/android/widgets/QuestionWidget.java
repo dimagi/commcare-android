@@ -1,23 +1,5 @@
 package org.odk.collect.android.widgets;
 
-import java.io.File;
-
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.data.AnswerDataFactory;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryCaption;
-import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -45,7 +27,27 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public abstract class QuestionWidget extends LinearLayout {
+import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.StringUtils;
+import org.commcare.android.view.ViewUtil;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.QuestionExtensionReceiver;
+import org.javarosa.core.model.data.AnswerDataFactory;
+import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.form.api.FormEntryCaption;
+import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ShrinkingTextView;
+import org.odk.collect.android.views.media.MediaLayout;
+
+import java.io.File;
+
+public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
@@ -106,7 +108,7 @@ public abstract class QuestionWidget extends LinearLayout {
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
                 settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
-        mQuestionFontsize = new Integer(question_font).intValue();
+        mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
         mPrompt = p;
@@ -186,6 +188,12 @@ public abstract class QuestionWidget extends LinearLayout {
     public abstract void setFocus(Context context);
 
     public abstract void setOnLongClickListener(OnLongClickListener l);
+
+    @Override
+    public void applyExtension(QuestionDataExtension extension) {
+        // Intentionally empty method body -- subclasses of QuestionWidget that expect
+        // to ever receive an extension should override this method and implement it accordingly
+    }
 
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
@@ -360,6 +368,7 @@ public abstract class QuestionWidget extends LinearLayout {
         String imageURI = p.getImageText();
         String audioURI = p.getAudioText();
         String videoURI = p.getSpecialFormQuestionText("video");
+        String inlineVideoUri = p.getSpecialFormQuestionText("video-inline");
         String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
         String markdownText = p.getMarkdownText();
 
@@ -403,7 +412,7 @@ public abstract class QuestionWidget extends LinearLayout {
         // Create the layout for audio, image, text
         MediaLayout mediaLayout = new MediaLayout(getContext());
 
-        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent);
+        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri);
 
         addView(mediaLayout, mLayout);
     }

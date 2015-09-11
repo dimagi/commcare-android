@@ -1,21 +1,8 @@
 package org.commcare.xml;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
@@ -25,9 +12,9 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.TransactionParser;
-import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
@@ -35,9 +22,21 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.net.Uri;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
@@ -87,13 +86,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         
         KXmlSerializer serializer = new KXmlSerializer();
 
-        SecretKey key;
-        try {
-            key = CommCareApplication._().createNewSymetricKey();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
         
         //Register this instance for inspection
@@ -104,19 +96,42 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         values.put(InstanceColumns.JR_FORM_ID, xmlns);
         values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_COMPLETE);
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, false);
-        
-        Uri instanceRecord = c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
-        FormRecord r = new FormRecord(instanceRecord.toString(), FormRecord.STATUS_UNINDEXED, xmlns, key.getEncoded(),null, new Date(0));
+        // Unindexed flag tells content provider to link this instance to a
+        // new, unindexed form record that isn't attached to the
+        // AndroidSessionWrapper
+        values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
+
+        Uri instanceRecord =
+            c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
+
+        // Find the form record attached to the form instance during insertion
+        IStorageUtilityIndexed<FormRecord> storage;
+        try {
+            storage = cachedStorage();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+        FormRecord attachedRecord =
+            storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
+                    instanceRecord.toString());
+
+        if (attachedRecord == null) {
+            throw new RuntimeException("No FormRecord was attached to the inserted form instance");
+        }
+
+        // TODO PLM: Eventually merge with SaveToDiskTask exportData xml
+        // serialization logic
 
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
-        
+
         try {
-            if(encrypter == null) {
-                encrypter = Cipher.getInstance(key.getAlgorithm());
+            if (encrypter == null) {
+                encrypter = Cipher.getInstance("AES");
             }
 
+            SecretKeySpec key = new SecretKeySpec(attachedRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
             bos = new BufferedOutputStream(cos,1024*256);
@@ -125,11 +140,13 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
             document.write(serializer);
 
-            cachedStorage().write(r);
-        } catch (SessionUnavailableException | StorageFullException e) {
+        } catch (StorageFullException e) {
+            // writing the form instance to xml failed, so remove the record
+            storage.remove(attachedRecord);
             throw new IOException(e.getMessage());
-        }  catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException e) {
-            // There's nothing we can do about any of these in code, failfast.
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
+            // writing the form instance to xml failed, so remove the record
+            storage.remove(attachedRecord);
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
@@ -139,9 +156,8 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
                 o.close();
             }
         }
-        return r;
+        return attachedRecord;
     }
-    
     public IStorageUtilityIndexed<FormRecord> cachedStorage() throws SessionUnavailableException{
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);

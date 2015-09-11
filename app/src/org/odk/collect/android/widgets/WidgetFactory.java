@@ -22,9 +22,11 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
 import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**
  * Convenience class that handles creation of widgets.
@@ -34,9 +36,11 @@ import org.odk.collect.android.jr.extensions.IntentCallout;
 public class WidgetFactory {
     
     FormDef form;
+    PendingCalloutInterface pendingCalloutInterface;
     
-    public WidgetFactory(FormDef form) {
+    public WidgetFactory(FormDef form, PendingCalloutInterface pendingCalloutInterface) {
         this.form = form;
+        this.pendingCalloutInterface = pendingCalloutInterface;
     }
 
     /**
@@ -59,7 +63,7 @@ public class WidgetFactory {
                     }
                     //NOTE: No path specific stuff for now
                     Intent i = ic.generate(form.getEvaluationContext());
-                    questionWidget = new IntentWidget(context, fep, i, ic);
+                    questionWidget = new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
                     break;
                 }
             case Constants.CONTROL_SECRET:
@@ -96,7 +100,7 @@ public class WidgetFactory {
                         IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
                                 null, null , null, StringUtils.getStringRobust(context, R.string.get_barcode), appearance);
                         Intent mIntent = mIntentCallout.generate(form.getEvaluationContext());
-                        questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout);
+                        questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
                         break;
                     case Constants.DATATYPE_TEXT:
                         if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
@@ -114,7 +118,7 @@ public class WidgetFactory {
                 if (appearance != null && appearance.equals("signature")) {
                     questionWidget = new SignatureWidget(context, fep);
                 } else {
-                questionWidget = new ImageWidget(context, fep);
+                    questionWidget = new ImageWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
@@ -195,6 +199,12 @@ public class WidgetFactory {
             default:
                 questionWidget = new StringWidget(context, fep, false);
                 break;
+        }
+
+        // Apply all of the QuestionDataExtensions registered with this widget's associated
+        // QuestionDef to the widget
+        for (QuestionDataExtension extension : fep.getQuestion().getExtensions()) {
+            questionWidget.applyExtension(extension);
         }
         return questionWidget;
     }

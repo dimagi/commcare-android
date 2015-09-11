@@ -1,12 +1,20 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.util.Vector;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -22,81 +30,74 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
+import java.io.File;
+import java.util.Vector;
 
 /**
  * @author wspride
  */
 
 @ManagedUi(R.layout.screen_form_dump)
-public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpActivity> {
+public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommCareFormDumpActivity> {
     private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
-     
+    public static final String DUMP_FORMS_ERROR = "DUMP_FORMS_ERROR";
+
     @UiElement(value = R.id.screen_bulk_form_prompt, locale="bulk.form.prompt")
     TextView txtDisplayPrompt;
-    
+
     @UiElement(value = R.id.screen_bulk_form_dump, locale="bulk.form.dump")
     Button btnDumpForms;
-    
+
     @UiElement(value = R.id.screen_bulk_form_submit, locale="bulk.form.submit")
     Button btnSubmitForms;
-    
+
     @UiElement(value = R.id.screen_bulk_form_messages, locale="bulk.form.messages")
     TextView txtInteractiveMessages;
-    
+
     public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
-    
+
     boolean done = false;
-    
+
     AlertDialog mAlertDialog;
     static boolean acknowledgedRisk = false;
-    
+
     static final String KEY_NUMBER_DUMPED = "num_dumped";
-    
+
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
-    
+
     private int formsOnPhone;
     private int formsOnSD;
-    
+
     protected String filepath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        
+
         final String url = this.getString(R.string.PostURL);
-        
+
         super.onCreate(savedInstanceState);
-        
+
         updateCounters();
-        
+
         btnSubmitForms.setOnClickListener(new OnClickListener() {
             public void onClick(View v){
-                
+
                 formsOnSD = getDumpFiles().length;
-                
+
                 //if there're no forms to dump, just return
                 if(formsOnSD == 0){
                     txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
                     transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
-                
+
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(),
                         settings.getString("PostURL", url), getFolderPath()){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
-                        
+
                         if(result == Boolean.TRUE){
                             CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
@@ -170,12 +171,25 @@ public class CommCareFormDumpActivity extends CommCareActivity<CommCareFormDumpA
                 mDumpTask.execute();
             }
         });
-        
+
         mAlertDialog = popupWarningMessage();
-        
+
         if(!acknowledgedRisk){
             mAlertDialog.show();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(DUMP_FORMS_ERROR, txtInteractiveMessages.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        txtInteractiveMessages.setText(savedInstanceState.getString(DUMP_FORMS_ERROR));
+        transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
     private AlertDialog popupWarningMessage(){

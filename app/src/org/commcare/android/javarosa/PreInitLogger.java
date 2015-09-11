@@ -1,38 +1,38 @@
 /**
- * 
+ *
  */
 package org.commcare.android.javarosa;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.services.Logger;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+
 /**
  * This class keeps track of logs before the app has fully initialized its storage engine
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class PreInitLogger implements ILogger {
     private ArrayList<AndroidLogEntry> logs = new ArrayList<AndroidLogEntry>();
-    
+
     public PreInitLogger() {
-        
+
     }
+
     @Override
     public void log(String type, String message, Date logDate) {
         logs.add(new AndroidLogEntry(type, message, logDate));
 
     }
-    
+
     public void dumpToNewLogger() {
-        for(AndroidLogEntry log : logs) {
-            if(Logger._() != null) {
+        for (AndroidLogEntry log : logs) {
+            if (Logger._() != null) {
                 Logger._().log(log.getType(), log.getMessage(), log.getTime());
             }
         }

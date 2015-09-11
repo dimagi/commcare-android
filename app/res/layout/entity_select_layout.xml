@@ -31,6 +31,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@id/entity_select_header"
+    android:background="?attr/filter_select_background_color"
     android:visibility="gone"/>
 
 <RelativeLayout
@@ -47,18 +48,24 @@
 </RelativeLayout>
 
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/searchfooter"
+        android:layout_below="@+id/entity_select_filter_dropdown"
+        >
 
-<ListView
-    android:id="@+id/screen_entity_select_list"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:layout_above="@+id/searchfooter"
-    android:layout_below="@+id/entity_select_filter_dropdown"
-    android:listSelector="@drawable/selector"
-    android:divider="@drawable/divider_case_list_modern"
-    android:dividerHeight="8dp"
-    >
-</ListView>
+
+    <ListView
+        android:id="@+id/screen_entity_select_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:listSelector="@drawable/selector"
+        android:dividerHeight="1dp"
+        >
+    </ListView>
+        <include layout="@layout/component_drop_shadow"/>
+    </FrameLayout>
 
 <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent"
               android:layout_alignParentBottom="true"
@@ -71,8 +78,7 @@
 	    android:id="@+id/screen_entity_select_search_label"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/TextView01"
-	    android:layout_gravity="center_vertical"
+        android:layout_gravity="center_vertical"
 	    android:text="Search:" >
 </TextView>
 	<RelativeLayout android:id="@+id/relativeLayout1" android:layout_height="wrap_content" android:layout_width="fill_parent">
@@ -89,5 +95,7 @@
     android:layout_alignParentTop="true" >
 
 </FrameLayout>
+
+
 
 </RelativeLayout>

@@ -1,6 +1,7 @@
 package org.commcare.dalvik.application;
 
-import java.io.File;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -14,6 +15,7 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.Stylizer;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -23,11 +25,9 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.io.File;
 
 /**
  * This (awkwardly named!) container is responsible for keeping track of a single
@@ -37,7 +37,7 @@ import android.util.Log;
  * @author ctsims
  */
 public class CommCareApp {
-    private final ApplicationRecord record;
+    private ApplicationRecord record;
 
     private JavaFileRoot fileRoot;
     private final AndroidCommCarePlatform platform;
@@ -54,6 +54,8 @@ public class CommCareApp {
     private SQLiteDatabase appDatabase; 
     
     private static Stylizer mStylizer;
+
+    private int resourceState;
     
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -144,10 +146,43 @@ public class CommCareApp {
             }
             initializeFileRoots();
             currentSandbox = this;
+            ProviderUtils.setCurrentSandbox(currentSandbox);
         }
     }
 
+    /**
+     * If the CommCare app being initialized was first installed on this device with pre-Multiple
+     * Apps build of CommCare, then its ApplicationRecord will have been generated from an
+     * older format with missing fields. This method serves to fill in those missing fields,
+     * and is called after initializeApplication, if and only if the ApplicationRecord has just
+     * been generated from the old format. Once the update for an AppRecord performs once, it will
+     * not be performed again.
+     */
+    private void updateAppRecord() {
+        // Set all of the properties of this record that come from the profile
+        record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
+
+        // The default value this field was set to may be incorrect, so check it
+        record.setResourcesStatus(areMMResourcesValidated());
+
+        // Set this to false so we don't try to update this app record every time we seat it
+        record.setConvertedByDbUpgrader(false);
+
+        // Commit changes
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+
     public boolean initializeApplication() {
+        boolean appReady = initializeApplicationHelper();
+        if (appReady) {
+            if (record.wasConvertedByDbUpgrader()) {
+                updateAppRecord();
+            }
+        }
+        return appReady;
+    }
+    
+    public boolean initializeApplicationHelper() {
         setupSandbox();
 
         ResourceTable global = platform.getGlobalResourceTable();
@@ -169,9 +204,8 @@ public class CommCareApp {
         }
 
         // See if we got left in the middle of an update
-        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
-            // If so, repair the global table. (Always takes priority over
-            // maintaining the update)
+        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+            // If so, repair the global table. (Always takes priority over maintaining the update)
             global.repairTable(upgrade);
         }
 
@@ -191,16 +225,26 @@ public class CommCareApp {
         return false;
     }
 
-    public boolean areResourcesValidated() {
+    public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
                 appPreferences.getString(CommCarePreferences.CONTENT_VALIDATED, "no").equals(CommCarePreferences.YES));
     }
 
-    public void setResourcesValidated(boolean isValidated) {
+    public void setMMResourcesValidated() {
         SharedPreferences.Editor editor = getAppPreferences().edit();
-        editor.putBoolean("isValidated", isValidated);
+        editor.putBoolean("isValidated", true);
         editor.commit();
+        record.setResourcesStatus(true);
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+
+    public int getAppResourceState() {
+        return resourceState;
+    }
+
+    public void setAppResourceState(int resourceState) {
+        this.resourceState = resourceState;
     }
 
     public void teardownSandbox() {
@@ -213,6 +257,7 @@ public class CommCareApp {
                     appDatabase.close();
                 }
                 appDatabase = null;
+                ProviderUtils.setCurrentSandbox(null);
             }
         }
     }
@@ -240,18 +285,34 @@ public class CommCareApp {
     }
 
     /**
-     * Update the app's record to the installed state.
+     * Initialize all of the properties that an app record should have and update it to the
+     * installed state.
      */
     public void writeInstalled() {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
-        try {
-            CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
-        } catch (StorageFullException e) {
-            throw new RuntimeException(e);
-        }
+        record.setResourcesStatus(areMMResourcesValidated());
+        record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+    }
+
+    public String getUniqueId() {
+        return this.record.getUniqueId();
     }
     
-    public String getPreferencesFilename(){
+    public String getPreferencesFilename() {
         return record.getApplicationId();
+    }
+
+    public ApplicationRecord getAppRecord() {
+        return this.record;
+    }
+
+    /**
+     * Refreshes this CommCareApp's ApplicationRecord pointer to be to whatever version is
+     * currently sitting in the db -- should be called whenever an ApplicationRecord is updated
+     * while its associated app is seated, so that the 2 are not out of sync
+     */
+    public void refreshAppRecord() {
+        this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
     }
 }

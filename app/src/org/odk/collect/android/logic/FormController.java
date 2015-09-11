@@ -1,9 +1,5 @@
 package org.odk.collect.android.logic;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Vector;
-
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
@@ -21,6 +17,10 @@ import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.WidgetFactory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Vector;
+
 /**
  * This class is a wrapper for Javarosa's FormEntryController. In theory, if you wanted to replace
  * javarosa as the form engine, you should only need to replace the methods in this file. Also, we
@@ -29,10 +29,12 @@ import org.odk.collect.android.widgets.WidgetFactory;
  * 
  * @author carlhartung
  */
-public class FormController {
+public class FormController implements PendingCalloutInterface {
 
     private static final String t = "FormController";
     private FormEntryController mFormEntryController;
+
+    private FormIndex mPendingCalloutFormIndex = null;
     
     private boolean mReadOnly;
 
@@ -564,9 +566,7 @@ public class FormController {
 
         FormEntryCaption[] v = mFormEntryController.getModel().getCaptionHierarchy();
         FormEntryCaption[] groups = new FormEntryCaption[v.length - lastquestion];
-        for (int i = 0; i < v.length - lastquestion; i++) {
-            groups[i] = v[i];
-        }
+        System.arraycopy(v, 0, groups, 0, v.length - lastquestion);
         return groups;
     }
 
@@ -766,11 +766,19 @@ public class FormController {
         return new InstanceMetadata(instanceId);
     }
 
+    @Override
+    public FormIndex getPendingCalloutFormIndex() {
+        return mPendingCalloutFormIndex;
+    }
+
+    @Override
+    public void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex) {
+        mPendingCalloutFormIndex = pendingCalloutFormIndex;
+    }
 
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
     //this ended up in the "logic" division. 
     public WidgetFactory getWidgetFactory() {
-        return new WidgetFactory(mFormEntryController.getModel().getForm());
+        return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
     }
-
 }

@@ -1,7 +1,5 @@
 package org.commcare.android.framework;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -10,95 +8,96 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+
+import org.commcare.android.tasks.templates.CommCareTask;
+
 /**
- * @author ctsims
+ * Hold a reference to the parent Activity so we can report the
+ * task's current progress and results. The Android framework
+ * will pass us a reference to the newly created Activity after
+ * each configuration change.
  *
+ * @author ctsims
  */
 public class StateFragment extends Fragment {
-    
-    CommCareActivity boundActivity;
-    CommCareActivity lastActivity;
-    
-    CommCareTask currentTask;
-    /**
-     * Hold a reference to the parent Activity so we can report the
-     * task's current progress and results. The Android framework 
-     * will pass us a reference to the newly created Activity after 
-     * each configuration change.
-     */
-      @Override
-      public void onAttach(Activity activity) {
+    private CommCareActivity boundActivity;
+    private CommCareActivity lastActivity;
+
+    private CommCareTask currentTask;
+
+    private WakeLock wakelock;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
         super.onAttach(activity);
-        if(activity instanceof CommCareActivity) {
-            this.boundActivity = (CommCareActivity)activity;
+
+        if (activity instanceof CommCareActivity) {
+            this.boundActivity = (CommCareActivity) activity;
             this.boundActivity.stateHolder = this;
-            if(this.currentTask != null && this.currentTask.getStatus() == AsyncTask.Status.RUNNING) {
+
+            if (isCurrentTaskRunning()) {
                 this.currentTask.connect(boundActivity);
             }
         }
-      }
-      
-      public CommCareActivity getPreviousState() { 
-          return lastActivity;
-      }
-      
-      public void connectTask(CommCareTask task) {
-          this.currentTask = task;
-      }
-     
-      /**
-       * This method will only be called once when the retained
-       * Fragment is first created.
-       */
-      @Override
-      public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-     
-        // Retain this fragment across configuration changes.
-        setRetainInstance(true);
-      }
-     
-      /**
-       * Set the callback to null so we don't accidentally leak the 
-       * Activity instance.
-       */
-      @Override
-      public void onDetach() {
+    }
+
+    private boolean isCurrentTaskRunning() {
+        return this.currentTask != null &&
+                this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
+    }
+
+    @Override
+    public void onDetach() {
         super.onDetach();
-        if(this.boundActivity != null) {
+
+        if (this.boundActivity != null) {
             lastActivity = boundActivity;
         }
-        if(currentTask != null) {
+
+        if (currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
             currentTask.disconnect();
-            unlock();
+            releaseWakeLock();
         }
-      }
+    }
 
     public void cancelTask() {
-        if(currentTask != null) {
+        if (currentTask != null) {
             currentTask.cancel(false);
         }
     }
 
-    private WakeLock wakelock;
+    private synchronized void acquireWakeLock() {
+        int lockLevel = boundActivity.getWakeLockLevel();
+        if (lockLevel != CommCareTask.DONT_WAKELOCK) {
+            releaseWakeLock();
 
-    public synchronized void wakelock(int lockLevel) {
-        if(wakelock != null) {
-            if(wakelock.isHeld()) {
-                wakelock.release();
-            }
+            PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
+            wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
+            wakelock.acquire();
         }
-        PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
-        wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
-        wakelock.acquire();
     }
 
-    public synchronized void unlock() {
-        if(wakelock != null) {
+    public synchronized void releaseWakeLock() {
+        if (wakelock != null && wakelock.isHeld()) {
             wakelock.release();
-            wakelock = null;
         }
+        wakelock = null;
+    }
 
+    public CommCareActivity getPreviousState() {
+        return lastActivity;
+    }
+
+    public void connectTask(CommCareTask task) {
+        acquireWakeLock();
+        this.currentTask = task;
     }
 }

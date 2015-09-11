@@ -1,8 +1,6 @@
 package org.commcare.android.resource.installers;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import android.util.Pair;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.FileUtil;
@@ -15,39 +13,42 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
-import android.util.Pair;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * @author ctsims
- *
  */
 public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
     String path;
-    
+
     public MediaFileAndroidInstaller() {
-        
+
     }
-    
+
     public MediaFileAndroidInstaller(String destination, String upgradeDestination, String path) {
         super(destination + (path == null ? "" : "/" + path), upgradeDestination + (path == null ? "" : "/" + path));
         //establish whether dir structure needs to be extended?
         this.path = path;
     }
-    
+
     @Override
     public boolean uninstall(Resource r) throws UnresolvedResourceException {
         boolean success = super.uninstall(r);
-        if( success == false ) { return false; }
+        if (!success) {
+            return false;
+        }
         //cleanup dirs
         return FileUtil.cleanFilePath(this.localDestination, path);
     }
-    
+
     @Override
     public boolean upgrade(Resource r) {
         return super.upgrade(r);
     }
-    
+
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
@@ -56,7 +57,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     public boolean requiresRuntimeInitialization() {
         return false;
     }
-    
+
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         return false;
@@ -73,17 +74,19 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         super.writeExternal(out);
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(path));
     }
-    
+
     @Override
     public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         int index = loc.getLocation().lastIndexOf("/");
-        if(index == -1 ) { return new Pair<String,String>(loc.getLocation(), ".dat"); }
+        if (index == -1) {
+            return new Pair<String, String>(loc.getLocation(), ".dat");
+        }
         String fileName = loc.getLocation().substring(index);
-        
+
         String extension = ".dat";
         int lastDot = fileName.lastIndexOf(".");
-        if(lastDot != -1) {
-            extension =fileName.substring(lastDot);
+        if (lastDot != -1) {
+            extension = fileName.substring(lastDot);
             fileName = fileName.substring(0, lastDot);
         }
         return new Pair<String, String>(fileName, extension);

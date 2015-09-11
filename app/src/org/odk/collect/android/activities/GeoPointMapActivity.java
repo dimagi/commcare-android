@@ -1,13 +1,6 @@
 
 package org.odk.collect.android.activities;
 
-import java.text.DecimalFormat;
-import java.util.List;
-
-import org.commcare.dalvik.R;
-import org.odk.collect.android.utilities.GeoUtils;
-import org.odk.collect.android.widgets.GeoPointWidget;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -31,6 +24,13 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
+import org.commcare.dalvik.R;
+import org.odk.collect.android.utilities.GeoUtils;
+import org.odk.collect.android.widgets.GeoPointWidget;
+
+import java.text.DecimalFormat;
+import java.util.List;
+
 public class GeoPointMapActivity extends MapActivity implements LocationListener {
 
     private MapView mMapView;
@@ -53,7 +53,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     private boolean mNetworkOn = false;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 

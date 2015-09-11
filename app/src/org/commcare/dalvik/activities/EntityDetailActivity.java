@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -35,7 +35,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends CommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
     
     private CommCareSession session;
     private AndroidSessionWrapper asw;
@@ -68,7 +68,7 @@ public class EntityDetailActivity extends CommCareActivity implements DetailCall
     TabbedDetailView mDetailView;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {        
+    protected void onCreate(Bundle savedInstanceState) {        
         Intent i = getIntent();
         
         try {

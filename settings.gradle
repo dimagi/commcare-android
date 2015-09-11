@@ -1,6 +1,8 @@
 include ':libraries:mapballoons'
+include ':libraries:achartengine'
+include ':libraries:AndroidStaggeredGrid:library'
 include ':javarosa'
-project(':javarosa').projectDir = new File('../javarosa/core')
+project(':javarosa').projectDir = new File('../javarosa')
 
 include ':commcare'
 project(':commcare').projectDir = new File('../commcare')

@@ -1,20 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.commcare.android.util.DotsData;
-import org.commcare.android.util.DotsData.DotsBox;
-import org.commcare.android.util.DotsData.DotsDay;
-import org.commcare.android.util.DotsEditListener;
-import org.commcare.android.util.GestureDetector;
-import org.commcare.android.view.DotsDetailView;
-import org.commcare.android.view.DotsHomeView;
-import org.commcare.dalvik.R;
-import org.javarosa.core.model.utils.DateUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +21,21 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import org.commcare.android.util.DotsData;
+import org.commcare.android.util.DotsData.DotsBox;
+import org.commcare.android.util.DotsData.DotsDay;
+import org.commcare.android.util.DotsEditListener;
+import org.commcare.android.util.GestureDetector;
+import org.commcare.android.view.DotsDetailView;
+import org.commcare.android.view.DotsHomeView;
+import org.commcare.dalvik.R;
+import org.javarosa.core.model.utils.DateUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author ctsims
@@ -69,7 +69,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     int zY = -1;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         if(savedInstanceState != null) {

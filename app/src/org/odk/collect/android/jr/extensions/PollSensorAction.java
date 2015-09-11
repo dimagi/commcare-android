@@ -1,11 +1,15 @@
 package org.odk.collect.android.jr.extensions;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
@@ -22,16 +26,12 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.GeoUtils;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * XForms Action extension to periodically poll a sensor and optionally save its value.
@@ -39,6 +39,8 @@ import android.os.Looper;
  */
 public class PollSensorAction extends Action implements LocationListener {
     private static String name = "pollsensor";
+    public static String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
+    public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
     
     private LocationManager mLocationManager;
@@ -140,10 +142,16 @@ public class PollSensorAction extends Action implements LocationListener {
                 TreeReference qualifiedReference = mContextRef == null ? target : target.contextualize(mContextRef);
                 EvaluationContext context = new EvaluationContext(mModel.getEvaluationContext(), qualifiedReference);
                 AbstractTreeElement node = context.resolveReference(qualifiedReference);
-                if(node == null) { throw new NullPointerException("Target of TreeReference " + qualifiedReference.toString(true) +" could not be resolved!"); }
-                int dataType = node.getDataType();
-                IAnswerData val = Recalculate.wrapData(result, dataType);
-                mModel.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
+                if(node == null) {
+                    Context applicationContext = Collect.getStaticApplicationContext();
+                    Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
+                    xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
+                    applicationContext.sendStickyBroadcast(xpathErrorIntent);
+                } else {
+                    int dataType = node.getDataType();
+                    IAnswerData val = Recalculate.wrapData(result, dataType);
+                    mModel.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
+                }
             }
             
             if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
