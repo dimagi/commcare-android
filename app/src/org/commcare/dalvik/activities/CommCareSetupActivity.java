@@ -36,7 +36,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -228,9 +227,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         uiStateScreenTransition();
-        if(CommCarePreferences.isSmsInstallEnabled()) {
-            performSMSInstall(false);
-        }
+        performSMSInstall(false);
     }
 
     @Override
