@@ -889,32 +889,42 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     private void setupDivider(ListView view) {
-        int viewWidth = view.getWidth();
-        float density = getResources().getDisplayMetrics().density;
-        int viewWidthDP = (int)(viewWidth / density);
-        // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-        int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(0.15 * viewWidth);
+        boolean useNewDivider = shortSelect.usesGridView();
 
-        Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+        if(useNewDivider) {
+            int viewWidth = view.getWidth();
+            float density = getResources().getDisplayMetrics().density;
+            int viewWidthDP = (int)(viewWidth / density);
+            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
 
-        //region ListView divider information
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
+            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+
+            //region ListView divider information
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
+            }
+            //endregion
+
+            //region Asserting divider instanceof LayerDrawable
+            if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
+                throw new AssertionError("Divider should be a LayerDrawable!");
+            }
+            //endregion
+
+            LayerDrawable layerDrawable = (LayerDrawable)divider;
+
+            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+
+            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+            view.setDivider(layerDrawable);
+        } else {
+            view.setDivider(null);
+
         }
-        //endregion
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
 
-        //region Asserting divider instanceof LayerDrawable
-        if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
-            throw new AssertionError("Divider should be a LayerDrawable!");
-        }
-        //endregion
-
-        LayerDrawable layerDrawable = (LayerDrawable)divider;
-
-        layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-        view.setDivider(layerDrawable);
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {

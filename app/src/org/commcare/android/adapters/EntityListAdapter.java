@@ -261,7 +261,7 @@ public class EntityListAdapter implements ListAdapter {
                             // fuzzy matching
                             if (mFuzzySearchEnabled) {
                                 for (String fieldChunk : e.getSortFieldPieces(i)) {
-                                    Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(fieldChunk, filter);
+                                    Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
                                     if (match.first) {
                                         add = true;
                                         score += match.second;
