@@ -18,7 +18,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -143,19 +142,21 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
-                
-        edi.initialize(new InstanceInitializationFactory() {
+        CommCareInstanceInitializer iif = new CommCareInstanceInitializer(null) {
+            @Override
             public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
+                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
-        }, "casedb");
+        };
+
+        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+        DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
         
         Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
-        formInstances.put("casedb", edi);
+        formInstances.put("casedb", specializedDataInstance);
         
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);

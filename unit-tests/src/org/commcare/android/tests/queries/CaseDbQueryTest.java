@@ -15,7 +15,6 @@ import org.robolectric.annotation.Config;
 
 import static junit.framework.Assert.assertEquals;
 
-
 /**
  * @author ctsims
  */
@@ -23,7 +22,6 @@ import static junit.framework.Assert.assertEquals;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class CaseDbQueryTest {
-
 
     @Before
     public void setupTests() {
@@ -44,7 +42,6 @@ public class CaseDbQueryTest {
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/test_value", "initial", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/missing_value", "", ec);
-        
     }
     
     /**
@@ -65,7 +62,8 @@ public class CaseDbQueryTest {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);
-            assertEquals("XPath: " + xpath,expectedValue, XPathFuncExpr.toString(expr.eval(ec)));
+            String result = XPathFuncExpr.toString(expr.eval(ec));
+            assertEquals("XPath: " + xpath, expectedValue, result);
         } catch (XPathSyntaxException e) {
             TestUtils.wrapError(e, "XPath: " + xpath);
         }
