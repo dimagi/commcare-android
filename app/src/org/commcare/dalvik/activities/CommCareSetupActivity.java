@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.apache.commons.codec.binary.Base64;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.fragments.SetupInstallFragment;
@@ -31,11 +30,13 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.SigningUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -44,14 +45,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.security.KeyFactory;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
+import java.security.SignatureException;
 import java.util.List;
 
 /**
@@ -78,8 +72,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
-
-    public static final String COMMCAREHQ_PHONE_NUMBER = "6173062055";
 
     /**
      * Should the user be logged out when this activity is done?
@@ -236,7 +228,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         uiStateScreenTransition();
-        performSMSInstall(false);
+        if(CommCarePreferences.isSmsInstallEnabled()) {
+            performSMSInstall(false);
+        }
     }
 
     @Override
@@ -581,78 +575,76 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @param installAutomatically install automatically if reference is found
      */
     public void performSMSInstall(boolean installAutomatically){
-        String profileLink = this.scanSMSLinks();
-        if(profileLink != null){
-            Log.v("install", "Performing SMS install with link : " + incomingRef);
-            incomingRef = profileLink;
-            if(installAutomatically) {
-                startResourceInstall();
-            } else{
-                uiState = UiState.READY_TO_INSTALL;
-                Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+        try {
+            String profileLink = this.scanSMSLinks();
+            if (profileLink != null) {
+                // we found a valid profile link, either start install automatically
+                // or move to READY_TO_INSTALL state
+                Log.v("install", "Performing SMS install with link : " + incomingRef);
+                incomingRef = profileLink;
+                if (installAutomatically) {
+                    startResourceInstall();
+                } else {
+                    uiState = UiState.READY_TO_INSTALL;
+                    Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+                }
+            } else {
+                // only notify if this was manually triggered, since most people won't use this
+                if(installAutomatically) {
+                    Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+                }
             }
-        } else{
+        } catch(SignatureException e){
+            // possibly we want to do something more severe here? could be malicious
+            e.printStackTrace();
             Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
         }
     }
 
 
     // http://stackoverflow.com/questions/11301046/search-sms-inbox
-    public String scanSMSLinks(){
+
+    /**
+     * Scan the SMS inbox, looking for messages that meet the expected install format,
+     * and if found and verified return the discovered install link
+     * @return the verified install link, null if none found
+     * @throws SignatureException if we discovered a valid-looking message but could not verify it
+     */
+    public String scanSMSLinks() throws SignatureException{
         String installLink = null;
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc limit 1");
         if(cursor.moveToFirst()) {
-            // Do something
             Log.v("Body", cursor.getString(cursor.getColumnIndex("body")));
             String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-            String url = parseAndVerifySMS(textMessageBody);
-            return url;
+            if(textMessageBody.contains("ccapp:") && textMessageBody.contains("signature:")) {
+                installLink = parseAndVerifySMS(textMessageBody);
+            }
         }
         cursor.close();
         return installLink;
     }
 
-    public String parseAndVerifySMS(String text){
+    /**
+     *
+     * @param text the parsed out text message in the expected link/signature format
+     * @return the download link if the message was valid and verified, null otherwise
+     * @throws SignatureException if we discovered a valid-looking message but could not verify it
+     */
+    public String parseAndVerifySMS(String text) throws SignatureException {
+        // parse out the app link and signature. We assume there is a space after ccapp: and
+        // signature: and that the end of the signature is the end of the text content
         String downloadLink = text.substring(text.indexOf("ccapp:") + 7, text.indexOf(","));
         String signature = text.substring(text.indexOf("signature:") + 11);
-        System.out.println("Download link : " + downloadLink + " signature: " + signature);
-        boolean verified = verifySignature(signature, downloadLink);
-        return downloadLink;
+        if(verifySMS(signature, downloadLink)){
+            return downloadLink;
+        }
+        throw new SignatureException();
     }
 
-    public boolean verifySignature(String text, String url){
-
-        try {
-
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            md.update(url.getBytes("UTF-8"));
-            byte[] messageDigest = md.digest();
-
-            String keyString = text;
-            byte[] keyBytes = GlobalConstants.CCHQ_PUBLIC_KEY.getBytes();
-
-            System.out.println("key bytes: " + Arrays.toString(keyBytes));
-
-            keyBytes = Base64.decodeBase64(keyString.getBytes("utf-8"));
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey key = keyFactory.generatePublic(spec);
-
-            byte[] keyDigest = md.digest(key.getEncoded());
-
-            System.out.println("messageDigest: " + Arrays.toString(messageDigest));
-            System.out.println("keyDigest: " + Arrays.toString(keyDigest));
-
-            return true;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public boolean verifySMS(String signature, String message){
+        String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
+        return SigningUtil.verify(keyString, message, signature);
     }
 
     @Override

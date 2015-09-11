@@ -16,10 +16,7 @@
 
 package org.commcare.dalvik.preferences;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -56,6 +53,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     public final static String FREQUENCY_WEEKLY = "freq-weekly";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
+    public final static String ENABLE_SMS_INSTALLS = "cc-sms-installs";
 
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
@@ -237,6 +235,11 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
 
         //otherwise, see if we're in sense mode
         return !isInSenseMode();
+    }
+
+    public static boolean isSmsInstallEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ENABLE_SAVED_FORMS, NO).equals(YES);
     }
 
     public static boolean isFuzzySearchEnabled() {
