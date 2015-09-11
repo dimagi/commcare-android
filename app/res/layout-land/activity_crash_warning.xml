@@ -4,23 +4,24 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-        <!-- Shadow text box -->
+    <!-- Warning text and expander button -->
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_above="@+id/RestartCommCare"
         android:orientation="vertical"
+        android:layout_marginTop="@dimen/content_min_margin"
+        android:layout_marginRight="@dimen/content_min_margin"
+        android:layout_marginLeft="@dimen/content_min_margin"
+        android:background="@drawable/tile_drop_shadow_small_margins"
         android:padding="@dimen/content_min_margin">
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_margin="@dimen/content_min_margin"
-            android:background="@drawable/tile_drop_shadow_small_margins"
-            android:layout_above="@+id/RestartCommCare"
-            android:orientation="vertical"
-            android:padding="@dimen/content_min_margin">
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <!-- Simple message and info button -->
+            <!-- Simple message and button -->
             <RelativeLayout
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
@@ -54,26 +55,26 @@
                 android:id="@+id/Error"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_margin="@dimen/content_min_margin"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_min_margin"
                     android:background="@android:color/darker_gray"/>
 
-                    <TextView
-                        android:id="@+id/ErrorText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:shadowColor="@color/grey_light"
-                        android:textColor="@color/cc_neutral_color"
-                        android:textSize="@dimen/text_medium"
-                        tools:context=".CrashWarningActivity"/>
-
-
+                <TextView
+                    android:id="@+id/ErrorText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/content_min_margin"
+                    android:shadowColor="@color/grey_light"
+                    android:textColor="@color/cc_neutral_color"
+                    android:textSize="@dimen/text_medium"
+                    tools:context=".CrashWarningActivity"/>
             </LinearLayout>
-    </LinearLayout>
+        </LinearLayout>
     </ScrollView>
 
     <Button

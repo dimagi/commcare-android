@@ -16,6 +16,8 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Shows reason for unrecoverable crash to user and restarts CommCare
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CrashWarningActivity extends Activity {
     private int errorMessageVisibility = View.GONE;
@@ -44,8 +46,7 @@ public class CrashWarningActivity extends Activity {
 
     private void setupUi() {
         setupButtons();
-        setupWarningText();
-        setupErrorMessage();
+        setupText();
     }
 
     private void setupButtons() {
@@ -63,8 +64,6 @@ public class CrashWarningActivity extends Activity {
                 toggleErrorMessageVisibility();
             }
         });
-
-
     }
 
     private void restartCommCare() {
@@ -81,12 +80,10 @@ public class CrashWarningActivity extends Activity {
         CrashWarningActivity.this.finish();
     }
 
-    private void setupWarningText() {
+    private void setupText() {
         TextView simpleWarningView = (TextView)findViewById(R.id.SimpleWarningMessage);
         simpleWarningView.setText(Localization.get("crash.warning.header"));
-    }
 
-    private void setupErrorMessage() {
         TextView errorMessageView = (TextView)findViewById(R.id.ErrorText);
 
         Intent intent = getIntent();
@@ -113,9 +110,9 @@ public class CrashWarningActivity extends Activity {
 
     private void updateButtonState() {
         if (errorView.getVisibility() == View.GONE) {
-            infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
+            infoButton.setImageResource(R.drawable.icon_info_outline_neutral);
         } else {
-            infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
+            infoButton.setImageResource(R.drawable.icon_info_fill_neutral);
         }
     }
 
