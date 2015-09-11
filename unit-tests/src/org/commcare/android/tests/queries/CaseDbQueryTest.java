@@ -59,8 +59,6 @@ public class CaseDbQueryTest {
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
-        
-        
     }
     
     private void evaluate(String xpath, String expectedValue, EvaluationContext ec) {

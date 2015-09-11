@@ -87,7 +87,8 @@ public class TestUtils {
         DataModelPullParser parser;
         
         try{
-            InputStream is = TestUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+            InputStream is = System.class.getResourceAsStream(resourcePath);
+            
             parser = new DataModelPullParser(is, getFactory(db), true, true);
             parser.parse();
             is.close();
