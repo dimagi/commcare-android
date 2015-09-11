@@ -35,7 +35,7 @@ public class CaseDbQueryTest {
      */
     @Test
     public void testBasicCaseQueries() {
-        TestUtils.processResourceTransaction("resources/inputs/case_create.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create.xml");
         
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
         
@@ -52,8 +52,8 @@ public class CaseDbQueryTest {
      */
     @Test
     public void testCaseIndexQueries() {
-        TestUtils.processResourceTransaction("resources/inputs/case_create.xml");
-        TestUtils.processResourceTransaction("resources/inputs/case_create_and_index.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
         
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
 

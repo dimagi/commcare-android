@@ -30,7 +30,7 @@ public class FormStorageTest {
     
     @Test
     public void testRegressionXFormSerializations() {
-        FormDef def = XFormUtils.getFormFromResource("/resources/forms/placeholder.xml");
+        FormDef def = XFormUtils.getFormFromResource("/forms/placeholder.xml");
         try {
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
         } catch (IOException | DeserializationException e) {
