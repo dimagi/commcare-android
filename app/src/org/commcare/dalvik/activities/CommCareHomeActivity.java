@@ -43,6 +43,7 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
@@ -70,7 +71,9 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -853,15 +856,14 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private void startNextFetch() {
 
         final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-        CommCareSession session = asw.getSession();
-        String needed = session.getNeededData();
+        String needed = asw.getSession().getNeededData();
 
         if (needed == null) {
             readyToProceed(asw);
         } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
-            handleGetCommand(session);
+            handleGetCommand(asw);
         } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            handleGetDatum(session);
+            handleGetDatum(asw);
         } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
             handleCompute(asw);
         }
@@ -897,18 +899,34 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         }
     }
 
-    private void handleGetCommand(CommCareSession session) {
+    // CommCare needs a menu or form selection to proceed
+    private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
         if (DeveloperPreferences.isGridMenuEnabled()) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
-        i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, asw.getSession().getCommand());
         startActivityForResult(i, GET_COMMAND);
     }
 
-    private void handleGetDatum(CommCareSession session) {
+    // CommCare needs a case selection to proceed
+    private void handleGetDatum(AndroidSessionWrapper asw) {
+        CommCareSession session = asw.getSession();
+        SessionDatum neededDatum = session.getNeededDatum();
+        if (neededDatum.isAutoSelectEnabled()) {
+            // Figure out how many options there are
+            Detail d = session.getDetail(neededDatum.getShortDetail());
+            EvaluationContext ec = asw.getEvaluationContext();
+            NodeEntityFactory factory = new NodeEntityFactory(d, ec);
+
+        } else {
+            launchEntitySelect(session);
+        }
+    }
+
+    private void launchEntitySelect(CommCareSession session) {
         Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
         StackFrameStep lastPopped = session.getPoppedStep();

@@ -84,7 +84,12 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListener {
+public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
+        EntityLoaderListener,
+        OnItemClickListener,
+        TextToSpeech.OnInitListener,
+        DetailCalloutListener,
+        BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
@@ -308,19 +313,19 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         mListStateObserver = new DataSetObserver() {
             @Override
             public void onChanged() {
-                super.onChanged();
-                //update the search results box
-                String query = getSearchText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCount(true, false),
-                            "" + adapter.getCount(true, true),
-                            query
-                    }));
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                } else {
-                    searchResultStatus.setVisibility(View.GONE);
-                }
+            super.onChanged();
+            //update the search results box
+            String query = getSearchText().toString();
+            if (!"".equals(query)) {
+                searchResultStatus.setText(Localization.get("select.search.status", new String[]{
+                        "" + adapter.getCount(true, false),
+                        "" + adapter.getCount(true, true),
+                        query
+                }));
+                searchResultStatus.setVisibility(View.VISIBLE);
+            } else {
+                searchResultStatus.setVisibility(View.GONE);
+            }
             }
         };
     }
@@ -413,7 +418,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
-
                 theloader.execute(selectDatum.getNodeset());
             } else {
                 startTimer();
@@ -1066,7 +1070,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             theloader.attachListener(this);
-
             theloader.execute(selectDatum.getNodeset());
         }
     }
