@@ -43,7 +43,6 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DataPullTask;
@@ -71,7 +70,6 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
@@ -79,6 +77,7 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
@@ -88,6 +87,7 @@ import org.odk.collect.android.tasks.FormLoaderTask;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
@@ -96,9 +96,23 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     private static final int LOGIN_USER = 0;
+
+    /**
+     * Request code for launching a menu list or menu grid
+     */
     private static final int GET_COMMAND = 1;
+
+    /**
+     * Request code for launching EntitySelectActivity (to allow user to select a case),
+     * or EntityDetailActivity (to allow user to confirm an auto-selected case)
+     */
     private static final int GET_CASE = 2;
+
+    /**
+     * Request code for launching FormEntryActivity
+     */
     private static final int MODEL_RESULT = 4;
+
     public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
@@ -466,6 +480,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         if(resultCode == RESULT_RESTART) {
             startNextFetch();
         } else {
+            AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
@@ -591,8 +607,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
-                AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-                
                 if(resultCode == RESULT_CANCELED) {
                     refreshView();
                     return;
@@ -622,7 +636,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 break;
             case GET_COMMAND:
                 //TODO: We might need to load this from serialized state?
-                currentState = CommCareApplication._().getCurrentSessionWrapper();
                 if(resultCode == RESULT_CANCELED) {
                     if(currentState.getSession().getCommand() == null) {
                         //Needed a command, and didn't already have one. Stepping back from
@@ -643,14 +656,13 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                currentState = CommCareApplication._().getCurrentSessionWrapper();
                 if(resultCode == RESULT_CANCELED) {
                     currentState.getSession().stepBack();
-                    break;
                 } else if(resultCode == RESULT_OK) {
-                    currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(), intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-                    break;
+                    currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(),
+                            intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
                 }
+                break;
             case MODEL_RESULT:
                 boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
                 if (!fetchNext) {
@@ -913,16 +925,11 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
     // CommCare needs a case selection to proceed
     private void handleGetDatum(AndroidSessionWrapper asw) {
-        CommCareSession session = asw.getSession();
-        SessionDatum neededDatum = session.getNeededDatum();
-        if (neededDatum.isAutoSelectEnabled()) {
-            // Figure out how many options there are
-            Detail d = session.getDetail(neededDatum.getShortDetail());
-            EvaluationContext ec = asw.getEvaluationContext();
-            NodeEntityFactory factory = new NodeEntityFactory(d, ec);
-
+        TreeReference autoSelection = getAutoSelectableCase(asw);
+        if (autoSelection == null) {
+            launchEntitySelect(asw.getSession());
         } else {
-            launchEntitySelect(session);
+            handleAutoSelect(autoSelection, asw);
         }
     }
 
@@ -934,6 +941,39 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
         startActivityForResult(i, GET_CASE);
+    }
+
+    private void handleAutoSelect(TreeReference autoSelection, AndroidSessionWrapper asw) {
+        CommCareSession session = asw.getSession();
+        SessionDatum selectDatum = session.getNeededDatum();
+        if (selectDatum.getLongDetail() == null) {
+            // No confirm detail defined for this entity select, so just set the case id right away
+            // and then proceed
+            String caseId = EntitySelectActivity.getCaseIdFromReference(autoSelection, selectDatum, asw);
+            session.setDatum(selectDatum.getDataId(), caseId);
+            startNextFetch();
+        } else {
+            // Launch an intent to load the confirmation screen for this selection
+            Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+            EntitySelectActivity.populateDetailIntent(detailIntent, autoSelection, selectDatum, asw);
+            startActivityForResult(detailIntent, GET_CASE);
+        }
+    }
+
+    private TreeReference getAutoSelectableCase(AndroidSessionWrapper asw) {
+        CommCareSession session = asw.getSession();
+        SessionDatum selectDatum = session.getNeededDatum();
+        if (selectDatum.isAutoSelectEnabled()) {
+            EvaluationContext ec = asw.getEvaluationContext();
+            List<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
+            if (entityListElements.size() == 1) {
+                return entityListElements.get(0);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     private void handleCompute(AndroidSessionWrapper asw) {

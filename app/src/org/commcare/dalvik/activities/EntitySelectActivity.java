@@ -125,7 +125,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     // forward on to form manipulation?
     private boolean mViewMode = false;
 
-    // Has a detail screen not been defined?
+    // No detail confirm screen is defined for this entity select
     private boolean mNoDetailMode = false;
 
     private EntityLoaderTask loader;
@@ -443,14 +443,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     /**
-     * Attach element selection information to the intent argument, or create a
-     * new EntityDetailActivity if null. Used for displaying a detailed view of
-     * an element (form instance).
+     * Get an intent to for displaying a detailed view of an element
      *
      * @param contextRef   reference to the selected element for which to display
      *                     detailed view
-     * @param detailIntent intent to attach extra data to. If null, create a fresh
-     *                     EntityDetailActivity intent
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
@@ -458,22 +454,21 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (detailIntent == null) {
             detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
+        return populateDetailIntent(detailIntent, contextRef, this.selectDatum, this.asw);
+    }
 
-        // grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-        AbstractTreeElement element =
-                asw.getEvaluationContext().resolveReference(elementRef.contextualize(contextRef));
+    /**
+     * Attach all element selection information to the intent argument
+     *
+     * @return the resulting intent
+     */
+    public static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
+                                         SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
-        String value = "";
-        // get the case id and add it to the intent
-        if (element != null && element.getValue() != null) {
-            value = element.getValue().uncast().getString();
-        }
+        String value = getCaseIdFromReference(contextRef, selectDatum, asw);
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, value);
 
-        // Include long datum info if present. Otherwise that'll be the queue
-        // to just return
+        // Include long datum info if present (if not present, will be the signal to just return)
         if (selectDatum.getLongDetail() != null) {
             detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
                     selectDatum.getLongDetail());
@@ -485,6 +480,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
 
         return detailIntent;
+    }
+
+    public static String getCaseIdFromReference(TreeReference contextRef,
+                                                 SessionDatum selectDatum,
+                                                 AndroidSessionWrapper asw) {
+
+        // Grab the session's (form) element reference, and load it.
+        TreeReference elementRef =
+                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
+        AbstractTreeElement element =
+                asw.getEvaluationContext().resolveReference(elementRef.contextualize(contextRef));
+
+        if (element != null && element.getValue() != null) {
+            return element.getValue().uncast().getString();
+        }
+        return "";
     }
 
     @Override
@@ -502,6 +513,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             Intent i = getDetailIntent(selection, null);
             i.putExtra("entity_detail_index", position);
             if (mNoDetailMode) {
+                // Not actually launching detail intent because there's no confirm detail available
                 returnWithResult(i);
             } else {
                 startActivityForResult(i, CONFIRM_SELECT);
@@ -596,13 +608,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
     }
 
-
+    /**
+     * Finish this activity, including all extras from the given intent in the finishing intent
+     */
     private void returnWithResult(Intent intent) {
         Intent i = new Intent(this.getIntent());
-
         i.putExtras(intent.getExtras());
         setResult(RESULT_OK, i);
-
         finish();
     }
 
