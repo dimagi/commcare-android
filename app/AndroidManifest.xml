@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.commcare.dalvik"
     android:versionCode="106"
     android:versionName="2.23" >
@@ -10,6 +11,7 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
     <application
+        tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
         android:icon="@drawable/icon"
         android:label="@string/application_name"
