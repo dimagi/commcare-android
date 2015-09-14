@@ -1,10 +1,36 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Vector;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.Spannable;
+import android.text.format.DateUtils;
+import android.util.Base64;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -39,7 +65,6 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -50,43 +75,13 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.XPathParseTool;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.tasks.FormLoaderTask;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.text.Spannable;
-import android.text.format.DateUtils;
-import android.util.Base64;
-import android.util.Pair;
-import android.view.ContextThemeWrapper;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Vector;
 
 public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity> {
     
@@ -1246,7 +1241,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
         }
         Intent i = new Intent(getApplicationContext(), LoginActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivityForResult(i,LOGIN_USER);
+        startActivityForResult(i, LOGIN_USER);
     }
     
     public void createNoStorageDialog() {
@@ -1319,7 +1314,7 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             syncMessage.setTypeface(null, Typeface.NORMAL);
             syncMessage.setBackgroundDrawable(getResources().getDrawable(R.drawable.bubble));
         }
-        syncMessage.setPadding(padding[0],padding[1], padding[2], padding[3]);
+        syncMessage.setPadding(padding[0], padding[1], padding[2], padding[3]);
     }
     
     private void refreshView() throws SessionUnavailableException{
@@ -1343,6 +1338,12 @@ public class CommCareHomeActivity extends CommCareActivity<CommCareHomeActivity>
             lastMessageKey="home.sync.message.last";
             homeMessageKey="home.start.demo";
             logoutMessageKey = "home.logout.demo";
+        }
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        if (metrics.densityDpi <= DisplayMetrics.DENSITY_MEDIUM) {
+            ImageView bannerView = (ImageView) findViewById(R.id.main_top_banner);
+            bannerView.setVisibility(View.GONE);
         }
         
         // Override default CommCare banner if requested
