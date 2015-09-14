@@ -25,13 +25,11 @@ checkstyle {
 
 findbugs {
   ignoreFailures = true
-  sourceSets = [android.sourceSets.main]
   effort = "max"
 }
 
 pmd {
   ignoreFailures = true
-  sourceSets = [android.sourceSets.main]
 }
 
 
