@@ -1,3 +1,9 @@
+// These build settings assume the following directory structure:
+// - somewhere/your/code/directory/is
+// -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
+// -- commcare (github: https://github.com/dimagi/commcare/)
+// -- javarosa (github: https://github.com/dimagi/javarosa/)
+
 include ':libraries:mapballoons'
 include ':libraries:achartengine'
 include ':libraries:AndroidStaggeredGrid:library'
