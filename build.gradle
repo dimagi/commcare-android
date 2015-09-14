@@ -34,10 +34,6 @@ pmd {
   sourceSets = [android.sourceSets.main]
 }
 
-test {
-  reports.junitXml.destination = file('build/reports/tests')
-}
-
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
@@ -211,14 +207,3 @@ android {
         }
     }
 }
-
-task jenkinsTest {
-    inputs.files test.outputs.files
-    doLast {
-        def timestamp = System.currentTimeMillis()
-        test.getReports().getJunitXml().getDestination().eachFile { it.lastModified = timestamp }
-    }
-}
-
-checkDebug.dependsOn(jenkinsTest)
-checkRelease.dependsOn(jenkinsTest)
