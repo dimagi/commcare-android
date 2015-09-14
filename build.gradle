@@ -1,6 +1,8 @@
+apply plugin: 'com.android.application'
 apply plugin: 'checkstyle'
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
+
 
 buildscript {
     repositories {
@@ -12,12 +14,30 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.application'
-
 // we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
 }
+
+checkstyle {
+    toolVersion = "6.7"
+}
+
+findbugs {
+  ignoreFailures = true
+  sourceSets = [sourceSets.main]
+  effort = "max"
+}
+
+pmd {
+  ignoreFailures = true
+  sourceSets = [sourceSets.main]
+}
+
+test {
+  reports.junitXml.destination = file('build/reports/tests')
+}
+
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
