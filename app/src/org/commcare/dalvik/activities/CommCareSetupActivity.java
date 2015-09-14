@@ -556,7 +556,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         return true;
     }
 
@@ -571,64 +571,69 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * Scan SMS messages for texts with profile references.
      * @param installAutomatically install automatically if reference is found
      */
-    public void performSMSInstall(boolean installAutomatically){
+    private void performSMSInstall(boolean installAutomatically){
+        String profileLink = null;
         try {
-            String profileLink = this.scanSMSLinks();
-            if (profileLink != null) {
-                // we found a valid profile link, either start install automatically
-                // or move to READY_TO_INSTALL state
-                Log.v("install", "Performing SMS install with link : " + incomingRef);
-                incomingRef = profileLink;
-                if (installAutomatically) {
-                    startResourceInstall();
-                } else {
-                    uiState = UiState.READY_TO_INSTALL;
-                    Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
-                }
-            } else {
-                // only notify if this was manually triggered, since most people won't use this
-                if(installAutomatically) {
-                    Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
-                }
-            }
+            profileLink = this.scanSMSLinks();
         } catch(SignatureException e){
             // possibly we want to do something more severe here? could be malicious
             e.printStackTrace();
             Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
         }
+        if (profileLink != null) {
+            // we found a valid profile link, either start install automatically
+            // or move to READY_TO_INSTALL state
+            Log.v("install", "Performing SMS install with link : " + incomingRef);
+            incomingRef = profileLink;
+            if (installAutomatically) {
+                startResourceInstall();
+            } else {
+                uiState = UiState.READY_TO_INSTALL;
+                Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+            }
+        } else if(installAutomatically) {
+            // only notify if this was manually triggered, since most people won't use this
+            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+        }
     }
 
 
-    // http://stackoverflow.com/questions/11301046/search-sms-inbox
 
     /**
      * Scan the SMS inbox, looking for messages that meet the expected install format,
-     * and if found and verified return the discovered install link
+     * and if found and verified return the discovered install link. Current behavior will search
+     * backwards from the most recent text, returning the first discovered valid link
      * @return the verified install link, null if none found
-     * @throws SignatureException if we discovered a valid-looking message but could not verify it
+     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
      */
-    public String scanSMSLinks() throws SignatureException{
-        String installLink = null;
+    private String scanSMSLinks() throws SignatureException{
+        // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc limit 1");
-        if(cursor.moveToFirst()) {
-            Log.v("Body", cursor.getString(cursor.getColumnIndex("body")));
-            String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-            if(textMessageBody.contains("ccapp:") && textMessageBody.contains("signature:")) {
-                installLink = parseAndVerifySMS(textMessageBody);
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        try {
+            while (!cursor.isAfterLast()) {
+                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                if (textMessageBody.contains("ccapp:") && textMessageBody.contains("signature:")) {
+                    String installLink = parseAndVerifySMS(textMessageBody);
+                    if(installLink != null){
+                        return installLink;
+                    }
+                }
             }
         }
-        cursor.close();
-        return installLink;
+        finally{
+            cursor.close();
+        }
+        return null;
     }
 
     /**
      *
      * @param text the parsed out text message in the expected link/signature format
      * @return the download link if the message was valid and verified, null otherwise
-     * @throws SignatureException if we discovered a valid-looking message but could not verify it
+     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
      */
-    public String parseAndVerifySMS(String text) throws SignatureException {
+    private String parseAndVerifySMS(String text) throws SignatureException {
         // parse out the app link and signature. We assume there is a space after ccapp: and
         // signature: and that the end of the signature is the end of the text content
         String downloadLink = text.substring(text.indexOf("ccapp:") + 7, text.indexOf(","));
@@ -639,9 +644,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         throw new SignatureException();
     }
 
-    public boolean verifySMS(String signature, String message){
+    private boolean verifySMS(String signature, String message){
         String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
-        return SigningUtil.verify(keyString, message, signature);
+        return SigningUtil.verifyMessageSignatureHelper(keyString, message, signature);
     }
 
     @Override
