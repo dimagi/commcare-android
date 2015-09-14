@@ -1,7 +1,7 @@
 package org.commcare.android.shadows;
 
-import java.util.Locale;
-import java.util.Map;
+import android.content.ContentValues;
+import android.database.Cursor;
 
 import net.sqlcipher.SQLException;
 import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
@@ -9,14 +9,14 @@ import net.sqlcipher.database.SQLiteDatabaseHook;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteStatement;
 
+import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 
-import android.content.ContentValues;
-import android.database.Cursor;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author ctsims
- *
  */
 @Implements(net.sqlcipher.database.SQLiteDatabase.class)
 public class SQLiteDatabaseNative {
@@ -34,164 +34,164 @@ public class SQLiteDatabaseNative {
         
     }
 
-    //@Override
+    @Implementation
     public void beginTransaction() {
         db.beginTransaction();
     }
 
-    //@Override
+    @Implementation
     public void changePassword(char[] password) throws SQLiteException {
     }
 
-    //@Override
+    @Implementation
     public void changePassword(String password) throws SQLiteException {
     }
 
-    //@Override
+    @Implementation
     public void close() {
 
         db.close();
     }
 
-    //@Override
+    @Implementation
     public SQLiteStatement compileStatement(String sql) throws SQLException {
         throw new UnsupportedOperationException("Can't use compiled statements on mock db");
     }
 
-    //@Override
+    @Implementation
     public int delete(String arg0, String arg1, String[] arg2) {
         return db.delete(arg0, arg1, arg2);
     }
 
-    //@Override
+    @Implementation
     public void endTransaction() {
         db.endTransaction();
     }
 
-    //@Override
+    @Implementation
     public void execSQL(String arg0, Object[] arg1) throws SQLException {
         db.execSQL(arg0, arg1);
     }
 
-    //@Override
+    @Implementation
     public void execSQL(String arg0) throws SQLException {
         db.execSQL(arg0);
     }
 
-    //@Override
+    @Implementation
     public synchronized int getMaxSqlCacheSize() {
         return -1;
     }
 
-    //@Override
+    @Implementation
     public long getMaximumSize() {
         return db.getMaximumSize();
     }
 
-    //@Override
+    @Implementation
     public long getPageSize() {
         return db.getPageSize();
     }
 
-    //@Override
+    @Implementation
     public Map<String, String> getSyncedTables() {
         return db.getSyncedTables();
     }
 
-    //@Override
+    @Implementation
     public int getVersion() {
         return db.getVersion();
     }
 
-    //@Override
+    @Implementation
     public boolean inTransaction() {
         return db.inTransaction();
     }
 
-    //@Override
+    @Implementation
     public long insert(String arg0, String arg1, ContentValues arg2) {
         return db.insert(arg0, arg1, arg2);
     }
 
-    //@Override
+    @Implementation
     public long insertOrThrow(String table, String nullColumnHack, ContentValues values) throws SQLException {
         return db.insertOrThrow(table, nullColumnHack, values);
     }
 
-    //@Override
+    @Implementation
     public long insertWithOnConflict(String arg0, String arg1, ContentValues arg2, int arg3) {
         return db.insertWithOnConflict(arg0, arg1, arg2, arg3);
     }
 
-    //@Override
+    @Implementation
     public boolean isDbLockedByCurrentThread() {
         return db.isDbLockedByCurrentThread();
     }
 
-    //@Override
+    @Implementation
     public boolean isDbLockedByOtherThreads() {
         return db.isDbLockedByOtherThreads();
     }
 
-    //@Override
+    @Implementation
     public boolean isInCompiledSqlCache(String sql) {
         return false;
     }
 
-    //@Override
+    @Implementation
     public boolean isOpen() {
         return db.isOpen();
     }
 
-    //@Override
+    @Implementation
     public boolean isReadOnly() {
         return db.isReadOnly();
     }
 
-    //@Override
+    @Implementation
     public void markTableSyncable(String table, String foreignKey, String updateTable) {
         db.markTableSyncable(table, foreignKey, updateTable);
     }
 
-    //@Override
+    @Implementation
     public void markTableSyncable(String table, String deletedTable) {
         db.markTableSyncable(table, deletedTable);
     }
 
-    //@Override
+    @Implementation
     public boolean needUpgrade(int newVersion) {
         return db.needUpgrade(newVersion);
     }
 
-    //@Override
+    @Implementation
     protected void onAllReferencesReleased() {
     }
 
-    //@Override
+    @Implementation
     public void purgeFromCompiledSqlCache(String sql) {
     }
 
-    //@Override
+    @Implementation
     public Cursor query(boolean distinct, String table, String[] columns,
             String selection, String[] selectionArgs, String groupBy,
             String having, String orderBy, String limit) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit));
     }
 
-    //@Override
+    @Implementation
     public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having,
             String orderBy, String limit) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit));
     }
 
-    //@Override
+    @Implementation
     public Cursor query(String table, String[] columns, String selection,
             String[] selectionArgs, String groupBy, String having,
             String orderBy) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy));
     }
 
-    //@Override
+    @Implementation
     public Cursor queryWithFactory(CursorFactory cursorFactory,
             boolean distinct, String table, String[] columns, String selection,
             String[] selectionArgs, String groupBy, String having,
@@ -199,106 +199,106 @@ public class SQLiteDatabaseNative {
         throw new UnsupportedOperationException("Can't perform queries with a factor in the mock db");
     }
 
-    //@Override
+    @Implementation
     public void rawExecSQL(String arg0) {
         //Mostly Done for Pragma commands and such, just skip and we'll see if it 
         //goes badly
     }
 
-    //@Override
+    @Implementation
     public Cursor rawQuery(String sql, String[] selectionArgs, int initialRead,
             int maxRead) {
         throw new UnsupportedOperationException("Mock DB cannot support raw Query with this signature");
     }
 
-    //@Override
+    @Implementation
     public Cursor rawQuery(String sql, String[] selectionArgs) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.rawQuery(sql, selectionArgs));
     }
 
-    //@Override
+    @Implementation
     public Cursor rawQueryWithFactory(CursorFactory arg0, String arg1,
             String[] arg2, String arg3) {
         throw new UnsupportedOperationException("Can't perform queries with a factor in the mock db");
     }
 
-    //@Override
+    @Implementation
     public long replace(String arg0, String arg1, ContentValues arg2) {
         return db.replace(arg0, arg1, arg2);
     }
 
-    //@Override
+    @Implementation
     public long replaceOrThrow(String table, String nullColumnHack, ContentValues initialValues) throws SQLException {
 
         return db.replaceOrThrow(table, nullColumnHack, initialValues);
     }
 
-    //@Override
+    @Implementation
     public void resetCompiledSqlCache() {
     }
 
-    //@Override
+    @Implementation
     public void setLocale(Locale locale) {
         db.setLocale(locale);
     }
 
-    //@Override
+    @Implementation
     public void setLockingEnabled(boolean lockingEnabled) {
         db.setLockingEnabled(lockingEnabled);
     }
 
-    //@Override
+    @Implementation
     public synchronized void setMaxSqlCacheSize(int cacheSize) {
         db.setMaxSqlCacheSize(cacheSize);
     }
 
-    //@Override
+    @Implementation
     public long setMaximumSize(long arg0) {
         return db.setMaximumSize(arg0);
     }
 
-    //@Override
+    @Implementation
     public void setPageSize(long numBytes) {
         db.setPageSize(numBytes);
     }
 
-    //@Override
+    @Implementation
     public void setTransactionSuccessful() {
         db.setTransactionSuccessful();
     }
 
-    //@Override
+    @Implementation
     public void setVersion(int version) {
         db.setVersion(version);
     }
 
-    //@Override
+    @Implementation
     public int status(int operation, boolean reset) {
         throw new UnsupportedOperationException("Mock DB cannot support status operation");
     }
 
-    //@Override
+    @Implementation
     public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
         return db.update(table, values, whereClause, whereArgs);
     }
 
-    //@Override
+    @Implementation
     public int updateWithOnConflict(String arg0, ContentValues arg1,
             String arg2, String[] arg3, int arg4) {
         return db.updateWithOnConflict(arg0, arg1, arg2, arg3, arg4);
     }
 
-    //@Override
+    @Implementation
     public boolean yieldIfContended() {
         return db.yieldIfContended();
     }
 
-    //@Override
+    @Implementation
     public boolean yieldIfContendedSafely() {
         return db.yieldIfContendedSafely();
     }
 
-    //@Override
+    @Implementation
     public boolean yieldIfContendedSafely(long sleepAfterYieldDelay) {
         return db.yieldIfContendedSafely(sleepAfterYieldDelay);
     }
