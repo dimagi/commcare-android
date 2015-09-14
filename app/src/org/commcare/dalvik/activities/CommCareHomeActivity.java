@@ -246,7 +246,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
         startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton != null) {
-            startButton.setText(Localization.get("home.start.asdf"));
+            startButton.setText(Localization.get("home.start"));
         } else {
             Log.d("buttons", "startButton is null! Crashing!");
         }
