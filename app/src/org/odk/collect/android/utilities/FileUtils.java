@@ -267,33 +267,44 @@ public class FileUtils {
         return scaledImage;
     }
 
-
-
     public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
-        // Determine image size of f
+        // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+        int imageHeight = o.outHeight;
+        int imageWidth = o.outWidth;
 
-        int heightScale = o.outHeight / screenHeight;
-        int widthScale = o.outWidth / screenWidth;
-
-        // Powers of 2 work faster, sometimes, according to the doc.
-        // We're just doing closest size that still fills the screen.
+        // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
+        // just doing closest size that still fills the screen
+        int heightScale = Math.round((float)imageHeight / screenHeight);
+        int widthScale = Math.round((float)imageWidth / screenWidth);
         int scale = Math.max(widthScale, heightScale);
-
-        // get bitmap with scale ( < 1 is the same as 1)
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = scale;
-        Bitmap b = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
-        if (b != null) {
-        Log.i(t,
-            "Screen is " + screenHeight + "x" + screenWidth + ".  Image has been scaled down by "
-                    + scale + " to " + b.getHeight() + "x" + b.getWidth());
+        if (scale == 0) {
+            // Rounding could possibly have resulted in a scale factor of 0, which is invalid
+            scale = 1;
         }
-        return b;
+
+        return performSafeScaleDown(f, scale, 0);
     }
 
+    /**
+     * Returns a scaled-down bitmap for the given image file, progressively increasing the
+     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
+     */
+    private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
+        if (depth == 5) {
+            // Limit the number of recursive calls
+            return null;
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = scale;
+        try {
+            return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+        } catch (OutOfMemoryError e) {
+            return performSafeScaleDown(f, scale + 1, depth + 1);
+        }
+    }
 
     /**
      * Copies from sourceFile to destFile (either a directory, or a path
