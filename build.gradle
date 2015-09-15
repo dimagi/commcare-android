@@ -1,13 +1,5 @@
-////////////
-// README //
-////////////
-
-// This build script assumes the following directory structure:
-// - somewhere/your/code/directory/is
-// -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
-// -- commcare (github: https://github.com/dimagi/commcare/)
-// -- javarosa (github: https://github.com/dimagi/javarosa/)
-// these directories MUST be named like this, or it won't work
+apply plugin: 'com.android.application'
+apply plugin: 'jacoco'
 
 buildscript {
     repositories {
@@ -19,12 +11,15 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.application'
-
 // we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
 }
+
+jacoco {
+    toolVersion = "0.7.4.+"
+}
+
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
@@ -180,6 +175,8 @@ android {
       debug {
         sourceSets.main.java.srcDirs = sourceLocations + ['debug']
         debuggable true
+
+        testCoverageEnabled true
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
       }
 
@@ -197,5 +194,29 @@ android {
               jvmArgs '-noverify'
         }
     }
+}
 
+
+task jacocoTestReport(type:JacocoReport, dependsOn: "testDebug") {
+    group = "Reporting"
+
+    description = "Generate Jacoco coverage reports"
+
+    classDirectories = fileTree(
+            dir: 'build/intermediates/classes/debug',
+            excludes: ['**/R.class',
+                       '**/R$*.class',
+                       '**/*$ViewInjector*.*',
+                       '**/BuildConfig.*',
+                       '**/Manifest*.*']
+    )
+
+    additionalSourceDirs = files(android.sourceSets.main.java.srcDirs)
+    sourceDirectories = files(android.sourceSets.main.java.srcDirs)
+    executionData = files('build/jacoco/testDebug.exec')
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
 }
