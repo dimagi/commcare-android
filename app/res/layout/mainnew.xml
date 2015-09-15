@@ -30,13 +30,14 @@
         android:layout_alignParentTop="true"
         android:adjustViewBounds="true"
         android:paddingTop="10dp"/>
-
+
+
     <LinearLayout
         android:id="@+id/main_center_pane"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:orientation="vertical" android:layout_above="@id/home.logout" android:gravity="center_vertical|center_horizontal" android:layout_below="@id/main_top_banner">
+        android:orientation="vertical" android:layout_above="@id/str_version" android:gravity="center_vertical|center_horizontal" android:layout_below="@id/main_top_banner">
 
         <Button
             android:id="@+id/home.start"
