@@ -1,8 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'checkstyle'
-apply plugin: 'findbugs'
-apply plugin: 'pmd'
-
 
 buildscript {
     repositories {
@@ -18,20 +14,6 @@ buildscript {
 repositories {
   mavenCentral()
 }
-
-checkstyle {
-    toolVersion = "6.7"
-}
-
-findbugs {
-  ignoreFailures = true
-  effort = "max"
-}
-
-pmd {
-  ignoreFailures = true
-}
-
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
