@@ -74,7 +74,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                         Video.Media.EXTERNAL_CONTENT_URI.toString());
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.VIDEO_CAPTURE);
+                            FormEntryActivity.AUDIO_VIDEO_FETCH);
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -104,7 +104,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 mWaitingForData = true;
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
-                            FormEntryActivity.VIDEO_CHOOSER);
+                            FormEntryActivity.AUDIO_VIDEO_FETCH);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),

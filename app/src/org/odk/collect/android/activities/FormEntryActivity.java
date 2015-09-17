@@ -147,13 +147,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     // Request codes for returning data from specified intent.
     public static final int IMAGE_CAPTURE = 1;
     public static final int BARCODE_CAPTURE = 2;
-    public static final int AUDIO_CAPTURE = 3;
-    public static final int VIDEO_CAPTURE = 4;
+    public static final int AUDIO_VIDEO_FETCH = 3;
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
-    public static final int AUDIO_CHOOSER = 8;
-    public static final int VIDEO_CHOOSER = 9;
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
@@ -499,10 +496,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             case IMAGE_CHOOSER:
                 processImageChooserResponse(intent);
                 break;
-            case AUDIO_CAPTURE:
-            case VIDEO_CAPTURE:
-            case AUDIO_CHOOSER:
-            case VIDEO_CHOOSER:
+            case AUDIO_VIDEO_FETCH:
                 processChooserResponse(intent);
                 break;
             case LOCATION_CAPTURE:
@@ -561,10 +555,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         if (originalImage.exists()) {
             try {
-                // We want to save our final image file in the instance folder for this form, so that it
-                // gets sent to HQ with the form
-                String instanceFolder =
-                        mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
                 File unscaledFinalImage = ImageCaptureProcessing.moveAndScaleImage(originalImage, true, getInstanceFolder(), this);
                 saveImageWidgetAnswer(unscaledFinalImage);
             } catch (IOException e) {
