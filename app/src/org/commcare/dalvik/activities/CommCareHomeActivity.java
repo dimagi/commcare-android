@@ -14,25 +14,15 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Spannable;
-import android.text.format.DateUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.etsy.android.grid.StaggeredGridView;
-
-import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -59,7 +49,6 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
-import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -69,7 +58,6 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
-import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
@@ -81,12 +69,8 @@ import org.javarosa.xpath.XPathException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Vector;
-
-import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareHomeActivity> {
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
@@ -137,9 +121,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
      */
     public static final int RESULT_RESTART = 3;
 
-    private final static String UNSENT_FORM_NUMBER_KEY = "unsent-number-limit";
-    private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
-
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
@@ -152,16 +133,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
     private AndroidCommCarePlatform platform;
 
-    private SquareButtonWithNotification startButton;
-    private SquareButtonWithNotification logoutButton;
-    private SquareButtonWithNotification viewIncompleteFormsButton;
-    private SquareButtonWithNotification syncButton;
-
-    private HomeScreenAdapter adapter;
-    private GridViewWithHeaderAndFooter gridView;
-    private StaggeredGridView newGridView;
-    private View mTopBanner;
-
+    private HomeActivityUIController uiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +143,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
         ACRAUtil.registerAppData();
-        setupUI();
+        uiController = new HomeActivityUIController(this);
+        uiController.setupUI();
     }
 
     private void finishIfNotRoot() {
@@ -188,187 +161,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         }
     }
 
-    private void setupUI() {
-        setMainLayout();
-        adapter = new HomeScreenAdapter(this);
-        mTopBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
-        setupGridView();
-    }
-
-    private void setMainLayout() {
-        // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
-        if (usingNewLayout()) {
-            setContentView(R.layout.mainnew_modern_v10);
-        } else {
-            setContentView(R.layout.mainnew_modern);
-        }
-    }
-
-    private boolean usingNewLayout() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1;
-    }
-
-    private void setupGridView() {
-        final View grid = findViewById(R.id.home_gridview_buttons);
-
-        if (usingNewLayout()) {
-            newGridView = (StaggeredGridView) grid;
-            newGridView.addHeaderView(mTopBanner);
-            newGridView.setAdapter(adapter);
-        } else {
-            gridView = (GridViewWithHeaderAndFooter)grid;
-            gridView.addHeaderView(mTopBanner);
-            gridView.setAdapter(adapter);
-        }
-
-        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressLint("NewApi")
-            @Override
-            public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-                grid.requestLayout();
-                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
-                refreshUI();
-            }
-        });
-    }
-
-    private void refreshUI() {
-        if (CommCareApplication._().getCurrentApp() == null) {
-            // This method depends on there being a seated app, so don't proceed with it if we
-            // don't have one
-            return;
-        }
-        setupVersion();
-        setupButtons();
-        rebuildMenus();
-    }
-
-    private void setupVersion() {
-        TextView version = (TextView)findViewById(R.id.str_version);
-        if (version != null) {
-            version.setText(CommCareApplication._().getCurrentVersionString());
-        }
-    }
-
-    private void setupButtons() {
-        setupStartButton();
-        setupIncompleteFormsButton();
-        setupLogoutButton();
-        setupViewOldFormsButton();
-        setupSyncButton();
-    }
-
-    private void setupStartButton() {
-        startButton = adapter.getButton(R.layout.home_start_button);
-        if (startButton != null) {
-            startButton.setText(Localization.get("home.start"));
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_start_button, getStartButtonListener());
-    }
-
-    private void setupIncompleteFormsButton() {
-        viewIncompleteFormsButton = adapter.getButton(R.layout.home_incompleteforms_button);
-        if (viewIncompleteFormsButton != null) {
-            setIncompleteFormsText(CommCareApplication._().getSyncDisplayParameters());
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, getIncompleteButtonListener());
-    }
-
-    private void setupLogoutButton() {
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
-        if (logoutButton != null) {
-            logoutButton.setText(Localization.get("home.logout"));
-            logoutButton.setNotificationText(getActivityTitle());
-            adapter.notifyDataSetChanged();
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
-    }
-
-    private void setupViewOldFormsButton() {
-        SquareButtonWithNotification viewOldForms = adapter.getButton(R.layout.home_savedforms_button);
-        if (viewOldForms != null) {
-            viewOldForms.setText(Localization.get("home.forms.saved"));
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
-    }
-
-    private void setupSyncButton() {
-        syncButton = adapter.getButton(R.layout.home_sync_button);
-        if (syncButton != null) {
-            setSyncButtonText(CommCareApplication._().getSyncDisplayParameters(), null);
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_sync_button, getSyncButtonListener());
-    }
-
-    private View.OnClickListener getViewOldFormsListener() {
-        return new OnClickListener() {
-            public void onClick(View v) {
-                goToFormArchive(false);
-            }
-        };
-    }
-
-    private View.OnClickListener getSyncButtonListener() {
-        return new OnClickListener() {
-            public void onClick(View v) {
-                if (isNetworkNotConnected()) {
-                    if (isAirplaneModeOn()) {
-                        displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
-                    } else {
-                        displayMessage(Localization.get("notification.sync.connections.action"), true, true);
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
-                    }
-                    return;
-                }
-                CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-                boolean formsSentToServer = checkAndStartUnsentTask(true);
-                if(!formsSentToServer) {
-                    // No forms needed to be sent to the server, so let's just
-                    // trigger a data sync.
-                    syncData(false);
-                }
-            }
-        };
-    }
-
-    private View.OnClickListener getStartButtonListener() {
-        return new OnClickListener() {
-            public void onClick(View v) {
-                Intent i;
-                if (DeveloperPreferences.isGridMenuEnabled()) {
-                    i = new Intent(getApplicationContext(), MenuGrid.class);
-                } else {
-                    i = new Intent(getApplicationContext(), MenuList.class);
-                }
-                startActivityForResult(i, GET_COMMAND);
-            }
-        };
-    }
-
-    private View.OnClickListener getIncompleteButtonListener() {
-        return new OnClickListener() {
-            public void onClick(View v) {
-                goToFormArchive(true);
-            }
-        };
-    }
-
-    private View.OnClickListener getLogoutButtonListener() {
-        return new OnClickListener() {
-            public void onClick(View v) {
-                CommCareApplication._().closeUserSession();
-                returnToLogin();
-            }
-        };
-    }
-
-    private void goToFormArchive(boolean incomplete) {
+    protected void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }
 
@@ -381,6 +174,42 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
         }
         startActivityForResult(i, GET_INCOMPLETE_FORM);
+    }
+
+    protected void enterRootModule() {
+        Intent i;
+        if (DeveloperPreferences.isGridMenuEnabled()) {
+            i = new Intent(getApplicationContext(), MenuGrid.class);
+        } else {
+            i = new Intent(getApplicationContext(), MenuList.class);
+        }
+        startActivityForResult(i, GET_COMMAND);
+    }
+
+    protected void returnToLogin() {
+        Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        this.startActivityForResult(i, LOGIN_USER);
+    }
+
+    protected void attemptSync() {
+        if (isNetworkNotConnected()) {
+            if (isAirplaneModeOn()) {
+                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+            } else {
+                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
+            }
+            return;
+        }
+        CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
+        boolean formsSentToServer = checkAndStartUnsentTask(true);
+        if(!formsSentToServer) {
+            // No forms needed to be sent to the server, so let's just
+            // trigger a data sync.
+            syncData(false);
+        }
     }
 
     private void syncData(boolean formsToSend) {
@@ -407,7 +236,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                receiver.refreshView();
+                receiver.getUiController().refreshView();
 
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
@@ -470,6 +299,10 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         mDataPullTask.execute();
     }
 
+    public HomeActivityUIController getUiController() {
+        return this.uiController;
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -499,7 +332,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 } else if (resultCode == RESULT_OK) {
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
                     //We do, however, need to re-init this screen to include new translations
-                    refreshUI();
+                    uiController.configUI();
                     return;
                 }
                 break;
@@ -517,7 +350,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
                 break;
             case PREFERENCES_ACTIVITY:
-                refreshUI();
+                uiController.configUI();
                 return;
             case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
@@ -545,7 +378,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     
                     displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
                     
-                    refreshView();
+                    uiController.refreshView();
                     return;
                 }
                 else if(resultCode == SendTask.BULK_SEND_ID){
@@ -554,7 +387,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
                     
                     Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
-                    refreshView();
+                    uiController.refreshView();
                     return;
                 }
             case CONNECTION_DIAGNOSTIC_ACTIVITY:
@@ -569,7 +402,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
                     
                     Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                    refreshView();
+                    uiController.refreshView();
                     return;
                 } else if(resultCode == WipeTask.WIPE_TASK_ID){
                     int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
@@ -577,7 +410,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
                     
                     Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                    refreshView();
+                    uiController.refreshView();
                     return;
                 }
             case REPORT_PROBLEM_ACTIVITY:
@@ -586,7 +419,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
                 else if(resultCode == RESULT_OK){
                     CommCareApplication._().notifyLogsPending();
-                    refreshView();
+                    uiController.refreshView();
                     return;    
                 }
             case LOGIN_USER:
@@ -595,7 +428,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     return;
                 } else if(resultCode == RESULT_OK) {
                     if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
-                        refreshView();
+                        uiController.refreshView();
                         
                         //Unless we're about to sync (which will handle this
                         //in a blocking fashion), trigger off a regular unsent
@@ -617,7 +450,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
                 
                 if(resultCode == RESULT_CANCELED) {
-                    refreshView();
+                    uiController.refreshView();
                     return;
                 } else if(resultCode == RESULT_OK) {
                     int record = intent.getIntExtra("FORMRECORDS", -1);
@@ -651,7 +484,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                         //Needed a command, and didn't already have one. Stepping back from
                         //an empty state, Go home!
                         currentState.reset();
-                        refreshView();
+                        uiController.refreshView();
                         return;
                     } else {
                         currentState.getSession().stepBack();
@@ -773,7 +606,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 // submission cycle
                 checkAndStartUnsentTask(false);
 
-                refreshView();
+                uiController.refreshView();
 
                 if (wasExternal) {
                     this.finish();
@@ -836,7 +669,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         if (wasExternal) {
             this.finish();
         }
-        refreshView();
+        uiController.refreshView();
     }
 
 
@@ -916,7 +749,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
             if(asw.terminateSession()) {
                 startNextFetch();
             } else {
-                this.refreshView();
+                uiController.refreshView();
             }
         } else {
             startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
@@ -1089,7 +922,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     returnToLogin();
                     return;
                 }
-                receiver.refreshView();
+                uiController.refreshView();
 
                 int successfulSends = this.getSuccesfulSends();
 
@@ -1206,7 +1039,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     handlePendingSync();
                 } else {
                     // Path 1h: Display the normal home screen!
-                    refreshView();
+                    uiController.refreshView();
                 }
             } catch (SessionUnavailableException sue) {
                 returnToLogin();
@@ -1324,7 +1157,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
         String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
         Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-        refreshView();
+        uiController.refreshView();
 
         //Send unsent forms first. If the process detects unsent forms
         //it will sync after the are submitted
@@ -1372,7 +1205,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         mAskOldDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("option.yes"), useOldListener);
         mAskOldDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
         mAskOldDialog.setButton(DialogInterface.BUTTON_NEUTRAL, Localization.get("option.no"), useOldListener);
-
         mAskOldDialog.show();
     }
 
@@ -1385,147 +1217,15 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     private void displayMessage(String message, boolean bad, boolean suppressToast) {
-        if (!suppressToast) {
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        }
-
-        adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
-    }
-
-    private void refreshView() {
-        TextView version = (TextView)findViewById(R.id.str_version);
-        if (version == null) {
-            return;
-        }
-        version.setText(CommCareApplication._().getCurrentVersionString());
-        boolean syncOK = true;
-
-        Pair<Long, int[]> syncDetails;
-        try {
-            syncDetails = CommCareApplication._().getSyncDisplayParameters();
-        } catch (UserStorageClosedException e) {
-            returnToLogin();
-            return;
-        }
-
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
-        int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
-
-        String syncKey = "home.sync";
-        String lastMessageKey = "home.sync.message.last";
-        String homeMessageKey = "home.start";
-        String logoutMessageKey = "home.logout";
-
-        if (isDemoUser()) {
-            syncKey = "home.sync.demo";
-            lastMessageKey = "home.sync.message.last";
-            homeMessageKey = "home.start.demo";
-            logoutMessageKey = "home.logout.demo";
-        }
-
-        if (startButton != null) {
-            startButton.setText(Localization.get(homeMessageKey));
-        }
-        if (logoutButton != null) {
-            logoutButton.setText(Localization.get(logoutMessageKey));
-        }
-        if (syncButton != null) {
-            setSyncButtonText(syncDetails, syncKey);
-        }
-
-        CharSequence syncTime;
-        if (syncDetails.first == 0) {
-            syncTime = Localization.get("home.sync.message.last.never");
-        } else {
-            syncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
-        }
-
-        //TODO: Localize this all
-        String message = "";
-        if (syncDetails.second[0] == 1) {
-            message += Localization.get("home.sync.message.unsent.singular") + "\n";
-        } else if (syncDetails.second[0] > 1) {
-            message += Localization.get("home.sync.message.unsent.plural", new String[]{String.valueOf(syncDetails.second[0])}) + "\n";
-        }
-
-        setIncompleteFormsText(syncDetails);
-
-        if (syncDetails.second[0] > unsentFormNumberLimit) {
-            syncOK = false;
-        }
-
-        long then = syncDetails.first;
-        long now = new Date().getTime();
-
-        int secs_ago = (int)((then - now) / 1000);
-        int days_ago = secs_ago / 86400;
-
-        if ((-days_ago) > unsentFormTimeLimit && (prefs.getString("server-tether", "push-only").equals("sync"))) {
-            syncOK = false;
-        }
-
-        message += Localization.get(lastMessageKey, new String[]{syncTime.toString()});
-
-        displayMessage(message, !syncOK, true);
-
-
-        //Make sure that the review button is properly enabled.
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
-        }
-
-        // set adapter to hide the buttons...
-        boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
-        boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
-
-        Log.i("ShowForms", "ShowSavedForms: " + showSavedForms + " | ShowIncompleteForms: " + showIncompleteForms);
-
-        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
-        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
-
-        updateCommCareBanner();
-
-        adapter.notifyDataSetChanged();
+        uiController.displayMessage(message, bad, suppressToast);
     }
 
     @Override
     protected View getBannerHost() {
-        return mTopBanner;
+        return uiController.getTopBanner();
     }
 
-    private void setSyncButtonText(Pair<Long, int[]> syncDetails, String syncTextKey) {
-        if (syncTextKey == null) {
-            syncTextKey = isDemoUser() ? "home.sync.demo" : "home.sync";
-        }
-        if (syncDetails.second[0] > 0) {
-            Spannable syncIndicator = (this.localize("home.sync.indicator", new String[]{String.valueOf(syncDetails.second[0]), Localization.get(syncTextKey)}));
-            syncButton.setNotificationText(syncIndicator);
-            adapter.notifyDataSetChanged();
-        } else {
-            syncButton.setText(this.localize(syncTextKey));
-        }
-    }
-
-    private void setIncompleteFormsText(Pair<Long, int[]> syncDetails) {
-        if (syncDetails.second[1] > 0) {
-            Log.i("syncDetails", "SyncDetails has count " + syncDetails.second[1]);
-            Spannable incompleteIndicator = (this.localize("home.forms.incomplete.indicator", new String[]{String.valueOf(syncDetails.second[1]), Localization.get("home.forms.incomplete")}));
-            if (viewIncompleteFormsButton != null) {
-                viewIncompleteFormsButton.setText(incompleteIndicator);
-            }
-
-        } else {
-            Log.i("syncDetails", "SyncDetails has no count");
-            if (viewIncompleteFormsButton != null) {
-                viewIncompleteFormsButton.setText(this.localize("home.forms.incomplete"));
-            }
-        }
-    }
-
-    private boolean isDemoUser() {
+    protected boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
@@ -1765,9 +1465,4 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         return false;
     }
 
-    private void returnToLogin() {
-        Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.startActivityForResult(i, LOGIN_USER);
-    }
 }
