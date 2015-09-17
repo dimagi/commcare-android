@@ -1148,7 +1148,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
-        if(event == FormEntryController.EVENT_BEGINNING_OF_FORM && !PreferencesActivity.showFirstScreen(this)) {
+        if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
+            this.showNextView(true);
+        } else if(event == FormEntryController.EVENT_END_OF_FORM) {
+            showPreviousView();
             this.showNextView(true);
         } else {
             View current = createView(event);
@@ -1567,20 +1570,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private void showNextView() { showNextView(false); }
     private void showNextView(boolean resuming) {
-        
-        if(!resuming && mFormController.getEvent() == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-            //See if we should stop displaying the start screen
-            CheckBox stopShowingIntroScreen = (CheckBox)mCurrentView.findViewById(R.id.screen_form_entry_start_cbx_dismiss);
-            //Not sure why it would, but maybe timing issues?
-            if(stopShowingIntroScreen != null) {
-                if(stopShowingIntroScreen.isChecked()) {
-                    //set it!
-                    SharedPreferences sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
-                    sharedPreferences.edit().putBoolean(PreferencesActivity.KEY_SHOW_START_SCREEN, false).commit();
-                }
-            }
-        }
-        
         if (currentPromptIsQuestion()) {
             if (!saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS)) {
                 // A constraint was violated so a dialog should be showing.
@@ -1679,7 +1668,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
                         
             //check if we're at the beginning and not doing the whole "First screen" thing
-            if(event == FormEntryController.EVENT_BEGINNING_OF_FORM && !PreferencesActivity.showFirstScreen(this)) {
+            if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
                 
                 //If so, we can't go all the way back here, so we've gotta hit the last index that was valid
                 mFormController.jumpToIndex(lastValidIndex);
@@ -1813,12 +1802,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
 
         if(!displayed) {
-            showCustomToast(constraintText);
+            showCustomToast(constraintText, Toast.LENGTH_SHORT);
         }
         mBeenSwiped = false;
     }
 
-    private void showCustomToast(String message) {
+    private void showCustomToast(String message, int duration) {
         LayoutInflater inflater =
             (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -1830,7 +1819,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         Toast t = new Toast(this);
         t.setView(view);
-        t.setDuration(Toast.LENGTH_SHORT);
+        t.setDuration(duration);
         t.setGravity(Gravity.CENTER, 0, 0);
         t.show();
     }
