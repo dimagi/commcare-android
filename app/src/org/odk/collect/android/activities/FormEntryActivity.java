@@ -86,6 +86,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.activities.components.ImageCaptureProcessing;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
@@ -516,62 +517,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    /**
-     * Performs any necessary relocating and scaling of an image coming from either a
-     * SignatureWidget or ImageWidget (capture or choose)
-     *
-     * @param originalImage the image file returned by the image capture or chooser intent
-     * @param shouldScale if false, indicates that the image is from a signature capture, so should
-     *                not attempt to scale
-     * @return the image file that should be displayed on the device screen when this question
-     * widget is in view
-     */
-    private File moveAndScaleImage(File originalImage, boolean shouldScale) throws IOException {
-        // We want to save our final image file in the instance folder for this form, so that it
-        // gets sent to HQ with the form
-        String instanceFolder =
-                mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-        String extension =  FileUtils.getExtension(originalImage.getAbsolutePath());
-        String imageFilename = System.currentTimeMillis() + "." + extension;
-        String finalFilePath = instanceFolder + imageFilename;
-
-        boolean savedScaledImage = false;
-        if (shouldScale) {
-            ImageWidget currentWidget = (ImageWidget)getPendingWidget();
-            int maxDimen = currentWidget.getMaxDimen();
-            if (maxDimen != -1) {
-                savedScaledImage = FileUtils.scaleImage(originalImage, finalFilePath, maxDimen);
-            }
-        }
-
-        if (!savedScaledImage) {
-            // If we didn't create a scaled image and save it to the final path, then relocate the
-            // original image from the temp filepath to our final path
-            File finalFile = new File(finalFilePath);
-            if (!originalImage.renameTo(finalFile)) {
-                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                        " to " + finalFile.getAbsolutePath());
-            } else {
-                return finalFile;
-            }
-        } else {
-            // Otherwise, relocate the original image to a raw/ folder, so that we still have access
-            // to the unmodified version
-            String rawDirPath = instanceFolder + "/raw";
-            File rawDir = new File(rawDirPath);
-            if (!rawDir.exists()) {
-                rawDir.mkdir();
-            }
-            File rawImageFile = new File (rawDirPath + "/" + imageFilename);
-            if (!originalImage.renameTo(rawImageFile)) {
-                throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                        " to " + rawImageFile.getAbsolutePath());
-            } else {
-                return rawImageFile;
-            }
-        }
-    }
-
 
     /**
      * Processes the return from an image capture intent, launched by either an ImageWidget or
@@ -590,12 +535,16 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         // The intent is empty, but we know we saved the image to the temp file
         File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
         try {
-            File unscaledFinalImage = moveAndScaleImage(originalImage, isImage);
+            File unscaledFinalImage = ImageCaptureProcessing.moveAndScaleImage(originalImage, isImage, getInstanceFolder(), this);
             saveImageWidgetAnswer(unscaledFinalImage);
         } catch (IOException e) {
             e.printStackTrace();
             showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
         }
+    }
+
+    private String getInstanceFolder() {
+       return mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
     }
 
     private void processImageChooserResponse(Intent intent) {
@@ -612,7 +561,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         if (originalImage.exists()) {
             try {
-                File unscaledFinalImage = moveAndScaleImage(originalImage, true);
+                // We want to save our final image file in the instance folder for this form, so that it
+                // gets sent to HQ with the form
+                String instanceFolder =
+                        mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
+                File unscaledFinalImage = ImageCaptureProcessing.moveAndScaleImage(originalImage, true, getInstanceFolder(), this);
                 saveImageWidgetAnswer(unscaledFinalImage);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -664,7 +617,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     // Search the the current view's widgets for one that has registered a pending callout with
     // the form controller
-    private QuestionWidget getPendingWidget() {
+    public QuestionWidget getPendingWidget() {
         FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
         if (pendingIndex == null) {
             return null;
