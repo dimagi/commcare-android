@@ -788,8 +788,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
         
         public String getAppearance() { return label;}
-        public int getBackgroundDrawable() { return resourceId; }
-        public int getColorId() { return colorId; }
     }
 
     private void updateFloatingLabels(View currentView) {
@@ -2024,7 +2022,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private String getDefaultFormTitle() {
         String saveName = mFormController.getFormTitle();
-        if (getContentResolver().getType(getIntent().getData()) == InstanceColumns.CONTENT_ITEM_TYPE) {
+        if (getContentResolver().getType(getIntent().getData()).equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
             Uri instanceUri = getIntent().getData();
 
             Cursor instance = null;
