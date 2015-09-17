@@ -15,7 +15,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -28,9 +27,7 @@ import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.text.InputFilter;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -54,11 +51,8 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -1151,15 +1145,14 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
             this.showNextView(true);
         } else if(event == FormEntryController.EVENT_END_OF_FORM) {
+
+            // TODO PLM: don't animate this view change (just like showNextView doesn't animate above)
             showPreviousView();
-            this.showNextView(true);
         } else {
             View current = createView(event);
             showView(current, AnimationType.FADE, animateLastView);
         }
-
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -1365,179 +1358,37 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private View createView(int event) {
         setTitle(getHeaderString());
-        switch (event) {
-            case FormEntryController.EVENT_BEGINNING_OF_FORM:
-                View startView = View.inflate(this, R.layout.form_entry_start, null);
-                setTitle(getHeaderString());
-                
-                ((TextView) startView.findViewById(R.id.description)).setText(StringUtils.getStringSpannableRobust(this, R.string.enter_data_description, mFormController.getFormTitle()));
-
-                ((CheckBox) startView.findViewById(R.id.screen_form_entry_start_cbx_dismiss)).setText(StringUtils.getStringSpannableRobust(this, R.string.form_entry_start_hide));
-
-                ((TextView) startView.findViewById(R.id.screen_form_entry_advance_text)).setText(StringUtils.getStringSpannableRobust(this, R.string.advance));
-
-                ((TextView) startView.findViewById(R.id.screen_form_entry_backup_text)).setText(StringUtils.getStringSpannableRobust(this, R.string.backup));
-
-                Drawable image = null;
-                String[] projection = {
-                    FormsColumns.FORM_MEDIA_PATH
-                };
-                String selection = FormsColumns.FORM_FILE_PATH + "=?";
-                String[] selectionArgs = {
-                    mFormPath
-                };
-
-                Cursor c = null;
-                String mediaDir = null;
-                try {
-                    c = getContentResolver().query(formProviderContentURI, projection, selection, selectionArgs, null);
-                    if (c.getCount() < 1) {
-                        CommCareActivity.createErrorDialog(this, "Form doesn't exist", EXIT);
-                        return new View(this);
-                    } else {
-                        c.moveToFirst();
-                        mediaDir = c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH));
-                    }
-                } finally {
-                    if (c != null) {
-                        c.close();
-                    }
-                }
-
-                BitmapDrawable bitImage = null;
-                // attempt to load the form-specific logo...
-                // this is arbitrarily silly
-                bitImage = new BitmapDrawable(mediaDir + "/form_logo.png");
-
-                if (bitImage.getBitmap() != null &&
-                        bitImage.getIntrinsicHeight() > 0 &&
-                        bitImage.getIntrinsicWidth() > 0) {
-                    image = bitImage;
-                }
-
-                if (image == null) {
-                    // show the opendatakit zig...
-                    // image = getResources().getDrawable(R.drawable.opendatakit_zig);
-                    ((ImageView) startView.findViewById(R.id.form_start_bling))
-                            .setVisibility(View.GONE);
-                } else {
-                    ((ImageView) startView.findViewById(R.id.form_start_bling))
-                            .setImageDrawable(image);
-                }
-
-                return startView;
-            case FormEntryController.EVENT_END_OF_FORM:
-                View endView = View.inflate(this, R.layout.form_entry_end, null);
-                ((TextView) endView.findViewById(R.id.description)).setText(StringUtils.getStringSpannableRobust(this, R.string.save_enter_data_description,
-                        mFormController.getFormTitle()));
-
-                // checkbox for if finished or ready to send
-                final CheckBox instanceComplete = ((CheckBox) endView.findViewById(R.id.mark_finished));
-                instanceComplete.setText(StringUtils.getStringSpannableRobust(this, R.string.mark_finished));
-
-                //If incomplete is not enabled, make sure this box is checked.
-                instanceComplete.setChecked(!mIncompleteEnabled || isInstanceComplete(true));
-                
-                if(mFormController.isFormReadOnly() || !mIncompleteEnabled) {
-                    instanceComplete.setVisibility(View.GONE);
-                }
-
-                // edittext to change the displayed name of the instance
-                final EditText saveAs = (EditText) endView.findViewById(R.id.save_name);
-                
-                //TODO: Figure this out based on the content provider or some part of the context
-                saveAs.setVisibility(View.GONE);
-                endView.findViewById(R.id.save_form_as).setVisibility(View.GONE);
-
-                // disallow carriage returns in the name
-                InputFilter returnFilter = new InputFilter() {
-                    public CharSequence filter(CharSequence source, int start, int end,
-                            Spanned dest, int dstart, int dend) {
-                        for (int i = start; i < end; i++) {
-                            if (Character.getType((source.charAt(i))) == Character.CONTROL) {
-                                return "";
-                            }
-                        }
-                        return null;
-                    }
-                };
-                saveAs.setFilters(new InputFilter[] {
-                    returnFilter
-                });
-
-                String saveName = getDefaultFormTitle();
-                
-                saveAs.setText(saveName);
-
-                // Create 'save' button
-                Button button = (Button) endView.findViewById(R.id.save_exit_button);
-                if(mFormController.isFormReadOnly()) {
-                    button.setText(StringUtils.getStringSpannableRobust(this, R.string.exit));
-                            button.setOnClickListener(new OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    finishReturnInstance();
-                                }
-                            });
-
-                } else {
-                    button.setText(StringUtils.getStringSpannableRobust(this, R.string.quit_entry));
-                            button.setOnClickListener(new OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    // Form is marked as 'saved' here.
-                                    if (saveAs.getText().length() < 1) {
-                                        Toast.makeText(FormEntryActivity.this, StringUtils.getStringSpannableRobust(FormEntryActivity.this, R.string.save_as_error),
-                                                Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        saveDataToDisk(EXIT,
-                                                       instanceComplete.isChecked(),
-                                                       saveAs.getText().toString(),
-                                                       false);
-                                    }
-                                }
-                            });
-
-                }
-
-                return endView;
-            case FormEntryController.EVENT_GROUP:
-            case FormEntryController.EVENT_QUESTION:
-                ODKView odkv;
-                // should only be a group here if the event_group is a field-list
-                try {
-                    odkv =
-                        new ODKView(this, mFormController.getQuestionPrompts(),
-                                mFormController.getGroupsForCurrentIndex(),
-                                mFormController.getWidgetFactory(), this);
-                    Log.i(TAG, "created view for group");
-                } catch (RuntimeException e) {
-                    Logger.exception(e);
-                    CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
-                    // this is badness to avoid a crash.
-                    // really a next view should increment the formcontroller, create the view
-                    // if the view is null, then keep the current view and pop an error.
-                    return new View(this);
-                }
-
-                // Makes a "clear answer" menu pop up on long-click of
-                // select-one/select-multiple questions
-                for (QuestionWidget qw : odkv.getWidgets()) {
-                    if (!qw.getPrompt().isReadOnly() &&
-                            !mFormController.isFormReadOnly() &&
-                            (qw.getPrompt().getControlType() == Constants.CONTROL_SELECT_ONE ||
-                                    qw.getPrompt().getControlType() == Constants.CONTROL_SELECT_MULTI)) {
-                        registerForContextMenu(qw);
-                    }
-                }
-                
-                updateNavigationCues(odkv);
-                
-                return odkv;
-            default:
-                Log.e(TAG, "Attempted to create a view that does not exist.");
-                return null;
+        ODKView odkv;
+        // should only be a group here if the event_group is a field-list
+        try {
+            odkv =
+                    new ODKView(this, mFormController.getQuestionPrompts(),
+                            mFormController.getGroupsForCurrentIndex(),
+                            mFormController.getWidgetFactory(), this);
+            Log.i(TAG, "created view for group");
+        } catch (RuntimeException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            // this is badness to avoid a crash.
+            // really a next view should increment the formcontroller, create the view
+            // if the view is null, then keep the current view and pop an error.
+            return new View(this);
         }
+
+        // Makes a "clear answer" menu pop up on long-click of
+        // select-one/select-multiple questions
+        for (QuestionWidget qw : odkv.getWidgets()) {
+            if (!qw.getPrompt().isReadOnly() &&
+                    !mFormController.isFormReadOnly() &&
+                    (qw.getPrompt().getControlType() == Constants.CONTROL_SELECT_ONE ||
+                            qw.getPrompt().getControlType() == Constants.CONTROL_SELECT_MULTI)) {
+                registerForContextMenu(qw);
+            }
+        }
+
+        updateNavigationCues(odkv);
+
+        return odkv;
     }
 
 
