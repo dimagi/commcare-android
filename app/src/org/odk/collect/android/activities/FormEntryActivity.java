@@ -347,7 +347,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     private void registerFormEntryReceiver() {
-
         //BroadcastReceiver for:
         // a) An unresolvable xpath expression encountered in PollSensorAction.onLocationChanged
         // b) Checking if GPS services are not available
@@ -369,7 +368,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
         filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
         registerReceiver(mLocationServiceIssueReceiver, filter);
-
     }
 
     private void handleNoGpsBroadcast(Context context) {
@@ -394,9 +392,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
     }
 
-    /**
-     * Setup Activity's UI
-     */
     private void setupUI() {
         setContentView(R.layout.screen_form_entry);
 
@@ -457,7 +452,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -506,7 +500,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 break;
         }
     }
-
 
     /**
      * Processes the return from an image capture intent, launched by either an ImageWidget or
@@ -931,7 +924,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // TODO PLM: don't animate this view change (just like showNextView doesn't animate above)
             showPreviousView();
         } else {
-            View current = createView(event);
+            View current = createView();
             showView(current, AnimationType.FADE, animateLastView);
         }
     }
@@ -1073,7 +1066,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return success;
     }
 
-
     /**
      * Clears the answer on the screen.
      */
@@ -1081,14 +1073,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         qw.clearAnswer();
     }
 
-
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(0, v.getId(), 0, StringUtils.getStringSpannableRobust(this, R.string.clear_answer));
         menu.setHeaderTitle(StringUtils.getStringSpannableRobust(this, R.string.edit_prompt));
     }
-
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -1103,7 +1093,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         return super.onContextItemSelected(item);
     }
-
 
     /**
      * If we're loading, then we pass the loading thread to our next instance.
@@ -1132,13 +1121,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         } else {
             return StringUtils.getStringRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
         }
-
     }
 
     /**
      * Creates a view given the View type and an event
      */
-    private View createView(int event) {
+    private View createView() {
         setTitle(getHeaderString());
         ODKView odkv;
         // should only be a group here if the event_group is a field-list
@@ -1173,7 +1161,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return odkv;
     }
 
-
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchTouchEvent(MotionEvent mv) {
@@ -1195,7 +1182,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return handled || super.dispatchTouchEvent(mv);
     }
 
-
     /**
      * Determines what should be displayed on the screen. Possible options are: a question, an ask
      * repeat dialog, or the submit screen. Also saves answers to the data model after checking
@@ -1214,13 +1200,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             int event;
             
             try{
-            
             group_skip: do {
                 event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
                     case FormEntryController.EVENT_END_OF_FORM:
-                        View next = createView(event);
+                        View next = createView();
                         if(!resuming) {
                             showView(next, AnimationType.RIGHT);
                         } else {
@@ -1237,7 +1222,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     	//host.
                         if (mFormController.indexIsInFieldList()
                                 && mFormController.getQuestionPrompts().length != 0) {
-                            View nextGroupView = createView(event);
+                            View nextGroupView = createView();
                             if(!resuming) {
                                 showView(nextGroupView, AnimationType.RIGHT);
                             } else {
@@ -1266,12 +1251,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 Logger.exception(e);
                 CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             }
-
         } else {
             mBeenSwiped = false;
         }
     }
-
 
     /**
      * Determines what should be displayed between a question, or the start screen and displays the
@@ -1324,7 +1307,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     return;
                 }
             }
-            View next = createView(event);
+            View next = createView();
             showView(next, AnimationType.LEFT);
 
         } else {
@@ -1334,7 +1317,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             FormEntryActivity.this.triggerUserQuitInput();
         }
     }
-
 
     /**
      * Displays the View specified by the parameter 'next', animating both the current view and next
@@ -1398,7 +1380,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-
     // Hopefully someday we can use managed dialogs when the bugs are fixed
     /*
      * Ideally, we'd like to use Android to manage dialogs with onCreateDialog() and
@@ -1408,7 +1389,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * http://code.google.com/p/android/issues/detail?id=1639
      */
 
-    //
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
@@ -1457,7 +1437,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         t.show();
     }
 
-
     /**
      * Creates and displays a dialog asking the user if they'd like to create a repeat of the
      * current group.
@@ -1475,8 +1454,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         mRepeatDialog.setIcon(android.R.drawable.ic_dialog_info);
         
-        //this is super gross...
-        FormNavigationController.NavigationDetails details = null;
+        FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
@@ -1619,7 +1597,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             showDialog(SAVING_DIALOG);
         }
     }
-
 
     /**
      * Create a dialog with options to save and exit, save, or quit without saving
@@ -1809,7 +1786,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         finishReturnInstance(false);
     }
 
-
     /**
      * Confirm clear answer dialog
      */
@@ -1846,7 +1822,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
         mAlertDialog.show();
     }
-
 
     /**
      * Creates and displays a dialog allowing the user to set the language for the form.
@@ -1899,7 +1874,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                         }).create();
         mAlertDialog.show();
     }
-
 
     /**
      * We use Android's dialog management for loading/saving progress dialogs
@@ -2137,12 +2111,10 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     @Override
     public void onAnimationRepeat(Animation animation) {
-        // Added by AnimationListener interface.
     }
 
     @Override
     public void onAnimationStart(Animation animation) {
-        // Added by AnimationListener interface.
     }
 
     /**
