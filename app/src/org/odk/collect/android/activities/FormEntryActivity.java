@@ -66,7 +66,6 @@ import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -332,9 +331,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
          */
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
                 && item.getTitleCondensed() != null) {
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Selected item is: " + item);
-            }
             item.setTitleCondensed(item.getTitleCondensed().toString());
         }
 
@@ -753,10 +749,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
 
         Log.i("Questions", "Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
-
-        if (BuildConfig.DEBUG && ((bounds.width() == 0 && bounds.height() == 0) || progressBar.getVisibility() != View.VISIBLE)) {
-            Log.e(TAG, "Invisible ProgressBar! Its visibility is: " + progressBar.getVisibility() + ", its bounds are: " + bounds);
-        }
 
         progressBar.setMax(details.totalQuestions);
 
@@ -1475,7 +1467,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
 
-
         mRepeatDialog = new AlertDialog.Builder(wrapper).create();
         
         final AlertDialog theDialog = mRepeatDialog;
@@ -1495,13 +1486,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
 
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
-        
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
         
         back.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				if(backExitsForm) {
@@ -1511,13 +1500,12 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 		            FormEntryActivity.this.refreshCurrentView(false);
 				}
 			}
-        	
         });
         
         Button newButton = (Button)view.findViewById(R.id.component_repeat_new);
 
         newButton.setOnClickListener(new OnClickListener() {
-                        @Override
+            @Override
 			public void onClick(View v) {
                             theDialog.dismiss();
                             try {
@@ -1534,7 +1522,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         Button skip = (Button)view.findViewById(R.id.component_repeat_skip);
         
         skip.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				theDialog.dismiss();
@@ -1544,10 +1531,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     triggerUserFormComplete();
             	}
 			}
-        	
         });
-        
-        
+
         back.setText(StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back));
 
         //Load up our icons
@@ -1556,7 +1541,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         Drawable doneIcon = getResources().getDrawable(R.drawable.icon_done);
         doneIcon.setBounds(0, 0, doneIcon.getIntrinsicWidth(), doneIcon.getIntrinsicHeight());
-        
         
         if (mFormController.getLastRepeatCount() > 0) {
             mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
@@ -1568,7 +1552,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             } else {
             	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits));
             }
-
         } else {
             mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
                     mRepeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
@@ -1578,7 +1561,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no));
             } else {
             	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits));
-
             }
         }
         
@@ -1686,7 +1668,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
     
     private void discardChangesAndExit() {
-
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
                     + mInstancePath + "'";
@@ -1975,7 +1956,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return null;
     }
 
-
     /**
      * Dismiss any showing dialogs that we manually manage.
      */
@@ -1987,7 +1967,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         	mRepeatDialog.dismiss();
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -2005,7 +1984,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             unregisterReceiver(mLocationServiceIssueReceiver);
         }
     }
-
 
     @Override
     protected void onResume() {
@@ -2128,7 +2106,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return super.onKeyDown(keyCode, event);
     }
 
-
     @Override
     protected void onDestroy() {
         if (mFormLoaderTask != null) {
@@ -2151,27 +2128,22 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
 
         super.onDestroy();
-
     }
-
 
     @Override
     public void onAnimationEnd(Animation arg0) {
         mBeenSwiped = false;
     }
 
-
     @Override
     public void onAnimationRepeat(Animation animation) {
         // Added by AnimationListener interface.
     }
 
-
     @Override
     public void onAnimationStart(Animation animation) {
         // Added by AnimationListener interface.
     }
-
 
     /**
      * loadingComplete() is called by FormLoaderTask once it has finished loading a form.
@@ -2242,8 +2214,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-
-
     /**
      * called by the FormLoaderTask if something goes wrong.
      */
@@ -2256,7 +2226,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             CommCareActivity.createErrorDialog(this, StringUtils.getStringRobust(this, R.string.parse_error), EXIT);
         }
     }
-
 
     /**
      * {@inheritDoc}
@@ -2306,7 +2275,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-
     /**
      * Attempts to save an answer to the specified index.
      * 
@@ -2314,7 +2282,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * @return status as determined in FormEntryController
      */
     private int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
-
         try {
             if (evaluateConstraints) {
                 return mFormController.answerQuestion(index, answer);
@@ -2329,7 +2296,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             return FormEntryController.ANSWER_OK;
         }
     }
-
 
     /**
      * Checks the database to determine if the current instance being edited has already been
@@ -2374,7 +2340,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return complete;
     }
 
-
     private void next() {
         if (!mBeenSwiped) {
             mBeenSwiped = true;
@@ -2382,7 +2347,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
     }
 
-    
     private void finishReturnInstance() {
         finishReturnInstance(true);
     }
@@ -2438,7 +2402,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         finish();
     }
 
-
     @Override
     public boolean onDown(MotionEvent e) {
         return false;
@@ -2465,11 +2428,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return false;
     }
 
-
     @Override
     public void onLongPress(MotionEvent e) {
     }
-
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
@@ -2479,30 +2440,26 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return false;
     }
 
-
     @Override
     public void onShowPress(MotionEvent e) {
     }
-
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
 
-
     @Override
     public void advance() {
         next();
     }
 
-
     @Override
     public void widgetEntryChanged() {
         updateFormRelevencies();
         updateNavigationCues(this.mCurrentView);
-        
     }
+
     /**
      * Has form loading (via FormLoaderTask) completed?
      */
