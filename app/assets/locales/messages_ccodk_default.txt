@@ -265,6 +265,7 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.detail.confirm=Continue
+select.detail.bypass=Done
 select.address.show=Show Address
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
