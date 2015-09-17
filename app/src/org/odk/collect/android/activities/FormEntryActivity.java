@@ -403,7 +403,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     private void setupUI() {
         setContentView(R.layout.screen_form_entry);
-        setNavBarVisibility();
 
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
@@ -719,11 +718,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
         ProgressBarMode mode = PreferencesActivity.getProgressBarMode(this);
         
-        setNavBarVisibility();
-        
         if(mode == ProgressBarMode.None) { return; }
 
-        FormNavigationController.NavigationDetails details = null;
+        FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
@@ -790,17 +787,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
         updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
     }
-    private void setNavBarVisibility() {
-        
-        //Make sure the nav bar visibility is set
-        int navBarVisibility = PreferencesActivity.getProgressBarMode(this).useNavigationBar() ? View.VISIBLE : View.GONE;
-        View nav = this.findViewById(R.id.nav_pane);
-        if(nav.getVisibility() != navBarVisibility) {
-            nav.setVisibility(navBarVisibility);
-            this.findViewById(R.id.nav_badge_border_drawer).setVisibility(navBarVisibility);
-            this.findViewById(R.id.nav_badge).setVisibility(navBarVisibility);
-        }
-    }
+
     enum FloatingLabel {
         good ("floating-good", R.drawable.label_floating_good, R.color.cc_attention_positive_text),
         caution ("floating-caution", R.drawable.label_floating_caution, R.color.cc_light_warm_accent_color),
@@ -1497,23 +1484,19 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         
         mRepeatDialog.setIcon(android.R.drawable.ic_dialog_info);
         
-        boolean hasNavBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
-        
         //this is super gross...
         FormNavigationController.NavigationDetails details = null;
-        if (hasNavBar) {
-            try {
-                details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
-            } catch (XPathTypeMismatchException e) {
-                Logger.exception(e);
-                CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
-                return;
-            }
+        try {
+            details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            return;
         }
+
+        final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         
-        final boolean backExitsForm = hasNavBar && !details.relevantBeforeCurrentScreen;
-        
-        final boolean nextExitsForm = hasNavBar && details.relevantAfterCurrentScreen == 0;
+        final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
         
@@ -2472,8 +2455,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 showPreviousView();
             } else {
                 int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
-                boolean navBar = PreferencesActivity.getProgressBarMode(this).useNavigationBar();
-                if(!navBar || event != FormEntryController.EVENT_END_OF_FORM) {
+                if(event != FormEntryController.EVENT_END_OF_FORM) {
                     showNextView();
                 }
             }
