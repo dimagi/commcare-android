@@ -1745,7 +1745,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                 }
 
                 @Override
-                protected void deliverCancellation(FormEntryActivity receiver, FECWrapper wrapperResult) {
+                protected void deliverCancellation(FormEntryActivity receiver) {
                     receiver.finish();
                 }
 

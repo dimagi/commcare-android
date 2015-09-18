@@ -47,12 +47,8 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected abstract C doTaskBackground(A... params);
 
     @Override
-    protected void onCancelled(C result) {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            super.onCancelled(result);
-        } else {
-            super.onCancelled();
-        }
+    protected void onCancelled() {
+        super.onCancelled();
 
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
@@ -62,7 +58,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
                 return;
             }
 
-            deliverCancellation(connector.getReceiver(), result);
+            deliverCancellation(connector.getReceiver());
 
             connector.startTaskTransition();
             connector.stopBlockingForTask(getTaskId());
@@ -98,7 +94,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
 
     protected abstract void deliverError(R receiver, Exception e);
 
-    protected void deliverCancellation(R receiver, C result) {
+    protected void deliverCancellation(R receiver) {
     }
 
     @Override
