@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -30,7 +29,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -53,8 +51,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,6 +82,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormNavigationController;
+import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.ImageCaptureProcessing;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
@@ -98,7 +95,6 @@ import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
 import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveToDiskTask;
 import org.odk.collect.android.utilities.Base64Wrapper;
@@ -614,7 +610,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     private void processIntentResponse(Intent response, boolean cancelled) {
-        
         // keep track of whether we should auto advance
         boolean advance = false;
         boolean quick = false;
@@ -639,7 +634,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             advance = ic.processResponse(response, context, new File(destination));
             
             ic.setCancelled(cancelled);
-            
         }
 
         refreshCurrentView();
@@ -651,7 +645,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     }
 
     private void updateFormRelevencies(){
-        
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         
         if(!(mCurrentView instanceof ODKView)){
@@ -681,207 +674,17 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                 removeList.add(i);
             }
         }
-           // remove "atomically" to not mess up iterations
+        // remove "atomically" to not mess up iterations
         oldODKV.removeQuestionsFromIndex(removeList);
-        
-        
+
         //Now go through add add any new prompts that we need
         for(int i = 0 ; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
         	if(used.contains(prompt)) {
-        		//nothing to do here
         		continue;
         	} 
         	oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
         }
-    }
-
-    /**
-     * Update progress bar's max and value, and the various buttons and navigation cues
-     * associated with navigation
-     * 
-     * @param view ODKView to update
-     */
-    private void updateNavigationCues(View view) {
-        updateFloatingLabels(view);
-
-        ProgressBarMode mode = PreferencesActivity.getProgressBarMode(this);
-        
-        if(mode == ProgressBarMode.None) { return; }
-
-        FormNavigationController.NavigationDetails details;
-        try {
-            details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
-        } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
-            return;
-        }
-
-        if(mode == ProgressBarMode.ProgressOnly && view instanceof ODKView) {
-            ((ODKView)view).updateProgressBar(details.completedQuestions, details.totalQuestions);
-            return;
-        }
-
-    	ProgressBar progressBar = (ProgressBar)this.findViewById(R.id.nav_prog_bar);
-    	
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
-        
-        if(!details.relevantBeforeCurrentScreen) {
-        	prevButton.setImageResource(R.drawable.icon_close_darkwarm);
-        	prevButton.setTag("quit");
-        } else {
-        	prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
-        	prevButton.setTag("back");
-        }
-        
-        //Apparently in Android 2.3 setting the drawable resource for the progress bar 
-        //causes it to lose it bounds. It's a bit cheaper to keep them around than it
-        //is to invalidate the view, though.
-        Rect bounds = progressBar.getProgressDrawable().getBounds(); //Save the drawable bound
-
-        Log.i("Questions", "Total questions: " + details.totalQuestions + " | Completed questions: " + details.completedQuestions);
-
-        progressBar.setMax(details.totalQuestions);
-
-        if(details.relevantAfterCurrentScreen == 0 && (details.requiredOnScreen == details.answeredOnScreen || details.requiredOnScreen < 1)) {
-        	nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
-
-        	//TODO: _really_? This doesn't seem right
-            nextButton.setTag("done");
-
-        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_full));
-
-            Log.i("Questions","Form complete");
-            // if we get here, it means we don't have any more relevant questions after this one, so we mark it as complete
-            progressBar.setProgress(details.totalQuestions); // completely fills the progressbar
-        } else {
-        	nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
-
-        	//TODO: _really_? This doesn't seem right
-            nextButton.setTag("next");
-
-        	progressBar.setProgressDrawable(this.getResources().getDrawable(R.drawable.progressbar_modern));
-
-            progressBar.setProgress(details.completedQuestions);
-        }
-
-        progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
-
-        //We should probably be doing this based on the widgets, maybe, not the model? Hard to call.
-        updateBadgeInfo(details.requiredOnScreen, details.answeredOnScreen);
-    }
-
-    enum FloatingLabel {
-        good ("floating-good", R.drawable.label_floating_good, R.color.cc_attention_positive_text),
-        caution ("floating-caution", R.drawable.label_floating_caution, R.color.cc_light_warm_accent_color),
-        bad ("floating-bad", R.drawable.label_floating_bad, R.color.cc_attention_negative_color);
-        
-        final String label;
-        final int resourceId;
-        final int colorId;
-        FloatingLabel(String label, int resourceId, int colorId) {
-            this.label = label;
-            this.resourceId = resourceId;
-            this.colorId = colorId;
-        }
-        
-        public String getAppearance() { return label;}
-    }
-
-    private void updateFloatingLabels(View currentView) {
-        //TODO: this should actually be set up to scale per screen size.
-        ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
-        ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();
-        
-        FloatingLabel[] labelTypes = FloatingLabel.values();
-        
-        if(currentView instanceof ODKView) {
-            for(QuestionWidget widget : ((ODKView)currentView).getWidgets()) {
-                String hint = widget.getPrompt().getAppearanceHint();
-                if(hint == null) { continue; }
-                for(FloatingLabel type : labelTypes) {
-                    if(type.getAppearance().equals(hint)) {
-                        String widgetText = widget.getPrompt().getQuestionText();
-                        if(widgetText != null && widgetText.length() < 15) {
-                            smallLabels.add(new Pair<>(widgetText, type));
-                        } else {
-                            largeLabels.add(new Pair<>(widgetText, type));
-                        }
-                    }
-                }
-            }
-        }
-    
-        
-        final ViewGroup parent = (ViewGroup)this.findViewById(R.id.form_entry_label_layout);
-        parent.removeAllViews();
-
-        int pixels = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-
-        int minHeight = 7 * pixels;
-
-        //Ok, now go ahead and add all of the small labels
-        for(int i = 0 ; i < smallLabels.size(); i = i + 2 ) {
-            if(i + 1 < smallLabels.size()) {
-                LinearLayout.LayoutParams lpp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                final LinearLayout layout = new LinearLayout(this);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
-                layout.setLayoutParams(lpp);
-
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
-                TextView left = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-                left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
-                left.setBackgroundResource(smallLabels.get(i).second.resourceId);
-                left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
-                left.setTextColor(smallLabels.get(i).second.colorId);
-                left.setMinimumHeight(minHeight);
-                layout.addView(left);
-
-                parent.addView(layout);
-            } else {
-                largeLabels.add(smallLabels.get(i));
-            }
-        }
-        for(int i = 0 ; i < largeLabels.size(); ++i ) {
-            final TextView view = (TextView)View.inflate(this, R.layout.component_floating_label, null);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-            view.setLayoutParams(lp);
-            view.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
-            view.setText(largeLabels.get(i).first);
-            view.setBackgroundResource(largeLabels.get(i).second.resourceId);
-            view.setTextColor(largeLabels.get(i).second.colorId);
-            view.setMinimumHeight(minHeight);
-            parent.addView(view);
-        }
-    }
-
-
-    private void updateBadgeInfo(int requiredOnScreen, int answeredOnScreen) {
-    	View badgeBorder = this.findViewById(R.id.nav_badge_border_drawer);
-    	TextView badge = (TextView)this.findViewById(R.id.nav_badge);
-    	
-    	//If we don't need this stuff, just bail
-    	if(requiredOnScreen <= 1) {
-    		//Hide all badge related items
-    		badgeBorder.setVisibility(View.INVISIBLE);
-    		badge.setVisibility(View.INVISIBLE);
-    		return;
-    	}
-  		//Otherwise, update badge stuff
-		badgeBorder.setVisibility(View.VISIBLE);
-		badge.setVisibility(View.VISIBLE);
-		
-		if(requiredOnScreen - answeredOnScreen == 0) {
-			//Unicode checkmark
-			badge.setText("\u2713");
-			badge.setBackgroundResource(R.drawable.badge_background_complete);
-		} else {
-			badge.setBackgroundResource(R.drawable.badge_background);
-			badge.setText(String.valueOf(requiredOnScreen - answeredOnScreen));
-		}
     }
 
 	/**
@@ -1154,7 +957,9 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             }
         }
 
-        updateNavigationCues(odkv);
+
+        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
+        formNavUi.updateNavigationCues(odkv);
 
         return odkv;
     }
@@ -2167,7 +1972,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         }
 
         refreshCurrentView();
-        updateNavigationCues(this.mCurrentView);
+        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
+        formNavUi.updateNavigationCues(mCurrentView);
     }
 
     private void registerSessionFormSaveCallback() {
@@ -2427,7 +2233,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     @Override
     public void widgetEntryChanged() {
         updateFormRelevencies();
-        updateNavigationCues(this.mCurrentView);
+        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
+        formNavUi.updateNavigationCues(mCurrentView);
     }
 
     /**
