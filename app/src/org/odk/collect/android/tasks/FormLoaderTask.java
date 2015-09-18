@@ -1,9 +1,9 @@
 package org.odk.collect.android.tasks;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
@@ -28,7 +28,6 @@ import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
-import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.ApkUtils;
@@ -52,11 +51,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCareTask<Uri, String, FormLoaderTask.FECWrapper, R> {
+public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLoaderTask.FECWrapper, R> {
     public static InstanceInitializationFactory iif;
-    private final static String TAG = FormLoaderTask.class.getSimpleName();
 
-    private FormLoaderListener mStateListener;
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
 
@@ -64,10 +61,14 @@ public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCar
 
     private FECWrapper data;
 
+    public static final int FORM_LOADER_TASK_ID = 16;
+
     public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
+        this.taskId = FORM_LOADER_TASK_ID;
+        TAG = FormLoaderTask.class.getSimpleName();
     }
 
     /**
@@ -87,7 +88,7 @@ public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCar
         String formMediaPath = null;
         try {
             //TODO: Selection=? helper
-            c = activity.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+            c = ((Context)activity).getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
 
             if (!c.moveToFirst()) {
                 throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); 
@@ -146,7 +147,7 @@ public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCar
             Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReportTask.getStackTrace(e));
         }
 
-        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler(activity));
+        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(fd);
         fec = new FormEntryController(fem);
@@ -254,7 +255,7 @@ public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCar
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, ApkUtils.getPrototypeFactory(activity));
+            fd.readExternal(dis, ApkUtils.getPrototypeFactory((Context)activity));
             dis.close();
 
         } catch (FileNotFoundException | DeserializationException e) {
@@ -311,12 +312,6 @@ public abstract class FormLoaderTask<R extends FragmentActivity> extends CommCar
     private File getCachedForm(String hash) {
         return new File(CommCareApplication._().getCurrentApp().
                 fsPath(GlobalConstants.FILE_CC_CACHE) + "/" + hash + ".formdef");
-    }
-
-    public void setFormLoaderListener(FormLoaderListener sl) {
-        synchronized (this) {
-            mStateListener = sl;
-        }
     }
 
     public void destroy() {

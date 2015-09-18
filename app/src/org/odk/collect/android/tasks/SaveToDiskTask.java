@@ -5,9 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -39,14 +40,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Background task for loading a form.
- * 
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
-    private final static String t = "SaveToDiskTask";
-
+public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, Integer, R> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private Boolean mSave;
@@ -67,12 +64,15 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
     public static final int SAVED = 500;
     public static final int SAVE_ERROR = 501;
-    public static final int VALIDATE_ERROR = 502;
     public static final int VALIDATED = 503;
     public static final int SAVED_AND_EXIT = 504;
 
+    public static final int SAVING_TASK_ID = 17;
+
 
     public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
+        TAG = SaveToDiskTask.class.getSimpleName();
+
         this.mUri = mUri;
         mSave = saveAndExit;
         mMarkCompleted = markCompleted;
@@ -83,14 +83,12 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         this.headless = headless;
     }
 
-
     /**
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected Integer doInBackground(Void... nothing) {
-
+    protected Integer doTaskBackground(Void... nothing) {
         // validation failed, pass specific failure
         int validateStatus = validateAnswers(mMarkCompleted);
         if (validateStatus != VALIDATED) {
@@ -136,7 +134,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
                     InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
             if (rowsUpdated == 0) {
                 // Form instance didn't exist in the table, so create it.
-                Log.e(t, "No instance found, creating");
+                Log.e(TAG, "No instance found, creating");
                 Cursor c = null;
                 try {
                     // grab the first entry in the instance table for the form
@@ -160,9 +158,9 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
                 values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
                 mUri = context.getContentResolver().insert(instanceContentUri, values);
             } else if (rowsUpdated == 1) {
-                Log.i(t, "Instance already exists, updating");
+                Log.i(TAG, "Instance already exists, updating");
             } else{
-                Log.w(t, "Updated more than one entry, that's not good");
+                Log.w(TAG, "Updated more than one entry, that's not good");
             }
         }
     }
@@ -186,7 +184,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             exportXmlFile(payload, createFileOutputStream(FormEntryActivity.mInstancePath));
 
         } catch (IOException e) {
-            Log.e(t, "Error creating serialized payload");
+            Log.e(TAG, "Error creating serialized payload");
             e.printStackTrace();
             return false;
         }
@@ -196,7 +194,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
         try {
             updateInstanceDatabase(true, true);
         } catch (SQLException e) {
-            Log.e(t, "Error creating database entries for form.");
+            Log.e(TAG, "Error creating database entries for form.");
             e.printStackTrace();
             return false;
         }
@@ -213,7 +211,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             try {
                 payload = FormEntryActivity.mFormController.getSubmissionXml();
             } catch (IOException e) {
-                Log.e(t, "Error creating serialized payload");
+                Log.e(TAG, "Error creating serialized payload");
                 e.printStackTrace();
                 return false;
             }
@@ -254,7 +252,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             try {
                 updateInstanceDatabase(false, canEditAfterCompleted);
             } catch (SQLException e) {
-                Log.e(t, "Error creating database entries for form.");
+                Log.e(TAG, "Error creating database entries for form.");
                 e.printStackTrace();
                 return false;
             }
@@ -271,14 +269,14 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
     
                 // delete the restore Xml file.
                 if ( !instanceXml.delete() ) {
-                    Log.e(t, "Error deleting " + instanceXml.getAbsolutePath() 
+                    Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
                             + " prior to renaming submission.xml");
                     return true;
                 }
     
                 // rename the submission.xml to be the instanceXml
                 if ( !submissionXml.renameTo(instanceXml) ) {
-                    Log.e(t, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
+                    Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
                     return true;
                 }
                 
@@ -286,7 +284,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
                 // (anything not named instanceXml or anything not ending in .enc)
                 if ( isEncrypted ) {
                     if ( !EncryptionUtils.deletePlaintextFiles(instanceXml) ) {
-                        Log.e(t, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
+                        Log.e(TAG, "Error deleting plaintext files for " + instanceXml.getAbsolutePath());
                     }
                 }
             }
@@ -335,7 +333,7 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
             output.close();
             return true;
         } catch (IOException e) {
-            Log.e(t, "Error reading from payload data stream");
+            Log.e(TAG, "Error reading from payload data stream");
             e.printStackTrace();
             return false;
         }
@@ -343,20 +341,26 @@ public class SaveToDiskTask extends AsyncTask<Void, String, Integer> {
 
 
     @Override
-    protected void onPostExecute(Integer result) {
+    protected void deliverResult(R receiver, Integer result) {
         synchronized (this) {
             if (mSavedListener != null)
                 mSavedListener.savingComplete(result, headless);
         }
     }
 
+    @Override
+    protected void deliverUpdate(R receiver, String... update) {
+    }
+
+    @Override
+    protected void deliverError(R receiver, Exception e) {
+    }
 
     public void setFormSavedListener(FormSavedListener fsl) {
         synchronized (this) {
             mSavedListener = fsl;
         }
     }
-
 
     /**
      * Goes through the entire form to make sure all entered answers comply with their constraints.

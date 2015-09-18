@@ -3,7 +3,6 @@ package org.odk.collect.android.activities;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -54,7 +53,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
@@ -87,7 +85,6 @@ import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
-import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.listeners.FormSaveCallback;
 import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
@@ -128,7 +125,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends CommCareActivity implements AnimationListener, FormLoaderListener,
+public class FormEntryActivity extends CommCareActivity<FormEntryActivity> implements AnimationListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -181,8 +178,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     private static final int MENU_SAVE = Menu.FIRST + 2;
     private static final int MENU_PREFERENCES = Menu.FIRST + 3;
 
-    private static final int PROGRESS_DIALOG = 1;
-    private static final int SAVING_DIALOG = 2;
     private static final int REPEAT_DIALOG = 3;
     private static final int EXIT_DIALOG = 4;
 
@@ -210,8 +205,8 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
 
-    private FormLoaderTask mFormLoaderTask;
-    private SaveToDiskTask mSaveToDiskTask;
+    private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
+    private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
     
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
     private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
@@ -232,6 +227,7 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
         LEFT, RIGHT, FADE
     }
 
+    Uri formUri;
     @Override
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,7 +277,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
                 Uri uri = intent.getData();
                 final String contentType = getContentResolver().getType(uri);
 
-                Uri formUri;
 
                 boolean isInstanceReadOnly = false;
                 try {
@@ -320,12 +315,12 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
                             // Newer menus may have already built the menu, before all data was ready
                             invalidateOptionsMenu();
                         }
-                        
+
                         Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
-                        
+
                         if(mLocalizer != null){
                             String mLocale = mLocalizer.getLocale();
-                            
+
                             if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
                                 fc.setLanguage(mLocale);
                             }
@@ -376,8 +371,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
                         }
                     }
                 };
-                mFormLoaderTask.connect(this);
-                mFormLoaderTask.execute(formUri);
             }
         }
     }
@@ -1459,11 +1452,11 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
 
         mSaveToDiskTask =
                 new SaveToDiskTask(getIntent().getData(), exit, complete, updatedSaveName, this, instanceProviderContentURI, symetricKey, headless);
+        if (!headless){
+            mSaveToDiskTask.connect(this);
+        }
         mSaveToDiskTask.setFormSavedListener(this);
         mSaveToDiskTask.execute();
-        if (!headless) {
-            showDialog(SAVING_DIALOG);
-        }
     }
 
     /**
@@ -1743,66 +1736,46 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
         mAlertDialog.show();
     }
 
-    /**
-     * We use Android's dialog management for loading/saving progress dialogs
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int id) {
-        ProgressDialog progressDialog;
+        CustomProgressDialog dialog = null;
         switch (id) {
-            case PROGRESS_DIALOG:
-                progressDialog = new ProgressDialog(this);
-                DialogInterface.OnClickListener loadingButtonListener =
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            mFormLoaderTask.setFormLoaderListener(null);
-                            mFormLoaderTask.cancel(true);
-                            finish();
-                        }
-                    };
-                progressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
-                progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                progressDialog.setIndeterminate(true);
-                progressDialog.setCancelable(false);
-                progressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                        StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
-                        loadingButtonListener);
-                return progressDialog;
-            case SAVING_DIALOG:
-                progressDialog = new ProgressDialog(this);
-                DialogInterface.OnClickListener savingButtonListener =
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            mSaveToDiskTask.setFormSavedListener(null);
-                            mSaveToDiskTask.cancel(true);
-                        }
-                    };
-                progressDialog.setIcon(android.R.drawable.ic_dialog_info);
-                progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
-                progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                progressDialog.setIndeterminate(true);
-                progressDialog.setCancelable(false);
-                progressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-                        StringUtils.getStringSpannableRobust(this, R.string.cancel),
-                        savingButtonListener);
-                progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-                        StringUtils.getStringSpannableRobust(this, R.string.cancel_saving_form),
-                                savingButtonListener);
-                return progressDialog;
+            case FormLoaderTask.FORM_LOADER_TASK_ID:
+                dialog = CustomProgressDialog.newInstance(
+                        StringUtils.getStringRobust(this, R.string.loading_form),
+                        StringUtils.getStringRobust(this, R.string.please_wait),
+                        id);
+                dialog.addCancelButton();
+                dialog.addIndeterminantProgressBar();
+                // TODO PLM:
+                // finish activity on cancel
+                // cancel button text:
+                // StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
+                // Dialog icon:
+                // android.R.drawable.ic_dialog_info
+                break;
+            case SaveToDiskTask.SAVING_TASK_ID:
+                dialog = CustomProgressDialog.newInstance(
+                        StringUtils.getStringRobust(this, R.string.saving_form),
+                        StringUtils.getStringRobust(this, R.string.please_wait),
+                        id);
+                dialog.addCancelButton();
+                dialog.addIndeterminantProgressBar();
+
+                // TODO PLM:
+                // finish activity on cancel
+                // cancel button text:
+                // StringUtils.getStringSpannableRobust(this, R.string.cancel_saving_form),
+                // Dialog icon:
+                // android.R.drawable.ic_dialog_info
+                break;
         }
-        return null;
+        return dialog;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-        SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
 
         if (mCurrentView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -1817,20 +1790,15 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     protected void onResume() {
         super.onResume();
 
-        SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+
+        // TODO PLM: this was moved from the end of onCreate and I'm not sure
+        // this is the correct way to launch this task.
+        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != AsyncTask.Status.RUNNING){
+            mFormLoaderTask.connect(this);
+            mFormLoaderTask.execute(formUri);
+        }
 
         registerFormEntryReceiver();
-
-        if (mFormLoaderTask != null) {
-            mFormLoaderTask.setFormLoaderListener(this);
-            if (mFormController != null && mFormLoaderTask.getStatus() == AsyncTask.Status.FINISHED) {
-                dismissDialog(PROGRESS_DIALOG);
-                refreshCurrentView();
-            }
-        }
-        if (mSaveToDiskTask != null) {
-            mSaveToDiskTask.setFormSavedListener(this);
-        }
 
         //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
         //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
@@ -1937,7 +1905,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     @Override
     protected void onDestroy() {
         if (mFormLoaderTask != null) {
-            mFormLoaderTask.setFormLoaderListener(null);
             // We have to call cancel to terminate the thread, otherwise it
             // lives on and retains the FEC in memory.
             // but only if it's done, otherwise the thread never returns
@@ -1947,7 +1914,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
             }
         }
         if (mSaveToDiskTask != null) {
-            mSaveToDiskTask.setFormSavedListener(null);
             // We have to call cancel to terminate the thread, otherwise it
             // lives on and retains the FEC in memory.
             if (mSaveToDiskTask.getStatus() == AsyncTask.Status.FINISHED) {
@@ -1971,16 +1937,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     public void onAnimationStart(Animation animation) {
     }
 
-    /**
-     * loadingComplete() is called by FormLoaderTask once it has finished loading a form.
-     */
-    @SuppressLint("NewApi")
-    @Override
-    public void loadingComplete(FormController fc) {
-        dismissDialog(PROGRESS_DIALOG);
-
-    }
-
     private void registerSessionFormSaveCallback() {
         if (mFormController != null && !mFormController.isFormReadOnly()) {
             try {
@@ -1996,13 +1952,6 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     }
 
     /**
-     * called by the FormLoaderTask if something goes wrong.
-     */
-    @Override
-    public void loadingError(String errorMsg) {
-    }
-
-    /**
      * {@inheritDoc}
      *
      * Display save status notification and exit or continue on in the form.
@@ -2014,7 +1963,7 @@ public class FormEntryActivity extends CommCareActivity implements AnimationList
     @Override
     public void savingComplete(int saveStatus, boolean headless) {
         if (!headless) {
-            dismissDialog(SAVING_DIALOG);
+            dismissProgressDialog();
         }
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
