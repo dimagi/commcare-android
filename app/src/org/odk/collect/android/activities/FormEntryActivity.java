@@ -261,6 +261,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
+            mSaveToDiskTask.setFormSavedListener(this);
         } else if (hasFormLoadBeenTriggered) {
             // Screen orientation change
             refreshCurrentView();
@@ -1736,52 +1737,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
-                    FormController fc = wrapperResult.getController();
-                    mFormController = fc;
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-                        // Newer menus may have already built the menu, before all data was ready
-                        invalidateOptionsMenu();
-                    }
-
-                    Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
-
-                    if(mLocalizer != null){
-                        String mLocale = mLocalizer.getLocale();
-
-                        if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
-                            fc.setLanguage(mLocale);
-                        }
-                        else{
-                            Logger.log("formloader", "The current locale is not set");
-                        }
-                    } else{
-                        Logger.log("formloader", "Could not get the localizer");
-                    }
-
-                    registerSessionFormSaveCallback();
-
-                    // Set saved answer path
-                    if (mInstancePath == null) {
-                        // Create new answer folder.
-                        String time =
-                                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
-                                        .format(Calendar.getInstance().getTime());
-                        String file =
-                                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
-                        String path = mInstanceDestination + file + "_" + time;
-                        if (FileUtils.createFolder(path)) {
-                            mInstancePath = path + "/" + file + "_" + time + ".xml";
-                        }
-                    } else {
-                        // we've just loaded a saved form, so start in the hierarchy view
-                        Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
-                        startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
-                        return; // so we don't show the intro screen before jumping to the hierarchy
-                    }
-
-                    refreshCurrentView();
-                    FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
-                    formNavUi.updateNavigationCues(mCurrentView);
+                    receiver.handleFormLoadCompletion(wrapperResult.getController());
                 }
 
                 @Override
@@ -1796,9 +1752,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     if (e != null) {
-                        CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                        CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
-                        CommCareActivity.createErrorDialog(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.parse_error), EXIT);
+                        CommCareActivity.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
                     }
                 }
             };
@@ -1808,6 +1764,53 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         }
     }
 
+    public void handleFormLoadCompletion(FormController fc) {
+        mFormController = fc;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            // Newer menus may have already built the menu, before all data was ready
+            invalidateOptionsMenu();
+        }
+
+        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
+
+        if(mLocalizer != null){
+            String mLocale = mLocalizer.getLocale();
+
+            if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
+                fc.setLanguage(mLocale);
+            }
+            else{
+                Logger.log("formloader", "The current locale is not set");
+            }
+        } else{
+            Logger.log("formloader", "Could not get the localizer");
+        }
+
+        registerSessionFormSaveCallback();
+
+        // Set saved answer path
+        if (mInstancePath == null) {
+            // Create new answer folder.
+            String time =
+                    new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+                            .format(Calendar.getInstance().getTime());
+            String file =
+                    mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
+            String path = mInstanceDestination + file + "_" + time;
+            if (FileUtils.createFolder(path)) {
+                mInstancePath = path + "/" + file + "_" + time + ".xml";
+            }
+        } else {
+            // we've just loaded a saved form, so start in the hierarchy view
+            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
+            return; // so we don't show the intro screen before jumping to the hierarchy
+        }
+
+        refreshCurrentView();
+        FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
+        formNavUi.updateNavigationCues(mCurrentView);
+    }
 
     /**
      * Call when the user provides input that they want to quit the form
