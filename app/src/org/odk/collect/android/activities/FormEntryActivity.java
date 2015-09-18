@@ -170,7 +170,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
-    private static final String NEWFORM = "newform";
+    private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
 
     private static final int MENU_LANGUAGES = Menu.FIRST;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
@@ -356,7 +356,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             @Override
             public void onClick(View v) {
                 if (!"quit".equals(v.getTag())) {
-                    FormEntryActivity.this.showPreviousView();
+                    FormEntryActivity.this.showPreviousView(true);
                 } else {
                     FormEntryActivity.this.triggerUserQuitInput();
                 }
@@ -377,7 +377,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
-        outState.putBoolean(NEWFORM, true);
+        outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, true);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -668,11 +668,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
         if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-            this.showNextView(true);
+            showNextView(true);
         } else if(event == FormEntryController.EVENT_END_OF_FORM) {
-
-            // TODO PLM: don't animate this view change (just like showNextView doesn't animate above)
-            showPreviousView();
+            showPreviousView(false);
         } else {
             View current = createView();
             showView(current, AnimationType.FADE, animateLastView);
@@ -1009,7 +1007,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * Determines what should be displayed between a question, or the start screen and displays the
      * appropriate view. Also saves answers to the data model without checking constraints.
      */
-    private void showPreviousView() {
+    private void showPreviousView(boolean showSwipeAnimation) {
         // The answer is saved on a back swipe, but question constraints are ignored.
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -1057,7 +1055,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 }
             }
             View next = createView();
-            showView(next, AnimationType.LEFT);
+            if (showSwipeAnimation) {
+                showView(next, AnimationType.LEFT);
+            } else {
+                showView(next, AnimationType.FADE, false);
+            }
 
         } else {
             //NOTE: this needs to match the exist condition above
@@ -1875,7 +1877,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 if (event.isAltPressed() && !mBeenSwiped) {
                     mBeenSwiped = true;
-                    showPreviousView();
+                    showPreviousView(true);
                     return true;
                 }
                 break;
@@ -2106,7 +2108,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     @Override
     protected boolean onBackwardSwipe() {
-        showPreviousView();
+        showPreviousView(true);
         return true;
     }
 
@@ -2177,8 +2179,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             if (savedInstanceState.containsKey(KEY_FORMPATH)) {
                 mFormPath = savedInstanceState.getString(KEY_FORMPATH);
             }
-            if (savedInstanceState.containsKey(NEWFORM)) {
-                hasFormLoadBeenTriggered = savedInstanceState.getBoolean(NEWFORM, false);
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
+                hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
