@@ -197,7 +197,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
     private ViewGroup mViewPane;
     private View mCurrentView;
 
-    private AlertDialog mRepeatDialog;
     private AlertDialog mAlertDialog;
 
     private boolean mIncompleteEnabled = true;
@@ -1303,13 +1302,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         
         View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
 
-        mRepeatDialog = new AlertDialog.Builder(wrapper).create();
+        AlertDialog repeatDialog = new AlertDialog.Builder(wrapper).create();
         
-        final AlertDialog theDialog = mRepeatDialog;
+        final AlertDialog theDialog = repeatDialog;
         
-        mRepeatDialog.setView(view);
+        repeatDialog.setView(view);
         
-        mRepeatDialog.setIcon(android.R.drawable.ic_dialog_info);
+        repeatDialog.setIcon(android.R.drawable.ic_dialog_info);
         
         FormNavigationController.NavigationDetails details;
         try {
@@ -1378,8 +1377,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         doneIcon.setBounds(0, 0, doneIcon.getIntrinsicWidth(), doneIcon.getIntrinsicHeight());
         
         if (mFormController.getLastRepeatCount() > 0) {
-            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
-                    mRepeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
+            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
+                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
                             mFormController.getLastGroupText()));
             newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.add_another));
             if(!nextExitsForm) {
@@ -1388,8 +1387,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits));
             }
         } else {
-            mRepeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
-                    mRepeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
+            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
+                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
                             mFormController.getLastGroupText()));
             newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.entering_repeat));
             if(!nextExitsForm) {
@@ -1399,8 +1398,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             }
         }
         
-        mRepeatDialog.setCancelable(false);
-        mRepeatDialog.show();
+        repeatDialog.setCancelable(false);
+        repeatDialog.show();
 
         if(nextExitsForm) {
         	skip.setCompoundDrawables(null, doneIcon, null, null);
