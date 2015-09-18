@@ -72,8 +72,8 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
@@ -225,7 +225,7 @@ public class CommCareApplication extends Application {
         intializeDefaultLocalizerData();
 
         if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
-            initializeAppResourcesOnStartup();
+            initializeAnAppOnStartup();
         }
 
         ACRAUtil.initACRA(this);
@@ -401,7 +401,7 @@ public class CommCareApplication extends Application {
      * Performs the appropriate initialization of an application when this CommCareApplication is
      * first launched
      */
-    private void initializeAppResourcesOnStartup() {
+    private void initializeAnAppOnStartup() {
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
@@ -420,10 +420,10 @@ public class CommCareApplication extends Application {
         // want to initialize one of them to start, so that there will be currently-seated app when
         // the login screen starts up
 
-        // If there is a 'last app' set in shared preferences, try to initialize that application.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)){
+        if (!"".equals(lastAppId)) {
+            // If there is a 'last app' set in shared preferences, try to initialize that application.
             ApplicationRecord lastApp = getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 // This app record could be null if it has since been uninstalled, or unusable if
@@ -433,10 +433,10 @@ public class CommCareApplication extends Application {
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
+        } else {
+            // Otherwise, just pick the first app in the list to initialize
+            initFirstUsableAppRecord();
         }
-
-        // Otherwise, just pick the first app in the list to initialize
-        initFirstUsableAppRecord();
     }
 
     /**
@@ -444,7 +444,7 @@ public class CommCareApplication extends Application {
      * if there is one
      */
     public void initFirstUsableAppRecord() {
-        for(ApplicationRecord record : getUsableAppRecords()) {
+        for (ApplicationRecord record : getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
             break;
         }
