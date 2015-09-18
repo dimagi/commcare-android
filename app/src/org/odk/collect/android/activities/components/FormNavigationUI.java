@@ -24,9 +24,6 @@ import org.odk.collect.android.widgets.QuestionWidget;
 
 import java.util.ArrayList;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class FormNavigationUI {
     private final FormController mFormController;
     private final View mCurrentView;

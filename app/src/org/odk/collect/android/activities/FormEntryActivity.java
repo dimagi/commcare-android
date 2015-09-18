@@ -178,9 +178,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
     private static final int MENU_SAVE = Menu.FIRST + 2;
     private static final int MENU_PREFERENCES = Menu.FIRST + 3;
 
-    private static final int REPEAT_DIALOG = 3;
-    private static final int EXIT_DIALOG = 4;
-
     private String mFormPath;
     // Path to a particular form instance
     public static String mInstancePath;

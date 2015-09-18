@@ -9,9 +9,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.views.ODKView;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class FormNavigationController {
     public static class NavigationDetails {
         public int totalQuestions = 0;
@@ -120,7 +117,6 @@ public class FormNavigationController {
                 if (!onCurrentScreen && details.currentScreenExit != null) {
                     details.totalQuestions++;
                     details.relevantAfterCurrentScreen++;
-
                 } else {
                     // Otherwise we already passed it and it no longer
                     // affects the count

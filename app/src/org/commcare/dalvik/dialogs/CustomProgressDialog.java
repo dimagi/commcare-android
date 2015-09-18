@@ -93,6 +93,9 @@ public class CustomProgressDialog extends DialogFragment {
         this.progressBarMax = 0;
     }
 
+    /**
+     * Add progress bar with no max progress
+     */
     public void addIndeterminantProgressBar() {
         addProgressBar();
         this.isIndeterminant = true;

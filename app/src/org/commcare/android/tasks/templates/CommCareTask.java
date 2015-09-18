@@ -94,6 +94,9 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
 
     protected abstract void deliverError(R receiver, Exception e);
 
+    /**
+     * Allows signalling to connected receiver that the task has been cancelled
+     */
     protected void deliverCancellation(R receiver) {
     }
 

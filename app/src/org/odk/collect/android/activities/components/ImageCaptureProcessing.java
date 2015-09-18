@@ -7,22 +7,21 @@ import org.odk.collect.android.widgets.ImageWidget;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class ImageCaptureProcessing {
     /**
      * Performs any necessary relocating and scaling of an image coming from either a
      * SignatureWidget or ImageWidget (capture or choose)
      *
      * @param originalImage the image file returned by the image capture or chooser intent
-     * @param shouldScale if false, indicates that the image is from a signature capture, so should
-     *                not attempt to scale
+     * @param shouldScale   if false, indicates that the image is from a signature capture, so should
+     *                      not attempt to scale
      * @return the image file that should be displayed on the device screen when this question
      * widget is in view
      */
-    public static File moveAndScaleImage(File originalImage, boolean shouldScale, String instanceFolder, FormEntryActivity formEntryActivity) throws IOException {
-        String extension =  FileUtils.getExtension(originalImage.getAbsolutePath());
+    public static File moveAndScaleImage(File originalImage, boolean shouldScale,
+                                         String instanceFolder,
+                                         FormEntryActivity formEntryActivity) throws IOException {
+        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
         String imageFilename = System.currentTimeMillis() + "." + extension;
         String finalFilePath = instanceFolder + imageFilename;
 
@@ -54,7 +53,7 @@ public class ImageCaptureProcessing {
             if (!rawDir.exists()) {
                 rawDir.mkdir();
             }
-            File rawImageFile = new File (rawDirPath + "/" + imageFilename);
+            File rawImageFile = new File(rawDirPath + "/" + imageFilename);
             if (!originalImage.renameTo(rawImageFile)) {
                 throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                         " to " + rawImageFile.getAbsolutePath());
