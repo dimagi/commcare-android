@@ -226,7 +226,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         LEFT, RIGHT, FADE
     }
 
-    Uri formUri;
+    private boolean hasFormLoadBeenTriggered;
+
     @Override
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +253,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        boolean isNewForm = loadStateFromBundle(savedInstanceState);
+        loadStateFromBundle(savedInstanceState);
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
@@ -260,122 +261,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
-        } else if (!isNewForm) {
+        } else if (hasFormLoadBeenTriggered) {
             // Screen orientation change
             refreshCurrentView();
-        } else {
-            mFormController = null;
-            mInstancePath = null;
-
-            Intent intent = getIntent();
-            if (intent != null) {
-                loadIntentFormData(intent);
-
-                setTitleToLoading();
-
-                Uri uri = intent.getData();
-                final String contentType = getContentResolver().getType(uri);
-
-
-                boolean isInstanceReadOnly = false;
-                try {
-                    switch (contentType) {
-                        case InstanceColumns.CONTENT_ITEM_TYPE:
-                            Pair<Uri, Boolean> instanceAndStatus = getInstanceUri(uri);
-                            formUri = instanceAndStatus.first;
-                            isInstanceReadOnly = instanceAndStatus.second;
-                            break;
-                        case FormsColumns.CONTENT_ITEM_TYPE:
-                            formUri = uri;
-                            mFormPath = getFormPath(uri);
-                            break;
-                        default:
-                            Log.e(TAG, "unrecognized URI");
-                            CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
-                            return;
-                    }
-                } catch (FormQueryException e) {
-                    CommCareHomeActivity.createErrorDialog(this, e.getMessage(), EXIT);
-                    return;
-                }
-
-                if(formUri == null) {
-                    Log.e(TAG, "unrecognized URI");
-                    CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
-                    return;
-                }
-
-                mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
-                    @Override
-                    protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
-                        FormController fc = wrapperResult.getController();
-                        mFormController = fc;
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-                            // Newer menus may have already built the menu, before all data was ready
-                            invalidateOptionsMenu();
-                        }
-
-                        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
-
-                        if(mLocalizer != null){
-                            String mLocale = mLocalizer.getLocale();
-
-                            if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
-                                fc.setLanguage(mLocale);
-                            }
-                            else{
-                                Logger.log("formloader", "The current locale is not set");
-                            }
-                        } else{
-                            Logger.log("formloader", "Could not get the localizer");
-                        }
-
-                        registerSessionFormSaveCallback();
-
-                        // Set saved answer path
-                        if (mInstancePath == null) {
-
-                            // Create new answer folder.
-                            String time =
-                                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
-                                        .format(Calendar.getInstance().getTime());
-                            String file =
-                                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
-                            String path = mInstanceDestination + file + "_" + time;
-                            if (FileUtils.createFolder(path)) {
-                                mInstancePath = path + "/" + file + "_" + time + ".xml";
-                            }
-                        } else {
-                            // we've just loaded a saved form, so start in the hierarchy view
-                            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
-                            startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
-                            return; // so we don't show the intro screen before jumping to the hierarchy
-                        }
-
-                        refreshCurrentView();
-                        FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
-                        formNavUi.updateNavigationCues(mCurrentView);
-                    }
-
-                    @Override
-                    protected void deliverUpdate(FormEntryActivity receiver, String... update) {
-                    }
-
-                    @Override
-                    protected void deliverCancellation(FormEntryActivity receiver, FECWrapper wrapperResult) {
-                        receiver.finish();
-                    }
-
-                    @Override
-                    protected void deliverError(FormEntryActivity receiver, Exception e) {
-                        if (e != null) {
-                            CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
-                        } else {
-                            CommCareActivity.createErrorDialog(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.parse_error), EXIT);
-                        }
-                    }
-                };
-            }
         }
     }
 
@@ -492,7 +380,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
-        outState.putBoolean(NEWFORM, false);
+        outState.putBoolean(NEWFORM, true);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -1771,12 +1659,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
     protected void onResume() {
         super.onResume();
 
-
-        // TODO PLM: this was moved from the end of onCreate and I'm not sure
-        // this is the correct way to launch this task.
-        if (mFormLoaderTask != null && mFormLoaderTask.getStatus() != AsyncTask.Status.RUNNING){
-            mFormLoaderTask.connect(this);
-            mFormLoaderTask.execute(formUri);
+        if (!hasFormLoadBeenTriggered) {
+            loadForm();
         }
 
         registerFormEntryReceiver();
@@ -1806,6 +1690,124 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
             mFormController.setPendingCalloutFormIndex(null);
         }
     }
+
+    private void loadForm() {
+        mFormController = null;
+        mInstancePath = null;
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            loadIntentFormData(intent);
+
+            setTitleToLoading();
+
+            Uri uri = intent.getData();
+            final String contentType = getContentResolver().getType(uri);
+            Uri formUri;
+
+            boolean isInstanceReadOnly = false;
+            try {
+                switch (contentType) {
+                    case InstanceColumns.CONTENT_ITEM_TYPE:
+                        Pair<Uri, Boolean> instanceAndStatus = getInstanceUri(uri);
+                        formUri = instanceAndStatus.first;
+                        isInstanceReadOnly = instanceAndStatus.second;
+                        break;
+                    case FormsColumns.CONTENT_ITEM_TYPE:
+                        formUri = uri;
+                        mFormPath = getFormPath(uri);
+                        break;
+                    default:
+                        Log.e(TAG, "unrecognized URI");
+                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
+                        return;
+                }
+            } catch (FormQueryException e) {
+                CommCareHomeActivity.createErrorDialog(this, e.getMessage(), EXIT);
+                return;
+            }
+
+            if(formUri == null) {
+                Log.e(TAG, "unrecognized URI");
+                CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
+                return;
+            }
+
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
+                @Override
+                protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
+                    FormController fc = wrapperResult.getController();
+                    mFormController = fc;
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                        // Newer menus may have already built the menu, before all data was ready
+                        invalidateOptionsMenu();
+                    }
+
+                    Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
+
+                    if(mLocalizer != null){
+                        String mLocale = mLocalizer.getLocale();
+
+                        if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
+                            fc.setLanguage(mLocale);
+                        }
+                        else{
+                            Logger.log("formloader", "The current locale is not set");
+                        }
+                    } else{
+                        Logger.log("formloader", "Could not get the localizer");
+                    }
+
+                    registerSessionFormSaveCallback();
+
+                    // Set saved answer path
+                    if (mInstancePath == null) {
+                        // Create new answer folder.
+                        String time =
+                                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+                                        .format(Calendar.getInstance().getTime());
+                        String file =
+                                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
+                        String path = mInstanceDestination + file + "_" + time;
+                        if (FileUtils.createFolder(path)) {
+                            mInstancePath = path + "/" + file + "_" + time + ".xml";
+                        }
+                    } else {
+                        // we've just loaded a saved form, so start in the hierarchy view
+                        Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+                        startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
+                        return; // so we don't show the intro screen before jumping to the hierarchy
+                    }
+
+                    refreshCurrentView();
+                    FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
+                    formNavUi.updateNavigationCues(mCurrentView);
+                }
+
+                @Override
+                protected void deliverUpdate(FormEntryActivity receiver, String... update) {
+                }
+
+                @Override
+                protected void deliverCancellation(FormEntryActivity receiver, FECWrapper wrapperResult) {
+                    receiver.finish();
+                }
+
+                @Override
+                protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    if (e != null) {
+                        CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                    } else {
+                        CommCareActivity.createErrorDialog(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.parse_error), EXIT);
+                    }
+                }
+            };
+            mFormLoaderTask.connect(this);
+            mFormLoaderTask.execute(formUri);
+            hasFormLoadBeenTriggered = true;
+        }
+    }
+
 
     /**
      * Call when the user provides input that they want to quit the form
@@ -1943,9 +1945,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
      */
     @Override
     public void savingComplete(int saveStatus, boolean headless) {
-        if (!headless) {
-            dismissProgressDialog();
-        }
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
@@ -1971,12 +1970,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                     break;
                 case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                    refreshCurrentView();
                     // an answer constraint was violated, so do a 'swipe' to the next
                     // question to display the proper toast(s)
                     next();
                     break;
             }
+            refreshCurrentView();
         }
     }
 
@@ -2198,14 +2197,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         }
     }
 
-    private boolean loadStateFromBundle(Bundle savedInstanceState) {
-        boolean isNewForm = true;
+    private void loadStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(KEY_FORMPATH)) {
                 mFormPath = savedInstanceState.getString(KEY_FORMPATH);
             }
             if (savedInstanceState.containsKey(NEWFORM)) {
-                isNewForm = savedInstanceState.getBoolean(NEWFORM, true);
+                hasFormLoadBeenTriggered = savedInstanceState.getBoolean(NEWFORM, false);
             }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
@@ -2238,7 +2236,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
         }
-        return isNewForm;
     }
 
     private String getFormPath(Uri uri) throws FormQueryException {
