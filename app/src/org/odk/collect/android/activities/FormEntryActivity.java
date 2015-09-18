@@ -3,7 +3,6 @@ package org.odk.collect.android.activities;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -24,7 +23,6 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
@@ -65,6 +63,7 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -129,7 +128,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends FragmentActivity implements AnimationListener, FormLoaderListener,
+public class FormEntryActivity extends CommCareActivity implements AnimationListener, FormLoaderListener,
         FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
         WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -184,6 +183,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private static final int PROGRESS_DIALOG = 1;
     private static final int SAVING_DIALOG = 2;
+    private static final int REPEAT_DIALOG = 3;
+    private static final int EXIT_DIALOG = 4;
 
     private String mFormPath;
     // Path to a particular form instance
@@ -310,9 +311,73 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     return;
                 }
 
-                mFormLoaderTask = new FormLoaderTask(this, symetricKey, isInstanceReadOnly);
+                mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
+                    @Override
+                    protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
+                        FormController fc = wrapperResult.getController();
+                        mFormController = fc;
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                            // Newer menus may have already built the menu, before all data was ready
+                            invalidateOptionsMenu();
+                        }
+                        
+                        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
+                        
+                        if(mLocalizer != null){
+                            String mLocale = mLocalizer.getLocale();
+                            
+                            if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
+                                fc.setLanguage(mLocale);
+                            }
+                            else{
+                                Logger.log("formloader", "The current locale is not set");
+                            }
+                        } else{
+                            Logger.log("formloader", "Could not get the localizer");
+                        }
+
+                        registerSessionFormSaveCallback();
+
+                        // Set saved answer path
+                        if (mInstancePath == null) {
+
+                            // Create new answer folder.
+                            String time =
+                                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+                                        .format(Calendar.getInstance().getTime());
+                            String file =
+                                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
+                            String path = mInstanceDestination + file + "_" + time;
+                            if (FileUtils.createFolder(path)) {
+                                mInstancePath = path + "/" + file + "_" + time + ".xml";
+                            }
+                        } else {
+                            // we've just loaded a saved form, so start in the hierarchy view
+                            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+                            startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
+                            return; // so we don't show the intro screen before jumping to the hierarchy
+                        }
+
+                        refreshCurrentView();
+                        FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
+                        formNavUi.updateNavigationCues(mCurrentView);
+                    }
+
+                    @Override
+                    protected void deliverUpdate(FormEntryActivity receiver, String... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(FormEntryActivity receiver, Exception e) {
+                        if (e != null) {
+                            CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                        } else {
+                            CommCareActivity.createErrorDialog(FormEntryActivity.this, StringUtils.getStringRobust(FormEntryActivity.this, R.string.parse_error), EXIT);
+                        }
+                    }
+                };
+                mFormLoaderTask.connect(this);
                 mFormLoaderTask.execute(formUri);
-                showDialog(PROGRESS_DIALOG);
             }
         }
     }
@@ -1682,7 +1747,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      * We use Android's dialog management for loading/saving progress dialogs
      */
     @Override
-    protected Dialog onCreateDialog(int id) {
+    public CustomProgressDialog generateProgressDialog(int id) {
         ProgressDialog progressDialog;
         switch (id) {
             case PROGRESS_DIALOG:
@@ -1699,8 +1764,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     };
                 progressDialog.setIcon(android.R.drawable.ic_dialog_info);
                 progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.loading_form));
-                        progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
+                progressDialog.setIndeterminate(true);
                 progressDialog.setCancelable(false);
                 progressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
                         StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
@@ -1719,8 +1784,8 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     };
                 progressDialog.setIcon(android.R.drawable.ic_dialog_info);
                 progressDialog.setTitle(StringUtils.getStringRobust(this, R.string.saving_form));
-                        progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
-                                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.please_wait));
+                progressDialog.setIndeterminate(true);
                 progressDialog.setCancelable(false);
                 progressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
                         StringUtils.getStringSpannableRobust(this, R.string.cancel),
@@ -1733,25 +1798,11 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
         return null;
     }
 
-    /**
-     * Dismiss any showing dialogs that we manually manage.
-     */
-    private void dismissDialogs() {
-        if (mAlertDialog != null && mAlertDialog.isShowing()) {
-            mAlertDialog.dismiss();
-        }
-        if(mRepeatDialog != null && mRepeatDialog.isShowing()) {
-        	mRepeatDialog.dismiss();
-        }
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
 
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
-
-        dismissDialogs();
 
         if (mCurrentView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -1928,52 +1979,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
     public void loadingComplete(FormController fc) {
         dismissDialog(PROGRESS_DIALOG);
 
-        mFormController = fc;
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-            // Newer menus may have already built the menu, before all data was ready
-            invalidateOptionsMenu();
-        }
-        
-        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
-        
-        if(mLocalizer != null){
-            String mLocale = mLocalizer.getLocale();
-            
-            if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
-                fc.setLanguage(mLocale);
-            }
-            else{
-                Logger.log("formloader", "The current locale is not set");
-            }
-        } else{
-            Logger.log("formloader", "Could not get the localizer");
-        }
-
-        registerSessionFormSaveCallback();
-
-        // Set saved answer path
-        if (mInstancePath == null) {
-
-            // Create new answer folder.
-            String time =
-                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
-                        .format(Calendar.getInstance().getTime());
-            String file =
-                mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
-            String path = mInstanceDestination + file + "_" + time;
-            if (FileUtils.createFolder(path)) {
-                mInstancePath = path + "/" + file + "_" + time + ".xml";
-            }
-        } else {
-            // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(this, FormHierarchyActivity.class);
-            startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
-            return; // so we don't show the intro screen before jumping to the hierarchy
-        }
-
-        refreshCurrentView();
-        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(mCurrentView);
     }
 
     private void registerSessionFormSaveCallback() {
@@ -1995,12 +2000,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
      */
     @Override
     public void loadingError(String errorMsg) {
-        dismissDialog(PROGRESS_DIALOG);
-        if (errorMsg != null) {
-            CommCareActivity.createErrorDialog(this, errorMsg, EXIT);
-        } else {
-            CommCareActivity.createErrorDialog(this, StringUtils.getStringRobust(this, R.string.parse_error), EXIT);
-        }
     }
 
     /**
@@ -2174,7 +2173,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
             // looks like the session expired
         }
 
-        this.dismissDialogs();
+        dismissProgressDialog();
         finish();
     }
 
