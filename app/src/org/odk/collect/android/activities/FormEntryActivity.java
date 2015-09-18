@@ -363,6 +363,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                     }
 
                     @Override
+                    protected void deliverCancellation(FormEntryActivity receiver, FECWrapper wrapperResult) {
+                        receiver.finish();
+                    }
+
+                    @Override
                     protected void deliverError(FormEntryActivity receiver, Exception e) {
                         if (e != null) {
                             CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
@@ -1241,15 +1246,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         }
     }
 
-    // Hopefully someday we can use managed dialogs when the bugs are fixed
-    /*
-     * Ideally, we'd like to use Android to manage dialogs with onCreateDialog() and
-     * onPrepareDialog(), but dialogs with dynamic content are broken in 1.5 (cupcake). We do use
-     * managed dialogs for our static loading ProgressDialog. The main issue we noticed and are
-     * waiting to see fixed is: onPrepareDialog() is not called after a screen orientation change.
-     * http://code.google.com/p/android/issues/detail?id=1639
-     */
-
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
@@ -1747,27 +1743,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                         id);
                 dialog.addCancelButton();
                 dialog.addIndeterminantProgressBar();
-                // TODO PLM:
-                // finish activity on cancel
-                // cancel button text:
-                // StringUtils.getStringSpannableRobust(this, R.string.cancel_loading_form),
-                // Dialog icon:
-                // android.R.drawable.ic_dialog_info
                 break;
             case SaveToDiskTask.SAVING_TASK_ID:
                 dialog = CustomProgressDialog.newInstance(
                         StringUtils.getStringRobust(this, R.string.saving_form),
                         StringUtils.getStringRobust(this, R.string.please_wait),
                         id);
-                dialog.addCancelButton();
                 dialog.addIndeterminantProgressBar();
-
-                // TODO PLM:
-                // finish activity on cancel
-                // cancel button text:
-                // StringUtils.getStringSpannableRobust(this, R.string.cancel_saving_form),
-                // Dialog icon:
-                // android.R.drawable.ic_dialog_info
                 break;
         }
         return dialog;
