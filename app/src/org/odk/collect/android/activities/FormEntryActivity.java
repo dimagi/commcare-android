@@ -30,7 +30,6 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -120,14 +119,14 @@ import java.util.Set;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * FormEntryActivity is responsible for displaying questions, animating transitions between
- * questions, and allowing the user to enter data.
+ * Displays questions, animates transitions between
+ * questions, and allows the user to enter data.
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends CommCareActivity<FormEntryActivity> implements AnimationListener,
-        FormSavedListener, FormSaveCallback, AdvanceToNextListener, OnGestureListener,
-        WidgetChangedListener {
+public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
+        implements AnimationListener, FormSavedListener, FormSaveCallback,
+        AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
 
     // Defines for FormEntryActivity
@@ -538,8 +537,10 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         refreshCurrentView();
     }
 
-    // Search the the current view's widgets for one that has registered a pending callout with
-    // the form controller
+    /**
+     * Search the the current view's widgets for one that has registered a
+     * pending callout with the form controller
+     */
     public QuestionWidget getPendingWidget() {
         FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
         if (pendingIndex == null) {
@@ -704,7 +705,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -733,7 +733,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     /**
      * @return true If the current index of the form controller contains questions
@@ -904,7 +903,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
                 registerForContextMenu(qw);
             }
         }
-
 
         FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
         formNavUi.updateNavigationCues(odkv);
@@ -2107,33 +2105,19 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
     }
 
     @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
+    protected boolean onBackwardSwipe() {
+        showPreviousView();
+        return true;
     }
 
-    /**
-     * Looks for user swipes. If the user has swiped, move to the appropriate screen.
-     */
     @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (CommCareActivity.isHorizontalSwipe(this, e1, e2)) {
-            mBeenSwiped = true;
-            if (velocityX > 0) {
-                showPreviousView();
-            } else {
-                int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
-                if(event != FormEntryController.EVENT_END_OF_FORM) {
-                    showNextView();
-                }
-            }
+    protected boolean onForwardSwipe() {
+        int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
+        if (event != FormEntryController.EVENT_END_OF_FORM) {
+            showNextView();
             return true;
         }
-
         return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
     }
 
     @Override
@@ -2141,15 +2125,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity> imple
         // The onFling() captures the 'up' event so our view thinks it gets long pressed.
         // We don't wnat that, so cancel it.
         mCurrentView.cancelLongPress();
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
 
