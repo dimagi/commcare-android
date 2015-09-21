@@ -1,8 +1,10 @@
 package org.odk.collect.android.activities;
 
+import android.app.ActionBar;
 import android.app.ListActivity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -39,6 +41,8 @@ public class FormHierarchyActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hierarchy_layout);
+
+        addActionBarBack();
 
         // We use a static FormEntryController to make jumping faster.
         mStartIndex = FormEntryActivity.mFormController.getFormIndex();
@@ -94,6 +98,16 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    private void addActionBarBack() {
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            ActionBar bar = getActionBar();
+            if (bar != null){
+                bar.setDisplayShowHomeEnabled(true);
+                bar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
     }
 
     @Override
@@ -431,5 +445,15 @@ public class FormHierarchyActivity extends ListActivity {
         } else {
             goUpLevel();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.onBackPressed();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
