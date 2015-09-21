@@ -462,7 +462,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      *
      * @return the resulting intent
      */
-    public static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
+    protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
                                          SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
         String caseId = getCaseIdFromReference(contextRef, selectDatum, asw);
@@ -482,7 +482,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         return detailIntent;
     }
 
-    public static String getCaseIdFromReference(TreeReference contextRef,
+    protected static String getCaseIdFromReference(TreeReference contextRef,
                                                  SessionDatum selectDatum,
                                                  AndroidSessionWrapper asw) {
 
