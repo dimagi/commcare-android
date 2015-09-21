@@ -438,6 +438,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case HIERARCHY_ACTIVITY:
+            case HIERARCHY_ACTIVITY_FIRST_START:
                 // We may have jumped to a new index in hierarchy activity, so refresh
                 refreshCurrentView(false);
                 break;
