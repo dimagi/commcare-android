@@ -499,3 +499,7 @@ form.attachment.invalid=Invalid filetype choosen. Please select a valid multimed
 invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
 image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
+
+odk_perfect_match_color=\#87D13E
+odk_fuzzy_match_color=\#FFE88F
+
