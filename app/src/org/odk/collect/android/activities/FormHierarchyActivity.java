@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.android.framework.SessionActivityRegistration;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -42,7 +41,6 @@ public class FormHierarchyActivity extends ListActivity {
 
     private FormIndex mStartIndex;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,9 +51,9 @@ public class FormHierarchyActivity extends ListActivity {
 
         setTitle(Localization.get("home.menu.saved.forms"));
 
-        mPath = (TextView) findViewById(R.id.pathtext);
+        mPath = (TextView)findViewById(R.id.pathtext);
 
-        jumpPreviousButton = (Button) findViewById(R.id.jumpPreviousButton);
+        jumpPreviousButton = (Button)findViewById(R.id.jumpPreviousButton);
         jumpPreviousButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,7 +61,7 @@ public class FormHierarchyActivity extends ListActivity {
             }
         });
 
-        Button jumpBeginningButton = (Button) findViewById(R.id.jumpBeginningButton);
+        Button jumpBeginningButton = (Button)findViewById(R.id.jumpBeginningButton);
         jumpBeginningButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +72,7 @@ public class FormHierarchyActivity extends ListActivity {
             }
         });
 
-        Button jumpEndButton = (Button) findViewById(R.id.jumpEndButton);
+        Button jumpEndButton = (Button)findViewById(R.id.jumpEndButton);
         jumpEndButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,7 +89,7 @@ public class FormHierarchyActivity extends ListActivity {
             public void run() {
                 int position = 0;
                 for (int i = 0; i < getListAdapter().getCount(); i++) {
-                    HierarchyElement he = (HierarchyElement) getListAdapter().getItem(i);
+                    HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
                     if (mStartIndex.equals(he.getFormIndex())) {
                         position = i;
                         break;
@@ -117,7 +115,6 @@ public class FormHierarchyActivity extends ListActivity {
 
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
     }
-
 
     private void goUpLevel() {
         FormIndex index = stepIndexOut(FormEntryActivity.mFormController.getFormIndex());
@@ -152,7 +149,6 @@ public class FormHierarchyActivity extends ListActivity {
         refreshView();
     }
 
-
     private String getCurrentPath() {
         FormIndex index = stepIndexOut(FormEntryActivity.mFormController.getFormIndex());
 
@@ -160,17 +156,16 @@ public class FormHierarchyActivity extends ListActivity {
         while (index != null) {
 
             path =
-                FormEntryActivity.mFormController.getCaptionPrompt(index).getLongText()
-                        + " ("
-                        + (FormEntryActivity.mFormController.getCaptionPrompt(index)
-                                .getMultiplicity() + 1) + ") > " + path;
+                    FormEntryActivity.mFormController.getCaptionPrompt(index).getLongText()
+                            + " ("
+                            + (FormEntryActivity.mFormController.getCaptionPrompt(index)
+                            .getMultiplicity() + 1) + ") > " + path;
 
             index = stepIndexOut(index);
         }
         // return path?
         return path.substring(0, path.length() - 2);
     }
-
 
     private void refreshView() {
         // Record the current index so we can return to the same place if the user hits 'back'.
@@ -179,13 +174,13 @@ public class FormHierarchyActivity extends ListActivity {
         // If we're not at the first level, we're inside a repeated group so we want to only display
         // everything enclosed within that group.
         String enclosingGroupRef = "";
-        formList = new ArrayList<HierarchyElement>();
+        formList = new ArrayList<>();
 
         // If we're currently at a repeat node, record the name of the node and step to the next
         // node to display.
         if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
             enclosingGroupRef =
-                FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+                    FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         } else {
             FormIndex startTest = stepIndexOut(currentIndex);
@@ -209,7 +204,7 @@ public class FormHierarchyActivity extends ListActivity {
             // beginning
             if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
                 enclosingGroupRef =
-                    FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+                        FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
                 FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             }
         }
@@ -235,15 +230,16 @@ public class FormHierarchyActivity extends ListActivity {
         // keep track of them.
         String repeatedGroupRef = "";
 
-        event_search: while (event != FormEntryController.EVENT_END_OF_FORM) {
+        event_search:
+        while (event != FormEntryController.EVENT_END_OF_FORM) {
             switch (event) {
                 case FormEntryController.EVENT_QUESTION:
                     if (!repeatedGroupRef.equalsIgnoreCase("")) {
                         // We're in a repeating group, so skip this question and move to the next
                         // index.
                         event =
-                            FormEntryActivity.mFormController
-                                    .stepToNextEvent(FormController.STEP_INTO_GROUP);
+                                FormEntryActivity.mFormController
+                                        .stepToNextEvent(FormController.STEP_INTO_GROUP);
                         continue;
                     }
 
@@ -268,8 +264,8 @@ public class FormHierarchyActivity extends ListActivity {
                         // We're in a repeating group, so skip this repeat prompt and move to the
                         // next event.
                         event =
-                            FormEntryActivity.mFormController
-                                    .stepToNextEvent(FormController.STEP_INTO_GROUP);
+                                FormEntryActivity.mFormController
+                                        .stepToNextEvent(FormController.STEP_INTO_GROUP);
                         continue;
                     }
 
@@ -292,12 +288,12 @@ public class FormHierarchyActivity extends ListActivity {
                         // This is the start of a repeating group. We only want to display
                         // "Group #", so we mark this as the beginning and skip all of its children
                         HierarchyElement group =
-                            new HierarchyElement(fc.getLongText(), null, getResources()
-                                    .getDrawable(R.drawable.expander_ic_minimized), Color.WHITE,
-                                    COLLAPSED, fc.getIndex());
+                                new HierarchyElement(fc.getLongText(), null, getResources()
+                                        .getDrawable(R.drawable.expander_ic_minimized), Color.WHITE,
+                                        COLLAPSED, fc.getIndex());
                         repeatedGroupRef =
-                            FormEntryActivity.mFormController.getFormIndex().getReference()
-                                    .toString(false);
+                                FormEntryActivity.mFormController.getFormIndex().getReference()
+                                        .toString(false);
                         formList.add(group);
                     }
 
@@ -313,7 +309,7 @@ public class FormHierarchyActivity extends ListActivity {
                     break;
             }
             event =
-                FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+                    FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         }
 
         HierarchyListAdapter itla = new HierarchyListAdapter(this);
@@ -324,11 +320,8 @@ public class FormHierarchyActivity extends ListActivity {
         FormEntryActivity.mFormController.jumpToIndex(currentIndex);
     }
 
-    private int getFormEntryPromptIcon(FormEntryPrompt fep){
-        if (BuildConfig.DEBUG) {
-            Log.i("FEPICON", "FEP (" + fep.hashCode() + ") data type is: " + fep.getDataType() + " | control type is: " + fep.getControlType());
-        }
-        switch(fep.getControlType()){
+    private int getFormEntryPromptIcon(FormEntryPrompt fep) {
+        switch (fep.getControlType()) {
             case Constants.CONTROL_SELECT_ONE:
                 return R.drawable.avatar_vellum_single_answer;
             case Constants.CONTROL_SELECT_MULTI:
@@ -356,8 +349,8 @@ public class FormHierarchyActivity extends ListActivity {
         return -1;
     }
 
-    private static int getDrawableIDFor(FormEntryPrompt fep){
-        switch(fep.getDataType()){
+    private static int getDrawableIDFor(FormEntryPrompt fep) {
+        switch (fep.getDataType()) {
             case Constants.DATATYPE_TEXT:
                 return R.drawable.avatar_vellum_text;
             case Constants.DATATYPE_INTEGER:
@@ -380,7 +373,6 @@ public class FormHierarchyActivity extends ListActivity {
         return -1;
     }
 
-
     /**
      * used to go up one level in the formIndex. That is, if you're at 5_0, 1 (the second question
      * in a repeating group), this method will return a FormInex of 5_0 (the start of the repeating
@@ -394,10 +386,9 @@ public class FormHierarchyActivity extends ListActivity {
         }
     }
 
-
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        HierarchyElement h = (HierarchyElement) l.getItemAtPosition(position);
+        HierarchyElement h = (HierarchyElement)l.getItemAtPosition(position);
         if (h.getFormIndex() == null) {
             goUpLevel();
             return;
@@ -442,7 +433,6 @@ public class FormHierarchyActivity extends ListActivity {
         setListAdapter(itla);
         getListView().setSelection(position);
     }
-
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
