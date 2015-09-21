@@ -1,6 +1,5 @@
 package org.commcare.android.adapters;
 
-
 import android.app.Activity;
 import android.database.DataSetObserver;
 import android.speech.tts.TextToSpeech;
@@ -43,17 +42,17 @@ import java.util.Locale;
 /**
  * @author ctsims
  * @author wspride
- *         <p/>
- *         This adapter class handles displaying the cases for a CommCareODK user.
- *         Depending on the <grid> block of the Detail this adapter is constructed with, cases might be
- *         displayed as normal EntityViews or as AdvancedEntityViews
+ * 
+ * This adapter class handles displaying the cases for a CommCareODK user.
+ * Depending on the <grid> block of the Detail this adapter is constructed with, cases might be
+ * displayed as normal EntityViews or as AdvancedEntityViews
  */
 public class EntityListAdapter implements ListAdapter {
 
     public static final int SPECIAL_ACTION = -2;
 
     private int actionPosition = -1;
-    private boolean actionEnabled;
+    private boolean actionEnabled; 
 
     private boolean mFuzzySearchEnabled = true;
 
@@ -74,7 +73,7 @@ public class EntityListAdapter implements ListAdapter {
 
     int currentSort[] = {};
     boolean reverseSort = false;
-
+    
     private NodeEntityFactory mNodeFactory;
     boolean mAsyncMode = false;
 
@@ -82,7 +81,7 @@ public class EntityListAdapter implements ListAdapter {
 
     EntitySearcher mCurrentSortThread = null;
     Object mSyncLock = new Object();
-
+    
     public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
@@ -98,7 +97,7 @@ public class EntityListAdapter implements ListAdapter {
         actionEnabled = detail.getCustomAction() != null;
 
         this.full = full;
-        setCurrent(new ArrayList<Entity<TreeReference>>());
+        setCurrent(new ArrayList<Entity<TreeReference>>()); 
         this.references = references;
 
         this.context = activity;
@@ -108,36 +107,37 @@ public class EntityListAdapter implements ListAdapter {
 
         //TODO: I am a bad person and I should feel bad. This should get encapsulated 
         //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
-        mAsyncMode = (factory instanceof AsyncNodeEntityFactory);
-
+        mAsyncMode= (factory instanceof AsyncNodeEntityFactory);
+        
         //TODO: Maybe we can actually just replace by checking whether the node is ready?
-        if (!mAsyncMode) {
-            if (sort.length != 0) {
+        if(!mAsyncMode) {
+            if(sort.length != 0) {
                 sort(sort);
             }
             filterValues("");
         } else {
             setCurrent(new ArrayList<Entity<TreeReference>>(full));
         }
-
+        
         this.tts = tts;
-        if (android.os.Build.VERSION.SDK_INT >= 14) {
+        if(android.os.Build.VERSION.SDK_INT >= 14){
             mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
-        } else {
+        }
+        else{
             mImageLoader = null;
         }
-        if (detail.getCustomAction() != null) {
+        if(detail.getCustomAction() != null) {
         }
         usesGridView = detail.usesGridView();
-        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+        this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();        
     }
-
+    
     /**
      * Set the current display set for this adapter
      */
     private void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
-        if (actionEnabled) {
+        if(actionEnabled) {
             actionPosition = current.size();
         }
     }
@@ -147,20 +147,20 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private void filterValues(String filterRaw, boolean synchronous) {
-        synchronized (mSyncLock) {
-            if (mCurrentSortThread != null) {
+        synchronized(mSyncLock) {
+            if(mCurrentSortThread != null) {
                 mCurrentSortThread.finish();
             }
             String[] searchTerms = filterRaw.split("\\s+");
-            for (int i = 0; i < searchTerms.length; ++i) {
+            for(int i = 0 ; i < searchTerms.length ; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
             mCurrentSortThread = new EntitySearcher(filterRaw, searchTerms);
             mCurrentSortThread.startThread();
-
+            
             //In certain circumstances we actually want to wait for that filter
             //to finish
-            if (synchronous) {
+            if(synchronous) {
                 try {
                     mCurrentSortThread.thread.join();
                 } catch (InterruptedException e) {
@@ -186,14 +186,14 @@ public class EntityListAdapter implements ListAdapter {
             matchList = new ArrayList<Entity<TreeReference>>();
             matchScores = new ArrayList<Pair<Integer, Integer>>();
         }
-
+        
         public void startThread() {
             thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     //Make sure that we have loaded the necessary cached data
                     //before we attempt to search over it
-                    while (!mNodeFactory.isEntitySetReady()) {
+                    while(!mNodeFactory.isEntitySetReady()) {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
@@ -206,7 +206,7 @@ public class EntityListAdapter implements ListAdapter {
             });
             thread.start();
         }
-
+        
         public void finish() {
             this.cancelled = true;
             try {
@@ -216,10 +216,10 @@ public class EntityListAdapter implements ListAdapter {
                 e.printStackTrace();
             }
         }
-
-        private void search() {
+        
+        private void search() {            
             Locale currentLocale = Locale.getDefault();
-
+            
             long startTime = System.currentTimeMillis();
             //It's a bit sketchy here, because this DB lock will prevent
             //anything else from processing
@@ -232,28 +232,26 @@ public class EntityListAdapter implements ListAdapter {
             }
             db.beginTransaction();
             full:
-            for (int index = 0; index < full.size(); ++index) {
+            for(int index = 0 ; index < full.size() ; ++index) {
                 //Every once and a while we should make sure we're not blocking anything with the database
-                if (index % 500 == 0) {
+                if(index % 500 == 0) {
                     db.yieldIfContendedSafely();
                 }
                 Entity<TreeReference> e = full.get(index);
-                if (cancelled) {
-                    break;
-                }
-                if ("".equals(filterRaw)) {
+                if(cancelled) { break; }
+                if("".equals(filterRaw)) {
                     matchList.add(e);
                     continue;
                 }
-
+                
                 boolean add = false;
                 int score = 0;
                 filter:
-                for (String filter : searchTerms) {
+                for(String filter: searchTerms) {
                     add = false;
-                    for (int i = 0; i < e.getNumFields(); ++i) {
+                    for(int i = 0 ; i < e.getNumFields(); ++i) {
                         String field = e.getNormalizedField(i);
-                        if (field != "" && field.toLowerCase(currentLocale).contains(filter)) {
+                        if(field != "" && field.toLowerCase(currentLocale).contains(filter)) {
                             add = true;
                             continue filter;
                         } else {
@@ -261,7 +259,7 @@ public class EntityListAdapter implements ListAdapter {
                             // fuzzy matching
                             if (mFuzzySearchEnabled) {
                                 for (String fieldChunk : e.getSortFieldPieces(i)) {
-                                    Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
+                                    Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(fieldChunk, filter);
                                     if (match.first) {
                                         add = true;
                                         score += match.second;
@@ -275,38 +273,36 @@ public class EntityListAdapter implements ListAdapter {
                         break;
                     }
                 }
-                if (add) {
+                if(add) {
                     //matchList.add(e);
                     matchScores.add(Pair.create(index, score));
                     continue full;
                 }
             }
-            if (mAsyncMode) {
+            if(mAsyncMode) {
                 Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
-
+    
                     @Override
                     public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
                         return lhs.second - rhs.second;
                     }
-
+    
                 });
             }
-
-            for (Pair<Integer, Integer> match : matchScores) {
+            
+            for(Pair<Integer, Integer> match : matchScores) {
                 matchList.add(full.get(match.first));
             }
-
+            
             db.setTransactionSuccessful();
             db.endTransaction();
-            if (cancelled) {
-                return;
-            }
-
+            if(cancelled) { return; }
+            
             long time = System.currentTimeMillis() - startTime;
-            if (time > 1000) {
+            if(time > 1000) { 
                 Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
             }
-
+            
             context.runOnUiThread(new Runnable() {
 
                 @Override
@@ -315,11 +311,11 @@ public class EntityListAdapter implements ListAdapter {
                     currentSearchTerms = searchTerms;
                     update();
                 }
-
+                
             });
         }
     }
-
+    
     private void sort(int[] fields) {
         //The reversing here is only relevant if there's only one sort field and we're on it
         sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) ? !reverseSort : false);
@@ -337,12 +333,10 @@ public class EntityListAdapter implements ListAdapter {
 
 
             public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-                for (int i = 0; i < currentSort.length; ++i) {
+                for(int i = 0 ; i < currentSort.length ; ++i) {
                     boolean reverseLocal = (detail.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
-                    int cmp = (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
-                    if (cmp != 0) {
-                        return cmp;
-                    }
+                    int cmp =  (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
+                    if(cmp != 0 ) { return cmp;}
                 }
                 return 0;
             }
@@ -356,29 +350,22 @@ public class EntityListAdapter implements ListAdapter {
 
                 // COMMCARE-161205: Problem with search functionality
                 // If one of these is null, we need to get the field in the same index, not the field in SortType
-                if (a1 == null) {
-                    a1 = object1.getFieldString(index);
-                }
-                if (a2 == null) {
-                    a2 = object2.getFieldString(index);
-                }
+                if(a1 == null) { a1 = object1.getFieldString(index); }
+                if(a2 == null) { a2 = object2.getFieldString(index); }
 
                 //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
                 //For now, regardless of typing, blanks are always smaller than non-blanks
-                if (a1.equals("")) {
-                    if (a2.equals("")) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-                } else if (a2.equals("")) {
+                if(a1.equals("")) {
+                    if(a2.equals("")) { return 0; }
+                    else { return -1; }
+                } else if(a2.equals("")) {
                     return 1;
                 }
 
                 Comparable c1 = applyType(sortType, a1);
                 Comparable c2 = applyType(sortType, a2);
 
-                if (c1 == null || c2 == null) {
+                if(c1 == null || c2 == null) {
                     //Don't do something smart here, just bail.
                     return -1;
                 }
@@ -388,29 +375,29 @@ public class EntityListAdapter implements ListAdapter {
 
             private Comparable applyType(int sortType, String value) {
                 try {
-                    if (sortType == Constants.DATATYPE_TEXT) {
+                    if(sortType == Constants.DATATYPE_TEXT) {
                         return value.toLowerCase();
-                    } else if (sortType == Constants.DATATYPE_INTEGER) {
+                    } else if(sortType == Constants.DATATYPE_INTEGER) {
                         //Double int compares just fine here and also
                         //deals with NaN's appropriately
 
                         double ret = XPathFuncExpr.toInt(value);
-                        if (Double.isNaN(ret)) {
+                        if(Double.isNaN(ret)){
                             String[] stringArgs = new String[3];
                             stringArgs[2] = value;
-                            if (!hasWarned) {
+                            if(!hasWarned){
                                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
                                 hasWarned = true;
                             }
                         }
                         return ret;
-                    } else if (sortType == Constants.DATATYPE_DECIMAL) {
+                    } else if(sortType == Constants.DATATYPE_DECIMAL) {
                         double ret = XPathFuncExpr.toDouble(value);
-                        if (Double.isNaN(ret)) {
+                        if(Double.isNaN(ret)){
 
                             String[] stringArgs = new String[3];
                             stringArgs[2] = value;
-                            if (!hasWarned) {
+                            if(!hasWarned){
                                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
                                 hasWarned = true;
                             }
@@ -419,8 +406,8 @@ public class EntityListAdapter implements ListAdapter {
                     } else {
                         //Hrmmmm :/ Handle better?
                         return value;
-                    }
-                } catch (XPathTypeMismatchException e) {
+                    } 
+                } catch(XPathTypeMismatchException e) {
                     //So right now this will fail 100% silently, which is bad.
                     return null;
                 }
@@ -470,8 +457,8 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
+        if(actionEnabled) {
+            if(position == actionPosition) {
                 return SPECIAL_ACTION;
             }
         }
@@ -480,8 +467,8 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
+        if(actionEnabled) {
+            if(position == actionPosition) {
                 return 1;
             }
         }
@@ -494,10 +481,10 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (actionEnabled && position == actionPosition) {
-            HorizontalMediaView tiav = (HorizontalMediaView) convertView;
+        if(actionEnabled && position == actionPosition) {
+            HorizontalMediaView tiav =(HorizontalMediaView)convertView;
 
-            if (tiav == null) {
+            if(tiav == null) {
                 tiav = new HorizontalMediaView(context);
             }
             tiav.setDisplay(detail.getCustomAction().getDisplay());
@@ -511,22 +498,23 @@ public class EntityListAdapter implements ListAdapter {
 
         Entity<TreeReference> entity = current.get(position);
         // if we use a <grid>, setup an AdvancedEntityView
-        if (usesGridView) {
-            GridEntityView emv = (GridEntityView) convertView;
-            int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
-            if (emv == null) {
+        if(usesGridView){
+            GridEntityView emv =(GridEntityView)convertView;
+
+            if(emv == null) {
                 emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
-            } else {
-                emv.setSearchTerms(currentSearchTerms);
+                int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+                emv.setTitleTextColor(titleColor[0]);
+            } else{
+               emv.setSearchTerms(currentSearchTerms);
                 emv.setViews(context, detail, entity);
             }
-            emv.setTitleTextColor(titleColor[0]);
             return emv;
 
-        }
+        } 
         // if not, just use the normal row
-        else {
-            EntityView emv = (EntityView) convertView;
+        else{
+            EntityView emv =(EntityView)convertView;
 
             if (emv == null) {
                 emv = new EntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
@@ -541,7 +529,7 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public int getViewTypeCount() {
-        return actionEnabled ? 2 : 1;
+        return actionEnabled? 2 : 1;
     }
 
     @Override
@@ -559,7 +547,7 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private void update() {
-        for (DataSetObserver o : observers) {
+        for(DataSetObserver o : observers) {
             o.onChanged();
         }
     }
@@ -591,14 +579,14 @@ public class EntityListAdapter implements ListAdapter {
         update();
     }
 
-    public void setAwesomeMode(boolean awesome) {
+    public void setAwesomeMode(boolean awesome){
         inAwesomeMode = awesome;
     }
 
     public int getPosition(TreeReference chosen) {
-        for (int i = 0; i < current.size(); ++i) {
+        for(int i = 0 ; i < current.size() ; ++i) {
             Entity<TreeReference> e = current.get(i);
-            if (e.getElement().equals(chosen)) {
+            if(e.getElement().equals(chosen)) {
                 return i;
             }
         }
@@ -610,8 +598,8 @@ public class EntityListAdapter implements ListAdapter {
      * we need to stop doing so.
      */
     public void signalKilled() {
-        synchronized (mSyncLock) {
-            if (mCurrentSortThread != null) {
+        synchronized(mSyncLock) {
+            if(mCurrentSortThread != null) {
                 mCurrentSortThread.finish();
             }
         }

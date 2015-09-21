@@ -20,18 +20,15 @@ public class UnrecoverableErrorActivity extends Activity {
     
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
-    public static final String EXTRA_USE_MESSAGE = "use_extra_message";
     
-    private String title;
-    private String message;
-    private boolean useExtraMessage;
+    String title;
+    String message;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
         message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);
-        useExtraMessage = this.getIntent().getBooleanExtra(EXTRA_USE_MESSAGE, true);
         this.showDialog(0);
     }
 
@@ -39,11 +36,7 @@ public class UnrecoverableErrorActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         AlertDialog mNoStorageDialog = new AlertDialog.Builder(this).create();
         mNoStorageDialog.setTitle(title);
-        if (useExtraMessage) {
-            mNoStorageDialog.setMessage(message + "\n\n" + Localization.get("app.handled.error.explanation"));
-        } else {
-            mNoStorageDialog.setMessage(message);
-        }
+        mNoStorageDialog.setMessage(message + "\n\n" + Localization.get("app.handled.error.explanation"));
         
         DialogInterface.OnClickListener noStorageButton = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {

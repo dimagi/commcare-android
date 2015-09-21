@@ -8,20 +8,9 @@ package org.commcare.android.util;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SessionStateUninitException extends RuntimeException {
-    public SessionStateUninitException() {
-        super();
-    }
-
-    public SessionStateUninitException(String message) {
-        super(message);
-    }
-
-    public SessionStateUninitException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SessionStateUninitException(Throwable cause) {
-        super(cause);
-    }
+    public SessionStateUninitException() { super(); }
+    public SessionStateUninitException(String message) { super(message); }
+    public SessionStateUninitException(String message, Throwable cause) { super(message, cause); }
+    public SessionStateUninitException(Throwable cause) { super(cause); }
 }
 

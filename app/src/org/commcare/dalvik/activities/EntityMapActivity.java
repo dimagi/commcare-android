@@ -21,7 +21,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -183,7 +183,11 @@ public class EntityMapActivity extends MapActivity {
                                         int lng = (int) (a.getLongitude() * 1E6);
                                         gp = new GeoPoint(lat, lng);
                                         
-                                        geoCache.write(new GeocodeCacheModel(val, lat, lng));
+                                        try {
+                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
+                                        } catch (StorageFullException e1) {
+                                            //this is the worst exception ever.
+                                        }
                                         legit++;
                                         break;
                                     }
@@ -191,10 +195,15 @@ public class EntityMapActivity extends MapActivity {
                                 
                                 //We didn't find an address, make a miss record
                                 if(gp == null) {
-                                    geoCache.write(GeocodeCacheModel.NoHitRecord(val));
+                                    try {
+                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
+                                    } catch (StorageFullException e1) {
+                                        //this is the worst exception ever.
+                                    }
                                 }
-                            } catch (StorageFullException | IOException e1) {
+                            } catch (IOException e1) {
                                 e1.printStackTrace();
+                                //Yo. What? I guess bad connection?
                             }
                         }
                         
@@ -253,8 +262,8 @@ public class EntityMapActivity extends MapActivity {
         return entityContext;
     }
     
-    private CommCareInstanceInitializer getInstanceInit() {
-        return new CommCareInstanceInitializer(session);
+    private AndroidInstanceInitializer getInstanceInit() {
+        return new AndroidInstanceInitializer(session);
     }
 
     @Override

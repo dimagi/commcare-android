@@ -14,6 +14,7 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -25,6 +26,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.views.ODKView;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -104,33 +106,20 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
-    private void setNodeValue(TreeReference reference, String stringValue) {
-        // todo: this code is very similar to SetValueAction.processAction, could be unified?
-        if (stringValue != null) {
-            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
-            AbstractTreeElement node = evaluationContext.resolveReference(reference);
-            int dataType = node.getDataType();
-            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
-            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
-        } else {
-            form.setValue(null, reference);
-        }
-    }
-
-    public boolean processResponse(Intent intent, TreeReference context, File destination) {
-
+    public boolean processResponse(Intent intent, ODKView currentView, FormInstance instance, File destination) {
+        
         if(intent == null){
             return false;
         }
         
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
-        setNodeValue(context, result);
-
+        ((ODKView) currentView).setBinaryData(result);
+        
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
         
         //Load all of the data from the incoming bundle
-        if(responses != null && response != null) {
+        if(responses != null) {
             for (String key : responses.keySet()) {
                 //See if the value exists at all, if not, skip it
                 if (!response.containsKey(key)) {
@@ -144,7 +133,7 @@ public class IntentCallout implements Externalizable {
                 }
 
                 for (TreeReference ref : responses.get(key)) {
-                    processResponseItem(ref, responseValue, context, destination);
+                    processResponseItem(ref, responseValue, destination);
                 }
             }
         }
@@ -152,13 +141,12 @@ public class IntentCallout implements Externalizable {
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
-                                     TreeReference contextRef,  File destinationFile) {
-        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
-        TreeReference fullRef = ref.contextualize(contextRef);
-        AbstractTreeElement node = context.resolveReference(fullRef);
+                                     File destinationFile) {
+        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), ref);
+
+        AbstractTreeElement node = context.resolveReference(ref);
 
         if (node == null) {
-            Log.e(TAG, "Unable to resolve ref " + ref);
             return;
         }
         int dataType = node.getDataType();
@@ -170,7 +158,7 @@ public class IntentCallout implements Externalizable {
             //We need to copy the binary data at this address into the appropriate location
             if (responseValue == null || responseValue.equals("")) {
                 //If the response was blank, wipe out any data that was present before
-                form.setValue(null, fullRef);
+                form.setValue(null, ref);
                 return;
             }
 
@@ -180,7 +168,7 @@ public class IntentCallout implements Externalizable {
                 //TODO: How hard should we be failing here?
                 Log.w(TAG, "ODK received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
                 //Wipe out any reference that exists
-                form.setValue(null, fullRef);
+                form.setValue(null, ref);
                 return;
             }
 
@@ -191,18 +179,19 @@ public class IntentCallout implements Externalizable {
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {
-                form.setValue(new StringData(newFile.toString()), fullRef);
+                form.setValue(new StringData(newFile.toString()), ref);
                 return;
             } else {
                 Log.e(TAG, "ODK Failed to property write a file to " + newFile.toString());
-                form.setValue(null, fullRef);
+                form.setValue(null, ref);
                 return;
             }
         }
 
         //otherwise, just load it up
         IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), fullRef);
+
+        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), ref);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.framework;
 
@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 
 /**
  * @author ctsims
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})

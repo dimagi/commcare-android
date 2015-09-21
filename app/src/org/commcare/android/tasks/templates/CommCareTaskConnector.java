@@ -5,15 +5,15 @@ package org.commcare.android.tasks.templates;
  */
 public interface CommCareTaskConnector<R> {
 
-    /**
-     * IMPORTANT: Any implementing class of CommCareTaskConnector should be
-     * implemented such that it will only automatically manage the dialog of a
-     * connected task IF the task id is non-negative. If the user does NOT
-     * want to implement a dialog, or is implementing the dialog in a
-     * different way, they should be able to use a negative task id in order
-     * to avoid this.
-     */
-    public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task);
+     /**
+      * IMPORTANT: Any implementing class of CommCareTaskConnector should be
+      * implemented such that it will only automatically manage the dialog of a
+      * connected task IF the task id is non-negative. If the user does NOT
+      * want to implement a dialog, or is implementing the dialog in a
+      * different way, they should be able to use a negative task id in order
+      * to avoid this.
+      */
+    public <A, B, C> void connectTask(CommCareTask<A,B,C,R> task);
 
     /**
      * Should call showProgressDialog() for a task if its id is non-negative,

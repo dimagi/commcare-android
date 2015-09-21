@@ -8,12 +8,12 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DirectDbHelper;
+import org.commcare.android.database.DirectAndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.util.PropertyUtils;
@@ -57,7 +57,7 @@ public class DemoUserUtil {
                 //Now we need an arbitrary user record
                 User demoUser = new User(DEMO_USER, duserHash, DEMO_USER, User.TYPE_DEMO);
                 
-                SqlStorage<User> userStorage = new SqlStorage<User>(User.STORAGE_KEY, User.class, new DirectDbHelper(c, userDatabase));
+                SqlStorage<User> userStorage = new SqlStorage<User>(User.STORAGE_KEY, User.class, new DirectAndroidDbHelper(c, userDatabase));
                 userStorage.write(demoUser);
                 
                 //TODO: Demo fixtures?

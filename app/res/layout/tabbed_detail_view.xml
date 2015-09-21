@@ -4,6 +4,7 @@
 	<LinearLayout
 	    android:id="@+id/tabbed_detail_menu"
 	    android:orientation="horizontal"
+	    android:layout_marginTop="@dimen/spacer_small"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content">
 	</LinearLayout>

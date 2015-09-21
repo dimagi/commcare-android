@@ -6,11 +6,6 @@
               android:layout_height="match_parent"
               android:background="@color/cc_core_bg">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -19,8 +14,8 @@
             android:id="@+id/home_gridview_buttons"
             android:tag="new-gv-port-v10"
             android:numColumns="2"
-            android:layout_marginStart="@dimen/standard_spacer_half"
-            android:layout_marginEnd="@dimen/standard_spacer_half"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/str_version"
@@ -37,6 +32,4 @@
             android:visibility="gone"
             />
     </RelativeLayout>
-        <include layout="@layout/component_drop_shadow"/>
-    </FrameLayout>
 </LinearLayout>

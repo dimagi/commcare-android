@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.database.global.models;
 
@@ -8,10 +8,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.modern.models.MetaField;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -24,38 +24,39 @@ import java.security.SecureRandom;
 /**
  * This is a record of a key that CommCare ODK has shared with another app
  * in order for that app to send data to CommCare securely.
- *
+ * 
  * @author ctsims
+ *
  */
 @Table("android_sharing_key")
 
 public class AndroidSharedKeyRecord extends Persisted {
-
+        
     public final static String META_KEY_ID = "sharing_key_id";
-
+    
     @Persisting(1)
-    @MetaField(value = META_KEY_ID, unique = true)
+    @MetaField(value = META_KEY_ID, unique=true)
     String keyId;
     @Persisting(2)
     byte[] privateKey;
     @Persisting(3)
     byte[] publicKey;
-
+    
     /*
      * Deserialization only
      */
     public AndroidSharedKeyRecord() {
-
+        
     }
-
+    
     public AndroidSharedKeyRecord(String keyId, byte[] privateKey, byte[] publicKey) {
         this.keyId = keyId;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
     }
-
+    
     public static AndroidSharedKeyRecord generateNewSharingKey() {
-        try {
+        try{ 
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
             generator.initialize(256, new SecureRandom());
             KeyPair pair = generator.genKeyPair();
@@ -64,15 +65,15 @@ public class AndroidSharedKeyRecord extends Persisted {
             byte[] encodedPublic = pair.getPublic().getEncoded();
             String publicencoding = pair.getPublic().getFormat();
             return new AndroidSharedKeyRecord(PropertyUtils.genUUID(), pair.getPrivate().getEncoded(), pair.getPublic().getEncoded());
-        } catch (NoSuchAlgorithmException nsae) {
+        } catch(NoSuchAlgorithmException nsae) {
             return null;
         }
     }
-
+    
     public byte[] getPrivateKey() {
         return privateKey;
     }
-
+    
     public String getKeyId() {
         return keyId;
     }
@@ -84,10 +85,10 @@ public class AndroidSharedKeyRecord extends Persisted {
         response.putExtra(EXTRA_KEY_ID, this.getKeyId());
         response.putExtra(EXTRA_KEY_PAYLOAD, this.publicKey);
     }
-
+    
     public final static String EXTRA_KEY_CALLOUT = "commcare_sharing_key_callout";
     public final static String EXTRA_KEY_CALLOUT_SYMETRIC_KEY = "commcare_sharing_key_symetric";
-
+    
     public Bundle getIncomingCallout(Intent incoming) {
         byte[] incomingCallout = incoming.getByteArrayExtra(EXTRA_KEY_CALLOUT);
         byte[] incomingKey = incoming.getByteArrayExtra(EXTRA_KEY_CALLOUT_SYMETRIC_KEY);
@@ -96,11 +97,11 @@ public class AndroidSharedKeyRecord extends Persisted {
         try {
             byte[] aesKey = CryptUtil.decrypt(incomingKey, CryptUtil.getPrivateKeyCipher(this.privateKey));
             decoded = CryptUtil.decrypt(incomingCallout, CryptUtil.getAesKeyCipher(aesKey));
-        } catch (GeneralSecurityException gse) {
+        } catch(GeneralSecurityException gse) {
             Logger.exception(gse);
             return null;
         }
-
+        
         p.unmarshall(decoded, 0, decoded.length);
         p.setDataPosition(0);
 

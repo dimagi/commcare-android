@@ -9,6 +9,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.util.CommCareInstance;
 import org.javarosa.core.reference.Reference;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -144,16 +145,17 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) {
+    public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) throws StorageFullException {
     }
 
     @Override
     public void addResource(Resource resource, ResourceInstaller initializer,
-            String parentId) {
+            String parentId) throws StorageFullException {
     }
 
     @Override
-    public void addResource(Resource resource, int status) {
+    public void addResource(Resource resource, int status)
+            throws StorageFullException {
     }
 
     @Override

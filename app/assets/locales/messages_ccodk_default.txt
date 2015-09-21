@@ -17,11 +17,9 @@ verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
 verify.progress = Verifying resources. ${0} resources verified of ${1} total
 
-install.barcode.top=Welcome to CommCare!
-install.barcode.bottom=Please choose an installation method below
+install.barcode=Welcome to CommCare! Please choose an installation method below 
 install.manual=Please enter the URL
-install.ready.top=Almost there!
-install.ready.bottom=Press the button below to install your app.
+install.ready=Almost there! Press the button below to install your app.
 install.netwarn=If you are attempting to install from a server, make sure you have an internet connection.
 install.button.enter=Enter URL
 install.button.startover=Start Over
@@ -29,7 +27,7 @@ install.button.retry=Retry Installation
 install.button.start=Start Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 install.bad.login=Login to Existing App
-install.appprofile=Enter your app install address
+install.appprofile=Application Profile
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
@@ -70,9 +68,6 @@ home.menu.formdump=Manage SD
 home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
-home.menu.about=About CommCare
-
-home.developer.options.enabled=Developer Mode Enabled
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -250,7 +245,6 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.detail.confirm=Continue
-select.detail.bypass=Done
 select.address.show=Show Address
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
@@ -366,7 +360,7 @@ notification.restore.baddata.detail=CommCare had trouble processing the network 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.
 
-notification.install.missing.title=Couldn't find your application.  Please check and retype your code, or verify your internet connection. 
+notification.install.missing.title=Couldn't locate part of your app
 notification.install.missing.detail=A serious problem occurred while CommCare was trying to download an update (or install your app). CommCare couldn't find the resource with id: ${0}. This is often due to a bad internet connection.
 notification.install.missing.action=This failure is generally due to a bad or inconsistent network connection, but may be a sign of a problem with the application if it persists. Try again with a better connection and report to a supervisor if the install still fails.
 
@@ -403,10 +397,6 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
-
-notification.install.no.connection.title=No internet connection
-notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
-notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
 
 notification.logger.submitted.title=Device Logs Submitted
 notification.logger.submitted.detail=Your devices logs have been successfully submitted
@@ -460,10 +450,6 @@ notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
-crash.warning.button=Restart CommCare
-crash.warning.header=CommCare crashed and needs to restart.
-crash.warning.detail=The following error was likely caused by a misconfiguration in your app:
-
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below. Please be sure to state where you encountered the problem, step-by-step instructions for reproducing the error, what exactly happened, and any text or error message that occurred.
 problem.report.menuitem=Report Problem
@@ -499,9 +485,3 @@ wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
-
-invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
-image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
-image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
-odk_perfect_match_color=\#87D13E
-odk_fuzzy_match_color=\#FFE88F

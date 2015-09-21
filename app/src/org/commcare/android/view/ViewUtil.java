@@ -1,14 +1,11 @@
 package org.commcare.android.view;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
@@ -31,9 +28,10 @@ import java.io.File;
 import java.util.LinkedList;
 
 /**
- * Utilities for converting CommCare UI diplsay details into Android objects
- *
+ * Utilities for converting CommCare UI diplsay details into Android objects 
+ * 
  * @author ctsims
+ *
  */
 public final class ViewUtil {
 
@@ -55,16 +53,16 @@ public final class ViewUtil {
     //ctsims 5/23/2014
     //NOTE: I pretty much extracted the below straight from the TextImageAudioView. It's
     //not great and doesn't scale resources well. Feel free to split back up. 
-
+    
     /**
      * Attempts to inflate an image from a <display> or other CommCare UI definition source.
-     *
+     *  
      * @param jrUri The image to inflate
      * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
      */
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
         //TODO: Cache?
-
+        
         // Now set up the image view
         if (jrUri != null && !jrUri.equals("")) {
             try {
@@ -74,7 +72,7 @@ public final class ViewUtil {
                 if (imageFile.exists()) {
                     Bitmap b = null;
                     try {
-                        Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                        Display display = ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
                         int screenWidth = display.getWidth();
                         int screenHeight = display.getHeight();
                         b = FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
@@ -95,34 +93,34 @@ public final class ViewUtil {
         return null;
     }
 
-    public static void hideVirtualKeyboard(Activity activity) {
+    public static void hideVirtualKeyboard(Activity activity){
         InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         View focus = activity.getCurrentFocus();
-        if (focus != null) {
+        if(focus != null) {
             inputManager.hideSoftInputFromWindow(focus.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
-
+    
     /**
      * Sets the background on a view to the provided drawable while retaining the padding
      * of the original view (regardless of whether the provided drawable has its own padding)
-     *
-     * @param v          The view whose background will be updated
+     * 
+     * @param v The view whose background will be updated
      * @param background A background drawable (can be null to clear the background)
      */
     @SuppressLint("NewApi")
     public static void setBackgroundRetainPadding(View v, Drawable background) {
         //Need to transplant the padding due to background affecting it
-        int[] padding = {v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), v.getPaddingBottom()};
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+        int[] padding = {v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),v.getPaddingBottom() };
+        
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             v.setBackground(background);
         } else {
             v.setBackgroundDrawable(background);
         }
-        v.setPadding(padding[0], padding[1], padding[2], padding[3]);
+        v.setPadding(padding[0],padding[1], padding[2], padding[3]);
     }
 
     /**
@@ -149,7 +147,7 @@ public final class ViewUtil {
                         Log.i("CLK", vid);
                     }
                 });
-                if (child instanceof ViewGroup) {
+                if(child instanceof ViewGroup) {
                     final ViewGroup vg = (ViewGroup) child;
                     for (int j = 0; j < vg.getChildCount(); j++) {
                         final View gchild = vg.getChildAt(j);
@@ -157,20 +155,6 @@ public final class ViewUtil {
                     }
                 }
             }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static int getColorDrawableColor(ColorDrawable drawable) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            Bitmap bitmap= Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444);
-            Canvas canvas= new Canvas(bitmap);
-            drawable.draw(canvas);
-            int pix = bitmap.getPixel(0, 0);
-            bitmap.recycle();
-            return pix;
-        } else {
-            return drawable.getColor();
         }
     }
 }

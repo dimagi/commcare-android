@@ -32,7 +32,6 @@ import org.commcare.dalvik.R;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 
 /**
@@ -45,18 +44,15 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
 
     private TextView mStringAnswer;
 
-    public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic,
-                         PendingCalloutInterface pendingCalloutInterface) {
-        // todo: I don't think pendingCalloutInterface is actually useful for BarcodeWidget
-        // todo: it's only here because it subclasses IntentWidget
-        super(context, prompt, i, ic, pendingCalloutInterface, FormEntryActivity.BARCODE_CAPTURE);
+    public BarcodeWidget(Context context, FormEntryPrompt prompt, Intent i, IntentCallout ic) {
+        super(context, prompt, i, ic, FormEntryActivity.BARCODE_CAPTURE);
 
         mWaitingForData = false;
         setOrientation(LinearLayout.VERTICAL);
     }
 
     @Override
-    public void makeButton(){
+    public void makeButton(FormEntryPrompt prompt){
         setOrientation(LinearLayout.VERTICAL);
         launchIntentButton = new Button(getContext());
         WidgetUtils.setupButton(launchIntentButton,
@@ -93,7 +89,7 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
     }
 
     @Override
-    public void makeTextView(){
+    public void makeTextView(FormEntryPrompt prompt){
         if("editable".equals(ic.getAppearance())){
             // set text formatting
             mStringAnswer = new EditText(getContext());
@@ -107,7 +103,7 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
             // finish complex layout
             addView(mStringAnswer);
         } else{
-            super.makeTextView();
+            super.makeTextView(prompt);
         }
     }
 

@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1"
-    app:subtitle="Saved forms"
-    app:backgroundColor="@color/cc_light_cool_accent_color"
-    app:img="@drawable/home_saved"
-    app:textColor="@color/white"
+    app:sbn_subtitle="Saved forms"
+    app:backgroundcolorButton="@color/cc_light_cool_accent_color"
+    app:sbn_img="@drawable/home_saved"
+    app:colorButtonText="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"/>
 

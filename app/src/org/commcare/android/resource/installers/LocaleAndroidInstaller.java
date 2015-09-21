@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.resource.installers;
 
@@ -19,27 +19,28 @@ import java.io.IOException;
 
 /**
  * @author ctsims
+ *
  */
 public class LocaleAndroidInstaller extends FileSystemInstaller {
 
     String locale;
-
+    
     public LocaleAndroidInstaller() {
-
+        
     }
-
+    
     public LocaleAndroidInstaller(String destination, String upgradeDestination, String locale) {
         super(destination, upgradeDestination);
         this.locale = locale;
     }
-
+    
 
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         Localization.registerLanguageReference(locale, localLocation);
         return true;
     }
-
+    
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }

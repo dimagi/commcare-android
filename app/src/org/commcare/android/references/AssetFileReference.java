@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.references;
 
@@ -13,14 +13,15 @@ import java.io.OutputStream;
 
 /**
  * Reference to an asset file
- *
+ * 
  * @author ctsims
+ *
  */
 public class AssetFileReference implements Reference {
-
+    
     String assetURI;
     Context c;
-
+    
     public AssetFileReference(Context c, String assetURI) {
         this.c = c;
         this.assetURI = assetURI;

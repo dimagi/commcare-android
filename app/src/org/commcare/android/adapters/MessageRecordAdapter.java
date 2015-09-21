@@ -1,8 +1,7 @@
 /**
- *
+ * 
  */
 package org.commcare.android.adapters;
-
 
 import android.content.Context;
 import android.database.Cursor;
@@ -28,29 +27,30 @@ import java.util.Set;
 
 /**
  * @author ctsims
+ *
  */
 public class MessageRecordAdapter implements ListAdapter {
     Context context;
     Cursor cursor;
     List<Integer> enabled = new ArrayList<Integer>();
     Set<Long> seen = new HashSet<Long>();
-
+    
     public static final int MAX = 100;
-
+    
     public MessageRecordAdapter(Context context, Cursor c) {
         this.context = context;
         this.cursor = c;
         int counted = 0;
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast() && counted < MAX) {
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast() && counted < MAX) {
                 int index = cursor.getColumnIndex("address");
-                if (index != -1) {
+                if(index != -1) {
                     long threadid = cursor.getLong(cursor.getColumnIndex("thread_id"));
-                    if (!seen.contains(threadid)) {
+                    if(!seen.contains(threadid)) {
                         String num = cursor.getString(index);
-                        if (num != null) {
+                        if(num != null) {
                             String name = CommCareApplication._().getCallListener().getCaller(num);
-                            if (name != null) {
+                            if(name != null) {
                                 enabled.add(c.getPosition());
                                 counted++;
                             }
@@ -58,7 +58,7 @@ public class MessageRecordAdapter implements ListAdapter {
                         }
                     }
                 }
-
+                
                 c.moveToNext();
             }
         }
@@ -104,38 +104,37 @@ public class MessageRecordAdapter implements ListAdapter {
             LayoutInflater inflater = LayoutInflater.from(context);
             cre = inflater.inflate(R.layout.call_record_entry, null);
         }
-
-        TextView name = (TextView) cre.findViewById(R.id.call_log_name);
-        TextView number = (TextView) cre.findViewById(R.id.call_log_number);
-        TextView when = (TextView) cre.findViewById(R.id.call_log_when);
-
-        ImageView icon = (ImageView) cre.findViewById(R.id.call_status_icon);
-
+        
+        TextView name = (TextView)cre.findViewById(R.id.call_log_name);
+        TextView number = (TextView)cre.findViewById(R.id.call_log_number);
+        TextView when = (TextView)cre.findViewById(R.id.call_log_when);
+        
+        ImageView icon = (ImageView)cre.findViewById(R.id.call_status_icon);
+        
 
         String phoneNumber = cursor.getString(cursor.getColumnIndex("address"));
         String callerName = CommCareApplication._().getCallListener().getCaller(phoneNumber);
-
+        
         name.setText(callerName);
         number.setText(phoneNumber);
-
+        
         when.setText(DateUtils.formatSameDayTime(new Date(cursor.getLong(cursor.getColumnIndex(Calls.DATE))).getTime(), new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));
-
+        
         int iconResource = android.R.drawable.stat_sys_phone_call;
+        
+        switch (cursor.getInt(cursor.getColumnIndex("read")))
+                {
+                      case 0: iconResource = R.drawable.ic_unread_message;
+                         break;
+                      case 1: iconResource = R.drawable.ic_read_message;
+                          break;
+                }
 
-        switch (cursor.getInt(cursor.getColumnIndex("read"))) {
-            case 0:
-                iconResource = R.drawable.ic_unread_message;
-                break;
-            case 1:
-                iconResource = R.drawable.ic_read_message;
-                break;
-        }
-
-
+        
         icon.setImageResource(iconResource);
-
+        
         return cre;
-
+        
     }
 
     @Override
@@ -152,7 +151,7 @@ public class MessageRecordAdapter implements ListAdapter {
     public boolean isEmpty() {
         return this.getCount() > 0;
     }
-
+    
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }

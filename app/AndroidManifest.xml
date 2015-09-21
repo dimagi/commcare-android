@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.23">
+          android:versionName="2.22">
 
     <uses-sdk
         tools:overrideLibrary="com.etsy.android.grid"
@@ -98,12 +98,6 @@
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-
-        <activity
-            android:name=".activities.CrashWarningActivity"
-            android:label="CommCare Forced Closure" >
-        </activity>
-
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
 
@@ -137,7 +131,7 @@
         </activity>
         <activity
             android:name=".activities.CommCareSetupActivity"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

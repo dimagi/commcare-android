@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.javarosa;
 
@@ -14,25 +14,25 @@ import java.util.Date;
 
 /**
  * This class keeps track of logs before the app has fully initialized its storage engine
- *
+ * 
  * @author ctsims
+ *
  */
 public class PreInitLogger implements ILogger {
     private ArrayList<AndroidLogEntry> logs = new ArrayList<AndroidLogEntry>();
-
+    
     public PreInitLogger() {
-
+        
     }
-
     @Override
     public void log(String type, String message, Date logDate) {
         logs.add(new AndroidLogEntry(type, message, logDate));
 
     }
-
+    
     public void dumpToNewLogger() {
-        for (AndroidLogEntry log : logs) {
-            if (Logger._() != null) {
+        for(AndroidLogEntry log : logs) {
+            if(Logger._() != null) {
                 Logger._().log(log.getType(), log.getMessage(), log.getTime());
             }
         }

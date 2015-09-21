@@ -6,8 +6,8 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
-        <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
-        <item name="detail_even_row_color">@color/transparent</item>
+        <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
+        <item name="entity_detail_odd_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
         <item name="entity_view_header_text_color">@color/cc_core_bg</item>
         <item name="searchbox_action_bar_color">@color/white</item>
@@ -22,8 +22,6 @@
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
         <item name="filter_select_background_color">@color/cc_brand_text</item>
         <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
-        <!-- disable drop shadows, we'll make out own per screen (yay!) -->
-        <item name="android:windowContentOverlay">@null</item>
     </style>
     
         <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
@@ -40,10 +38,6 @@
         <item name="android:subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
         <item name="android:logo">@drawable/actionbar_modern_spacing</item>
         <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
-
-        <!-- Disable action bar elevation on lolipop+ (re-implementing w/a gradient) -->
-        <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">0</item>
     </style>
 
     <style name="ActionBar.TitleTextStyle">

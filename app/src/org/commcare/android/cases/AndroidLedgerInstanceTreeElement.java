@@ -16,46 +16,47 @@ import java.util.Vector;
 
 /**
  * @author ctsims
+ *
  */
 public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement {
     SqlStorageIterator<Ledger> iter;
-
+    
     Hashtable<String, Integer> primaryIdMapping;
-
+    
     public AndroidLedgerInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<Ledger> storage) {
         super(instanceRoot, storage);
         primaryIdMapping = null;
     }
-
+    
     @Override
     protected Hashtable<String, Integer> getKeyMapping(String keyId) {
-        if (keyId.equals(Ledger.INDEX_ENTITY_ID) && primaryIdMapping != null) {
+        if(keyId.equals(Ledger.INDEX_ENTITY_ID) && primaryIdMapping != null) {
             return primaryIdMapping;
         } else {
             return null;
         }
     }
-
+    
     @Override
     protected synchronized void getLedgers() {
-        if (ledgers != null) {
+        if(ledgers != null) {
             return;
         }
         objectIdMapping = new Hashtable<Integer, Integer>();
         ledgers = new Vector<LedgerChildElement>();
         primaryIdMapping = new Hashtable<String, Integer>();
         int mult = 0;
-        for (IStorageIterator i = ((SqlStorage<ACase>) getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore(); ) {
+        for(IStorageIterator i = ((SqlStorage<ACase>)getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore();) {
             int id = i.peekID();
             ledgers.addElement(new LedgerChildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            primaryIdMapping.put(((SqlStorageIterator) i).getPrimaryId(), DataUtil.integer(id));
+            primaryIdMapping.put(((SqlStorageIterator)i).getPrimaryId(),DataUtil.integer(id));
             mult++;
             i.nextID();
         }
     }
-
-
+    
+    
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         //This is kind of (ok, so really) awkward looking, but we can't use sets in 
@@ -63,12 +64,12 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         //j2me (thanks Sun!) so this is what we get.
         HashSet<Integer> selected = new HashSet<Integer>(selectedCases);
         selected.addAll(selectedCases);
-
+        
         HashSet<Integer> other = new HashSet<Integer>();
         other.addAll(cases);
-
+        
         selected.retainAll(other);
-
+        
         selectedCases.clear();
         selectedCases.addAll(selected);
         return selectedCases;

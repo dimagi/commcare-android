@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.framework.UiElement;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
@@ -20,38 +21,36 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
- *
- * @author Daniel Luna (dcluna@dimagi.com)
+ * Created by dancluna on 3/17/15.
  */
 public class SetupInstallFragment extends Fragment {
+    @UiElement(R.id.btn_fetch_uri)
+    SquareButtonWithText scanBarcodeButton;
+
+    @UiElement(R.id.enter_app_location)
+    SquareButtonWithText enterURLButton;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_install, container, false);
-
-        TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.barcode.top"));
-
-        TextView setupMsg2 = (TextView)view.findViewById(R.id.str_setup_message_2);
-        setupMsg2.setText(Localization.get("install.barcode.bottom"));
-
-        SquareButtonWithText scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
-        final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
+        TextView setupMsg = (TextView) view.findViewById(R.id.str_setup_message);
+        setupMsg.setText(Localization.get("install.barcode"));
+        scanBarcodeButton = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_uri);
+        enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
                     //Barcode only
-                    i.putExtra("SCAN_FORMATS", "QR_CODE");
+                    i.putExtra("SCAN_FORMATS","QR_CODE");
                     getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
-                    barcodeButtonContainer.setVisibility(View.GONE);
+                    scanBarcodeButton.setVisibility(View.GONE);
                 }
             }
         });
-
-        SquareButtonWithText enterURLButton = (SquareButtonWithText)view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +67,6 @@ public class SetupInstallFragment extends Fragment {
                 ft.commit();
             }
         });
-
         return view;
     }
 }

@@ -12,24 +12,24 @@ import javax.crypto.Cipher;
  */
 public abstract class CipherPool {
     private static final String TAG = CipherPool.class.getSimpleName();
-
+    
     private static final int GROWTH_FACTOR = 5;
-
+    
     HashSet<Cipher> issued = new HashSet<Cipher>();
     Stack<Cipher> free = new Stack<Cipher>();
-
+    
     //TODO: Pass in factory and finalize all API's rather than
     //leaving the class to be anonymous?
     public CipherPool() {
-
+        
     }
-
+    
     public synchronized final void init() {
         grow();
     }
 
     public synchronized final Cipher borrow() {
-        if (free.isEmpty()) {
+        if(free.isEmpty()) {
             grow();
             Log.d(TAG, "Growing cipher pool. Current size is: " + free.size() + issued.size());
         }
@@ -42,9 +42,9 @@ public abstract class CipherPool {
         issued.remove(cipher);
         free.push(cipher);
     }
-
+    
     private synchronized void grow() {
-        for (int i = 0; i < GROWTH_FACTOR; ++i) {
+        for(int i = 0 ; i < GROWTH_FACTOR; ++i) {
             free.push(generateNewCipher());
         }
     }

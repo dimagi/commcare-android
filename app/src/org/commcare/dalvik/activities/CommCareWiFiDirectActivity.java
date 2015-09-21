@@ -411,8 +411,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mWipeTask.connect(CommCareWiFiDirectActivity.this);
         mWipeTask.execute();
 
-        FileUtil.deleteFileOrDir(new File(sourceDirectory));
-        FileUtil.deleteFileOrDir(new File(sourceZipDirectory));
+        FileUtil.deleteFile(new File(sourceDirectory));
+        FileUtil.deleteFile(new File(sourceZipDirectory));
 
         this.cachedRecords = null;
 
@@ -730,7 +730,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void onZipError(){
-        FileUtil.deleteFileOrDir(new File(sourceDirectory));
+        FileUtil.deleteFile(new File(sourceDirectory));
 
         Logger.log(TAG, "Error zipping files");
 
@@ -746,7 +746,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         myStatusText.setText("Receive Successful!");
 
-        if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
+        if(!FileUtil.deleteFile(new File(receiveDirectory))){
             Log.d(TAG, "source zip not succesfully deleted");
         }
 

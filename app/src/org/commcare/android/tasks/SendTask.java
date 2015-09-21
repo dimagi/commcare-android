@@ -3,7 +3,7 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Log;
 
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
@@ -108,7 +108,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 results[i] = FormUploadUtil.sendInstance(counter,f,url, user);
                 
                 if(results[i] == FormUploadUtil.FULL_SUCCESS){
-                    FileUtil.deleteFileOrDir(f);
+                    FileUtil.deleteFile(f);
                 }
                 else if(results[i] == FormUploadUtil.TRANSPORT_FAILURE){
                     allSuccessful = false;

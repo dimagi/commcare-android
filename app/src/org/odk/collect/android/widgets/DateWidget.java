@@ -25,7 +25,6 @@ import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -33,14 +32,9 @@ import java.util.Date;
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
  * exist.
- *
- * Dates returned from the date widget should be considered uncontextualized by the current timezone.
- * This means that the date "2014-05-01" _always_ refers to "May 1st, 2014", not the specific point
- * in time "May 1st, 2014 in Boston, MA" which could refer to April 30th, 2014, or May 2, 2014
- *
+ * 
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
- * @author csims@dimagi.com
  */
 public class DateWidget extends QuestionWidget {
 
@@ -51,7 +45,6 @@ public class DateWidget extends QuestionWidget {
     @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        
         mDatePicker = new DatePicker(getContext());
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
@@ -125,9 +118,9 @@ public class DateWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();
-
-        LocalDate ldt = new LocalDate(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
-                mDatePicker.getDayOfMonth());
+        DateTime ldt = new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+                    mDatePicker.getDayOfMonth(), 0, 0);
+       // DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
         return new DateData(ldt.toDate());
     }
 

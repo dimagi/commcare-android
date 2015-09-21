@@ -1,6 +1,5 @@
 package org.commcare.android.javarosa;
 
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
@@ -8,6 +7,7 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
@@ -25,38 +25,40 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+
 /**
  * A small DB record for keeping track of serialized device reports which we are planning
  * on submitting. Keeps track of the location on disk, and the key we use to encrypt it.
- * <p/>
+ * 
  * Fairly similar record to what we're storing for the forms. Should possibly use that
  * one and its process
- *
+ * 
  * @author ctsims
+ *
  */
 
 @Table(DeviceReportRecord.STORAGE_KEY)
 public class DeviceReportRecord extends Persisted implements EncryptedModel {
-
+    
     public static final String STORAGE_KEY = "log_records";
 
     @Persisting(1)
     private String fileName;
     @Persisting(2)
     private byte[] aesKey;
-
+    
     /**
      * Serialization Only!!!
      */
     public DeviceReportRecord() {
-
+        
     }
-
+    
     public DeviceReportRecord(String fileName, byte[] aesKey) {
         this.fileName = fileName;
         this.aesKey = aesKey;
     }
-
+    
     public static DeviceReportRecord generateNewRecordStub() throws SessionUnavailableException {
         DeviceReportRecord slr = new DeviceReportRecord();
         slr.fileName = new File(CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
@@ -85,16 +87,16 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     public final OutputStream openOutputStream() throws FileNotFoundException, IOException {
         try {
             String path = getFilePath();
-            File f = new File(path);
-
+            File f = new File (path);
+            
             FileOutputStream os = new FileOutputStream(f);
-
+            
             SecretKeySpec spec = new SecretKeySpec(getKey(), "AES");
             Cipher encrypter = Cipher.getInstance("AES");
             encrypter.init(Cipher.ENCRYPT_MODE, spec);
-
+            
             return new CipherOutputStream(os, encrypter);
-        } catch (InvalidKeyException ike) {
+        } catch(InvalidKeyException ike) {
             ike.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Invalid key: " + ike.getMessage());
             throw new IOException("Bad key while trying to generate output stream for device report");

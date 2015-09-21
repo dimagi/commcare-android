@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home.start.sqbn"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_weight="1"
-    app:subtitle="Start"
-    app:backgroundColor="@color/cc_attention_positive_color"
-    app:textColor="@color/white"
-    app:img="@drawable/start_icon">
+    app:sbn_subtitle="Start"
+    app:backgroundcolorButton="@color/cc_attention_positive_color"
+    app:colorButtonText="@color/white"
+    app:sbn_img="@drawable/start_icon">
 </org.commcare.android.view.SquareButtonWithNotification>

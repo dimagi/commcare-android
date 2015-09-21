@@ -37,7 +37,7 @@ public class AndroidUtil {
     public static int generateViewId() {
         //raw implementation for < API 17
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            for (; ; ) {
+            for (;;) {
                 final int result = sNextGeneratedId.get();
                 // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
                 int newValue = result + 1;
@@ -51,14 +51,14 @@ public class AndroidUtil {
             return View.generateViewId();
         }
     }
-
+    
     /**
      * Initialize platform specific methods for common handlers
      */
     public static void initializeStaticHandlers() {
         DataUtil.setUnionLambda(new AndroidUnionLambda());
     }
-
+    
     public static class AndroidUnionLambda extends UnionLambda {
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
@@ -66,12 +66,12 @@ public class AndroidUtil {
             //j2me (thanks Sun!) so this is what we get.
             HashSet<T> joined = new HashSet<T>(a);
             joined.addAll(a);
-
+            
             HashSet<T> other = new HashSet<T>();
             other.addAll(b);
-
+            
             joined.retainAll(other);
-
+            
             a.clear();
             a.addAll(joined);
             return a;
@@ -99,7 +99,7 @@ public class AndroidUtil {
                         Log.i("CLK", vid);
                     }
                 });
-                if (child instanceof ViewGroup) {
+                if(child instanceof ViewGroup) {
                     ViewGroup vg = (ViewGroup) child;
                     for (int j = 0; j < vg.getChildCount(); j++) {
                         View gchild = vg.getChildAt(j);
@@ -110,24 +110,20 @@ public class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(Activity act) {
+    public static void setClickListenersForEverything(Activity act){
         setClickListenersForEverything(act, (ViewGroup) act.findViewById(android.R.id.content));
     }
 
     /**
      * Returns an int array with the color values for the given attributes (R.attr).
-     * Any unresolved colors will be represented by -1
      */
-    public static int[] getThemeColorIDs(final Context context, final int[] attrs) {
+    public static int[] getThemeColorIDs(final Context context, final int[] attrs){
         int[] colors = new int[attrs.length];
         Resources.Theme theme = context.getTheme();
         for (int i = 0; i < attrs.length; i++) {
             TypedValue typedValue = new TypedValue();
-            if (theme.resolveAttribute(attrs[i], typedValue, true)) {
-                colors[i] = typedValue.data;
-            } else {
-                colors[i] = -1;
-            }
+            theme.resolveAttribute(attrs[i], typedValue, true);
+            colors[i] = typedValue.data;
         }
         return colors;
     }

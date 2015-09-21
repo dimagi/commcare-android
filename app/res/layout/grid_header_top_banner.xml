@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:background="@color/cc_core_bg"
     >
     <ImageView
@@ -10,11 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:scaleType="fitCenter"
-        android:src="@drawable/commcare_logo"
+        android:src="@drawable/ccbanner_hms"
         android:visibility="visible"
         android:adjustViewBounds="true"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_horizontal_margin"
-        android:paddingLeft="@dimen/standard_spacer"
-        android:paddingRight="@dimen/standard_spacer"/>
+        android:paddingTop="10dp"/>
 </LinearLayout>

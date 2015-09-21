@@ -32,8 +32,6 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
-import org.javarosa.core.model.QuestionDataExtension;
-import org.javarosa.core.model.QuestionExtensionReceiver;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryCaption;
@@ -47,7 +45,7 @@ import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
 
-public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
+public abstract class QuestionWidget extends LinearLayout {
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
@@ -188,12 +186,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     public abstract void setFocus(Context context);
 
     public abstract void setOnLongClickListener(OnLongClickListener l);
-
-    @Override
-    public void applyExtension(QuestionDataExtension extension) {
-        // Intentionally empty method body -- subclasses of QuestionWidget that expect
-        // to ever receive an extension should override this method and implement it accordingly
-    }
 
     private class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {

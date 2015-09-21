@@ -46,6 +46,7 @@ public class FormsProvider extends ContentProvider {
 
     private static final String t = "FormsProvider";
 
+    private static final String DATABASE_NAME = "forms.db";
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
 
@@ -61,17 +62,10 @@ public class FormsProvider extends ContentProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
-        // the application id of the CCApp for which this db is storing forms
-        private String appId;
-
-        public DatabaseHelper(Context c, String databaseName, String appId) {
+        public DatabaseHelper(Context c, String databaseName) {
             super(c, databaseName, null, DATABASE_VERSION);
-            this.appId = appId;
         }
 
-        public String getAppId() {
-            return this.appId;
-        }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
@@ -104,6 +98,7 @@ public class FormsProvider extends ContentProvider {
 
     private DatabaseHelper mDbHelper;
 
+
     @Override
     public boolean onCreate() {
         //This is so stupid.
@@ -111,10 +106,9 @@ public class FormsProvider extends ContentProvider {
     }
     
     public void init() {
-        String appId = ProviderUtils.getSandboxedAppId();
-        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
-            String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.FORMS, appId);
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
+        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
+        if(mDbHelper == null) {
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
         }
     }
 

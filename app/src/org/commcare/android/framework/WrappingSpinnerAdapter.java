@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.framework;
 
@@ -11,15 +11,16 @@ import android.widget.TextView;
 
 /**
  * @author ctsims
+ *
  */
 public class WrappingSpinnerAdapter implements SpinnerAdapter {
-
+    
     SpinnerAdapter wrapped;
     String[] displayVals;
-
+    
     public WrappingSpinnerAdapter(SpinnerAdapter wrapped, String[] displayVals) {
         this.wrapped = wrapped;
-        this.displayVals = displayVals;
+        this.displayVals= displayVals;
     }
 
     @Override
@@ -45,8 +46,8 @@ public class WrappingSpinnerAdapter implements SpinnerAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = wrapped.getView(position, convertView, parent);
-        if (v instanceof TextView) {
-            ((TextView) v).setText(displayVals[position]);
+        if(v instanceof TextView) {
+            ((TextView)v).setText(displayVals[position]);
         }
         return v;
     }

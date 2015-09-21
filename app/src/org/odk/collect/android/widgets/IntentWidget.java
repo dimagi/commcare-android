@@ -36,7 +36,6 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -51,32 +50,27 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
     private Intent intent;
     protected IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
-    protected FormEntryPrompt prompt;
-    private PendingCalloutInterface pendingCalloutInterface;
 
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface, int calloutId) {
-        this(context, prompt, in, ic, pendingCalloutInterface);
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic, int calloutId) {
+        this(context, prompt, in, ic);
         this.calloutId = calloutId;
     }
 
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface) {
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in,
+                        IntentCallout ic) {
         super(context, prompt);
 
         this.intent = in;
         this.ic = ic;
-        this.pendingCalloutInterface = pendingCalloutInterface;
-        this.prompt = prompt;
 
         mWaitingForData = false;
 
-        makeTextView();
-        makeButton();
+        makeTextView(prompt);
+        makeButton(prompt);
 
     }
 
-    public void makeTextView() {
+    public void makeTextView(FormEntryPrompt prompt) {
         // set text formatting
         mStringAnswer = new TextView(getContext());
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
@@ -101,7 +95,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    public void makeButton(){
+    public void makeButton(FormEntryPrompt prompt){
         setOrientation(LinearLayout.VERTICAL);
 
         TableLayout.LayoutParams params = new TableLayout.LayoutParams();
@@ -141,7 +135,7 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
             if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
-            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+            
             ((Activity) getContext()).startActivityForResult(intent,
                 calloutId);
         } catch (ActivityNotFoundException e) {

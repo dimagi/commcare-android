@@ -86,12 +86,7 @@ public abstract class ResourceEngineTask<R>
         /**
          * Certificate was bad
          */
-        StatusBadCertificate("notification.install.badcert"),
-
-        /**
-         * There is no internet connectivity
-         */
-        StatusNoConnection("notification.install.no.connection");
+        StatusBadCertificate("notification.install.badcert");
 
 
         ResourceEngineOutcomes(String root) {
@@ -241,8 +236,7 @@ public abstract class ResourceEngineTask<R>
             }
 
             // Initializes app resources and the app itself, including doing a check to see if this
-            // app record was converted by the db upgrader. This is also where
-            // CommCareApplication's currentApp gets set
+            // app record was converted by the db upgrader
             CommCareApplication._().initializeGlobalResources(app);
 
             // Write this App Record to storage -- needs to be performed after localizations have

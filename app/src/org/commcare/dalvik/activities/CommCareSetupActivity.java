@@ -1,9 +1,7 @@
 package org.commcare.dalvik.activities;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.app.Fragment;
@@ -27,6 +25,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -63,9 +62,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_UPGRADE_MODE = "app_upgrade_mode";
     public static final String KEY_ERROR_MODE = "app_error_mode";
     private static final String KEY_UI_STATE = "current_install_ui_state";
-    private static final String KEY_OFFLINE =  "offline_install";
-    private static final String KEY_FROM_EXTERNAL = "from_external";
-    private static final String KEY_FROM_MANAGER = "from_manager";
 
     /**
      * Should the user be logged out when this activity is done?
@@ -125,12 +121,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private boolean fromExternal;
 
     /**
-     * Indicates that the current install attempt will be made from a .ccz file, so we do
-     * not need to check for internet connectivity
-     */
-    private boolean offlineInstall;
-
-    /**
      * Whether this needs to be interactive (if it's automatic, we want to skip
      * a lot of the UI stuff
      */
@@ -169,7 +159,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 if(incomingRef.contains(".ccz")) {
                     // make sure this is in the file system
                     boolean isFile = incomingRef.contains("file://");
-                    if (isFile) {
+                    if(isFile){
                         // remove file:// prepend
                         incomingRef = incomingRef.substring(incomingRef.indexOf("//")+2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
@@ -197,9 +187,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             incomingRef = savedInstanceState.getString("profileref");
             inUpgradeMode = savedInstanceState.getBoolean(KEY_UPGRADE_MODE);
             isAuto = savedInstanceState.getBoolean(KEY_AUTO);
-            fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
-            fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
-            offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
             // Uggggh, this might not be 100% legit depending on timing, what
             // if we've already reconnected and shut down the dialog?
             startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -222,19 +209,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         uiStateScreenTransition();
-    }
-
-    @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            ActionBar actionBar = getActionBar();
-            if (actionBar != null) {
-                // removes the back button from the action bar
-                actionBar.setDisplayHomeAsUpEnabled(false);
-            }
-        }
     }
 
     @Override
@@ -280,11 +254,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case IN_URL_ENTRY:
                 fragment = restoreInstallSetupFragment();
-                this.offlineInstall = false;
                 break;
             case CHOOSE_INSTALL_ENTRY_METHOD:
                 fragment = installFragment;
-                this.offlineInstall = false;
                 break;
             default:
                 return;
@@ -318,11 +290,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // upgrade app if needed
         if(uiState == UiState.UPGRADE &&
                 incomingRef != null && incomingRef.length() != 0) {
-            if (isNetworkNotConnected()){
+            if(AndroidUtil.isNetworkAvailable(this)){
+                startResourceInstall(true);
+            } else {
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Remote_NoNetwork, "INSTALL_NO_NETWORK"));
                 finish();
-            } else {
-                startResourceInstall(true);
             }
         }
     }
@@ -340,9 +312,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_AUTO, isAuto);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_UPGRADE_MODE, inUpgradeMode);
-        outState.putBoolean(KEY_OFFLINE, offlineInstall);
-        outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
-        outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         Log.v("UiState", "Saving instance state: " + outState);
     }
     
@@ -360,7 +329,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
-                    offlineInstall = true;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
                 }
                 break;
@@ -440,11 +408,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void startResourceInstall(boolean startOverUpgrade) {
         if(startAllowed) {
             CommCareApp app = getCommCareApp();
+
             ccApp = app;
 
-            // store what the state of the resource table was before this
-            // install, so we can compare it to the state after and decide if
-            // this should count as a 'last install time'
+             // store what the state of the resource table was before this
+             // install, so we can compare it to the state after and decide if
+             // this should count as a 'last install time'
             int tableStateBeforeInstall =
                 ccApp.getCommCarePlatform().getUpgradeResourceTable().getTableReadiness();
 
@@ -601,10 +570,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (isAuto || alwaysNotify) {
             CommCareApplication._().reportNotificationMessage(message);
         }
-
-        // Last install attempt failed, so restore to starting uistate to try again
-        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-        uiStateScreenTransition();
+        Intent i = new Intent(getIntent());
+        setResult(RESULT_CANCELED, i);
+        finish();
     }
     
     // All final paths from the Update are handled here (Important! Some
@@ -702,11 +670,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onStartInstallClicked() {
-        if (!offlineInstall && isNetworkNotConnected()) {
-            failWithNotification(ResourceEngineOutcomes.StatusNoConnection);
-        } else {
-            startResourceInstall();
-        }
+        startResourceInstall();
     }
 
     @Override

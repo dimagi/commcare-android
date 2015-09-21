@@ -10,15 +10,26 @@
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cc_core_bg"
         android:scrollbars="none">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <!--&lt;!&ndash; TODO: extract style definition &ndash;&gt;-->
-        <include layout="@layout/grid_header_top_banner"/>
+        <ImageView
+            android:id="@+id/screen_first_start_banner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_marginRight="@dimen/content_start"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingLeft="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/commcare_logo" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -31,19 +42,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
-                android:gravity="center"
-                android:text="Welcome to CommCare!"
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/str_setup_message_2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
                 android:layout_marginBottom="@dimen/content_min_margin"
                 android:gravity="center"
-                android:text="Please choose an installation method below."
+                android:text="Welcome to CommCare!\n Please choose an installation method below."
                 android:textSize="@dimen/text_small" />
 
             <LinearLayout
@@ -53,44 +54,34 @@
                 android:paddingBottom="@dimen/content_min_margin"
                 android:orientation="horizontal" >
 
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="@dimen/standard_spacer"
-                    android:layout_weight="1"
-                    android:id="@+id/btn_fetch_uri_container"
-                    android:background="@drawable/tile_drop_shadow_small_margins">
                 <org.commcare.android.view.SquareButtonWithText
                     android:id="@+id/btn_fetch_uri"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    SquareButtonWithText:subtitle="Scan Application Barcode"
-                    SquareButtonWithText:backgroundColor="@color/cc_brand_color"
-                    SquareButtonWithText:img="@drawable/startup_barcode"
-                    SquareButtonWithText:textColor="@color/white"
-                    />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="@dimen/standard_spacer"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_min_margin"
+                    android:layout_marginRight="@dimen/content_start"
                     android:layout_weight="1"
-                    android:background="@drawable/tile_drop_shadow_small_margins">
+                    SquareButtonWithText:subtitle="Scan application barcode"
+                    SquareButtonWithText:backgroundcolor="@color/cc_brand_color"
+                    SquareButtonWithText:img="@drawable/startup_barcode"
+                    SquareButtonWithText:colorText="@color/white"
+                    />
+
                 <org.commcare.android.view.SquareButtonWithText
                     android:id="@+id/enter_app_location"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="end"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/content_start"
+                    android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_weight="1"
+                    android:gravity="right"
                     SquareButtonWithText:subtitle="Enter URL"
-                    SquareButtonWithText:backgroundColor="@color/cc_light_cool_accent_color"
+                    SquareButtonWithText:backgroundcolor="@color/cc_light_cool_accent_color"
                     SquareButtonWithText:img="@drawable/startup_url"
-                    SquareButtonWithText:textColor="@color/white"
-                    android:background="@drawable/tile_drop_shadow_small_margins"
+                    SquareButtonWithText:colorText="@color/white"
                     />
-                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
-        </LinearLayout>
+    </LinearLayout>
     </ScrollView>
 </RelativeLayout>

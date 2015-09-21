@@ -29,7 +29,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -235,10 +235,6 @@ public class BreadcrumbBarFragment extends Fragment {
 
         final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
 
-        if(inlineDetail == null) {
-            infoButton.setVisibility(View.GONE);
-        }
-
         OnClickListener toggleButtonClickListener = new OnClickListener() {
 
             private boolean isClosed = true;
@@ -247,13 +243,13 @@ public class BreadcrumbBarFragment extends Fragment {
             public void onClick(View v) {
                 if(isClosed){
                     if(mInternalDetailView == null ) {
-                        mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
-                        mInternalDetailView.setRoot(mInternalDetailView);
+                        mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
+                        mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
 
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
-                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
                         Detail detail = factory.getDetail();
                         mInternalDetailView.setDetail(detail);
 

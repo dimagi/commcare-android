@@ -18,62 +18,52 @@ import org.javarosa.core.services.Logger;
 /**
  * This class exists in order to handle all of the logic associated with upgrading from one version
  * of CommCare ODK to another. It is going to get big and annoying.
- *
+ * 
  * @author ctsims
  */
 public class LegacyCommCareUpgrader {
-
+    
     Context context;
-
+    
     public LegacyCommCareUpgrader(Context c) {
         this.context = c;
     }
-
+    
     public boolean doUpgrade(SQLiteDatabase database, int from, int to) {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("App DB Upgrade needed! Starting upgrade from %d to %d", from, to));
-        if (from == 1) {
-            if (upgradeOneTwo(database)) {
+        if(from == 1) {
+            if(upgradeOneTwo(database)) {
                 from = 2;
-            } else {
-                return false;
-            }
+            } else { return false;}
         }
-
-        if (from == 26) {
-            if (upgradeTwoSixtoTwoSeven(database)) {
+        
+        if(from == 26) {
+            if(upgradeTwoSixtoTwoSeven(database)) {
                 from = 27;
-            } else {
-                return false;
-            }
+            } else { return false;}
         }
-
-        if (from == 27) {
-            if (upgradeTwoSeventoTwoEight(database)) {
+        
+        if(from == 27) {
+            if(upgradeTwoSeventoTwoEight(database)) {
                 from = 28;
-            } else {
-                return false;
-            }
-        }
-
-        if (from == 28) {
-            if (upgradeTwoEighttoTwoNine(database)) {
+            } else { return false;}
+        } 
+        
+        if(from == 28) {
+            if(upgradeTwoEighttoTwoNine(database)) {
                 from = 29;
-            } else {
-                return false;
-            }
+            } else { return false; }
         }
-
-        if (from == 29) {
-            if (upgradeTwoNineToThreeOh(database)) {
+        
+        if(from == 29) {
+            if(upgradeTwoNineToThreeOh(database)) {
                 from = 30;
-            } else {
-                return false;
-            }
+            } else { return false; }
         }
+        
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Upgrade %s",from == to ? "succesful" : "unsuccesful"));
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Upgrade %s", from == to ? "succesful" : "unsuccesful"));
-
-        return from == to;
+        return from == to; 
     }
 
 
@@ -88,43 +78,43 @@ public class LegacyCommCareUpgrader {
         LegacyTableBuilder builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
         builder.addData(new Resource());
         database.execSQL(builder.getTableCreateString());
-
+        
         database.setVersion(2);
         database.setTransactionSuccessful();
         database.endTransaction();
         return true;
     }
-
+    
     /**
-     * Due a to a bug in Android 2.2 that is present on ~all of our
+     * Due a to a bug in Android 2.2 that is present on ~all of our 
      * production phones, upgrading from database versions
      * before v. TOBEDECIDED is going to toast all of the app data. As such
      * we need to remove all of the relevant records to ensure that
-     * the app doesn't crash and burn.
+     * the app doesn't crash and burn. 
      */
     public void upgradeBeforeTwentyFour(SQLiteDatabase database) {
         //NOTE: We'll do this cleanly when appropriate, but for
         //right now we're just going to live with the bug.
-
+        
         database.beginTransaction();
-
+        
         database.execSQL("delete from GLOBAL_RESOURCE_TABLE");
         database.execSQL("delete from UPGRADE_RESOURCE_TABLE");
         database.execSQL("delete from android_cc_session");
         database.setTransactionSuccessful();
         database.endTransaction();
     }
-
+    
     /**
-     * Previous FormRecord entries were lacking, we're going to
+     * Previous FormRecord entries were lacking, we're going to 
      * wipe them out.
      */
     private boolean upgradeTwoSixtoTwoSeven(SQLiteDatabase database) {
         database.beginTransaction();
-
+        
         //wipe out old Form Record table
         database.execSQL("drop table FORMRECORDS");
-
+        
         //Build us a new one with the new structure
         LegacyTableBuilder builder = new LegacyTableBuilder("FORMRECORDS");
         builder.addData(new FormRecord());
@@ -134,11 +124,11 @@ public class LegacyCommCareUpgrader {
         database.endTransaction();
         return true;
     }
-
-
+    
+    
     private boolean upgradeTwoSeventoTwoEight(SQLiteDatabase database) {
         database.beginTransaction();
-
+        
         LegacyTableBuilder builder = new LegacyTableBuilder(GeocodeCacheModel.STORAGE_KEY);
         builder.addData(new GeocodeCacheModel());
         database.execSQL(builder.getTableCreateString());
@@ -147,49 +137,49 @@ public class LegacyCommCareUpgrader {
         database.endTransaction();
         return true;
     }
-
+    
     private boolean upgradeTwoEighttoTwoNine(SQLiteDatabase database) {
-
+        
         String ssdTable = LegacyTableBuilder.scrubName("android_cc_session");
         String tempssdTable = LegacyTableBuilder.scrubName("android_cc_session" + "temp");
 
         int oldRows = countRows(database, ssdTable);
         try {
             database.beginTransaction();
-
+            
             LegacyTableBuilder builder = new LegacyTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
-
+            
             builder = new LegacyTableBuilder("log_records");
             builder.addData(new DeviceReportRecord());
             database.execSQL(builder.getTableCreateString());
-
+            
             //SQLite can't add column constraints. You've gotta make a new table, copy everything over, and 
             //wipe the old one
-
+            
             database.execSQL(String.format("ALTER TABLE %s RENAME TO %s;", ssdTable, tempssdTable));
-
+            
             builder = new LegacyTableBuilder("android_cc_session");
             builder.setUnique(SessionStateDescriptor.META_FORM_RECORD_ID);
             builder.addData(new SessionStateDescriptor());
             database.execSQL(builder.getTableCreateString());
-
+            
             String cols = builder.getColumns();
-
+            
             database.execSQL(String.format("INSERT OR REPLACE INTO %s (%s) " +
-                    "SELECT %s " +
-                    "FROM %s;", ssdTable, cols, cols, tempssdTable));
-
+                            "SELECT %s " +
+                            "FROM %s;", ssdTable, cols, cols, tempssdTable));
+            
             database.execSQL(String.format("DROP TABLE %s;", tempssdTable));
-
+                    
             database.setTransactionSuccessful();
-
+            
             int newRows = countRows(database, ssdTable);
-            if (oldRows != newRows) {
+            if(oldRows != newRows) {
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Removed %s duplicate SessionStateDescriptor rows during DB Upgrade", String.valueOf(oldRows - newRows)));
             }
-
+            
             return true;
         } finally {
             database.endTransaction();

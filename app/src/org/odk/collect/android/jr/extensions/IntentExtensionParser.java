@@ -66,7 +66,7 @@ public class IntentExtensionParser implements IElementHandler {
                         if (response.get(key) == null) {
                             response.put(key, new ArrayList<TreeReference>());
                         }
-                        response.get(key).add((TreeReference) new XPathReference(ref).getReference());
+                        response.get(key).add((TreeReference)new XPathReference(ref).getReference());
 
                     }
                 }

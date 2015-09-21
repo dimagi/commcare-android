@@ -2,6 +2,7 @@ package org.commcare.android.util;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 
@@ -29,7 +30,7 @@ import javax.crypto.SecretKey;
 
 /**
  * Various utilities used by TemplatePrinterTask and TemplatePrinterActivity
- *
+ * 
  * @author Richard Lu
  * @author amstone
  */
@@ -37,6 +38,13 @@ public abstract class TemplatePrinterUtils {
 
     private static final String FORMAT_REGEX_WITH_DELIMITER = "((?<=%2$s)|(?=%1$s))";
     private static final SecretKey KEY = CryptUtil.generateSemiRandomKey();
+
+    public static String getExtension(String filePath) {
+        if (filePath.contains(".")) {
+            return last(filePath.split("\\."));
+        }
+        return "";
+    }
 
     /**
      * Concatenate all Strings in a String array to one String.
@@ -49,10 +57,20 @@ public abstract class TemplatePrinterUtils {
     }
 
     /**
+     * Get the last element of a String array.
+     *
+     * @param strings String array
+     * @return Last element
+     */
+    private static String last(String[] strings) {
+        return strings[strings.length - 1];
+    }
+
+    /**
      * Remove all occurrences of the specified String segment
      * from the input String.
      *
-     * @param input    String input to remove from
+     * @param input String input to remove from
      * @param toRemove String segment to remove
      * @return input with all occurrences of toRemove removed
      */
@@ -66,9 +84,9 @@ public abstract class TemplatePrinterUtils {
      * Sources:
      * http://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
      *
-     * @param input          String to split
+     * @param input String to split
      * @param delimiterStart Start delimiter; will split immediately before this delimiter
-     * @param delimiterEnd   End delimiter; will split immediately after this delimiter
+     * @param delimiterEnd End delimiter; will split immediately after this delimiter
      * @return Split string array
      */
     public static String[] splitKeepDelimiter(

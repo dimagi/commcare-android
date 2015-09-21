@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/cc_core_bg">
+    >
   <!-- Fragment container, will hold the actual setup app screen here -->
     <FrameLayout
         android:id="@+id/setup_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-    <include layout="@layout/component_drop_shadow"/>
 
-
-</FrameLayout>
+</LinearLayout>

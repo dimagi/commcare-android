@@ -46,7 +46,8 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidUtil;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
@@ -401,13 +402,17 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             }
 
+            //Hm, sadly we possibly need to rebuild this each time.
+            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
+            Log.i("DEBUG-i", "Background color is: " + colors[0] + ", text color is: " + colors[1]);
+            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
-                //Hm, sadly we possibly need to rebuild this each time.
-                EntityView v = new EntityView(this, shortSelect, headers);
-                header.addView(v);
+                header.addView(v, params);
             }
 
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
@@ -889,42 +894,32 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     private void setupDivider(ListView view) {
-        boolean useNewDivider = shortSelect.usesGridView();
+        int viewWidth = view.getWidth();
+        float density = getResources().getDisplayMetrics().density;
+        int viewWidthDP = (int)(viewWidth / density);
+        // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+        int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(0.15 * viewWidth);
 
-        if(useNewDivider) {
-            int viewWidth = view.getWidth();
-            float density = getResources().getDisplayMetrics().density;
-            int viewWidthDP = (int)(viewWidth / density);
-            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
+        Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
 
-            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
-
-            //region ListView divider information
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
-            }
-            //endregion
-
-            //region Asserting divider instanceof LayerDrawable
-            if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
-                throw new AssertionError("Divider should be a LayerDrawable!");
-            }
-            //endregion
-
-            LayerDrawable layerDrawable = (LayerDrawable)divider;
-
-            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
-
-            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-            view.setDivider(layerDrawable);
-        } else {
-            view.setDivider(null);
-
+        //region ListView divider information
+        if (BuildConfig.DEBUG) {
+            Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
         }
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+        //endregion
 
+        //region Asserting divider instanceof LayerDrawable
+        if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
+            throw new AssertionError("Divider should be a LayerDrawable!");
+        }
+        //endregion
+
+        LayerDrawable layerDrawable = (LayerDrawable) divider;
+
+        layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+        view.setDivider(layerDrawable);
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1010,10 +1005,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
-            detailView.setRoot(detailView);
+            detailView = new TabbedDetailView(this);
+            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
             detailView.setDetail(detail);
 

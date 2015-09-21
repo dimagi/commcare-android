@@ -18,14 +18,15 @@ import javax.crypto.CipherInputStream;
 
 /**
  * @author ctsims
+ *
  */
 public class EncryptedFileBody extends AbstractContentBody {
-
+    
     Entity entity;
     File file;
     Cipher cipher;
     String contentType;
-
+    
     public EncryptedFileBody(File file, Cipher cipher, String contentType) {
         super(contentType);
         this.file = file;
@@ -54,14 +55,14 @@ public class EncryptedFileBody extends AbstractContentBody {
         //The only time this can cause issues is if the body has disappeared since construction. Don't worry about that, since
         //it'll get caught when we initialize.
         CipherInputStream cis = new CipherInputStream(new FileInputStream(file), cipher);
-
+        
         try {
             StreamsUtil.writeFromInputToOutputSpecific(cis, out);
-        } catch (InputIOException iioe) {
+        } catch(InputIOException iioe) {
             //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
             //so we can differentiate between bad reads and bad network
             throw iioe;
-        } catch (OutputIOException oe) {
+        } catch(OutputIOException oe) {
             //We want the original exception here.
             throw oe.getWrapped();
         }

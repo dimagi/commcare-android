@@ -2,8 +2,7 @@
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="wrap_content"
-  android:layout_height="wrap_content"
-  android:background="@color/cc_core_bg">
+  android:layout_height="wrap_content">
 
 <FrameLayout
     android:id="@+id/universal_frame_tile"
@@ -12,21 +11,16 @@
     android:layout_alignParentTop="true" >
 
 </FrameLayout>
-    <FrameLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/universal_frame_tile">
-        <include layout="@layout/component_drop_shadow"/>
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/screen_suite_menu_list"
-                android:listSelector="@drawable/selector"
-                style="@style/ListViewV2" />
 
+<ListView
+    android:id="@+id/screen_suite_menu_list"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_below="@id/universal_frame_tile"
+    android:listSelector="@drawable/selector"
+    style="@style/ListViewV2" >
 
-    </FrameLayout>
-
+</ListView>
 
 </RelativeLayout>

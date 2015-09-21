@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.adapters;
 
@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import org.commcare.android.framework.ModifiableEntityDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.view.EntityDetailView;
@@ -21,9 +20,14 @@ import java.util.List;
 
 /**
  * @author ctsims
+ *
  */
-public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
+public class EntityDetailAdapter implements ListAdapter {
 
+    public interface EntityDetailViewModifier {
+        void modifyEntityDetailView(EntityDetailView edv);
+    }
+    
     Context context;
     CommCareSession session;
     Detail detail;
@@ -32,23 +36,26 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
     List<Integer> valid;
     int detailIndex;
 
-    ListItemViewModifier modifier;
+    public void setModifier(EntityDetailViewModifier modifier) {
+        this.modifier = modifier;
+    }
 
-    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity,
-                               DetailCalloutListener listener, int detailIndex, ListItemViewModifier modifier) {
+    EntityDetailViewModifier modifier;
+
+    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity, 
+            DetailCalloutListener listener, int detailIndex) {
         this.context = context;
         this.session = session;
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;
         valid = new ArrayList<Integer>();
-        for (int i = 0; i < entity.getNumFields(); ++i) {
-            if (entity.isValidField(i)) {
+        for(int i = 0 ; i < entity.getNumFields() ; ++i ) {
+            if(entity.isValidField(i)) {
                 valid.add(i);
             }
         }
         this.detailIndex = detailIndex;
-        this.modifier = modifier;
     }
 
     @Override
@@ -83,18 +90,19 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        EntityDetailView dv = (EntityDetailView)convertView;
+        EntityDetailView dv =(EntityDetailView)convertView;
         if (dv == null) {
             dv = new EntityDetailView(context, session, detail, entity,
                     valid.get(position), detailIndex);
             dv.setCallListener(listener);
-        } else {
+        } else{
             dv.setParams(session, detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
         }
-        if (modifier != null) {
-            modifier.modify(dv, position);
+        if(modifier != null){
+            modifier.modifyEntityDetailView(dv);
         }
+        dv.setLineColor((position % 2) != 0);
         return dv;
     }
 
@@ -112,7 +120,7 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
     public boolean isEmpty() {
         return getCount() > 0;
     }
-
+    
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }
@@ -121,8 +129,4 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
     public void unregisterDataSetObserver(DataSetObserver observer) {
     }
 
-    @Override
-    public void setModifier(ListItemViewModifier modifier) {
-        this.modifier = modifier;
-    }
 }

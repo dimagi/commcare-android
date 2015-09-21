@@ -3,7 +3,7 @@ package org.commcare.android.util;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
@@ -14,16 +14,18 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.CaseXmlParser;
+import org.javarosa.core.api.ClassNameHasher;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
-import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Robolectric;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -36,8 +38,7 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    public static org.commcare.android.util.LivePrototypeFactory factory =
-            new org.commcare.android.util.LivePrototypeFactory();
+    public static PrototypeFactory factory = new PrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -46,7 +47,7 @@ public class TestUtils {
     public static void initializeStaticTestStorage() {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
-        PrototypeFactory.setStaticHasher(factory);
+        PrototypeFactory.setStaticHasher(new ClassNameHasher());
         AndroidUtil.initializeStaticHandlers();
         
         // For now, disable the optimizations, since they require in-depth SQL code that
@@ -64,7 +65,6 @@ public class TestUtils {
             public TransactionParser getParser(KXmlParser parser) {
                 if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
-                        @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
                         }
@@ -86,8 +86,7 @@ public class TestUtils {
         DataModelPullParser parser;
         
         try{
-            InputStream is = System.class.getResourceAsStream(resourcePath);
-            
+            InputStream is = TestUtils.class.getClassLoader().getResourceAsStream(resourcePath);
             parser = new DataModelPullParser(is, getFactory(db), true, true);
             parser.parse();
             is.close();
@@ -107,7 +106,7 @@ public class TestUtils {
      * @return The hook for the test user-db 
      */
     public static SQLiteDatabase getTestDb() {
-        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(RuntimeEnvironment.application, "Test");
+        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(Robolectric.application, "Test");
         final SQLiteDatabase db = helper.getWritableDatabase("Test");
         return db;
     }
@@ -124,7 +123,7 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
         
-        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(RuntimeEnvironment.application, db) {
+        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(Robolectric.application, db) {
 
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -142,21 +141,19 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        CommCareInstanceInitializer iif = new CommCareInstanceInitializer(null) {
-            @Override
+        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+                
+        edi.initialize(new InstanceInitializationFactory() {
             public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
+                AndroidCaseInstanceTreeElement casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
-        };
-
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
-        DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
+        }, "casedb");
         
         Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
-        formInstances.put("casedb", specializedDataInstance);
+        formInstances.put("casedb", edi);
         
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);

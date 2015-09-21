@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:background="@color/cc_core_bg">
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:id="@+id/screen_login_main">
+    android:id="@+id/screen_login_main"
+    android:background="@color/cc_core_bg">
 
     <LinearLayout
         android:id="@+id/screen_login_bottom_pane"
@@ -41,13 +31,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
+
             <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/standard_spacer_half"
-                android:paddingRight="@dimen/standard_spacer_half"
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight=".2"
+                android:paddingTop="@dimen/content_start"
+                android:paddingLeft="@dimen/content_start"
+                android:paddingRight="@dimen/content_start"
                 android:id="@+id/screen_login_banner_pane">
-            <include layout="@layout/grid_header_top_banner"/>
+
+                <ImageView
+                    android:id="@+id/screen_login_top_banner"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ccbanner"
+                    android:adjustViewBounds="true"/>
+
             </FrameLayout>
 
             <LinearLayout
@@ -155,6 +156,3 @@
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>
-        <include layout="@layout/component_drop_shadow"/>
-    </FrameLayout>
-</LinearLayout>

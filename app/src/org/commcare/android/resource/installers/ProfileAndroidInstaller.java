@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.resource.installers;
 
@@ -38,11 +38,12 @@ import java.util.ArrayList;
 
 /**
  * @author ctsims
+ *
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     public ProfileAndroidInstaller() {
-
+        
     }
 
     public ProfileAndroidInstaller(String localDestination, String upgradeDestination) {
@@ -53,15 +54,15 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         try {
-
+        
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
+            
+            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null, 
                     Resource.RESOURCE_STATUS_INSTALLED, false);
-
+            
             Profile p = parser.parse();
             instance.setProfile(p);
-
+            
             return true;
         } catch (InvalidReferenceException e) {
             // TODO Auto-generated catch block
@@ -79,10 +80,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        
         return false;
     }
-
+    
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
@@ -90,18 +91,18 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         super.install(r, location, ref, table, instance, upgrade);
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-
-
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
+    
+            
+            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(), 
                     upgrade ? Resource.RESOURCE_STATUS_UNINITIALIZED : Resource.RESOURCE_STATUS_UNINITIALIZED, false);
-
+            
             Profile p = parser.parse();
 
-            if (!upgrade) {
+            if(!upgrade) {
                 initProperties(p);
                 checkDuplicate(p);
             }
-
+            
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (InvalidReferenceException e) {
@@ -116,7 +117,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        
         return false;
     }
 
@@ -133,32 +134,32 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             }
         }
     }
-
+    
     private void initProperties(Profile profile) {
         //Baaaaaad. Encapsulate this better!!!
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
-        for (PropertySetter p : profile.getPropertySetters()) {
+        for(PropertySetter p : profile.getPropertySetters()) {
             editor.putString(p.getKey(), p.isForce() ? p.getValue() : prefs.getString(p.getKey(), p.getValue()));
         }
         editor.commit();
     }
-
+    
     @Override
     public boolean upgrade(Resource r) {
-        if (!super.upgrade(r)) {
+        if(!super.upgrade(r)) {
             return false;
         }
-
+        
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-
+            
             //Create a parser with no side effects
-            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
-
+            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,  Resource.RESOURCE_STATUS_INSTALLED, false);
+            
             //Parse just the file (for the properties)
             Profile p = parser.parse();
-
+            
             initProperties(p);
         } catch (InvalidReferenceException e) {
             e.printStackTrace();
@@ -180,7 +181,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
         return true;
     }
-
+    
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }

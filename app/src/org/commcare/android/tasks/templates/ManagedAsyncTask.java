@@ -25,7 +25,7 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
      * Call cancel on all tasks and then wipe the living task list.
      */
     public static void cancelTasks() {
-        synchronized (livingTasks) {
+        synchronized(livingTasks) {
             for (AsyncTask task : livingTasks) {
                 task.cancel(true);
             }
@@ -40,7 +40,7 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
     protected void onPreExecute() {
         super.onPreExecute();
 
-        synchronized (livingTasks) {
+        synchronized(livingTasks) {
             livingTasks.add(this);
         }
     }
@@ -52,7 +52,7 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
     protected void onPostExecute(C result) {
         super.onPostExecute(result);
 
-        synchronized (livingTasks) {
+        synchronized(livingTasks) {
             livingTasks.remove(this);
         }
     }
@@ -64,7 +64,7 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
     protected void onCancelled() {
         super.onCancelled();
 
-        synchronized (livingTasks) {
+        synchronized(livingTasks) {
             livingTasks.remove(this);
         }
     }

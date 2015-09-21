@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.framework;
 
@@ -10,11 +10,11 @@ import java.lang.annotation.Target;
 
 /**
  * @author ctsims
+ *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface UiElement {
     int value();
-
     String locale() default "";
 }

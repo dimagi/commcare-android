@@ -5,8 +5,8 @@
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
         <item name="android:progressBarStyleHorizontal">@drawable/progressbar_modern</item>
         <!-- item name="android:radioButtonStyle">@style/radio_button_modern</item -->
-        <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
-        <item name="detail_even_row_color">@color/transparent</item>
+        <item name="entity_detail_even_row_color">@color/translucent_grey_light</item>
+        <item name="entity_detail_odd_row_color">@color/transparent</item>
         <item name="entity_view_header_background_color">@color/cc_brand_text</item>
         <item name="entity_view_header_text_color">@color/cc_core_bg</item>
         <item name="drawer_pulldown_text_color">@color/white</item>
@@ -16,7 +16,6 @@
         <item name="entity_select_title_text_color">@color/cc_light_warm_accent_text</item>
         <item name="filter_select_background_color">@color/cc_brand_text</item>
         <item name="filter_select_text_color">@color/cc_light_warm_accent_text</item>
-        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="fading_edge" parent="android:Widget.ListView">

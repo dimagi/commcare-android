@@ -12,44 +12,43 @@
     <dimen name="title_round_bleed">-12dp</dimen>
     <dimen name="title_round_depth">12dp</dimen>
     <dimen name="title_round_border_width">2dp</dimen>
-
+    
     <dimen name="title_padding">10dp</dimen>
-    <dimen name="title_paddingLeft">20dp</dimen>
+    <dimen name="title_paddingLeft">20dp</dimen>   
     <dimen name="title_logo_pad">8dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
-
+    
     <dimen name="spacer_small">5dp</dimen>
-    <dimen name="standard_spacer_half">4dp</dimen>
     <dimen name="standard_spacer">8dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>
-
+    
     <!-- Default screen margins, per the Android Design guidelines. -->
-
+    
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="font_size_small">12sp</dimen>
     <dimen name="font_size_medium">15sp</dimen>
     <dimen name="font_size_large">18sp</dimen>
-    <dimen name="font_size_xlarge">21sp</dimen>
-    <dimen name="font_size_xlarger">23sp</dimen>
-    <dimen name="font_size_xlargest">28sp</dimen>
-
-    <dimen name="cell_padding_vertical">8dp</dimen>
-    <dimen name="cell_padding_horizontal">8dp</dimen>
-    <dimen name="row_padding_vertical">8dp</dimen>
-    <dimen name="row_padding_horizontal">8dp</dimen>
-
+	<dimen name="font_size_xlarge">21sp</dimen>
+	<dimen name="font_size_xlarger">23sp</dimen>
+	<dimen name="font_size_xlargest">28sp</dimen>
+	
+	<dimen name="cell_padding_vertical">8dp</dimen>
+	<dimen name="cell_padding_horizontal">8dp</dimen>
+	<dimen name="row_padding_vertical">8dp</dimen>
+	<dimen name="row_padding_horizontal">8dp</dimen>
+	
     <dimen name="graph_x_margin">40dp</dimen>
-    <dimen name="graph_y_margin">5dp</dimen>
+    <dimen name="graph_y_margin">0dp</dimen>
     <dimen name="graph_text_margin">35dp</dimen>
-
+    
     <!-- Form Entry -->
-
+    
     <dimen name="question_widget_side_padding">16dp</dimen>
     <dimen name="question_widget_side_inv">-16dp</dimen>
-
+    
     <!--  Text sizes -->
 
     <dimen name="text_larger">28dp</dimen>
@@ -76,7 +75,7 @@
 
     <dimen name="list_soundicon_padding">15dp</dimen>
     <dimen name="list_soundicon_margin">5dp</dimen>
-    <dimen name="content_start">8dp</dimen>
+    <dimen name="content_start">16dp</dimen>
     <dimen name="content_start_quadruple">32dp</dimen>
     <dimen name="list_height">48dp</dimen>
 

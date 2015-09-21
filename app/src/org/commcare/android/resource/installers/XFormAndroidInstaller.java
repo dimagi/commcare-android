@@ -35,7 +35,6 @@ import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
-import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -52,13 +51,13 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     String namespace;
-
+    
     String contentUri;
-
+    
     public XFormAndroidInstaller() {
-
+        
     }
-
+    
     public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
         super(localDestination, upgradeDestination);
     }
@@ -74,30 +73,28 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
         XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-
+        
         FormDef formDef;
         try {
-            formDef = XFormExtensionUtils.getFormFromInputStream(local.getStream());
+            formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
         } catch(XFormParseException xfpe) {
             throw new UnresolvedResourceException(r, xfpe.getMessage(), true);
         }
-
-
+        
+        
         this.namespace = formDef.getInstance().schema;
-        if (namespace == null) {
-            throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);
-        }
-
-
+        if(namespace == null) { throw new UnresolvedResourceException(r, "Invalid XForm, no namespace defined", true);}
+        
+        
         //TODO: Where should this context be?
         ContentResolver cr = CommCareApplication._().getContentResolver();
         ContentProviderClient cpc = cr.acquireContentProviderClient(FormsProviderAPI.FormsColumns.CONTENT_URI);
-
+        
         ContentValues cv = new ContentValues();
         cv.put(FormsProviderAPI.FormsColumns.DISPLAY_NAME, "NAME");
         cv.put(FormsProviderAPI.FormsColumns.DESCRIPTION, "NAME"); //nullable
         cv.put(FormsProviderAPI.FormsColumns.JR_FORM_ID, formDef.getMainInstance().schema); // ? 
-        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, local.getLocalURI());
+        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, local.getLocalURI()); 
         cv.put(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH, GlobalConstants.MEDIA_REF);
         //cv.put(FormsProviderAPI.FormsColumns.SUBMISSION_URI, "NAME"); //nullable
         //cv.put(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY, "NAME"); //nullable
@@ -106,29 +103,29 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         Cursor existingforms = null;
         try {
             existingforms = cr.query(FormsProviderAPI.FormsColumns.CONTENT_URI,
-                    new String[]{FormsProviderAPI.FormsColumns._ID},
-                    FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?",
-                    new String[]{formDef.getMainInstance().schema}, null);
+                    new String[] { FormsProviderAPI.FormsColumns._ID} , 
+                    FormsProviderAPI.FormsColumns.JR_FORM_ID + "=?", 
+                    new String[] { formDef.getMainInstance().schema}, null);
 
-
-            if (existingforms != null && existingforms.moveToFirst()) {
+            
+            if(existingforms != null && existingforms.moveToFirst()) {
                 //we already have one form. Hopefully this is during an upgrade...
-                if (!upgrade) {
+                if(!upgrade) {
                     //Hm, error out?
                 }
-
+                
                 //So we know there's another form here. We should wait until it's time for
                 //the upgrade and replace the pointer to here.
                 Uri recordId = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, existingforms.getLong(0));
-
+                
                 //Grab the URI we should update
                 this.contentUri = recordId.toString();
-
+                
                 //TODO: Check to see if there is more than one form, and deal
-
+                
             } else {
-                Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
-                this.contentUri = result.toString();
+                    Uri result = cpc.insert(FormsProviderAPI.FormsColumns.CONTENT_URI, cv);
+                    this.contentUri = result.toString();
             }
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
@@ -143,20 +140,18 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if (cpc != null) {
             cpc.release();
         }
-
+        
         return upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED;
     }
 
     @Override
     public boolean upgrade(Resource r) {
         boolean fileUpgrade = super.upgrade(r);
-        if (!fileUpgrade) {
-            return false;
-        }
-
+        if(!fileUpgrade) { return false;}
+        
         return updateFilePath();
     }
-
+    
     /**
      * At some point hopefully soon we're not going to be shuffling our xforms around like crazy, so updates will mostly involve
      * just changing where the provider points.
@@ -169,35 +164,34 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
             Logger.log(AndroidLogger.TYPE_RESOURCES, "Installed resource wasn't able to be derived from " + localLocation);
             return false;
         }
-
+        
         //We're maintaining this whole Content setup now, so we've goota update things when we move them.
         ContentResolver cr = CommCareApplication._().getContentResolver();
-
+        
         ContentValues cv = new ContentValues();
-        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath());
+        cv.put(FormsProviderAPI.FormsColumns.FORM_FILE_PATH, new File(localRawUri).getAbsolutePath()); 
 
         //Update the form file path
         int updatedRows = cr.update(Uri.parse(this.contentUri), cv, null, null);
-        if (updatedRows > 1) {
+        if(updatedRows > 1) {
             throw new RuntimeException("Bad URI stored for xforms installer: " + this.contentUri);
-        }
-        if (updatedRows == 0) {
+        } if(updatedRows == 0) {
             return false;
         }
         return true;
     }
 
     public boolean revert(Resource r, ResourceTable table) {
-        if (!super.revert(r, table)) {
+        if(!super.revert(r,  table)) {
             return false;
         }
         return updateFilePath();
     }
-
+    
     public int rollback(Resource r) {
         int newStatus = super.rollback(r);
-        if (newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
-            if (updateFilePath()) {
+        if(newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
+            if(updateFilePath()) {
                 return newStatus;
             } else {
                 //BOOO!
@@ -227,23 +221,23 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(namespace));
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
     }
-
+    
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
             formDef = new XFormParser(new InputStreamReader(local.getStream(), "UTF-8")).parse();
-        } catch (Exception e) {
+        } catch(Exception e) {
             // something weird/bad happened here. first make sure storage is available
-            if (!CommCareApplication._().isStorageAvailable()) {
+            if(!CommCareApplication._().isStorageAvailable()) {
                 problems.addElement(new MissingMediaException(r, "Couldn't access your persisent storage. Please make sure your SD card is connected properly"));
             }
-
+            
             problems.addElement(new MissingMediaException(r, "Form did not properly save into persistent storage"));
             return true;
         }
-        if (formDef == null) {
+        if(formDef==null){
             Log.d(TAG, "formdef is null");
         }
         //Otherwise, we want to figure out if the form has media, and we need to see whether it's properly
@@ -251,31 +245,31 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         Localizer localizer = formDef.getLocalizer();
         //get this out of the memory ASAP!
         formDef = null;
-        if (localizer == null) {
+        if(localizer == null) {
             //things are fine
             return false;
         }
-        for (String locale : localizer.getAvailableLocales()) {
+        for(String locale : localizer.getAvailableLocales()) {
             OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
-            for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
-                String key = (String) en.nextElement();
-                if (key.contains(";")) {
+            for(Enumeration en = localeData.keys(); en.hasMoreElements() ; ) {
+                String key = (String)en.nextElement();
+                if(key.contains(";")) {
                     //got some forms here
                     String form = key.substring(key.indexOf(";") + 1, key.length());
-                    if (form.equals(FormEntryCaption.TEXT_FORM_VIDEO) ||
-                            form.equals(FormEntryCaption.TEXT_FORM_AUDIO) ||
-                            form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
+                    if(form.equals(FormEntryCaption.TEXT_FORM_VIDEO) || 
+                       form.equals(FormEntryCaption.TEXT_FORM_AUDIO) || 
+                       form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
                         try {
-
+                            
                             String externalMedia = localeData.get(key).render();
                             Reference ref = ReferenceManager._().DeriveReference(externalMedia);
                             String localName = ref.getLocalURI();
                             try {
-                                if (!ref.doesBinaryExist()) {
-                                    problems.addElement(new MissingMediaException(r, "Missing external media: " + localName, externalMedia));
+                                if(!ref.doesBinaryExist()) {
+                                    problems.addElement(new MissingMediaException(r,"Missing external media: " + localName, externalMedia));
                                 }
                             } catch (IOException e) {
-                                problems.addElement(new MissingMediaException(r, "Problem reading external media: " + localName, externalMedia));
+                                problems.addElement(new MissingMediaException(r,"Problem reading external media: " + localName, externalMedia));
                             }
                         } catch (InvalidReferenceException e) {
                             //So the problem is that this might be a valid entry that depends on context
@@ -285,9 +279,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 }
             }
         }
-        if (problems.size() == 0) {
-            return false;
-        }
+        if(problems.size() == 0 ) { return false;}
         return true;
     }
 }

@@ -33,7 +33,6 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
-import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -200,111 +199,32 @@ public class FileUtils {
 
     }
 
-    public static String getExtension(String filePath) {
-        if (filePath.contains(".")) {
-            return last(filePath.split("\\."));
-        }
-        return "";
-    }
-
-    /**
-     * Get the last element of a String array.
-     */
-    private static String last(String[] strings) {
-        return strings[strings.length - 1];
-    }
-
-    /**
-     * Attempts to scale down an image file based on the max dimension given. If at least one of
-     * the dimensions of the original image exceeds that maximum, then make the larger side's
-     * dimension equal to the max dimension, and scale down the smaller side such that the
-     * original aspect ratio is maintained
-     */
-    public static boolean scaleImage(File originalImage, String finalFilePath, int maxDimen) {
-        boolean scaledImage = false;
-        String extension = getExtension(originalImage.getAbsolutePath());
-        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
-        if (type == null) {
-            // The selected image is not of a type that can be decoded to or from a bitmap
-            Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
-            return false;
-        }
-
-        // Create a bitmap out of the image file to see if we need to scale it down
-        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        int height = bitmap.getHeight();
-        int width = bitmap.getWidth();
-        int largerDimen = Math.max(height, width);
-        int smallerDimen = Math.min(height, width);
-        if (largerDimen > maxDimen) {
-            // If the larger dimension exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) smallerDimen) / largerDimen;
-            largerDimen = maxDimen;
-            smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
-            if (width > height) {
-                bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
-            } else {
-                bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
-            }
-            // Write this scaled bitmap to the final file location
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(finalFilePath);
-                bitmap.compress(type.getCompressFormat(), 100, out);
-                scaledImage = true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return scaledImage;
-    }
 
     public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
-        // Determine dimensions of original image
+        // Determine image size of f
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(f.getAbsolutePath(), o);
-        int imageHeight = o.outHeight;
-        int imageWidth = o.outWidth;
 
-        // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
-        // just doing closest size that still fills the screen
-        int heightScale = Math.round((float)imageHeight / screenHeight);
-        int widthScale = Math.round((float)imageWidth / screenWidth);
+        int heightScale = o.outHeight / screenHeight;
+        int widthScale = o.outWidth / screenWidth;
+
+        // Powers of 2 work faster, sometimes, according to the doc.
+        // We're just doing closest size that still fills the screen.
         int scale = Math.max(widthScale, heightScale);
-        if (scale == 0) {
-            // Rounding could possibly have resulted in a scale factor of 0, which is invalid
-            scale = 1;
-        }
 
-        return performSafeScaleDown(f, scale, 0);
-    }
-
-    /**
-     * Returns a scaled-down bitmap for the given image file, progressively increasing the
-     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
-     */
-    private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
-        if (depth == 5) {
-            // Limit the number of recursive calls
-            return null;
-        }
+        // get bitmap with scale ( < 1 is the same as 1)
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = scale;
-        try {
-            return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
-        } catch (OutOfMemoryError e) {
-            return performSafeScaleDown(f, scale + 1, depth + 1);
+        Bitmap b = BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+        if (b != null) {
+        Log.i(t,
+            "Screen is " + screenHeight + "x" + screenWidth + ".  Image has been scaled down by "
+                    + scale + " to " + b.getHeight() + "x" + b.getWidth());
         }
+        return b;
     }
+
 
     /**
      * Copies from sourceFile to destFile (either a directory, or a path

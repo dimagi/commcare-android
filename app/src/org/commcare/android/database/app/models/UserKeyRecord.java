@@ -1,13 +1,13 @@
 /**
- *
+ * 
  */
 package org.commcare.android.database.app.models;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.modern.models.MetaField;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.math.BigInteger;
@@ -19,38 +19,31 @@ import java.util.regex.Pattern;
 
 /**
  * @author ctsims
+ *
  */
 @Table("user_key_records")
 public class UserKeyRecord extends Persisted {
-
+    
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
     public static final String META_KEY_STATUS = "status";
-
-    /**
-     * This is a normal sandbox record that is ready to be used *
-     */
+    
+    /** This is a normal sandbox record that is ready to be used **/
     public static final int TYPE_NORMAL = 1;
-    /**
-     * This is a record representing a legacy database that should be transfered over *
-     */
+    /** This is a record representing a legacy database that should be transfered over **/
     public static final int TYPE_LEGACY_TRANSITION = 2;
-    /**
-     * This is a new record that hasn't been evaluated for usage yet *
-     */
+    /** This is a new record that hasn't been evaluated for usage yet **/
     public static final int TYPE_NEW = 3;
-    /**
-     * This is a new record that hasn't been evaluated for usage yet *
-     */
+    /** This is a new record that hasn't been evaluated for usage yet **/
     public static final int TYPE_PENDING_DELETE = 4;
-
+    
     // Hashed passwords should contain 3 groupings that are delimited by '$'.
     // The 1st group describes the hashing algorithm, the 2nd is the salt, and
     // the 3rd group is the digest.
     public static final Pattern HASH_STRING_PATTERN = Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
-
+    
     private static final int DEFAULT_SALT_LENGTH = 6;
-
+    
     @Persisting(1)
     @MetaField(META_USERNAME)
     private String username;
@@ -69,18 +62,18 @@ public class UserKeyRecord extends Persisted {
     @MetaField(META_KEY_STATUS)
     @Persisting(7)
     private int type;
-
+    
     /**
      * Serialization Only!
      */
     public UserKeyRecord() {
-
+        
     }
-
+    
     public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid) {
         this(username, passwordHash, encryptedKey, validFrom, validTo, uuid, TYPE_NORMAL);
     }
-
+    
     public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid, int type) {
         this.username = username;
         this.passwordHash = passwordHash;
@@ -132,27 +125,29 @@ public class UserKeyRecord extends Persisted {
     public String getUuid() {
         return uuid;
     }
-
+    
     public int getType() {
         return type;
     }
-
+    
     /**
      * Build a SHA-1 password hash out of a password string, where the salt is
      * generated to be a globally unique string.  The hash is delimited by '$'.
      *
      * @param pwd is the plain-text password inputted by the user.
+     *
      * @return SHA-1 hashed password
      */
     public static String generatePwdHash(String pwd) {
         return generatePwdHash(pwd, PropertyUtils.genGUID(DEFAULT_SALT_LENGTH).toLowerCase());
     }
-
+    
     /**
      * Grab the salt out of a hashed password.
      *
      * @param pwdString a String with three groups delimited by '$', the second
-     *                  containing the salt
+     * containing the salt
+     *
      * @return salt String out of a hashed password
      */
     public static String extractSalt(String pwdString) {
@@ -163,14 +158,15 @@ public class UserKeyRecord extends Persisted {
         }
         throw new IllegalArgumentException("Unable to extract salt out of hashed password.");
     }
-
+    
     /**
      * Build a SHA-1 password hash out of a password string and a salt.
      * The hash is delimited by '$'.
      *
-     * @param pwd  is the plain-text password inputted by the user.
+     * @param pwd is the plain-text password inputted by the user.
      * @param salt is a random string included during hashing to prevent
-     *             against hash dictionary attacks.
+     * against hash dictionary attacks.
+     *
      * @return SHA-1 hashed password
      */
     public static String generatePwdHash(String pwd, String salt) {
@@ -184,14 +180,14 @@ public class UserKeyRecord extends Persisted {
             throw new RuntimeException(e);
         }
 
-        BigInteger number = new BigInteger(1, md.digest((salt + pwd).getBytes()));
+        BigInteger number = new BigInteger(1, md.digest((salt+pwd).getBytes()));
         String hashed = number.toString(16);
-
+        
         // prepend 0's until the hash is of the correct length
-        while (hashed.length() < hashLength) {
+        while(hashed.length() < hashLength) {
             hashed = "0" + hashed;
         }
-
+        
         return alg + "$" + salt + "$" + hashed;
     }
 
@@ -209,17 +205,17 @@ public class UserKeyRecord extends Persisted {
     }
 
     public byte[] unWrapKey(String password) {
-        if (isPasswordValid(password)) {
+        if(isPasswordValid(password)) {
             return CryptUtil.unWrapKey(getEncryptedKey(), password);
         } else {
             //throw exception?
             return null;
         }
     }
-
+    
     /**
      * Does today lie within the record's validity range.
-     * <p/>
+     *
      * Expiration dates that are null or overflowed are ignored during this
      * check.
      */
@@ -233,6 +229,6 @@ public class UserKeyRecord extends Persisted {
         // null/overflowed expiration dates)?
         return (validFrom.before(today) &&
                 (validTo == null ||
-                        (validTo.getTime() != Long.MAX_VALUE && validTo.after(today))));
+                 (validTo.getTime() != Long.MAX_VALUE && validTo.after(today))));
     }
 }

@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.adapters;
 
@@ -25,28 +25,29 @@ import java.util.List;
 
 /**
  * @author ctsims
+ *
  */
 public class CallRecordAdapter implements ListAdapter {
     Context context;
     Cursor cursor;
     List<Integer> enabled = new ArrayList<Integer>();
-
+    
     public CallRecordAdapter(Context context, Cursor c) {
         this.context = context;
         this.cursor = c;
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
+        if(c.moveToFirst()) {
+            while(!c.isAfterLast()) {
                 int index = cursor.getColumnIndex(Calls.NUMBER);
-                if (index != -1) {
+                if(index != -1) {
                     String num = cursor.getString(index);
-                    if (num != null) {
+                    if(num != null) {
                         String name = CommCareApplication._().getCallListener().getCaller(num);
-                        if (name != null) {
+                        if(name != null) {
                             enabled.add(c.getPosition());
                         }
                     }
                 }
-
+                
                 c.moveToNext();
             }
         }
@@ -93,41 +94,39 @@ public class CallRecordAdapter implements ListAdapter {
             cre = inflater.inflate(R.layout.call_record_entry, null);
         }
 
-        TextView name = (TextView) cre.findViewById(R.id.call_log_name);
-        TextView number = (TextView) cre.findViewById(R.id.call_log_number);
-        TextView when = (TextView) cre.findViewById(R.id.call_log_when);
-
-        ImageView icon = (ImageView) cre.findViewById(R.id.call_status_icon);
-
+        TextView name = (TextView)cre.findViewById(R.id.call_log_name);
+        TextView number = (TextView)cre.findViewById(R.id.call_log_number);
+        TextView when = (TextView)cre.findViewById(R.id.call_log_when);
+        
+        ImageView icon = (ImageView)cre.findViewById(R.id.call_status_icon);
+        
 
         String phoneNumber = cursor.getString(cursor.getColumnIndex(Calls.NUMBER));
         String callerName = CommCareApplication._().getCallListener().getCaller(phoneNumber);
-
+        
         name.setText(callerName);
         number.setText(phoneNumber);
-
+        
         when.setText(DateUtils.formatSameDayTime(new Date(cursor.getLong(cursor.getColumnIndex(Calls.DATE))).getTime(), new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT));
-
+        
         int iconResource = android.R.drawable.stat_sys_phone_call;
-
+        
         switch (Integer.parseInt(cursor.getString(
-                cursor.getColumnIndex(Calls.TYPE)))) {
-            case 1:
-                iconResource = android.R.drawable.sym_call_incoming;
-                break;
-            case 2:
-                iconResource = android.R.drawable.sym_call_outgoing;
-                break;
-            case 3:
-                iconResource = android.R.drawable.sym_call_missed;
-                break;
-        }
+                cursor.getColumnIndex(Calls.TYPE))))
+                {
+                      case 1: iconResource = android.R.drawable.sym_call_incoming;
+                         break;
+                      case 2: iconResource = android.R.drawable.sym_call_outgoing;
+                         break;
+                      case 3: iconResource = android.R.drawable.sym_call_missed;
+                      break;
+                }
 
-
+        
         icon.setImageResource(iconResource);
-
+        
         return cre;
-
+        
     }
 
     @Override
@@ -144,7 +143,7 @@ public class CallRecordAdapter implements ListAdapter {
     public boolean isEmpty() {
         return this.getCount() > 0;
     }
-
+    
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
     }

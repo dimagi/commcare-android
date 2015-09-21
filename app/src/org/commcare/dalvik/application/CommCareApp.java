@@ -5,7 +5,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -15,7 +15,6 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.Stylizer;
-import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -25,6 +24,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import java.io.File;
@@ -146,7 +146,6 @@ public class CommCareApp {
             }
             initializeFileRoots();
             currentSandbox = this;
-            ProviderUtils.setCurrentSandbox(currentSandbox);
         }
     }
 
@@ -257,7 +256,6 @@ public class CommCareApp {
                     appDatabase.close();
                 }
                 appDatabase = null;
-                ProviderUtils.setCurrentSandbox(null);
             }
         }
     }
@@ -271,7 +269,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
-        return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
+        return new SqlStorage<T>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -292,7 +290,11 @@ public class CommCareApp {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setResourcesStatus(areMMResourcesValidated());
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
-        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        try {
+            CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
+        } catch (StorageFullException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getUniqueId() {

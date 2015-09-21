@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteQuery;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.modern.models.EncryptedModel;
 
 import javax.crypto.Cipher;
 
@@ -29,7 +29,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public byte[] getBlob(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getBlob(columnIndex);
         } else {
             return decrypt(columnIndex);
@@ -38,7 +38,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public double getDouble(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getDouble(columnIndex);
         } else {
             return Double.valueOf(new String(decrypt(columnIndex)));
@@ -47,7 +47,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public float getFloat(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getFloat(columnIndex);
         } else {
             return Float.valueOf(new String(decrypt(columnIndex)));
@@ -56,7 +56,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public int getInt(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getInt(columnIndex);
         } else {
             return Integer.valueOf(new String(decrypt(columnIndex)));
@@ -65,7 +65,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public long getLong(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getLong(columnIndex);
         } else {
             return Long.valueOf(new String(decrypt(columnIndex)));
@@ -74,7 +74,7 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public short getShort(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getShort(columnIndex);
         } else {
             return Short.valueOf(new String(decrypt(columnIndex)));
@@ -83,59 +83,66 @@ public class DecryptingCursor extends SQLiteCursor {
 
     @Override
     public String getString(int columnIndex) {
-        if (!isEncrypted(columnIndex)) {
+        if(!isEncrypted(columnIndex)) {
             return super.getString(columnIndex);
         } else {
             return new String(decrypt(columnIndex));
         }
     }
+/**
+    @Override
+    public boolean isBlob(int columnIndex) {
+        if(!isEncrypted(columnIndex)) {
+            return super.isBlob(columnIndex);
+        }
+    }
 
-    /**
-     * @Override public boolean isBlob(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isBlob(columnIndex);
-     * }
-     * }
-     * @Override public boolean isFloat(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isFloat(columnIndex);
-     * }
-     * <p/>
-     * }
-     * @Override public boolean isLong(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isLong(columnIndex);
-     * }
-     * }
-     * @Override public boolean isNull(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isNull(columnIndex);
-     * }
-     * }
-     * @Override public boolean isString(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isString(columnIndex);
-     * }
-     * }
-     */
+    @Override
+    public boolean isFloat(int columnIndex) {
+        if(!isEncrypted(columnIndex)) {
+            return super.isFloat(columnIndex);
+        }
+        
+    }
 
+    @Override
+    public boolean isLong(int columnIndex) {
+        if(!isEncrypted(columnIndex)) {
+            return super.isLong(columnIndex);
+        }
+    }
+
+    @Override
+    public boolean isNull(int columnIndex) {
+        if(!isEncrypted(columnIndex)) {
+            return super.isNull(columnIndex);
+        }
+    }
+
+    @Override
+    public boolean isString(int columnIndex) {
+        if(!isEncrypted(columnIndex)) {
+            return super.isString(columnIndex);
+        }
+    }
+    **/
+    
     private boolean isEncrypted(int columnIndex) {
         String column = this.getColumnName(columnIndex);
-        if (model.isEncrypted(column)) {
+        if(model.isEncrypted(column)) {
             return true;
-        }
-        if (column.equals(DbUtil.DATA_COL)) {
+        } if(column.equals(DbUtil.DATA_COL)) {
             return model.isBlobEncrypted();
         }
         return false;
     }
-
+    
     private byte[] decrypt(int columnIndex) {
         byte[] data = super.getBlob(columnIndex);
         return CryptUtil.decrypt(data, cipher);
     }
-
-
+    
+    
     @Override
     public void close() {
         super.close();

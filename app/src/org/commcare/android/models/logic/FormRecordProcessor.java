@@ -4,18 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 
+import org.commcare.android.database.AndroidSandbox;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.FormUploadUtil;
-import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.data.xml.TransactionParser;
-import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.xml.AndroidCaseXmlParser;
-import org.commcare.xml.LedgerXmlParsers;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -56,7 +51,7 @@ public class FormRecordProcessor {
      */
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
-            UnfullfilledRequirementsException {
+            UnfullfilledRequirementsException, StorageFullException {
         String form = record.getPath(c);
         
         final File f = new File(form);
@@ -65,21 +60,8 @@ public class FormRecordProcessor {
             FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
-        DataModelPullParser parser = new DataModelPullParser(is, new TransactionParserFactory() {
-            public TransactionParser getParser(KXmlParser parser) {
-                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(parser.getNamespace())) {
-                    return new LedgerXmlParsers(parser, CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class));
-                } else if("case".equalsIgnoreCase(parser.getName())) {
-                    return new AndroidCaseXmlParser(parser, CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class), decrypter, null, f.getParentFile());
-                } 
-                return null;
-            }
-            
-        }, true, true);
-        
-        parser.parse();
-        is.close();
-        
+        org.commcare.core.process.FormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is);
+
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
         this.c.sendBroadcast(i);
@@ -88,7 +70,7 @@ public class FormRecordProcessor {
     }
     
     public FormRecord updateRecordStatus(FormRecord record, String newStatus)
-            throws IOException {
+            throws IOException, StorageFullException {
         // update the records to show that the form has been processed and is
         // ready to be sent;
         record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);

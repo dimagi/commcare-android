@@ -19,7 +19,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
@@ -130,13 +129,14 @@ public class GridEntityView extends GridLayout {
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
 		
 		int densityDpi = metrics.densityDpi;
-
-		int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
-
-        //an additional row for every 160dpi
-        double extraDensity = (int)((densityDpi - defaultDensityDpi / 80)) * 0.5;
-
-        densityRowMultiplier = 1 + extraDensity;
+		
+		if(densityDpi == DisplayMetrics.DENSITY_XHIGH){
+			densityRowMultiplier = 2.0;
+		} else if(densityDpi == DisplayMetrics.DENSITY_HIGH){
+			densityRowMultiplier = 1.5;
+		} else if(densityDpi == DisplayMetrics.DENSITY_MEDIUM){
+		    
+		} 
 		
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
@@ -318,9 +318,7 @@ public class GridEntityView extends GridLayout {
 			// setup our layout parameters
 			GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
 			mGridParams.width = (int)cellWidth * currentCoordinate.getWidth();
-			mGridParams.height = (int)cellHeight * currentCoordinate.getHeight()
-					// we need to account for any padding that wouldn be in these rows if the entity didn't overwrite
-					+ (2 * CELL_PADDING_VERTICAL * (currentCoordinate.getHeight() -1));
+			mGridParams.height = (int)cellHeight * currentCoordinate.getHeight();
 			
 			// get style attributes
 			String horzAlign = mStyle.getHorzAlign();

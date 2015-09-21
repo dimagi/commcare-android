@@ -43,7 +43,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.odk.collect.android.utilities.FileUtils;
 
 public class CommCarePreferences extends SessionAwarePreferenceActivity implements OnSharedPreferenceChangeListener {
 
@@ -98,9 +97,10 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     public final static String ACTIONBAR_PREFS = "actionbar-prefs";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
-    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
-    private static final int RECOVERY_MODE = Menu.FIRST + 2;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
+    private static final int ABOUT_COMMCARE = Menu.FIRST + 1;
+    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 2;
+    private static final int RECOVERY_MODE = Menu.FIRST + 3;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
 
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
@@ -149,7 +149,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = FileUtils.getExtension(filePath);
+                String extension = TemplatePrinterUtils.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();
@@ -173,8 +173,11 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         super.onCreateOptionsMenu(menu);
         menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
                 android.R.drawable.ic_menu_delete);
+        menu.add(0, ABOUT_COMMCARE, 1, "About CommCare").setIcon(
+                android.R.drawable.ic_menu_help);
         menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
                 android.R.drawable.ic_menu_upload);
+
         menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
         menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
 
@@ -188,12 +191,32 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         return super.onPrepareOptionsMenu(menu);
     }
 
+
+    int mDeveloperModeClicks = 0;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 CommCareApplication._().clearUserData();
                 this.finish();
+                return true;
+            case ABOUT_COMMCARE:
+                AlertDialog dialog = new AlertDialog.Builder(this).setMessage(R.string.aboutdialog).create();
+                dialog.setOnCancelListener(new OnCancelListener() {
+
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        mDeveloperModeClicks++;
+                        if (mDeveloperModeClicks == 4) {
+                            CommCareApplication._().getCurrentApp().getAppPreferences().
+                                    edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, YES).commit();
+                            Toast.makeText(CommCarePreferences.this, "Developer Mode Enabled", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                });
+                dialog.show();
                 return true;
             case FORCE_LOG_SUBMIT:
                 CommCareUtil.triggerLogSubmission(this);

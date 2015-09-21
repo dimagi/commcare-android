@@ -8,9 +8,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -24,11 +22,12 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
+import org.javarosa.xform.util.XFormUtils;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
-import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
@@ -110,7 +109,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
-        File formBin = getCachedForm(formHash);
+        File formBin = new File(Collect.CACHE_PATH + "/" + formHash + ".formdef");
 
         if (formBin.exists()) {
             // if we have binary, deserialize binary
@@ -134,7 +133,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 fis = new FileInputStream(formXml);
                 XFormParser.registerHandler("intent", new IntentExtensionParser());
                 XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-                fd = XFormExtensionUtils.getFormFromInputStream(fis);
+                fd = XFormUtils.getFormFromInputStream(fis);
                 if (fd == null) {
                     mErrorMsg = "Error reading XForm file";
                 }
@@ -304,7 +303,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
     public void serializeFormDef(FormDef fd, String filepath) throws IOException {
         // calculate unique md5 identifier for this form
         String hash = FileUtils.getMd5Hash(new File(filepath));
-        File formDef = getCachedForm(hash);
+        File formDef = new File(Collect.CACHE_PATH + "/" + hash + ".formdef");
 
         // create a serialized form file if there isn't already one at this hash
         if (!formDef.exists()) {
@@ -329,11 +328,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 }
             }
         }
-    }
-
-    private File getCachedForm(String hash) {
-        return new File(CommCareApplication._().getCurrentApp().
-                fsPath(GlobalConstants.FILE_CC_CACHE) + "/" + hash + ".formdef");
     }
 
     @Override

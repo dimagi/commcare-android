@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="NotificationText">
         <item name="android:textColor">@color/white</item>
@@ -157,7 +156,6 @@
         <item name="android:padding">@dimen/content_start</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/cc_light_warm_accent_text</item>
         <item name="android:clickable">false</item>
         <item name="android:longClickable">false</item>
     </style>
@@ -193,11 +191,6 @@
     <style name="TileButton">
         <item name="android:minHeight">32dp</item>
         <item name="android:minWidth">32dp</item>
-    </style>
-
-    <style name="DetailDrawerPulldown">
-        <item name="even_row_color">@color/cc_brand_bg</item>
-        <item name="odd_row_color">@color/drawer_pulldown_odd_row_color</item>
     </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>

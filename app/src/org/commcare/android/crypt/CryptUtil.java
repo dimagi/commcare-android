@@ -1,5 +1,5 @@
 /**
- *
+ * 
  */
 package org.commcare.android.crypt;
 
@@ -32,13 +32,14 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
+ *
  */
 public class CryptUtil {
-
+    
     private static final String PBE_PROVIDER = "PBEWITHSHA-256AND256BITAES-CBC-BC";
-
+    
     private static Cipher encodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, InvalidKeySpecException {
-
+        
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
         SecretKey key = factory.generateSecret(spec);
@@ -48,9 +49,9 @@ public class CryptUtil {
 
         return cipher;
     }
-
+    
     private static Cipher decodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException {
-
+        
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
         SecretKey key = factory.generateSecret(spec);
@@ -60,25 +61,25 @@ public class CryptUtil {
 
         return cipher;
     }
-
+    
     public static byte[] encrypt(byte[] input, Cipher cipher) {
-
+        
         ByteArrayInputStream bis = new ByteArrayInputStream(input);
         CipherInputStream cis = new CipherInputStream(bis, cipher);
-
+        
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
+        
         try {
             AndroidStreamUtil.writeFromInputToOutput(cis, bos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
+        
         return bos.toByteArray();
     }
-
+    
     public static byte[] decrypt(byte[] input, Cipher cipher) {
-
+        
         try {
             return cipher.doFinal(input);
         } catch (IllegalBlockSizeException e) {
@@ -99,18 +100,18 @@ public class CryptUtil {
 //        
 //        return bos.toByteArray();
     }
-
-
+    
+    
     public static byte[] wrapKey(SecretKey key, String password) {
         return wrapKey(key.getEncoded(), password);
     }
-
+    
     public static byte[] wrapKey(byte[] secretKey, String password) {
-        try {
+        try{
             //SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);
             byte[] encrypted = encrypt(secretKey, encodingCipher(password));
             return encrypted;
-        } catch (InvalidKeySpecException e) {
+        }catch (InvalidKeySpecException e) {
             throw new RuntimeException(e);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
@@ -120,9 +121,9 @@ public class CryptUtil {
             return null;
         }
     }
-
+    
     public static byte[] unWrapKey(byte[] wrapped, String password) {
-        try {
+        try{
             Cipher cipher = decodingCipher(password);
             byte[] encoded = decrypt(wrapped, cipher);
             return encoded;
@@ -136,11 +137,11 @@ public class CryptUtil {
             return null;
         }
     }
-
+    
     private static byte[] append(byte[] one, byte[] two) {
         byte[] result = new byte[one.length + two.length];
-        for (int i = 0; i < result.length; ++i) {
-            if (i < one.length) {
+        for(int i = 0; i < result.length; ++i) {
+            if(i < one.length) {
                 result[i] = one[i];
             } else {
                 int index = i - one.length;
@@ -149,7 +150,7 @@ public class CryptUtil {
         }
         return result;
     }
-
+    
     public static byte[] uniqueSeedFromSecureStatic(byte[] secureStatic) {
         long uniqueBase = new Date().getTime();
         String baseString = Long.toHexString(uniqueBase);
@@ -161,7 +162,7 @@ public class CryptUtil {
         }
         return null;
     }
-
+    
     public static SecretKey generateSymetricKey(byte[] prngSeed) {
         KeyGenerator generator;
         try {
@@ -174,7 +175,7 @@ public class CryptUtil {
         }
         return null;
     }
-
+    
     public static SecretKey generateSemiRandomKey() {
         KeyGenerator generator;
         try {
@@ -192,7 +193,7 @@ public class CryptUtil {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         KeySpec ks = new PKCS8EncodedKeySpec(privateKey);
         RSAPrivateKey privKey = (RSAPrivateKey) keyFactory.generatePrivate(ks);
-
+        
         Cipher c = Cipher.getInstance("RSA");
         c.init(Cipher.DECRYPT_MODE, privKey);
         return c;
@@ -201,7 +202,7 @@ public class CryptUtil {
     public static Cipher getAesKeyCipher(byte[] aesKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         return getAesKeyCipher(aesKey, Cipher.DECRYPT_MODE);
     }
-
+    
     public static Cipher getAesKeyCipher(byte[] aesKey, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         SecretKeySpec spec = new SecretKeySpec(aesKey, "AES");
         Cipher decrypter = Cipher.getInstance("AES");

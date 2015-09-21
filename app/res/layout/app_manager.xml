@@ -15,7 +15,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:scaleType="fitStart"
-            android:src="@drawable/commcare_logo"
+            android:src="@drawable/ccbanner" 
             android:adjustViewBounds="true"/>
 
     </FrameLayout>

@@ -25,8 +25,8 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 /**
  * @author ctsims
  */
-public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R> {
-
+public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R>{
+    
     public enum HttpCalloutOutcomes {
         NetworkFailure,
         BadResponse,
@@ -36,48 +36,48 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         Success,
         NetworkFailureBadPassword
     }
-
+    
     Context c;
-
+    
     public HttpCalloutTask(Context c) {
         this.c = c;
 
         TAG = HttpCalloutTask.class.getSimpleName();
     }
-
+    
     protected Context getContext() {
         return c;
     }
-
-
+    
+    
     @Override
     protected HttpCalloutOutcomes doTaskBackground(Object... params) {
         HttpCalloutOutcomes preHttpOutcome = doSetupTaskBeforeRequest();
-        if (preHttpOutcome != null) {
+        if(preHttpOutcome != null) {
             return preHttpOutcome;
         }
-
+        
         //Since we can proceed with the task either way, but we 
         //still wanna know whether it failed
-        boolean calloutFailed = false;
-        if (HttpCalloutNeeded()) {
+        boolean calloutFailed  = false;
+        if(HttpCalloutNeeded()) {
             HttpCalloutOutcomes outcome;
 
             try {
                 HttpResponse response = doHttpRequest();
-
+                
                 int responseCode = response.getStatusLine().getStatusCode();
-
-                if (responseCode >= 200 && responseCode < 300) {
+                
+                if(responseCode >= 200 && responseCode < 300) {
                     outcome = doResponseSuccess(response);
-                } else if (responseCode == 401) {
+                } else if(responseCode  == 401) {
                     outcome = doResponseAuthFailed(response);
                 } else {
                     outcome = doResponseOther(response);
                 }
             } catch (ClientProtocolException | UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
-            } catch (SSLPeerUnverifiedException e) {
+            } catch(SSLPeerUnverifiedException e){
                 // Couldn't get a valid SSL certificate
                 outcome = HttpCalloutOutcomes.BadCertificate;
             } catch (IOException e) {
@@ -86,26 +86,26 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             }
 
             //If we needed the callout to succeed and it didn't, return our failure.
-            if (outcome != HttpCalloutOutcomes.Success) {
+            if(outcome != HttpCalloutOutcomes.Success) {
                 //TODO:Cleanup?
-                if (HttpCalloutRequired()) {
+                if(HttpCalloutRequired()) {
                     return outcome;
                 } else {
                     calloutFailed = true;
                 }
             } else {
-                if (!processSuccesfulRequest()) {
+                if(!processSuccesfulRequest()) {
                     return HttpCalloutOutcomes.BadResponse;
                 }
             }
         }
-
+        
         //So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         //to the next step
-
+    
         return doPostCalloutTask(calloutFailed);
     }
-
+    
     protected boolean processSuccesfulRequest() {
         return true;
     }
@@ -113,24 +113,24 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
         return null;
     }
-
+    
     protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
-
+    
     protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
         beginResponseHandling(response);
-
+        
         InputStream input = cacheResponseOpenHandle(response);
-
+        
         TransactionParserFactory factory = getTransactionParserFactory();
-
+        
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         try {
             DataModelPullParser parser = new DataModelPullParser(input, factory, true, false);
             parser.parse();
             return HttpCalloutOutcomes.Success;
-
+            
             //TODO: These are not great, long term
-        } catch (InvalidStructureException ise) {
+        } catch(InvalidStructureException ise) {
             ise.printStackTrace();
             Logger.log(AndroidLogger.TYPE_USER, "Invalid response for auth keys: " + ise.getMessage());
             return HttpCalloutOutcomes.BadResponse;
@@ -143,48 +143,48 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             Logger.log(AndroidLogger.TYPE_USER, "Missing requirements when fetching auth keys: " + e.getMessage());
             return HttpCalloutOutcomes.BadResponse;
         } finally {
-
+            
         }
     }
-
+    
     protected abstract TransactionParserFactory getTransactionParserFactory();
-
+    
     protected InputStream cacheResponseOpenHandle(HttpResponse response) throws IOException {
         int dataSizeGuess = -1;
-        if (response.containsHeader("Content-Length")) {
+        if(response.containsHeader("Content-Length")) {
             String length = response.getFirstHeader("Content-Length").getValue();
-            try {
+            try{
                 dataSizeGuess = Integer.parseInt(length);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 //Whatever.
             }
         }
-
+        
         BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
-
+        
         cache.initializeCache();
-
+        
         OutputStream cacheOut = cache.getCacheStream();
         AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), cacheOut);
-
+    
         return cache.retrieveCache();
     }
-
+    
     protected void beginResponseHandling(HttpResponse response) {
         //Nothing unless required
     }
-
+    
     protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
         return HttpCalloutOutcomes.AuthFailed;
     }
-
+    
     protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
-
-
+    
+    
     protected abstract boolean HttpCalloutNeeded();
-
+    
     protected abstract boolean HttpCalloutRequired();
-
+    
     protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);
-
+    
 }

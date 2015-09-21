@@ -13,7 +13,6 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -45,8 +44,8 @@ public class GraphView {
     private int mTextSize;
     private GraphData mData;
     private XYMultipleSeriesDataset mDataset;
-    private XYMultipleSeriesRenderer mRenderer;
-
+    private XYMultipleSeriesRenderer mRenderer; 
+    
     public GraphView(Context context, String title) {
         mContext = context;
         mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
@@ -56,7 +55,7 @@ public class GraphView {
         mRenderer.setChartTitle(title);
         mRenderer.setChartTitleTextSize(mTextSize);
     }
-
+    
     /*
      * Set margins.
      */
@@ -78,35 +77,30 @@ public class GraphView {
         if (!mRenderer.getXTitle().equals("")) {
             bottomMargin += textAllowance;
         }
-
-        // AChartEngine doesn't handle x label margins as desired, so do it here
-        if (mRenderer.isShowLabels()) {
-            bottomMargin += textAllowance;
-        }
-
+        
         // Bar charts have text labels that are likely to be long (names, etc.).
-        // At some point there'll need to be a more robust solution for setting
-        // margins that respond to data and screen size. For now, give them no margin
-        // and push the labels onto the graph area itself by manually padding the labels.
-        if (Graph.TYPE_BAR.equals(mData.getType()) && getOrientation().equals(XYMultipleSeriesRenderer.Orientation.VERTICAL)) {
-            bottomMargin = 0;
+        // This is a terrible, temporary way to give them extra space. At some point
+        // there'll need to be a more robust solution for setting margins that
+        // respond to data and screen size.
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            bottomMargin += 100;
         }
         mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
     }
-
+    
     private void render(GraphData data) throws InvalidStateException {
         mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
             renderSeries(s);
         }
-
+        
         renderAnnotations();
 
         configure();
-        setMargins();
+        setMargins();        
     }
-
+        
     public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
 
@@ -116,7 +110,7 @@ public class GraphView {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
         }
         if (Graph.TYPE_TIME.equals(mData.getType())) {
-            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, getTimeFormat(), title);
+            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
         }
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT, title);
@@ -126,32 +120,14 @@ public class GraphView {
 
     /**
      * Enable or disable pan and zoom settings for this view.
-     *
      * @param allow Whether or not to enabled pan and zoom.
      */
     private void setPanAndZoom(boolean allow) {
         mRenderer.setPanEnabled(allow, allow);
         mRenderer.setZoomEnabled(allow, allow);
         mRenderer.setZoomButtonsVisible(allow);
-        if (allow) {
-            DefaultRenderer.Location loc = stringToLocation(mData.getConfiguration("zoom-location", "bottom-right"));
-            mRenderer.setZoomLocation(loc);
-        }
     }
-
-    private DefaultRenderer.Location stringToLocation(String str) {
-        switch (str) {
-            case "top-left":
-                return DefaultRenderer.Location.TOP_LEFT;
-            case "top-right":
-                return DefaultRenderer.Location.TOP_RIGHT;
-            case "bottom-left":
-                return DefaultRenderer.Location.BOTTOM_LEFT;
-            default:
-                return DefaultRenderer.Location.BOTTOM_RIGHT;
-        }
-    }
-
+    
     /*
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
@@ -182,7 +158,7 @@ public class GraphView {
             s.setConfiguration("point-style", "none");
             renderSeries(s);
         }
-
+        
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
@@ -194,23 +170,22 @@ public class GraphView {
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
-
+    
     /**
      * Fetch date format for displaying time-based x labels.
-     *
      * @return String, a SimpleDateFormat pattern.
      */
     private String getTimeFormat() {
         return mData.getConfiguration("x-labels-time-format", "yyyy-MM-dd");
     }
-
+    
     /*
      * Allow or disallow clicks on this graph - really, on the view generated by getView.
      */
     public void setClickable(boolean enabled) {
         mRenderer.setClickEnabled(enabled);
     }
-
+    
     /*
      * Set up a single series.
      */
@@ -251,7 +226,7 @@ public class GraphView {
             comparator = new NumericPointComparator();
         }
         Collections.sort(sortedPoints, comparator);
-
+        
         int barIndex = 1;
         JSONObject barLabels = new JSONObject();
         for (XYPointData p : sortedPoints) {
@@ -270,10 +245,9 @@ public class GraphView {
                 // populating x-labels with the user's x values. 
                 series.add(barIndex, parseYValue(p.getY(), description));
                 try {
-                    // For horizontal graphs, force labels right so they appear on the graph itself
-                    String padding = getOrientation().equals(XYMultipleSeriesRenderer.Orientation.VERTICAL) ? "      " : "";
-                    barLabels.put(Double.toString(barIndex), padding + p.getX());
-                } catch (JSONException e) {
+                    barLabels.put(Double.toString(barIndex), p.getX());
+                }
+                catch (JSONException e) {
                     throw new InvalidStateException("Could not handle bar label '" + p.getX() + "': " + e.getMessage());
                 }
                 barIndex++;
@@ -287,18 +261,17 @@ public class GraphView {
             mData.setConfiguration("x-labels", barLabels.toString());
         }
     }
-
+    
     /*
      * Get layout params for this graph, which assume that graph will fill parent
      * unless dimensions have been provided via setWidth and/or setHeight.
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
-        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);    
     }
-
+    
     /**
-     * Get graph's desired aspect ratio.
-     *
+     * Get graph's desired aspect ratio. 
      * @return Ratio, expressed as a double: width / height.
      */
     public double getRatio() {
@@ -311,29 +284,17 @@ public class GraphView {
         }
         return 2;
     }
-
-    private XYMultipleSeriesRenderer.Orientation getOrientation() {
-        // AChartEngine's horizontal/vertical definitions are counter-intuitive
-        String orientation = mData.getConfiguration("bar-orientation", "");
-        if (orientation.equalsIgnoreCase("vertical")) {
-            return XYMultipleSeriesRenderer.Orientation.HORIZONTAL;
-        } else {
-            return XYMultipleSeriesRenderer.Orientation.VERTICAL;
-        }
-    }
-
+    
     /**
      * Create series appropriate to the current graph type.
-     *
      * @return An XYSeries-derived object.
      */
     private XYSeries createSeries() {
         return createSeries(0);
     }
-
+    
     /**
      * Create series appropriate to the current graph type.
-     *
      * @return An XYSeries-derived object.
      */
     private XYSeries createSeries(int scaleIndex) {
@@ -351,7 +312,7 @@ public class GraphView {
         }
         return new XYSeries("", scaleIndex);
     }
-
+    
     /*
      * Set up any annotations.
      */
@@ -365,7 +326,7 @@ public class GraphView {
                 String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
                 series.addAnnotation(text, parseXValue(a.getX(), description), parseYValue(a.getY(), description));
             }
-
+            
             // Annotations won't display unless the series has some data in it
             series.add(0.0, 0.0);
 
@@ -406,19 +367,18 @@ public class GraphView {
             currentRenderer.setFillPoints(true);
             currentRenderer.setPointStrokeWidth(2);
         }
-
+        
         String lineColor = s.getConfiguration("line-color");
         if (lineColor == null) {
             currentRenderer.setColor(Color.BLACK);
         } else {
             currentRenderer.setColor(Color.parseColor(lineColor));
         }
-        currentRenderer.setLineWidth(2);
-
+        
         fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
         fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
     }
-
+    
     /*
      * Helper function for setting up color fills above or below a series.
      */
@@ -434,7 +394,7 @@ public class GraphView {
     /*
      * Configure graph's look and feel based on default assumptions and user-requested configuration.
      */
-    private void configure() throws InvalidStateException {
+    private void configure() throws InvalidStateException{
         // Default options
         mRenderer.setBackgroundColor(mContext.getResources().getColor(R.color.white));
         mRenderer.setMarginsColor(mContext.getResources().getColor(R.color.white));
@@ -451,27 +411,28 @@ public class GraphView {
         mRenderer.setAxisTitleTextSize(mTextSize);
         mRenderer.setApplyBackgroundColor(true);
         mRenderer.setShowGrid(true);
-
+        
         int padding = 10;
         mRenderer.setXLabelsPadding(padding);
         mRenderer.setYLabelsPadding(padding);
         mRenderer.setYLabelsVerticalPadding(padding);
-
+        
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             mRenderer.setBarSpacing(0.5);
         }
-
+        
         // User-configurable options
         mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
         mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
 
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            XYMultipleSeriesRenderer.Orientation orientation = getOrientation();
-            mRenderer.setOrientation(orientation);
-            if (orientation.equals(XYMultipleSeriesRenderer.Orientation.VERTICAL)) {
-                mRenderer.setXLabelsAlign(Align.LEFT);
-                mRenderer.setXLabelsPadding(0);
+            String orientation = mData.getConfiguration("bar-orientation", "");
+            if (orientation.equalsIgnoreCase("vertical")) {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.VERTICAL);
+            }
+            else {
+                mRenderer.setOrientation(XYMultipleSeriesRenderer.Orientation.HORIZONTAL);
             }
         }
 
@@ -484,7 +445,7 @@ public class GraphView {
         if (mData.getConfiguration("secondary-y-min") != null) {
             mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"), 1);
         }
-
+        
         if (mData.getConfiguration("x-max") != null) {
             mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max"), "x-max"));
         }
@@ -494,7 +455,7 @@ public class GraphView {
         if (mData.getConfiguration("secondary-y-max") != null) {
             mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
-
+        
         boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE);
         mRenderer.setShowGridX(showGrid);
         mRenderer.setShowGridY(showGrid);
@@ -505,11 +466,10 @@ public class GraphView {
         if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
             mRenderer.setShowAxes(false);
         }
-
+        
         // Legend
         boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
-        mRenderer.setFitLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
 
         // Labels
@@ -518,13 +478,11 @@ public class GraphView {
         configureLabels("secondary-y-labels");
         boolean showLabels = hasX || hasY;
         mRenderer.setShowLabels(showLabels);
-        // Tick marks are sometimes ugly, so let's be minimalist and always leave the off
-        mRenderer.setShowTickMarks(false);
+        mRenderer.setShowTickMarks(showLabels);
     }
-
+    
     /**
      * Parse given string into Double for AChartEngine.
-     *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     private Double parseXValue(String value, String description) throws InvalidStateException {
@@ -538,28 +496,25 @@ public class GraphView {
 
         return parseDouble(value, description);
     }
-
+    
     /**
      * Parse given string into Double for AChartEngine.
-     *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     private Double parseYValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
-
+    
     /**
      * Parse given string into Double for AChartEngine.
-     *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     private Double parseRadiusValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
-
+    
     /**
      * Attempt to parse a double, but fail on NumberFormatException.
-     *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     private Double parseDouble(String value, String description) throws InvalidStateException {
@@ -569,20 +524,20 @@ public class GraphView {
                 throw new InvalidStateException("Could not understand '" + value + "' in " + description);
             }
             return numeric;
-        } catch (NumberFormatException nfe) {
+        }
+        catch (NumberFormatException nfe) {
             throw new InvalidStateException("Could not understand '" + value + "' in " + description);
         }
     }
 
     /**
      * Customize labels.
-     *
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @return True iff axis has any labels at all
      */
     private boolean configureLabels(String key) throws InvalidStateException {
         boolean hasLabels = true;
-
+        
         // The labels setting might be a JSON array of numbers, 
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
@@ -596,7 +551,8 @@ public class GraphView {
                     addTextLabel(key, parseXValue(value, "x label '" + key + "'"), value);
                 }
                 hasLabels = labels.length() > 0;
-            } catch (JSONException je) {
+            }
+            catch (JSONException je) {
                 // Assume try block failed because labelString isn't an array.
                 // Try parsing it as an object.
                 try {
@@ -607,11 +563,12 @@ public class GraphView {
                     Iterator i = labels.keys();
                     hasLabels = false;
                     while (i.hasNext()) {
-                        String location = (String) i.next();
-                        addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
-                        hasLabels = true;
+                       String location = (String) i.next();
+                       addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
+                       hasLabels = true;
                     }
-                } catch (JSONException e) {
+                }
+                catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
                     Integer count = Integer.valueOf(labelString);
@@ -620,16 +577,15 @@ public class GraphView {
                 }
             }
         }
-
+        
         return hasLabels;
     }
-
+    
     /**
      * Helper for configureLabels. Adds a label to the appropriate axis.
-     *
-     * @param key      One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @param location Point on axis to add label
-     * @param text     String for label
+     * @param text String for label
      */
     private void addTextLabel(String key, Double location, String text) {
         if (isXKey(key)) {
@@ -642,12 +598,11 @@ public class GraphView {
             mRenderer.addYTextLabel(location, text, scaleIndex);
         }
     }
-
+    
     /**
      * Helper for configureLabels. Sets desired number of labels for the appropriate axis.
      * AChartEngine will then determine how to space the labels.
-     *
-     * @param key   One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @param value Number of labels
      */
     private void setLabelCount(String key, int value) {
@@ -657,30 +612,27 @@ public class GraphView {
             mRenderer.setYLabels(value);
         }
     }
-
+    
     /**
      * Helper for turning key into scale.
-     *
      * @param key Something like "x-labels" or "y-secondary-labels"
      * @return Index for passing to AChartEngine functions that accept a scale
      */
     private int getScaleIndex(String key) {
         return key.contains("secondary") ? 1 : 0;
     }
-
+    
     /**
      * Helper for parsing axis from configuration key.
-     *
      * @param key Something like "x-min" or "y-labels"
      * @return True iff key is relevant to x axis
      */
     private boolean isXKey(String key) {
         return key.startsWith("x-");
     }
-
+    
     /**
      * Comparator to sort XYPointData-derived objects by x value.
-     *
      * @author jschweers
      */
     private class NumericPointComparator implements Comparator<XYPointData> {
@@ -697,7 +649,6 @@ public class GraphView {
     /**
      * Comparator to sort XYPointData-derived objects by x value without parsing them.
      * Useful for bar graphs, where x values are text.
-     *
      * @author jschweers
      */
     private class StringPointComparator implements Comparator<XYPointData> {
@@ -710,7 +661,6 @@ public class GraphView {
     /**
      * Comparator to sort XYPoint-derived data by y value, in ascending order.
      * Useful for bar graphs, nonsensical for other graphs.
-     *
      * @author jschweers
      */
     private class AscendingValuePointComparator implements Comparator<XYPointData> {
@@ -727,7 +677,6 @@ public class GraphView {
     /**
      * Comparator to sort XYPoint-derived data by y value, in descending order.
      * Useful for bar graphs, nonsensical for other graphs.
-     *
      * @author jschweers
      */
     private class DescendingValuePointComparator implements Comparator<XYPointData> {

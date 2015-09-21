@@ -51,7 +51,7 @@ public class FileServerFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Activity activity){
         super.onAttach(activity);
         try {
             mActivity = (CommCareWiFiDirectActivity) activity;
@@ -66,26 +66,26 @@ public class FileServerFragment extends Fragment {
 
         mContentView = inflater.inflate(R.layout.file_server, null);
 
-        mStatusText = (TextView) mContentView.findViewById(R.id.file_server_status_text);
+        mStatusText = (TextView)mContentView.findViewById(R.id.file_server_status_text);
 
-        mView = (View) mContentView.findViewById(R.id.file_server_view);
+        mView = (View)mContentView.findViewById(R.id.file_server_view);
 
         return mContentView;
     }
 
 
-    public interface FileServerListener {
+    public interface FileServerListener{
         public void onFormsCopied(String result);
     }
 
-    public void startServer(String mReceiveZipDirectory) {
+    public void startServer(String mReceiveZipDirectory){
         Logger.log(CommCareWiFiDirectActivity.TAG, "File Server starting...");
 
         mStatusText.setText("Starting server");
 
         mView.setVisibility(View.VISIBLE);
 
-        if (mFileServer != null) {
+        if(mFileServer != null){
             mFileServer.cancel(true);
         }
 
@@ -95,13 +95,13 @@ public class FileServerFragment extends Fragment {
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
             mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             mFileServer.execute();
         }
     }
-
+    
     /**
      * A simple server socket that accepts connection and writes some data on
      * the stream.
@@ -123,7 +123,7 @@ public class FileServerFragment extends Fragment {
             Logger.log(CommCareWiFiDirectActivity.TAG, "doing in background");
             socketOccupied = false;
 
-            try {
+            try{
                 ServerSocket serverSocket = new ServerSocket(8988);
                 long time = System.currentTimeMillis();
                 String finalFileName = receiveZipDirectory + time + ".zip";
@@ -140,9 +140,9 @@ public class FileServerFragment extends Fragment {
                     final File f = new File(finalFileName);
 
                     File dirs = new File(f.getParent());
-
+                    
                     dirs.mkdirs();
-
+                    
                     f.createNewFile();
 
                     Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
@@ -153,18 +153,18 @@ public class FileServerFragment extends Fragment {
                     publishProgress("File Server Resetting", null);
                     return f.getAbsolutePath();
 
-                } catch (IOException e) {
+                }catch (IOException e) {
                     Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
                     final File f = new File(finalFileName);
-                    if (f.exists()) {
-                        FileUtil.deleteFileOrDir(f);
+                    if(f.exists()){
+                        FileUtil.deleteFile(f);
                     }
                     publishProgress("File Server crashed with an IO Exception: " + e.getMessage());
                     return null;
-                } finally {
+                }finally{
                     serverSocket.close();
                 }
-            } catch (IOException ioe) {
+            }catch(IOException ioe){
                 publishProgress("Ready to accept new file transfer.", null);
                 Logger.log(CommCareWiFiDirectActivity.TAG, "couldn't open socket!");
                 socketOccupied = true;
@@ -175,13 +175,13 @@ public class FileServerFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
-
-            if (socketOccupied) {
+            
+            if(socketOccupied){
                 Logger.log(CommCareWiFiDirectActivity.TAG, "socket busy, cancelling this thread cycle");
                 return;
             }
-
-            if (result != null) {
+            
+            if(result != null){
                 mActivity.onFormsCopied(result);
             }
             Logger.log(CommCareWiFiDirectActivity.TAG, "file server post-execute, relaunching server");
@@ -195,7 +195,7 @@ public class FileServerFragment extends Fragment {
         }
 
         @Override
-        protected void onProgressUpdate(String... params) {
+        protected void onProgressUpdate(String ... params){
             mStatusText.setText(params[0]);
         }
 

@@ -2,7 +2,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingTop="@dimen/content_start"
-              android:id="@+id/odkview_layout">
+              android:layout_height="match_parent"
+    >
+    <FrameLayout
+        android:id="@+id/form_entry_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+          android:id="@+id/form_entry_group_label"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:visibility="gone"
+          android:text="Header Text"
+          style="@style/TextViewV2"
+          android:paddingLeft="@dimen/content_min_margin"
+          android:paddingRight="@dimen/content_min_margin"
+            />
+    </FrameLayout>
+    <LinearLayout
+        android:id="@+id/odkview_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/content_start"
+        >
+
+        </LinearLayout>
 </LinearLayout>

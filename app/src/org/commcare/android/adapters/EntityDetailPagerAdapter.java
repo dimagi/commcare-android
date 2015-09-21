@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import org.commcare.android.framework.EntityDetailFragment;
-import org.commcare.android.framework.EntitySubnodeDetailFragment;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
@@ -18,13 +17,13 @@ import org.javarosa.core.model.instance.TreeReference;
  */
 public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
 
-    private ListItemViewModifier modifier;
+    private EntityDetailAdapter.EntityDetailViewModifier modifier;
     Detail detail;
     int detailIndex;
     boolean hasDetailCalloutListener;
     TreeReference mEntityReference;
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener) {    
         super(fm);
         this.detail = detail;
         this.detailIndex = detailIndex;
@@ -32,20 +31,15 @@ public class EntityDetailPagerAdapter extends FragmentStatePagerAdapter {
         this.mEntityReference = reference;
     }
 
-    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, ListItemViewModifier modifier) {
+    public EntityDetailPagerAdapter(FragmentManager fm, Detail detail, int detailIndex, TreeReference reference, boolean hasDetailCalloutListener, EntityDetailAdapter.EntityDetailViewModifier modifier) {
         this(fm, detail, detailIndex, reference, hasDetailCalloutListener);
         this.modifier = modifier;
     }
 
     @Override
     public Fragment getItem(int i) {
-        EntityDetailFragment fragment;
-        if (detail.getNodeset() != null || (detail.isCompound() && detail.getDetails()[i].getNodeset() != null)) {
-            fragment = new EntitySubnodeDetailFragment();
-        } else {
-            fragment = new EntityDetailFragment();
-        }
-        fragment.setModifier(modifier);
+        EntityDetailFragment fragment = new EntityDetailFragment();
+        fragment.setEntityDetailModifier(modifier);
         Bundle args = new Bundle();
         args.putString(EntityDetailFragment.DETAIL_ID, detail.getId());
         if (detail.isCompound()) {

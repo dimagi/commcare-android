@@ -4,14 +4,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -24,26 +25,28 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
+
 /**
  * @author ctsims
+ *
  */
 public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlStorage<T> {
-
+    
     String table;
     Class<? extends T> ctype;
     EncryptedModel em;
     T t;
     LegacyDbHelper helper;
-
+    
     public LegacySqlIndexedStorageUtility(String table, Class<? extends T> ctype, LegacyDbHelper helper) {
         this.table = table;
         this.ctype = ctype;
         this.helper = helper;
-
+        
         try {
-            T e = (T) ctype.newInstance();
-            if (e instanceof EncryptedModel) {
-                em = (EncryptedModel) e;
+            T e = (T)ctype.newInstance();
+            if(e instanceof EncryptedModel) {
+                em = (EncryptedModel)e;
             }
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
@@ -56,20 +59,20 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public Vector getIDsForValue(String fieldName, Object value) {
-        return getIDsForValues(new String[]{fieldName}, new Object[]{value});
+        return getIDsForValues(new String[] {fieldName}, new Object[] { value} );
     }
-
+    
     public Vector getIDsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL}, whereClause.first, whereClause.second, null, null, null);
-        if (c.getCount() == 0) {
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , whereClause.first, whereClause.second,null, null, null);
+        if(c.getCount() == 0) {
             c.close();
             return new Vector<Integer>();
         } else {
             c.moveToFirst();
             Vector<Integer> indices = new Vector<Integer>();
             int index = c.getColumnIndexOrThrow(DbUtil.ID_COL);
-            while (!c.isAfterLast()) {
+            while(!c.isAfterLast()) {        
                 int id = c.getInt(index);
                 indices.add(Integer.valueOf(id));
                 c.moveToNext();
@@ -78,18 +81,18 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             return indices;
         }
     }
-
+    
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
-        if (c.getCount() == 0) {
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        if(c.getCount() == 0) {
             c.close();
             return new Vector<T>();
         } else {
             c.moveToFirst();
             Vector<T> indices = new Vector<T>();
             int index = c.getColumnIndexOrThrow(DbUtil.DATA_COL);
-            while (!c.isAfterLast()) {
+            while(!c.isAfterLast()) {        
                 byte[] data = c.getBlob(index);
                 indices.add(newObject(data));
                 c.moveToNext();
@@ -98,12 +101,12 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             return indices;
         }
     }
-
+    
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
-        Cursor c = helper.getHandle().query(table, new String[]{scrubbedName}, DbUtil.ID_COL + "=?", new String[]{rid}, null, null, null);
-        if (c.getCount() == 0) {
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
+        Cursor c = helper.getHandle().query(table, new String[] {scrubbedName} , DbUtil.ID_COL + "=?", new String[] {rid}, null, null, null);
+        if(c.getCount() == 0) {
             c.close();
             throw new NoSuchElementException("No record in table " + table + " for ID " + recordId);
         }
@@ -113,16 +116,16 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return result;
 
     }
-
+    
     @Override
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         Pair<String, String[]> whereClause = helper.createWhere(rawFieldNames, values, em, t);
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL, DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
-        if (c.getCount() == 0) {
-            throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames + " and values " + values.toString());
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , whereClause.first, whereClause.second,null, null, null);
+        if(c.getCount() == 0) {
+            throw new NoSuchElementException("No element in table " + table + " with names " + rawFieldNames +" and values " + values.toString());
         }
-        if (c.getCount() > 1) {
-            throw new InvalidIndexException("Invalid unique column set" + rawFieldNames + ". Multiple records found with value " + values.toString(), rawFieldNames.toString());
+        if(c.getCount() > 1) {
+             throw new InvalidIndexException("Invalid unique column set" + rawFieldNames + ". Multiple records found with value " + values.toString(), rawFieldNames.toString());
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
@@ -132,14 +135,14 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-        Pair<String, String[]> whereClause = helper.createWhere(new String[]{rawFieldName}, new Object[]{value}, em, t);
-        String scrubbedName = TableBuilder.scrubName(rawFieldName);
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
-        if (c.getCount() == 0) {
+        Pair<String, String[]> whereClause = helper.createWhere(new String[] {rawFieldName}, new Object[] {value}, em, t);
+        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
+        if(c.getCount() == 0) {
             c.close();
-            throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName + " and value " + value.toString());
+            throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName +" and value " + value.toString());
         }
-        if (c.getCount() > 1) {
+        if(c.getCount() > 1) {
             c.close();
             throw new InvalidIndexException("Invalid unique column " + scrubbedName + ". Multiple records found with value " + value.toString(), scrubbedName);
         }
@@ -148,14 +151,14 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         c.close();
         return newObject(data);
     }
-
+    
     public T newObject(byte[] data) {
         try {
-            T e = (T) ctype.newInstance();
+            T e = (T)ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
-
+            
             return e;
-
+            
         } catch (IllegalAccessException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -173,24 +176,24 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public int add(Externalizable e) {
+    public int add(Externalizable e) throws StorageFullException {
         SQLiteDatabase db = helper.getHandle();
         int i = -1;
-        try {
+        try{
             db.beginTransaction();
             long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(e));
-
-            if (ret > Integer.MAX_VALUE) {
+            
+            if(ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
-
-            i = (int) ret;
-
+        
+            i =(int)ret;
+            
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
-
+        
         return i;
     }
 
@@ -206,12 +209,12 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public boolean exists(int id) {
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL}, DbUtil.ID_COL + "= ? ", new String[]{String.valueOf(id)}, null, null, null);
-        if (c.getCount() == 0) {
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , DbUtil.ID_COL +"= ? ", new String[] {String.valueOf(id)}, null, null, null);
+        if(c.getCount() == 0) {
             c.close();
             return false;
         }
-        if (c.getCount() > 1) {
+        if(c.getCount() > 1) {
             c.close();
             throw new InvalidIndexException("Invalid ID column. Multiple records found with value " + id, "ID");
         }
@@ -227,7 +230,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public int getNumRecords() {
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL}, null, null, null, null, null);
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL} , null, null, null, null, null);
         int records = c.getCount();
         c.close();
         return records;
@@ -247,7 +250,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public boolean isEmpty() {
-        if (getNumRecords() == 0) {
+        if(getNumRecords() == 0) {
             return true;
         }
         return false;
@@ -255,10 +258,10 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public SqlStorageIterator<T> iterate() {
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL, DbUtil.DATA_COL}, null, null, null, null, DbUtil.ID_COL);
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , null, null, null, null, DbUtil.ID_COL);
         return new SqlStorageIterator<T>(c, this);
     }
-
+    
     public Iterator<T> iterator() {
         return iterate();
     }
@@ -270,8 +273,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public byte[] readBytes(int id) {
-        Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL, DbUtil.DATA_COL}, DbUtil.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
-
+        Cursor c = helper.getHandle().query(table, new String[] {DbUtil.ID_COL, DbUtil.DATA_COL} , DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)}, null, null, null);
+        
         c.moveToFirst();
         byte[] blob = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
         c.close();
@@ -283,29 +286,27 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            db.delete(table, DbUtil.ID_COL + "=?", new String[]{String.valueOf(id)});
+            db.delete(table, DbUtil.ID_COL +"=?",new String[] {String.valueOf(id)});
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
+        }    
     }
-
+    
     @Override
     public void remove(List ids) {
-        if (ids.size() == 0) {
-            return;
-        }
+        if(ids.size() == 0 ) { return; }
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(ids);
-            for (Pair<String, String[]> whereParams : whereParamList) {
-                int rowsRemoved = db.delete(table, DbUtil.ID_COL + " IN " + whereParams.first, whereParams.second);
+            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
+            for(Pair<String, String[]> whereParams : whereParamList) {
+                int rowsRemoved = db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
+        }    
     }
 
     @Override
@@ -318,7 +319,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            db.delete(table, null, null);
+            db.delete(table, null,null);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -328,38 +329,36 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
         Vector<Integer> removed = new Vector<Integer>();
-        for (IStorageIterator iterator = this.iterate(); iterator.hasMore(); ) {
+        for(IStorageIterator iterator = this.iterate() ; iterator.hasMore() ;) {
             int id = iterator.nextID();
-            switch (ef.preFilter(id, null)) {
-                case EntityFilter.PREFILTER_INCLUDE:
-                    removed.add(id);
-                    continue;
-                case EntityFilter.PREFILTER_EXCLUDE:
-                    continue;
+            switch(ef.preFilter(id, null)){
+            case EntityFilter.PREFILTER_INCLUDE:
+                removed.add(id);
+                continue;
+            case EntityFilter.PREFILTER_EXCLUDE:
+                continue;
             }
-            if (ef.matches(read(id))) {
+            if(ef.matches(read(id))) {
                 removed.add(id);
             }
         }
+        
+        if(removed.size() == 0) { return removed; }
+        
+        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
 
-        if (removed.size() == 0) {
-            return removed;
-        }
-
-        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(removed);
-
-
+        
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            for (Pair<String, String[]> whereParams : whereParamList) {
-                db.delete(table, DbUtil.ID_COL + " IN " + whereParams.first, whereParams.second);
+            for(Pair<String, String[]> whereParams : whereParamList) {
+                db.delete(table, DbUtil.ID_COL +" IN " + whereParams.first, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-        }
-
+        }    
+        
         return removed;
     }
 
@@ -369,16 +368,16 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void repair() {
+    public void repair() { 
         //Unecessary!
     }
 
     @Override
-    public void update(int id, Externalizable e) {
+    public void update(int id, Externalizable e) throws StorageFullException {
         SQLiteDatabase db = helper.getHandle();
         db.beginTransaction();
         try {
-            db.update(table, helper.getContentValues(e), DbUtil.ID_COL + "=?", new String[]{String.valueOf(id)});
+            db.update(table, helper.getContentValues(e), DbUtil.ID_COL +"=?", new String[] {String.valueOf(id)});
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -386,28 +385,28 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public void write(Persistable p) {
-        if (p.getID() != -1) {
+    public void write(Persistable p) throws StorageFullException {
+        if(p.getID() != -1) {
             update(p.getID(), p);
             return;
         }
         SQLiteDatabase db = helper.getHandle();
         try {
-
-            db.beginTransaction();
-            long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(p));
-
-            if (ret > Integer.MAX_VALUE) {
-                throw new RuntimeException("Waaaaaaaaaay too many values");
-            }
-
-            int id = (int) ret;
-            //Now we need to put the id into the record
-
-            p.setID(id);
-            db.update(table, helper.getContentValues(p), DbUtil.ID_COL + "=?", new String[]{String.valueOf(id)});
-
-            db.setTransactionSuccessful();
+        
+        db.beginTransaction();
+        long ret = db.insertOrThrow(table, DbUtil.DATA_COL, helper.getContentValues(p));
+        
+        if(ret > Integer.MAX_VALUE) {
+            throw new RuntimeException("Waaaaaaaaaay too many values");
+        }
+        
+        int id = (int)ret;
+        //Now we need to put the id into the record
+        
+        p.setID(id);
+        db.update(table, helper.getContentValues(p), DbUtil.ID_COL +"=?" , new String[] {String.valueOf(id)});
+        
+        db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
@@ -419,7 +418,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     public void registerIndex(String filterIndex) {
         // TODO Auto-generated method stub
-
+        
     }
 
 }

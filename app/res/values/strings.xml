@@ -39,15 +39,12 @@
     <string name="media_not_verified">Media Not Verified</string>
     <string name="media_verified">Media Validated!</string>
     <string name="no_installation">No app was installed!</string>
-    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare ODK from your device and then relaunch it.</string>
-    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare ODK in your device\'s Settings menu.</string>
-    <string name="migration_failure_title">Migration Error</string>
-    
+
     <!-- endregion -->
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>23</item>
+        <item>22</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -65,12 +62,12 @@
     <string-array name="url_list">
         <item>bit.ly</item>
         <item>tinyurl</item>
-        <item>Local</item>
+        <item>Raw</item>
     </string-array>
     <string-array name="url_list_selected_display">
         <item>http://bit.ly/</item>
         <item>http://tinyurl/</item>
-        <item>Local</item>
+        <item>Raw</item>
     </string-array>
     <string-array name="url_vals">
         <item>http://bit.ly/</item>
@@ -78,21 +75,21 @@
         <item></item>
     </string-array>
 
-    <string name="aboutdialog">%s\n\n
-_Copyright 2015, Dimagi inc, All rights reserved_ \n\n
+    <string name="aboutdialog">CommCare ODK
+Copyright 2010, Dimagi inc, All rights reserved
 
----------------- \n\n
-__Acknowledgements:__ \n\n
+Some images in CommCare are graciously used under Creative Commons Licensing
+“Door” symbol by Tak Imoto
+“Pencil” symbol by Creologica
+“Notebook” symbol by Carlo
+“Antenna” symbol by Dima
+“Map Marker” symbol by P.J. Onori
 
-Some images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n
-* “Door” symbol by Tak Imoto \n
-* “Pencil” symbol by Creologica \n
-* “Notebook” symbol by Carlo \n
-* “Antenna” symbol by Dima \n
-* “Map Marker” symbol by P.J. Onori \n\n
+from thenounproject.com collection.
 
-_Android MapView Balloons_ project used under the Apache Software License 2.0. \n
-Author: Jeff Gilfelt \n
+"Android MapView Balloons" project used under the Apache Software License 2.0.
+
+Author: Jeff Gilfelt
 Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="notification_message_title">CommCare Notification</string>
 

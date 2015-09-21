@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1"
-    app:subtitle="Incomplete forms"
-    app:backgroundColor="@color/solid_dark_orange"
-    app:img="@drawable/home_incomplete"
+    app:sbn_subtitle="Incomplete forms"
+    app:backgroundcolorButton="@color/solid_dark_orange"
+    app:sbn_img="@drawable/home_incomplete"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"/>

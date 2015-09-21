@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/cc_core_bg"
     >
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,17 +22,16 @@
             android:layout_weight="1"
             android:id="@+id/home_gridview_buttons"
             android:tag="new-gv-land-v10"
-            android:numColumns="2"
+            android:numColumns="3"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/standard_spacer_half"
-            android:layout_marginEnd="@dimen/standard_spacer_half"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_marginEnd="@dimen/content_start"
             android:horizontalSpacing="@dimen/content_start"
             android:verticalSpacing="@dimen/content_start"
             android:paddingBottom="@dimen/content_start"
             android:scrollbars="none"
             tools:listitem="@layout/square_button_notification"
-            app:column_count="2"
             />
         <TextView
             android:id="@+id/str_version"
@@ -48,6 +43,6 @@
             />
 
     </LinearLayout>
-        <include layout="@layout/component_drop_shadow"/></FrameLayout>
+
 </RelativeLayout>
 

@@ -1,6 +1,5 @@
 package org.commcare.android.adapters;
 
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +11,7 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
@@ -34,15 +33,15 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     private final boolean[] hiddenButtons = new boolean[buttonsResources.length];
 
-    private final ArrayList<SquareButtonWithNotification> visibleButtons;
+    private final LinkedList<SquareButtonWithNotification> visibleButtons;
 
     public HomeScreenAdapter(Context c) {
-        visibleButtons = new ArrayList<SquareButtonWithNotification>();
+        visibleButtons = new LinkedList<SquareButtonWithNotification>();
         LayoutInflater inflater = LayoutInflater.from(c);
         for (int i = 0; i < buttons.length; i++) {
             if (buttons[i] == null) {
                 SquareButtonWithNotification button =
-                        (SquareButtonWithNotification) inflater.inflate(buttonsResources[i], null, false);
+                        (SquareButtonWithNotification)inflater.inflate(buttonsResources[i], null, false);
                 buttons[i] = button;
                 Log.i(TAG, "Added button " + button + "to position " + i);
 
@@ -61,7 +60,7 @@ public class HomeScreenAdapter extends BaseAdapter {
      */
     public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
         int buttonIndex = getButtonIndex(resourceCode);
-        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
+        SquareButtonWithNotification button = (SquareButtonWithNotification)getItem(buttonIndex);
         if (button != null) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Preexisting button when calling setOnClickListenerForButton");
@@ -106,12 +105,17 @@ public class HomeScreenAdapter extends BaseAdapter {
         if (position < 0 || position >= getCount()) {
             return null;
         }
-        SquareButtonWithNotification btn = visibleButtons.get(position);
+        if (convertView != null) {
+            return convertView;
+        } else {
+            SquareButtonWithNotification btn = visibleButtons.get(position);
 
-        if (btn == null) {
-            Log.i(TAG, "Unexpected null button");
+            if (btn == null) {
+                Log.i(TAG, "Unexpected null button");
+            }
+
+            return btn;
         }
-        return btn;
     }
 
     /**
