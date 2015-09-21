@@ -13,6 +13,7 @@ buildscript {
     repositories {
         mavenCentral()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.3'
     }
@@ -155,6 +156,10 @@ android {
         assets.srcDirs = ['app/assets']
 
       }
+      test {
+        java.srcDirs = ['unit-tests/src/']
+        resources.srcDirs = ['unit-tests/resources/']
+      }
 
       // Move the tests to tests/java, tests/res, etc...
       instrumentTest.setRoot('tests')
@@ -181,6 +186,14 @@ android {
         signingConfig signingConfigs.release
         proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
       }
+    }
+
+    testOptions {
+        unitTests.all {
+              // Needed for robolectric tests to work with kxml for some
+              // bizarre reason
+              jvmArgs '-noverify'
+        }
     }
 
 }

@@ -12,6 +12,7 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -56,6 +57,10 @@ public class ResizingImageView extends ImageView {
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
         this.imageURI = imageURI;
         this.bigImageURI = bigImageURI;
+        ViewGroup.MarginLayoutParams imageViewParams = new ViewGroup.MarginLayoutParams(
+                ViewGroup.MarginLayoutParams.WRAP_CONTENT,
+                ViewGroup.MarginLayoutParams.WRAP_CONTENT);
+        this.setLayoutParams(imageViewParams);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class ResizingImageView extends ImageView {
         }
     }
 
-    private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor){
+    private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor) {
         int maxWidth = mMaxWidth;
         int maxHeight = mMaxHeight;
 
@@ -144,9 +149,26 @@ public class ResizingImageView extends ImageView {
         if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
             maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight);
         }
-        return new Pair<Integer,Integer>(Double.valueOf(maxWidth * imageScaleFactor).intValue(), Double.valueOf(maxHeight * imageScaleFactor).intValue());
-    }
 
+        Drawable drawable = getDrawable();
+
+        float dWidth = dipToPixels(getContext(), drawable.getIntrinsicWidth());
+        float dHeight = dipToPixels(getContext(), drawable.getIntrinsicHeight());
+        float ratio = (dWidth) / dHeight;
+
+        int width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
+        int height = (int) (width / ratio);
+
+        height = Math.min(Math.max(height, getSuggestedMinimumHeight()), maxHeight);
+        width = (int) (height * ratio);
+
+        if (width > maxWidth) {
+            width = maxWidth;
+            height = (int) (width / ratio);
+        }
+
+        return new Pair<Integer, Integer>(new Double(width * scaleFactor).intValue(), new Double(height * scaleFactor).intValue());
+    }
     /*
      * The meat and potatoes of the class. Determines what algorithm to use
      * to resize the image based on the KEY_RESIZE preference. Currently can be
@@ -161,7 +183,7 @@ public class ResizingImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
+        
         if(resizeMethod.equals("full")){
 
             Drawable drawable = getDrawable();

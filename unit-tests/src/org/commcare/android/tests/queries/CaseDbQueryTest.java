@@ -1,13 +1,8 @@
-/**
- * 
- */
 package org.commcare.android.tests.queries;
 
-import static junit.framework.Assert.assertEquals;
-
-import org.commcare.android.junit.CommCareTestRunner;
-import org.commcare.android.shadows.SQLiteDatabaseNative;
+import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -18,15 +13,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author ctsims
- *
  */
-@Config(shadows={SQLiteDatabaseNative.class}, emulateSdk = 18, application=org.commcare.dalvik.application.CommCareApplication.class)
+@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
+        constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class CaseDbQueryTest {
-
 
     @Before
     public void setupTests() {
@@ -38,7 +33,7 @@ public class CaseDbQueryTest {
      */
     @Test
     public void testBasicCaseQueries() {
-        TestUtils.processResourceTransaction("resources/inputs/case_create.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create.xml");
         
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
         
@@ -47,7 +42,6 @@ public class CaseDbQueryTest {
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/test_value", "initial", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/missing_value", "", ec);
-        
     }
     
     /**
@@ -55,22 +49,21 @@ public class CaseDbQueryTest {
      */
     @Test
     public void testCaseIndexQueries() {
-        TestUtils.processResourceTransaction("resources/inputs/case_create.xml");
-        TestUtils.processResourceTransaction("resources/inputs/case_create_and_index.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create.xml");
+        TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
         
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
-        
-        
     }
     
     private void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);
-            assertEquals("XPath: " + xpath,expectedValue, XPathFuncExpr.toString(expr.eval(ec)));
+            String result = XPathFuncExpr.toString(expr.eval(ec));
+            assertEquals("XPath: " + xpath, expectedValue, result);
         } catch (XPathSyntaxException e) {
             TestUtils.wrapError(e, "XPath: " + xpath);
         }

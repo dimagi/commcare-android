@@ -1,13 +1,13 @@
 package org.commcare.android.mocks;
 
+import android.net.Uri;
+
+import org.robolectric.fakes.RoboCursor;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.robolectric.tester.android.database.TestCursor;
-
-import android.net.Uri;
-
-public class ExtendedTestCursor extends TestCursor {
+public class ExtendedTestCursor extends RoboCursor {
   public Uri uri;
   public String[] projection;
   public String selection;

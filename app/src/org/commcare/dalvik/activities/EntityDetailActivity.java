@@ -29,14 +29,14 @@ import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
-    
+
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -49,32 +49,32 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
     EntityDetailAdapter adapter;
     NodeEntityFactory factory;
     Pair<Detail, TreeReference> mEntityContext;
-    
+
     TreeReference mTreeReference;
-    
+
     private int detailIndex;
 
     // Is the detail screen for showing entities, without option for moving
     // forward on to form manipulation?
     private boolean mViewMode = false;
-    
-    @UiElement(value=R.id.entity_detail)
+
+    @UiElement(value = R.id.entity_detail)
     RelativeLayout container;
-    
-    @UiElement(value=R.id.entity_select_button, locale="select.detail.confirm")
+
+    @UiElement(value = R.id.entity_select_button, locale = "select.detail.confirm")
     Button next;
-    
-    @UiElement(value=R.id.entity_detail_tabs)
+
+    @UiElement(value = R.id.entity_detail_tabs)
     TabbedDetailView mDetailView;
-    
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {        
+    protected void onCreate(Bundle savedInstanceState) {
         Intent i = getIntent();
-        
+
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
             session = asw.getSession();
-        } catch(SessionStateUninitException sue) {
+        } catch (SessionStateUninitException sue) {
             // The user isn't logged in! bounce this back to where we came from
             this.setResult(RESULT_CANCELED, this.getIntent());
             this.finish();
@@ -89,14 +89,14 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         }
 
         factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
-        
+
         mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
-        if(shortDetailId != null) {
+        if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
             this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
         }
-                
+
         entity = factory.getEntity(mTreeReference);
 
         super.onCreate(savedInstanceState);
@@ -110,7 +110,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         //if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 
         if (this.getString(R.string.panes).equals("two")) {
-            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 //this occurs when the screen was rotated to be vertical on the select activity. We
                 //want to navigate back to that screen now.
                 this.setResult(RESULT_CANCELED, this.getIntent());
@@ -118,7 +118,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
                 return;
             }
         }
-     
+
         next.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 select();
@@ -126,24 +126,24 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         });
 
         if (mViewMode) {
-            next.setText("Done");
+            next.setText(Localization.get("select.detail.bypass"));
         }
 
-        mDetailView.setRoot((ViewGroup) container.findViewById(R.id.entity_detail_tabs));
+        mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
 
         mDetailView.setDetail(factory.getDetail());
     }
-    
+
     public Pair<Detail, TreeReference> requestEntityContext() {
         return mEntityContext;
     }
-    
+
     @Override
     protected boolean isTopNavEnabled() {
         return true;
     }
-    
+
 
     @Override
     public String getActivityTitle() {
@@ -160,31 +160,31 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
 //        
 //        return title;
     }
-        
+
     protected void loadOutgoingIntent(Intent i) {
         i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch(requestCode) {
-        case DetailCalloutListenerDefaultImpl.CALL_OUT:
-            if(resultCode == RESULT_CANCELED) {
-                mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
-                return;
-            } else {
-                long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
-                
-                Intent i = new Intent(EntityDetailActivity.this.getIntent());
-                loadOutgoingIntent(i);
-                i.putExtra(CallOutActivity.CALL_DURATION, duration);
-                setResult(RESULT_OK, i);
+        switch (requestCode) {
+            case DetailCalloutListenerDefaultImpl.CALL_OUT:
+                if (resultCode == RESULT_CANCELED) {
+                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+                    return;
+                } else {
+                    long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
 
-                finish();
-                return;
-            }
-        default:
-            super.onActivityResult(requestCode, resultCode, intent);
+                    Intent i = new Intent(EntityDetailActivity.this.getIntent());
+                    loadOutgoingIntent(i);
+                    i.putExtra(CallOutActivity.CALL_DURATION, duration);
+                    setResult(RESULT_OK, i);
+
+                    finish();
+                    return;
+                }
+            default:
+                super.onActivityResult(requestCode, resultCode, intent);
         }
     }
 
@@ -196,12 +196,12 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
     public void addressRequested(String address) {
         DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
-    
+
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
-    public void performCallout(CalloutData callout, int id){
+    public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
 
@@ -214,7 +214,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         }
         return false;
     }
-    
+
     @Override
     protected boolean onBackwardSwipe() {
         // Move back, provided we're on the first screen of tabbed case details
@@ -224,7 +224,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         }
         return false;
     }
-    
+
     /**
      * Move along to form entry.
      */
