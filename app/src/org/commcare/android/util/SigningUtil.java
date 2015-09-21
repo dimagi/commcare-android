@@ -30,7 +30,7 @@ public class SigningUtil {
             return verifyMessageSignature(publicKey, message, messageSignature);
         } catch (Exception e) {
             // a bunch of exceptions can be thrown from the crypto methods. I mostly think we just
-            // care that we couldn't verifyMessageSignatureHelper it
+            // care that we couldn't verify it
             e.printStackTrace();
         }
         return false;

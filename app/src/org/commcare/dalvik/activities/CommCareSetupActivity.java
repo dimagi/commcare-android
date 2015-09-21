@@ -569,29 +569,30 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     /**
      * Scan SMS messages for texts with profile references.
-     * @param installAutomatically install automatically if reference is found
+     * @param installTriggeredManually if scan was triggered manually, then
+     *                                 install automatically if reference is found
      */
-    private void performSMSInstall(boolean installAutomatically){
+    private void performSMSInstall(boolean installTriggeredManually){
         String profileLink = null;
         try {
             profileLink = this.scanSMSLinks();
         } catch(SignatureException e){
             // possibly we want to do something more severe here? could be malicious
             e.printStackTrace();
-            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
         }
         if (profileLink != null) {
             // we found a valid profile link, either start install automatically
             // or move to READY_TO_INSTALL state
             Log.v("install", "Performing SMS install with link : " + incomingRef);
             incomingRef = profileLink;
-            if (installAutomatically) {
+            if (installTriggeredManually) {
                 startResourceInstall();
             } else {
                 uiState = UiState.READY_TO_INSTALL;
                 Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
             }
-        } else if(installAutomatically) {
+        } else if(installTriggeredManually) {
             // only notify if this was manually triggered, since most people won't use this
             Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
         }

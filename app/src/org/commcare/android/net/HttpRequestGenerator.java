@@ -259,7 +259,7 @@ public class HttpRequestGenerator {
             return true;
         }
 
-        //if it is, verifyMessageSignatureHelper that we're on the same server.
+        //if it is, verify that we're on the same server.
         if (url.getHost().equals(newUrl.getHost())) {
             return true;
         } else {
