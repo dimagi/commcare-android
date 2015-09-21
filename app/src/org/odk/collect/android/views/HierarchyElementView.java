@@ -19,7 +19,7 @@ public class HierarchyElementView extends RelativeLayout {
 
         RelativeLayout layout = (RelativeLayout)inflate(context, R.layout.hierarchy_element_view, null);
 
-        layout.setBackgroundColor(it.getColor());
+        setBackgroundColor(it.getColor());
 
         mPrimaryTextView = ((TextView)layout.findViewById(R.id.hev_primary_text));
         mPrimaryTextView.setText(it.getPrimaryText());
