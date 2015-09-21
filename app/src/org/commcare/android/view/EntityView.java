@@ -3,6 +3,7 @@ package org.commcare.android.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -28,6 +29,7 @@ import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
@@ -341,7 +343,7 @@ public class EntityView extends LinearLayout {
                     //grab the display offset for actually displaying things
                     int displayIndex = index + offset;
 
-                    raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.yellow)), displayIndex, displayIndex
+                    raw.setSpan(new BackgroundColorSpan(Color.parseColor(Localization.get("odk_perfect_match_color"))) , displayIndex, displayIndex
                             + searchText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                     matches.add(new int[]{index, index + searchText.length()});
@@ -395,8 +397,8 @@ public class EntityView extends LinearLayout {
                             int indexInDisplay = normalizedDisplayString.indexOf(currentSpan);
                             int length = (curEnd - curStart);
 
-                            if (indexInDisplay != -1 && StringUtils.fuzzyMatch(searchText, currentSpan).first) {
-                                raw.setSpan(new BackgroundColorSpan(context.getResources().getColor(R.color.green)), indexInDisplay,
+                            if (indexInDisplay != -1 && StringUtils.fuzzyMatch(currentSpan, searchText).first) {
+                                raw.setSpan(new BackgroundColorSpan(Color.parseColor(Localization.get("odk_fuzzy_match_color"))), indexInDisplay,
                                         indexInDisplay + length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                             }
                         }
