@@ -656,11 +656,13 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                if(resultCode == RESULT_CANCELED) {
-                    currentState.getSession().stepBack();
-                } else if(resultCode == RESULT_OK) {
-                    currentState.getSession().setDatum(currentState.getSession().getNeededDatum().getDataId(),
-                            intent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+                CommCareSession currentSession = currentState.getSession();
+                if (resultCode == RESULT_CANCELED) {
+                    currentSession.stepBack();
+                } else if (resultCode == RESULT_OK) {
+                    String sessionDatumId = currentSession.getNeededDatum().getDataId();
+                    String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                    currentSession.setDatum(sessionDatumId, chosenCaseId);
                 }
                 break;
             case MODEL_RESULT:
@@ -925,7 +927,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
 
     // CommCare needs a case selection to proceed
     private void handleGetDatum(AndroidSessionWrapper asw) {
-        TreeReference autoSelection = getAutoSelectableCase(asw);
+        TreeReference autoSelection = getAutoSelectedCase(asw);
         if (autoSelection == null) {
             launchEntitySelect(asw.getSession());
         } else {
@@ -948,9 +950,10 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         SessionDatum selectDatum = session.getNeededDatum();
         if (selectDatum.getLongDetail() == null) {
             // No confirm detail defined for this entity select, so just set the case id right away
-            // and then proceed
-            String caseId = EntitySelectActivity.getCaseIdFromReference(autoSelection, selectDatum, asw);
-            session.setDatum(selectDatum.getDataId(), caseId);
+            // and proceed
+            String autoSelectedCaseId = EntitySelectActivity.getCaseIdFromReference(
+                    autoSelection, selectDatum, asw);
+            session.setDatum(selectDatum.getDataId(), autoSelectedCaseId);
             startNextFetch();
         } else {
             // Launch an intent to load the confirmation screen for this selection
@@ -960,9 +963,14 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         }
     }
 
-    private TreeReference getAutoSelectableCase(AndroidSessionWrapper asw) {
-        CommCareSession session = asw.getSession();
-        SessionDatum selectDatum = session.getNeededDatum();
+    /**
+     *
+     * Returns the auto-selected case for the next needed datum, if there should be one.
+     * Returns null if auto selection is not enabled, or if there are multiple available cases
+     * for the datum (and therefore auto-selection should not be used).
+     */
+    private TreeReference getAutoSelectedCase(AndroidSessionWrapper asw) {
+        SessionDatum selectDatum = asw.getSession().getNeededDatum();
         if (selectDatum.isAutoSelectEnabled()) {
             EvaluationContext ec = asw.getEvaluationContext();
             List<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());

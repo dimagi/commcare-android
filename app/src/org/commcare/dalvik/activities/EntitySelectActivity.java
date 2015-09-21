@@ -443,7 +443,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     /**
-     * Get an intent to for displaying a detailed view of an element
+     * Get an intent for displaying a detailed view of an element
      *
      * @param contextRef   reference to the selected element for which to display
      *                     detailed view
@@ -465,8 +465,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     public static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
                                          SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
-        String value = getCaseIdFromReference(contextRef, selectDatum, asw);
-        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, value);
+        String caseId = getCaseIdFromReference(contextRef, selectDatum, asw);
+        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
         // Include long datum info if present (if not present, will be the signal to just return)
         if (selectDatum.getLongDetail() != null) {
