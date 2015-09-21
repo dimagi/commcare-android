@@ -3,8 +3,6 @@ package org.odk.collect.android.activities;
 import android.app.ListActivity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -27,18 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
-    private static final String TAG = FormHierarchyActivity.class.getSimpleName();
-
     private static final int CHILD = 1;
     private static final int EXPANDED = 2;
     private static final int COLLAPSED = 3;
     private static final int QUESTION = 4;
 
     private Button jumpPreviousButton;
-
     private List<HierarchyElement> formList;
     private TextView mPath;
-
     private FormIndex mStartIndex;
 
     @Override
@@ -154,7 +148,6 @@ public class FormHierarchyActivity extends ListActivity {
 
         String path = "";
         while (index != null) {
-
             path =
                     FormEntryActivity.mFormController.getCaptionPrompt(index).getLongText()
                             + " ("
@@ -408,9 +401,7 @@ public class FormHierarchyActivity extends ListActivity {
                 h.setType(EXPANDED);
                 ArrayList<HierarchyElement> children1 = h.getChildren();
                 for (int i = 0; i < children1.size(); i++) {
-                    Log.i(TAG, "adding child: " + children1.get(i).getFormIndex());
                     formList.add(position + 1 + i, children1.get(i));
-
                 }
                 h.setIcon(getResources().getDrawable(R.drawable.expander_ic_maximized));
                 h.setColor(Color.WHITE);
@@ -422,7 +413,6 @@ public class FormHierarchyActivity extends ListActivity {
                 return;
             case CHILD:
                 FormEntryActivity.mFormController.jumpToIndex(h.getFormIndex());
-                setResult(RESULT_OK);
                 refreshView();
                 return;
         }
@@ -435,11 +425,11 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK:
-                FormEntryActivity.mFormController.jumpToIndex(mStartIndex);
+    public void onBackPressed() {
+        if (FormEntryActivity.mFormController.getFormIndex().isTerminal()) {
+            super.onBackPressed();
+        } else {
+            goUpLevel();
         }
-        return super.onKeyDown(keyCode, event);
     }
 }
