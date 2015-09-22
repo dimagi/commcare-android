@@ -104,7 +104,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 8
         targetSdkVersion 22
 
         versionCode getVersionCode()
