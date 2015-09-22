@@ -421,7 +421,7 @@ public class CommCareApplication extends Application {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)){
+        if (!"".equals(lastAppId)) {
             // If there is a 'last app' set in shared preferences, try to initialize that application.
             ApplicationRecord lastApp = getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
