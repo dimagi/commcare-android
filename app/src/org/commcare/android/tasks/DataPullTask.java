@@ -114,9 +114,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
     private InputStream mDebugStream;
 
-    public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
+    public DataPullTask(String username, String password, String server, Context c) {
         this.server = server;
-        this.keyProvider = keyProvider;
         this.username = username;
         this.password = password;
         this.c = c;

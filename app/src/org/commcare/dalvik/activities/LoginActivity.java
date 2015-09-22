@@ -212,7 +212,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         DataPullTask<LoginActivity> dataPuller = 
             new DataPullTask<LoginActivity>(getUsername(), password.getText().toString(),
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
-                 prefs.getString("key_server", LoginActivity.this.getString(R.string.key_server)),
                  LoginActivity.this) {
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {
