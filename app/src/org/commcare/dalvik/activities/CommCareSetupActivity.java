@@ -612,12 +612,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
         try {
-            while (!cursor.isAfterLast()) {
-                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                    String installLink = SigningUtil.parseAndVerifySMS(textMessageBody);
-                    if(installLink != null){
-                        return installLink;
+            if (cursor.moveToFirst()) { // must check the result to prevent exception
+                while (!cursor.isAfterLast()) {
+                    String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                    if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                        String installLink = SigningUtil.parseAndVerifySMS(textMessageBody);
+                        if (installLink != null) {
+                            return installLink;
+                        }
                     }
                 }
             }
