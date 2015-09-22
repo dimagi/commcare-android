@@ -126,6 +126,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         });
 
         if (mViewMode) {
+            next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             next.setText(Localization.get("select.detail.bypass"));
         }
 
