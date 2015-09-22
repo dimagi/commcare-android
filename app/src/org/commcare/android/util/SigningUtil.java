@@ -18,7 +18,28 @@ import java.security.spec.X509EncodedKeySpec;
  * Created by wpride1 on 9/11/15.
  */
 public class SigningUtil {
+    /**
+     *
+     * @param text the parsed out text message in the expected link/signature format
+     * @return the download link if the message was valid and verified, null otherwise
+     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     */
+    public static String parseAndVerifySMS(String text) throws SignatureException {
+        // parse out the app link and signature. We assume there is a space after ccapp: and
+        // signature: and that the end of the signature is the end of the text content
 
+        String decodedMessage = SigningUtil.decodeEncodedSMS(text);
+        String[] parsedMessage = SigningUtil.parseDecodedSMS(decodedMessage);
+        if(verifySMS(parsedMessage[0], parsedMessage[1])){
+            return parsedMessage[1];
+        }
+        throw new SignatureException();
+    }
+
+    private static boolean verifySMS(String signature, String message){
+        String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
+        return SigningUtil.verifyMessageSignatureHelper(keyString, message, signature);
+    }
     /**
      *
      * @param publicKeyString the known public key of CCHQ
@@ -54,7 +75,7 @@ public class SigningUtil {
         return sign.verify(signature_binary);
     }
 
-    public static String decodeEncodedSMS(String text) throws  SignatureException{
+    private static String decodeEncodedSMS(String text) throws  SignatureException{
         String base64Message = text.substring(text.indexOf(GlobalConstants.SMS_INSTALL_KEY_STRING) +
                 GlobalConstants.SMS_INSTALL_KEY_STRING.length() + 1);
         String decodedMessage = null;
@@ -69,5 +90,12 @@ public class SigningUtil {
         }
         return decodedMessage;
 
+    }
+
+    public static String[] parseDecodedSMS(String decodedMessage){
+        String downloadLink = decodedMessage.substring(decodedMessage.indexOf("ccapp:") + 7,
+                decodedMessage.indexOf(","));
+        String signature = decodedMessage.substring(decodedMessage.indexOf("signature:") + 11);
+        return new String[] {downloadLink, signature};
     }
 }

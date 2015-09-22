@@ -615,7 +615,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             while (!cursor.isAfterLast()) {
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                    String installLink = parseAndVerifySMS(textMessageBody);
+                    String installLink = SigningUtil.parseAndVerifySMS(textMessageBody);
                     if(installLink != null){
                         return installLink;
                     }
@@ -626,32 +626,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             cursor.close();
         }
         return null;
-    }
-
-    /**
-     *
-     * @param text the parsed out text message in the expected link/signature format
-     * @return the download link if the message was valid and verified, null otherwise
-     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
-     */
-    private String parseAndVerifySMS(String text) throws SignatureException {
-        // parse out the app link and signature. We assume there is a space after ccapp: and
-        // signature: and that the end of the signature is the end of the text content
-
-        String decodedMessage = SigningUtil.decodeEncodedSMS(text);
-
-        String downloadLink = decodedMessage.substring(decodedMessage.indexOf("ccapp:") + 7,
-                decodedMessage.indexOf(","));
-        String signature = decodedMessage.substring(decodedMessage.indexOf("signature:") + 11);
-        if(verifySMS(signature, downloadLink)){
-            return downloadLink;
-        }
-        throw new SignatureException();
-    }
-
-    private boolean verifySMS(String signature, String message){
-        String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
-        return SigningUtil.verifyMessageSignatureHelper(keyString, message, signature);
     }
 
     @Override
