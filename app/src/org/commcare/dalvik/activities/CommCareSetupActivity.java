@@ -614,7 +614,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         try {
             while (!cursor.isAfterLast()) {
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                if (textMessageBody.contains("ccapp:") && textMessageBody.contains("signature:")) {
+                if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     String installLink = parseAndVerifySMS(textMessageBody);
                     if(installLink != null){
                         return installLink;
@@ -637,8 +637,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private String parseAndVerifySMS(String text) throws SignatureException {
         // parse out the app link and signature. We assume there is a space after ccapp: and
         // signature: and that the end of the signature is the end of the text content
-        String downloadLink = text.substring(text.indexOf("ccapp:") + 7, text.indexOf(","));
-        String signature = text.substring(text.indexOf("signature:") + 11);
+
+        String decodedMessage = SigningUtil.decodeEncodedSMS(text);
+
+        String downloadLink = decodedMessage.substring(decodedMessage.indexOf("ccapp:") + 7,
+                decodedMessage.indexOf(","));
+        String signature = decodedMessage.substring(decodedMessage.indexOf("signature:") + 11);
         if(verifySMS(signature, downloadLink)){
             return downloadLink;
         }

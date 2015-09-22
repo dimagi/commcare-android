@@ -1,7 +1,9 @@
 package org.commcare.android.util;
 
+import org.commcare.android.logic.GlobalConstants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -50,5 +52,22 @@ public class SigningUtil {
         sign.initVerify(publicKey);
         sign.update(message);
         return sign.verify(signature_binary);
+    }
+
+    public static String decodeEncodedSMS(String text) throws  SignatureException{
+        String base64Message = text.substring(text.indexOf(GlobalConstants.SMS_INSTALL_KEY_STRING) +
+                GlobalConstants.SMS_INSTALL_KEY_STRING.length() + 1);
+        String decodedMessage = null;
+        try {
+            decodedMessage = new String(Base64.decode(base64Message), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new SignatureException();
+        } catch (Base64DecoderException e) {
+            e.printStackTrace();
+            throw new SignatureException();
+        }
+        return decodedMessage;
+
     }
 }
