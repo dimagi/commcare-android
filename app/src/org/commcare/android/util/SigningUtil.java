@@ -24,7 +24,7 @@ import java.security.spec.X509EncodedKeySpec;
  *
  * ccapp: <profile link> signature: <binary signature>
  *
- * And we can then verify that the profile link was in fact encrpyted (using SHA256withRSA) by
+ * And we can then verify that the profile link was in fact signed (using SHA256withRSA) by
  * the CommCareHQ private key
  *
  * Created by wpride1 on 9/11/15.
@@ -66,13 +66,37 @@ public class SigningUtil {
     public static byte[] getSignatureBytes(String textMessage) throws Exception {
         byte[] messageBytes = getBytesFromSMS(textMessage);
         String decodedMessageString = parseAndDecodeSMS(textMessage);
-        int lastSpaceIndex = decodedMessageString.indexOf("signature:") + "signature: ".length();
+        int lastSpaceIndex = getSignatureStartIndex(messageBytes);
         int signatureByteLength = messageBytes.length - lastSpaceIndex;
         byte[] signatureBytes = new byte[signatureByteLength];
         for(int i = 0; i< signatureByteLength; i++){
             signatureBytes[i] = messageBytes[i + lastSpaceIndex];
         }
         return signatureBytes;
+    }
+
+    /**
+     * Iterate through the byte array until we find the third "space" character (represented
+     * by integer 32) and then return its index
+     * @param messageBytes the raw bytes of the Base64 message
+     * @return index of the third "space" byte, -1 if none encountered
+     */
+    private static int getSignatureStartIndex(byte[] messageBytes) {
+        int index = 0;
+        int spaceCount = 0;
+        int spaceByte = 32;
+        for(byte b: messageBytes){
+            if(b == spaceByte){
+                if(spaceCount == 2){
+                    return index + 1;
+                }
+                else{
+                    spaceCount++;
+                }
+            }
+            index++;
+        }
+        return -1;
     }
 
     /**
