@@ -70,15 +70,14 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    String server;
-    String keyProvider;
-    String username;
-    String password;
-    Context c;
+    private final String server;
+    private final String username;
+    private final String password;
+    private final Context c;
     
-    int mCurrentProgress = -1;
-    int mTotalItems = -1;
-    long mSyncStartTime;
+    private int mCurrentProgress = -1;
+    private int mTotalItems = -1;
+    private long mSyncStartTime;
     
     private boolean wasKeyLoggedIn = false;
     
@@ -95,11 +94,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
     public static final int PROGRESS_AUTHED = 2;
-    public static final int PROGRESS_DONE= 4;
+    private static final int PROGRESS_DONE= 4;
     public static final int PROGRESS_RECOVERY_NEEDED= 8;
     public static final int PROGRESS_RECOVERY_STARTED= 16;
-    public static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
-    public static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
+    private static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
+    private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
     
