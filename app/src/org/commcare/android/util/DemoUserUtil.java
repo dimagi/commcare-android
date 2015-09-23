@@ -30,11 +30,7 @@ public class DemoUserUtil {
         SqlStorage<UserKeyRecord> keys = currentApp.getStorage(UserKeyRecord.class);
         int demoUsers = keys.getIDsForValue(UserKeyRecord.META_USERNAME, DEMO_USERNAME).size();
         
-        if(demoUsers > 1) {
-            //There should _not_ be more than one demo user record here, we should probably
-            //delete the sandbox
-        } else if(demoUsers  == 0) {
-            
+        if (demoUsers  == 0) {
             byte[] newRandomKey = CryptUtil.generateSemiRandomKey().getEncoded();
             
             String duserHash = UserKeyRecord.generatePwdHash(DEMO_PASSWORD);
