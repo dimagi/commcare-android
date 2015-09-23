@@ -16,19 +16,39 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Performs data pulling http request and provides logic to retrieve the
+ * response into a local cache.
+ *
+ * @author Phillip Mates (pmates@dimagi.com).
+ */
 public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
     private final HttpResponse response;
 
+    /**
+     * Testing constructor used when overriding server dependent behavior
+     */
     protected RemoteDataPullResponse(int responseCode) {
         this.responseCode = responseCode;
         this.task = null;
         this.response = null;
     }
 
-    public RemoteDataPullResponse(DataPullTask task, HttpRequestGenerator requestor, String server, boolean useRequestFlags) throws IOException {
-        this.response = requestor.makeCaseFetchRequest(server, useRequestFlags);
+    /**
+     * Makes data pulling request and keeps response for local caching
+     *
+     * @param task             For progress reporting
+     * @param requestor        Handles making the http request
+     * @param server           Address of the request target
+     * @param includeSyncToken Add sync token to the request
+     */
+    protected RemoteDataPullResponse(DataPullTask task,
+                                     HttpRequestGenerator requestor,
+                                     String server,
+                                     boolean includeSyncToken) throws IOException {
+        this.response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         this.responseCode = response.getStatusLine().getStatusCode();
         this.task = task;
     }

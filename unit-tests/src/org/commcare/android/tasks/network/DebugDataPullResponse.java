@@ -6,6 +6,11 @@ import org.javarosa.core.reference.ReferenceManager;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Data pulling requester that gets data from a local reference.
+ *
+ * @author Phillip Mates (pmates@dimagi.com).
+ */
 public class DebugDataPullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 

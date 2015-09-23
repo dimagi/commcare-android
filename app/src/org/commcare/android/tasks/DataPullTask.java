@@ -18,8 +18,8 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.tasks.network.DataPullRequester;
 import org.commcare.android.tasks.network.DataPullResponseFactory;
-import org.commcare.android.tasks.network.PullResponseBuilder;
 import org.commcare.android.tasks.network.RemoteDataPullResponse;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
@@ -96,7 +96,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
-    private PullResponseBuilder pullResponseBuilder;
+    private DataPullRequester dataPullRequester;
     
     public DataPullTask(String username, String password, String server, Context c) {
         this.server = server;
@@ -104,14 +104,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         this.password = password;
         this.c = c;
         this.taskId = DATA_PULL_TASK_ID;
-        this.pullResponseBuilder = new DataPullResponseFactory();
+        this.dataPullRequester = new DataPullResponseFactory();
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
-    public DataPullTask(String username, String password, String server, Context c, PullResponseBuilder pullResponseBuilder) {
+    public DataPullTask(String username, String password, String server, Context c, DataPullRequester dataPullRequester) {
         this(username, password, server, c);
-        this.pullResponseBuilder = pullResponseBuilder;
+        this.dataPullRequester = dataPullRequester;
     }
 
     @Override
@@ -214,7 +214,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
-                RemoteDataPullResponse pullResponse = pullResponseBuilder.buildResponse(this, requestor, server, useRequestFlags);
+                RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
                 Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
 
                 if(pullResponse.responseCode == 401) {
@@ -371,7 +371,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //work
         try {
             // Make a new request without all of the flags
-            RemoteDataPullResponse pullResponse = pullResponseBuilder.buildResponse(this, requestor, server, false);
+            RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, false);
 
             //We basically only care about a positive response, here. Anything else would have been caught by the other request.
             if(!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {

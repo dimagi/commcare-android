@@ -5,7 +5,12 @@ import org.commcare.android.tasks.DataPullTask;
 
 import java.io.IOException;
 
-public class DebugDataPullResponseFactory implements PullResponseBuilder {
+/**
+ * Builds data pull requester that gets data from a local reference.
+ *
+ * @author Phillip Mates (pmates@dimagi.com).
+ */
+public class DebugDataPullResponseFactory implements DataPullRequester {
     private final String xmlPayloadReference;
 
     public DebugDataPullResponseFactory(String xmlPayloadReference) {
@@ -13,10 +18,10 @@ public class DebugDataPullResponseFactory implements PullResponseBuilder {
     }
 
     @Override
-    public RemoteDataPullResponse buildResponse(DataPullTask task,
-                                                HttpRequestGenerator requestor,
-                                                String server,
-                                                boolean useRequestFlags) throws IOException {
+    public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
+                                                      HttpRequestGenerator requestor,
+                                                      String server,
+                                                      boolean includeSyncToken) throws IOException {
         return new DebugDataPullResponse(xmlPayloadReference);
     }
 }
