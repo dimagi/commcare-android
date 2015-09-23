@@ -88,11 +88,9 @@ public class AppInitializationTest {
         String username = "";
         String password = "";
         String restoreServer = "";
-        String keyProvider = "";
         Application appContext = RuntimeEnvironment.application;
         DataPullTask<Object> dataPuller =
-                new DataPullTask<Object>(username, password, restoreServer,
-                        keyProvider, appContext) {
+                new DataPullTask<Object>(username, password, restoreServer, appContext) {
                     @Override
                     protected void deliverResult(Object receiver, Integer result) {
                     }
