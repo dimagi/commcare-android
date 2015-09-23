@@ -1,18 +1,15 @@
 package org.commcare.android.tests.initialization;
 
-import android.app.Application;
-
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ResourceEngineTask;
-import org.commcare.android.tasks.network.DebugDataPullResponseFactory;
-import org.commcare.android.tasks.network.PullResponseBuilder;
 import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
@@ -31,6 +28,10 @@ import org.robolectric.annotation.Config;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AppInitializationTest {
+    private final String username = "fp";
+    private final String password = "123";
+    private static final CommCareTaskConnectorFake<Object> fakeConnector = new CommCareTaskConnectorFake<>();
+
     @Before
     public void setup() {
         Robolectric.getBackgroundThreadScheduler().pause();
@@ -46,7 +47,9 @@ public class AppInitializationTest {
 
         installApp();
 
-        restoreUser();
+        DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
+                CommCareApplication._().getCurrentApp(),
+                username, password);
     }
 
     private void installApp() {
@@ -76,7 +79,7 @@ public class AppInitializationTest {
                         System.out.print("error");
                     }
                 };
-        task.connect(new CommCareTaskConnectorFake<>());
+        task.connect(fakeConnector);
 
         String filepath = "/commcare-apps/flipper/profile.ccpr";
         String resourceFilepath = "jr://resource" + filepath;
@@ -85,33 +88,7 @@ public class AppInitializationTest {
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
     }
-
-    private void restoreUser() {
-        String username = "";
-        String password = "";
-        String restoreServer = "";
-        Application appContext = RuntimeEnvironment.application;
-        PullResponseBuilder debugResponseBuilder = new DebugDataPullResponseFactory("jr://resource/restore-data/test-user.xml");
-        DataPullTask<Object> dataPuller =
-                new DataPullTask<Object>(username, password, restoreServer, appContext, debugResponseBuilder) {
-                    @Override
-                    protected void deliverResult(Object receiver, Integer result) {
-                    }
-
-                    @Override
-                    protected void deliverUpdate(Object receiver, Integer... update) {
-                    }
-
-                    @Override
-                    protected void deliverError(Object receiver, Exception e) {
-                    }
-                };
-
-        dataPuller.connect(new CommCareTaskConnectorFake<>());
-        dataPuller.execute();
-    }
-
     @Test
-    public void verifyApp() {
+    public void testAppInit() {
     }
 }

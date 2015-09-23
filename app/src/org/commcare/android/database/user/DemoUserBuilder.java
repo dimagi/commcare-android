@@ -44,6 +44,10 @@ public class DemoUserBuilder {
         (new DemoUserBuilder(context, ccApp, DEMO_USERNAME, DEMO_PASSWORD)).createAndWriteKeyRecordAndUser();
     }
 
+    public static synchronized void buildTestUser(Context context, CommCareApp ccApp, String username, String password) {
+        (new DemoUserBuilder(context, ccApp, username, password)).createAndWriteKeyRecordAndUser();
+    }
+
     private void createAndWriteKeyRecordAndUser() {
         int userCount = keyRecordDB.getIDsForValue(UserKeyRecord.META_USERNAME, username).size();
 
