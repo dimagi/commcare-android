@@ -56,5 +56,5 @@ public class GlobalConstants {
             "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
             "HaAJkjpnc165Os+aYwIDAQAB";
 
-    public static final String SMS_INSTALL_KEY_STRING = "[COMMCARE APP - DO NOT DELETE]";
+    public static final String SMS_INSTALL_KEY_STRING = "[commcare app - do not delete]";
 }

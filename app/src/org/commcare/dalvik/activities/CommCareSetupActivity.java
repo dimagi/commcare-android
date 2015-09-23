@@ -44,6 +44,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
 
@@ -580,6 +581,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // possibly we want to do something more severe here? could be malicious
             e.printStackTrace();
             Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+        } catch(IOException e){
+            // couldn't get the acutal message payload - possible internet issue?
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
         }
         if (profileLink != null) {
             // we found a valid profile link, either start install automatically
@@ -607,7 +612,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return the verified install link, null if none found
      * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
      */
-    private String scanSMSLinks() throws SignatureException{
+    private String scanSMSLinks() throws SignatureException, IOException{
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
@@ -616,7 +621,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 while (!cursor.isAfterLast()) {
                     String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                     if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                        String installLink = SigningUtil.parseAndVerifySMS(textMessageBody);
+                        String installLink = SigningUtil.retrieveParseAndVerifyURL(textMessageBody);
                         if (installLink != null) {
                             return installLink;
                         }

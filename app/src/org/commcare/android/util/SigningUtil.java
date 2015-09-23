@@ -3,7 +3,11 @@ package org.commcare.android.util;
 import org.commcare.android.logic.GlobalConstants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +34,20 @@ import java.security.spec.X509EncodedKeySpec;
  * Created by wpride1 on 9/11/15.
  */
 public class SigningUtil {
+
+
+    /**
+     * Retrieve the text message at the URL, then process this URL into a CommCare install message
+     * and verify its authenticity
+     * @param url the URL storing the CommCare encoded install message
+     * @return the download link if the message was valid and verified, null otherwise
+     * @throws SignatureException
+     */
+    public static String retrieveParseAndVerifyURL(String url) throws SignatureException, IOException {
+        String text = readURL(url);
+        return parseAndVerifySMS(text);
+    }
+
     /**
      *
      * @param text the parsed out text message in the expected link/signature format
@@ -65,7 +83,6 @@ public class SigningUtil {
      */
     public static byte[] getSignatureBytes(String textMessage) throws Exception {
         byte[] messageBytes = getBytesFromSMS(textMessage);
-        String decodedMessageString = parseAndDecodeSMS(textMessage);
         int lastSpaceIndex = getSignatureStartIndex(messageBytes);
         int signatureByteLength = messageBytes.length - lastSpaceIndex;
         byte[] signatureBytes = new byte[signatureByteLength];
@@ -73,6 +90,11 @@ public class SigningUtil {
             signatureBytes[i] = messageBytes[i + lastSpaceIndex];
         }
         return signatureBytes;
+    }
+
+    public int getLastSpaceIndex(String textMessage) throws Exception{
+        byte[] messageBytes = getBytesFromSMS(textMessage);
+        return getSignatureStartIndex(messageBytes);
     }
 
     /**
@@ -176,6 +198,21 @@ public class SigningUtil {
             throw new SignatureException();
         }
         return decodedMessage;
+    }
 
+    /**
+     * Read the data from the URL arg and return as a string (only return first line)
+     */
+    public static String readURL(String url) throws IOException {
+        String acc = "";
+        URL oracle = new URL(url);
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(oracle.openStream()));
+        String inputLine;
+        // only return the first line
+        if ((inputLine = in.readLine()) != null)
+            acc = inputLine;
+        in.close();
+        return acc;
     }
 }
