@@ -460,7 +460,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             DemoUserUtil.checkOrCreateDemoUser(this, CommCareApplication._().getCurrentApp());
             
             //Now try to log in as the demo user
-            tryLocalLogin(DemoUserUtil.DEMO_USER, DemoUserUtil.DEMO_USER, false);
+            tryLocalLogin(DemoUserUtil.DEMO_USERNAME, DemoUserUtil.DEMO_PASSWORD, false);
             
             return true;
         case MENU_ABOUT:

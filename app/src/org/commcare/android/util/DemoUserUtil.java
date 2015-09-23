@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import android.content.Context;
@@ -21,17 +18,17 @@ import org.javarosa.core.util.PropertyUtils;
 import java.util.Date;
 
 /**
- * Placeholders for demo user stuff.
- * 
- * @author ctsims
+ * Demo KeyRecord and User creation
  *
+ * @author ctsims
  */
 public class DemoUserUtil {
-    public static final String DEMO_USER = "demo_user";
+    public static final String DEMO_USERNAME = "demo_user";
+    public static final String DEMO_PASSWORD = "demo_user";
 
     public static synchronized void checkOrCreateDemoUser(Context c, CommCareApp currentApp) {
         SqlStorage<UserKeyRecord> keys = currentApp.getStorage(UserKeyRecord.class);
-        int demoUsers = keys.getIDsForValue(UserKeyRecord.META_USERNAME, DEMO_USER).size();
+        int demoUsers = keys.getIDsForValue(UserKeyRecord.META_USERNAME, DEMO_USERNAME).size();
         
         if(demoUsers > 1) {
             //There should _not_ be more than one demo user record here, we should probably
@@ -40,12 +37,12 @@ public class DemoUserUtil {
             
             byte[] newRandomKey = CryptUtil.generateSemiRandomKey().getEncoded();
             
-            String duserHash = UserKeyRecord.generatePwdHash(DEMO_USER);
+            String duserHash = UserKeyRecord.generatePwdHash(DEMO_PASSWORD);
             
             //Create us a demo user sandbox
             //TODO: D'oh, looks like keys with no expiry arent' working, just make it inestimably long instead. 
-            UserKeyRecord keyRecord = new UserKeyRecord(DEMO_USER, duserHash, 
-                                                        CryptUtil.wrapKey(newRandomKey, DEMO_USER),
+            UserKeyRecord keyRecord = new UserKeyRecord(DEMO_USERNAME, duserHash,
+                                                        CryptUtil.wrapKey(newRandomKey, DEMO_PASSWORD),
                                                         new Date(0), new Date(Long.MAX_VALUE - 1), PropertyUtils.genUUID().replace("-",""));
             keys.write(keyRecord);
             
@@ -55,12 +52,10 @@ public class DemoUserUtil {
                 userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(newRandomKey));
                 
                 //Now we need an arbitrary user record
-                User demoUser = new User(DEMO_USER, duserHash, DEMO_USER, User.TYPE_DEMO);
+                User demoUser = new User(DEMO_USERNAME, duserHash, DEMO_USERNAME, User.TYPE_DEMO);
                 
-                SqlStorage<User> userStorage = new SqlStorage<User>(User.STORAGE_KEY, User.class, new DirectDbHelper(c, userDatabase));
+                SqlStorage<User> userStorage = new SqlStorage<>(User.STORAGE_KEY, User.class, new DirectDbHelper(c, userDatabase));
                 userStorage.write(demoUser);
-                
-                //TODO: Demo fixtures?
             } finally {
                 if(userDatabase != null) {
                     userDatabase.close();
