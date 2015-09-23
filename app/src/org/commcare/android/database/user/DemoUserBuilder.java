@@ -30,22 +30,34 @@ public class DemoUserBuilder {
     private final SqlStorage<UserKeyRecord> keyRecordDB;
     private final String username;
     private final String password;
+    private final String userType;
     private String passwordHash;
     private byte[] randomKey;
 
-    private DemoUserBuilder(Context context, CommCareApp ccApp, String username, String password) {
+    private DemoUserBuilder(Context context, CommCareApp ccApp, String username, String password, boolean isDemo) {
         this.context = context;
         this.keyRecordDB = ccApp.getStorage(UserKeyRecord.class);
         this.username = username;
         this.password = password;
+        if (isDemo) {
+            userType = User.TYPE_DEMO;
+        } else{
+            userType = User.TYPE_STANDARD;
+        }
     }
 
+    /**
+     * Create demo UserKeyRecord and User and write it the the databse
+     */
     public static synchronized void build(Context context, CommCareApp ccApp) {
-        (new DemoUserBuilder(context, ccApp, DEMO_USERNAME, DEMO_PASSWORD)).createAndWriteKeyRecordAndUser();
+        (new DemoUserBuilder(context, ccApp, DEMO_USERNAME, DEMO_PASSWORD, true)).createAndWriteKeyRecordAndUser();
     }
 
+    /**
+     * Create a test UserKeyRecord and User for testing purposes, writing them to the database.
+     */
     public static synchronized void buildTestUser(Context context, CommCareApp ccApp, String username, String password) {
-        (new DemoUserBuilder(context, ccApp, username, password)).createAndWriteKeyRecordAndUser();
+        (new DemoUserBuilder(context, ccApp, username, password, false)).createAndWriteKeyRecordAndUser();
     }
 
     private void createAndWriteKeyRecordAndUser() {
@@ -83,7 +95,7 @@ public class DemoUserBuilder {
             userDatabase = new CommCareUserOpenHelper(CommCareApplication._(),
                     keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(randomKey));
 
-            User user = new User(username, passwordHash, username, User.TYPE_DEMO);
+            User user = new User(username, passwordHash, username, userType);
 
             SqlStorage<User> userStorage =
                     new SqlStorage<>(User.STORAGE_KEY, User.class, new DirectDbHelper(context, userDatabase));

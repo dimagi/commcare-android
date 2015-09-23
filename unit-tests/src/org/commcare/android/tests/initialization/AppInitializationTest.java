@@ -2,93 +2,61 @@ package org.commcare.android.tests.initialization;
 
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.DemoUserBuilder;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.suite.model.Profile;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
-import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /**
+ * Tests that use the ability to install a CommCare app and login as a test
+ * user.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = org.commcare.dalvik.application.CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AppInitializationTest {
-    private final String username = "fp";
-    private final String password = "123";
-    private static final CommCareTaskConnectorFake<Object> fakeConnector = new CommCareTaskConnectorFake<>();
 
     @Before
     public void setup() {
         Robolectric.getBackgroundThreadScheduler().pause();
         Robolectric.getForegroundThreadScheduler().pause();
 
+        // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
+        setupPrototypeFactory();
+
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller("jr://resource/commcare-apps/flipper/profile.ccpr",
+                        "fp", "123");
+        appTestInstaller.installAppAndLogin();
+    }
+
+    private void setupPrototypeFactory() {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
         LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
         PrototypeFactory.setStaticHasher(prototypeFactory);
         DbUtil.setDBUtilsPrototypeFactory(prototypeFactory);
-
-        installApp();
-
-        DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
-                CommCareApplication._().getCurrentApp(),
-                username, password);
     }
 
-    private void installApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        CommCareApp app = new CommCareApp(newRecord);
-        ResourceEngineTask<Object> task =
-                new ResourceEngineTask<Object>(false, app, false, -1, false) {
-
-                    @Override
-                    protected void deliverResult(Object receiver,
-                                                 ResourceEngineOutcomes result) {
-                        System.out.print("result");
-                    }
-
-                    @Override
-                    protected void deliverUpdate(Object receiver,
-                                                 int[]... update) {
-                        System.out.print("update");
-                    }
-
-                    @Override
-                    protected void deliverError(Object receiver,
-                                                Exception e) {
-                        System.out.print("error");
-                    }
-                };
-        task.connect(fakeConnector);
-
-        String filepath = "/commcare-apps/flipper/profile.ccpr";
-        String resourceFilepath = "jr://resource" + filepath;
-        task.execute(resourceFilepath);
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-    }
     @Test
     public void testAppInit() {
+        Assert.assertFalse(CommCareApplication._().isUpdatePending());
+
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Assert.assertTrue(p.getVersion() == 17);
     }
 }
