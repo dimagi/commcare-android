@@ -1,19 +1,12 @@
-/**
- *
- */
 package org.commcare.android.javarosa;
-
-import android.content.Context;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.User;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -28,19 +21,13 @@ import java.util.Date;
 public class DeviceReportWriter {
     public static final String XMLNS = "http://code.javarosa.org/devicereport";
 
-    Context mContext;
-    XmlSerializer serializer;
-    ByteArrayOutputStream baos;
-    OutputStream os;
-    StreamLogSerializer logSerializer;
-
-    ArrayList<DeviceReportElement> elements = new ArrayList<DeviceReportElement>();
-
+    private final XmlSerializer serializer;
+    private final OutputStream os;
+    private final ArrayList<DeviceReportElement> elements = new ArrayList<>();
 
     public DeviceReportWriter(DeviceReportRecord record) throws IOException {
         this(record.openOutputStream());
     }
-
 
     public DeviceReportWriter(OutputStream outputStream) throws IOException {
         os = outputStream;
@@ -62,7 +49,6 @@ public class DeviceReportWriter {
             serializer.startDocument("UTF-8", null);
             serializer.startTag(XMLNS, "device_report");
             try {
-
                 //All inner elements are supposed to catch their errors and wrap them, so we
                 //can safely catch any of the processing issues
                 try {
@@ -80,23 +66,15 @@ public class DeviceReportWriter {
                     } catch (Exception e) {
                     }
                 }
-
-            } catch (Exception e) {
-
             } finally {
                 serializer.endTag(XMLNS, "device_report");
             }
 
             serializer.endDocument();
-
         } finally {
-
-            //Close that stream! 
             try {
                 os.close();
             } catch (IOException e) {
-                //unclear whether "end" will close it for us on certain platforms,
-                //so don't choke if it's already closed.
             }
         }
     }
@@ -122,7 +100,6 @@ public class DeviceReportWriter {
         } finally {
             serializer.endTag(XMLNS, "user_subreport");
         }
-
     }
 
     private void writeUser(User user) throws IllegalArgumentException, IllegalStateException, IOException {

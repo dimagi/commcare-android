@@ -116,7 +116,7 @@ public class GraphView {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
         }
         if (Graph.TYPE_TIME.equals(mData.getType())) {
-            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, title, getTimeFormat());
+            return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, getTimeFormat(), title);
         }
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT, title);

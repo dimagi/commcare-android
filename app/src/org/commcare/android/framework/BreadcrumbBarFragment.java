@@ -235,6 +235,10 @@ public class BreadcrumbBarFragment extends Fragment {
 
         final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
 
+        if(inlineDetail == null) {
+            infoButton.setVisibility(View.GONE);
+        }
+
         OnClickListener toggleButtonClickListener = new OnClickListener() {
 
             private boolean isClosed = true;

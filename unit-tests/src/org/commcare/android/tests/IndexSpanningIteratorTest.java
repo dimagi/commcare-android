@@ -1,16 +1,23 @@
 package org.commcare.android.tests;
 
-import static junit.framework.Assert.assertEquals;
+import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.IndexSpanningIterator;
+import org.commcare.android.mocks.ExtendedTestCursor;
+import org.commcare.dalvik.BuildConfig;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.Vector;
 
-import org.commcare.android.database.IndexSpanningIterator;
-import org.commcare.android.mocks.ExtendedTestCursor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static junit.framework.Assert.assertEquals;
 
+@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
+        constants = BuildConfig.class)
+@RunWith(CommCareTestRunner.class)
 public class IndexSpanningIteratorTest {
 
     @Before
@@ -55,11 +62,11 @@ public class IndexSpanningIteratorTest {
         testSpans(i(4,8,9,12), i(1, 2, 3, 5, 6, 7, 10, 11));
     }
     
-    public void testSpans(int[] inputs, int[] expected) {
+    private void testSpans(int[] inputs, int[] expected) {
         testSpans(inputs, expected,expected[0], inputs[inputs.length - 1], expected.length);
     }
     
-    public void testSpans(int[] inputs, int[] expected, int min, int max, int count) {
+    private void testSpans(int[] inputs, int[] expected, int min, int max, int count) {
         Integer[][] master = new Integer[inputs.length][1];
         for(int i = 0 ; i < inputs.length; ++i ) {
             master[i] = new Integer[] {inputs[i]};

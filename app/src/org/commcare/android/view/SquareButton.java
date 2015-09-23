@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ImageButton;
 
 /**
- * Created by dancluna on 3/14/15.
+ * @author Daniel Luna (dluna@dimagi.com)
  */
 public class SquareButton extends ImageButton {
     public SquareButton(Context context) {

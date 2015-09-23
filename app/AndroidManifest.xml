@@ -99,6 +99,11 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
 
+        <activity
+            android:name=".activities.CrashWarningActivity"
+            android:label="CommCare Forced Closure" >
+        </activity>
+
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
 

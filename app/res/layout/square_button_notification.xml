@@ -8,7 +8,7 @@
         android:id="@+id/square_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundcolor="@color/blue"
+        app:backgroundColor="@color/blue"
         />
        <TextView
            android:id="@+id/button_subtext"
