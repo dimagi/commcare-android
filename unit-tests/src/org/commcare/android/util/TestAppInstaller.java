@@ -15,7 +15,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 
 /**
- * Functionality to install an app from local storage, create a test user, log into a user session
+ * Functionality to install an app from local storage, create a test user, log
+ * into a user session
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -103,5 +104,4 @@ public class TestAppInstaller {
         }
         return null;
     }
-
 }
