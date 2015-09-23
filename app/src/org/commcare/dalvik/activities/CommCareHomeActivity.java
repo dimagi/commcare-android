@@ -981,11 +981,13 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
-        dispatchHomeScreen();
+        attemptDispatchHomeScreen();
     }
 
-    //decide if we should even be in the home activity
-    private void dispatchHomeScreen() {
+    /**
+     * Decides if we should actually be on the home screen, or else should redirect elsewhere
+     */
+    private void attemptDispatchHomeScreen() {
 
         // Before anything else, see if we're in a failing db state
         int dbState = CommCareApplication._().getDatabaseState();
@@ -1020,7 +1022,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                     boolean unseated = handleUnusableApp(currentRecord);
                     if (unseated) {
                         // Recurse in order to make the correct decision based on the new state
-                        dispatchHomeScreen();
+                        attemptDispatchHomeScreen();
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in

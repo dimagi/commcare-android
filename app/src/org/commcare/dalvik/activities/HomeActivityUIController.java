@@ -245,7 +245,6 @@ public class HomeActivityUIController {
             if (viewIncompleteFormsButton != null) {
                 viewIncompleteFormsButton.setText(incompleteIndicator);
             }
-
         } else {
             Log.i("syncDetails", "SyncDetails has no count");
             if (viewIncompleteFormsButton != null) {
