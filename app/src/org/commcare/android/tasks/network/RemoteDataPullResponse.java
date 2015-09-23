@@ -1,4 +1,4 @@
-package org.commcare.android.tasks;
+package org.commcare.android.tasks.network;
 
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
@@ -42,7 +43,7 @@ public class RemoteDataPullResponse {
     public BitCache writeResponseToCache(Context c) throws IOException {
         BitCache cache = null;
         try {
-            final long dataSizeGuess = guessDataSize(response);
+            final long dataSizeGuess = guessDataSize();
 
             cache = BitCacheFactory.getCache(c, dataSizeGuess);
 
@@ -110,7 +111,7 @@ public class RemoteDataPullResponse {
      *
      * @return -1 for unknown.
      */
-    protected long guessDataSize(HttpResponse response) {
+    protected long guessDataSize() {
         if (response.containsHeader("Content-Length")) {
             String length = response.getFirstHeader("Content-Length").getValue();
             try {

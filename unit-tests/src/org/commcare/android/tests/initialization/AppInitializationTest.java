@@ -8,6 +8,8 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.network.DebugDataPullResponseFactory;
+import org.commcare.android.tasks.network.PullResponseBuilder;
 import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
@@ -89,8 +91,9 @@ public class AppInitializationTest {
         String password = "";
         String restoreServer = "";
         Application appContext = RuntimeEnvironment.application;
+        PullResponseBuilder debugResponseBuilder = new DebugDataPullResponseFactory("jr://resource/restore-data/test-user.xml");
         DataPullTask<Object> dataPuller =
-                new DataPullTask<Object>(username, password, restoreServer, appContext) {
+                new DataPullTask<Object>(username, password, restoreServer, appContext, debugResponseBuilder) {
                     @Override
                     protected void deliverResult(Object receiver, Integer result) {
                     }
