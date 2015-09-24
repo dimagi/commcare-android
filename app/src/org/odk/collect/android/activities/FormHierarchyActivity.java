@@ -306,7 +306,7 @@ public class FormHierarchyActivity extends ListActivity {
     private void addNewRepeatHeading() {
         FormEntryCaption fc = FormEntryActivity.mFormController.getCaptionPrompt();
 
-        int fepIcon = R.drawable.avatar_vellum_question_list;
+        int fepIcon = R.drawable.avatar_vellum_repeat_group;
         formList.add(new HierarchyElement(fc.getLongText(), null, getResources().getDrawable(fepIcon),
                 Color.WHITE, QUESTION, fc.getIndex()));
     }
