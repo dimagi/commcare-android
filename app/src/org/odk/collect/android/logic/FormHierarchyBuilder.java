@@ -20,7 +20,7 @@ import java.util.List;
 public class FormHierarchyBuilder {
     private final List<HierarchyElement> formList;
     private final Context context;
-    private boolean atBeginningOfForm;
+    private String hierarchyPath;
 
     private String enclosingGroupRef = "";
 
@@ -29,11 +29,11 @@ public class FormHierarchyBuilder {
         this.context = context;
     }
 
-    public static boolean build(Context context, List<HierarchyElement> formList, FormIndex currentIndex) {
+    public static String build(Context context, List<HierarchyElement> formList, FormIndex currentIndex) {
         FormHierarchyBuilder builder = new FormHierarchyBuilder(context, formList);
         builder.hierarchyIndexSetup(currentIndex);
         builder.buildHierarchyList();
-        return builder.atBeginningOfForm;
+        return builder.hierarchyPath;
     }
 
     public void hierarchyIndexSetup(FormIndex currentIndex) {
@@ -75,9 +75,9 @@ public class FormHierarchyBuilder {
         int event = FormEntryActivity.mFormController.getEvent();
         if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
-            atBeginningOfForm = true;
+            hierarchyPath = "";
         } else {
-            atBeginningOfForm = false;
+            hierarchyPath = FormHierarchyActivity.getCurrentPath();
         }
     }
 
@@ -93,6 +93,10 @@ public class FormHierarchyBuilder {
                 case FormEntryController.EVENT_GROUP:
                     break;
                 case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
+                    if (indexPointsToReference(enclosingGroupRef)) {
+                        // done showing elements in a repeat entry
+                        return;
+                    }
                     addNewRepeatHeading();
                     break;
                 case FormEntryController.EVENT_REPEAT:
