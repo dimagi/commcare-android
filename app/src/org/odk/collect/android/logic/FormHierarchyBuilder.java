@@ -15,6 +15,8 @@ import org.odk.collect.android.activities.FormHierarchyActivity;
 import java.util.List;
 
 /**
+ * Traverses the form building a hierarchy representation of the form.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormHierarchyBuilder {
@@ -29,14 +31,24 @@ public class FormHierarchyBuilder {
         this.context = context;
     }
 
-    public static String build(Context context, List<HierarchyElement> formList, FormIndex currentIndex) {
+    /**
+     * Builds the form hierarchy list starting at the form controller's current index.
+     *
+     * @param context  Used for drawable resource loading
+     * @param formList hierarchy elements are added to this list
+     * @return Path representing the nesting level of the entries being shown
+     */
+    public static String populateHierarchyList(Context context, List<HierarchyElement> formList) {
         FormHierarchyBuilder builder = new FormHierarchyBuilder(context, formList);
-        builder.hierarchyIndexSetup(currentIndex);
+
+        builder.hierarchyIndexSetup();
         builder.buildHierarchyList();
+
         return builder.hierarchyPath;
     }
 
-    public void hierarchyIndexSetup(FormIndex currentIndex) {
+    private void hierarchyIndexSetup() {
+        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
         // If we're not at the first level, we're inside a repeated group so we want to only display
         // everything enclosed within that group.
 
@@ -81,7 +93,7 @@ public class FormHierarchyBuilder {
         }
     }
 
-    public void buildHierarchyList() {
+    private void buildHierarchyList() {
         // Refresh the current event in case we did step forward.
         int event = FormEntryActivity.mFormController.getEvent();
 
@@ -113,6 +125,15 @@ public class FormHierarchyBuilder {
         }
     }
 
+    private boolean indexRefCompletelyPrefixedBy(String prefixReference) {
+        String indexReference =
+                FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+
+        return indexReference.length() >= prefixReference.length() &&
+                (prefixReference.equals(indexReference.substring(0, prefixReference.length())));
+    }
+
+
     private void addQuestionEntry() {
         FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
 
@@ -120,6 +141,11 @@ public class FormHierarchyBuilder {
         formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(),
                 fepIcon == -1 ? null : context.getResources().getDrawable(fepIcon),
                 Color.WHITE, HierarchyEntryType.question, fp.getIndex()));
+    }
+
+    private boolean indexPointsToReference(String reference) {
+        String ref = FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+        return reference.compareTo(ref) == 0;
     }
 
     private void addNewRepeatHeading() {
@@ -159,19 +185,6 @@ public class FormHierarchyBuilder {
             event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
         }
         return event;
-    }
-
-    private boolean indexPointsToReference(String reference) {
-        String ref = FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
-        return reference.compareTo(ref) == 0;
-    }
-
-    private boolean indexRefCompletelyPrefixedBy(String prefixReference) {
-        String indexReference =
-                FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
-
-        return indexReference.length() >= prefixReference.length() &&
-                (prefixReference.equals(indexReference.substring(0, prefixReference.length())));
     }
 
     private void addRepeatChild() {

@@ -187,7 +187,7 @@ public class FormHierarchyActivity extends ListActivity {
 
         formList = new ArrayList<>();
 
-        String hierarchyPath = FormHierarchyBuilder.build(this, formList, currentIndex);
+        String hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
 
         setGoUpButton(hierarchyPath);
 
