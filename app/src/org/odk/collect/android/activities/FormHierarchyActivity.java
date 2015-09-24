@@ -2,7 +2,6 @@ package org.odk.collect.android.activities;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -26,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
-    public static final String TITLE_TEXT_KEY = "activity-title-text";
-
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
@@ -43,7 +40,7 @@ public class FormHierarchyActivity extends ListActivity {
         // We use a static FormEntryController to make jumping faster.
         mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
-        setTitleText();
+        setTitle(Localization.get("form.hierarchy"));
 
         mPath = (TextView)findViewById(R.id.pathtext);
 
@@ -94,17 +91,6 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
-    }
-
-    private void setTitleText() {
-        String titleText;
-        Intent i = getIntent();
-        if (i.hasExtra(TITLE_TEXT_KEY)) {
-            titleText = i.getStringExtra(TITLE_TEXT_KEY);
-        } else {
-            titleText = Localization.get("home.menu.saved.forms");
-        }
-        setTitle(titleText);
     }
 
     private void addActionBarBackArrow() {
