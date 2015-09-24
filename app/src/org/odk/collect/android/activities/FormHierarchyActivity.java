@@ -257,50 +257,36 @@ public class FormHierarchyActivity extends ListActivity {
         // Refresh the current event in case we did step forward.
         int event = FormEntryActivity.mFormController.getEvent();
 
-        // There may be repeating Groups at this level of the hierarchy, we use this variable to
-        // keep track of them.
-        String repeatedGroupRef = "";
         while (event != FormEntryController.EVENT_END_OF_FORM && indexRefCompletelyPrefixedBy(enclosingGroupRef)) {
             switch (event) {
                 case FormEntryController.EVENT_QUESTION:
-                    FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
-
-                    int fepIcon = getFormEntryPromptIcon(fp);
-                    formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), fepIcon == -1 ? null : getResources().getDrawable(fepIcon),
-                            Color.WHITE, QUESTION, fp.getIndex()));
+                    addQuestionEntry();
                     break;
                 case FormEntryController.EVENT_GROUP:
-                    // ignore group events
                     break;
                 case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                    if (indexPointsToReference(enclosingGroupRef)) {
-                        // We were displaying a set of questions inside of a repeated group. This is
-                        // the end of that group.
-                        return;
-                    }
-
-                    if (indexPointsToReference(repeatedGroupRef)) {
-                        // This is the end of the current repeating group, so we reset the
-                        // repeatedGroupName variable
-                        repeatedGroupRef = "";
-                    }
-                    // We're in a repeating group, so skip this repeat prompt and move to the
-                    // next event.
                     addNewRepeatHeading();
                     break;
                 case FormEntryController.EVENT_REPEAT:
                     if (indexPointsToReference(enclosingGroupRef)) {
-                        // We were displaying a set of questions inside a repeated group. This is
-                        // the end of that group.
+                        // Done displaying entries in a repeat element because
+                        // we've reached the next repeat element.
                         return;
                     }
                     addRepeatHeading();
                     event = addRepeatChildren();
                     continue;
             }
-            event =
-                    FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+            event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         }
+    }
+
+    private void addQuestionEntry() {
+        FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
+
+        int fepIcon = getFormEntryPromptIcon(fp);
+        formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(), fepIcon == -1 ? null : getResources().getDrawable(fepIcon),
+                Color.WHITE, QUESTION, fp.getIndex()));
     }
 
     private void addNewRepeatHeading() {
