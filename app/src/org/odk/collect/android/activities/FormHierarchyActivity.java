@@ -2,6 +2,7 @@ package org.odk.collect.android.activities;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FormHierarchyActivity extends ListActivity {
+    public static final String TITLE_TEXT_KEY = "activity-title-text";
     private static final int CHILD = 1;
     private static final int EXPANDED = 2;
     private static final int COLLAPSED = 3;
@@ -47,7 +49,7 @@ public class FormHierarchyActivity extends ListActivity {
         // We use a static FormEntryController to make jumping faster.
         mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
-        setTitle(Localization.get("home.menu.saved.forms"));
+        setTitleText();
 
         mPath = (TextView)findViewById(R.id.pathtext);
 
@@ -98,6 +100,17 @@ public class FormHierarchyActivity extends ListActivity {
         });
 
         refreshView();
+    }
+
+    private void setTitleText() {
+        String titleText;
+        Intent i = getIntent();
+        if (i.hasExtra(TITLE_TEXT_KEY)) {
+            titleText = i.getStringExtra(TITLE_TEXT_KEY);
+        } else {
+            titleText = Localization.get("home.menu.saved.forms");
+        }
+        setTitle(titleText);
     }
 
     private void addActionBarBackArrow() {
@@ -291,6 +304,11 @@ public class FormHierarchyActivity extends ListActivity {
     }
 
     private void addNewRepeatHeading() {
+        FormEntryCaption fc = FormEntryActivity.mFormController.getCaptionPrompt();
+
+        int fepIcon = R.drawable.avatar_vellum_question_list;
+        formList.add(new HierarchyElement(fc.getLongText(), null, getResources().getDrawable(fepIcon),
+                Color.WHITE, QUESTION, fc.getIndex()));
     }
 
     private void addRepeatHeading() {

@@ -1203,6 +1203,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
+                i.putExtra(FormHierarchyActivity.TITLE_TEXT_KEY, getDefaultFormTitle());
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
@@ -2898,7 +2899,7 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
 
     private void addBreadcrumbBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            final String fragmentClass = this.getIntent().getStringExtra(TITLE_FRAGMENT_TAG);
             if (fragmentClass != null) {
                 final FragmentManager fm = this.getSupportFragmentManager();
 
