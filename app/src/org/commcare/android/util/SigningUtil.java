@@ -36,9 +36,9 @@ import java.security.spec.X509EncodedKeySpec;
  */
 public class SigningUtil {
 
-    public static String retrieveParseVerifyMessage(String url) throws SignatureException, IOException {
-        String markedMessagePayload = convertUrlToPayload(url);
-        String messagePayload = trimMessagePayload(markedMessagePayload);
+    public static String retrieveParseVerifyMessage(String markedUrl) throws SignatureException, IOException {
+        String url = trimMessagePayload(markedUrl);
+        String messagePayload = convertUrlToPayload(url);
         try {
             byte[] messagePayloadBytes = getBytesFromString(messagePayload);
             Pair<String, byte[]> messageAndBytes = getUrlAndSignatureFromPayload(messagePayloadBytes);
