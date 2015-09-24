@@ -1203,7 +1203,6 @@ public class FormEntryActivity extends FragmentActivity implements AnimationList
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 }
                 Intent i = new Intent(this, FormHierarchyActivity.class);
-                i.putExtra(FormHierarchyActivity.TITLE_TEXT_KEY, getDefaultFormTitle());
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
