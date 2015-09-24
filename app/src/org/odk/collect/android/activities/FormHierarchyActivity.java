@@ -164,7 +164,7 @@ public class FormHierarchyActivity extends ListActivity {
         refreshView();
     }
 
-    private String getCurrentPath() {
+    public static String getCurrentPath() {
         FormIndex index = stepIndexOut(FormEntryActivity.mFormController.getFormIndex());
 
         String path = "";
@@ -187,13 +187,9 @@ public class FormHierarchyActivity extends ListActivity {
 
         formList = new ArrayList<>();
 
-        boolean atBeginningOfForm = FormHierarchyBuilder.build(this, formList, currentIndex);
+        String hierarchyPath = FormHierarchyBuilder.build(this, formList, currentIndex);
 
-        if (atBeginningOfForm) {
-            setGoUpButton(true);
-        } else {
-            setGoUpButton(false);
-        }
+        setGoUpButton(hierarchyPath);
 
         HierarchyListAdapter itla = new HierarchyListAdapter(this);
         itla.setListItems(formList);
@@ -203,14 +199,14 @@ public class FormHierarchyActivity extends ListActivity {
         FormEntryActivity.mFormController.jumpToIndex(currentIndex);
     }
 
-    private void setGoUpButton(boolean isStart) {
-        if (isStart) {
+    private void setGoUpButton(String hierarchyPath) {
+        if ("".equals(hierarchyPath)) {
             mPath.setVisibility(View.GONE);
             jumpPreviousButton.setEnabled(false);
             jumpPreviousButton.setTextColor(getResources().getColor(R.color.edit_text_color));
         } else {
             mPath.setVisibility(View.VISIBLE);
-            mPath.setText(getCurrentPath());
+            mPath.setText(hierarchyPath);
             jumpPreviousButton.setEnabled(true);
             jumpPreviousButton.setTextColor(getResources().getColor(R.color.cc_brand_color));
         }
