@@ -1,12 +1,13 @@
 package org.commcare.android.util;
 
+import android.util.Pair;
+
 import org.commcare.android.logic.GlobalConstants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -35,35 +36,65 @@ import java.security.spec.X509EncodedKeySpec;
  */
 public class SigningUtil {
 
-
-    /**
-     * Retrieve the text message at the URL, then process this URL into a CommCare install message
-     * and verify its authenticity
-     * @param url the URL storing the CommCare encoded install message
-     * @return the download link if the message was valid and verified, null otherwise
-     * @throws SignatureException
-     */
-    public static String retrieveParseAndVerifyURL(String url) throws SignatureException, IOException {
-        String text = readURL(url);
-        return parseAndVerifySMS(text);
+    public static String retrieveParseVerifyMessage(String url) throws SignatureException, IOException {
+        String markedMessagePayload = convertUrlToPayload(url);
+        String messagePayload = trimMessagePayload(markedMessagePayload);
+        try {
+            byte[] messagePayloadBytes = getBytesFromString(messagePayload);
+            Pair<String, byte[]> messageAndBytes = getUrlAndSignatureFromPayload(messagePayloadBytes);
+            return verifyMessageAndBytes(messageAndBytes.first, messageAndBytes.second);
+        } catch(Exception e){
+            throw new SignatureException(e.getMessage());
+        }
     }
 
     /**
-     *
-     * @param text the parsed out text message in the expected link/signature format
-     * @return the download link if the message was valid and verified, null otherwise
-     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     * Given a trimmed byte[] payload, return the parsed out download link and signature
+     * @param payload
+     * @return Pair of <Download Link, Signature>
+     * @throws Exception Throw a generic exception if we fail during signature parse/verification
      */
-    public static String parseAndVerifySMS(String text) throws SignatureException {
-        // parse out the app link and signature. We assume there is a space after ccapp: and
-        // signature: and that the end of the signature is the end of the text content
+    public static Pair<String, byte[]> getUrlAndSignatureFromPayload(byte[] payload) throws Exception{
+        byte[] signatureBytes = getSignatureBytes(payload);
+        byte[] messageBytes = getMessageBytes(payload);
+        String downloadLink = getDownloadLink(messageBytes);
+        return new Pair<String, byte[]> (downloadLink, signatureBytes);
+    }
+
+
+    /**
+     * Given a URL, return the text at that location as a String
+     */
+    public static String convertUrlToPayload(String url) throws SignatureException, IOException {
+        String text = readURL(url);
+        return text;
+    }
+
+    // given the raw trimmed byte paylaod, return the message (everything before the signature)
+    public static byte[] getMessageBytes(byte[] payload){
+        int lastSpaceIndex = getSignatureStartIndex(payload);
+        int messageLength = lastSpaceIndex;
+        byte[] messageBytes = new byte[messageLength];
+        for(int i = 0; i< messageLength; i++){
+            messageBytes[i] = payload[i];
+        }
+        return messageBytes;
+    }
+
+    /**
+     * Given the link and signature, verify the link using the public key
+     * @param message the download link
+     * @param signature the signature bytes
+     * @return valid download link if verified, null if not verified
+     * @throws SignatureException if we have an internal error during verification
+     */
+    public static String verifyMessageAndBytes(String message, byte[] signature) throws SignatureException {
         try {
-            byte[] signatureBytes = getSignatureBytes(text);
-            String decodedMessage = parseAndDecodeSMS(text);
-            String downloadLink = getDownloadLink(decodedMessage);
-            boolean success = verifySMS(downloadLink, signatureBytes);
+            String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
+            boolean success = verifyMessageSignatureHelper(keyString, message, signature);
+
             if(success){
-                return downloadLink;
+                return message;
             }
         } catch(Exception e) {
             e.printStackTrace();
@@ -73,16 +104,29 @@ public class SigningUtil {
     }
 
     /**
+     * Given the raw message bytes not including the signature, convert to UTF-8 and parse out
+     * the download link
+     *
+     * @param messageBytes the raw bytes of the message payload (not the signature)
+     * @return the parsed out profile link
+     */
+    public static String getDownloadLink(byte[] messageBytes) throws Exception{
+        String textMessage =  new String(messageBytes, "UTF-8");
+        String downloadLink  = textMessage.substring(textMessage.indexOf("ccapp: ") + "ccapp: ".length(),
+                textMessage.indexOf("signature") - 1);
+        return downloadLink;
+    }
+
+    /**
      * Get the byte representation of the signature from the plaintext. We have to pull this out
      * directly because the conversion from Base64 can have a non-1:1 correspondence with the actual
      * bytes
      *
-     * @param textMessage
+     * @param messageBytes
      * @return the binary representation of the signtature
      * @throws Exception if any errors are encountered
      */
-    public static byte[] getSignatureBytes(String textMessage) throws Exception {
-        byte[] messageBytes = getBytesFromSMS(textMessage);
+    public static byte[] getSignatureBytes(byte[] messageBytes) throws Exception {
         int lastSpaceIndex = getSignatureStartIndex(messageBytes);
         int signatureByteLength = messageBytes.length - lastSpaceIndex;
         byte[] signatureBytes = new byte[signatureByteLength];
@@ -90,11 +134,6 @@ public class SigningUtil {
             signatureBytes[i] = messageBytes[i + lastSpaceIndex];
         }
         return signatureBytes;
-    }
-
-    public static int getLastSpaceIndex(String textMessage) throws Exception{
-        byte[] messageBytes = getBytesFromSMS(textMessage);
-        return getSignatureStartIndex(messageBytes);
     }
 
     /**
@@ -121,39 +160,18 @@ public class SigningUtil {
         return -1;
     }
 
-    /**
-     * @param textMessage the plain text SMS message
-     * @return the parsed out profile link
-     */
-    public static String getDownloadLink(String textMessage){
-        String downloadLink  = textMessage.substring(textMessage.indexOf("ccapp: ") + "ccapp: ".length(),
-                textMessage.indexOf("signature") - 1);
-        return downloadLink;
+    // given a text message, return the raw Base64 bytes
+    public static byte[] getBytesFromString(String stringMessage) throws Exception{
+        return Base64.decode(stringMessage);
     }
 
-    // given a text message, parse out the cruft and return the raw Base64 bytes
-    public static byte[] getBytesFromSMS(String newMessage) throws Exception{
-        return Base64.decode(parseMessage(newMessage));
-    }
-    // given a text message, parse out the cruft and return the raw String
-    private static String parseAndDecodeSMS(String newMessage) throws Exception {
-        String parsed = parseMessage(newMessage);
-        int lastSpaceIndex = getSignatureStartIndex(getBytesFromSMS(newMessage));
-        String messageString = parsed.substring(0, lastSpaceIndex);
-        return decodeEncodedSMS(messageString);
-    }
-
-    // given a text message, parse out the cruft and return
-    private static String parseMessage(String newMessage){
+    // given a text message, trim out the [commcare app - do not delete] and return
+    private static String trimMessagePayload(String newMessage){
         String parsed = newMessage.substring(newMessage.indexOf(GlobalConstants.SMS_INSTALL_KEY_STRING) +
                 GlobalConstants.SMS_INSTALL_KEY_STRING.length() + 1);
         return parsed;
     }
 
-    private static boolean verifySMS(String message, byte[] signature){
-        String keyString = GlobalConstants.CCHQ_PUBLIC_KEY;
-        return SigningUtil.verifyMessageSignatureHelper(keyString, message, signature);
-    }
     /**
      *
      * @param publicKeyString the known public key of CCHQ
@@ -186,20 +204,6 @@ public class SigningUtil {
         sign.initVerify(publicKey);
         sign.update(message);
         return sign.verify(signature);
-    }
-
-    private static String decodeEncodedSMS(String text) throws  SignatureException{
-        String decodedMessage = null;
-        try {
-            decodedMessage = new String(Base64.decode(text), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            throw new SignatureException();
-        } catch (Base64DecoderException e) {
-            e.printStackTrace();
-            throw new SignatureException();
-        }
-        return decodedMessage;
     }
 
     /**

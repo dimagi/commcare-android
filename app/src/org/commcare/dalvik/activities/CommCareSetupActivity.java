@@ -621,7 +621,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 while (!cursor.isAfterLast()) {
                     String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                     if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                        String installLink = SigningUtil.retrieveParseAndVerifyURL(textMessageBody);
+                        String installLink = SigningUtil.retrieveParseVerifyMessage(textMessageBody);
                         if (installLink != null) {
                             return installLink;
                         }
