@@ -191,6 +191,40 @@ public class FormHierarchyActivity extends ListActivity {
         // Record the current index so we can return to the same place if the user hits 'back'.
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
 
+        String enclosingGroupRef = hierarchyIndexSetup(currentIndex);
+
+        int event = FormEntryActivity.mFormController.getEvent();
+        if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
+            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+            setGoUpButton(true);
+        } else {
+            setGoUpButton(false);
+        }
+
+        buildHierarchyList(enclosingGroupRef);
+
+        HierarchyListAdapter itla = new HierarchyListAdapter(this);
+        itla.setListItems(formList);
+        setListAdapter(itla);
+
+        // set the controller back to the current index in case the user hits 'back'
+        FormEntryActivity.mFormController.jumpToIndex(currentIndex);
+    }
+
+    private void setGoUpButton(boolean isStart) {
+        if (isStart) {
+            mPath.setVisibility(View.GONE);
+            jumpPreviousButton.setEnabled(false);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.edit_text_color));
+        } else {
+            mPath.setVisibility(View.VISIBLE);
+            mPath.setText(getCurrentPath());
+            jumpPreviousButton.setEnabled(true);
+            jumpPreviousButton.setTextColor(getResources().getColor(R.color.cc_brand_color));
+        }
+    }
+
+    private String hierarchyIndexSetup(FormIndex currentIndex) {
         // If we're not at the first level, we're inside a repeated group so we want to only display
         // everything enclosed within that group.
         String enclosingGroupRef = "";
@@ -228,29 +262,7 @@ public class FormHierarchyActivity extends ListActivity {
                 FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             }
         }
-
-        int event = FormEntryActivity.mFormController.getEvent();
-        if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-            // The beginning of form has no valid prompt to display.
-            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
-            mPath.setVisibility(View.GONE);
-            jumpPreviousButton.setEnabled(false);
-            jumpPreviousButton.setTextColor(getResources().getColor(R.color.edit_text_color));
-        } else {
-            mPath.setVisibility(View.VISIBLE);
-            mPath.setText(getCurrentPath());
-            jumpPreviousButton.setEnabled(true);
-            jumpPreviousButton.setTextColor(getResources().getColor(R.color.cc_brand_color));
-        }
-
-        buildHierarchyList(enclosingGroupRef);
-
-        HierarchyListAdapter itla = new HierarchyListAdapter(this);
-        itla.setListItems(formList);
-        setListAdapter(itla);
-
-        // set the controller back to the current index in case the user hits 'back'
-        FormEntryActivity.mFormController.jumpToIndex(currentIndex);
+        return enclosingGroupRef;
     }
 
     private void buildHierarchyList(String enclosingGroupRef) {
