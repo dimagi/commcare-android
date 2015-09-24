@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
@@ -40,13 +41,11 @@ import org.commcare.xml.CommCareTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.model.xform.XPathReference;
@@ -304,7 +303,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
-                    } catch (StorageFullException e) {
+                    } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
                         return STORAGE_FULL;
@@ -640,7 +639,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
 
     private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException, StorageFullException {
+            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
         DataModelPullParser parser;
         
         factory.initCaseParser();
