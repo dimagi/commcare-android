@@ -47,6 +47,12 @@ public class HomeActivityUIController {
     private StaggeredGridView newGridView;
     private View mTopBanner;
 
+    private String syncKey = "home.sync";
+    private String lastMessageKey = "home.sync.message.last";
+    private String homeMessageKey = "home.start";
+    private String logoutMessageKey = "home.logout";
+    private Pair<Long, int[]> syncDetails;
+
     public HomeActivityUIController(CommCareHomeActivity activity) {
         this.activity = activity;
     }
@@ -257,56 +263,75 @@ public class HomeActivityUIController {
 
 
     protected void refreshView() {
+        refreshVersionText();
+        refreshButtonTextSources();
+        refreshHomeAndLogoutButtons();
+        refreshSyncDetails();
+        setIncompleteFormsText(syncDetails);
+        refreshSyncButton();
+        showSyncMessage();
+        setButtonVisibilities();
+        activity.updateCommCareBanner();
+        adapter.notifyDataSetChanged();
+    }
+
+
+    // region - all helper methods used by refreshView()
+
+    private void refreshVersionText() {
         TextView version = (TextView)activity.findViewById(R.id.str_version);
         if (version == null) {
             return;
         }
         version.setText(CommCareApplication._().getCurrentVersionString());
-        boolean syncOK = true;
+    }
 
-        Pair<Long, int[]> syncDetails;
-        try {
-            syncDetails = CommCareApplication._().getSyncDisplayParameters();
-        } catch (UserStorageClosedException e) {
-            activity.returnToLogin();
-            return;
-        }
-
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
-        int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
-
-        String syncKey = "home.sync";
-        String lastMessageKey = "home.sync.message.last";
-        String homeMessageKey = "home.start";
-        String logoutMessageKey = "home.logout";
-
+    private void refreshButtonTextSources() {
         if (activity.isDemoUser()) {
             syncKey = "home.sync.demo";
             lastMessageKey = "home.sync.message.last";
             homeMessageKey = "home.start.demo";
             logoutMessageKey = "home.logout.demo";
+        } else {
+            syncKey = "home.sync";
+            lastMessageKey = "home.sync.message.last";
+            homeMessageKey = "home.start";
+            logoutMessageKey = "home.logout";
         }
+    }
 
+    private void refreshHomeAndLogoutButtons() {
         if (startButton != null) {
             startButton.setText(Localization.get(homeMessageKey));
         }
         if (logoutButton != null) {
             logoutButton.setText(Localization.get(logoutMessageKey));
         }
+    }
+
+    private void refreshSyncDetails() {
+        try {
+            syncDetails = CommCareApplication._().getSyncDisplayParameters();
+        } catch (UserStorageClosedException e) {
+            activity.returnToLogin();
+            return;
+        }
+    }
+
+    private void refreshSyncButton() {
         if (syncButton != null) {
             setSyncButtonText(syncDetails, syncKey);
         }
+    }
 
-        CharSequence syncTime;
+    private void showSyncMessage() {
+        CharSequence lastSyncTime;
         if (syncDetails.first == 0) {
-            syncTime = Localization.get("home.sync.message.last.never");
+            lastSyncTime = Localization.get("home.sync.message.last.never");
         } else {
-            syncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
+            lastSyncTime = DateUtils.formatSameDayTime(syncDetails.first, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
 
-        //TODO: Localize this all
         String message = "";
         if (syncDetails.second[0] == 1) {
             message += Localization.get("home.sync.message.unsent.singular") + "\n";
@@ -314,44 +339,8 @@ public class HomeActivityUIController {
             message += Localization.get("home.sync.message.unsent.plural", new String[]{String.valueOf(syncDetails.second[0])}) + "\n";
         }
 
-        setIncompleteFormsText(syncDetails);
-
-        if (syncDetails.second[0] > unsentFormNumberLimit) {
-            syncOK = false;
-        }
-
-        long then = syncDetails.first;
-        long now = new Date().getTime();
-
-        int secs_ago = (int)((then - now) / 1000);
-        int days_ago = secs_ago / 86400;
-
-        if ((-days_ago) > unsentFormTimeLimit && (prefs.getString("server-tether", "push-only").equals("sync"))) {
-            syncOK = false;
-        }
-
-        message += Localization.get(lastMessageKey, new String[]{syncTime.toString()});
-
-        displayMessage(message, !syncOK, true);
-
-        //Make sure that the review button is properly enabled.
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
-        }
-
-        // set adapter to hide the buttons...
-        boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
-        boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
-
-        Log.i("ShowForms", "ShowSavedForms: " + showSavedForms + " | ShowIncompleteForms: " + showIncompleteForms);
-
-        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
-        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
-
-        activity.updateCommCareBanner();
-
-        adapter.notifyDataSetChanged();
+        message += Localization.get(lastMessageKey, new String[]{lastSyncTime.toString()});
+        displayMessage(message, syncNotOk(), true);
     }
 
     protected void displayMessage(String message, boolean bad, boolean suppressToast) {
@@ -360,5 +349,43 @@ public class HomeActivityUIController {
         }
         adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
     }
+
+    private boolean syncNotOk() {
+        return unsentFormNumberLimitExceeded() || unsentFormTimeLimitExceeded();
+    }
+
+    private boolean unsentFormNumberLimitExceeded() {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        int unsentFormNumberLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_NUMBER_KEY, "5"));
+        return syncDetails.second[0] > unsentFormNumberLimit;
+    }
+
+    private boolean unsentFormTimeLimitExceeded() {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
+
+        long then = syncDetails.first;
+        long now = new Date().getTime();
+        int secs_ago = (int)((then - now) / 1000);
+        int days_ago = secs_ago / 86400;
+
+        return ((-days_ago) > unsentFormTimeLimit) &&
+                prefs.getString("server-tether", "push-only").equals("sync");
+    }
+
+    private void setButtonVisibilities() {
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
+        }
+
+        boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
+        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
+
+        boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
+        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
+    }
+
+    // endregion
 
 }
