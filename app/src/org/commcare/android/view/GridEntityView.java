@@ -133,9 +133,9 @@ public class GridEntityView extends GridLayout {
 		int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
 
         //an additional row for every 160dpi
-        double extraDensity = (int)((densityDpi - defaultDensityDpi / 80)) * 0.5;
+        double extraDensity = (int)((densityDpi - defaultDensityDpi) / 80) * 0.5;
 
-        densityRowMultiplier = 1 + extraDensity / 100;
+        densityRowMultiplier = 1 + extraDensity;
 
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
