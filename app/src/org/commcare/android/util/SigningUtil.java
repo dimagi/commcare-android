@@ -21,7 +21,7 @@ import java.security.spec.X509EncodedKeySpec;
  * A set of helper methods for verifying whether a message was genuinely sent from HQ. Currently we
  * expcect the SMS in the format [COMMCARE APP - DO NOT DELETE] {BASE64-Encoded-Message} EG
  *
- * [COMMCARE APP - DO NOT DELETE] Y2NhcHA6IGh0dHA6Ly9iaXQubHkvMU5JMUl6MyBzaWduYXR1cmU6IEvECygFUhiUH
+ * [commcare app - do not delete] Y2NhcHA6IGh0dHA6Ly9iaXQubHkvMU5JMUl6MyBzaWduYXR1cmU6IEvECygFUhiUH
  * 3TRjC0lClQrpLR7lG//IpDYpRH7ComtZRjTirteXmPyM9fRgbPZ9K6jG9zEms9WQj55Uo7jTujKNYThjU8rJJmWLouJBr/Yn
  * WobEupwzn6DP2FavPF1YLPbp0ZctOfymW3m4j3VZ0lR2dMOjmInMSBiInqICKid
  *
