@@ -92,7 +92,7 @@ public class SigningUtil {
         return signatureBytes;
     }
 
-    public int getLastSpaceIndex(String textMessage) throws Exception{
+    public static int getLastSpaceIndex(String textMessage) throws Exception{
         byte[] messageBytes = getBytesFromSMS(textMessage);
         return getSignatureStartIndex(messageBytes);
     }
@@ -138,7 +138,9 @@ public class SigningUtil {
     // given a text message, parse out the cruft and return the raw String
     private static String parseAndDecodeSMS(String newMessage) throws Exception {
         String parsed = parseMessage(newMessage);
-        return decodeEncodedSMS(parsed);
+        int lastSpaceIndex = getSignatureStartIndex(getBytesFromSMS(newMessage));
+        String messageString = parsed.substring(0, lastSpaceIndex);
+        return decodeEncodedSMS(messageString);
     }
 
     // given a text message, parse out the cruft and return
