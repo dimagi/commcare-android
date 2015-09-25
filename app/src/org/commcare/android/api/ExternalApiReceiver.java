@@ -194,7 +194,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", c.getString(R.string.ota_restore_url)), "", c) {
+        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", c.getString(R.string.ota_restore_url)), c) {
 
             @Override
             protected void deliverResult(Object receiver, Integer result) {

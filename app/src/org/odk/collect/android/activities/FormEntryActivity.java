@@ -2144,7 +2144,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     private void addBreadcrumbBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra("odk_title_fragment");
+            final String fragmentClass = this.getIntent().getStringExtra(TITLE_FRAGMENT_TAG);
             if (fragmentClass != null) {
                 final FragmentManager fm = this.getSupportFragmentManager();
 
