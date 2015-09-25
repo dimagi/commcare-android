@@ -341,17 +341,18 @@ public class HomeActivityUIController {
         }
 
         message += Localization.get(lastMessageKey, new String[]{syncTimeMessage.toString()});
-        displayMessage(message, syncNotOk(), true);
+        displayMessage(message, isSyncStronglyNeeded(), true);
     }
 
-    protected void displayMessage(String message, boolean bad, boolean suppressToast) {
+    // TODO: Use syncNeeded flag to change color of sync message
+    protected void displayMessage(String message, boolean syncNeeded, boolean suppressToast) {
         if (!suppressToast) {
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
         adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
     }
 
-    private boolean syncNotOk() {
+    private boolean isSyncStronglyNeeded() {
         return unsentFormNumberLimitExceeded() || unsentFormTimeLimitExceeded();
     }
 
