@@ -641,8 +641,8 @@ public class CommCareHomeActivity
                 break;
             case GET_COMMAND:
                 //TODO: We might need to load this from serialized state?
-                if(resultCode == RESULT_CANCELED) {
-                    if(currentState.getSession().getCommand() == null) {
+                if (resultCode == RESULT_CANCELED) {
+                    if (currentState.getSession().getCommand() == null) {
                         //Needed a command, and didn't already have one. Stepping back from
                         //an empty state, Go home!
                         currentState.reset();
@@ -650,13 +650,11 @@ public class CommCareHomeActivity
                         return;
                     } else {
                         currentState.getSession().stepBack();
-                        break;
                     }
-                } else if(resultCode == RESULT_OK) {
+                } else if (resultCode == RESULT_OK) {
                     //Get our command, set it, and continue forward
                     String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
                     currentState.getSession().setCommand(command);
-                    break;
                 }
                 break;
             case GET_CASE:
