@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- for call log -->
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <!-- Start COllect Permissions -->
 

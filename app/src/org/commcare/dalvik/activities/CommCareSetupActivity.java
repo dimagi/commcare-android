@@ -3,6 +3,8 @@ package org.commcare.dalvik.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -21,11 +23,14 @@ import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageListener;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -37,6 +42,8 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import java.io.IOException;
+import java.security.SignatureException;
 import java.util.List;
 
 /**
@@ -52,7 +59,7 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands {
+        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
@@ -83,10 +90,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         ERROR
     }
 
-
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
 
     private static final int MODE_ARCHIVE = Menu.FIRST;
+    private static final int MODE_SMS = Menu.FIRST + 2;
 
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
@@ -180,6 +187,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         uiStateScreenTransition();
+        performSMSInstall(false);
     }
 
     @Override
@@ -426,6 +434,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         return true;
     }
 
@@ -436,11 +445,52 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
+    /**
+     * Scan SMS messages for texts with profile references.
+     * @param installTriggeredManually if scan was triggered manually, then
+     *                                 install automatically if reference is found
+     */
+    private void performSMSInstall(boolean installTriggeredManually){
+        this.scanSMSLinks(installTriggeredManually);
+    }
+
+    /**
+     * Scan the SMS inbox, looking for messages that meet the expected install format,
+     * and if found and verified return the discovered install link. Current behavior will search
+     * backwards from the most recent text, returning the first discovered valid link
+     * @return the verified install link, null if none found
+     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     */
+    private void scanSMSLinks(boolean installTriggeredManually){
+        // http://stackoverflow.com/questions/11301046/search-sms-inbox
+        final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        try {
+            if (cursor.moveToFirst()) { // must check the result to prevent exception
+                while (!cursor.isAfterLast()) {
+                    String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                    if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                        RetrieveParseVerifyMessageTask mTask =
+                                new RetrieveParseVerifyMessageTask(this,installTriggeredManually);
+                        mTask.execute(textMessageBody);
+                        break;
+                    }
+                }
+            }
+        }
+        finally{
+            cursor.close();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MODE_ARCHIVE) {
             Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
             startActivityForResult(i, ARCHIVE_INSTALL);
+        }
+        if (item.getItemId() == MODE_SMS) {
+            performSMSInstall(true);
         }
         return true;
     }
@@ -576,5 +626,41 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         uiState = newState;
     }
 
-    //endregion
+
+    @Override
+    public void downloadLinkReceived(String url) {
+        if (url != null) {
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void downloadLinkReceivedAutoInstall(String url) {
+        if(url != null){
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            startResourceInstall();
+        } else{
+            // only notify if this was manually triggered, since most people won't use this
+            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void exceptionReceived(Exception e) {
+        if(e instanceof  SignatureException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+        } else if(e instanceof IOException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+        } else{
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+        }
+    }
 }

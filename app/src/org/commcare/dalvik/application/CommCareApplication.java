@@ -1358,4 +1358,12 @@ public class CommCareApplication extends Application {
             }
         }
     }
+
+    /**
+     * Used for manually linking to a session service during tests
+     */
+    public void setTestingService(CommCareSessionService service) {
+        mIsBound = true;
+        mBoundService = service;
+    }
 }
