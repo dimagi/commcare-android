@@ -74,7 +74,7 @@ ext {
   RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
   RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
   RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
-  TRUSTED_SOURCE_PRIVATE_KEY = project.properties['TRUSTED_SOURCE_PRIVATE_KEY'] ?:
+  TRUSTED_SOURCE_PUBLIC_KEY = project.properties['TRUSTED_SOURCE_PUBLIC_KEY'] ?:
             "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
             "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
             "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
@@ -131,7 +131,7 @@ android {
         buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
         buildConfigField "String", "BUILD_DATE", "\"" + getDate() + "\""
         buildConfigField "String", "BUILD_NUMBER", "\"" + getVersionCode() + "\""
-        buildConfigField "String", "TRUSTED_SOURCE_PRIVATE_KEY", "\"${project.ext.TRUSTED_SOURCE_PRIVATE_KEY}\""
+        buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
     }
 
     compileOptions {

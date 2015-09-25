@@ -79,7 +79,7 @@ public class SigningUtil {
      * @throws SignatureException if we have an internal error during verification
      */
     public static String verifyMessageAndBytes(String message, byte[] signature) throws Exception {
-        String keyString = GlobalConstants.TRUSTED_SOURCE_PRIVATE_KEY;
+        String keyString = GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY;
         boolean success = verifyMessageSignatureHelper(keyString, message, signature);
 
         if(success){

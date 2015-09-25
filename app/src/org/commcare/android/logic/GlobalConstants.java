@@ -53,7 +53,7 @@ public class GlobalConstants {
     public static final String STATE_USER_KEY = "COMMCARE_USER";
     public static final String STATE_USER_LOGIN = "USER_LOGIN";
 
-    public static final String TRUSTED_SOURCE_PRIVATE_KEY = BuildConfig.TRUSTED_SOURCE_PRIVATE_KEY;
+    public static final String TRUSTED_SOURCE_PUBLIC_KEY = BuildConfig.TRUSTED_SOURCE_PUBLIC_KEY;
 
     public static final String SMS_INSTALL_KEY_STRING = "[commcare app - do not delete]";
 }
