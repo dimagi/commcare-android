@@ -39,7 +39,6 @@ public class CustomProgressDialog extends DialogFragment {
     private final static String KEY_TASK_ID = "task_id";
     private final static String KEY_CANCELABLE = "is_cancelable";
     private final static String KEY_USING_PROGRESS_BAR = "using_progress_bar";
-    private final static String KEY_INDETERMINANT_PROGRESS_BAR = "indeterminant_progress_bar";
     private final static String KEY_PROGRESS_BAR_PROGRESS = "progress_bar_progress";
     private final static String KEY_PROGRESS_BAR_MAX = "progress_bar_max";
     
@@ -61,7 +60,6 @@ public class CustomProgressDialog extends DialogFragment {
     
     //for progress bar
     private boolean usingProgressBar;
-    private boolean isIndeterminant = false;
     private int progressBarProgress;
     private int progressBarMax;
         
@@ -93,14 +91,6 @@ public class CustomProgressDialog extends DialogFragment {
         this.progressBarMax = 0;
     }
 
-    /**
-     * Add progress bar with no max progress
-     */
-    public void addIndeterminantProgressBar() {
-        addProgressBar();
-        this.isIndeterminant = true;
-    }
-    
     private void setTaskId(int id) {
         this.taskId = id;
     }
@@ -138,7 +128,6 @@ public class CustomProgressDialog extends DialogFragment {
             this.taskId = savedInstanceState.getInt(KEY_TASK_ID);
             this.isCancelable = savedInstanceState.getBoolean(KEY_CANCELABLE);
             this.usingProgressBar = savedInstanceState.getBoolean(KEY_USING_PROGRESS_BAR);
-            this.isIndeterminant = savedInstanceState.getBoolean(KEY_INDETERMINANT_PROGRESS_BAR);
             this.progressBarProgress = savedInstanceState.getInt(KEY_PROGRESS_BAR_PROGRESS);
             this.progressBarMax = savedInstanceState.getInt(KEY_PROGRESS_BAR_MAX);
         }
@@ -205,8 +194,7 @@ public class CustomProgressDialog extends DialogFragment {
             bar.setProgress(progressBarProgress);
             bar.setMax(progressBarMax);
             bar.setVisibility(View.VISIBLE);
-            bar.setIndeterminate(isIndeterminant);
-            
+
             // If there's a determinate progress bar, hide the spinning indicator
             view.findViewById(R.id.progress_bar).setVisibility(View.GONE);
         }
@@ -238,7 +226,6 @@ public class CustomProgressDialog extends DialogFragment {
         outState.putInt(KEY_TASK_ID, this.taskId);
         outState.putBoolean(KEY_CANCELABLE, this.isCancelable);
         outState.putBoolean(KEY_USING_PROGRESS_BAR, this.usingProgressBar);
-        outState.putBoolean(KEY_INDETERMINANT_PROGRESS_BAR, this.isIndeterminant);
         outState.putInt(KEY_PROGRESS_BAR_PROGRESS, this.progressBarProgress);
         outState.putInt(KEY_PROGRESS_BAR_MAX, this.progressBarMax);
     }

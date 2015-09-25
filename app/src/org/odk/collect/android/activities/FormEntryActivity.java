@@ -870,9 +870,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    /**
-     * Creates a view given the View type and an event
-     */
     private View createView() {
         setTitle(getHeaderString());
         ODKView odkv;
@@ -918,10 +915,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             ActionBar bar = getActionBar();
             if (bar != null) {
                 View customView = bar.getCustomView();
-                if (customView != null) {
-                    if (customView.dispatchTouchEvent(mv)) {
-                        return true;
-                    }
+                if (customView != null && customView.dispatchTouchEvent(mv)) {
+                    return true;
                 }
             }
         }
@@ -1030,11 +1025,10 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 event = mFormController.stepToPreviousEvent();
                 lastValidIndex = mFormController.getFormIndex();
             }
-                        
-            //check if we're at the beginning and not doing the whole "First screen" thing
+
             if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-                
-                //If so, we can't go all the way back here, so we've gotta hit the last index that was valid
+                // we can't go all the way back to the beginning, so we've
+                // gotta hit the last index that was valid
                 mFormController.jumpToIndex(lastValidIndex);
                 
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
@@ -1628,14 +1622,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                         StringUtils.getStringRobust(this, R.string.please_wait),
                         id);
                 dialog.addCancelButton();
-                dialog.addIndeterminantProgressBar();
                 break;
             case SaveToDiskTask.SAVING_TASK_ID:
                 dialog = CustomProgressDialog.newInstance(
                         StringUtils.getStringRobust(this, R.string.saving_form),
                         StringUtils.getStringRobust(this, R.string.please_wait),
                         id);
-                dialog.addIndeterminantProgressBar();
                 break;
         }
         return dialog;
