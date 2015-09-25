@@ -25,6 +25,7 @@ public class FormHierarchyBuilder {
     private String hierarchyPath;
 
     private String enclosingGroupRef = "";
+    private FormIndex enclosingGroupIndex;
 
     private FormHierarchyBuilder(Context context, List<HierarchyElement> formList) {
         this.formList = formList;
@@ -49,6 +50,8 @@ public class FormHierarchyBuilder {
 
     private void hierarchyIndexSetup() {
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
+        enclosingGroupIndex = null;
+
         // If we're not at the first level, we're inside a repeated group so we want to only display
         // everything enclosed within that group.
 
@@ -57,6 +60,7 @@ public class FormHierarchyBuilder {
         if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
             enclosingGroupRef =
                     FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+            enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         } else {
             FormIndex startTest = FormHierarchyActivity.stepIndexOut(currentIndex);
@@ -81,6 +85,7 @@ public class FormHierarchyBuilder {
             if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
                 enclosingGroupRef =
                         FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+                enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
                 FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             }
         }
@@ -96,8 +101,10 @@ public class FormHierarchyBuilder {
     private void buildHierarchyList() {
         // Refresh the current event in case we did step forward.
         int event = FormEntryActivity.mFormController.getEvent();
+        FormIndex index = FormEntryActivity.mFormController.getFormIndex();
 
         while (event != FormEntryController.EVENT_END_OF_FORM && indexRefCompletelyPrefixedBy(enclosingGroupRef)) {
+            indexIsSubOf(enclosingGroupIndex, true);
             switch (event) {
                 case FormEntryController.EVENT_QUESTION:
                     addQuestionEntry();
@@ -106,6 +113,7 @@ public class FormHierarchyBuilder {
                     break;
                 case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                     if (indexPointsToReference(enclosingGroupRef)) {
+                        indexIsSubOf(enclosingGroupIndex, true);
                         // done showing elements in a repeat entry
                         return;
                     }
@@ -113,6 +121,7 @@ public class FormHierarchyBuilder {
                     break;
                 case FormEntryController.EVENT_REPEAT:
                     if (indexPointsToReference(enclosingGroupRef)) {
+                        indexIsSubOf(enclosingGroupIndex, true);
                         // Done displaying entries in a repeat element because
                         // we've reached the next repeat element.
                         return;
@@ -123,6 +132,31 @@ public class FormHierarchyBuilder {
             }
             event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         }
+    }
+
+    private boolean indexIsSubOf(FormIndex enclosingIndex, boolean expected) {
+        if (enclosingIndex == null) {
+            if (!expected) {
+                System.out.print("foo");
+            }
+
+            return true;
+        }
+        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
+        boolean result = FormIndex.isSubElement(enclosingIndex, currentIndex);
+        if (result != expected) {
+            System.out.print("foo");
+        }
+        return result;
+    }
+
+    private boolean areSiblingsExpected(FormIndex enclosingIndex, boolean expected) {
+        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
+        boolean result = FormIndex.areSiblings(enclosingIndex, currentIndex);
+        if (result != expected) {
+            System.out.print("foo");
+        }
+        return result;
     }
 
     private boolean indexRefCompletelyPrefixedBy(String prefixReference) {
@@ -175,11 +209,14 @@ public class FormHierarchyBuilder {
         int event = FormEntryActivity.mFormController.getEvent();
         String repeatReference =
                 FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
+        FormIndex repeatIndex = FormEntryActivity.mFormController.getFormIndex();
 
         while (event != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_REPEAT && indexPointsToReference(repeatReference)) {
+                areSiblingsExpected(repeatIndex, true);
                 addRepeatChild();
             } else if (!indexRefCompletelyPrefixedBy(repeatReference)) {
+                areSiblingsExpected(repeatIndex, false);
                 return event;
             }
             event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
