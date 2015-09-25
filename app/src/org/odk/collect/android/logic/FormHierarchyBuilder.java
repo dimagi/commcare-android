@@ -24,7 +24,6 @@ public class FormHierarchyBuilder {
     private final Context context;
     private String hierarchyPath;
 
-    private String enclosingGroupRef = "";
     private FormIndex enclosingGroupIndex;
 
     private FormHierarchyBuilder(Context context, List<HierarchyElement> formList) {
@@ -58,8 +57,6 @@ public class FormHierarchyBuilder {
         // If we're currently at a repeat node, record the name of the node and step to the next
         // node to display.
         if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
-            enclosingGroupRef =
-                    FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
             enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
         } else {
@@ -83,8 +80,6 @@ public class FormHierarchyBuilder {
             // now test again for repeat. This should be true at this point or we're at the
             // beginning
             if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
-                enclosingGroupRef =
-                        FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
                 enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
                 FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
             }
@@ -101,10 +96,7 @@ public class FormHierarchyBuilder {
     private void buildHierarchyList() {
         // Refresh the current event in case we did step forward.
         int event = FormEntryActivity.mFormController.getEvent();
-        FormIndex index = FormEntryActivity.mFormController.getFormIndex();
-
-        while (event != FormEntryController.EVENT_END_OF_FORM && indexRefCompletelyPrefixedBy(enclosingGroupRef)) {
-            indexIsSubOf(enclosingGroupIndex, true);
+        while (event != FormEntryController.EVENT_END_OF_FORM && isCurrentIndexSubOf(enclosingGroupIndex)) {
             switch (event) {
                 case FormEntryController.EVENT_QUESTION:
                     addQuestionEntry();
@@ -112,20 +104,9 @@ public class FormHierarchyBuilder {
                 case FormEntryController.EVENT_GROUP:
                     break;
                 case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
-                    if (indexPointsToReference(enclosingGroupRef)) {
-                        indexIsSubOf(enclosingGroupIndex, true);
-                        // done showing elements in a repeat entry
-                        return;
-                    }
                     addNewRepeatHeading();
                     break;
                 case FormEntryController.EVENT_REPEAT:
-                    if (indexPointsToReference(enclosingGroupRef)) {
-                        indexIsSubOf(enclosingGroupIndex, true);
-                        // Done displaying entries in a repeat element because
-                        // we've reached the next repeat element.
-                        return;
-                    }
                     addRepeatHeading();
                     event = addRepeatChildren();
                     continue;
@@ -134,39 +115,14 @@ public class FormHierarchyBuilder {
         }
     }
 
-    private boolean indexIsSubOf(FormIndex enclosingIndex, boolean expected) {
+    private boolean isCurrentIndexSubOf(FormIndex enclosingIndex) {
         if (enclosingIndex == null) {
-            if (!expected) {
-                System.out.print("foo");
-            }
-
             return true;
         }
+
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
-        boolean result = FormIndex.isSubElement(enclosingIndex, currentIndex);
-        if (result != expected) {
-            System.out.print("foo");
-        }
-        return result;
+        return FormIndex.isSubElement(enclosingIndex, currentIndex);
     }
-
-    private boolean areSiblingsExpected(FormIndex enclosingIndex, boolean expected) {
-        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
-        boolean result = FormIndex.areSiblings(enclosingIndex, currentIndex);
-        if (result != expected) {
-            System.out.print("foo");
-        }
-        return result;
-    }
-
-    private boolean indexRefCompletelyPrefixedBy(String prefixReference) {
-        String indexReference =
-                FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
-
-        return indexReference.length() >= prefixReference.length() &&
-                (prefixReference.equals(indexReference.substring(0, prefixReference.length())));
-    }
-
 
     private void addQuestionEntry() {
         FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
@@ -175,11 +131,6 @@ public class FormHierarchyBuilder {
         formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(),
                 fepIcon == -1 ? null : context.getResources().getDrawable(fepIcon),
                 Color.WHITE, HierarchyEntryType.question, fp.getIndex()));
-    }
-
-    private boolean indexPointsToReference(String reference) {
-        String ref = FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
-        return reference.compareTo(ref) == 0;
     }
 
     private void addNewRepeatHeading() {
@@ -194,8 +145,7 @@ public class FormHierarchyBuilder {
     private void addRepeatHeading() {
         FormEntryCaption fc = FormEntryActivity.mFormController.getCaptionPrompt();
         if (fc.getMultiplicity() == 0) {
-            // This is the start of a repeating group. We only want to display
-            // "Group #", so we mark this as the beginning and skip all of its children
+            // Only add the heading if it is the repeat group entry, not an element in the group.
             HierarchyElement group =
                     new HierarchyElement(fc.getLongText(), null,
                             context.getResources().getDrawable(R.drawable.expander_ic_minimized),
@@ -207,22 +157,32 @@ public class FormHierarchyBuilder {
 
     private int addRepeatChildren() {
         int event = FormEntryActivity.mFormController.getEvent();
-        String repeatReference =
-                FormEntryActivity.mFormController.getFormIndex().getReference().toString(false);
-        FormIndex repeatIndex = FormEntryActivity.mFormController.getFormIndex();
+        FormIndex firstRepeatChildIndex = FormEntryActivity.mFormController.getFormIndex();
 
         while (event != FormEntryController.EVENT_END_OF_FORM) {
-            if (event == FormEntryController.EVENT_REPEAT && indexPointsToReference(repeatReference)) {
-                areSiblingsExpected(repeatIndex, true);
+            if (event == FormEntryController.EVENT_REPEAT && isCurrentIndexIsSiblingOf(firstRepeatChildIndex)) {
                 addRepeatChild();
-            } else if (!indexRefCompletelyPrefixedBy(repeatReference)) {
-                areSiblingsExpected(repeatIndex, false);
+            } else if (!isCurrentIndexOutsideOfGroup(firstRepeatChildIndex)) {
                 return event;
             }
             event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
         }
         return event;
     }
+
+    private boolean isCurrentIndexIsSiblingOf(FormIndex enclosingIndex) {
+        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
+        boolean isSubElement = FormIndex.areSiblings(enclosingIndex, currentIndex);
+        boolean ofSameDepth = (enclosingIndex.getDepth() - currentIndex.getDepth()) == 0;
+
+        return isSubElement && ofSameDepth;
+    }
+
+    private boolean isCurrentIndexOutsideOfGroup(FormIndex enclosingIndex) {
+        FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
+        return FormIndex.overlappingLocalIndexesMatch(enclosingIndex, currentIndex);
+    }
+
 
     private void addRepeatChild() {
         // Add this group name to the drop down list for this repeating group.
