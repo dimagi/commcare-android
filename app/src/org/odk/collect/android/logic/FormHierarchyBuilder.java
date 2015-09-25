@@ -172,10 +172,7 @@ public class FormHierarchyBuilder {
 
     private boolean isCurrentIndexIsSiblingOf(FormIndex enclosingIndex) {
         FormIndex currentIndex = FormEntryActivity.mFormController.getFormIndex();
-        boolean isSubElement = FormIndex.areSiblings(enclosingIndex, currentIndex);
-        boolean ofSameDepth = (enclosingIndex.getDepth() - currentIndex.getDepth()) == 0;
-
-        return isSubElement && ofSameDepth;
+        return FormIndex.areSiblings(enclosingIndex, currentIndex);
     }
 
     private boolean isCurrentIndexOutsideOfGroup(FormIndex enclosingIndex) {
