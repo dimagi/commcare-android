@@ -62,6 +62,8 @@ import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.components.SessionNavigationResponder;
+import org.commcare.dalvik.activities.components.SessionNavigator;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -77,22 +79,22 @@ import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.xpath.XPathException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Vector;
 
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareHomeActivity> {
+public class CommCareHomeActivity
+        extends SessionAwareCommCareActivity<CommCareHomeActivity>
+        implements SessionNavigationResponder {
+
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     private static final int LOGIN_USER = 0;
@@ -180,6 +182,8 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     private StaggeredGridView newGridView;
     private View mTopBanner;
 
+    private SessionNavigator sessionNavigator;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,6 +207,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         }
 
         ACRAUtil.registerAppData();
+        sessionNavigator = new SessionNavigator(this);
 
         // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
         setContentView((Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) ? R.layout.mainnew_modern_v10 : R.layout.mainnew_modern);
@@ -478,7 +483,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
-            startNextFetch();
+            sessionNavigator.startNextSessionStep();
         } else {
             AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 
@@ -672,8 +677,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
                 }
                 break;
             }
-
-            startNextFetch();
+            sessionNavigator.startNextSessionStep();
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -852,65 +856,44 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         demoModeWarning.show();
     }
 
-    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
-        mAlertDialog.setMessage(errorMsg);
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
-    }
-
-    /**
-     * Polls the CommCareSession to determine what information is needed in order to proceed with
-     * the next entry step in the session and then executes the action to get that info, OR
-     * proceeds with trying to enter the form if no more info is needed
-     */
-    private void startNextFetch() {
-
-        final AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-        String needed = asw.getSession().getNeededData();
-
-        if (needed == null) {
-            readyToProceed(asw);
-        } else if (needed.equals(SessionFrame.STATE_COMMAND_ID)) {
-            handleGetCommand(asw);
-        } else if (needed.equals(SessionFrame.STATE_DATUM_VAL)) {
-            handleGetDatum(asw);
-        } else if (needed.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
-            handleCompute(asw);
-        }
-    }
-
-
-    // region: private helper methods used by startNextFetch(), to prevent it from being one
-    // extremely long method
-
-    private void readyToProceed(final AndroidSessionWrapper asw) {
-        EvaluationContext ec = asw.getEvaluationContext();
-        //See if we failed any of our assertions
-        Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
-        if (text != null) {
-            createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int i) {
-                    asw.getSession().stepBack();
-                    CommCareHomeActivity.this.startNextFetch();
-                }
-            });
-            return;
-        }
-
-        if(asw.getSession().getForm() == null) {
-            if(asw.terminateSession()) {
-                startNextFetch();
-            } else {
+    @Override
+    public void processSessionResponse(int statusCode) {
+        AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+        switch(statusCode) {
+            case SessionNavigator.ASSERTION_FAILURE:
+                handleAssertionFailureFromSessionNav(asw);
+                break;
+            case SessionNavigator.REFRESH_UI:
                 this.refreshView();
-            }
-        } else {
-            startFormEntry(CommCareApplication._().getCurrentSessionWrapper());
+                break;
+            case SessionNavigator.START_FORM_ENTRY:
+                startFormEntry(asw);
+                break;
+            case SessionNavigator.GET_COMMAND:
+                handleGetCommand(asw);
+                break;
+            case SessionNavigator.START_ENTITY_SELECTION:
+                launchEntitySelect(asw.getSession());
+                break;
+            case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
+                launchConfirmDetail(asw);
+                break;
+            case SessionNavigator.EXCEPTION_THROWN:
+                displayException(sessionNavigator.getCurrentException());
         }
+    }
+
+    private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
+        EvaluationContext ec = asw.getEvaluationContext();
+        Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
+        createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                asw.getSession().stepBack();
+                CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
+            }
+        });
+        return;
     }
 
     // CommCare needs a menu or form selection to proceed
@@ -925,16 +908,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         startActivityForResult(i, GET_COMMAND);
     }
 
-    // CommCare needs a case selection to proceed
-    private void handleGetDatum(AndroidSessionWrapper asw) {
-        TreeReference autoSelection = getAutoSelectedCase(asw);
-        if (autoSelection == null) {
-            launchEntitySelect(asw.getSession());
-        } else {
-            handleAutoSelect(autoSelection, asw);
-        }
-    }
-
     private void launchEntitySelect(CommCareSession session) {
         Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
@@ -945,57 +918,25 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         startActivityForResult(i, GET_CASE);
     }
 
-    private void handleAutoSelect(TreeReference autoSelection, AndroidSessionWrapper asw) {
+    // Launch an intent to load the confirmation screen for the given selection
+    private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
-        if (selectDatum.getLongDetail() == null) {
-            // No confirm detail defined for this entity select, so just set the case id right away
-            // and proceed
-            String autoSelectedCaseId = EntitySelectActivity.getCaseIdFromReference(
-                    autoSelection, selectDatum, asw);
-            session.setDatum(selectDatum.getDataId(), autoSelectedCaseId);
-            startNextFetch();
-        } else {
-            // Launch an intent to load the confirmation screen for this selection
-            Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-            EntitySelectActivity.populateDetailIntent(detailIntent, autoSelection, selectDatum, asw);
-            startActivityForResult(detailIntent, GET_CASE);
-        }
+        Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+        EntitySelectActivity.populateDetailIntent(
+                detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
+        startActivityForResult(detailIntent, GET_CASE);
     }
 
-    /**
-     *
-     * Returns the auto-selected case for the next needed datum, if there should be one.
-     * Returns null if auto selection is not enabled, or if there are multiple available cases
-     * for the datum (and therefore auto-selection should not be used).
-     */
-    private TreeReference getAutoSelectedCase(AndroidSessionWrapper asw) {
-        SessionDatum selectDatum = asw.getSession().getNeededDatum();
-        if (selectDatum.isAutoSelectEnabled()) {
-            EvaluationContext ec = asw.getEvaluationContext();
-            List<TreeReference> entityListElements = ec.expandReference(selectDatum.getNodeset());
-            if (entityListElements.size() == 1) {
-                return entityListElements.get(0);
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
+    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
+        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
+        mAlertDialog.setMessage(errorMsg);
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
     }
-
-    private void handleCompute(AndroidSessionWrapper asw) {
-        EvaluationContext ec = asw.getEvaluationContext();
-        try {
-            asw.getSession().setComputedDatum(ec);
-        } catch (XPathException e) {
-            displayException(e);
-        }
-        startNextFetch();
-    }
-
-    // endregion
-
 
     /**
      * Create (or re-use) a form record and pass it to the form entry activity
@@ -1333,14 +1274,14 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         SessionStateDescriptor ssd = new SessionStateDescriptor();
         ssd.fromBundle(sessionRequest);
         CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        this.startNextFetch();
+        sessionNavigator.startNextSessionStep();
     }
 
     private void handleShortcutLaunch() {
         //We were launched in shortcut mode. Get the command and load us up.
         CommCareApplication._().getCurrentSession().setCommand(
                 this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-        startNextFetch();
+        sessionNavigator.startNextSessionStep();
         //Only launch shortcuts once per intent
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
     }
