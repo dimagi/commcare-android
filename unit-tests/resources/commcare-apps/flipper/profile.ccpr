@@ -73,34 +73,8 @@
 
     <!-- end -->
 
-    
-
-    <features>
-        <checkoff active="true"/>
-        <reminders active="false">
-            <time>0</time>
-        </reminders>
-        <package active="false"/>
-        
-            <sense active="false" />
-        
-        <users active="true">
-            
-        </users>
-    </features>
-
     <suite><resource id="suite" version="17">
-        
             <location authority="local">./suite.xml</location>
-        
         <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/05938664cd52392fb39a3567d8d8902a/suite.xml</location>
     </resource></suite>
-    
-    <suite><resource id="media-suite" version="17">
-        
-            <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/05938664cd52392fb39a3567d8d8902a/media_suite.xml</location>
-    </resource></suite>
-    
 </profile>
