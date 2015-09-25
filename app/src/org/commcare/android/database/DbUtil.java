@@ -30,6 +30,10 @@ public class DbUtil {
     
     private static PrototypeFactory factory;
 
+    public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
+        DbUtil.factory = factory;
+    }
+
 
     public static PrototypeFactory getPrototypeFactory(Context c) {
         if(factory != null) {

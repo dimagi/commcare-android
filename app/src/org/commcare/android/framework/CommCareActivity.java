@@ -247,7 +247,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return this.findViewById(android.R.id.content);
     }
 
-    protected void updateCommCareBanner() {
+    public void updateCommCareBanner() {
         View hostView = getBannerHost();
         if (hostView == null) {
             return;

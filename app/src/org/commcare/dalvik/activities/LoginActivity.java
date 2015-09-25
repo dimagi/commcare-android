@@ -28,6 +28,7 @@ import android.widget.Toast;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -41,7 +42,6 @@ import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.util.DemoUserUtil;
 import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -212,7 +212,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         DataPullTask<LoginActivity> dataPuller = 
             new DataPullTask<LoginActivity>(getUsername(), password.getText().toString(),
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
-                 prefs.getString("key_server", LoginActivity.this.getString(R.string.key_server)),
                  LoginActivity.this) {
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {
@@ -457,12 +456,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         boolean otherResult = super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
         case MENU_DEMO:
-            //Make sure we have a demo user
-            DemoUserUtil.checkOrCreateDemoUser(this, CommCareApplication._().getCurrentApp());
-            
-            //Now try to log in as the demo user
-            tryLocalLogin(DemoUserUtil.DEMO_USER, DemoUserUtil.DEMO_USER, false);
-            
+            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false);
             return true;
         case MENU_ABOUT:
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();

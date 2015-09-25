@@ -83,6 +83,11 @@ public class AndroidLogger implements ILogger {
      */
     public static final String USER_REPORTED_PROBLEM = "user-report";
 
+    /**
+     * Used for internal checking of whether or not certain sections of code ever get called
+     */
+    public static final String SOFT_ASSERT = "soft-assert";
+
     //TODO: Currently assumes that it gets back iterated records in RecordID order.
     //when serializing a limited number of records then clearing
 
