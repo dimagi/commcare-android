@@ -775,11 +775,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void downloadLinkReceived(String url) {
-        if (url != null)
+        if (url != null) {
             incomingRef = url;
             uiState = UiState.READY_TO_INSTALL;
             uiStateScreenTransition();
             Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
