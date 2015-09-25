@@ -177,6 +177,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     private static final int MENU_SAVE = Menu.FIRST + 2;
     private static final int MENU_PREFERENCES = Menu.FIRST + 3;
 
+    public static final String NAV_STATE_NEXT = "next";
+
     private String mFormPath;
     // Path to a particular form instance
     public static String mInstancePath;
@@ -2106,8 +2108,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     @Override
     protected boolean onForwardSwipe() {
-        int event = mFormController.getEvent(mFormController.getNextFormIndex(mFormController.getFormIndex(), true));
-        if (event != FormEntryController.EVENT_END_OF_FORM) {
+        //We've already computed the "is there more coming" stuff intensely in the the nav details
+        //and set the forward button tag appropriately, so use that to determine whether we can
+        //swipe forward.
+        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
             showNextView();
             return true;
         }
