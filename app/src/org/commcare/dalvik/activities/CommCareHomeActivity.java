@@ -144,7 +144,6 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         }
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
-        uiController.setupUI();
     }
 
     private void finishIfNotRoot() {

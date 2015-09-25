@@ -15,11 +15,13 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -40,7 +42,7 @@ public class HomeActivityUIController {
     private SquareButtonWithNotification logoutButton;
     private SquareButtonWithNotification viewIncompleteFormsButton;
     private SquareButtonWithNotification syncButton;
-    private SquareButtonWithNotification viewOldFormsButton;
+    private SquareButtonWithNotification viewSavedFormsButton;
 
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
@@ -58,13 +60,14 @@ public class HomeActivityUIController {
 
     public HomeActivityUIController(CommCareHomeActivity activity) {
         this.activity = activity;
+        setupUI();
     }
 
     public View getTopBanner() {
         return mTopBanner;
     }
 
-    public void setupUI() {
+    private void setupUI() {
         setMainView();
         adapter = new HomeScreenAdapter(activity);
         mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
@@ -136,16 +139,17 @@ public class HomeActivityUIController {
         setupStartButton();
         setupIncompleteFormsButton();
         setupLogoutButton();
-        setupViewOldFormsButton();
+        setupViewSavedFormsButton();
         setupSyncButton();
     }
-
-    // region - setup methods for all buttons
 
     private void setupStartButton() {
         startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "startButton was null in setupStartButton()");
         }
         adapter.setOnClickListenerForButton(R.layout.home_start_button, getStartButtonListener());
     }
@@ -154,6 +158,9 @@ public class HomeActivityUIController {
         viewIncompleteFormsButton = adapter.getButton(R.layout.home_incompleteforms_button);
         if (viewIncompleteFormsButton != null) {
             setIncompleteFormsText();
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "incompleteFormsButton was null in setupIncompleteFormsButton()");
         }
         adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, getIncompleteButtonListener());
     }
@@ -164,14 +171,17 @@ public class HomeActivityUIController {
             logoutButton.setText(Localization.get("home.logout"));
             logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "logoutButton was null in setupLogoutButton()");
         }
         adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
     }
 
-    private void setupViewOldFormsButton() {
-        viewOldFormsButton = adapter.getButton(R.layout.home_savedforms_button);
-        if (viewOldFormsButton != null) {
-            viewOldFormsButton.setText(Localization.get("home.forms.saved"));
+    private void setupViewSavedFormsButton() {
+        viewSavedFormsButton = adapter.getButton(R.layout.home_savedforms_button);
+        if (viewSavedFormsButton != null) {
+            viewSavedFormsButton.setText(Localization.get("home.forms.saved"));
         }
         adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
     }
@@ -180,14 +190,12 @@ public class HomeActivityUIController {
         syncButton = adapter.getButton(R.layout.home_sync_button);
         if (syncButton != null) {
             setSyncButtonText(null);
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "syncButton was null in setupSyncButton()");
         }
         adapter.setOnClickListenerForButton(R.layout.home_sync_button, getSyncButtonListener());
     }
-
-    // endregion
-
-
-    // region - generators for the listeners for each button
 
     private View.OnClickListener getViewOldFormsListener() {
         return new View.OnClickListener() {
@@ -230,11 +238,6 @@ public class HomeActivityUIController {
         };
     }
 
-    // endregion
-
-
-    // region - text setters for all buttons
-
     private void setSyncButtonText(String syncTextKey) {
         if (syncTextKey == null) {
             syncTextKey = activity.isDemoUser() ? "home.sync.demo" : "home.sync";
@@ -263,9 +266,6 @@ public class HomeActivityUIController {
         }
     }
 
-    // endregion
-
-
     protected void refreshView() {
         refreshVersionText();
         refreshButtonTextSources();
@@ -280,9 +280,6 @@ public class HomeActivityUIController {
         activity.updateCommCareBanner();
         adapter.notifyDataSetChanged();
     }
-
-
-    // region - all helper methods used by refreshView()
 
     private void refreshVersionText() {
         TextView version = (TextView)activity.findViewById(R.id.str_version);
@@ -309,9 +306,15 @@ public class HomeActivityUIController {
     private void refreshHomeAndLogoutButtons() {
         if (startButton != null) {
             startButton.setText(Localization.get(homeMessageKey));
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "startButton was null in refreshHomeAndLogoutButtons()");
         }
         if (logoutButton != null) {
             logoutButton.setText(Localization.get(logoutMessageKey));
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "logoutButton was null in refreshHomeAndLogoutButtons()");
         }
     }
 
@@ -334,6 +337,9 @@ public class HomeActivityUIController {
     private void refreshSyncButton() {
         if (syncButton != null) {
             setSyncButtonText(syncKey);
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "syncButton was null in refreshSyncButton()");
         }
     }
 
@@ -398,7 +404,5 @@ public class HomeActivityUIController {
         boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
         adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
     }
-
-    // endregion
 
 }
