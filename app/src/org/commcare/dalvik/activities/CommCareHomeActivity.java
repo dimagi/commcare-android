@@ -62,8 +62,6 @@ import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.components.SessionNavigationResponder;
-import org.commcare.dalvik.activities.components.SessionNavigator;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -78,6 +76,8 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
+import org.commcare.util.SessionNavigationResponder;
+import org.commcare.util.SessionNavigator;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -856,6 +856,9 @@ public class CommCareHomeActivity
         demoModeWarning.show();
     }
 
+
+    // region - implementing methods for SessionNavigationResponder
+
     @Override
     public void processSessionResponse(int statusCode) {
         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -863,8 +866,8 @@ public class CommCareHomeActivity
             case SessionNavigator.ASSERTION_FAILURE:
                 handleAssertionFailureFromSessionNav(asw);
                 break;
-            case SessionNavigator.REFRESH_UI:
-                this.refreshView();
+            case SessionNavigator.NO_CURRENT_FORM:
+                handleNoFormFromSessionNav(asw);
                 break;
             case SessionNavigator.START_FORM_ENTRY:
                 startFormEntry(asw);
@@ -883,6 +886,19 @@ public class CommCareHomeActivity
         }
     }
 
+    @Override
+    public CommCareSession getSessionForNavigator() {
+        return CommCareApplication._().getCurrentSession();
+    }
+
+    @Override
+    public EvaluationContext getEvalContextForNavigator() {
+        return CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+    }
+
+    // endregion
+
+
     private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
@@ -893,7 +909,14 @@ public class CommCareHomeActivity
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
-        return;
+    }
+
+    private void handleNoFormFromSessionNav(AndroidSessionWrapper asw) {
+        if (asw.terminateSession()) {
+            sessionNavigator.startNextSessionStep();
+        } else {
+            this.refreshView();
+        }
     }
 
     // CommCare needs a menu or form selection to proceed

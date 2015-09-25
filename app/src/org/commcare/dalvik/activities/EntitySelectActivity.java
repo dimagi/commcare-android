@@ -64,12 +64,10 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.views.media.AudioController;
 
@@ -465,7 +463,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
                                          SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
-        String caseId = getCaseIdFromReference(contextRef, selectDatum, asw);
+        String caseId = SessionDatum.getCaseIdFromReference(contextRef, selectDatum, asw.getEvaluationContext());
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
         // Include long datum info if present (if not present, will be the signal to just return)
@@ -480,22 +478,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
 
         return detailIntent;
-    }
-
-    public static String getCaseIdFromReference(TreeReference contextRef,
-                                                 SessionDatum selectDatum,
-                                                 AndroidSessionWrapper asw) {
-
-        // Grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-        AbstractTreeElement element =
-                asw.getEvaluationContext().resolveReference(elementRef.contextualize(contextRef));
-
-        if (element != null && element.getValue() != null) {
-            return element.getValue().uncast().getString();
-        }
-        return "";
     }
 
     @Override
