@@ -600,6 +600,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
+            username.requestFocus();
         }
 
         // Clear any password text that was entered for a different app

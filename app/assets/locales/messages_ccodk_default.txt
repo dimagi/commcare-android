@@ -250,6 +250,7 @@ demo.mode.warning.dismiss=I Understand
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.detail.confirm=Continue
+select.detail.bypass=Done
 select.address.show=Show Address
 
 mult.install.no.browser=There is no File Browsing application installed on this device! Please download one and try again.
@@ -459,6 +460,10 @@ notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
+crash.warning.button=Restart CommCare
+crash.warning.header=CommCare crashed and needs to restart.
+crash.warning.detail=The following error was likely caused by a misconfiguration in your app:
+
 problem.report.button=Submit Report
 problem.report.prompt=Please enter the issue you'd like to report below. Please be sure to state where you encountered the problem, step-by-step instructions for reproducing the error, what exactly happened, and any text or error message that occurred.
 problem.report.menuitem=Report Problem
@@ -498,3 +503,6 @@ form.attachment.invalid=Invalid filetype choosen. Please select a valid multimed
 invalid.image.selection=The image you have chosen cannot be located on your device. Please select another image.
 image.capture.not.saved=The image you have taken was not able to be saved properly. Please try again.
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
+
+odk_perfect_match_color=\#87D13E
+odk_fuzzy_match_color=\#FFE88F
