@@ -196,6 +196,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     private AlertDialog mAlertDialog;
 
     private boolean mIncompleteEnabled = true;
+    private boolean hasFormLoadBeenTriggered = false;
 
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
@@ -221,8 +222,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
-
-    private boolean hasFormLoadBeenTriggered;
 
     @Override
     @SuppressLint("NewApi")
@@ -377,7 +376,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
-        outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, true);
+        outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
