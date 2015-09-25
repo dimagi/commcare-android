@@ -40,6 +40,12 @@ updates.resources.profile=Locating application...
 menu.basic=Basic Install
 menu.advanced=Advanced Install
 menu.archive=Offline Install
+menu.sms=SMS Install
+menu.sms.not.found=Install link not found in your texts!
+menu.sms.ready=Found install link. Press "Start" to begin installation.
+menu.sms.not.verified=We found a valid looking text, but could not verify its authenticity.
+menu.sms.not.retrieved=We could not retrieve the installation link. Please check your connectivity and try again.
+
 
 profile.found=Application found. ${0} resources loaded, of ${1} total.
 

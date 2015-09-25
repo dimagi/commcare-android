@@ -3,6 +3,8 @@ package org.commcare.dalvik.activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -22,11 +24,14 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
+import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageListener;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -40,22 +45,24 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
+import java.io.IOException;
+import java.security.SignatureException;
 import java.util.List;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- * 
+ *
  * If the startup activity identifies that the app is installed properly it
- * should not ever require interaction or be visible to the user. 
- * 
+ * should not ever require interaction or be visible to the user.
+ *
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands {
+        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String RESOURCE_STATE = "resource_state";
@@ -97,13 +104,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         UPGRADE
     }
 
-
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-    
+
     public static final int MODE_BASIC = Menu.FIRST;
     public static final int MODE_ADVANCED = Menu.FIRST + 1;
     private static final int MODE_ARCHIVE = Menu.FIRST + 2;
-    
+    private static final int MODE_SMS = Menu.FIRST + 3;
+
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
     private static final int DIALOG_INSTALL_PROGRESS = 4;
@@ -151,7 +158,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
 
     //endregion
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,13 +222,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.ccApp = oldActivity.ccApp;
         }
 
-        Log.v("UiState","Current vars: " +
+        Log.v("UiState", "Current vars: " +
                         "UIState is: " + this.uiState + " " +
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
         );
 
         uiStateScreenTransition();
+        performSMSInstall(false);
     }
 
     @Override
@@ -345,7 +353,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         Log.v("UiState", "Saving instance state: " + outState);
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -418,7 +426,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startResourceInstall(ccApp.getAppPreferences().getBoolean(KEY_START_OVER, true));
         }
     }
-    
+
     @Override
     public void startBlockingForTask(int id) {
         super.startBlockingForTask(id);
@@ -457,7 +465,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
              // sleep before it starts, set based on whether we are currently
              // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
-            
+
             ResourceEngineTask<CommCareSetupActivity> task =
                 new ResourceEngineTask<CommCareSetupActivity>(inUpgradeMode,
                         app, startOverUpgrade,
@@ -520,7 +528,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     ResourceTable temporary =
                         receiver.ccApp.getCommCarePlatform().getUpgradeResourceTable();
 
-                    if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL && 
+                    if (temporary.getTableReadiness() == ResourceTable.RESOURCE_TABLE_PARTIAL &&
                             receiver.resourceTableWasFresh) {
                         receiver.ccApp.getAppPreferences().edit().putLong(KEY_LAST_INSTALL, System.currentTimeMillis()).commit();
                     }
@@ -550,21 +558,65 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         return true;
     }
-    
+
+    /**
+     * Scan SMS messages for texts with profile references.
+     * @param installTriggeredManually if scan was triggered manually, then
+     *                                 install automatically if reference is found
+     */
+    private void performSMSInstall(boolean installTriggeredManually){
+        this.scanSMSLinks(installTriggeredManually);
+    }
+
+
+
+    /**
+     * Scan the SMS inbox, looking for messages that meet the expected install format,
+     * and if found and verified return the discovered install link. Current behavior will search
+     * backwards from the most recent text, returning the first discovered valid link
+     * @return the verified install link, null if none found
+     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     */
+    private void scanSMSLinks(boolean installTriggeredManually){
+        // http://stackoverflow.com/questions/11301046/search-sms-inbox
+        final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        try {
+            if (cursor.moveToFirst()) { // must check the result to prevent exception
+                while (!cursor.isAfterLast()) {
+                    String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                    if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                        RetrieveParseVerifyMessageTask mTask =
+                                new RetrieveParseVerifyMessageTask(this,installTriggeredManually);
+                        mTask.execute(textMessageBody);
+                        break;
+                    }
+                }
+            }
+        }
+        finally{
+            cursor.close();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MODE_ARCHIVE) {
              Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
              startActivityForResult(i, ARCHIVE_INSTALL);
+        }
+        if (item.getItemId() == MODE_SMS) {
+            performSMSInstall(true);
         }
         return true;
     }
@@ -720,5 +772,41 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         uiState = newState;
     }
 
-    //endregion
+
+    @Override
+    public void downloadLinkReceived(String url) {
+        if (url != null) {
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void downloadLinkReceivedAutoInstall(String url) {
+        if(url != null){
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            startResourceInstall();
+        } else{
+            // only notify if this was manually triggered, since most people won't use this
+            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void exceptionReceived(Exception e) {
+        if(e instanceof  SignatureException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+        } else if(e instanceof IOException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+        } else{
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+        }
+    }
 }
