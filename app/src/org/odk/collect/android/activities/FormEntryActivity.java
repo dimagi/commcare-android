@@ -1634,6 +1634,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     }
 
     @Override
+    public void taskCancelled(int id) {
+        finish();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -1732,11 +1737,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverUpdate(FormEntryActivity receiver, String... update) {
-                }
-
-                @Override
-                protected void deliverCancellation(FormEntryActivity receiver) {
-                    receiver.finish();
                 }
 
                 @Override

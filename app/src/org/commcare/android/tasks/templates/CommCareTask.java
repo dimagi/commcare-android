@@ -58,8 +58,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
                 return;
             }
 
-            deliverCancellation(connector.getReceiver());
-
             connector.startTaskTransition();
             connector.stopBlockingForTask(getTaskId());
             connector.taskCancelled(getTaskId());
@@ -93,12 +91,6 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected abstract void deliverUpdate(R receiver, B... update);
 
     protected abstract void deliverError(R receiver, Exception e);
-
-    /**
-     * Allows signalling to connected receiver that the task has been cancelled
-     */
-    protected void deliverCancellation(R receiver) {
-    }
 
     @Override
     protected void onPreExecute() {
