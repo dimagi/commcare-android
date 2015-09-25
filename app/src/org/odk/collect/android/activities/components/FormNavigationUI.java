@@ -17,6 +17,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.views.ODKView;
@@ -101,7 +102,7 @@ public class FormNavigationUI {
             nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
 
             //TODO: _really_? This doesn't seem right
-            nextButton.setTag("next");
+            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
 
             progressBar.setProgressDrawable(activity.getResources().getDrawable(R.drawable.progressbar_modern));
 
