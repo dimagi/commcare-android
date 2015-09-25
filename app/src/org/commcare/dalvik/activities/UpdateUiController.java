@@ -90,13 +90,13 @@ class UpdateUiController {
         });
     }
 
-    protected void upToDate() {
-        idle();
+    protected void upToDateUiState() {
+        idleUiState();
 
         progressText.setText(upToDateText);
     }
 
-    protected void idle() {
+    protected void idleUiState() {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -106,7 +106,7 @@ class UpdateUiController {
         updateProgressBar(0, 100);
     }
 
-    protected void downloading() {
+    protected void downloadingUiState() {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(true);
         installUpdateButton.setEnabled(false);
@@ -116,7 +116,7 @@ class UpdateUiController {
         updateProgressText(beginCheckingText);
     }
 
-    protected void unappliedUpdateAvailable() {
+    protected void unappliedUpdateAvailableUiState() {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(true);
@@ -132,7 +132,7 @@ class UpdateUiController {
         updateProgressText("");
     }
 
-    protected void cancelling() {
+    protected void cancellingUiState() {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -141,7 +141,7 @@ class UpdateUiController {
         updateProgressText(cancellingMsg);
     }
 
-    protected void error() {
+    protected void errorUiState() {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -150,7 +150,7 @@ class UpdateUiController {
         updateProgressText(errorMsg);
     }
 
-    protected void noConnectivity() {
+    protected void noConnectivityUiState() {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -159,7 +159,7 @@ class UpdateUiController {
         updateProgressText(noConnectivityMsg);
     }
 
-    protected void updateInstalled() {
+    protected void updateInstalledUiState() {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);

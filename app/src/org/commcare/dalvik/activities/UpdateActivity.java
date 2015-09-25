@@ -62,7 +62,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } catch (TaskListenerRegistrationException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
                     "registered task.");
-            uiController.error();
+            uiController.errorUiState();
         }
     }
 
@@ -72,7 +72,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         if (ConnectivityStatus.isNetworkNotConnected(this) &&
                 ConnectivityStatus.isAirplaneModeOn(this)) {
-            uiController.noConnectivity();
+            uiController.noConnectivityUiState();
             return;
         }
 
@@ -82,7 +82,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             currentProgress = updateTask.getProgress();
             maxProgress = updateTask.getMaxProgress();
             if (taskIsCancelling) {
-                uiController.cancelling();
+                uiController.cancellingUiState();
             } else {
                 setUiStateFromRunningTask(updateTask.getStatus());
             }
@@ -96,24 +96,24 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
-                uiController.downloading();
+                uiController.downloadingUiState();
                 break;
             case PENDING:
                 pendingUpdateOrIdle();
                 break;
             case FINISHED:
-                uiController.error();
+                uiController.errorUiState();
                 break;
             default:
-                uiController.error();
+                uiController.errorUiState();
         }
     }
 
     private void pendingUpdateOrIdle() {
         if (ResourceInstallUtils.isUpdateInstallReady()) {
-            uiController.unappliedUpdateAvailable();
+            uiController.unappliedUpdateAvailableUiState();
         } else {
-            uiController.idle();
+            uiController.idleUiState();
         }
     }
 
@@ -156,9 +156,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
-            uiController.unappliedUpdateAvailable();
+            uiController.unappliedUpdateAvailableUiState();
         } else {
-            uiController.upToDate();
+            uiController.upToDateUiState();
         }
 
         unregisterTask();
@@ -170,7 +170,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public void handleTaskCancellation(AppInstallStatus result) {
         unregisterTask();
 
-        uiController.idle();
+        uiController.idleUiState();
     }
 
     protected void startUpdateCheck() {
@@ -189,21 +189,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         updateTask.execute(ref);
-        uiController.downloading();
+        uiController.downloadingUiState();
     }
 
     private void enterErrorState(String errorMsg) {
         Log.e(TAG, errorMsg);
-        uiController.error();
+        uiController.errorUiState();
     }
 
     public void stopUpdateCheck() {
         if (updateTask != null) {
             updateTask.cancel(true);
             taskIsCancelling = true;
-            uiController.cancelling();
+            uiController.cancellingUiState();
         } else {
-            uiController.idle();
+            uiController.idleUiState();
         }
     }
 
@@ -218,9 +218,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            uiController.updateInstalled();
+                            uiController.updateInstalledUiState();
                         } else {
-                            uiController.error();
+                            uiController.errorUiState();
                         }
                     }
 
@@ -232,7 +232,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     @Override
                     protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
-                        uiController.error();
+                        uiController.errorUiState();
                     }
                 };
         task.connect(this);
