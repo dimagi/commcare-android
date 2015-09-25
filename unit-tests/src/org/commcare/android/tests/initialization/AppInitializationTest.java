@@ -2,8 +2,8 @@ package org.commcare.android.tests.initialization;
 
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.LivePrototypeFactory;
+import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 
 /**
@@ -30,9 +29,6 @@ public class AppInitializationTest {
 
     @Before
     public void setup() {
-        Robolectric.getBackgroundThreadScheduler().pause();
-        Robolectric.getForegroundThreadScheduler().pause();
-
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
