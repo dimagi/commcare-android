@@ -8,7 +8,6 @@ import android.text.format.DateUtils;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
@@ -122,16 +121,8 @@ public class HomeActivityUIController {
             // don't have one
             return;
         }
-        setupVersion();
         setupButtons();
         activity.rebuildMenus();
-    }
-
-    private void setupVersion() {
-        TextView version = (TextView) activity.findViewById(R.id.str_version);
-        if (version != null) {
-            version.setText(CommCareApplication._().getCurrentVersionString());
-        }
     }
 
     private void setupButtons() {
@@ -267,7 +258,6 @@ public class HomeActivityUIController {
     }
 
     protected void refreshView() {
-        refreshVersionText();
         refreshButtonTextSources();
         refreshHomeAndLogoutButtons();
 
@@ -279,14 +269,6 @@ public class HomeActivityUIController {
         setButtonVisibilities();
         activity.updateCommCareBanner();
         adapter.notifyDataSetChanged();
-    }
-
-    private void refreshVersionText() {
-        TextView version = (TextView)activity.findViewById(R.id.str_version);
-        if (version == null) {
-            return;
-        }
-        version.setText(CommCareApplication._().getCurrentVersionString());
     }
 
     private void refreshButtonTextSources() {

@@ -138,7 +138,9 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        finishIfNotRoot();
+        if (finishIfNotRoot()) {
+            return;
+        }
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
@@ -146,18 +148,25 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
         uiController = new HomeActivityUIController(this);
     }
 
-    private void finishIfNotRoot() {
-        //This is a workaround required by Android Bug #2373 -- An app launched from the
-        //Google Play store has different intent flags than one from the App launcher,
-        // which ruins the back stack and prevents the app from launching a high affinity task.
+    /**
+     * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
+     * has different intent flags than one launched from the App launcher, which ruins the back
+     * stack and prevents the app from launching a high affinity task.
+     *
+     * @return if finish() was called
+     *
+     */
+    private boolean finishIfNotRoot() {
         if (!isTaskRoot()) {
             Intent intent = getIntent();
             String action = intent.getAction();
             if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
                 finish();
-                return;
+                return true;
             }
+            return false;
         }
+        return false;
     }
 
     protected void goToFormArchive(boolean incomplete) {
