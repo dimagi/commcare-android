@@ -30,7 +30,8 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
-import org.commcare.android.util.SigningUtil;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageListener;
+import org.commcare.android.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -61,7 +62,7 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands {
+        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String RESOURCE_STATE = "resource_state";
@@ -574,33 +575,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually){
-        String profileLink = null;
-        try {
-            profileLink = this.scanSMSLinks();
-        } catch(SignatureException e){
-            // possibly we want to do something more severe here? could be malicious
-            e.printStackTrace();
-            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
-        } catch(IOException e){
-            // couldn't get the acutal message payload - possible internet issue?
-            e.printStackTrace();
-            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
-        }
-        if (profileLink != null) {
-            // we found a valid profile link, either start install automatically
-            // or move to READY_TO_INSTALL state
-            Log.v("install", "Performing SMS install with link : " + incomingRef);
-            incomingRef = profileLink;
-            if (installTriggeredManually) {
-                startResourceInstall();
-            } else {
-                uiState = UiState.READY_TO_INSTALL;
-                Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
-            }
-        } else if(installTriggeredManually) {
-            // only notify if this was manually triggered, since most people won't use this
-            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
-        }
+        this.scanSMSLinks(installTriggeredManually);
     }
 
 
@@ -612,7 +587,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @return the verified install link, null if none found
      * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
      */
-    private String scanSMSLinks() throws SignatureException, IOException{
+    private void scanSMSLinks(boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
@@ -621,10 +596,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 while (!cursor.isAfterLast()) {
                     String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                     if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                        String installLink = SigningUtil.retrieveParseVerifyMessage(textMessageBody);
-                        if (installLink != null) {
-                            return installLink;
-                        }
+                        RetrieveParseVerifyMessageTask mTask =
+                                new RetrieveParseVerifyMessageTask(this,installTriggeredManually);
+                        mTask.execute(textMessageBody);
+                        break;
                     }
                 }
             }
@@ -632,7 +607,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         finally{
             cursor.close();
         }
-        return null;
     }
 
     @Override
@@ -798,5 +772,40 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         uiState = newState;
     }
 
-    //endregion
+
+    @Override
+    public void downloadLinkReceived(String url) {
+        if (url != null)
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void downloadLinkReceivedAutoInstall(String url) {
+        if(url != null){
+            incomingRef = url;
+            uiState = UiState.READY_TO_INSTALL;
+            uiStateScreenTransition();
+            startResourceInstall();
+        } else{
+            // only notify if this was manually triggered, since most people won't use this
+            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void exceptionReceived(Exception e) {
+        if(e instanceof  SignatureException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+        } else if(e instanceof IOException){
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+        } else{
+            e.printStackTrace();
+            Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+        }
+    }
 }
