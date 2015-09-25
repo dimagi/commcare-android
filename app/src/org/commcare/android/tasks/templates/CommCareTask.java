@@ -49,12 +49,15 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     @Override
     protected void onCancelled() {
         super.onCancelled();
+
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
+
             if (connector == null) {
                 //TODO: FailedConnection
                 return;
             }
+
             connector.startTaskTransition();
             connector.stopBlockingForTask(getTaskId());
             connector.taskCancelled(getTaskId());
