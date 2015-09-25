@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.23">
+          android:versionName="2.24">
 
     <uses-sdk
         tools:overrideLibrary="com.etsy.android.grid"
@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- for call log -->
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <!-- Start COllect Permissions -->
 
