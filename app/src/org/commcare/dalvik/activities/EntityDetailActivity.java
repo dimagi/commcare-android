@@ -24,11 +24,13 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.CommCareSession;
 import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -88,7 +90,11 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
             mViewMode = session.isViewCommand(session.getCommand());
         }
 
-        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
+        String detailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID);
+        factory = new NodeEntityFactory(session.getDetail(detailId), asw.getEvaluationContext());
+        if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            Logger.log(EntityDetailActivity.class.getSimpleName(), detailId);
+        }
 
         mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);

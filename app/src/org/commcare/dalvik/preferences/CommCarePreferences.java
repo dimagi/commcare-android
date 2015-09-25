@@ -16,10 +16,7 @@
 
 package org.commcare.dalvik.preferences;
 
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -85,10 +82,14 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     public final static String YES = "yes";
     public final static String NO = "no";
 
+    public final static String TRUE = "True";
+    public final static String FALSE = "False";
+
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
 
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
+    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
 
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
 
@@ -107,7 +108,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
     private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
 
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -243,6 +244,11 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+    }
+
+    public static boolean isEntityDetailLoggingEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(LOG_ENTITY_DETAIL, FALSE).equals(TRUE);
     }
 
     /**
