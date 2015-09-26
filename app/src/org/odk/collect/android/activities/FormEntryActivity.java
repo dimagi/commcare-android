@@ -948,13 +948,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
-                    case FormEntryController.EVENT_END_OF_FORM:
                         View next = createView();
-                        if(!resuming) {
+                        if (!resuming) {
                             showView(next, AnimationType.RIGHT);
                         } else {
                             showView(next, AnimationType.FADE, false);
                         }
+                        break group_skip;
+                    case FormEntryController.EVENT_END_OF_FORM:
+                        Logger.log(AndroidLogger.SOFT_ASSERT,
+                                "Trying to show an end of form event");
+                        showPreviousView(false);
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
