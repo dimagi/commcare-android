@@ -19,6 +19,8 @@ cd CommCareODK
 git clone https://github.com/dimagi/commcare-odk.git
 git clone https://github.com/dimagi/commcare.git
 git clone https://github.com/dimagi/javarosa.git
+cd commcare-odk
+git submodule update --init
 ```
 
 - Open Android Studio
