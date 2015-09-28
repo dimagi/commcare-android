@@ -821,8 +821,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    /**
+     * @return Is the build configured to automatically try to install an app
+     * packaged up with the build without showing install options to the user.
+     */
     private boolean isSingleAppBuild() {
         return BuildConfig.IS_SINGLE_APP_BUILD;
     }
-
 }

@@ -227,16 +227,26 @@ android {
     }
 }
 
-task downloadCCApp(type:Exec) {
+/**
+ * Download and unpack commcare app associated with 'cc_app_id' into assets
+ * folder
+ */
+task downloadCCApp(type: Exec) {
+    def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : null
+    if (ccAppId == null) {
+        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+    }
+
     workingDir '.'
 
-    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', 'cc3315e9bdb5719c7b57d6ee5b19e797', android.sourceSets.standalone.assets.srcDirs.first()
+    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', ccAppId, android.sourceSets.standalone.assets.srcDirs.first()
     standardOutput = new ByteArrayOutputStream()
 }
 
+// dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
     if (task.name == 'processStandaloneDebugResources' ||
-        task.name == 'processStandaloneReleaseResources') {
+            task.name == 'processStandaloneReleaseResources') {
         task.dependsOn downloadCCApp
     }
 }
