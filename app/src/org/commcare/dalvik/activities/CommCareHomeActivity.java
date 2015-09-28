@@ -720,6 +720,36 @@ public class CommCareHomeActivity
         demoModeWarning.show();
     }
 
+    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
+        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
+        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
+        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
+        mAlertDialog.setMessage(errorMsg);
+        mAlertDialog.setCancelable(false);
+        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
+        mAlertDialog.show();
+    }
+
+    @Override
+    public String getActivityTitle() {
+        String userName;
+
+        try {
+            userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
+            if (userName != null) {
+                return Localization.get("home.logged.in.message", new String[]{userName});
+            }
+        } catch (Exception e) {
+            //TODO: Better catch, here
+        }
+        return "";
+    }
+
+    @Override
+    protected boolean isTopNavEnabled() {
+        return false;
+    }
+
 
     // region - implementing methods for SessionNavigationResponder
 
@@ -783,7 +813,6 @@ public class CommCareHomeActivity
         }
     }
 
-    // CommCare needs a menu or form selection to proceed
     private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
         if (DeveloperPreferences.isGridMenuEnabled()) {
@@ -805,7 +834,7 @@ public class CommCareHomeActivity
         startActivityForResult(i, GET_CASE);
     }
 
-    // Launch an intent to load the confirmation screen for the given selection
+    // Launch an intent to load the confirmation screen for the current selection
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
@@ -813,16 +842,6 @@ public class CommCareHomeActivity
         EntitySelectActivity.populateDetailIntent(
                 detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
         startActivityForResult(detailIntent, GET_CASE);
-    }
-
-    private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
-        mAlertDialog.setMessage(errorMsg);
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
     }
 
     /**
@@ -837,7 +856,7 @@ public class CommCareHomeActivity
             if (CommCarePreferences.isIncompleteFormsEnabled()) {
                 // Are existing (incomplete) forms using the same case?
                 SessionStateDescriptor existing =
-                    state.getExistingIncompleteCaseDescriptor();
+                        state.getExistingIncompleteCaseDescriptor();
 
                 if (existing != null) {
                     // Ask user if they want to just edit existing form that
@@ -860,26 +879,6 @@ public class CommCareHomeActivity
         }
 
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
-    }
-
-    @Override
-    public String getActivityTitle() {
-        String userName;
-
-        try {
-            userName = CommCareApplication._().getSession().getLoggedInUser().getUsername();
-            if (userName != null) {
-                return Localization.get("home.logged.in.message", new String[]{userName});
-            }
-        } catch (Exception e) {
-            //TODO: Better catch, here
-        }
-        return "";
-    }
-
-    @Override
-    protected boolean isTopNavEnabled() {
-        return false;
     }
 
     private void formEntry(Uri formUri, FormRecord r) {

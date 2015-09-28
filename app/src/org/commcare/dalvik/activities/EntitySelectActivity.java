@@ -311,19 +311,19 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         mListStateObserver = new DataSetObserver() {
             @Override
             public void onChanged() {
-            super.onChanged();
-            //update the search results box
-            String query = getSearchText().toString();
-            if (!"".equals(query)) {
-                searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                        "" + adapter.getCount(true, false),
-                        "" + adapter.getCount(true, true),
-                        query
-                }));
-                searchResultStatus.setVisibility(View.VISIBLE);
-            } else {
-                searchResultStatus.setVisibility(View.GONE);
-            }
+                super.onChanged();
+                //update the search results box
+                String query = getSearchText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
+                            "" + adapter.getCount(true, false),
+                            "" + adapter.getCount(true, true),
+                            query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                } else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
             }
         };
     }
@@ -441,7 +441,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     /**
-     * Get an intent for displaying a detailed view of an element
+     * Get an intent for displaying the confirm detail screen for an element (either just populates
+     * the given intent with the necessary information, or creates a new one if it is null)
      *
      * @param contextRef   reference to the selected element for which to display
      *                     detailed view
@@ -456,17 +457,17 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     /**
-     * Attach all element selection information to the intent argument
-     *
-     * @return the resulting intent
+     * Attach all element selection information to the intent argument and return the resulting
+     * intent
      */
     protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
                                          SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
-        String caseId = SessionDatum.getCaseIdFromReference(contextRef, selectDatum, asw.getEvaluationContext());
+        String caseId = SessionDatum.getCaseIdFromReference(
+                contextRef, selectDatum, asw.getEvaluationContext());
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
-        // Include long datum info if present (if not present, will be the signal to just return)
+        // Include long datum info if present
         if (selectDatum.getLongDetail() != null) {
             detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
                     selectDatum.getLongDetail());
