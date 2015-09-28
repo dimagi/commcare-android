@@ -1,11 +1,11 @@
 package org.commcare.android.tasks;
 
-import android.os.AsyncTask;
 import android.util.Pair;
 
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.SigningUtil;
 
-public class RetrieveParseVerifyMessageTask extends AsyncTask<String, Void, String> {
+public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<String, Void, String, R> {
 
     private Exception exception;
     private RetrieveParseVerifyMessageListener listener;
@@ -17,9 +17,10 @@ public class RetrieveParseVerifyMessageTask extends AsyncTask<String, Void, Stri
         this.installTriggeredManually = installTriggeredManually;
     }
 
-    protected String doInBackground(String... args) {
+    @Override
+    protected String doTaskBackground(String[] params) {
         try {
-            String url = SigningUtil.trimMessagePayload(args[0]);
+            String url = SigningUtil.trimMessagePayload(params[0]);
             String messagePayload = SigningUtil.convertUrlToPayload(url);
             byte[] messagePayloadBytes = SigningUtil.getBytesFromString(messagePayload);
             Pair<String, byte[]> messageAndBytes = SigningUtil.getUrlAndSignatureFromPayload(messagePayloadBytes);
