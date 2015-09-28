@@ -127,10 +127,11 @@ android {
 
         versionCode getVersionCode()
 
-        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        // when set, app won't show install screen and try to install
+        // resources from assets folder
+        buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
+
         buildConfigField "String", "AUTHORITY", "\"${applicationId}.provider\""
-        resValue "string", "account_type", "${applicationId}.account"
-        resValue "string", "authority", "${applicationId}.provider"
 
         buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
         buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
@@ -167,8 +168,13 @@ android {
         renderscript.srcDirs = ['app/src']
         res.srcDirs = ['app/res']
         assets.srcDirs = ['app/assets']
-
       }
+
+      standalone {
+        res.srcDirs = ['app/standalone/res']
+        assets.srcDirs = ['app/standalone/assets']
+      }
+
       test {
         java.srcDirs = ['unit-tests/src/']
         resources.srcDirs = ['unit-tests/resources/']
@@ -192,10 +198,9 @@ android {
       standalone {
         applicationId "org.commcare.standalone"
 
-        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
+        // include this again so that the value get reloaded
         buildConfigField "String", "AUTHORITY", "\"${applicationId}.provider\""
-        resValue "string", "account_type", "${applicationId}.account"
-        resValue "string", "authority", "${applicationId}.provider"
       }
     }
 
@@ -220,5 +225,18 @@ android {
               jvmArgs '-noverify'
         }
     }
+}
 
+task downloadCCApp(type:Exec) {
+    workingDir '.'
+
+    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', 'cc3315e9bdb5719c7b57d6ee5b19e797', android.sourceSets.standalone.assets.srcDirs.first()
+    standardOutput = new ByteArrayOutputStream()
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'processStandaloneDebugResources' ||
+        task.name == 'processStandaloneReleaseResources') {
+        task.dependsOn downloadCCApp
+    }
 }

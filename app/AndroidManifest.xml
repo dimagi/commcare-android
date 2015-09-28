@@ -307,7 +307,7 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
-            android:name="${applicationId}.activities.InstallArchiveActivity"
+            android:name=".activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
 
@@ -335,7 +335,7 @@
             android:label="@string/title_activity_report_problem" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="${applicationId}.activities.CommCareSetupActivity" />
+                android:value=".activities.CommCareSetupActivity" />
         </activity>
         <activity
             android:name=".activities.CommCareVerificationActivity"

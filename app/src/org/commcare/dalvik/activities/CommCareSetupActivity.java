@@ -27,6 +27,7 @@ import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.resource.installers.SingleAppInstallation;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.ResourceEngineTask.ResourceEngineOutcomes;
@@ -260,6 +261,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 CommCareApplication._().usableAppsPresent()) {
             Intent i = new Intent(this, CommCareHomeActivity.class);
             startActivity(i);
+        }
+
+        if (isSingleAppBuild()) {
+            SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
         }
     }
     
@@ -815,4 +820,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
         }
     }
+
+    private boolean isSingleAppBuild() {
+        return BuildConfig.IS_SINGLE_APP_BUILD;
+    }
+
 }
