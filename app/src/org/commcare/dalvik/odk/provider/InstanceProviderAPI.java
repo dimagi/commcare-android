@@ -19,8 +19,10 @@ package org.commcare.dalvik.odk.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.commcare.dalvik.BuildConfig;
+
 public final class InstanceProviderAPI {
-    public static final String AUTHORITY = "org.commcare.android.provider.odk.instances";
+    public static final String AUTHORITY = BuildConfig.AUTHORITY + ".odk.instances";
 
     // This class cannot be instantiated
     private InstanceProviderAPI() {}

@@ -123,8 +123,14 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 22
+        applicationId "org.commcare.dalvik"
 
         versionCode getVersionCode()
+
+        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        buildConfigField "String", "AUTHORITY", "\"${applicationId}.provider\""
+        resValue "string", "account_type", "${applicationId}.account"
+        resValue "string", "authority", "${applicationId}.provider"
 
         buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
         buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
@@ -179,6 +185,18 @@ android {
       // by a similar customization.
       debug.setRoot('build-types/debug')
       release.setRoot('build-types/release')
+    }
+    productFlavors {
+      standard {
+      }
+      standalone {
+        applicationId "org.commcare.standalone"
+
+        buildConfigField "String", "ACCOUNT_TYPE", "\"${applicationId}.account\""
+        buildConfigField "String", "AUTHORITY", "\"${applicationId}.provider\""
+        resValue "string", "account_type", "${applicationId}.account"
+        resValue "string", "authority", "${applicationId}.provider"
+      }
     }
 
     buildTypes {
