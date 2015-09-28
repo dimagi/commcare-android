@@ -103,9 +103,9 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
         StateListDrawable sld = new StateListDrawable();
 
-        sld.addState(new int[]{android.R.attr.state_enabled}, colorDrawable);
+        sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
-        sld.addState(StateSet.WILD_CARD, disabledColor);
+        sld.addState(StateSet.WILD_CARD, colorDrawable);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             this.setBackground(sld);
         } else {
