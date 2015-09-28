@@ -227,20 +227,33 @@ android {
     }
 }
 
+def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 /**
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
  */
-task downloadCCApp(type: Exec) {
-    def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : null
-    if (ccAppId == null) {
-        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
-    }
+task downloadCCApp(type: Exec)
 
+// task configuration phase
+downloadCCApp {
     workingDir '.'
 
     commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', ccAppId, android.sourceSets.standalone.assets.srcDirs.first()
-    standardOutput = new ByteArrayOutputStream()
+
+    ignoreExitValue = true
+
+    doLast {
+         if (execResult.exitValue != 0) {
+             throw new GradleException("exec failed; see output above")
+         }
+    }
+}
+
+// dynamic check at task execution time
+downloadCCApp << {
+    if (ccAppId.equals("")) {
+        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+    }
 }
 
 // dynamically inject commcare app download into standalone build process
