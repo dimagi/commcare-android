@@ -81,6 +81,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_LAST_INSTALL = "last_install_time";
 
     /**
+     * How many sms messages to scan over looking for commcare install link
+     */
+    private static final int SMS_CHECK_COUNT = 100;
+
+    /**
      * UI configuration states.
      */
     public enum UiState {
@@ -455,30 +460,32 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * Scan the SMS inbox, looking for messages that meet the expected install format,
-     * and if found and verified return the discovered install link. Current behavior will search
-     * backwards from the most recent text, returning the first discovered valid link
-     * @return the verified install link, null if none found
-     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     * Scan the most recent incoming text messages for a message with a
+     * verified link to a commcare app and install it.  Message scanning stops
+     * after the number of scanned messages reaches 'SMS_CHECK_COUNT'.
+     *
+     * @param installTriggeredManually don't install the found app link
      */
     private void scanSMSLinks(boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        if (cursor == null) {
+            return;
+        }
+        int messageIterationCount = 0;
         try {
-            if (cursor.moveToFirst()) { // must check the result to prevent exception
-                while (!cursor.isAfterLast()) {
-                    String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                    if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                        RetrieveParseVerifyMessageTask mTask =
-                                new RetrieveParseVerifyMessageTask(this,installTriggeredManually);
-                        mTask.execute(textMessageBody);
-                        break;
-                    }
+            while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) {
+                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                messageIterationCount++;
+                if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                    RetrieveParseVerifyMessageTask mTask =
+                            new RetrieveParseVerifyMessageTask(this, installTriggeredManually);
+                    mTask.execute(textMessageBody);
+                    break;
                 }
             }
-        }
-        finally{
+        } finally {
             cursor.close();
         }
     }
