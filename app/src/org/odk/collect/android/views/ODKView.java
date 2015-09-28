@@ -469,4 +469,21 @@ public class ODKView extends ScrollView
         }
         return questionIndex;
     }
+
+    /**
+     * Takes in a form entry prompt that is obtained generically and if there
+     * is already one on screen (which, for isntance, may have cached some of its data)
+     * returns the object in use currently.
+     */
+    public FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt) {
+        FormIndex index = prompt.getIndex();
+        for(QuestionWidget widget : this.getWidgets()) {
+            if(widget.getFormId().equals(index)) {
+                return widget.getPrompt();
+            }
+        }
+        return prompt;
+    }
+
+
 }

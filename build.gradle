@@ -29,14 +29,11 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile "org.robolectric:robolectric:3.0"
-
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
     debugCompile project(':commcare')
-
     compile project(':javarosa')
     compile project(':commcare')
-
     compile project(':libraries:mapballoons')
     compile project(':libraries:achartengine')
     compile project(':libraries:AndroidStaggeredGrid:library')
@@ -44,8 +41,9 @@ dependencies {
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
     compile 'com.android.support:support-v4:22.2.1'
     compile 'com.android.support:gridlayout-v7:22.2.1'
-
     debugCompile 'com.facebook.stetho:stetho:1.1.1'
+    compile 'com.madgag.spongycastle:core:1.52.0.0'
+    compile 'com.madgag.spongycastle:prov:1.52.0.0'
 }
 
 project.ext {
@@ -77,6 +75,11 @@ ext {
   RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
   RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
   RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
+  TRUSTED_SOURCE_PUBLIC_KEY = project.properties['TRUSTED_SOURCE_PUBLIC_KEY'] ?:
+            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
+            "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
+            "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
+            "HaAJkjpnc165Os+aYwIDAQAB";
 }
 
 /**
@@ -114,6 +117,7 @@ android {
 
     dexOptions {
         preDexLibraries = true
+        jumboMode = true
     }
 
     defaultConfig {
@@ -128,6 +132,7 @@ android {
         buildConfigField "String", "MAPS_API_KEY", "\"${project.ext.MAPS_API_KEY}\""
         buildConfigField "String", "BUILD_DATE", "\"" + getDate() + "\""
         buildConfigField "String", "BUILD_NUMBER", "\"" + getVersionCode() + "\""
+        buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
     }
 
     compileOptions {

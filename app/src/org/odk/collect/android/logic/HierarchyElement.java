@@ -11,11 +11,11 @@ public class HierarchyElement {
     private String mSecondaryText = "";
     private Drawable mIcon;
     private int mColor;
-    int mType;
+    HierarchyEntryType mType;
     FormIndex mFormIndex;
     ArrayList<HierarchyElement> mChildren;
 
-    public HierarchyElement(String text1, String text2, Drawable bullet, int color, int type,
+    public HierarchyElement(String text1, String text2, Drawable bullet, int color, HierarchyEntryType type,
                             FormIndex f) {
         mIcon = bullet;
         mPrimaryText = text1;
@@ -46,11 +46,11 @@ public class HierarchyElement {
         return mFormIndex;
     }
 
-    public int getType() {
+    public HierarchyEntryType getType() {
         return mType;
     }
 
-    public void setType(int newType) {
+    public void setType(HierarchyEntryType newType) {
         mType = newType;
     }
 
