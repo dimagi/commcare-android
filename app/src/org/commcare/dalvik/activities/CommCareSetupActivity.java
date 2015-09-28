@@ -90,6 +90,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_LAST_INSTALL = "last_install_time";
 
     /**
+     * How many sms messages to scan over looking for commcare install link
+     */
+    private static final int SMS_CHECK_COUNT = 100;
+
+    /**
      * UI configuration states.
      */
     public enum UiState {
@@ -580,78 +585,80 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
 
-
     /**
-     * Scan the SMS inbox, looking for messages that meet the expected install format,
-     * and if found and verified return the discovered install link. Current behavior will search
-     * backwards from the most recent text, returning the first discovered valid link
-     * @return the verified install link, null if none found
-     * @throws SignatureException if we discovered a valid-looking message but could not verifyMessageSignatureHelper it
+     * Scan the most recent incoming text messages for a message with a
+     * verified link to a commcare app and install it.  Message scanning stops
+     * after the number of scanned messages reaches 'SMS_CHECK_COUNT'.
+     *
+     * @param installTriggeredManually don't install the found app link
      */
     private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        if (cursor == null) {
+            return;
+        }
+        int messageIterationCount = 0;
         try {
-            if (cursor.moveToFirst()) { // must check the result to prevent exception
-                while (!cursor.isAfterLast()) {
-                    String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                    if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
-                        RetrieveParseVerifyMessageTask mTask =
-                                new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this,installTriggeredManually){
+            while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
+                messageIterationCount++;
+                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                    RetrieveParseVerifyMessageTask mTask =
+                            new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
 
-                                    @Override
-                                    protected void deliverResult(CommCareSetupActivity receiver, String result) {
-                                        if(installTriggeredManually){
-                                            if(result != null){
-                                                incomingRef = result;
-                                                uiState = UiState.READY_TO_INSTALL;
-                                                uiStateScreenTransition();
-                                                startResourceInstall();
-                                            } else{
-                                                // only notify if this was manually triggered, since most people won't use this
-                                                Toast.makeText(receiver, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
-                                            }
-                                        } else{
-                                            if (result != null) {
-                                                incomingRef = result;
-                                                uiState = UiState.READY_TO_INSTALL;
-                                                uiStateScreenTransition();
-                                                Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
-                                            }
+                                @Override
+                                protected void deliverResult(CommCareSetupActivity receiver, String result) {
+                                    if (installTriggeredManually) {
+                                        if (result != null) {
+                                            incomingRef = result;
+                                            uiState = UiState.READY_TO_INSTALL;
+                                            uiStateScreenTransition();
+                                            startResourceInstall();
+                                        } else {
+                                            // only notify if this was manually triggered, since most people won't use this
+                                            Toast.makeText(receiver, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        if (result != null) {
+                                            incomingRef = result;
+                                            uiState = UiState.READY_TO_INSTALL;
+                                            uiStateScreenTransition();
+                                            Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
                                         }
                                     }
+                                }
 
-                                    @Override
-                                    protected void deliverUpdate(CommCareSetupActivity receiver, Void... update) {
-                                        //do nothing for now
-                                    }
+                                @Override
+                                protected void deliverUpdate(CommCareSetupActivity receiver, Void... update) {
+                                    //do nothing for now
+                                }
 
-                                    @Override
-                                    protected void deliverError(CommCareSetupActivity receiver, Exception e) {
-                                        if(e instanceof  SignatureException){
-                                            e.printStackTrace();
-                                            Toast.makeText(receiver, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
-                                        } else if(e instanceof IOException){
-                                            e.printStackTrace();
-                                            Toast.makeText(receiver, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
-                                        } else{
-                                            e.printStackTrace();
-                                            Toast.makeText(receiver, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
-                                        }
+                                @Override
+                                protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+                                    if (e instanceof SignatureException) {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+                                    } else if (e instanceof IOException) {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+                                    } else {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
                                     }
-                                };
-                        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ) {
-                            mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, textMessageBody);
-                        } else {
-                            mTask.execute(textMessageBody);
-                        }
-                        break;
+                                }
+                            };
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, textMessageBody);
+                    } else {
+                        mTask.execute(textMessageBody);
                     }
+                    break;
                 }
             }
         }
-        finally{
+        finally {
             cursor.close();
         }
     }

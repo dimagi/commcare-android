@@ -55,6 +55,7 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
@@ -68,6 +69,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.listeners.BarcodeScanListener;
@@ -491,6 +493,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
 
         TreeReference selection = adapter.getItem(position);
+        if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
+        }
         if (inAwesomeMode) {
             displayReferenceAwesome(selection, position);
             updateSelectedItem(selection, false);
@@ -891,7 +896,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private void setupDivider(ListView view) {
         boolean useNewDivider = shortSelect.usesGridView();
 
-        if(useNewDivider) {
+        if (useNewDivider) {
             int viewWidth = view.getWidth();
             float density = getResources().getDisplayMetrics().density;
             int viewWidthDP = (int)(viewWidth / density);
