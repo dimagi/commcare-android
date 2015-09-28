@@ -228,6 +228,7 @@ android {
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
+def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 /**
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
@@ -238,7 +239,7 @@ task downloadCCApp(type: Exec)
 downloadCCApp {
     workingDir '.'
 
-    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', ccAppId, android.sourceSets.standalone.assets.srcDirs.first()
+    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', ccDomain, ccAppId, android.sourceSets.standalone.assets.srcDirs.first()
 
     ignoreExitValue = true
 
@@ -253,6 +254,9 @@ downloadCCApp {
 downloadCCApp << {
     if (ccAppId.equals("")) {
         throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+    }
+    if (ccDomain.equals("")) {
+        throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
     }
 }
 
