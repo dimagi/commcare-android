@@ -131,7 +131,7 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         attempts.addFailure(stackTrace);
     }
 
-    private String getStackTraceString(Exception e) {
+    private static String getStackTraceString(Exception e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);

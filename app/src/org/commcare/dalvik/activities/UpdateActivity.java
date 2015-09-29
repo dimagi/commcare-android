@@ -32,13 +32,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private boolean taskIsCancelling;
     private UpdateTask updateTask;
-    private UpdateUiController uiController;
+    private UpdateUIState uiState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        uiController = new UpdateUiController(this);
+        uiState = new UpdateUIState(this);
 
         loadSaveInstanceState(savedInstanceState);
 
@@ -62,7 +62,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } catch (TaskListenerRegistrationException e) {
             Log.e(TAG, "Attempting to register a TaskListener to an already " +
                     "registered task.");
-            uiController.errorUiState();
+            uiState.errorUiState();
         }
     }
 
@@ -70,9 +70,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void onResume() {
         super.onResume();
 
-        if (ConnectivityStatus.isNetworkNotConnected(this) &&
+        if (!ConnectivityStatus.isNetworkAvailable(this) &&
                 ConnectivityStatus.isAirplaneModeOn(this)) {
-            uiController.noConnectivityUiState();
+            uiState.noConnectivityUiState();
             return;
         }
 
@@ -82,38 +82,38 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             currentProgress = updateTask.getProgress();
             maxProgress = updateTask.getMaxProgress();
             if (taskIsCancelling) {
-                uiController.cancellingUiState();
+                uiState.cancellingUiState();
             } else {
                 setUiStateFromRunningTask(updateTask.getStatus());
             }
         } else {
             pendingUpdateOrIdle();
         }
-        uiController.updateProgressBar(currentProgress, maxProgress);
-        uiController.refreshStatusText();
+        uiState.updateProgressBar(currentProgress, maxProgress);
+        uiState.refreshStatusText();
     }
 
     private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
-                uiController.downloadingUiState();
+                uiState.downloadingUiState();
                 break;
             case PENDING:
                 pendingUpdateOrIdle();
                 break;
             case FINISHED:
-                uiController.errorUiState();
+                uiState.errorUiState();
                 break;
             default:
-                uiController.errorUiState();
+                uiState.errorUiState();
         }
     }
 
     private void pendingUpdateOrIdle() {
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
-            uiController.unappliedUpdateAvailableUiState();
+            uiState.unappliedUpdateAvailableUiState();
         } else {
-            uiController.idleUiState();
+            uiState.idleUiState();
         }
     }
 
@@ -147,30 +147,30 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public void handleTaskUpdate(Integer... vals) {
         int progress = vals[0];
         int max = vals[1];
-        uiController.updateProgressBar(progress, max);
+        uiState.updateProgressBar(progress, max);
         String msg = Localization.get("updates.found",
                 new String[]{"" + progress, "" + max});
-        uiController.updateProgressText(msg);
+        uiState.updateProgressText(msg);
     }
 
     @Override
     public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
-            uiController.unappliedUpdateAvailableUiState();
+            uiState.unappliedUpdateAvailableUiState();
         } else {
-            uiController.upToDateUiState();
+            uiState.upToDateUiState();
         }
 
         unregisterTask();
 
-        uiController.refreshStatusText();
+        uiState.refreshStatusText();
     }
 
     @Override
     public void handleTaskCancellation(AppInstallStatus result) {
         unregisterTask();
 
-        uiController.idleUiState();
+        uiState.idleUiState();
     }
 
     protected void startUpdateCheck() {
@@ -189,21 +189,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         updateTask.execute(ref);
-        uiController.downloadingUiState();
+        uiState.downloadingUiState();
     }
 
     private void enterErrorState(String errorMsg) {
         Log.e(TAG, errorMsg);
-        uiController.errorUiState();
+        uiState.errorUiState();
     }
 
     public void stopUpdateCheck() {
         if (updateTask != null) {
             updateTask.cancel(true);
             taskIsCancelling = true;
-            uiController.cancellingUiState();
+            uiState.cancellingUiState();
         } else {
-            uiController.idleUiState();
+            uiState.idleUiState();
         }
     }
 
@@ -218,9 +218,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            uiController.updateInstalledUiState();
+                            uiState.updateInstalledUiState();
                         } else {
-                            uiController.errorUiState();
+                            uiState.errorUiState();
                         }
                     }
 
@@ -232,7 +232,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     @Override
                     protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
-                        uiController.errorUiState();
+                        uiState.errorUiState();
                     }
                 };
         task.connect(this);

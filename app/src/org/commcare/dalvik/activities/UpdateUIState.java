@@ -20,7 +20,7 @@ import java.util.Date;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-class UpdateUiController {
+class UpdateUIState {
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
     private CustomButtonWithText installUpdateButton;
@@ -43,7 +43,7 @@ class UpdateUiController {
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
-    public UpdateUiController(UpdateActivity updateActivity) {
+    public UpdateUIState(UpdateActivity updateActivity) {
         activity = updateActivity;
 
         setupUi();

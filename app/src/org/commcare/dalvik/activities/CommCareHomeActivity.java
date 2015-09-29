@@ -203,7 +203,7 @@ public class CommCareHomeActivity extends SessionAwareCommCareActivity<CommCareH
     }
 
     protected void attemptSync() {
-        if (ConnectivityStatus.isNetworkNotConnected(CommCareHomeActivity.this)) {
+        if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                 displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));

@@ -45,6 +45,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.util.SessionFrame;
@@ -510,7 +511,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     public boolean isNetworkNotConnected() {
-        return !AndroidUtil.isNetworkAvailable(this);
+        return !ConnectivityStatus.isNetworkAvailable(this);
     }
 
     protected void createErrorDialog(String errorMsg, boolean shouldExit) {
