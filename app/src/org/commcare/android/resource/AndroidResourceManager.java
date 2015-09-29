@@ -75,7 +75,7 @@ public class AndroidResourceManager extends ResourceManager {
                     return AppInstallStatus.UpdateStaged;
                 }
 
-                if (updateIsntNewer(getMasterProfile())) {
+                if (updateNotNewer(getMasterProfile())) {
                     Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
                     upgradeTable.clear();
                     return AppInstallStatus.UpToDate;
@@ -127,7 +127,7 @@ public class AndroidResourceManager extends ResourceManager {
                 upgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
         if (upgradeProfile == null) {
-            loadProfile(upgradeTable, profileRef);
+            loadProfileIntoTable(upgradeTable, profileRef);
         } else {
             loadProfileViaTemp(upgradeProfile);
         }
@@ -144,7 +144,7 @@ public class AndroidResourceManager extends ResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
         tempUpgradeTable.destroy();
-        loadProfile(tempUpgradeTable, profileRef);
+        loadProfileIntoTable(tempUpgradeTable, profileRef);
         Resource tempProfile =
                 tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
