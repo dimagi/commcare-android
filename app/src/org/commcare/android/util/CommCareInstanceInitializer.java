@@ -11,7 +11,7 @@ import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCareSession;
+import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
