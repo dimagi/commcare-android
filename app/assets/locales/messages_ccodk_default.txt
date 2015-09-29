@@ -501,16 +501,16 @@ notification.case.predicate.action=Filtering your list failed with a bad filter 
 
 archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
-archive.install.state.empty=Please select a ZIP file to begin
+archive.install.state.empty=Please select a CCZ file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
-archive.install.state.done=Your zip file has been installed
-archive.install.state.invalid.path=The file path selected is not a valid zip file. Please select a valid file.
+archive.install.state.done=Your CCZ file has been installed
+archive.install.state.invalid.path=The file path selected is not a valid CCZ file. Please select a valid file.
 archive.install.cancelled=Offline installation cancelled
-archive.install.bad=The selected ZIP file is not valid. Please choose a valid zip file.
+archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.
 archive.install.unzip=Unzipping
 archive.install.no.browser=You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.
 
-archive.install.prompt=Install your CommCare application from a .zip file
+archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
 
 wifi.direct.transfer.forms=Transfer Forms
