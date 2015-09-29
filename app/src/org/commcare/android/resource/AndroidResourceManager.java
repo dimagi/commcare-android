@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.resource.analytics.UpdateStatPersistence;
 import org.commcare.android.resource.analytics.UpdateStats;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.UpdateTask;
@@ -52,7 +51,7 @@ public class AndroidResourceManager extends ResourceManager {
                 ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
                         new AndroidResourceInstallerFactory(app));
 
-        updateStats = UpdateStatPersistence.loadUpdateStats(app);
+        updateStats = UpdateStats.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);
         tempUpgradeTable.setInstallStatsLogger(updateStats);
     }
@@ -70,7 +69,7 @@ public class AndroidResourceManager extends ResourceManager {
         synchronized (updateLock) {
             this.profileRef = profileRef;
             try {
-                instantiateLatestProfile();
+                instantiateLatestUpgradeProfile();
 
                 if (isUpgradeTableStaged()) {
                     return AppInstallStatus.UpdateStaged;
@@ -111,7 +110,7 @@ public class AndroidResourceManager extends ResourceManager {
      * Load the latest profile into the upgrade table. Clears the upgrade table
      * if it's partially populated with an out-of-date version.
      */
-    private void instantiateLatestProfile()
+    private void instantiateLatestUpgradeProfile()
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
@@ -181,7 +180,7 @@ public class AndroidResourceManager extends ResourceManager {
      */
     public void upgradeCancelled() {
         if (!isUpgradeTableStaged()) {
-            UpdateStatPersistence.saveStatsPersistently(app, updateStats);
+            UpdateStats.saveStatsPersistently(app, updateStats);
         } else {
             Log.i(TAG, "Upgrade cancelled, but already finished with these stats");
             Log.i(TAG, updateStats.toString());
@@ -207,17 +206,9 @@ public class AndroidResourceManager extends ResourceManager {
      * Clear update table, log failure with update stats,
      * and, if appropriate, schedule a update retry
      *
-     * @param exception Log error with update statistics
-     * @param context   Used for showing pinned notification of update task retry
+     * @param result update attempt result
+     * @param ctx    Used for showing pinned notification of update task retry
      */
-    public void processUpdateFailure(Exception exception, Context context) {
-        updateStats.registerUpdateException(exception);
-
-        upgradeTable.clear();
-
-        retryUpdateOrGiveUp(context);
-    }
-
     public void processUpdateFailure(AppInstallStatus result, Context ctx) {
         updateStats.registerUpdateException(new Exception(result.toString()));
 
@@ -237,17 +228,17 @@ public class AndroidResourceManager extends ResourceManager {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
             Log.i(TAG, updateStats.toString());
 
-            UpdateStatPersistence.clearPersistedStats(app);
+            UpdateStats.clearPersistedStats(app);
 
             upgradeTable.clear();
         } else {
             Log.w(TAG, "Retrying auto-update");
-            UpdateStatPersistence.saveStatsPersistently(app, updateStats);
-            scheduleUpdateTask(ctx);
+            UpdateStats.saveStatsPersistently(app, updateStats);
+            scheduleUpdateTaskRetry(ctx);
         }
     }
 
-    private void scheduleUpdateTask(final Context ctx) {
+    private void scheduleUpdateTaskRetry(final Context ctx) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

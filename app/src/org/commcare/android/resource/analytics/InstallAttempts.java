@@ -30,6 +30,7 @@ class InstallAttempts<A> implements Serializable {
         wasSuccessful = true;
     }
 
+    @Override
     public String toString() {
         StringBuilder failureLog = new StringBuilder(resourceName);
         if (wasSuccessful) {

@@ -110,7 +110,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void pendingUpdateOrIdle() {
-        if (ResourceInstallUtils.isUpdateInstallReady()) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             uiController.unappliedUpdateAvailableUiState();
         } else {
             uiController.idleUiState();

@@ -155,7 +155,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
-                if (ResourceInstallUtils.isUpdateInstallReady()) {
+                if (ResourceInstallUtils.isUpdateReadyToInstall()) {
                     installPendingUpdate();
                 }
 

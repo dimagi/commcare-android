@@ -1,7 +1,10 @@
 package org.commcare.android.resource.analytics;
 
+import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
 
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.InstallStatsLogger;
 
 import java.io.ByteArrayInputStream;
@@ -22,19 +25,64 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateStats implements InstallStatsLogger, Serializable {
+    private static final String TAG = UpdateStats.class.getSimpleName();
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private final long startInstallTime;
     private int restartCount = 0;
     private final static String TOP_LEVEL_STATS_KEY = "top-level-update-exceptions";
+    private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
 
     private static final long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
     private static final int ATTEMPTS_UNTIL_UPDATE_STALE = 5;
 
-    public UpdateStats() {
+    private UpdateStats() {
         startInstallTime = new Date().getTime();
         resourceInstallStats = new Hashtable<>();
         resourceInstallStats.put(TOP_LEVEL_STATS_KEY,
                 new InstallAttempts<String>(TOP_LEVEL_STATS_KEY));
+    }
+
+    /**
+     * Load update statistics associated with upgrade table from app preferences
+     *
+     * @return Persistently-stored update stats or if no stats found then a new
+     * update stats object.
+     */
+    public static UpdateStats loadUpdateStats(CommCareApp app) {
+        SharedPreferences prefs = app.getAppPreferences();
+        if (prefs.contains(UPGRADE_STATS_KEY)) {
+            try {
+                String serializedObj = prefs.getString(UPGRADE_STATS_KEY, "");
+                return (UpdateStats)UpdateStats.deserialize(serializedObj);
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to deserialize update stats, defaulting to new instance.");
+                e.printStackTrace();
+                clearPersistedStats(app);
+                return new UpdateStats();
+            }
+        } else {
+            return new UpdateStats();
+        }
+    }
+
+    private static Object deserialize(String s) throws IOException,
+            ClassNotFoundException {
+        byte[] data = Base64.decode(s, Base64.DEFAULT);
+        ObjectInputStream ois = new ObjectInputStream(
+                new ByteArrayInputStream(data));
+        Object o = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    /**
+     * Wipe stats associated with upgrade table from app preferences.
+     */
+    public static void clearPersistedStats(CommCareApp app) {
+        SharedPreferences prefs = app.getAppPreferences();
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(UPGRADE_STATS_KEY);
+        editor.commit();
     }
 
     /**
@@ -62,6 +110,16 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     }
 
     @Override
+    public void recordResourceInstallSuccess(String resourceName) {
+        InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
+        if (attempts == null) {
+            attempts = new InstallAttempts<>(resourceName);
+            resourceInstallStats.put(resourceName, attempts);
+        }
+        attempts.registerSuccesfulInstall();
+    }
+
+    @Override
     public void recordResourceInstallFailure(String resourceName,
                                              Exception errorMsg) {
         InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
@@ -78,16 +136,6 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
-    }
-
-    @Override
-    public void recordResourceInstallSuccess(String resourceName) {
-        InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
-        if (attempts == null) {
-            attempts = new InstallAttempts<>(resourceName);
-            resourceInstallStats.put(resourceName, attempts);
-        }
-        attempts.registerSuccesfulInstall();
     }
 
     @Override
@@ -109,17 +157,24 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         return statsStringBuilder.toString();
     }
 
-    public static Object deserialize(String s) throws IOException,
-            ClassNotFoundException {
-        byte[] data = Base64.decode(s, Base64.DEFAULT);
-        ObjectInputStream ois = new ObjectInputStream(
-                new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return o;
+    /**
+     * Save update stats to app preferences for reuse if the update is ever resumed.
+     */
+    public static void saveStatsPersistently(CommCareApp app,
+                                             UpdateStats updateStats) {
+        SharedPreferences prefs = app.getAppPreferences();
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            String serializedObj = UpdateStats.serialize(updateStats);
+            editor.putString(UPGRADE_STATS_KEY, serializedObj);
+            editor.commit();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.w(TAG, "Failed to serialize and store resource installation stats");
+        }
     }
 
-    public static String serialize(Serializable o) throws IOException {
+    private static String serialize(Serializable o) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(o);

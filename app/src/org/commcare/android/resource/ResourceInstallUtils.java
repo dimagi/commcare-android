@@ -35,7 +35,7 @@ public class ResourceInstallUtils {
      * @return Is the current app's designated upgrade table staged and ready
      * for installation?
      */
-    public static boolean isUpdateInstallReady() {
+    public static boolean isUpdateReadyToInstall() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         ResourceTable upgradeTable = platform.getUpgradeResourceTable();
