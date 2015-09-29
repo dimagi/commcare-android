@@ -612,19 +612,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                 protected void deliverResult(CommCareSetupActivity receiver, String result) {
                                     if (installTriggeredManually) {
                                         if (result != null) {
-                                            incomingRef = result;
-                                            uiState = UiState.READY_TO_INSTALL;
-                                            uiStateScreenTransition();
-                                            startResourceInstall();
+                                            receiver.incomingRef = result;
+                                            receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.uiStateScreenTransition();
+                                            receiver.startResourceInstall();
                                         } else {
                                             // only notify if this was manually triggered, since most people won't use this
                                             Toast.makeText(receiver, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
                                         }
                                     } else {
                                         if (result != null) {
-                                            incomingRef = result;
-                                            uiState = UiState.READY_TO_INSTALL;
-                                            uiStateScreenTransition();
+                                            receiver.incomingRef = result;
+                                            receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.uiStateScreenTransition();
                                             Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
                                         }
                                     }
