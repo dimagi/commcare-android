@@ -33,10 +33,10 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.SessionFrame;
 
 
 @ManagedUi(R.layout.screen_suite_menu)
