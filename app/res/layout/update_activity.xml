@@ -10,30 +10,29 @@
         android:layout_height="wrap_content"
         android:scrollbars="none">
 
-        <RelativeLayout android:id="@+id/screen_first_start_main"
-                        xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
-                        xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-            >
+        <RelativeLayout
+            android:id="@+id/screen_first_start_main"
+            xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/current_version_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/content_min_margin"
                     android:layout_marginBottom="@dimen/content_min_margin"
                     android:layout_marginLeft="@dimen/content_min_margin"
                     android:layout_marginRight="@dimen/content_min_margin"
+                    android:layout_marginTop="@dimen/content_min_margin"
                     android:gravity="center"
                     android:textSize="@dimen/text_small"/>
 
@@ -60,41 +59,42 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginLeft="@dimen/standard_spacer"
                     android:layout_marginRight="@dimen/standard_spacer"
-                    android:baselineAligned="false">
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.SquareButtonWithText
-                        android:id="@+id/check_for_update_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                        SquareButtonWithText:textColor="@color/white"
-                        SquareButtonWithText:img="@drawable/update_download"
-                        SquareButtonWithText:subtitle="Check"/>
+
+                        <org.commcare.android.view.SquareButtonWithText
+                            android:id="@+id/check_for_update_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                            SquareButtonWithText:img="@drawable/update_download"
+                            SquareButtonWithText:subtitle="Check"
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:gravity="end"
-                        android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.SquareButtonWithText
-                        android:id="@+id/stop_update_download_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        SquareButtonWithText:textColor="@color/white"
-                        SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
-                        SquareButtonWithText:img="@drawable/install_stop"
-                        SquareButtonWithText:subtitle="Stop"
-                        />
+                        android:background="@drawable/tile_drop_shadow_small_margins"
+                        android:gravity="end">
+
+                        <org.commcare.android.view.SquareButtonWithText
+                            android:id="@+id/stop_update_download_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                            SquareButtonWithText:img="@drawable/install_stop"
+                            SquareButtonWithText:subtitle="Stop"
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
 
@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="100dp"
                     android:gravity="center_horizontal"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -110,16 +110,17 @@
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_marginRight="@dimen/standard_spacer"
                         android:layout_weight="1"
-                        android:gravity="center"
-                        android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.RectangleButtonWithText
-                        android:id="@+id/install_update_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        RectangleButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                        RectangleButtonWithText:textColor="@color/white"
-                        RectangleButtonWithText:img="@drawable/install_start"
-                        RectangleButtonWithText:subtitle="Install"/>
+                        android:background="@drawable/tile_drop_shadow_small_margins"
+                        android:gravity="center">
+
+                        <org.commcare.android.view.RectangleButtonWithText
+                            android:id="@+id/install_update_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            RectangleButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                            RectangleButtonWithText:img="@drawable/install_start"
+                            RectangleButtonWithText:subtitle="Install"
+                            RectangleButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>

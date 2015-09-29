@@ -10,20 +10,19 @@
         android:layout_height="wrap_content"
         android:scrollbars="none">
 
-        <RelativeLayout android:id="@+id/screen_first_start_main"
-                        xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-            >
+        <RelativeLayout
+            android:id="@+id/screen_first_start_main"
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
-                android:orientation="vertical"
-                >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/current_version_text"
@@ -68,14 +67,15 @@
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_weight="1"
                         android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.SquareButtonWithText
-                        android:id="@+id/check_for_update_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                        SquareButtonWithText:textColor="@color/white"
-                        SquareButtonWithText:img="@drawable/update_download"
-                        SquareButtonWithText:subtitle="Check"/>
+
+                        <org.commcare.android.view.SquareButtonWithText
+                            android:id="@+id/check_for_update_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                            SquareButtonWithText:img="@drawable/update_download"
+                            SquareButtonWithText:subtitle="Check"
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
                     <FrameLayout
@@ -84,31 +84,33 @@
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_weight="1"
                         android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.SquareButtonWithText
-                        android:id="@+id/stop_update_download_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
-                        SquareButtonWithText:textColor="@color/white"
-                        SquareButtonWithText:img="@drawable/install_stop"
-                        SquareButtonWithText:subtitle="Stop"
-                        />
+
+                        <org.commcare.android.view.SquareButtonWithText
+                            android:id="@+id/stop_update_download_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                            SquareButtonWithText:img="@drawable/install_stop"
+                            SquareButtonWithText:subtitle="Stop"
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
+
                     <FrameLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/standard_spacer"
                         android:layout_weight="1"
-                        android:gravity="end"
-                        android:background="@drawable/tile_drop_shadow_small_margins">
-                    <org.commcare.android.view.SquareButtonWithText
-                        android:id="@+id/install_update_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                        SquareButtonWithText:textColor="@color/white"
-                        SquareButtonWithText:img="@drawable/install_start"
-                        SquareButtonWithText:subtitle="Install"/>
+                        android:background="@drawable/tile_drop_shadow_small_margins"
+                        android:gravity="end">
+
+                        <org.commcare.android.view.SquareButtonWithText
+                            android:id="@+id/install_update_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                            SquareButtonWithText:img="@drawable/install_start"
+                            SquareButtonWithText:subtitle="Install"
+                            SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
