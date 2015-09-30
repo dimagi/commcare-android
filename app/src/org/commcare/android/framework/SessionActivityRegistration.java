@@ -41,13 +41,14 @@ public class SessionActivityRegistration {
      * methods of activities that are session sensitive.
      */
     public static void handleOrListenForSessionExpiration(Activity activity) {
+        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
+
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
                 letHomeScreenRedirectToLogin(activity);
             }
         }
-        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
     }
 
     /**
