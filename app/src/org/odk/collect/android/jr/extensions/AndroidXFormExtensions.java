@@ -14,13 +14,11 @@ import java.util.Hashtable;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidXFormExtensions implements XFormExtension {
-    Hashtable<String, IntentCallout> intents = new Hashtable<String, IntentCallout>(); 
+    private Hashtable<String, IntentCallout> intents = new Hashtable<>();
     
     public AndroidXFormExtensions() {
-        
     }
     
     public void registerIntent(String id, IntentCallout callout) {
@@ -45,6 +43,4 @@ public class AndroidXFormExtensions implements XFormExtension {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out,  new ExtWrapMap(intents));
     }
-
-    
 }
