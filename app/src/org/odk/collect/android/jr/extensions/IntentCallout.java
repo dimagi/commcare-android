@@ -60,7 +60,11 @@ public class IntentCallout implements Externalizable {
     
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
-    
+
+    public IntentCallout() {
+        // for serialization
+    }
+
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, ArrayList<TreeReference>> responses, String type,
                          String component, String data, String buttonLabel, String appearance) {
