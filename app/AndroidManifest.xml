@@ -111,19 +111,23 @@
 
         <provider
             android:name=".odk.provider.FormsProvider"
+            android:exported="true"
             android:authorities="org.commcare.android.provider.odk.forms" />
         <provider
             android:name=".odk.provider.InstanceProvider"
+            android:exported="true"
             android:authorities="org.commcare.android.provider.odk.instances" />
         <provider
             android:name=".provider.CaseDataContentProvider"
             android:authorities="org.commcare.dalvik.case"
             android:enabled="true"
+            android:exported="true"
             android:readPermission="org.commcare.dalvik.provider.cases.read" />
         <provider
             android:name=".provider.FixtureDataContentProvider"
             android:authorities="org.commcare.dalvik.fixture"
             android:enabled="true"
+            android:exported="true"
             android:readPermission="org.commcare.dalvik.provider.cases.read" />
 
         <activity android:name=".preferences.CommCarePreferences" >
@@ -346,10 +350,10 @@
             android:name=".activities.UnrecoverableErrorActivity"
             android:theme="@style/Theme.Transparent" >
         </activity>
-        <activity android:name=".activities.KeyAccessRequestActivity" >
+        <activity android:name=".activities.KeyAccessRequestActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
