@@ -350,7 +350,7 @@
             android:theme="@style/Theme.Transparent" >
         </activity>
         <activity android:name=".activities.KeyAccessRequestActivity"
-            android:exported="true">>
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
                 <category android:name="android.intent.category.DEFAULT" />
