@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 
@@ -14,6 +15,8 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SessionActivityRegistration {
+    private static final String TAG = SessionActivityRegistration.class.getSimpleName();
+
     public static final String USER_SESSION_EXPIRED =
             "org.commcare.dalvik.application.user_session_expired";
 
@@ -52,7 +55,12 @@ public class SessionActivityRegistration {
      * this method in onPause methods of activities that are session sensitive.
      */
     public static void unregisterSessionExpirationReceiver(Activity activity) {
-        activity.unregisterReceiver(userSessionExpiredReceiver);
+        try {
+            activity.unregisterReceiver(userSessionExpiredReceiver);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Trying to unregister the session expiration receiver " +
+                    "that wasn't previously registerd.");
+        }
     }
 
     /**
