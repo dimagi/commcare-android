@@ -268,6 +268,8 @@ select.detail.title=Details
 select.list.title=Select
 
 home.logged.in.message=Logged In: ${0}
+notification.logged.in=Logged Into ${0}
+
 title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
