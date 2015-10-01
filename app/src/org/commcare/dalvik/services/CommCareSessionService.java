@@ -29,6 +29,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.listeners.FormSaveCallback;
 
 import java.security.InvalidKeyException;
@@ -178,8 +179,12 @@ public class CommCareSessionService extends Service  {
 
         String notificationText;
         if (CommCareApplication._().getInstalledAppRecords().size() > 1) {
-            notificationText = Localization.get("notification.logged.in",
-                    new String[]{Localization.get("app.display.name")});
+            try {
+                notificationText = Localization.get("notification.logged.in",
+                        new String[]{Localization.get("app.display.name")});
+            } catch (NoLocalizedTextException e) {
+                notificationText = getString(NOTIFICATION);
+            }
         } else {
             notificationText = getString(NOTIFICATION);
         }
