@@ -42,7 +42,7 @@ public class AUser implements Persistable, IMetaData
     public static final String TYPE_STANDARD = "standard";
     public static final String TYPE_DEMO = "demo";
     public static final String KEY_USER_TYPE = "user_type";
-    
+
     public static final String META_UID = "uid";
     public static final String META_USERNAME = "username";
     public static final String META_ID = "userid";
@@ -53,14 +53,16 @@ public class AUser implements Persistable, IMetaData
     private String username;
     private String password;
     private String uniqueId;  //globally-unique id
-    
+
     private byte[] wrappedKey;
-    
+
     private boolean rememberMe = false;
     private String syncToken = null;
-    
-    /** String -> String **/
-    private Hashtable<String,String> properties = new Hashtable<String,String>(); 
+
+    /**
+     * String -> String *
+     */
+    private Hashtable<String, String> properties = new Hashtable<String, String>();
 
     public AUser() {
         setUserType(TYPE_STANDARD);
@@ -69,7 +71,6 @@ public class AUser implements Persistable, IMetaData
     public AUser(String name, String passw, String uniqueID) {
         this(name, passw, uniqueID, TYPE_STANDARD);
     }
-    
     public AUser(String name, String passw, String uniqueID, String userType) {
         username = name.toLowerCase();
         password = passw;
@@ -87,7 +88,7 @@ public class AUser implements Persistable, IMetaData
         this.rememberMe = ExtUtil.readBool(in);
         this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
         this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+        this.properties = (Hashtable) ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -100,19 +101,16 @@ public class AUser implements Persistable, IMetaData
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(syncToken));
         ExtUtil.write(out, new ExtWrapMap(properties));
     }
-    
-    public String getUsername()
-    {
+
+    public String getUsername() {
         return username;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
-    public void setID(int recordId)
-    {
+    public void setID(int recordId) {
 
         this.recordId = recordId;
     }
@@ -122,15 +120,15 @@ public class AUser implements Persistable, IMetaData
     }
 
     public String getUserType() {
-        if(properties.containsKey(KEY_USER_TYPE)) {
+        if (properties.containsKey(KEY_USER_TYPE)) {
             return properties.get(KEY_USER_TYPE);
         } else {
             return null;
         }
     }
-    
+
     public void setUserType(String userType) {
-        properties.put(KEY_USER_TYPE,userType);
+        properties.put(KEY_USER_TYPE, userType);
     }
 
     public void setUsername(String username) {
@@ -148,75 +146,77 @@ public class AUser implements Persistable, IMetaData
     public void setRememberMe(boolean rememberMe) {
         this.rememberMe = rememberMe;
     }
-    
+
     public void setUuid(String uuid) {
         this.uniqueId = uuid;
     }
-    
+
     public String getUniqueId() {
         return uniqueId;
     }
-    
+
     public void setWrappedKey(byte[] key) {
         this.wrappedKey = key;
     }
-    
+
     public byte[] getWrappedKey() {
         return wrappedKey;
     }
-    
+
     public Hashtable<String, String> getProperties() {
         return this.properties;
     }
-    
+
     public void setProperty(String key, String val) {
         this.properties.put(key, val);
-    } 
-    
+    }
+
     public String getProperty(String key) {
-        return (String)this.properties.get(key);
+        return (String) this.properties.get(key);
     }
 
     public Hashtable getMetaData() {
         Hashtable ret = new Hashtable();
-        for(String name : getMetaDataFields()) {
+        for (String name : getMetaDataFields()) {
             ret.put(name, getMetaData(name));
         }
         return ret;
     }
-    
+
     public void setSyncToken(String syncToken) {
         this.syncToken = syncToken;
     }
-    
+
     public String getSyncToken() {
         return syncToken;
     }
 
     public Object getMetaData(String fieldName) {
-        if(META_UID.equals(fieldName)) {
+        if (META_UID.equals(fieldName)) {
             return uniqueId;
-        } else if(META_USERNAME.equals(fieldName)) {
+        } else if (META_USERNAME.equals(fieldName)) {
             return username;
-        } else if(META_ID.equals(fieldName)) {
+        } else if (META_ID.equals(fieldName)) {
             return Integer.valueOf(recordId);
         } else if (META_WRAPPED_KEY.equals(fieldName)) {
             return wrappedKey;
         } else if (META_SYNC_TOKEN.equals(fieldName)) {
             return ExtUtil.emptyIfNull(syncToken);
         }
-        throw new IllegalArgumentException("No metadata field " + fieldName  + " for User Models");
+        throw new IllegalArgumentException("No metadata field " + fieldName + " for User Models");
     }
 
     public String[] getMetaDataFields() {
-        return new String[] {META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY, META_SYNC_TOKEN};
+        return new String[]{META_UID, META_USERNAME, META_ID, META_WRAPPED_KEY, META_SYNC_TOKEN};
     }
-    
+
     //Don't ever save!
     private String cachedPwd;
+
     public void setCachedPwd(String password) {
         this.cachedPwd = password;
     }
+
     public String getCachedPwd() {
         return this.cachedPwd;
     }

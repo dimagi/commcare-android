@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.util.bitcache;
 
@@ -27,13 +27,12 @@ import javax.crypto.SecretKey;
 
 /**
  * @author ctsims
- *
  */
 public class FileBitCache implements BitCache {
     Context context;
     SecretKey key;
     File temp;
-    
+
     protected FileBitCache(Context context) {
         this.context = context;
     }
@@ -41,20 +40,20 @@ public class FileBitCache implements BitCache {
     @Override
     public void initializeCache() throws IOException {
         File cacheLocation = context.getCacheDir();
-        
+
         //generate temp file
-        temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml",cacheLocation);
+        temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml", cacheLocation);
         key = CryptUtil.generateSemiRandomKey();
     }
 
     @Override
-    public OutputStream getCacheStream() throws IOException{
+    public OutputStream getCacheStream() throws IOException {
         //generate write key/cipher
         try {
             Cipher encrypter = Cipher.getInstance("AES");
-            
+
             encrypter.init(Cipher.ENCRYPT_MODE, key);
-            
+
             //stream file 
             FileOutputStream fos = new FileOutputStream(temp);
             CipherOutputStream cos = new CipherOutputStream(fos, encrypter);
@@ -75,15 +74,15 @@ public class FileBitCache implements BitCache {
 
     @Override
     public InputStream retrieveCache() throws IOException {
-        try{
+        try {
             //generate read key/cipher
             Cipher decrypter = Cipher.getInstance("AES");
             decrypter.init(Cipher.DECRYPT_MODE, key);
-            
+
             //process
             FileInputStream fis = new FileInputStream(temp);
             BufferedInputStream bis = new BufferedInputStream(fis, 4096);
-            CipherInputStream cis = new CipherInputStream(bis,decrypter);
+            CipherInputStream cis = new CipherInputStream(bis, decrypter);
             return cis;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -96,7 +95,7 @@ public class FileBitCache implements BitCache {
             throw new RuntimeException(e);
         }
     }
-    
+
     public void release() {
         key = null;
         context = null;

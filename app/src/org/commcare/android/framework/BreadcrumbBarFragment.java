@@ -38,11 +38,11 @@ import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -235,6 +235,10 @@ public class BreadcrumbBarFragment extends Fragment {
 
         final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
 
+        if(inlineDetail == null) {
+            infoButton.setVisibility(View.GONE);
+        }
+
         OnClickListener toggleButtonClickListener = new OnClickListener() {
 
             private boolean isClosed = true;
@@ -243,8 +247,8 @@ public class BreadcrumbBarFragment extends Fragment {
             public void onClick(View v) {
                 if(isClosed){
                     if(mInternalDetailView == null ) {
-                        mInternalDetailView = new TabbedDetailView(activity, AndroidUtil.generateViewId());
-                        mInternalDetailView.setRoot((ViewGroup) holder.findViewById(R.id.com_tile_holder_detail_frame));
+                        mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
+                        mInternalDetailView.setRoot(mInternalDetailView);
 
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();

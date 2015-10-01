@@ -73,7 +73,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 mWaitingForData = true;
                 try {
                     ((Activity)getContext())
-                            .startActivityForResult(i, FormEntryActivity.AUDIO_CAPTURE);
+                            .startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -100,7 +100,7 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 mWaitingForData = true;
                 try {
                     ((Activity)getContext())
-                            .startActivityForResult(i, FormEntryActivity.AUDIO_CHOOSER);
+                            .startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),

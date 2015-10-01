@@ -29,7 +29,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -45,7 +44,6 @@ import javax.crypto.SecretKey;
 public class InstanceProvider extends ContentProvider {
     private static final String t = "InstancesProvider";
 
-    private static final String DATABASE_NAME = "instances.db";
     private static final int DATABASE_VERSION = 2;
     private static final String INSTANCES_TABLE_NAME = "instances";
 
@@ -61,8 +59,16 @@ public class InstanceProvider extends ContentProvider {
      */
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
-        public DatabaseHelper(Context c, String databaseName) {
+        // the application id of the CCApp for which this db is storing instances
+        private String appId;
+
+        public DatabaseHelper(Context c, String databaseName, String appId) {
             super(c, databaseName, null, DATABASE_VERSION);
+            this.appId = appId;
+        }
+
+        public String getAppId() {
+            return this.appId;
         }
 
         @Override
@@ -97,13 +103,11 @@ public class InstanceProvider extends ContentProvider {
         return true;
     }
 
-    /**
-     * Setup helper to access database.
-     */
     void init() {
-        //this is terrible, we need to be binding to the cc service, etc. Temporary code for testing
-        if(mDbHelper == null) {
-            mDbHelper = new DatabaseHelper(CommCareApplication._(), DATABASE_NAME);
+        String appId = ProviderUtils.getSandboxedAppId();
+        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
+            String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
+            mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
     }
 
@@ -564,7 +568,7 @@ public class InstanceProvider extends ContentProvider {
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
             throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
-        } catch (StorageFullException | UnfullfilledRequirementsException e) {
+        } catch (UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
     }

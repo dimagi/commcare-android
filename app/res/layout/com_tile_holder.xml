@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white" >
+                android:background="@color/white">
 
     <FrameLayout
         android:id="@+id/com_tile_holder_top"
@@ -79,7 +79,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
-            android:layout_above="@+id/com_tile_holder_btn_close" />
+            android:layout_above="@+id/com_tile_holder_btn_close"
+            style="@style/DetailDrawerPulldown" />
 
         <ImageButton
             android:id="@id/com_tile_holder_btn_close"

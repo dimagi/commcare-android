@@ -92,9 +92,7 @@ public class ODKView extends ScrollView
         widgets = new ArrayList<QuestionWidget>();
         dividers = new ArrayList<View>();
 
-        View layout = inflate(getContext(), R.layout.odkview_layout, null);
-
-        mView = (LinearLayout) layout.findViewById(R.id.odkview_layout);
+        mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
         
         if(PreferencesActivity.getProgressBarMode(context) == ProgressBarMode.ProgressOnly) {
             this.mProgressEnabled = true;
@@ -181,7 +179,7 @@ public class ODKView extends ScrollView
         
         updateLastQuestion();
 
-        addView(layout);
+        addView(mView);
     }
     
     void removeQuestionFromIndex(int i){
@@ -471,4 +469,21 @@ public class ODKView extends ScrollView
         }
         return questionIndex;
     }
+
+    /**
+     * Takes in a form entry prompt that is obtained generically and if there
+     * is already one on screen (which, for isntance, may have cached some of its data)
+     * returns the object in use currently.
+     */
+    public FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt) {
+        FormIndex index = prompt.getIndex();
+        for(QuestionWidget widget : this.getWidgets()) {
+            if(widget.getFormId().equals(index)) {
+                return widget.getPrompt();
+            }
+        }
+        return prompt;
+    }
+
+
 }

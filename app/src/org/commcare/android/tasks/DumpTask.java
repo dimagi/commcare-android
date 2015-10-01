@@ -19,7 +19,6 @@ import org.commcare.dalvik.activities.CommCareFormDumpActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -263,9 +262,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                                 publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
                             }
                         }
-                    } catch (StorageFullException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
-                        throw new RuntimeException(e);
                     } catch(SessionUnavailableException sue) {
                         throw sue;
                     } catch (Exception e) {

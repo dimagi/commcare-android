@@ -20,11 +20,14 @@ import android.widget.Toast;
 
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
 
@@ -38,6 +41,7 @@ import java.io.File;
  */
 public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
+    public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(Collect.TMPFILE_PATH);
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
@@ -50,10 +54,18 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
     private final TextView mErrorTextView;
 
+    private int mMaxDimen;
+    private PendingCalloutInterface pendingCalloutInterface;
 
-    public ImageWidget(Context context, FormEntryPrompt prompt) {
+    public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
+        this(context, prompt);
+        this.pendingCalloutInterface = pic;
+    }
+
+    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
 
+        mMaxDimen = -1;
         mWaitingForData = false;
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
@@ -84,14 +96,12 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 // 2010, G1 phones only run 1.6. Without specifying the path the
                 // images returned by the camera in 1.6 (and earlier) are ~1/4
                 // the size. boo.
-
-                // if this gets modified, the onActivityResult in
-                // FormEntyActivity will also need to be updated.
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(new File(Collect.TMPFILE_PATH)));
+                        Uri.fromFile(TEMP_FILE_FOR_IMAGE_CAPTURE));
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -121,6 +131,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                     mWaitingForData = true;
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -154,12 +165,17 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            File f = new File(mInstanceFolder + "/" + mBinaryName);
+            // Check if we have a raw folder, and if so pull the image to display from there
+            File toDisplay = new File(mInstanceFolder + "/raw/" + mBinaryName);
+            if (!toDisplay.exists()) {
+                // Otherwise, just use the image in the instance folder
+                toDisplay = new File(mInstanceFolder + "/" + mBinaryName);
+            }
 
-            checkFileSize(f);
+            checkFileSize(toDisplay);
 
-            if (f.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f,
+            if (toDisplay.exists()) {
+                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(toDisplay,
                         screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);
@@ -297,5 +313,44 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         if (mImageView != null) {
             mImageView.cancelLongPress();
         }
+    }
+
+    @Override
+    public void applyExtension(QuestionDataExtension extension) {
+        if (extension instanceof UploadQuestionExtension) {
+            this.mMaxDimen = ((UploadQuestionExtension) extension).getMaxDimen();
+        }
+    }
+
+    public int getMaxDimen() {
+        return this.mMaxDimen;
+    }
+
+    public enum ImageType {
+        JPEG(Bitmap.CompressFormat.JPEG),
+        PNG(Bitmap.CompressFormat.PNG);
+
+        private Bitmap.CompressFormat format;
+
+        ImageType(Bitmap.CompressFormat format) {
+            this.format = format;
+        }
+
+        public Bitmap.CompressFormat getCompressFormat() {
+            return this.format;
+        }
+
+        public static ImageType fromExtension(String extension) {
+            switch(extension.toLowerCase()) {
+                case "jpeg":
+                case "jpg":
+                    return JPEG;
+                case "png":
+                    return PNG;
+                default:
+                    return null;
+            }
+        }
+
     }
 }

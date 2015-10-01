@@ -3,31 +3,49 @@
         <attr name="ratio_width" format="float" />
         <attr name="ratio_height" format="float" />
     </declare-styleable>
-    <attr name="entity_detail_even_row_color" format="reference"></attr>
-    <attr name="entity_detail_odd_row_color" format="reference"></attr>
-    <attr name="entity_view_header_background_color" format="reference"></attr>
-    <attr name="entity_view_header_text_color" format="reference"></attr>
-    <attr name="searchbox_action_bar_color" format="reference"></attr>
-    <attr name="drawer_pulldown_text_color" format="reference"></attr>
-    <attr name="drawer_pulldown_even_row_color" format="reference"></attr>
-    <attr name="drawer_pulldown_odd_row_color" format="reference"></attr>
-    <attr name="menu_tile_title_text_color" format="reference"></attr>
-    <attr name="entity_select_title_text_color" format="reference"></attr>
-    <declare-styleable name="SquareButtonWithText">
-        <attr name="backgroundcolor" format="reference|color" />
-        <attr name="subtitle" format="string" />
-        <attr name="img" format="reference" />
-        <attr name="colorText" format="reference|color" />
+    <attr name="detail_even_row_color" format="reference"/>
+    <attr name="detail_odd_row_color" format="reference"/>
+    <attr name="entity_view_header_background_color" format="reference"/>
+    <attr name="entity_view_header_text_color" format="reference"/>
+    <attr name="searchbox_action_bar_color" format="reference"/>
+    <attr name="drawer_pulldown_text_color" format="reference"/>
+    <attr name="drawer_pulldown_even_row_color" format="reference"/>
+    <attr name="drawer_pulldown_odd_row_color" format="reference"/>
+    <attr name="menu_tile_title_text_color" format="reference"/>
+    <attr name="entity_select_title_text_color" format="reference"/>
+
+    <attr name="backgroundColor" format="reference|color" />
+    <attr name="subtitle" format="string" />
+    <attr name="img" format="reference" />
+    <attr name="textColor" format="reference|color" />
+
+    <declare-styleable name="CustomButtonWithText">
+        <attr name="backgroundColor"/>
+        <attr name="subtitle"/>
+        <attr name="img"/>
+        <attr name="textColor"/>
     </declare-styleable>
+
+    <declare-styleable name="ResizingTextView">
+        <attr name="text_size_small" format="reference|dimension"/>
+    </declare-styleable>
+
     <declare-styleable name="SquareButtonWithNotification">
-        <attr name="colorButtonText" format="reference|color" />
-        <attr name="colorNotificationText" format="reference|color" />
-        <attr name="backgroundcolorButton" format="reference|color" />
-        <attr name="backgroundcolorNotification" format="reference|color" />
-        <attr name="sbn_subtitle" format="string" />
+        <attr name="notificationBackgroundColor" format="reference|color" />
         <attr name="notificationText" format="string" />
-        <attr name="sbn_img" format="reference" />
+        <attr name="notificationTextColor" format="reference|color" />
+
+        <attr name="backgroundColor"/>
+        <attr name="subtitle"/>
+        <attr name="img"/>
+        <attr name="textColor"/>
     </declare-styleable>
-    <attr name="filter_select_background_color" format="reference"></attr>
-    <attr name="filter_select_text_color" format="reference"></attr>
+
+    <attr name="filter_select_background_color" format="reference"/>
+    <attr name="filter_select_text_color" format="reference"/>
+
+    <declare-styleable name="TabbedDetailView">
+        <attr name="even_row_color" format="reference|color"/>
+        <attr name="odd_row_color" format="reference|color"/>
+    </declare-styleable>
 </resources>

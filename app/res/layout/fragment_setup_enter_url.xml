@@ -1,20 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-        <TextView
-            android:id="@+id/app_profile_txt_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="Application Profile"
-            />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/screen_first_start_main"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                android:background="@color/cc_core_bg"
+    >
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/cc_core_bg"
+        android:scrollbars="none">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <include layout="@layout/grid_header_top_banner"/>
 
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:gravity="center_horizontal"
+            >
+            <TextView
+                android:id="@+id/app_profile_txt_view"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/content_min_margin"
+                android:gravity="center"
+                android:text="Enter your app install address"
+                android:textSize="@dimen/text_medium"/>
+
+
+
+            <LinearLayout
             android:id="@+id/advanced_panel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -43,11 +66,21 @@
             </EditText>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/start_install"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_alignParentBottom="true"
-            android:text="Start Install" />
-</RelativeLayout>
+            <Button
+                android:id="@+id/start_install"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/content_start"
+                android:paddingBottom="@dimen/content_start"
+                android:layout_marginTop="@dimen/content_min_margin"
+                android:layout_gravity="bottom"
+                android:textColor="@color/cc_neutral_bg"
+                android:background="@color/cc_brand_color"
+                android:text="Start Install"
+                android:nextFocusUp="@+id/edit_password"
+                />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+</LinearLayout>

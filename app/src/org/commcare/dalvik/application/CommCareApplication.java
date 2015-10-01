@@ -35,6 +35,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -72,14 +73,16 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.CommCareSession;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
@@ -88,7 +91,6 @@ import org.javarosa.core.services.PropertyManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.StethoInitializer;
@@ -124,6 +126,8 @@ public class CommCareApplication extends Application {
     public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_DELETE_REQUESTED = 8;
+    public static final int STATE_MIGRATION_FAILED = 16;
+    public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
     public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
@@ -132,6 +136,7 @@ public class CommCareApplication extends Application {
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
+    private CommCareApp appBeingInstalled;
 
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
@@ -189,7 +194,7 @@ public class CommCareApplication extends Application {
         //request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
 
-        Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler()));
+        Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
         PropertyManager.setPropertyManager(new ODKPropertyManager());
 
@@ -210,7 +215,7 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch(SessionUnavailableException | StorageFullException sfe) {
+        } catch(SessionUnavailableException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
@@ -220,8 +225,9 @@ public class CommCareApplication extends Application {
 
         intializeDefaultLocalizerData();
 
-        //The fallback in case the db isn't installed
-        initializeAppResourcesOnStartup();
+        if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
+            initializeAnAppOnStartup();
+        }
 
         ACRAUtil.initACRA(this);
     }
@@ -231,9 +237,15 @@ public class CommCareApplication extends Application {
     }
 
     public void triggerHandledAppExit(Context c, String message, String title) {
+        triggerHandledAppExit(c, message, title, true);
+    }
+
+    public void triggerHandledAppExit(Context c, String message, String title,
+                                      boolean useExtraMessage) {
         Intent i = new Intent(c, UnrecoverableErrorActivity.class);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_TITLE, title);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
+        i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
 
         // start a new stack and forget where we were (so we don't restart the
         // app from there)
@@ -390,7 +402,7 @@ public class CommCareApplication extends Application {
      * Performs the appropriate initialization of an application when this CommCareApplication is
      * first launched
      */
-    private void initializeAppResourcesOnStartup() {
+    private void initializeAnAppOnStartup() {
         // Before we try to initialize a new app, check if any existing apps were left in a
         // partially deleted state, and finish uninstalling them if so
         for (ApplicationRecord record : getGlobalStorage(ApplicationRecord.class)) {
@@ -409,10 +421,10 @@ public class CommCareApplication extends Application {
         // want to initialize one of them to start, so that there will be currently-seated app when
         // the login screen starts up
 
-        // If there is a 'last app' set in shared preferences, try to initialize that application.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)){
+        if (!"".equals(lastAppId)) {
+            // If there is a 'last app' set in shared preferences, try to initialize that application.
             ApplicationRecord lastApp = getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 // This app record could be null if it has since been uninstalled, or unusable if
@@ -422,10 +434,10 @@ public class CommCareApplication extends Application {
             } else {
                 initializeAppResources(new CommCareApp(lastApp));
             }
+        } else {
+            // Otherwise, just pick the first app in the list to initialize
+            initFirstUsableAppRecord();
         }
-
-        // Otherwise, just pick the first app in the list to initialize
-        initFirstUsableAppRecord();
     }
 
     /**
@@ -433,7 +445,7 @@ public class CommCareApplication extends Application {
      * if there is one
      */
     public void initFirstUsableAppRecord() {
-        for(ApplicationRecord record : getUsableAppRecords()) {
+        for (ApplicationRecord record : getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
             break;
         }
@@ -448,6 +460,7 @@ public class CommCareApplication extends Application {
         int resourceState;
         try {
             currentApp = app;
+
             if (currentApp.initializeApplication()) {
                 resourceState = STATE_READY;
                 this.sessionWrapper = new AndroidSessionWrapper(this.getCommCarePlatform());
@@ -588,37 +601,55 @@ public class CommCareApplication extends Application {
         getGlobalStorage(ApplicationRecord.class).write(record);
 
         // 3) Delete the directory containing all of this app's resources
-        FileUtil.deleteFileOrDir(app.storageRoot());
+        if (!FileUtil.deleteFileOrDir(app.storageRoot())) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "App storage root was unable to be " +
+                    "deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
 
-        // 3) Delete all the user databases associated with this app
+        // 4) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
             File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
-            if (f.exists()) {
-                boolean deleted = f.delete();
-                if (!deleted) {
-                    Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
-                            "deleted during app uninstall. Aborting uninstall process for now.");
-                    // If we failed to delete a file, it is likely because there is an open pointer
-                    // to that db still in use, so stop the uninstall for now, and rely on it to
-                    // complete the next time the app starts up
-                    return;
-                }
-            }
-        }
-
-        // 4) Delete the app database
-        File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
-        if (f.exists()) {
-            boolean deleted = f.delete();
-            if (!deleted) {
-                Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
-                        "during app uninstall. Aborting uninstall process for now.");
+            if (!FileUtil.deleteFileOrDir(f)) {
+                Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
+                        "deleted during app uninstall. Aborting uninstall process for now.");
+                // If we failed to delete a file, it is likely because there is an open pointer
+                // to that db still in use, so stop the uninstall for now, and rely on it to
+                // complete the next time the app starts up
                 return;
             }
         }
 
-        // 5) Delete the ApplicationRecord
+        // 5) Delete the forms database for this app
+        File formsDb = getDatabasePath(ProviderUtils.getProviderDbName(
+                ProviderUtils.ProviderType.FORMS,
+                app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(formsDb)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's forms database was unable to be " +
+                    "deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 6) Delete the instances database for this app
+        File instancesDb = getDatabasePath(ProviderUtils.getProviderDbName(
+                ProviderUtils.ProviderType.INSTANCES,
+                app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(instancesDb)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app's instances database was unable to" +
+                    " be deleted during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 7) Delete the app database
+        File f = getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
+        if (!FileUtil.deleteFileOrDir(f)) {
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "The app database was unable to be deleted" +
+                    "during app uninstall. Aborting uninstall process for now.");
+            return;
+        }
+
+        // 8) Delete the ApplicationRecord
         getGlobalStorage(ApplicationRecord.class).remove(record.getID());
     }
 
@@ -631,6 +662,12 @@ public class CommCareApplication extends Application {
         } catch (SQLiteException e) {
             //Only thrown if DB isn't there
             return STATE_UNINSTALLED;
+        } catch (MigrationException e) {
+            if (e.isDefiniteFailure()) {
+                return STATE_MIGRATION_FAILED;
+            } else {
+                return STATE_MIGRATION_QUESTIONABLE;
+            }
         }
     }
 
@@ -792,8 +829,8 @@ public class CommCareApplication extends Application {
         }
 
 
-        String buildDate = getString(R.string.app_build_date);
-        String buildNumber = getString(R.string.app_build_number);
+        String buildDate = BuildConfig.BUILD_DATE;
+        String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(getString(R.string.app_version_string), new String[]{pi.versionName, String.valueOf(pi.versionCode), ccv, buildNumber, buildDate, profileVersion});
     }
@@ -1329,5 +1366,13 @@ public class CommCareApplication extends Application {
                         Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    /**
+     * Used for manually linking to a session service during tests
+     */
+    public void setTestingService(CommCareSessionService service) {
+        mIsBound = true;
+        mBoundService = service;
     }
 }

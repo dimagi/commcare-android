@@ -1,6 +1,7 @@
 package org.commcare.android.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -50,7 +51,11 @@ public class MarkupUtil {
     }
 
     public static Spannable returnCSS(String message){
-        return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+            return new SpannableString(Html.fromHtml(message));
+        } else {
+            return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
+        }
     }
 
 

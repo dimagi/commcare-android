@@ -56,21 +56,21 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
-import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.views.media.AudioController;
 
@@ -85,7 +85,12 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher, EntityLoaderListener, OnItemClickListener, TextToSpeech.OnInitListener, DetailCalloutListener, BarcodeScanListener {
+public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
+        EntityLoaderListener,
+        OnItemClickListener,
+        TextToSpeech.OnInitListener,
+        DetailCalloutListener,
+        BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
@@ -121,7 +126,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     // forward on to form manipulation?
     private boolean mViewMode = false;
 
-    // Has a detail screen not been defined?
+    // No detail confirm screen is defined for this entity select
     private boolean mNoDetailMode = false;
 
     private EntityLoaderTask loader;
@@ -402,23 +407,18 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             }
 
-            //Hm, sadly we possibly need to rebuild this each time.
-            int[] colors = AndroidUtil.getThemeColorIDs(this, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
-            Log.i("DEBUG-i", "Background color is: " + colors[0] + ", text color is: " + colors[1]);
-            EntityView v = new EntityView(this, shortSelect, headers, colors[1]);
             header.removeAllViews();
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            v.setBackgroundColor(colors[0]);
 
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
-                header.addView(v, params);
+                //Hm, sadly we possibly need to rebuild this each time.
+                EntityView v = new EntityView(this, shortSelect, headers);
+                header.addView(v);
             }
 
             if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
                 EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
-
                 theloader.execute(selectDatum.getNodeset());
             } else {
                 startTimer();
@@ -444,14 +444,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     /**
-     * Attach element selection information to the intent argument, or create a
-     * new EntityDetailActivity if null. Used for displaying a detailed view of
-     * an element (form instance).
+     * Get an intent for displaying the confirm detail screen for an element (either just populates
+     * the given intent with the necessary information, or creates a new one if it is null)
      *
      * @param contextRef   reference to the selected element for which to display
      *                     detailed view
-     * @param detailIntent intent to attach extra data to. If null, create a fresh
-     *                     EntityDetailActivity intent
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
@@ -459,22 +456,21 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (detailIntent == null) {
             detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         }
+        return populateDetailIntent(detailIntent, contextRef, this.selectDatum, this.asw);
+    }
 
-        // grab the session's (form) element reference, and load it.
-        TreeReference elementRef =
-                XPathReference.getPathExpr(selectDatum.getValue()).getReference(true);
-        AbstractTreeElement element =
-                asw.getEvaluationContext().resolveReference(elementRef.contextualize(contextRef));
+    /**
+     * Attach all element selection information to the intent argument and return the resulting
+     * intent
+     */
+    protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
+                                         SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
-        String value = "";
-        // get the case id and add it to the intent
-        if (element != null && element.getValue() != null) {
-            value = element.getValue().uncast().getString();
-        }
-        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, value);
+        String caseId = SessionDatum.getCaseIdFromReference(
+                contextRef, selectDatum, asw.getEvaluationContext());
+        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
-        // Include long datum info if present. Otherwise that'll be the queue
-        // to just return
+        // Include long datum info if present
         if (selectDatum.getLongDetail() != null) {
             detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
                     selectDatum.getLongDetail());
@@ -496,6 +492,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
 
         TreeReference selection = adapter.getItem(position);
+        if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+            Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
+        }
         if (inAwesomeMode) {
             displayReferenceAwesome(selection, position);
             updateSelectedItem(selection, false);
@@ -503,6 +502,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             Intent i = getDetailIntent(selection, null);
             i.putExtra("entity_detail_index", position);
             if (mNoDetailMode) {
+                // Not actually launching detail intent because there's no confirm detail available
                 returnWithResult(i);
             } else {
                 startActivityForResult(i, CONFIRM_SELECT);
@@ -597,13 +597,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
     }
 
-
+    /**
+     * Finish this activity, including all extras from the given intent in the finishing intent
+     */
     private void returnWithResult(Intent intent) {
         Intent i = new Intent(this.getIntent());
-
         i.putExtras(intent.getExtras());
         setResult(RESULT_OK, i);
-
         finish();
     }
 
@@ -894,32 +894,42 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     private void setupDivider(ListView view) {
-        int viewWidth = view.getWidth();
-        float density = getResources().getDisplayMetrics().density;
-        int viewWidthDP = (int)(viewWidth / density);
-        // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-        int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(0.15 * viewWidth);
+        boolean useNewDivider = shortSelect.usesGridView();
 
-        Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+        if (useNewDivider) {
+            int viewWidth = view.getWidth();
+            float density = getResources().getDisplayMetrics().density;
+            int viewWidthDP = (int)(viewWidth / density);
+            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
 
-        //region ListView divider information
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
+            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+
+            //region ListView divider information
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
+            }
+            //endregion
+
+            //region Asserting divider instanceof LayerDrawable
+            if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
+                throw new AssertionError("Divider should be a LayerDrawable!");
+            }
+            //endregion
+
+            LayerDrawable layerDrawable = (LayerDrawable)divider;
+
+            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+
+            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+            view.setDivider(layerDrawable);
+        } else {
+            view.setDivider(null);
+
         }
-        //endregion
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
 
-        //region Asserting divider instanceof LayerDrawable
-        if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
-            throw new AssertionError("Divider should be a LayerDrawable!");
-        }
-        //endregion
-
-        LayerDrawable layerDrawable = (LayerDrawable) divider;
-
-        layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-        view.setDivider(layerDrawable);
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1005,8 +1015,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 mViewMode = session.isViewCommand(session.getCommand());
             }
 
-            detailView = new TabbedDetailView(this);
-            detailView.setRoot((ViewGroup)rightFrame.findViewById(R.id.entity_detail_tabs));
+            detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
+            detailView.setRoot(detailView);
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
@@ -1061,7 +1071,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             theloader.attachListener(this);
-
             theloader.execute(selectDatum.getNodeset());
         }
     }

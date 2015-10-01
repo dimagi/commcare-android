@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.global.models;
 
@@ -13,7 +13,7 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * An Application Record tracks an individual CommCare app on the current
  * install.
- * 
+ *
  * @author ctsims
  * @author amstone
  */
@@ -26,7 +26,7 @@ public class ApplicationRecord extends Persisted {
      */
     public static final String STORAGE_KEY = "app_record";
     private static final String META_STATUS = "status";
-    
+
     public static final int STATUS_UNINITIALIZED = 0;
     public static final int STATUS_INSTALLED = 1;
     public static final int STATUS_DELETE_REQUESTED = 2;
@@ -55,25 +55,25 @@ public class ApplicationRecord extends Persisted {
     private boolean preMultipleAppsProfile;
     @Persisting(9)
     private int versionNumber;
-    
+
     /**
      * Deserialization only
      */
     public ApplicationRecord() {
-        
+
     }
-    
+
     public ApplicationRecord(String applicationId, int status) {
         this.applicationId = applicationId;
         this.status = status;
         // initialize to -1 so we know when it has not yet been set from the profile
         this.versionNumber = -1;
     }
-    
+
     public String getApplicationId() {
         return applicationId;
     }
-    
+
     public int getStatus() {
         return status;
     }
@@ -130,8 +130,8 @@ public class ApplicationRecord extends Persisted {
     }
 
     /**
-     *  A 'usable' app record is one that will actually get shown to a user -- is visible and has
-     *  its MM resources validated
+     * A 'usable' app record is one that will actually get shown to a user -- is visible and has
+     * its MM resources validated
      */
     public boolean isUsable() {
         return isVisible() && resourcesValidated;
@@ -153,7 +153,7 @@ public class ApplicationRecord extends Persisted {
 
     /**
      * Returns true if this ApplicationRecord was just generated from the a
-     * different ApplicationRecord format via the db upgrader, because it was 
+     * different ApplicationRecord format via the db upgrader, because it was
      * initially installed on a phone with a pre-Multiple Apps version of CommCare
      */
     public boolean wasConvertedByDbUpgrader() {

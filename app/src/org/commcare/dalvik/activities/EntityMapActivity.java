@@ -28,10 +28,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.geo.EntityOverlay;
 import org.commcare.dalvik.geo.EntityOverlayItemFactory;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
@@ -183,11 +183,7 @@ public class EntityMapActivity extends MapActivity {
                                         int lng = (int) (a.getLongitude() * 1E6);
                                         gp = new GeoPoint(lat, lng);
                                         
-                                        try {
-                                            geoCache.write(new GeocodeCacheModel(val, lat, lng));
-                                        } catch (StorageFullException e1) {
-                                            //this is the worst exception ever.
-                                        }
+                                        geoCache.write(new GeocodeCacheModel(val, lat, lng));
                                         legit++;
                                         break;
                                     }
@@ -195,15 +191,10 @@ public class EntityMapActivity extends MapActivity {
                                 
                                 //We didn't find an address, make a miss record
                                 if(gp == null) {
-                                    try {
-                                        geoCache.write(GeocodeCacheModel.NoHitRecord(val));
-                                    } catch (StorageFullException e1) {
-                                        //this is the worst exception ever.
-                                    }
+                                    geoCache.write(GeocodeCacheModel.NoHitRecord(val));
                                 }
-                            } catch (IOException e1) {
+                            } catch (StorageFullException | IOException e1) {
                                 e1.printStackTrace();
-                                //Yo. What? I guess bad connection?
                             }
                         }
                         

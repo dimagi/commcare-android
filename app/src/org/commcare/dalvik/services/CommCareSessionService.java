@@ -116,12 +116,11 @@ public class CommCareSessionService extends Service  {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
-        pool = new CipherPool() {
+        createCipherPool();
+    }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
-             */
+    public void createCipherPool() {
+        pool = new CipherPool() {
             @Override
             public Cipher generateNewCipher() {
                 synchronized(lock) {
@@ -130,23 +129,15 @@ public class CommCareSessionService extends Service  {
                             SecretKeySpec spec = new SecretKeySpec(key, "AES");
                             Cipher decrypter = Cipher.getInstance("AES");
                             decrypter.init(Cipher.DECRYPT_MODE, spec);
-                            
+
                             return decrypter;
                         }
-                    } catch (InvalidKeyException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        // TODO Auto-generated catch block
+                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
                         e.printStackTrace();
                     }
                 }
                 return null;
             }
-            
         };
     }
 
@@ -205,7 +196,7 @@ public class CommCareSessionService extends Service  {
         this.stopForeground(true);
 
         Intent i = new Intent(this, CommCareHomeActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this)

@@ -11,6 +11,11 @@ import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.StorageFullException;
+import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.data.xml.TransactionParser;
+import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -51,7 +56,7 @@ public class FormRecordProcessor {
      */
     public FormRecord process(FormRecord record)
             throws InvalidStructureException, IOException, XmlPullParserException,
-            UnfullfilledRequirementsException, StorageFullException {
+            UnfullfilledRequirementsException {
         String form = record.getPath(c);
         
         final File f = new File(form);
@@ -70,7 +75,7 @@ public class FormRecordProcessor {
     }
     
     public FormRecord updateRecordStatus(FormRecord record, String newStatus)
-            throws IOException, StorageFullException {
+            throws IOException {
         // update the records to show that the form has been processed and is
         // ready to be sent;
         record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);

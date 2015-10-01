@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ImageButton;
 
 /**
- * Created by dancluna on 3/14/15.
+ * @author Daniel Luna (dluna@dimagi.com)
  */
 public class SquareButton extends ImageButton {
     public SquareButton(Context context) {
@@ -22,16 +22,14 @@ public class SquareButton extends ImageButton {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int canvasWidth = MeasureSpec.getSize(widthMeasureSpec);
-        int canvasHeight = MeasureSpec.getSize(heightMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec);
 
-        int squareCanvasDimension = Math.min(canvasWidth, canvasHeight);
-        if (squareCanvasDimension <= 0) {
-            // At times GridView forces its child views to have a height/width
-            // of 0. Avoid button invisibility by choosing the max dimension.
-            squareCanvasDimension = Math.max(canvasWidth, canvasHeight);
+        int height;
+        if (getDrawable() == null) {
+            height = width;
+        } else {
+            height = width * getDrawable().getIntrinsicHeight() / getDrawable().getIntrinsicWidth();
         }
-
-        setMeasuredDimension(squareCanvasDimension, squareCanvasDimension);
+        setMeasuredDimension(width, height);
     }
 }

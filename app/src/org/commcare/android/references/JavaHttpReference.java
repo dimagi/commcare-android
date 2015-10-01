@@ -10,19 +10,18 @@ import java.net.URL;
 
 /**
  * @author ctsims
- *
  */
 public class JavaHttpReference implements Reference {
 
     private String uri;
     HttpRequestGenerator generator;
-    
+
     public JavaHttpReference(String uri, HttpRequestGenerator generator) {
         this.uri = uri;
         this.generator = generator;
     }
-    
-    
+
+
     @Override
     public boolean doesBinaryExist() throws IOException {
         //For now....
@@ -61,7 +60,7 @@ public class JavaHttpReference implements Reference {
     }
 
     public Reference[] probeAlternativeReferences() {
-        return new Reference [0];
+        return new Reference[0];
     }
 
 

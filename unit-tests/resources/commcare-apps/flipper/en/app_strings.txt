@@ -1,0 +1,11 @@
+app.display.name=Untitled Application
+cchq.case=Case
+cchq.referral=Referral
+en=English
+forms.m0f0=small form2
+homescreen.title=Untitled Application
+m0.case_long.case_name_1.header=Name
+m0.case_long.title=Cases
+m0.case_short.case_name_1.header=Name
+m0.case_short.title=Cases
+modules.m0=king of the sea

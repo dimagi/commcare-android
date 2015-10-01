@@ -19,13 +19,12 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
-import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -38,7 +37,12 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
+<<<<<<< HEAD
     public static PrototypeFactory factory = new PrototypeFactory();
+=======
+    public static org.commcare.android.util.LivePrototypeFactory factory =
+            new org.commcare.android.util.LivePrototypeFactory();
+>>>>>>> master
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -86,7 +90,8 @@ public class TestUtils {
         DataModelPullParser parser;
         
         try{
-            InputStream is = TestUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+            InputStream is = System.class.getResourceAsStream(resourcePath);
+            
             parser = new DataModelPullParser(is, getFactory(db), true, true);
             parser.parse();
             is.close();
@@ -106,7 +111,7 @@ public class TestUtils {
      * @return The hook for the test user-db 
      */
     public static SQLiteDatabase getTestDb() {
-        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(Robolectric.application, "Test");
+        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(RuntimeEnvironment.application, "Test");
         final SQLiteDatabase db = helper.getWritableDatabase("Test");
         return db;
     }
@@ -123,7 +128,11 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
         
+<<<<<<< HEAD
         return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(Robolectric.application, db) {
+=======
+        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(RuntimeEnvironment.application, db) {
+>>>>>>> master
 
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -141,19 +150,21 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
-                
-        edi.initialize(new InstanceInitializationFactory() {
+        CommCareInstanceInitializer iif = new CommCareInstanceInitializer(null) {
+            @Override
             public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
-                AndroidCaseInstanceTreeElement casebase =  new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
+                AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
                 instance.setCacheHost(casebase);
                 return casebase;
             }
-        }, "casedb");
+        };
+
+        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+        DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
         
         Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
-        formInstances.put("casedb", edi);
+        formInstances.put("casedb", specializedDataInstance);
         
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);

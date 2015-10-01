@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.user;
 
@@ -24,10 +24,9 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 
 /**
- * The central db point for 
- * 
- * @author ctsims
+ * The central db point for
  *
+ * @author ctsims
  */
 public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
@@ -42,12 +41,13 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * used to update DB
      * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
      */
+
     private static final int USER_DB_VERSION = 8;
-    
+
     private static final String USER_DB_LOCATOR = "database_sandbox_";
-    
+
     private Context context;
-    
+
     private String mUserId;
 
     public CommCareUserOpenHelper(Context context, String userId) {
@@ -55,7 +55,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         this.context = context;
         this.mUserId = userId;
     }
-    
+
     public static String getDbName(String sandboxId) {
         return USER_DB_LOCATOR + sandboxId;
     }
@@ -96,36 +96,36 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
             database.execSQL(builder.getTableCreateString());
-            
+
             //The uniqueness index should be doing this for us
             database.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
             database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
             database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
-            
+
             database.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
-            
+
             database.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
-            
+
             DbUtil.createNumbersTable(database);
-            
+
             database.execSQL(EntityStorageCache.getTableDefinition());
             EntityStorageCache.createIndexes(database);
-            
+
             database.execSQL(CaseIndexTable.getTableDefinition());
             CaseIndexTable.createIndexes(database);
-            
+
             database.setVersion(USER_DB_VERSION);
-                    
+
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
     }
-    
+
     public SQLiteDatabase getWritableDatabase(String key) {
-        try{ 
+        try {
             return super.getWritableDatabase(key);
-        } catch(SQLiteException sqle) {
+        } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mUserId));
             return super.getWritableDatabase(key);
         }
@@ -138,16 +138,16 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
         try {
-            if(CommCareApplication._().getCommCarePlatform() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null) {
-                if(CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null && 
-                   CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
+            if (CommCareApplication._().getCommCarePlatform() != null && CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null) {
+                if (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
+                        CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
                     inSenseMode = true;
-                } 
+                }
             } else {
                 //Hold off on update?
             }
-        } catch(Exception e) {
-            
+        } catch (Exception e) {
+
         }
         new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
     }

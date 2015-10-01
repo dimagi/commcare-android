@@ -6,30 +6,28 @@
     android:layout_height="match_parent"
     android:background="@color/cc_core_bg">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    <!-- the top banner is going to be added as a header view to this element -->
-    <in.srain.cube.views.GridViewWithHeaderAndFooter
-        android:id="@+id/home_gridview_buttons"
-        android:tag="old-gv-port"
-        android:numColumns="2"
-        android:layout_marginStart="@dimen/content_start"
-        android:layout_marginEnd="@dimen/content_start"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/str_version"
-        android:paddingBottom="@dimen/content_start"
-        android:scrollbars="none"
-        tools:listitem="@layout/square_button_notification"
-        />
-    <TextView
-        android:id="@+id/str_version"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="@style/VersionIdText"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone"
-        />
-    </RelativeLayout>
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <!-- the top banner is going to be added as a header view to this element -->
+            <in.srain.cube.views.GridViewWithHeaderAndFooter
+                android:id="@+id/home_gridview_buttons"
+                android:tag="old-gv-port"
+                android:numColumns="2"
+                android:layout_marginStart="@dimen/standard_spacer_half"
+                android:layout_marginEnd="@dimen/standard_spacer_half"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:paddingBottom="@dimen/content_start"
+                android:scrollbars="none"
+                tools:listitem="@layout/square_button_notification" />
+        </RelativeLayout>
+
+        <include layout="@layout/component_drop_shadow"/>
+    </FrameLayout>
 </LinearLayout>

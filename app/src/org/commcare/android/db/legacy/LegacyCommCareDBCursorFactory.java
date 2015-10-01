@@ -16,31 +16,31 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class LegacyCommCareDBCursorFactory implements CursorFactory {
-    
+
     private Hashtable<String, EncryptedModel> models;
-    
+
     /**
-     * Creates a cursor factory which is incapable of dealing with 
+     * Creates a cursor factory which is incapable of dealing with
      * Encrypted data
      */
     public LegacyCommCareDBCursorFactory() {
-        
+
     }
-    
+
     public LegacyCommCareDBCursorFactory(Hashtable<String, EncryptedModel> models) {
         this.models = models;
     }
 
     @Override
     public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
-        if(models == null || !models.containsKey(editTable)) {
+        if (models == null || !models.containsKey(editTable)) {
             return new SQLiteCursor(db, masterQuery, editTable, query);
         } else {
             EncryptedModel model = models.get(editTable);
             return new DecryptingCursor(db, masterQuery, editTable, query, model, getCipherPool());
         }
-    } 
-    
+    }
+
     protected CipherPool getCipherPool() {
         return null;
     }

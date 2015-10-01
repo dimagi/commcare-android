@@ -1,7 +1,5 @@
 package org.commcare.android.framework;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -10,6 +8,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+
+import org.commcare.android.tasks.templates.CommCareTask;
 
 /**
  * Hold a reference to the parent Activity so we can report the
@@ -39,7 +39,7 @@ public class StateFragment extends Fragment {
         super.onAttach(activity);
 
         if (activity instanceof CommCareActivity) {
-            this.boundActivity = (CommCareActivity)activity;
+            this.boundActivity = (CommCareActivity) activity;
             this.boundActivity.stateHolder = this;
 
             if (isCurrentTaskRunning()) {
@@ -79,7 +79,7 @@ public class StateFragment extends Fragment {
         if (lockLevel != CommCareTask.DONT_WAKELOCK) {
             releaseWakeLock();
 
-            PowerManager pm = (PowerManager)boundActivity.getSystemService(Context.POWER_SERVICE);
+            PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
             wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
             wakelock.acquire();
         }

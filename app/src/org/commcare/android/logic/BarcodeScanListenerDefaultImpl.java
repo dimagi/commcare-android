@@ -32,6 +32,10 @@ public final class BarcodeScanListenerDefaultImpl {
 
         if (resultCode == Activity.RESULT_OK) {
             String result = intent.getStringExtra(SCAN_RESULT);
+            // I guess technically a (bad) application could return a null result with status OK
+            if (result != null){
+                result = result.trim();
+            }
             barcodeScanListener.onBarcodeFetch(result, intent);
         }
     }
@@ -44,6 +48,10 @@ public final class BarcodeScanListenerDefaultImpl {
         //endregion
         if (resultCode == Activity.RESULT_OK) {
             String result = intent.getStringExtra("odk_intent_data");
+            // I guess technically a (bad) application could return a null result with status OK
+            if (result != null){
+                result = result.trim();
+            }
             barcodeScanListener.onCalloutResult(result, intent);
         }
     }

@@ -6,7 +6,7 @@ package org.commcare.android.util;
 import org.commcare.android.database.AndroidSandbox;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.util.CommCareSession;
+import org.commcare.session.CommCareSession;
 
 /**
  * @author ctsims

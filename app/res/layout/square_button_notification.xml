@@ -8,17 +8,15 @@
         android:id="@+id/square_button_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundcolor="@color/blue"
+        app:backgroundColor="@color/blue"
         />
        <TextView
            android:id="@+id/button_subtext"
            android:layout_width="fill_parent"
            android:layout_height="wrap_content"
-           android:textAppearance="?android:attr/textAppearanceSmall"
+           android:textSize="@dimen/font_size_small"
            android:layout_gravity="right"
-           android:paddingBottom="5dp"
-           android:paddingLeft="5dp"
-           android:paddingRight="5dp"
+           android:padding="@dimen/help_text_padding"
            android:background="@color/screen_background_black"
            android:layout_below="@+id/square_button_text"
            />

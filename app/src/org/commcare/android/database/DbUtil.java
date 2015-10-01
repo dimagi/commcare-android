@@ -30,6 +30,10 @@ public class DbUtil {
     
     private static PrototypeFactory factory;
 
+    public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
+        DbUtil.factory = factory;
+    }
+
 
     /**
      * Basically this is our PrototypeManager for Android

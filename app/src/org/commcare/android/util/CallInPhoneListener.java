@@ -16,12 +16,12 @@ import android.widget.Toast;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.R;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
-import org.commcare.util.CommCareSession;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;

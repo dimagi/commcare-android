@@ -9,12 +9,12 @@ import java.io.OutputStream;
  * @author ctsims
  */
 public class MemoryBitCache implements BitCache {
-    
+
     ByteArrayOutputStream bos;
     byte[] data;
-    
+
     protected MemoryBitCache() {
-        
+
     }
 
     @Override
@@ -30,7 +30,7 @@ public class MemoryBitCache implements BitCache {
 
     @Override
     public InputStream retrieveCache() {
-        if(data == null) {
+        if (data == null) {
             data = bos.toByteArray();
             bos = null;
         }

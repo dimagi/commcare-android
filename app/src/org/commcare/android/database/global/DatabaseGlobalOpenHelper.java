@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.global;
 
@@ -17,22 +17,20 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
- * 
- * 
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
-    
+
     /**
      * V.2 - all sqlstorage objects now need numbers tables
-     * V.3 - ApplicationRecord has new fields to support multiple app seating
+     * V.3 - ApplicationRecord has new fields to support multiple app seating, FormsProvider
+     * and InstanceProvider use per-app databases
      */
     private static final int GLOBAL_DB_VERSION = 3;
-    
+
     private static final String GLOBAL_DB_LOCATOR = "database_global";
-    
+
     private Context mContext;
 
     public DatabaseGlobalOpenHelper(Context context) {
@@ -42,7 +40,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        
+
         try {
             database.beginTransaction();
             
@@ -56,27 +54,26 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
-            
+
             DbUtil.createNumbersTable(database);
-            
+
             database.setVersion(GLOBAL_DB_VERSION);
-                    
+
             database.setTransactionSuccessful();
         } finally {
             database.endTransaction();
         }
     }
-    
+
     public SQLiteDatabase getWritableDatabase(String key) {
-        try{ 
+        try {
             return super.getWritableDatabase(key);
-        } catch(SQLiteException sqle) {
+        } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, mContext, GLOBAL_DB_LOCATOR);
             return super.getWritableDatabase(key);
         }
     }
-    
-    
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

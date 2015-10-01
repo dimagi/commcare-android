@@ -1,5 +1,6 @@
 package org.commcare.android.adapters;
 
+
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.AsyncTask.Status;
@@ -33,13 +34,12 @@ import java.util.Vector;
  * filtering over them.
  *
  * @author ctsims
- *
  */
 public class IncompleteFormListAdapter extends BaseAdapter implements FormRecordLoadListener {
     private final Context context;
-    
+
     private final List<DataSetObserver> observers;
-    
+
     private FormRecordFilter filter;
 
     /**
@@ -67,7 +67,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /**
      * The current query split up by spaces. Used for filtering forms.
      */
-    private String [] queryPieces = new String[0];
+    private String[] queryPieces = new String[0];
 
     private FormRecordLoaderTask loader;
 
@@ -78,7 +78,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     private final Hashtable<String, Text> names;
 
-    public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException{
+    public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException {
         this.context = context;
         this.filter = null;
         this.loader = loader;
@@ -90,8 +90,8 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         // create a mapping from form definition IDs to their entry point text
         for (Suite s : platform.getInstalledSuites()) {
-            for (Enumeration en = s.getEntries().elements(); en.hasMoreElements() ;) {
-                Entry entry = (Entry)en.nextElement();
+            for (Enumeration en = s.getEntries().elements(); en.hasMoreElements(); ) {
+                Entry entry = (Entry) en.nextElement();
                 if (entry.getXFormNamespace() != null) {
                     // Ensure that entry is actually <entry> and not a <view>,
                     // which can't define a form
@@ -143,7 +143,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
             loader = loader.spawn();
-        } else if(loader.getStatus() == Status.FINISHED) {
+        } else if (loader.getStatus() == Status.FINISHED) {
             loader = loader.spawn();
         }
 
@@ -157,7 +157,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         records = new Vector<FormRecord>();
         // for each type of status in the filter, grab all the records that satisfy it
         for (String status : filter.getStatus()) {
-            records.addAll(storage.getRecordsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {status}));
+            records.addAll(storage.getRecordsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{status}));
         }
 
         // Sort FormRecords by modification time, most recent first.
@@ -186,9 +186,9 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     }
 
     public int findRecordPosition(int formRecordId) {
-        for(int i = 0 ; i < current.size() ; ++i) {
+        for (int i = 0; i < current.size(); ++i) {
             FormRecord record = current.get(i);
-            if(record.getID() == formRecordId) {
+            if (record.getID() == formRecordId) {
                 return i;
             }
         }
@@ -198,16 +198,16 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
-        for (DataSetObserver observer: observers) {
+        for (DataSetObserver observer : observers) {
             observer.onChanged();
         }
     }
-    
+
     @Override
     public void notifyDataSetInvalidated() {
         super.notifyDataSetInvalidated();
         resetRecords();
-        for (DataSetObserver observer: observers) {
+        for (DataSetObserver observer : observers) {
             observer.onChanged();
         }
     }
@@ -246,7 +246,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     @Override
     public View getView(int i, View v, ViewGroup vg) {
         FormRecord r = current.get(i);
-        IncompleteFormRecordView ifrv = (IncompleteFormRecordView)v;
+        IncompleteFormRecordView ifrv = (IncompleteFormRecordView) v;
         if (ifrv == null) {
             ifrv = new IncompleteFormRecordView(context, names);
         }
@@ -281,11 +281,11 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     public boolean isEmpty() {
         return getCount() > 0;
     }
-    
+
     public void setFormFilter(FormRecordFilter filter) {
         this.filter = filter;
     }
-    
+
     public FormRecordFilter getFilter() {
         return this.filter;
     }
@@ -293,7 +293,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /**
      * Filter loaded FormRecords by those whose data contains any word in the
      * query field.
-     *
+     * <p/>
      * Reads from FormRecords in the 'records' field and moves them into the
      * cleared out the 'current' field.
      */
@@ -376,13 +376,14 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     public void registerDataSetObserver(DataSetObserver observer) {
         this.observers.add(observer);
     }
+
     @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
         this.observers.remove(observer);
     }
 
     public void release() {
-        if(loader.getStatus() == Status.RUNNING) {
+        if (loader.getStatus() == Status.RUNNING) {
             loader.cancel(false);
         }
     }

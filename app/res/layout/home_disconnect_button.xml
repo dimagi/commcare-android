@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <org.commcare.android.view.SquareButtonWithNotification
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/home.disconnect.sqbn"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="1"
-    app:sbn_subtitle="Disconnect"
-    app:backgroundcolorButton="@color/cc_neutral_color"
-    app:backgroundcolorNotification="@color/cc_neutral_text"
-    app:colorNotificationText="@color/white"
+    app:subtitle="Disconnect"
+    app:backgroundColor="@color/cc_neutral_color"
+    app:notificationBackgroundColor="@color/cc_neutral_text"
+    app:notificationTextColor="@color/white"
     app:notificationText="Logged in as: "
-    app:sbn_img="@drawable/disconnect"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"/>
+    app:img="@drawable/disconnect" />

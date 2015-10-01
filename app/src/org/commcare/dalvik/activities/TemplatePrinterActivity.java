@@ -1,25 +1,8 @@
 package org.commcare.dalvik.activities;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.commcare.android.tasks.TemplatePrinterTask;
-import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
-import org.commcare.android.util.TemplatePrinterUtils;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.locale.Localization;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +16,22 @@ import android.print.PrintJobInfo;
 import android.print.PrintManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.commcare.android.tasks.TemplatePrinterTask;
+import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.android.util.TemplatePrinterUtils;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
+import org.odk.collect.android.utilities.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -100,7 +99,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
     private void preparePrintDoc(String inputPath) {
         generateJobName(inputPath);
-        String extension = TemplatePrinterUtils.getExtension(inputPath);
+        String extension = FileUtils.getExtension(inputPath);
         File templateFile = new File(inputPath);
         if (extension.equalsIgnoreCase("html") && templateFile.exists()) {
             new TemplatePrinterTask(

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.commcare.android.database.user.models;
 
@@ -20,35 +20,34 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel {
-    
+
     public static final String STORAGE_KEY = "geocodecache";
-    
+
     public static final String META_LAST_QUERY = "lastquery";
     public static final String META_LOCATION = "location";
     public static final String META_HIT = "hit";
-    
+
     public static final String META_HIT_TRUE = "t";
     public static final String META_HIT_FALSE = "f";
-    
-    
+
+
     private int recordId = -1;
     int lat = -1;
     int lon = -1;
     Date lastQueried;
     String location;
     boolean hit;
-    
+
     public GeocodeCacheModel() {
-        
+
     }
-    
+
     public GeocodeCacheModel(String location, int lat, int lon) {
         this(location, lat, lon, new Date());
     }
-    
+
     public GeocodeCacheModel(String location, int lat, int lon, Date queried) {
         hit = true;
         this.location = location;
@@ -56,7 +55,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this.lon = lon;
         this.lastQueried = queried;
     }
-    
+
     public static GeocodeCacheModel NoHitRecord(String val) {
         GeocodeCacheModel model = new GeocodeCacheModel();
         model.location = val;
@@ -64,10 +63,10 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         model.lastQueried = new Date();
         return model;
     }
-    
+
 
     public boolean isEncrypted(String data) {
-        if(data.equals(META_LAST_QUERY) || data.equals(META_HIT)) {
+        if (data.equals(META_LAST_QUERY) || data.equals(META_HIT)) {
             return false;
         }
         return true;
@@ -81,7 +80,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         lastQueried = ExtUtil.readDate(in);
         hit = ExtUtil.readBool(in);
         location = ExtUtil.readString(in);
-        if(hit) {
+        if (hit) {
             lat = ExtUtil.readInt(in);
             lon = ExtUtil.readInt(in);
         }
@@ -90,15 +89,15 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeDate(out, lastQueried);
         ExtUtil.writeBool(out, hit);
-        ExtUtil.writeString(out,location);
-        if(hit) {
-            ExtUtil.writeNumeric(out,lat);
-            ExtUtil.writeNumeric(out,lon);
+        ExtUtil.writeString(out, location);
+        if (hit) {
+            ExtUtil.writeNumeric(out, lat);
+            ExtUtil.writeNumeric(out, lon);
         }
     }
-    
+
     public GeoPoint getGeoPoint() {
-        return new GeoPoint(lat,lon);
+        return new GeoPoint(lat, lon);
     }
 
     public void setID(int ID) {
@@ -110,24 +109,29 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     }
 
     public String[] getMetaDataFields() {
-        return new String[] {META_LAST_QUERY, META_LOCATION, META_HIT};
+        return new String[]{META_LAST_QUERY, META_LOCATION, META_HIT};
     }
 
     public Object getMetaData(String fieldName) {
-        if(META_LAST_QUERY.equals(fieldName)) {
+        if (META_LAST_QUERY.equals(fieldName)) {
             return DateUtils.formatDate(lastQueried, DateUtils.FORMAT_ISO8601);
-        } else if(META_LOCATION.equals(fieldName)) {
+        } else if (META_LOCATION.equals(fieldName)) {
             return location;
-        } else if(META_HIT.equals(fieldName)) {
-            if(hit) { return META_HIT_TRUE; } else {return META_HIT_FALSE; }
+        } else if (META_HIT.equals(fieldName)) {
+            if (hit) {
+                return META_HIT_TRUE;
+            } else {
+                return META_HIT_FALSE;
+            }
         }
-        throw new IllegalArgumentException("No metadata field " + fieldName  + " for Geocoder Cache Models");
+        throw new IllegalArgumentException("No metadata field " + fieldName + " for Geocoder Cache Models");
     }
+
     /**
      * Whether this represents a location which has a geopoint, or one which failed to look up
      */
     public boolean dataExists() {
         return hit;
     }
-    
+
 }

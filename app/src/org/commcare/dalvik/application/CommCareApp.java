@@ -15,6 +15,7 @@ import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.Stylizer;
+import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -24,7 +25,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.UnregisteredLocaleException;
 
 import java.io.File;
@@ -146,6 +146,7 @@ public class CommCareApp {
             }
             initializeFileRoots();
             currentSandbox = this;
+            ProviderUtils.setCurrentSandbox(currentSandbox);
         }
     }
 
@@ -256,6 +257,7 @@ public class CommCareApp {
                     appDatabase.close();
                 }
                 appDatabase = null;
+                ProviderUtils.setCurrentSandbox(null);
             }
         }
     }
@@ -290,11 +292,7 @@ public class CommCareApp {
         record.setStatus(ApplicationRecord.STATUS_INSTALLED);
         record.setResourcesStatus(areMMResourcesValidated());
         record.setPropertiesFromProfile(getCommCarePlatform().getCurrentProfile());
-        try {
-            CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
-        } catch (StorageFullException e) {
-            throw new RuntimeException(e);
-        }
+        CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(record);
     }
 
     public String getUniqueId() {
