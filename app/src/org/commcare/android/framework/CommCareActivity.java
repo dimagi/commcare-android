@@ -45,9 +45,9 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -247,7 +247,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return this.findViewById(android.R.id.content);
     }
 
-    protected void updateCommCareBanner() {
+    public void updateCommCareBanner() {
         View hostView = getBannerHost();
         if (hostView == null) {
             return;

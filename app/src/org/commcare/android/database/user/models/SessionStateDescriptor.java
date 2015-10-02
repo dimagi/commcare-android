@@ -6,9 +6,9 @@ import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
 import org.javarosa.core.util.MD5;
 
 /**

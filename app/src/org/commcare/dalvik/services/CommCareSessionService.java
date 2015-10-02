@@ -28,6 +28,8 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.listeners.FormSaveCallback;
 
 import java.security.InvalidKeyException;
@@ -83,9 +85,9 @@ public class CommCareSessionService extends Service  {
 
     private SQLiteDatabase userDatabase;
 
-    // Unique Identification Number for the Notification.
-    // We use it on Notification start, and to cancel it.
+    // unique id for logged in notification
     private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+
     private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out. Set
@@ -116,12 +118,11 @@ public class CommCareSessionService extends Service  {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
-        pool = new CipherPool() {
+        createCipherPool();
+    }
 
-            /*
-             * (non-Javadoc)
-             * @see org.commcare.android.crypt.CipherPool#generateNewCipher()
-             */
+    public void createCipherPool() {
+        pool = new CipherPool() {
             @Override
             public Cipher generateNewCipher() {
                 synchronized(lock) {
@@ -130,23 +131,15 @@ public class CommCareSessionService extends Service  {
                             SecretKeySpec spec = new SecretKeySpec(key, "AES");
                             Cipher decrypter = Cipher.getInstance("AES");
                             decrypter.init(Cipher.DECRYPT_MODE, spec);
-                            
+
                             return decrypter;
                         }
-                    } catch (InvalidKeyException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        // TODO Auto-generated catch block
+                    } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
                         e.printStackTrace();
                     }
                 }
                 return null;
             }
-            
         };
     }
 
@@ -184,9 +177,21 @@ public class CommCareSessionService extends Service  {
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
 
+        String notificationText;
+        if (CommCareApplication._().getInstalledAppRecords().size() > 1) {
+            try {
+                notificationText = Localization.get("notification.logged.in",
+                        new String[]{Localization.get("app.display.name")});
+            } catch (NoLocalizedTextException e) {
+                notificationText = getString(NOTIFICATION);
+            }
+        } else {
+            notificationText = getString(NOTIFICATION);
+        }
+
         // Set the icon, scrolling text and timestamp
         Notification notification = new NotificationCompat.Builder(this)
-                .setContentTitle(this.getString(org.commcare.dalvik.R.string.notificationtitle))
+                .setContentTitle(notificationText)
                 .setContentText("Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate))
                 .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
                 .setContentIntent(contentIntent)

@@ -285,21 +285,24 @@ public class FileUtils {
             scale = 1;
         }
 
-        return performSafeScaleDown(f, scale);
+        return performSafeScaleDown(f, scale, 0);
     }
 
     /**
      * Returns a scaled-down bitmap for the given image file, progressively increasing the
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
      */
-    private static Bitmap performSafeScaleDown(File f, int scale) {
+    private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
+        if (depth == 5) {
+            // Limit the number of recursive calls
+            return null;
+        }
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = scale;
         try {
             return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
         } catch (OutOfMemoryError e) {
-            scale++;
-            return performSafeScaleDown(f, scale);
+            return performSafeScaleDown(f, scale + 1, depth + 1);
         }
     }
 

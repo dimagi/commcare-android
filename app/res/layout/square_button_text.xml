@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--merge xmlns:android="http://schemas.android.com/apk/res/android"-->
 <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-<org.commcare.android.view.SquareButton
-    android:id="@+id/square_button"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:scaleType="fitEnd"
-    android:background="@null"
-    android:clickable="false"
-    />
-<org.commcare.android.view.ResizingTextView
-    android:id="@+id/text_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:textSize="@dimen/font_size_large"
-    app:text_size_small="@dimen/font_size_medium"
-    android:layout_centerHorizontal="true"
-    android:layout_below="@+id/square_button"
-    android:paddingLeft="@dimen/standard_spacer"
-    android:paddingRight="@dimen/standard_spacer"
-    android:paddingBottom="@dimen/standard_spacer"
-    />
+    android:layout_height="wrap_content">
 
+    <org.commcare.android.view.SquareButton
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:clickable="false"
+        android:scaleType="fitEnd"
+        />
+
+    <org.commcare.android.view.ResizingTextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingLeft="@dimen/standard_spacer"
+        android:paddingRight="@dimen/standard_spacer"
+        android:textSize="@dimen/font_size_large"
+        app:text_size_small="@dimen/font_size_medium"
+        />
 </RelativeLayout>
-<!--/merge-->

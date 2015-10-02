@@ -18,7 +18,6 @@ import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -330,9 +329,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                             return null;
                         }
                     }
-                } catch (StorageFullException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Really? Storage full?" + getExceptionText(e));
-                    throw new RuntimeException(e);
                 } catch (SessionUnavailableException sue) {
                     this.cancel(false);
                     return null;

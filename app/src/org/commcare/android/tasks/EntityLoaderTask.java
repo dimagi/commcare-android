@@ -102,21 +102,21 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
 
         try{
-        List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
-        
-        List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>(); 
-        for(TreeReference ref : references) {
-            
-            if(this.isCancelled()) { return null; }
-            
-            Entity<TreeReference> e = factory.getEntity(ref);
-            if(e != null) {
-                full.add(e);
+            List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
+
+            List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>();
+            for(TreeReference ref : references) {
+
+                if(this.isCancelled()) { return null; }
+
+                Entity<TreeReference> e = factory.getEntity(ref);
+                if(e != null) {
+                    full.add(e);
+                }
             }
-        }
-        
-        factory.prepareEntities();
-        return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
+
+            factory.prepareEntities();
+            return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
         
         } catch (XPathException xe){
             XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");

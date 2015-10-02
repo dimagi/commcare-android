@@ -44,7 +44,6 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
@@ -71,7 +70,7 @@ public class LegacyInstallUtils {
     public static final String LEGACY_UPGRADE_PROGRESS = "legacy_upgrade_progress";
     public static final String UPGRADE_COMPLETE = "complete";
 
-    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws StorageFullException, SessionUnavailableException {
+    public static void checkForLegacyInstall(Context c, SqlStorage<ApplicationRecord> currentAppStorage) throws SessionUnavailableException {
         SharedPreferences globalPreferences = PreferenceManager.getDefaultSharedPreferences(c);
         if (globalPreferences.getString(LEGACY_UPGRADE_PROGRESS, "").equals(UPGRADE_COMPLETE)) {
             return;
@@ -382,7 +381,7 @@ public class LegacyInstallUtils {
         return filesystemHome + "commcare/";
     }
 
-    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) throws StorageFullException {
+    public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
 
         try {
@@ -552,7 +551,7 @@ public class LegacyInstallUtils {
                 SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
                         new SqlStorage<FormInstance>("fixture", FormInstance.class, newDbHelper));
 
-            } catch (SessionUnavailableException | StorageFullException sfe) {
+            } catch (SessionUnavailableException sfe) {
                 throw new RuntimeException(sfe);
             }
 

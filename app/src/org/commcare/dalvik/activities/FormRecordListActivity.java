@@ -524,7 +524,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
                 //We should go digest auth this user on the server and see whether to pull them
                 //down.
-                DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), source, "", this) {
+                DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), source, this) {
 
                     @Override
                     protected void deliverResult(FormRecordListActivity receiver, Integer status) {

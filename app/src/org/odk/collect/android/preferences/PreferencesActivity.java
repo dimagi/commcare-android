@@ -68,8 +68,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     public static final String KEY_SUBMISSION_URL = "submission_url";
 
     public static final String KEY_COMPLETED_DEFAULT = "default_completed";
-    
-    public static final String KEY_SHOW_START_SCREEN = "odk_show_entry_screen";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
     public static final String KEY_PROGRESS_BAR = "progress_bar";
     public static final String KEY_NAVIGATION_BAR = "pref_nav_bar";
@@ -124,7 +122,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
             this.getPreferenceScreen().removePreference(this.findPreference(KEY_SERVER_PREFS));
         }
         updateFontSize();
-        updateShowStart();
     }
 
 
@@ -225,7 +222,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
             updateGoogleCollectionEffort();
         }
         updateFontSize();
-        updateShowStart();
     }
 
 
@@ -313,9 +309,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
                 break;
             case KEY_FONT_SIZE:
                 updateFontSize();
-                break;
-            case KEY_SHOW_START_SCREEN:
-                updateShowStart();
                 break;
         }
     }
@@ -413,12 +406,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         lp.setSummary(lp.getEntry());
     }
     
-    private void updateShowStart() {
-//        ListPreference lp = (ListPreference) findPreference(KEY_SHOW_START_SCREEN);
-//        lp.setSummary(lp.getEntry());
-    }
-
-
     private void updateSelectedGoogleAccount() {
         mSelectedGoogleAccountPreference =
             (PreferenceScreen) findPreference(KEY_SELECTED_GOOGLE_ACCOUNT);
@@ -601,12 +588,4 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         else if(navBar && !progressBar) { return ProgressBarMode.NavBarNoProgress;}
         else { return ProgressBarMode.NavBar;}
     }
-
-
-    public static boolean showFirstScreen(Context context) {
-        return !PreferencesActivity.getProgressBarMode(context).useNavigationBar() && 
-                PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PreferencesActivity.KEY_SHOW_START_SCREEN, true);
-    }
-    
-        
 }

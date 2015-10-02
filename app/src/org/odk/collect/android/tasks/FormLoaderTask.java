@@ -3,13 +3,13 @@ package org.odk.collect.android.tasks;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.javarosa.core.model.FormDef;
@@ -22,14 +22,12 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
-import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
-import org.odk.collect.android.listeners.FormLoaderListener;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.ApkUtils;
@@ -53,39 +51,35 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWrapper> {
+public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLoaderTask.FECWrapper, R> {
     public static InstanceInitializationFactory iif;
-    private final static String TAG = FormLoaderTask.class.getSimpleName();
 
-    private FormLoaderListener mStateListener;
-    private String mErrorMsg;
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
 
-    private final Context context;
-
-    public FormLoaderTask(Context context) {
-        this(context, null, false);
-    }
-
-    public FormLoaderTask(Context context, SecretKeySpec symetricKey, boolean readOnly) {
-        this.context = context;
-        this.mSymetricKey = symetricKey;
-        this.mReadOnly = readOnly;
-    }
+    private final R activity;
 
     private FECWrapper data;
+
+    public static final int FORM_LOADER_TASK_ID = 16;
+
+    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly, R activity) {
+        this.mSymetricKey = symetricKey;
+        this.mReadOnly = readOnly;
+        this.activity = activity;
+        this.taskId = FORM_LOADER_TASK_ID;
+        TAG = FormLoaderTask.class.getSimpleName();
+    }
 
     /**
      * Initialize {@link FormEntryController} with {@link FormDef} from binary or from XML. If given
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected FECWrapper doInBackground(Uri... form) {
+    protected FECWrapper doTaskBackground(Uri... form) {
         FormEntryController fec;
         FormDef fd = null;
         FileInputStream fis;
-        mErrorMsg = null;
 
         Uri theForm = form[0];
 
@@ -94,7 +88,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         String formMediaPath = null;
         try {
             //TODO: Selection=? helper
-            c = context.getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+            c = ((Context)activity).getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
 
             if (!c.moveToFirst()) {
                 throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); 
@@ -129,27 +123,18 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
         // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
             // no binary, read from xml
+            Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
             try {
-                Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
                 fis = new FileInputStream(formXml);
-                XFormParser.registerHandler("intent", new IntentExtensionParser());
-                XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-                fd = XFormExtensionUtils.getFormFromInputStream(fis);
-                if (fd == null) {
-                    mErrorMsg = "Error reading XForm file";
-                }
-            } catch (XFormParseException | FileNotFoundException e) {
-                mErrorMsg = e.getMessage();
-                e.printStackTrace();
-            } catch (Exception e) {
-                mErrorMsg = e.getMessage();
-                e.printStackTrace();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Error reading XForm file");
             }
-        }
-
-        //If we errored out, report back the issue
-        if (mErrorMsg != null) {
-            return null;
+            XFormParser.registerHandler("intent", new IntentExtensionParser());
+            XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+            fd = XFormExtensionUtils.getFormFromInputStream(fis);
+            if (fd == null) {
+                throw new RuntimeException("Error reading XForm file");
+            }
         }
         
         // Try to write the form definition to a cached location
@@ -162,29 +147,22 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReportTask.getStackTrace(e));
         }
 
-        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler(context));
+        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(fd);
         fec = new FormEntryController(fem);
 
         //TODO: Get a reasonable IIF object
-        //iif = something
-        try {
-            // import existing data into formdef
-            if (FormEntryActivity.mInstancePath != null) {
-                // This order is important. Import data, then initialize.
-                importData(FormEntryActivity.mInstancePath, fec);
-                fd.initialize(false, iif);
-            } else {
-                fd.initialize(true, iif);
-            }
-            if(mReadOnly) {
-                fd.getInstance().getRoot().setEnabled(false);
-            }
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            mErrorMsg = e.getMessage();
-            return null;
+        // import existing data into formdef
+        if (FormEntryActivity.mInstancePath != null) {
+            // This order is important. Import data, then initialize.
+            importData(FormEntryActivity.mInstancePath, fec);
+            fd.initialize(false, iif);
+        } else {
+            fd.initialize(true, iif);
+        }
+        if(mReadOnly) {
+            fd.getInstance().getRoot().setEnabled(false);
         }
 
         // set paths to /sdcard/odk/forms/formfilename-media/
@@ -277,7 +255,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, ApkUtils.getPrototypeFactory(context));
+            fd.readExternal(dis, ApkUtils.getPrototypeFactory((Context)activity));
             dis.close();
 
         } catch (FileNotFoundException | DeserializationException e) {
@@ -336,25 +314,6 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
                 fsPath(GlobalConstants.FILE_CC_CACHE) + "/" + hash + ".formdef");
     }
 
-    @Override
-    protected void onPostExecute(FECWrapper wrapper) {
-        synchronized (this) {
-            if (mStateListener != null) {
-                if (wrapper == null) {
-                    mStateListener.loadingError(mErrorMsg);
-                } else {
-                    mStateListener.loadingComplete(wrapper.getController());
-                }
-            }
-        }
-    }
-
-    public void setFormLoaderListener(FormLoaderListener sl) {
-        synchronized (this) {
-            mStateListener = sl;
-        }
-    }
-
     public void destroy() {
         if (data != null) {
             data.free();
@@ -369,7 +328,7 @@ public class FormLoaderTask extends AsyncTask<Uri, String, FormLoaderTask.FECWra
             this.controller = controller;
         }
 
-        protected FormController getController() {
+        public FormController getController() {
             return controller;
         }
 

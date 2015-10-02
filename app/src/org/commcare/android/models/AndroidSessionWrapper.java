@@ -14,6 +14,8 @@ import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -22,11 +24,8 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.expr.XPathEqExpr;
 import org.javarosa.xpath.expr.XPathExpression;
@@ -168,7 +167,7 @@ public class AndroidSessionWrapper {
         return null;
     }
 
-    public void commitStub() throws StorageFullException {
+    public void commitStub() {
         //TODO: This should now be locked somehow
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);

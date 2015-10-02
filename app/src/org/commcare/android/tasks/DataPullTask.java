@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
@@ -21,13 +19,14 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.tasks.network.DataPullRequester;
+import org.commcare.android.tasks.network.DataPullResponseFactory;
+import org.commcare.android.tasks.network.RemoteDataPullResponse;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.AndroidStreamUtil.StreamReadObserver;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
-import org.commcare.android.util.bitcache.BitCacheFactory;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
@@ -42,8 +41,6 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -53,11 +50,9 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -71,15 +66,14 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
-    String server;
-    String keyProvider;
-    String username;
-    String password;
-    Context c;
+    private final String server;
+    private final String username;
+    private final String password;
+    private final Context c;
     
-    int mCurrentProgress = -1;
-    int mTotalItems = -1;
-    long mSyncStartTime;
+    private int mCurrentProgress = -1;
+    private int mTotalItems = -1;
+    private long mSyncStartTime;
     
     private boolean wasKeyLoggedIn = false;
     
@@ -97,34 +91,29 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
     public static final int PROGRESS_AUTHED = 2;
-    public static final int PROGRESS_DONE= 4;
+    private static final int PROGRESS_DONE= 4;
     public static final int PROGRESS_RECOVERY_NEEDED= 8;
     public static final int PROGRESS_RECOVERY_STARTED= 16;
-    public static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
-    public static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
+    private static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
+    private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
+    private DataPullRequester dataPullRequester;
     
-    /**
-     * Whether to enable loading this data from a local asset for 
-     * debug/testing. 
-     * 
-     * This flag should never be set to true on a prod build or in VC
-     * TODO: It should be an error for "debuggable" to be off and this flag
-     * to be true
-     */
-    private static final boolean DEBUG_LOAD_FROM_LOCAL = false;
-    private InputStream mDebugStream;
-
-    public DataPullTask(String username, String password, String server, String keyProvider, Context c) {
+    public DataPullTask(String username, String password, String server, Context c) {
         this.server = server;
-        this.keyProvider = keyProvider;
         this.username = username;
         this.password = password;
         this.c = c;
         this.taskId = DATA_PULL_TASK_ID;
+        this.dataPullRequester = new DataPullResponseFactory();
 
         TAG = DataPullTask.class.getSimpleName();
+    }
+
+    public DataPullTask(String username, String password, String server, Context c, DataPullRequester dataPullRequester) {
+        this(username, password, server, c);
+        this.dataPullRequester = dataPullRequester;
     }
 
     @Override
@@ -227,31 +216,17 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
-                int responseCode = -1;
-                HttpResponse response = null;
-                
-                //This isn't awesome, but it's hard to work this in in a cleaner way
-                if(DEBUG_LOAD_FROM_LOCAL) {
-                    try {
-                        mDebugStream = ReferenceManager._().DeriveReference("jr://asset/payload.xml").getStream();
-                    } catch(InvalidReferenceException ire) {
-                        throw new IOException("No payload available at jr://asset/payload.xml");
-                    }
-                    responseCode = 200;
-                } else {
-                    response = requestor.makeCaseFetchRequest(server, useRequestFlags);
-                    responseCode = response.getStatusLine().getStatusCode();
-                }
-                Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + responseCode);
-                
-                if(responseCode == 401) {
+                RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
+                Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
+
+                if(pullResponse.responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if(loginNeeded) {
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return AUTH_FAILED;
-                } else if(responseCode >= 200 && responseCode < 300) {
+                } else if(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
                     
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
@@ -265,7 +240,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
                                         
                     try {
-                        BitCache cache = writeResponseToCache(response);
+                        BitCache cache = pullResponse.writeResponseToCache(c);
                         
                         InputStream cacheIn = cache.retrieveCache();
                         String syncToken = readInput(cacheIn, factory);
@@ -306,9 +281,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                        return STORAGE_FULL;
-                    }
-                } else if(responseCode == 412) {
+                    } 
+                } else if(pullResponse.responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
                     int returnCode = recover(requestor, factory);
                     
@@ -342,7 +316,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(loginNeeded) {
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
-                } else if(responseCode == 500) {
+                } else if(pullResponse.responseCode == 500) {
                     if(loginNeeded) {
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
@@ -385,108 +359,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
     
-    /**
-     * Retrieves the HttpResponse stream and writes it to an initialized safe
-     * local cache. Notifies listeners of progress through the download if its
-     * size is available.
-     *
-     * @throws IOException If there is an issue reading or writing the response.
-     */
-    private BitCache writeResponseToCache(HttpResponse response) throws IOException {
-        BitCache cache = null;
-        try {
-            final long dataSizeGuess = guessDataSize(response);
-            
-            cache = BitCacheFactory.getCache(c, dataSizeGuess);
-            
-            cache.initializeCache();
-            
-            OutputStream cacheOut = cache.getCacheStream();
-            InputStream input;
-            
-            if(DEBUG_LOAD_FROM_LOCAL) {
-                input = this.mDebugStream;
-            } else {
-                input = AndroidHttpClient.getUngzippedContent(response.getEntity());
-            }
-            
-            Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
-            AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input), cacheOut, new StreamReadObserver() {
-                long lastOutput = 0;
-                
-                /** The notification threshold. **/
-                static final int PERCENT_INCREASE_THRESHOLD = 4;
-    
-                @Override
-                public void notifyCurrentCount(long bytesRead) {
-                    boolean notify = false;
-                    
-                    //We always wanna notify when we get our first bytes
-                    if(lastOutput == 0) {
-                        Log.i("commcare-network", "First"  + bytesRead + " bytes received from network: ");
-                        notify = true;
-                    }
-                    //After, if we don't know how much data to expect, we can't do
-                    //anything useful
-                    if(dataSizeGuess == -1) {
-                        //set this so the first notification up there doesn't keep firing
-                        lastOutput = bytesRead;
-                        return;
-                    }
-                    
-                    int percentIncrease = (int)(((bytesRead - lastOutput) * 100) / dataSizeGuess);
-                    
-                    //Now see if we're over the reporting threshold
-                    //TODO: Is this actually necessary? In theory this shouldn't 
-                    //matter due to android task polling magic?
-                    notify = percentIncrease > PERCENT_INCREASE_THRESHOLD; 
-                        
-                    if(notify) {
-                        lastOutput = bytesRead;
-                        int totalRead = (int)(((bytesRead) * 100) / dataSizeGuess);
-                        publishProgress(PROGRESS_DOWNLOADING, totalRead);
-                    }
-                }
-            });
-            
-            return cache;
-        
-        //If something goes wrong while we're reading into the cache
-        //we may need to free the storage we reserved.
-        } catch (IOException e) {
-            if(cache != null) { 
-                cache.release();
-            }
-            throw e;
-        }
-    }
-
-    /**
-     * Get an estimation of how large the provided response is.
-     * @return -1 for unknown.
-     */
-    private long guessDataSize(HttpResponse response) {
-        if(DEBUG_LOAD_FROM_LOCAL) {
-            try {
-                //Note: this is really stupid, but apparently you can't 
-                //retrieve the size of Assets due to some bullshit, so
-                //this is the closest you get.
-                return this.mDebugStream.available();
-            } catch (IOException e) {
-                return -1;
-            }
-        }
-        if(response.containsHeader("Content-Length")) {
-            String length = response.getFirstHeader("Content-Length").getValue();
-            try{
-                return Long.parseLong(length);
-            } catch(Exception e) {
-                //Whatever.
-            }
-        }
-        return -1;
-    }
-
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
     private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
@@ -500,19 +372,17 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //just report back that things didn't work and don't need to attempt any recovery or additional
         //work
         try {
+            // Make a new request without all of the flags
+            RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, false);
 
-            //Make a new request without all of the flags
-            HttpResponse response = requestor.makeCaseFetchRequest(server, false);
-            int responseCode = response.getStatusLine().getStatusCode();
-            
             //We basically only care about a positive response, here. Anything else would have been caught by the other request.
-            if(!(responseCode >= 200 && responseCode < 300)) {
+            if(!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
                 return PROGRESS_RECOVERY_FAIL_SAFE;
             }
             
             //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
             //restore fresh from the downloaded file
-            cache = writeResponseToCache(response);
+            cache = pullResponse.writeResponseToCache(c);
                 
         } catch(IOException e) {
             e.printStackTrace();
@@ -589,7 +459,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
 
-    private void updateUserSyncToken(String syncToken) throws StorageFullException {
+    private void updateUserSyncToken(String syncToken) {
         SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);
@@ -711,4 +581,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     @Override
     public void onFailure(String failMessage) {}
 
+    public void reportDownloadProgress(int totalRead) {
+        publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
+    }
 }
