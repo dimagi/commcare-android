@@ -1,0 +1,72 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>intent callout</h:title>
+        <model>
+            <instance>
+                <data name="intent callout"
+                      uiVersion="1"
+                      version="44"
+                      xmlns="http://openrosa.org/formdesigner/636A5976-5019-4AC3-B462-9744E81C85A6">
+                    <number_five/>
+                    <areamapper_result>5</areamapper_result>
+                    <callout_result/>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/number_five"/>
+            <bind nodeset="/data/areamapper_result" type="intent"/>
+            <bind nodeset="/data/callout_result"/>
+            <setvalue event="xforms-ready" ref="/data/number_five" value="5"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="areamapper_result-label">
+                        <value>areamapper_result</value>
+                    </text>
+                    <text id="areamapper_result-hint">
+                        <value>hint message</value>
+                    </text>
+                    <text id="areamapper_result-help">
+                        <value>help message</value>
+                    </text>
+                </translation>
+            </itext>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+        </model>
+        <odkx:intent class="com.richard.lu.areamapper" id="areamapper_result"
+                     button-label="Get Area"
+                     xmlns:odkx="http://opendatakit.org/xforms">
+            <extra key="five" ref="/data/number_five"/>
+            <response key="area" ref="/data/callout_result"/>
+        </odkx:intent>
+    </h:head>
+    <h:body>
+        <input appearance="intent:areamapper_result" ref="/data/areamapper_result">
+            <label ref="jr:itext('areamapper_result-label')"/>
+            <hint ref="jr:itext('areamapper_result-hint')"/>
+            <help ref="jr:itext('areamapper_result-help')"/>
+        </input>
+    </h:body>
+</h:html>
