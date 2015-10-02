@@ -1,9 +1,7 @@
-/**
- *
- */
 package org.commcare.android.tests.backend;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
 import org.commcare.cases.model.Case;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.junit.Before;
