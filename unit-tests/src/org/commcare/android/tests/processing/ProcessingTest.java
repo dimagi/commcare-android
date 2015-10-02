@@ -1,9 +1,6 @@
 package org.commcare.android.tests.processing;
 
-<<<<<<< HEAD
-=======
 import org.commcare.android.CommCareTestRunner;
->>>>>>> master
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.TestUtils;
 import org.commcare.cases.model.Case;

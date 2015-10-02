@@ -37,12 +37,7 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-<<<<<<< HEAD
     public static PrototypeFactory factory = new PrototypeFactory();
-=======
-    public static org.commcare.android.util.LivePrototypeFactory factory =
-            new org.commcare.android.util.LivePrototypeFactory();
->>>>>>> master
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -127,13 +122,8 @@ public class TestUtils {
      * @return The case storage object for the provided db
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
-        
-<<<<<<< HEAD
-        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(Robolectric.application, db) {
-=======
-        return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteDbHelper(RuntimeEnvironment.application, db) {
->>>>>>> master
 
+            return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
                 return factory;
