@@ -16,10 +16,10 @@ import java.io.IOException;
 
 /**
  * Tests for the serializaiton and deserialzation of XForms.
- * 
+ *
  * @author ctsims
  */
-@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
@@ -27,7 +27,7 @@ public class FormStorageTest {
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
     }
-    
+
     @Test
     public void testRegressionXFormSerializations() {
         FormDef def = XFormUtils.getFormFromResource("/forms/placeholder.xml");
@@ -36,12 +36,16 @@ public class FormStorageTest {
         } catch (IOException | DeserializationException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
-        } 
+        }
     }
 
+    /**
+     * Ensure that a form that has intent callouts can be serialized and deserialized
+     */
     @Test
     public void testCalloutSerializations() {
-        FormDef def = XFormUtils.getFormFromResource("/forms/intent_callout_serialization_test.xml");
+        FormDef def =
+                XFormUtils.getFormFromResource("/forms/intent_callout_serialization_test.xml");
         try {
             ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
         } catch (IOException | DeserializationException e) {
