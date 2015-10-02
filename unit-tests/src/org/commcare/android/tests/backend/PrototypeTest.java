@@ -2,7 +2,6 @@
  *
  */
 package org.commcare.android.tests.backend;
-import org.commcare.android.junit.CommCareTestRunner;
 import org.commcare.android.shadows.SQLiteDatabaseNative;
 import org.commcare.cases.model.Case;
 import org.commcare.util.externalizable.AndroidClassHasher;
@@ -19,8 +18,6 @@ import static junit.framework.Assert.assertEquals;
  * @author wspride
  *
  */
-@Config(shadows={SQLiteDatabaseNative.class}, emulateSdk = 18, application=org.commcare.dalvik.application.CommCareApplication.class)
-@RunWith(CommCareTestRunner.class)
 public class PrototypeTest {
 
     AndroidPrototypeFactory mFactory;

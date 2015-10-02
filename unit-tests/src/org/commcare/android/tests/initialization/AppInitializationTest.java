@@ -7,6 +7,7 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
+import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -44,7 +45,7 @@ public class AppInitializationTest {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
         LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        PrototypeFactory.setStaticHasher(prototypeFactory);
+        PrototypeFactory.setStaticHasher(new AndroidClassHasher());
         DbUtil.setDBUtilsPrototypeFactory(prototypeFactory);
     }
 

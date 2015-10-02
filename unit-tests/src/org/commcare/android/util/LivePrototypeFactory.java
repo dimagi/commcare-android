@@ -21,7 +21,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
     Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
     AndroidClassHasher hasher;
     
-    public LivePrototypeFactory() {
+    public  LivePrototypeFactory() {
         hasher = new AndroidClassHasher();
     }
 
