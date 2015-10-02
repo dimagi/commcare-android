@@ -237,6 +237,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         case DataPullTask.BAD_DATA:
                             receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                             break;
+                        case DataPullTask.STORAGE_FULL:
+                            receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
+                            break;
                         case DataPullTask.DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true)) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);

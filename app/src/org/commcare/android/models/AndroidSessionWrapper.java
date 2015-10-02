@@ -254,7 +254,7 @@ public class AndroidSessionWrapper {
         //Now determine what nodeset that was going to be used to load this select
         TreeReference nodesetRef = datum.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
+        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
 
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
 

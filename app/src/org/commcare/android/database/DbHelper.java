@@ -77,7 +77,7 @@ public abstract class DbHelper {
         return new Pair<String, String[]>(ret, arguments);
     }
     
-    public ContentValues getContentValues(Externalizable e) {
+    public ContentValues getContentValues(Externalizable e) throws RecordTooLargeException {
         boolean encrypt = e instanceof EncryptedModel;
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -102,6 +102,10 @@ public abstract class DbHelper {
                 String value = o.toString();
                 values.put(TableBuilder.scrubName(key), value);
             }
+        }
+
+        if(blob.length > Math.pow(1024, 2)){
+           throw new RecordTooLargeException(blob.length / Math.pow(1024, 2));
         }
         
         values.put(DbUtil.DATA_COL,blob);
