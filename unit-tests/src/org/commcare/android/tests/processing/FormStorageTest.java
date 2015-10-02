@@ -38,4 +38,15 @@ public class FormStorageTest {
             throw new RuntimeException(e.getMessage());
         } 
     }
+
+    @Test
+    public void testCalloutSerializations() {
+        FormDef def = XFormUtils.getFormFromResource("/forms/intent_callout_serialization_test.xml");
+        try {
+            ExtUtil.deserialize(ExtUtil.serialize(def), FormDef.class, TestUtils.factory);
+        } catch (IOException | DeserializationException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }
