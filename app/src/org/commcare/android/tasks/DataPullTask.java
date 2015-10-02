@@ -12,6 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
@@ -85,6 +86,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int UNREACHABLE_HOST = 8;
     public static final int CONNECTION_TIMEOUT = 16;
     public static final int SERVER_ERROR = 32;
+    public static final int STORAGE_FULL = 64;
     
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
@@ -276,7 +278,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
-                    } catch (StorageFullException e) {
+                    } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
                     } 
@@ -506,7 +508,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
+    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
         DataModelPullParser parser;
         
         factory.initCaseParser();
@@ -526,12 +529,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
         factory.initFormInstanceParser(formNamespaces);
         
-//        SqlIndexedStorageUtility<FormRecord> formRecordStorge = CommCareApplication._().getStorage(FormRecord.STORAGE_KEY, FormRecord.class);
-//
-//        for(SqlStorageIterator<FormRecord> i = formRecordStorge.iterate(); i.hasNext() ;) {
-//            
-//        }
-        
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
         SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
         try {
@@ -542,8 +539,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         } finally {
             db.endTransaction();
         }
-        
-        
+
         //Return the sync token ID
         return factory.getSyncToken();
     }
