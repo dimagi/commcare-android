@@ -227,7 +227,7 @@ public class AUser implements Persistable, IMetaData
         user.setWrappedKey(getWrappedKey());
         user.properties = getProperties();
         user.setLastSyncToken(syncToken);
-        user.setRememberMe(this.rememberMe == true); // for phillip
+        user.setRememberMe(this.rememberMe);
         return user;
     }
 }
