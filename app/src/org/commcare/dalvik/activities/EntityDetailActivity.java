@@ -128,6 +128,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         if (mViewMode) {
             next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             next.setText(Localization.get("select.detail.bypass"));
+            next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
 
         mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
