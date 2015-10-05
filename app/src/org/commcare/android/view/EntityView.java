@@ -30,10 +30,12 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -54,6 +56,7 @@ public class EntityView extends LinearLayout {
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
     public static final String FORM_CALLLOUT = "callout";
+    private static final int CASE_LIST_IMAGE_MAX_DIMEN = 150;
 
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -254,18 +257,23 @@ public class EntityView extends LinearLayout {
     }
 
 
-    /*
-    * Updates the ImageView layout that is passed in, based on the
-    * new id and source
-    */
+    /**
+     * Updates the ImageView layout that is passed in, based on the new id and source
+     */
     public void setupImageLayout(View layout, final String source) {
         ImageView iv = (ImageView) layout;
         Bitmap b;
         if (!source.equals("")) {
             try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(source).getStream());
+                InputStream imageStream = ReferenceManager._().DeriveReference(source).getStream();
+                b = FileUtils.getScaledBitmap(imageStream, CASE_LIST_IMAGE_MAX_DIMEN);
                 if (b == null) {
-                    //Input stream could not be used to derive bitmap, so showing error-indicating image
+                    // Means we didn't need to scale down the image, so just decode it normally
+                    b = BitmapFactory.decodeStream(imageStream);
+                }
+                if (b == null) {
+                    // Means the input stream could not be used to derive bitmap, so showing
+                    // error-indicating image
                     iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
                 } else {
                     iv.setImageBitmap(b);
