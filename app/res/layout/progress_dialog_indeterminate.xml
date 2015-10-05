@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/progress_fragment_determinate"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/main_content_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/standard_spacer_double"
+        android:layout_marginBottom="@dimen/standard_spacer_double"
+        android:layout_marginLeft="@dimen/standard_spacer_double"
+        android:layout_marginRight="@dimen/standard_spacer_double" >
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/progress_dialog_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/progress_bar"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/standard_spacer_double"
+            android:textSize="@dimen/font_size_large"
+            android:textColor="@color/black" />
+
+    </RelativeLayout>
+
+
+     <Button
+         android:id="@+id/dialog_cancel_button"
+         android:layout_width="wrap_content"
+    	 android:layout_height="wrap_content"
+
+         android:layout_alignParentBottom="true"
+         android:layout_alignParentRight="true"
+
+         android:padding="@dimen/standard_spacer"
+         android:layout_marginBottom="@dimen/standard_spacer_double"
+         android:layout_marginRight="@dimen/standard_spacer_large"
+
+         android:background="@android:color/transparent"
+    	 android:text="STOP"
+         android:textSize="@dimen/font_size_medium"
+         android:visibility="gone" >
+     </Button>
+     
+</RelativeLayout>

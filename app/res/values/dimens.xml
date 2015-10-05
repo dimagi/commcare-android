@@ -21,6 +21,8 @@
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="standard_spacer_half">4dp</dimen>
     <dimen name="standard_spacer">8dp</dimen>
+    <dimen name="standard_spacer_double">16dp</dimen>
+    <dimen name="standard_spacer_large">24dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>
