@@ -1,0 +1,17 @@
+<OpenRosaResponse>
+    <data name="archived-form-purge" uiVersion="1" version="8"
+          xmlns="http://openrosa.org/formdesigner/886049B2-BCAA-41EB-85B6-0AD4F9469605">
+        <favorite_number>6</favorite_number>
+        <n0:meta xmlns:n0="http://openrosa.org/jr/xforms">
+            <n0:deviceID>352584062019887</n0:deviceID>
+            <n0:timeStart>2015-10-05T16:16:57.560-04</n0:timeStart>
+            <n0:timeEnd>2015-10-05T16:17:01.441-04</n0:timeEnd>
+            <n0:username>test</n0:username>
+            <n0:userID>6e2e171d2f315170da8787a97c38a721</n0:userID>
+            <n0:instanceID>8ddb031e-ee5a-4423-93b3-ad45c3ced47e</n0:instanceID>
+            <n1:appVersion xmlns:n1="http://commcarehq.org/xforms">CommCare ODK, version
+                "2.24"(106). App v8. CommCare Version 2.23. Build -1, built on: 2015-10-05
+            </n1:appVersion>
+        </n0:meta>
+    </data>
+</OpenRosaResponse>
