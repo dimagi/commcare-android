@@ -266,6 +266,9 @@ public class FileUtils {
      * @return A scaled down bitmap, or null if no scale-down is needed
      */
     private static Bitmap getScaledBitmap(Bitmap originalBitmap, int maxDimen) {
+        if (originalBitmap == null) {
+            return null;
+        }
         int height = originalBitmap.getHeight();
         int width = originalBitmap.getWidth();
         int largerDimen = Math.max(height, width);
