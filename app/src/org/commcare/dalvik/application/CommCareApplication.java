@@ -60,7 +60,6 @@ import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
@@ -92,6 +91,7 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.logic.ArchivedFormManagement;
 import org.odk.collect.android.utilities.StethoInitializer;
 
 import java.io.File;
@@ -893,7 +893,7 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            performArchivedFormPurge(getCurrentApp());
+                            ArchivedFormManagement.performArchivedFormPurge(getCurrentApp());
                         }
                     }
                 }
@@ -969,62 +969,6 @@ public class CommCareApplication extends Application {
             return isPending(lastUpdateCheck, duration);
         }
         return false;
-    }
-
-    /**
-     * Check through user storage and identify whether there are any forms
-     * which can be purged from the device.
-     *
-     * @param app  The current app
-     */
-    private void performArchivedFormPurge(CommCareApp app) {
-        int daysForReview = -1;
-        String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
-        try {
-            daysForReview = Integer.parseInt(daysToPurge);
-        } catch (NumberFormatException nfe) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid days to purge: " + daysToPurge);
-        }
-
-        //If we don't define a days for review flag, we should just keep the forms around
-        //indefinitely
-        if (daysForReview == -1) {
-            return;
-        }
-
-        SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
-
-        //Get the last date for froms to be valid (n days prior to today)
-        long lastValidDate = (new Date().getTime()) - (daysForReview * 24 * 60 * 60 * 1000);
-
-        Vector<Integer> toPurge = new Vector<Integer>();
-        //Get all saved forms currently in storage
-        for (int id : forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
-            String date = forms.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
-
-            try {
-                //If the date the form was saved is before the last valid date, we can purge it
-                long formModifiedDate = Date.parse(date);
-                if (formModifiedDate < lastValidDate) {
-                    toPurge.add(id);
-                }
-            } catch (Exception e) {
-                //Catch all for now, we know that at least "" and null
-                //are causing problems (neither of which should be acceptable
-                //but if we see them, we should consider the form
-                //purgable.
-                toPurge.add(id);
-            }
-
-        }
-
-        if (toPurge.size() > 0) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + new Date(lastValidDate).toString());
-            //Actually purge the old forms
-            for (int formRecord : toPurge) {
-                FormRecordCleanupTask.wipeRecord(this, formRecord);
-            }
-        }
     }
 
     private boolean isPending(long last, long period) {
