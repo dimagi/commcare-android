@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -515,17 +516,24 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         factory.initCaseParser();
         factory.initStockParser();
         
-        Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
-        
+        Hashtable<String,String> formNamespaces = new Hashtable<String, String>();
+
         for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
-            Cursor cur = c.getContentResolver().query(CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns), new String[] {FormsColumns.FORM_FILE_PATH}, null, null, null);
-            if(cur.moveToFirst()) {
-                String path = cur.getString(cur.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                formNamespaces.put(xmlns, path);
-            } else {
-                throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
+            Cursor cur = null;
+            try {
+                Uri formContentUri = CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns);
+                cur = c.getContentResolver().query(formContentUri, new String[]{FormsColumns.FORM_FILE_PATH}, null, null, null);
+                if (cur != null && cur.moveToFirst()) {
+                    String path = cur.getString(cur.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+                    formNamespaces.put(xmlns, path);
+                } else {
+                    throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
+                }
+            } finally {
+                if (cur != null) {
+                    cur.close();
+                }
             }
-            cur.close();
         }
         factory.initFormInstanceParser(formNamespaces);
         
