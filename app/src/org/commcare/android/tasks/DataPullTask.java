@@ -20,6 +20,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.storage.FormSaveUtil;
 import org.commcare.android.tasks.network.DataPullRequester;
 import org.commcare.android.tasks.network.DataPullResponseFactory;
 import org.commcare.android.tasks.network.RemoteDataPullResponse;
@@ -515,26 +516,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         
         factory.initCaseParser();
         factory.initStockParser();
-        
-        Hashtable<String,String> formNamespaces = new Hashtable<String, String>();
 
-        for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
-            Cursor cur = null;
-            try {
-                Uri formContentUri = CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns);
-                cur = c.getContentResolver().query(formContentUri, new String[]{FormsColumns.FORM_FILE_PATH}, null, null, null);
-                if (cur != null && cur.moveToFirst()) {
-                    String path = cur.getString(cur.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                    formNamespaces.put(xmlns, path);
-                } else {
-                    throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
-                }
-            } finally {
-                if (cur != null) {
-                    cur.close();
-                }
-            }
-        }
+        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap();
         factory.initFormInstanceParser(formNamespaces);
         
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
