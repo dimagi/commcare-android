@@ -446,8 +446,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * Get an intent for displaying the confirm detail screen for an element (either just populates
      * the given intent with the necessary information, or creates a new one if it is null)
      *
-     * @param contextRef   reference to the selected element for which to display
-     *                     detailed view
+     * @param contextRef reference to the selected element for which to display
+     *                   detailed view
      * @return The intent argument, or a newly created one, with element
      * selection information attached.
      */
@@ -463,7 +463,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * intent
      */
     protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
-                                         SessionDatum selectDatum, AndroidSessionWrapper asw) {
+                                                 SessionDatum selectDatum, AndroidSessionWrapper asw) {
 
         String caseId = SessionDatum.getCaseIdFromReference(
                 contextRef, selectDatum, asw.getEvaluationContext());
@@ -1004,6 +1004,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
             if (mViewMode) {
                 next.setVisibility(View.GONE);
+                next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             }
 
             String passedCommand = selectedIntent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
