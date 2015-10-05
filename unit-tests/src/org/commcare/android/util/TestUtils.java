@@ -9,11 +9,15 @@ import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
+import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.storage.FormSaveUtil;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.CaseXmlParser;
+import org.commcare.xml.FormInstanceXmlParser;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -28,6 +32,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Hashtable;
 
 /**
@@ -56,13 +61,19 @@ public class TestUtils {
     
 
     /**
-     * Get a case-enabled parsing factory 
+     * Get a form instance and case enabled parsing factory
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
+        final Hashtable<String, String> formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
         return new TransactionParserFactory() {
             @Override
             public TransactionParser getParser(KXmlParser parser) {
-                if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
+                String namespace = parser.getNamespace();
+                if (namespace != null && formInstanceNamespaces != null && formInstanceNamespaces.containsKey(namespace)) {
+                    return new FormInstanceXmlParser(parser, CommCareApplication._(),
+                            Collections.unmodifiableMap(formInstanceNamespaces),
+                            CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
+                } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
