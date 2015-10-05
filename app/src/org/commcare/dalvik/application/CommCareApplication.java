@@ -995,7 +995,7 @@ public class CommCareApplication extends Application {
         SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
 
         //Get the last date for froms to be valid (n days prior to today)
-        long lastValidDate = new Date().getTime() - daysForReview * 24 * 60 * 60 * 1000;
+        long lastValidDate = (new Date().getTime()) - (daysForReview * 24 * 60 * 60 * 1000);
 
         Vector<Integer> toPurge = new Vector<Integer>();
         //Get all saved forms currently in storage
@@ -1004,7 +1004,8 @@ public class CommCareApplication extends Application {
 
             try {
                 //If the date the form was saved is before the last valid date, we can purge it
-                if (lastValidDate > Date.parse(date)) {
+                long formModifiedDate = Date.parse(date);
+                if (formModifiedDate < lastValidDate) {
                     toPurge.add(id);
                 }
             } catch (Exception e) {
