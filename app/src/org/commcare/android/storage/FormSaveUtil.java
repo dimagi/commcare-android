@@ -13,7 +13,12 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class FormSaveUtil {
-    public static Hashtable<String,String> getNamespaceToFilePathMap(Context context) {
+
+    /**
+     * @param context used to query form instances through android's content provider framework
+     * @return A mapping from an installed form's namespace to its install path.
+     */
+    public static Hashtable<String, String> getNamespaceToFilePathMap(Context context) {
         Hashtable<String, String> formNamespaces = new Hashtable<>();
 
         for (String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
@@ -25,7 +30,8 @@ public class FormSaveUtil {
                     String path = cur.getString(cur.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
                     formNamespaces.put(xmlns, path);
                 } else {
-                    throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
+                    throw new RuntimeException("No form registered for xmlns at content URI: " +
+                            CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
                 }
             } finally {
                 if (cur != null) {

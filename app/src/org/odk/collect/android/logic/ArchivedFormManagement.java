@@ -42,6 +42,12 @@ public class ArchivedFormManagement {
         }
     }
 
+    /**
+     * Read the validity range for archived forms out of app preferences.
+     *
+     * @return how long archived forms should kept on the phone. -1 if saved
+     * forms should be kept indefinitely
+     */
     public static int getArchivedFormsValidityInDays(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge =
@@ -59,18 +65,25 @@ public class ArchivedFormManagement {
         return DateTime.now().minusDays(daysForReview);
     }
 
+    /**
+     * @return List of form record ids that correspond to forms that have
+     * passed the saved form validity date range
+     */
     public static Vector<Integer> getSavedFormsToPurge(DateTime lastValidDate) {
         Vector<Integer> toPurge = new Vector<>();
-        SqlStorage<FormRecord> forms = CommCareApplication._().getUserStorage(FormRecord.class);
-        for (int id : forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
-            String date = forms.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+        SqlStorage<FormRecord> formStorage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
+        for (int id : formStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
+            String date =
+                    formStorage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
             try {
                 DateTime modifiedDate = parseModifiedDate(date);
                 if (modifiedDate.isBefore(lastValidDate)) {
                     toPurge.add(id);
                 }
             } catch (Exception e) {
-                Logger.log(AndroidLogger.SOFT_ASSERT, "Unable to parse modified date of form record: " + date);
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "Unable to parse modified date of form record: " + date);
                 toPurge.add(id);
             }
         }
@@ -78,6 +91,10 @@ public class ArchivedFormManagement {
     }
 
     private static DateTime parseModifiedDate(String dateString) throws ParseException {
+        // TODO PLM: the use of text timezones is buggy because timezone
+        // abbreviations aren't unique. We need to do a refactor to use a
+        // string date representation that is easily parsable by Joda's
+        // DateTime.
         SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
         Date parsed = format.parse(dateString);
         return new DateTime(parsed);
