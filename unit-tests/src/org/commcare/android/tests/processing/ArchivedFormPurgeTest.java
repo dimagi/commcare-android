@@ -47,7 +47,7 @@ public class ArchivedFormPurgeTest {
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml");
         ccApp = CommCareApplication._().getCurrentApp();
 
-        String firstFormCompletionDate = "Wed Oct 05 16:17:01 -0400 2015";
+        String firstFormCompletionDate = "Mon Oct 05 16:17:01 -0400 2015";
         DateTimeFormatter dtf = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy");
         startTestDate = dtf.parseDateTime(firstFormCompletionDate);
     }
@@ -72,3 +72,4 @@ public class ArchivedFormPurgeTest {
         assertEquals("App should try to keep forms for 31 days", 31, daysFormValidFor);
     }
 }
+

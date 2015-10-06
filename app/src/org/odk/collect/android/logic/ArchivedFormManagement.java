@@ -9,6 +9,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
@@ -70,20 +71,21 @@ public class ArchivedFormManagement {
 
             try {
                 //If the date the form was saved is before the last valid date, we can purge it
-                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-                Date parsed = format.parse(date);
-                DateTime dt = new DateTime(parsed);
-                if (dt.isBefore(lastValidDate)) {
+                DateTime modifiedDate = parseModifiedDate(date);
+                if (modifiedDate.isBefore(lastValidDate)) {
                     toPurge.add(id);
                 }
             } catch (Exception e) {
-                //Catch all for now, we know that at least "" and null
-                //are causing problems (neither of which should be acceptable
-                //but if we see them, we should consider the form
-                //purgable.
+                Logger.log(AndroidLogger.SOFT_ASSERT, "Unable to parse modified date of form record: " + date);
                 toPurge.add(id);
             }
         }
         return toPurge;
+    }
+
+    private static DateTime parseModifiedDate(String dateString) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        Date parsed = format.parse(dateString);
+        return new DateTime(parsed);
     }
 }
