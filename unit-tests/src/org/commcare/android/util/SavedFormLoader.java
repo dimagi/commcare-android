@@ -9,7 +9,7 @@ import org.robolectric.Robolectric;
 import static org.junit.Assert.fail;
 
 /**
- * Load saved forms into CommCare app via local payload file.
+ * Helpers for loading forms into a CommCare app.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -17,6 +17,11 @@ public class SavedFormLoader {
     private static final CommCareTaskConnectorFake<Object> fakeConnector =
             new CommCareTaskConnectorFake<>();
 
+    /**
+     * Load saved forms into CommCare app via local payload file.
+     *
+     * @param payloadFile xml file containing form instances
+     */
     public static void loadFormsFromPayload(String payloadFile) {
         TestUtils.processResourceTransaction(payloadFile);
 
