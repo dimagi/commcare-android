@@ -64,7 +64,12 @@ public class TestUtils {
      * Get a form instance and case enabled parsing factory
      */
     private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
-        final Hashtable<String, String> formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+        final Hashtable<String, String> formInstanceNamespaces;
+        if (CommCareApplication._().getCurrentApp() != null) {
+            formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+        } else {
+            formInstanceNamespaces = null;
+        }
         return new TransactionParserFactory() {
             @Override
             public TransactionParser getParser(KXmlParser parser) {

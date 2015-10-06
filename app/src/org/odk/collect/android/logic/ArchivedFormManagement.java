@@ -7,11 +7,15 @@ import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
+import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
 /**
+ * Determines when saved forms should be purged.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class ArchivedFormManagement {
@@ -24,16 +28,17 @@ public class ArchivedFormManagement {
      */
     public static void performArchivedFormPurge(CommCareApp app) {
         //Get the last date for froms to be valid (n days prior to today)
-        long lastValidDate = getLastValidArchivedFormDate(app);
-
-        if (lastValidDate == -1) {
+        int daysSavedFormIsValidFor = getArchivedFormsValidityInDays(app);
+        if (daysSavedFormIsValidFor == -1) {
             return;
         }
+
+        DateTime lastValidDate = getLastValidArchivedFormDate(daysSavedFormIsValidFor, DateTime.now());
 
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         if (toPurge.size() > 0) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + new Date(lastValidDate).toString());
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + lastValidDate);
             //Actually purge the old forms
             for (int formRecord : toPurge) {
                 FormRecordCleanupTask.wipeRecord(CommCareApplication._(), formRecord);
@@ -41,7 +46,7 @@ public class ArchivedFormManagement {
         }
     }
 
-    public static long getLastValidArchivedFormDate(CommCareApp app) {
+    public static int getArchivedFormsValidityInDays(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
         try {
@@ -49,16 +54,14 @@ public class ArchivedFormManagement {
         } catch (NumberFormatException nfe) {
             Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid days to purge: " + daysToPurge);
         }
-
-        //If we don't define a days for review flag, we should just keep the forms around
-        //indefinitely
-        if (daysForReview == -1) {
-            return -1;
-        }
-        return (new Date().getTime()) - (daysForReview * 24 * 60 * 60 * 1000);
+        return daysForReview;
     }
 
-    public static Vector<Integer> getSavedFormsToPurge(long lastValidDate) {
+    public static DateTime getLastValidArchivedFormDate(int daysForReview, DateTime currentDate) {
+        return currentDate.plusDays(daysForReview);
+    }
+
+    public static Vector<Integer> getSavedFormsToPurge(DateTime lastValidDate) {
         Vector<Integer> toPurge = new Vector<>();
         SqlStorage<FormRecord> forms = CommCareApplication._().getUserStorage(FormRecord.class);
         //Get all saved forms currently in storage
@@ -67,8 +70,10 @@ public class ArchivedFormManagement {
 
             try {
                 //If the date the form was saved is before the last valid date, we can purge it
-                long formModifiedDate = Date.parse(date);
-                if (formModifiedDate < lastValidDate) {
+                SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+                Date parsed = format.parse(date);
+                DateTime dt = new DateTime(parsed);
+                if (dt.isBefore(lastValidDate)) {
                     toPurge.add(id);
                 }
             } catch (Exception e) {
