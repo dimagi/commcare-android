@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Ensure logic that purges old saved forms is correct.
+ * Tests correctness of saved form purging logic.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -28,9 +28,6 @@ import static org.junit.Assert.assertEquals;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class ArchivedFormPurgeTest {
-    private static CommCareApp ccApp;
-    private static DateTime startTestDate;
-    private static int SAVED_FORM_COUNT = 5;
 
     @Before
     public void setup() {
@@ -45,29 +42,38 @@ public class ArchivedFormPurgeTest {
         appTestInstaller.installAppAndLogin();
 
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml");
-        ccApp = CommCareApplication._().getCurrentApp();
+    }
+
+    /**
+     * Ensure that the correct number of forms are purged given different
+     * validity ranges
+     */
+    @Test
+    public void testSavedFormPurge() {
+        int SAVED_FORM_COUNT = 5;
 
         String firstFormCompletionDate = "Mon Oct 05 16:17:01 -0400 2015";
         DateTimeFormatter dtf = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy");
-        startTestDate = dtf.parseDateTime(firstFormCompletionDate);
-    }
+        DateTime startTestDate = dtf.parseDateTime(firstFormCompletionDate);
 
-    @Test
-    public void testSavedFormPurge() {
         DateTime twoMonthsLater = startTestDate.plusMonths(2);
-        assertEquals("All but one form should be purged if we are two months past the first forms create date.",
-                SAVED_FORM_COUNT - 1, ArchivedFormManagement.getSavedFormsToPurge(twoMonthsLater).size());
+        assertEquals("Only 1 form should remain if we're 2 months past the 1st form's create date.",
+                SAVED_FORM_COUNT - 1,
+                ArchivedFormManagement.getSavedFormsToPurge(twoMonthsLater).size());
 
         DateTime twentyYearsLater = startTestDate.plusYears(20);
         assertEquals("All forms should be purged if we are way in the future.",
-                SAVED_FORM_COUNT, ArchivedFormManagement.getSavedFormsToPurge(twentyYearsLater).size());
+                SAVED_FORM_COUNT,
+                ArchivedFormManagement.getSavedFormsToPurge(twentyYearsLater).size());
 
-        assertEquals("No forms should be purged if the current time matches the first form creation time",
-                0, ArchivedFormManagement.getSavedFormsToPurge(startTestDate).size());
+        assertEquals("When the time is the 1st form's creation time, no forms should be purged",
+                0,
+                ArchivedFormManagement.getSavedFormsToPurge(startTestDate).size());
     }
 
     @Test
     public void testPurgeDateLoading() {
+        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         int daysFormValidFor = ArchivedFormManagement.getArchivedFormsValidityInDays(ccApp);
         assertEquals("App should try to keep forms for 31 days", 31, daysFormValidFor);
     }

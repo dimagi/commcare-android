@@ -14,6 +14,10 @@ import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Only used for developer debugging.
+ *
+ * Load saved form instances manually from a xml payload.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
