@@ -412,6 +412,7 @@ public class GraphView {
             currentRenderer.setPointStyle(style);
             currentRenderer.setFillPoints(true);
             currentRenderer.setPointStrokeWidth(2);
+            mRenderer.setPointSize(6);
         }
 
         String lineColor = s.getConfiguration("line-color");
