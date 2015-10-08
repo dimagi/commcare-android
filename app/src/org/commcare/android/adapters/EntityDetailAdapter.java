@@ -13,8 +13,8 @@ import org.commcare.android.framework.ModifiableEntityDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.view.EntityDetailView;
+import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
-import org.commcare.util.CommCareSession;
 
 import java.util.ArrayList;
 import java.util.List;
