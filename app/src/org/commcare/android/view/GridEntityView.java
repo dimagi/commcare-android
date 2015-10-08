@@ -152,6 +152,9 @@ public class GridEntityView extends GridLayout {
 			screenHeight = display.getHeight();
 		}
 
+		// subtract the margins since we don't have this space
+		screenWidth = screenWidth - ROW_PADDING_HORIZONTAL*2;
+
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
 		    //TODO: call to inAwesomeMode was not working for me. What's the best method to determine this?

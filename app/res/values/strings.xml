@@ -43,12 +43,12 @@
     <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare ODK from your device and then relaunch it.</string>
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare ODK in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
-    
+
     <!-- endregion -->
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>23</item>
+        <item>24</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>

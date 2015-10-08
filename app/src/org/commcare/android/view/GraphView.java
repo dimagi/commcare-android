@@ -49,7 +49,7 @@ public class GraphView {
 
     public GraphView(Context context, String title) {
         mContext = context;
-        mTextSize = (int) context.getResources().getDimension(R.dimen.text_large);
+        mTextSize = (int)context.getResources().getDimension(R.dimen.text_large);
         mDataset = new XYMultipleSeriesDataset();
         mRenderer = new XYMultipleSeriesRenderer(2);    // initialize with two scales, to support a secondary y axis
 
@@ -61,20 +61,20 @@ public class GraphView {
      * Set margins.
      */
     private void setMargins() {
-        int textAllowance = (int) mContext.getResources().getDimension(R.dimen.graph_text_margin);
-        int topMargin = (int) mContext.getResources().getDimension(R.dimen.graph_y_margin);
+        int textAllowance = (int)mContext.getResources().getDimension(R.dimen.graph_text_margin);
+        int topMargin = (int)mContext.getResources().getDimension(R.dimen.graph_y_margin);
         if (!mRenderer.getChartTitle().equals("")) {
             topMargin += textAllowance;
         }
-        int rightMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+        int rightMargin = (int)mContext.getResources().getDimension(R.dimen.graph_x_margin);
         if (!mRenderer.getYTitle(1).equals("")) {
             rightMargin += textAllowance;
         }
-        int leftMargin = (int) mContext.getResources().getDimension(R.dimen.graph_x_margin);
+        int leftMargin = (int)mContext.getResources().getDimension(R.dimen.graph_x_margin);
         if (!mRenderer.getYTitle().equals("")) {
             leftMargin += textAllowance;
         }
-        int bottomMargin = (int) mContext.getResources().getDimension(R.dimen.graph_y_margin);
+        int bottomMargin = (int)mContext.getResources().getDimension(R.dimen.graph_y_margin);
         if (!mRenderer.getXTitle().equals("")) {
             bottomMargin += textAllowance;
         }
@@ -119,9 +119,16 @@ public class GraphView {
             return ChartFactory.getTimeChartIntent(mContext, mDataset, mRenderer, getTimeFormat(), title);
         }
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT, title);
+            return ChartFactory.getBarChartIntent(mContext, mDataset, mRenderer, getBarChartType(), title);
         }
         return ChartFactory.getLineChartIntent(mContext, mDataset, mRenderer, title);
+    }
+
+    private BarChart.Type getBarChartType() {
+        if (Boolean.valueOf(mData.getConfiguration("stack", "false")).equals(Boolean.TRUE)) {
+            return BarChart.Type.STACKED;
+        }
+        return BarChart.Type.DEFAULT;
     }
 
     /**
@@ -190,7 +197,7 @@ public class GraphView {
             return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
         }
         if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, BarChart.Type.DEFAULT);
+            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
     }
@@ -223,7 +230,7 @@ public class GraphView {
         series.setTitle(s.getConfiguration("name", ""));
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries) series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
+                ((RangeXYValueSeries)series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
             }
         }
         mDataset.addSeries(series);
@@ -257,11 +264,11 @@ public class GraphView {
         for (XYPointData p : sortedPoints) {
             String description = "point (" + p.getX() + ", " + p.getY() + ")";
             if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-                BubblePointData b = (BubblePointData) p;
+                BubblePointData b = (BubblePointData)p;
                 description += " with radius " + b.getRadius();
-                ((RangeXYValueSeries) series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
+                ((RangeXYValueSeries)series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
             } else if (Graph.TYPE_TIME.equals(mData.getType())) {
-                ((TimeSeries) series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
+                ((TimeSeries)series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             } else if (Graph.TYPE_BAR.equals(mData.getType())) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
                 // and y as a set of values. In AChartEngine, bar graphs are a subclass
@@ -405,6 +412,7 @@ public class GraphView {
             currentRenderer.setPointStyle(style);
             currentRenderer.setFillPoints(true);
             currentRenderer.setPointStrokeWidth(2);
+            mRenderer.setPointSize(6);
         }
 
         String lineColor = s.getConfiguration("line-color");
@@ -607,7 +615,7 @@ public class GraphView {
                     Iterator i = labels.keys();
                     hasLabels = false;
                     while (i.hasNext()) {
-                        String location = (String) i.next();
+                        String location = (String)i.next();
                         addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
                         hasLabels = true;
                     }
