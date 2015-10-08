@@ -364,6 +364,10 @@ notification.bad.certificate.title=Couldn't securely connect to the server.
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
 
+notification.restore.storagefull.title=Couldn't save your application's resources
+notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
+notification.restore.storagefull.action=Check the amount of space available on your device. If the SD card isn't full, then it's likely one of your fixtures is too large (> 1MB) and needs to be reduced or split.
+
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
