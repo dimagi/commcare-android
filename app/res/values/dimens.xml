@@ -23,6 +23,8 @@
     <dimen name="standard_spacer">8dp</dimen>
     <dimen name="standard_spacer_double">16dp</dimen>
     <dimen name="standard_spacer_large">24dp</dimen>
+    <dimen name="standard_title_margin_bottom">20dp</dimen>
+    <dimen name="min_button_height">36dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>

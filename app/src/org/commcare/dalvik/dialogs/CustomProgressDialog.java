@@ -13,9 +13,9 @@ package org.commcare.dalvik.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,6 +65,9 @@ public class CustomProgressDialog extends DialogFragment {
         
     public static CustomProgressDialog newInstance(String title, String message, int taskId) {
         CustomProgressDialog frag = new CustomProgressDialog();
+        int style = DialogFragment.STYLE_NORMAL;
+        int theme = android.R.style.Theme_Holo_Light_Dialog_NoActionBar;
+        frag.setStyle(style, theme);
         frag.setTitle(title);
         frag.setMessage(message);
         frag.setTaskId(taskId);
@@ -146,21 +149,22 @@ public class CustomProgressDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         restoreFields(savedInstanceState);
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(getActivity(), R.style.DialogBaseTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(wrapper);
-        builder.setTitle(title);
+        Context context = getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setCancelable(isCancelable);
 
         View view;
         if (usingHorizontalProgressBar) {
-            view = LayoutInflater.from(wrapper).inflate(R.layout.progress_dialog_determinate, null);
+            view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_determinate, null);
             setupDeterminateView(view);
         } else {
-            view = LayoutInflater.from(wrapper).inflate(R.layout.progress_dialog_indeterminate, null);
+            view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_indeterminate, null);
         }
 
-        TextView tv = (TextView) view.findViewById(R.id.progress_dialog_message);
-        tv.setText(message);
+        TextView titleView = (TextView) view.findViewById(R.id.progress_dialog_title);
+        titleView.setText(title);
+        TextView messageView = (TextView) view.findViewById(R.id.progress_dialog_message);
+        messageView.setText(message);
 
         if (usingCancelButton) {
             setupCancelButton(view);
@@ -169,13 +173,6 @@ public class CustomProgressDialog extends DialogFragment {
         builder.setView(view);
         Dialog d = builder.create();
         d.setCanceledOnTouchOutside(isCancelable);
-
-        // Change the color of the title divider automatically created by android dialog theme
-        /*int titleDividerId = getActivity().getResources().getIdentifier("titleDivider", "id", "android");
-        View titleDivider = d.findViewById(titleDividerId);
-        if (titleDivider != null) {
-            titleDivider.setBackgroundColor(getActivity().getResources().getColor(R.color.black));
-        }*/
 
         return d;
     }
