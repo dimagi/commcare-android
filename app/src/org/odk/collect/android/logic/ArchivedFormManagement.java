@@ -20,6 +20,8 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class ArchivedFormManagement {
+    private final static String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
+            "cc-days-form-retain";
 
     /**
      * Purge saved forms from device that have surpassed the validity date set
@@ -51,7 +53,7 @@ public class ArchivedFormManagement {
     public static int getArchivedFormsValidityInDays(CommCareApp app) {
         int daysForReview = -1;
         String daysToPurge =
-                app.getAppPreferences().getString("cc-days-form-retain", "-1");
+                app.getAppPreferences().getString(DAYS_TO_RETAIN_SAVED_FORMS_KEY, "-1");
         try {
             daysForReview = Integer.parseInt(daysToPurge);
         } catch (NumberFormatException nfe) {
