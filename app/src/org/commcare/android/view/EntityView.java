@@ -35,7 +35,7 @@ import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -56,7 +56,11 @@ public class EntityView extends LinearLayout {
     public static final String FORM_IMAGE = "image";
     public static final String FORM_GRAPH = "graph";
     public static final String FORM_CALLLOUT = "callout";
-    private static final int CASE_LIST_IMAGE_MAX_DIMEN = 150;
+
+    // Flag indicating if onMeasure has already been called for the first time on this view
+    private boolean onMeasureCalled = false;
+    // Maintains a queue of image layouts that need to be re-drawn once onMeasure has been called
+    private HashMap<View, String> imageViewsToRedraw = new HashMap<>();
 
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -256,6 +260,17 @@ public class EntityView extends LinearLayout {
         }
     }
 
+    private void addLayoutToRedrawQueue(View layout, String source) {
+        imageViewsToRedraw.put(layout, source);
+    }
+
+    private void redrawImageLayoutsInQueue() {
+        for (View v : imageViewsToRedraw.keySet()) {
+            setupImageLayout(v, imageViewsToRedraw.get(v));
+        }
+        imageViewsToRedraw.clear();
+    }
+
 
     /**
      * Updates the ImageView layout that is passed in, based on the new id and source
@@ -265,11 +280,22 @@ public class EntityView extends LinearLayout {
         Bitmap b;
         if (!source.equals("")) {
             try {
-                InputStream imageStream = ReferenceManager._().DeriveReference(source).getStream();
-                b = FileUtils.getScaledBitmap(imageStream, CASE_LIST_IMAGE_MAX_DIMEN);
+                if (onMeasureCalled) {
+                    int columnWidthInPixels = layout.getLayoutParams().width;
+                    b = FileUtils.getScaledBitmap(
+                            ReferenceManager._().DeriveReference(source).getStream(),
+                            columnWidthInPixels, true);
+                } else {
+                    // Since case list images are scaled down based on the width of the column they
+                    // go into, we cannot set up an image layout until onMeasure() has been called
+                    addLayoutToRedrawQueue(layout, source);
+                    return;
+                }
+
                 if (b == null) {
                     // Means we didn't need to scale down the image, so just decode it normally
-                    b = BitmapFactory.decodeStream(imageStream);
+                    b = BitmapFactory.decodeStream(
+                            ReferenceManager._().DeriveReference(source).getStream());
                 }
                 if (b == null) {
                     // Means the input stream could not be used to derive bitmap, so showing
@@ -500,7 +526,7 @@ public class EntityView extends LinearLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // calculate the view and its childrens default measurements
+        // calculate the view and its children's default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         // Adjust the children view's widths based on percentage size hints
@@ -513,8 +539,12 @@ public class EntityView extends LinearLayout {
             }
         }
 
-        // Re-calculate the view's measurements based on the percentage
-        // adjustments above
+        // Re-calculate the view's measurements based on the percentage adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        onMeasureCalled = true;
+        if (imageViewsToRedraw.size() > 0) {
+            redrawImageLayoutsInQueue();
+        }
     }
 }

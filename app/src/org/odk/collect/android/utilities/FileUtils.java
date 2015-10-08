@@ -229,7 +229,7 @@ public class FileUtils {
         }
 
         Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        Bitmap scaledBitmap = getScaledBitmap(bitmap, maxDimen);
+        Bitmap scaledBitmap = getScaledBitmap(bitmap, maxDimen, false);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             FileOutputStream out = null;
@@ -253,35 +253,55 @@ public class FileUtils {
         return false;
     }
 
-    public static Bitmap getScaledBitmap(InputStream stream, int maxDimen) {
-        return getScaledBitmap(BitmapFactory.decodeStream(stream), maxDimen);
+    public static Bitmap getScaledBitmap(InputStream stream, int maxDimen, boolean mustScaleWidth) {
+        return getScaledBitmap(BitmapFactory.decodeStream(stream), maxDimen, mustScaleWidth);
     }
 
     /**
-     * Attempts to scale down an image file based on the max dimension given. If at least one of
-     * the dimensions of the original image exceeds that maximum, then make the larger side's
-     * dimension equal to the max dimension, and scale down the smaller side such that the
-     * original aspect ratio is maintained. If neither side exceeds the max dimension, return null
+     * Attempts to scale down an image file based on the max dimension given.
      *
+     * @param mustScaleWidth - if true, the side of the image that we try to scale down is the width
+     * @param maxDimen - the largest dimension that we want either side of the image to have
+     *                (unless mustScaleWidth is true, and then applies to the width specifically)
      * @return A scaled down bitmap, or null if no scale-down is needed
+     *
+     * -If mustScaleWidth is false, employs the following logic: If at least one of the dimensions
+     * of the original image exceeds the max dimension given, then make the larger side's
+     * dimension equal to the max dimension, and scale down the smaller side such that the
+     * original aspect ratio is maintained.
+     * -If mustScaleWidth is true, employs the following logic: If the width exceeds the max
+     * dimension given, set the width equal to that size, and then sale down the height such that
+     * the original aspect ratio is maintained.
+     *
      */
-    private static Bitmap getScaledBitmap(Bitmap originalBitmap, int maxDimen) {
+    private static Bitmap getScaledBitmap(Bitmap originalBitmap, int maxDimen,
+                                          boolean mustScaleWidth) {
         if (originalBitmap == null) {
             return null;
         }
         int height = originalBitmap.getHeight();
         int width = originalBitmap.getWidth();
-        int largerDimen = Math.max(height, width);
-        int smallerDimen = Math.min(height, width);
-        if (largerDimen > maxDimen) {
-            // If the larger dimension exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) smallerDimen) / largerDimen;
-            largerDimen = maxDimen;
-            smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
+        int sideToScale, otherSide;
+        if (mustScaleWidth) {
+            sideToScale = width;
+            otherSide = height;
+        } else {
+            sideToScale = Math.max(height, width);
+            otherSide = Math.min(height, width);
+        }
+
+        if (sideToScale > maxDimen) {
+            // If the side to scale exceeds our max dimension, scale down accordingly
+            double aspectRatio = ((double) otherSide) / sideToScale;
+            sideToScale = maxDimen;
+            otherSide = (int) Math.floor(maxDimen * aspectRatio);
+            if (mustScaleWidth) {
+                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
+            }
             if (width > height) {
-                return Bitmap.createScaledBitmap(originalBitmap, largerDimen, smallerDimen, false);
+                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
             } else {
-                return Bitmap.createScaledBitmap(originalBitmap, smallerDimen, largerDimen, false);
+                return Bitmap.createScaledBitmap(originalBitmap, otherSide, sideToScale, false);
             }
         } else {
             return null;
