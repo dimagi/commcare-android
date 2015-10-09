@@ -503,11 +503,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
-                ArchivedFormRemoteRestore<FormRecordListActivity> archiveRemoteForms =
-                        new ArchivedFormRemoteRestore<>(this, this, platform);
-                archiveRemoteForms.pullArchivedFormsFromServer(source);
+                ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
-
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;

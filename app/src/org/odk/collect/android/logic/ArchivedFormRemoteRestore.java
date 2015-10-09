@@ -3,10 +3,8 @@ package org.odk.collect.android.logic;
 import android.widget.Toast;
 
 import org.commcare.android.database.user.models.User;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -20,22 +18,12 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
+public class ArchivedFormRemoteRestore {
     public static final int CLEANUP_ID = 1;
 
-    private final CommCareTaskConnector<A> taskConnector;
-    private final A taskReceiver;
-    private final CommCarePlatform platform;
-
-    public ArchivedFormRemoteRestore(final CommCareTaskConnector<A> taskConnector,
-                                     final A taskReceiver,
-                                     final CommCarePlatform platform) {
-        this.taskConnector = taskConnector;
-        this.taskReceiver = taskReceiver;
-        this.platform = platform;
-    }
-
-    public void pullArchivedFormsFromServer(String remoteUrl) {
+    public static void pullArchivedFormsFromServer(String remoteUrl,
+                                                   final FormRecordListActivity activity,
+                                                   final CommCarePlatform platform) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -48,24 +36,20 @@ public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
 
         //We should go digest auth this user on the server and see whether to pull them
         //down.
-        DataPullTask<A> pull = new DataPullTask<A>(u.getUsername(), u.getCachedPwd(), remoteUrl, taskReceiver) {
+        DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), remoteUrl, activity) {
             @Override
-            protected void deliverResult(A receiver, Integer status) {
+            protected void deliverResult(FormRecordListActivity receiver, Integer status) {
                 switch (status) {
                     case DataPullTask.DOWNLOAD_SUCCESS:
-                        FormRecordCleanupTask<A> task = new FormRecordCleanupTask<A>(taskReceiver, platform, CLEANUP_ID) {
+                        FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(activity, platform, CLEANUP_ID) {
 
                             @Override
-                            protected void deliverResult(A receiver, Integer result) {
-                                if (receiver instanceof FormRecordListActivity) {
-                                    // 'instanceof' testing is my sad hack meant only for dev test code,
-                                    // don't re-use or let loose in prod. -- PLM
-                                    ((FormRecordListActivity)receiver).refreshView();
-                                }
+                            protected void deliverResult(FormRecordListActivity receiver, Integer result) {
+                                receiver.refreshView();
                             }
 
                             @Override
-                            protected void deliverUpdate(A receiver, Integer... values) {
+                            protected void deliverUpdate(FormRecordListActivity receiver, Integer... values) {
                                 if (values[0] < 0) {
                                     if (values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
                                         receiver.updateProgress("Forms Processed. "
@@ -79,13 +63,13 @@ public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
                             }
 
                             @Override
-                            protected void deliverError(A receiver, Exception e) {
+                            protected void deliverError(FormRecordListActivity receiver, Exception e) {
                                 Toast.makeText(receiver, Localization.get("activity.task.error.generic", new String[]{e.getMessage()}), Toast.LENGTH_LONG).show();
                             }
 
 
                         };
-                        task.connect(taskConnector);
+                        task.connect(activity);
                         task.execute();
                         break;
                     case DataPullTask.UNKNOWN_FAILURE:
@@ -110,7 +94,7 @@ public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
             }
 
             @Override
-            protected void deliverUpdate(A receiver, Integer... update) {
+            protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
                 switch (update[0]) {
                     case DataPullTask.PROGRESS_AUTHED:
                         receiver.updateProgress("Authed with server, downloading forms" +
@@ -121,11 +105,11 @@ public class ArchivedFormRemoteRestore<A extends CommCareActivity> {
             }
 
             @Override
-            protected void deliverError(A receiver, Exception e) {
+            protected void deliverError(FormRecordListActivity receiver, Exception e) {
                 Toast.makeText(receiver, Localization.get("activity.task.error.generic", new String[]{e.getMessage()}), Toast.LENGTH_LONG).show();
             }
         };
-        pull.connect(taskConnector);
+        pull.connect(activity);
         pull.execute();
     }
 }
