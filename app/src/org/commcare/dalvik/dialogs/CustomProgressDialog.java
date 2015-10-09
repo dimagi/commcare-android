@@ -65,9 +65,6 @@ public class CustomProgressDialog extends DialogFragment {
         
     public static CustomProgressDialog newInstance(String title, String message, int taskId) {
         CustomProgressDialog frag = new CustomProgressDialog();
-        int style = DialogFragment.STYLE_NORMAL;
-        int theme = android.R.style.Theme_Holo_Light_Dialog_NoActionBar;
-        frag.setStyle(style, theme);
         frag.setTitle(title);
         frag.setMessage(message);
         frag.setTaskId(taskId);
