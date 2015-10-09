@@ -280,7 +280,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                    } 
+                        return STORAGE_FULL;
+                    }
                 } else if(pullResponse.responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
                     int returnCode = recover(requestor, factory);
@@ -521,7 +522,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
         try {
             db.beginTransaction();
-            parser = new DataModelPullParser(stream, factory, this);
+            parser = new DataModelPullParser(stream, factory, true, false, this);
             parser.parse();
             db.setTransactionSuccessful();
         } finally {

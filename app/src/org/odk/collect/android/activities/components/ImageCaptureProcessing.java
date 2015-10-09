@@ -31,7 +31,7 @@ public class ImageCaptureProcessing {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
             int maxDimen = currentWidget.getMaxDimen();
             if (maxDimen != -1) {
-                savedScaledImage = FileUtils.scaleImage(originalImage, finalFilePath, maxDimen);
+                savedScaledImage = FileUtils.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
             }
         }
 
