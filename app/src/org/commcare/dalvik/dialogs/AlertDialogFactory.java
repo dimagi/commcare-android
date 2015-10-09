@@ -77,6 +77,10 @@ public class AlertDialogFactory {
         dialog.setCancelable(true);
     }
 
+    public void setOnCancelListener(DialogInterface.OnCancelListener cancelListener) {
+        dialog.setOnCancelListener(cancelListener);
+    }
+
     public void setIcon(int resId) {
         dialog.setIcon(resId);
     }
