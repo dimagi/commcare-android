@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by amstone326 on 10/9/15.
@@ -18,18 +19,33 @@ public class AlertDialogFactory {
     private AlertDialog dialog;
     private View view;
 
-
     public static void showBasicAlertDialog(Activity context, String title, String msg,
                                             DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
-        factory.setPositiveButton("OK", positiveButtonListener);
+        if (positiveButtonListener == null) {
+            positiveButtonListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            };
+        }
+        factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         factory.showDialog(false);
     }
 
-    public static void showBasicAlertWithIcon(Activity context, String title, String msg,int iconResId,
+    public static void showBasicAlertWithIcon(Activity context, String title, String msg, int iconResId,
                                          DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
-        factory.setPositiveButton("OK", positiveButtonListener);
+        if (positiveButtonListener == null) {
+            positiveButtonListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            };
+        }
+        factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         factory.setIcon(iconResId);
         factory.showDialog(false);
     }
