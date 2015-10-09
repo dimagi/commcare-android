@@ -274,7 +274,7 @@ title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
 
-dialog.ok=Ok
+dialog.ok=OK
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test

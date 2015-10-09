@@ -7,7 +7,7 @@
 
     <include
         android:id="@+id/progress_dialog_title"
-        layout="@layout/progress_dialog_title" />
+        layout="@layout/dialog_title" />
 
     <RelativeLayout
         android:id="@+id/main_content_holder"
