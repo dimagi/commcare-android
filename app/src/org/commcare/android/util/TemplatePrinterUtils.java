@@ -1,12 +1,11 @@
 package org.commcare.android.util;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.dalvik.R;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -145,12 +144,7 @@ public abstract class TemplatePrinterUtils {
      */
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
-        AlertDialog.Builder alert = new AlertDialog.Builder(activity);
-        alert.setTitle(title);
-        alert.setMessage(msg);
-        alert.setCancelable(false);
-        alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
+        AlertDialogFactory.showBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 if (finishActivity) {
@@ -158,7 +152,6 @@ public abstract class TemplatePrinterUtils {
                 }
             }
         });
-        alert.show();
     }
 
 }

@@ -37,7 +37,7 @@
     </Button>
 
     <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/negative_button"
+        android:id="@+id/neutral_button"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/min_button_height"
         android:padding="@dimen/standard_spacer"
@@ -48,7 +48,25 @@
         android:layout_marginBottom="@dimen/standard_spacer"
 
         android:background="@android:color/transparent"
-        android:text="STOP"
+        android:textSize="@dimen/font_size_medium"
+        android:textColor="#2196F3"
+        android:visibility="gone" >
+    </Button>
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/negative_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+
+        android:layout_below="@id/dialog_message"
+        android:layout_toLeftOf="@id/neutral_button"
+
+        android:layout_marginBottom="@dimen/standard_spacer"
+        android:layout_marginRight="@dimen/standard_spacer"
+        android:layout_marginLeft="@dimen/standard_spacer"
+
+        android:background="@android:color/transparent"
         android:textSize="@dimen/font_size_medium"
         android:textColor="#2196F3"
         android:visibility="gone" >

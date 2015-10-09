@@ -26,7 +26,7 @@ public class AlertDialogFactory {
         factory.showDialog(false);
     }
 
-    public static void showAlertWithIcon(Activity context, String title, String msg,int iconResId,
+    public static void showBasicAlertWithIcon(Activity context, String title, String msg,int iconResId,
                                          DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
         factory.setPositiveButton("OK", positiveButtonListener);
@@ -45,12 +45,17 @@ public class AlertDialogFactory {
         messageView.setText(msg);
 
         this.dialog = builder.create();
+        dialog.setCancelable(false); // by default false, can be changed in show()
     }
 
     public void showDialog(boolean cancelable) {
         dialog.setView(this.view);
-        dialog.setCanceledOnTouchOutside(cancelable);
+        dialog.setCancelable(cancelable);
         dialog.show();
+    }
+
+    public AlertDialog getDialog() {
+        return this.dialog;
     }
 
     public void setIcon(int resId) {
@@ -79,6 +84,18 @@ public class AlertDialogFactory {
             }
         });
         negativeButton.setVisibility(View.VISIBLE);
+    }
+
+    public void setNeutralButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
+        Button neutralButton = (Button) this.view.findViewById(R.id.neutral_button);
+        neutralButton.setText(displayText);
+        neutralButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonListener.onClick(dialog, AlertDialog.BUTTON_NEUTRAL);
+            }
+        });
+        neutralButton.setVisibility(View.VISIBLE);
     }
 
 
