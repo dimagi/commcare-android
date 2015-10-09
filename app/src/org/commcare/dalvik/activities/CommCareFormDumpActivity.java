@@ -205,7 +205,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 exitDump();
             }
         });
-        factory.showDialog(false);
+        factory.showDialog();
     }
     
     public void updateCounters(){

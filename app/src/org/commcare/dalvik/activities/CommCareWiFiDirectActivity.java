@@ -259,7 +259,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                 beSubmitter();
             }
         });
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     public void beSender(){

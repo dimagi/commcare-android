@@ -281,7 +281,7 @@ public class SingleAppManagerActivity extends Activity {
         };
         factory.setPositiveButton(getString(R.string.ok), listener);
         factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     /**
@@ -315,6 +315,6 @@ public class SingleAppManagerActivity extends Activity {
         };
         factory.setPositiveButton(getString(R.string.ok), listener);
         factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 }

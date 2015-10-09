@@ -1236,7 +1236,7 @@ public class CommCareHomeActivity
         factory.setPositiveButton(Localization.get("option.yes"), listener);
         factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
         factory.setNeutralButton(Localization.get("option.no"), listener);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     private void displayMessage(String message) {

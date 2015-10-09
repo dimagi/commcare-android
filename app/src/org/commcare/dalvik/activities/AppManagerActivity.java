@@ -182,6 +182,6 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
             }
 
         });
-        factory.showDialog(false);
+        factory.showDialog();
     }
 }

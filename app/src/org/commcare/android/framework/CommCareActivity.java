@@ -538,7 +538,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         };
         CharSequence buttonDisplayText = StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
         factory.setPositiveButton(buttonDisplayText, buttonListener);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     // region - All methods for implementation of DialogController

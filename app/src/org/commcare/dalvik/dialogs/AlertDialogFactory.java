@@ -31,7 +31,7 @@ public class AlertDialogFactory {
             };
         }
         factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     public static void showBasicAlertWithIcon(Activity context, String title, String msg, int iconResId,
@@ -47,7 +47,7 @@ public class AlertDialogFactory {
         }
         factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         factory.setIcon(iconResId);
-        factory.showDialog(false);
+        factory.showDialog();
     }
 
     public AlertDialogFactory(Activity context, String title, String msg) {
@@ -64,14 +64,17 @@ public class AlertDialogFactory {
         dialog.setCancelable(false); // by default false, can be changed in show()
     }
 
-    public void showDialog(boolean cancelable) {
+    public void showDialog() {
         dialog.setView(this.view);
-        dialog.setCancelable(cancelable);
         dialog.show();
     }
 
     public AlertDialog getDialog() {
         return this.dialog;
+    }
+
+    public void makeCancelable() {
+        dialog.setCancelable(true);
     }
 
     public void setIcon(int resId) {
