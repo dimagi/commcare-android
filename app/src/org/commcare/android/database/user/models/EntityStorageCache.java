@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -40,8 +41,9 @@ public class EntityStorageCache {
 
     public static void createIndexes(SQLiteDatabase db) {
         //To query what 
-        db.execSQL("CREATE INDEX CACHE_TIMESTAMP ON " + TABLE_NAME + " (" + COL_CACHE_NAME + ", " + COL_TIMESTAMP + " )");
-        db.execSQL("CREATE INDEX NAME_ENTITY_KEY ON " + TABLE_NAME + " (" + COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY + " )");
+
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold

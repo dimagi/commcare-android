@@ -11,6 +11,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -96,13 +97,13 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             //The uniqueness index should be doing this for us
-            database.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
-            database.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
-            database.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
+            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
+            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
+            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
+            
+            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
-            database.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
-
-            database.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
+            database.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
 
             DbUtil.createNumbersTable(database);
 

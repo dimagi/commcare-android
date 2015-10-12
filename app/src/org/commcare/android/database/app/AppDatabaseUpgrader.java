@@ -79,9 +79,9 @@ public class AppDatabaseUpgrader {
     private boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -110,7 +110,10 @@ public class AppDatabaseUpgrader {
             TableBuilder builder = new TableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
-            db.execSQL(DatabaseAppOpenHelper.tableIndexQuery(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY, "temp_upgrade_index_id"));
+            String tableCmd =
+                    DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
+                            AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            db.execSQL(tableCmd);
 
             db.setTransactionSuccessful();
             return true;

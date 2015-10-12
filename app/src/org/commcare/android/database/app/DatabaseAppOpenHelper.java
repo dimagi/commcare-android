@@ -73,10 +73,10 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new TableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            database.execSQL(tableIndexQuery("GLOBAL_RESOURCE_TABLE", "global_index_id"));
-            database.execSQL(tableIndexQuery("UPGRADE_RESOURCE_TABLE", "upgrade_index_id"));
-            database.execSQL(tableIndexQuery("RECOVERY_RESOURCE_TABLE", "recovery_index_id"));
-            database.execSQL(tableIndexQuery(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY, "temp_upgrade_index_id"));
+            database.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
+            database.execSQL(indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
+            database.execSQL(indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
+            database.execSQL(indexOnTableWithPGUIDCommand("temp_upgrade_index_id", AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY));
 
             DbUtil.createNumbersTable(database);
 
@@ -86,9 +86,25 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static String tableIndexQuery(String tableName, String indexName) {
+    /**
+     * Build SQL command to create an index on a table
+     *
+     * @param indexName        Name of index on the table
+     * @param tableName        Table target of index being created
+     * @param columnListString One or more columns used to create the index.
+     *                         Multiple columns should be comma-seperated.
+     * @return Indexed table creation SQL command.
+     */
+    public static String indexOnTableCommand(String indexName,
+                                             String tableName,
+                                             String columnListString) {
         return "CREATE INDEX " + indexName + " ON " +
-                tableName + "( " + Resource.META_INDEX_PARENT_GUID + " )";
+                tableName + "( " + columnListString + " )";
+    }
+
+    public static String indexOnTableWithPGUIDCommand(String indexName,
+                                             String tableName) {
+        return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 
     public SQLiteDatabase getWritableDatabase(String key) {
