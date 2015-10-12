@@ -37,7 +37,8 @@ public class AlertDialogFactory {
      * A shortcut method that will generate and show an alert dialog in one method call; to be
      * used for dialogs that have a title, message, and one button with display text "OK"
      *
-     * @param positiveButtonListener - the onClickListener to apply to the positive button
+     * @param positiveButtonListener - the onClickListener to apply to the positive button. If
+     *                          null, applies a default listener of just dismissing the dialog
      */
     public static void showBasicAlertDialog(Activity context, String title, String msg,
                                             DialogInterface.OnClickListener positiveButtonListener) {
@@ -60,7 +61,8 @@ public class AlertDialogFactory {
      * title, and one button with display text "OK"
      *
      * @param iconResId - the id of the icon to be displayed
-     * @param positiveButtonListener - the onClickListener to apply to the positive button
+     * @param positiveButtonListener - the onClickListener to apply to the positive button. If
+     *                          null, applies a default listener of just dismissing the dialog
      */
     public static void showBasicAlertWithIcon(Activity context, String title, String msg, int iconResId,
                                               DialogInterface.OnClickListener positiveButtonListener) {

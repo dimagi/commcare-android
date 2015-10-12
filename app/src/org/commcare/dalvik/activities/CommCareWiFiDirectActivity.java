@@ -2,6 +2,7 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -241,24 +242,25 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void showDialog(Activity activity, String title, String message) {
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, message);
-        factory.setNeutralButton(localize("wifi.direct.receive.forms"), new DialogInterface.OnClickListener(){
-
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                beReceiver();
-            }});
-        factory.setNegativeButton(localize("wifi.direct.transfer.forms"), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                beSender();
+                switch(which) {
+                    case AlertDialog.BUTTON_POSITIVE:
+                        beSubmitter();
+                        break;
+                    case AlertDialog.BUTTON_NEUTRAL:
+                        beReceiver();
+                        break;
+                    case AlertDialog.BUTTON_NEGATIVE:
+                        beSender();
+                        break;
+                }
             }
-        });
-        factory.setPositiveButton(localize("wifi.direct.submit.forms"), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                beSubmitter();
-            }
-        });
+        };
+        factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
+        factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
+        factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
         factory.showDialog();
     }
 

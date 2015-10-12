@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -189,26 +190,26 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
-    private void showWarningMessage(){
+    private void showWarningMessage() {
         AlertDialogFactory factory = new AlertDialogFactory(this,
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
-        factory.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int id) {
-                acknowledgedRisk = true;
-                dialog.dismiss();
-                dialog.cancel();
-            }
-        });
-        factory.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
-                exitDump();
+                if (id == AlertDialog.BUTTON_POSITIVE) {
+                    acknowledgedRisk = true;
+                    dialog.cancel();
+                } else {
+                    exitDump();
+                }
             }
-        });
+        };
+        factory.setPositiveButton("OK", listener);
+        factory.setNegativeButton("NO", listener);
         factory.showDialog();
     }
     
-    public void updateCounters(){
+    public void updateCounters() {
         Vector<Integer> ids = getUnsyncedForms();
         File[] files = getDumpFiles();
         
