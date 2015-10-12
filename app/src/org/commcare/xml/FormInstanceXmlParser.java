@@ -52,8 +52,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
      */
     private final Map<String, String> namespaceToInstallPath;
 
-    private int parseCount = 0;
-    private Cipher encrypter;
+    private static int parseCount = 0;
 
     /**
      * Root directory for where instances of forms should be saved
@@ -120,16 +119,11 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             throw new RuntimeException("No FormRecord was attached to the inserted form instance");
         }
 
-        // TODO PLM: Eventually merge with SaveToDiskTask exportData xml
-        // serialization logic
-
         OutputStream o = new FileOutputStream(filePath);
         BufferedOutputStream bos = null;
 
         try {
-            if (encrypter == null) {
-                encrypter = Cipher.getInstance("AES");
-            }
+            Cipher encrypter = Cipher.getInstance("AES");
 
             SecretKeySpec key = new SecretKeySpec(attachedRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
@@ -139,7 +133,6 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             serializer.setOutput(bos, "UTF-8");
 
             document.write(serializer);
-
         } catch (StorageFullException e) {
             // writing the form instance to xml failed, so remove the record
             storage.remove(attachedRecord);
