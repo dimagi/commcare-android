@@ -37,8 +37,8 @@ public class AndroidResourceManager extends ResourceManager {
     private String profileRef;
     private final ResourceTable tempUpgradeTable;
 
-    // 5 minutes
-    private final static long UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 5;
+    // 60 minutes
+    private final static long MAX_UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 60;
 
     public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(),
@@ -230,11 +230,11 @@ public class AndroidResourceManager extends ResourceManager {
         } else {
             Log.w(TAG, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
-            scheduleUpdateTaskRetry(ctx);
+            scheduleUpdateTaskRetry(ctx, updateStats.getRestartCount());
         }
     }
 
-    private void scheduleUpdateTaskRetry(final Context ctx) {
+    private void scheduleUpdateTaskRetry(final Context ctx, int numberOfRestarts) {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -249,6 +249,20 @@ public class AndroidResourceManager extends ResourceManager {
                     Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
                 }
             }
-        }, UPDATE_RETRY_DELAY_IN_MS);
+        }, exponentionalRetryDelay(numberOfRestarts));
+    }
+
+    /**
+     * Retry delay that ranges between 30 seconds and 60 minutes.
+     * At 3 retries the delay is 35 seconds, at 5 retries it is at 30 minutes.
+     *
+     * @param numberOfRestarts used as the exponent for the delay calculation
+     * @return delay in MS, which grows exponentially over the number of restarts.
+     */
+    private long exponentionalRetryDelay(int numberOfRestarts) {
+        final Double base = 10 * (1.78);
+        final long thirtySeconds = 30 * 1000;
+        long exponentialDelay = thirtySeconds + (long)Math.pow(base, numberOfRestarts);
+        return Math.min(exponentialDelay, MAX_UPDATE_RETRY_DELAY_IN_MS);
     }
 }

@@ -181,4 +181,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         oos.close();
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
+
+    public int getRestartCount() {
+        return restartCount;
+    }
 }
