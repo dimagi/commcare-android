@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -381,15 +380,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (shouldDismissDialog) {
             dismissProgressDialog();
         }
-    }
-
-    /**
-     * Handle an error in task execution.
-     */
-    protected void taskError(Exception e) {
-        //TODO: For forms with good error reporting, integrate that
-        Toast.makeText(this, Localization.get("activity.task.error.generic", new String[]{e.getMessage()}), Toast.LENGTH_LONG).show();
-        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
     }
 
     /**
