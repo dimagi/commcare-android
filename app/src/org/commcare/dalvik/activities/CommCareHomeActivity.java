@@ -1183,9 +1183,11 @@ public class CommCareHomeActivity
         try {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
+            updateTask.setAsAutoUpdate();
             updateTask.execute(ref);
         } catch(IllegalStateException e) {
-            Log.w(TAG, "Trying trigger auto-update when it is already running, this should never happen!");
+            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
+                    "Should only happen if the user triggered a manual update before this fired.");
         }
     }
 

@@ -46,6 +46,7 @@ public class UpdateTask
     private PinnedNotificationWithProgress pinnedNotificationProgress = null;
     private Context ctx;
     private String profileRef;
+    private boolean wasTriggeredByAutoUpdate = false;
     private int currentProgress = 0;
     private int maxProgress = 0;
 
@@ -153,7 +154,7 @@ public class UpdateTask
             super.onPostExecute(result);
 
             if (!result.isUpdateInCompletedState()) {
-                resourceManager.processUpdateFailure(result, ctx);
+                resourceManager.processUpdateFailure(result, ctx, wasTriggeredByAutoUpdate);
             }
 
             if (pinnedNotificationProgress != null) {
@@ -259,5 +260,12 @@ public class UpdateTask
 
     public int getMaxProgress() {
         return maxProgress;
+    }
+
+    /**
+     * Register task as triggered by auto update; used to determine retry behaviour.
+     */
+    public void setAsAutoUpdate() {
+        wasTriggeredByAutoUpdate = true;
     }
 }

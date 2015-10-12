@@ -206,20 +206,23 @@ public class AndroidResourceManager extends ResourceManager {
      * Clear update table, log failure with update stats,
      * and, if appropriate, schedule a update retry
      *
-     * @param result update attempt result
-     * @param ctx    Used for showing pinned notification of update task retry
+     * @param result       update attempt result
+     * @param ctx          Used for showing pinned notification of update task retry
+     * @param isAutoUpdate When set keep retrying update with delay and max retry count
      */
-    public void processUpdateFailure(AppInstallStatus result, Context ctx) {
+    public void processUpdateFailure(AppInstallStatus result,
+                                     Context ctx,
+                                     boolean isAutoUpdate) {
         updateStats.registerUpdateException(new Exception(result.toString()));
 
         if (!result.canReusePartialUpdateTable()) {
             upgradeTable.clear();
         }
 
-        retryUpdateOrGiveUp(ctx);
+        retryUpdateOrGiveUp(ctx, isAutoUpdate);
     }
 
-    private void retryUpdateOrGiveUp(Context ctx) {
+    private void retryUpdateOrGiveUp(Context ctx, boolean isAutoUpdate) {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
             Log.i(TAG, updateStats.toString());
@@ -230,7 +233,9 @@ public class AndroidResourceManager extends ResourceManager {
         } else {
             Log.w(TAG, "Retrying auto-update");
             UpdateStats.saveStatsPersistently(app, updateStats);
-            scheduleUpdateTaskRetry(ctx, updateStats.getRestartCount());
+            if (isAutoUpdate) {
+                scheduleUpdateTaskRetry(ctx, updateStats.getRestartCount());
+            }
         }
     }
 
