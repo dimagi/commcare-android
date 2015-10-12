@@ -41,6 +41,10 @@ public enum AppInstallStatus implements MessageTag {
         return (this == UnknownFailure || this == NoLocalStorage);
     }
 
+    public boolean isUpdateInCompletedState() {
+        return (this == UpdateStaged || this == UpToDate);
+    }
+
     public String getCategory() {
         return "install_update";
     }
