@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -41,6 +42,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -58,7 +60,8 @@ import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener {
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
+        implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
@@ -142,6 +145,16 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PurgeStaleArchivedFormsTask<FormRecordListActivity> purgeTask =
+                PurgeStaleArchivedFormsTask.getRunningInstance();
+        if (purgeTask != null) {
+            purgeTask.connect(this);
+            if (purgeTask.getStatus() == AsyncTask.Status.RUNNING) {
+                showProgressDialog(purgeTask.getTaskId());
+            }
+        }
+
         try {
             platform = CommCareApplication._().getCommCarePlatform();
             setContentView(R.layout.entity_select_layout);
@@ -591,6 +604,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             case ArchivedFormRemoteRestore.CLEANUP_ID:
                 title = "Fetching Old Forms";
                 message = "Forms downloaded. Processing...";
+                break;
+            case PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID:
+                title = Localization.get("form.archive.purge.title");
+                message = Localization.get("form.archive.purge.message");
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "

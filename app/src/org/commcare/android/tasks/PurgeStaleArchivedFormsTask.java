@@ -1,9 +1,10 @@
-package org.odk.collect.android.logic;
+package org.commcare.android.tasks;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.FormRecordCleanupTask;
+import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -15,22 +16,94 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
- * Determines when saved forms should be purged.
- *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class ArchivedFormManagement {
-    private final static String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
+public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
+        extends CommCareTask<Void, Void, Void, FormRecordListAcivity> {
+    private static final String TAG =
+            PurgeStaleArchivedFormsTask.class.getSimpleName();
+    public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
+    private static final Object lock = new Object();
+    private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
             "cc-days-form-retain";
+
+    private static PurgeStaleArchivedFormsTask<FormRecordListActivity> singletonRunningInstance = null;
+    private final CommCareApp app;
+
+    private PurgeStaleArchivedFormsTask() {
+        app = CommCareApplication._().getCurrentApp();
+        this.taskId = PURGE_STALE_ARCHIVED_FORMS_TASK_ID;
+    }
+
+    public static PurgeStaleArchivedFormsTask<FormRecordListActivity> getNewInstance() {
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new PurgeStaleArchivedFormsTask<>();
+                return singletonRunningInstance;
+            } else {
+                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+            }
+        }
+    }
+
+    public static PurgeStaleArchivedFormsTask<FormRecordListActivity> getRunningInstance() {
+        synchronized (lock) {
+            if (singletonRunningInstance != null &&
+                    singletonRunningInstance.getStatus() == Status.RUNNING) {
+                return singletonRunningInstance;
+            }
+            return null;
+        }
+    }
+
+
+    @Override
+    protected Void doTaskBackground(Void... params) {
+        performArchivedFormPurge(app);
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void result) {
+        synchronized (lock) {
+            super.onPostExecute(result);
+
+            singletonRunningInstance = null;
+        }
+    }
+
+    @Override
+    protected void onCancelled(Void result) {
+        synchronized (lock) {
+            super.onCancelled();
+
+            singletonRunningInstance = null;
+        }
+    }
+
+    @Override
+    protected void deliverResult(FormRecordListAcivity receiver, Void result) {
+
+    }
+
+    @Override
+    protected void deliverUpdate(FormRecordListAcivity receiver, Void... update) {
+
+    }
+
+    @Override
+    protected void deliverError(FormRecordListAcivity receiver, Exception e) {
+
+    }
 
     /**
      * Purge saved forms from device that have surpassed the validity date set
      * by the app
      *
-     * @param app Used to get the saved form validity date property.
+     * @param ccApp Used to get the saved form validity date property.
      */
-    public static void performArchivedFormPurge(CommCareApp app) {
-        int daysSavedFormIsValidFor = getArchivedFormsValidityInDays(app);
+    public static void performArchivedFormPurge(CommCareApp ccApp) {
+        int daysSavedFormIsValidFor = getArchivedFormsValidityInDays(ccApp);
         if (daysSavedFormIsValidFor == -1) {
             return;
         }
@@ -40,6 +113,7 @@ public class ArchivedFormManagement {
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         for (int formRecord : toPurge) {
+            try { Thread.sleep(5000); } catch (Exception e) {}
             FormRecordCleanupTask.wipeRecord(CommCareApplication._(), formRecord);
         }
     }
@@ -50,10 +124,10 @@ public class ArchivedFormManagement {
      * @return how long archived forms should kept on the phone. -1 if saved
      * forms should be kept indefinitely
      */
-    public static int getArchivedFormsValidityInDays(CommCareApp app) {
+    public static int getArchivedFormsValidityInDays(CommCareApp ccApp) {
         int daysForReview = -1;
         String daysToPurge =
-                app.getAppPreferences().getString(DAYS_TO_RETAIN_SAVED_FORMS_KEY, "-1");
+                ccApp.getAppPreferences().getString(DAYS_TO_RETAIN_SAVED_FORMS_KEY, "-1");
         try {
             daysForReview = Integer.parseInt(daysToPurge);
         } catch (NumberFormatException nfe) {

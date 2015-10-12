@@ -61,6 +61,7 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -91,7 +92,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
 import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.logic.ArchivedFormManagement;
 import org.odk.collect.android.utilities.StethoInitializer;
 
 import java.io.File;
@@ -893,7 +893,12 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            ArchivedFormManagement.performArchivedFormPurge(getCurrentApp());
+                            try {
+                                PurgeStaleArchivedFormsTask purgeTask = PurgeStaleArchivedFormsTask.getNewInstance();
+                                purgeTask.execute();
+                            } catch (IllegalStateException e) {
+                                // purge task instance already exists
+                            }
                         }
                     }
                 }
