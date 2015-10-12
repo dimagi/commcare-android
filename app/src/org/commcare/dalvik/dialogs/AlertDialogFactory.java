@@ -52,7 +52,6 @@ public class AlertDialogFactory {
 
     public AlertDialogFactory(Activity context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
 
         TextView titleView = (TextView) view.findViewById(R.id.dialog_title);
@@ -61,7 +60,7 @@ public class AlertDialogFactory {
         messageView.setText(msg);
 
         this.dialog = builder.create();
-        dialog.setCancelable(false); // by default false, can be changed in show()
+        dialog.setCancelable(false); // false by default, can change using makeCancelable()
     }
 
     public void showDialog() {
