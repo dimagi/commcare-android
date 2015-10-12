@@ -662,7 +662,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     protected void deliverResult(LoginActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            Toast.makeText(LoginActivity.this,
+                            Toast.makeText(receiver,
                                     Localization.get("login.update.install.success"),
                                     Toast.LENGTH_LONG).show();
                         } else {
@@ -680,7 +680,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                                                 Exception e) {
                         e.printStackTrace();
                         Log.e(TAG, "update installation on login failed: " + e.getMessage());
-                        Toast.makeText(LoginActivity.this,
+                        Toast.makeText(receiver,
                                 Localization.get("login.update.install.success"),
                                 Toast.LENGTH_LONG).show();
                     }
