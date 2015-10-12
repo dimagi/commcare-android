@@ -158,7 +158,7 @@ public class CustomProgressDialog extends DialogFragment {
             view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_indeterminate, null);
         }
 
-        TextView titleView = (TextView) view.findViewById(R.id.progress_dialog_title);
+        TextView titleView = (TextView) view.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
         TextView messageView = (TextView) view.findViewById(R.id.progress_dialog_message);
         messageView.setText(message);
