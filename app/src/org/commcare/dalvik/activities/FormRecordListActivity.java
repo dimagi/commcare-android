@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -29,13 +28,11 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
@@ -56,6 +53,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.odk.collect.android.listeners.BarcodeScanListener;
+import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 
 import java.io.IOException;
 
@@ -70,8 +68,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private static final int DOWNLOAD_FORMS = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
-
-    private static final int CLEANUP_ID = 0;
 
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
@@ -279,11 +275,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    public void refreshView() {
         disableSearch();
         adapter.resetRecords();
         listView.setAdapter(adapter);
@@ -502,107 +497,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         return menu.hasVisibleItems();
     }
 
-
-    TextToSpeech mTts;
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-                User u;
-                try {
-                    u = CommCareApplication._().getSession().getLoggedInUser();
-                } catch (SessionUnavailableException sue) {
-                    // abort and let default processing happen, since it looks
-                    // like the session expired.
-                    return false;
-                }
-
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
-
-                //We should go digest auth this user on the server and see whether to pull them
-                //down.
-                DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), source, this) {
-
-                    @Override
-                    protected void deliverResult(FormRecordListActivity receiver, Integer status) {
-                        switch (status) {
-                            case DataPullTask.DOWNLOAD_SUCCESS:
-                                FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(FormRecordListActivity.this, platform, CLEANUP_ID) {
-
-                                    @Override
-                                    protected void deliverResult(FormRecordListActivity receiver, Integer result) {
-                                        receiver.refreshView();
-
-                                    }
-
-                                    @Override
-                                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... values) {
-                                        if (values[0] < 0) {
-                                            if (values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
-                                                receiver.updateProgress("Forms Processed. "
-                                                        + "Cleaning up form records...", CLEANUP_ID);
-                                            }
-                                        } else {
-                                            receiver.updateProgress("Forms downloaded. Processing "
-                                                    + values[0] + " of " + values[1] + "...", CLEANUP_ID);
-                                        }
-
-                                    }
-
-                                    @Override
-                                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
-                                        receiver.taskError(e);
-                                    }
-
-
-                                };
-                                task.connect(receiver);
-                                task.execute();
-                                break;
-                            case DataPullTask.UNKNOWN_FAILURE:
-                                Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.AUTH_FAILED:
-                                Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.BAD_DATA:
-                                Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.CONNECTION_TIMEOUT:
-                                Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.SERVER_ERROR:
-                                Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.UNREACHABLE_HOST:
-                                Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
-                        switch (update[0]) {
-                            case DataPullTask.PROGRESS_AUTHED:
-                                receiver.updateProgress("Authed with server, downloading forms" +
-                                                (update[1] == 0 ? "" : " (" + update[1] + ")"),
-                                        DataPullTask.DATA_PULL_TASK_ID);
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
-                        receiver.taskError(e);
-                    }
-                };
-                pull.connect(this);
-                pull.execute();
+                ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
-
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
@@ -686,7 +588,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 title = "Fetching Old Forms";
                 message = "Connecting to server...";
                 break;
-            case CLEANUP_ID:
+            case ArchivedFormRemoteRestore.CLEANUP_ID:
                 title = "Fetching Old Forms";
                 message = "Forms downloaded. Processing...";
                 break;

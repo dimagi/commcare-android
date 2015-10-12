@@ -1,26 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<profile version="17"
-         update="https://www.commcarehq.org/a/flipper/apps/download/05938664cd52392fb39a3567d8d8902a/media_profile.ccpr?latest=true"
+<profile version="8"
+         update="https://www.commcarehq.org/a/odk-unit-tests/apps/download/10895f9b519c5b95064dd155101aa503/media_profile.ccpr?latest=true"
          requiredMajor="2"
-         requiredMinor="22"
-         uniqueid="36c0bdd028d14a52cbff95bb1bfd0962"
-         name="Untitled Application"
+         requiredMinor="23"
+         uniqueid="6a03772aedd992c9f2c9c2198a248184"
+         name="ODK unit tests"
          descriptor="Profile File">
     <property key="BackupMode" value="file_mode"/>
     <property key="backup-url" value="file:///E:/CommCare.Backup"/>
     <property key="restore-url" value="file:///E:/CommCare.Backup"/>
-    <property key="ota-restore-url" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
-    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
-    <property key="PostURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/05938664cd52392fb39a3567d8d8902a/" force="true"/>
-    <property key="PostTestURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/05938664cd52392fb39a3567d8d8902a/" force="true"/>
-    <property key="key_server" value="https://www.commcarehq.org/a/flipper/phone/keys/"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/odk-unit-tests/phone/restore/"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/odk-unit-tests/phone/restore/"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/odk-unit-tests/receiver/secure/10895f9b519c5b95064dd155101aa503/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/odk-unit-tests/receiver/secure/10895f9b519c5b95064dd155101aa503/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/odk-unit-tests/phone/keys/"/>
     <property key="cur_locale" value="en"/>
-    <property key="cc_user_domain" value="flipper.commcarehq.org"/>
+    <property key="cc_user_domain" value="odk-unit-tests.commcarehq.org"/>
     <property key="jr_openrosa_api" value="1.0"/>
 
     <!-- Properties configured on CommCare HQ 1.0 -->
     
-        <property key="cc-days-form-retain" value="-1"/>
+        <property key="cc-days-form-retain" value="31"/>
     
         <property key="cc-show-saved" value="yes" force="true"/>
     
@@ -46,7 +46,7 @@
     
         <property key="cc-login-duration-seconds" value="86400"/>
     
-        <property key="cc-resize-images" value="none"/>
+        <property key="cc-resize-images" value="none" force="true"/>
     
         <property key="cc-entry-mode" value="cc-entry-quick"/>
     
@@ -73,8 +73,10 @@
 
     <!-- end -->
 
-    <suite><resource id="suite" version="17">
+    <suite><resource id="suite" version="8">
+        
             <location authority="local">./suite.xml</location>
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/05938664cd52392fb39a3567d8d8902a/suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/odk-unit-tests/apps/download/10895f9b519c5b95064dd155101aa503/suite.xml</location>
     </resource></suite>
 </profile>
