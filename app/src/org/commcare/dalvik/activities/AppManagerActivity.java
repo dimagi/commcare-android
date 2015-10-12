@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -165,23 +166,19 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         String title = getString(R.string.logging_out);
         String message = getString(R.string.logout_warning);
         AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
-        factory.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                CommCareApplication._().expireUserSession();
-                installApp();
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    CommCareApplication._().expireUserSession();
+                    installApp();
+                }
             }
 
-        });
-        factory.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-
-        });
+        };
+        factory.setPositiveButton(getString(R.string.ok), listener);
+        factory.setNegativeButton(getString(R.string.cancel), listener);
         factory.showDialog();
     }
 }
