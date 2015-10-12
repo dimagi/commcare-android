@@ -74,7 +74,6 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
@@ -895,7 +894,7 @@ public class CommCareApplication extends Application {
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
                             try {
-                                PurgeStaleArchivedFormsTask<FormRecordListActivity> purgeTask =
+                                PurgeStaleArchivedFormsTask purgeTask =
                                         PurgeStaleArchivedFormsTask.getNewInstance();
                                 purgeTask.execute();
                             } catch (IllegalStateException e) {

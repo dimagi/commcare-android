@@ -56,15 +56,12 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
 
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startTaskTransition();
+                connector.stopBlockingForTask(getTaskId());
+                connector.taskCancelled(getTaskId());
+                connector.stopTaskTransition();
             }
-
-            connector.startTaskTransition();
-            connector.stopBlockingForTask(getTaskId());
-            connector.taskCancelled(getTaskId());
-            connector.stopTaskTransition();
         }
     }
 
@@ -74,18 +71,16 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         synchronized (connectorLock) {
             //TODO: extend blocking here?
             CommCareTaskConnector<R> connector = getConnector();
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startTaskTransition();
+                connector.stopBlockingForTask(getTaskId());
+                if (unknownError != null) {
+                    deliverError(connector.getReceiver(), unknownError);
+                    return;
+                }
+                this.deliverResult(connector.getReceiver(), result);
+                connector.stopTaskTransition();
             }
-            connector.startTaskTransition();
-            connector.stopBlockingForTask(getTaskId());
-            if (unknownError != null) {
-                deliverError(connector.getReceiver(), unknownError);
-                return;
-            }
-            this.deliverResult(connector.getReceiver(), result);
-            connector.stopTaskTransition();
         }
     }
 
@@ -100,11 +95,9 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         super.onPreExecute();
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startBlockingForTask(getTaskId());
             }
-            connector.startBlockingForTask(getTaskId());
         }
     }
 

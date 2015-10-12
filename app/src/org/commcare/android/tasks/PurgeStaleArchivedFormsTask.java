@@ -3,8 +3,7 @@ package org.commcare.android.tasks;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.dalvik.activities.FormRecordListActivity;
+import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -18,26 +17,26 @@ import java.util.Vector;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
-        extends CommCareTask<Void, Void, Void, FormRecordListAcivity> {
-    public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
+public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Void> {
+    private static final String TAG = PurgeStaleArchivedFormsTask.class.getSimpleName();
     private static final Object lock = new Object();
-    private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
-            "cc-days-form-retain";
+    private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY = "cc-days-form-retain";
 
-    private static PurgeStaleArchivedFormsTask<FormRecordListActivity> singletonRunningInstance = null;
     private final CommCareApp app;
+    private static PurgeStaleArchivedFormsTask singletonRunningInstance = null;
+
+    private TaskListener<Void, Void> taskListener = null;
+
+    public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
 
     private PurgeStaleArchivedFormsTask() {
-        TAG = PurgeStaleArchivedFormsTask.class.getSimpleName();
         app = CommCareApplication._().getCurrentApp();
-        this.taskId = PURGE_STALE_ARCHIVED_FORMS_TASK_ID;
     }
 
-    public static PurgeStaleArchivedFormsTask<FormRecordListActivity> getNewInstance() {
+    public static PurgeStaleArchivedFormsTask getNewInstance() {
         synchronized (lock) {
             if (singletonRunningInstance == null) {
-                singletonRunningInstance = new PurgeStaleArchivedFormsTask<>();
+                singletonRunningInstance = new PurgeStaleArchivedFormsTask();
                 return singletonRunningInstance;
             } else {
                 throw new IllegalStateException("An instance of " + TAG + " already exists.");
@@ -45,7 +44,7 @@ public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
         }
     }
 
-    public static PurgeStaleArchivedFormsTask<FormRecordListActivity> getRunningInstance() {
+    public static PurgeStaleArchivedFormsTask getRunningInstance() {
         synchronized (lock) {
             if (singletonRunningInstance != null &&
                     singletonRunningInstance.getStatus() == Status.RUNNING) {
@@ -55,17 +54,29 @@ public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
         }
     }
 
-
     @Override
-    protected Void doTaskBackground(Void... params) {
+    protected Void doInBackground(Void... params) {
         performArchivedFormPurge(app);
         return null;
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+
+        if (taskListener != null) {
+            taskListener.handleTaskUpdate(values);
+        }
     }
 
     @Override
     protected void onPostExecute(Void result) {
         synchronized (lock) {
             super.onPostExecute(result);
+
+            if (taskListener != null) {
+                taskListener.handleTaskCompletion(result);
+            }
 
             singletonRunningInstance = null;
         }
@@ -74,25 +85,48 @@ public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
     @Override
     protected void onCancelled(Void result) {
         synchronized (lock) {
-            super.onCancelled();
+            if (android.os.Build.VERSION.SDK_INT >= 11) {
+                super.onCancelled(result);
+            } else {
+                super.onCancelled();
+            }
+
+            if (taskListener != null) {
+                taskListener.handleTaskCancellation(result);
+            }
 
             singletonRunningInstance = null;
         }
     }
 
-    @Override
-    protected void deliverResult(FormRecordListAcivity receiver, Void result) {
-
+    /**
+     * Start reporting task state with a listener process.
+     *
+     * @throws TaskListenerRegistrationException If this task was already
+     *                                           registered with a listener
+     */
+    public void registerTaskListener(TaskListener<Void, Void> listener)
+            throws TaskListenerRegistrationException {
+        if (taskListener != null) {
+            throw new TaskListenerRegistrationException("This " + TAG +
+                    " was already registered with a TaskListener");
+        }
+        taskListener = listener;
     }
 
-    @Override
-    protected void deliverUpdate(FormRecordListAcivity receiver, Void... update) {
-
-    }
-
-    @Override
-    protected void deliverError(FormRecordListAcivity receiver, Exception e) {
-
+    /**
+     * Stop reporting task state with a listener process
+     *
+     * @throws TaskListenerRegistrationException If this task wasn't registered
+     *                                           with the unregistering listener.
+     */
+    public void unregisterTaskListener(TaskListener<Void, Void> listener)
+            throws TaskListenerRegistrationException {
+        if (listener != taskListener) {
+            throw new TaskListenerRegistrationException("The provided listener wasn't " +
+                    "registered with this " + TAG);
+        }
+        taskListener = null;
     }
 
     /**
@@ -112,7 +146,6 @@ public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
         for (int formRecord : toPurge) {
-            try { Thread.sleep(5000); } catch (Exception e) {}
             FormRecordCleanupTask.wipeRecord(CommCareApplication._(), formRecord);
         }
     }
