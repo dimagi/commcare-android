@@ -19,11 +19,11 @@ import org.commcare.android.tasks.templates.CommCareTask;
  *
  * @author ctsims
  */
-public class StateFragment extends Fragment {
-    private CommCareActivity boundActivity;
-    private CommCareActivity lastActivity;
+public class StateFragment<R> extends Fragment {
+    private CommCareActivity<R> boundActivity;
+    private CommCareActivity<R> lastActivity;
 
-    private CommCareTask currentTask;
+    private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
 
@@ -96,7 +96,7 @@ public class StateFragment extends Fragment {
         return lastActivity;
     }
 
-    public void connectTask(CommCareTask task) {
+    public void connectTask(CommCareTask<?, ?, ?, R> task) {
         acquireWakeLock();
         this.currentTask = task;
     }
