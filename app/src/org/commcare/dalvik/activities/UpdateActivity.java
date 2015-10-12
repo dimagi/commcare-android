@@ -76,6 +76,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return;
         }
 
+        setUiFromTask();
+    }
+
+    private void setUiFromTask() {
         int currentProgress = 0;
         int maxProgress = 0;
         if (updateTask != null) {
@@ -84,7 +88,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             if (taskIsCancelling) {
                 uiState.cancellingUiState();
             } else {
-                setUiStateFromRunningTask(updateTask.getStatus());
+                setUiStateFromTaskStatus(updateTask.getStatus());
             }
         } else {
             pendingUpdateOrIdle();
@@ -93,7 +97,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiState.refreshStatusText();
     }
 
-    private void setUiStateFromRunningTask(AsyncTask.Status taskStatus) {
+    private void setUiStateFromTaskStatus(AsyncTask.Status taskStatus) {
         switch (taskStatus) {
             case RUNNING:
                 uiState.downloadingUiState();
@@ -179,7 +183,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             updateTask.startPinnedNotification(this);
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
-            enterErrorState("There is already an existing update task instance.");
+            connectToRunningTask();
             return;
         } catch (TaskListenerRegistrationException e) {
             enterErrorState("Attempting to register a TaskListener to an " +
@@ -190,6 +194,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         updateTask.execute(ref);
         uiState.downloadingUiState();
+    }
+
+    private void connectToRunningTask() {
+        setupUpdateTask();
+
+        setUiFromTask();
     }
 
     private void enterErrorState(String errorMsg) {
@@ -218,9 +228,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            uiState.updateInstalledUiState();
+                            receiver.uiState.updateInstalledUiState();
                         } else {
-                            uiState.errorUiState();
+                            receiver.uiState.errorUiState();
                         }
                     }
 
@@ -232,7 +242,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     @Override
                     protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
-                        uiState.errorUiState();
+                        receiver.uiState.errorUiState();
                     }
                 };
         task.connect(this);
