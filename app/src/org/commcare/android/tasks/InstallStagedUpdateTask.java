@@ -40,7 +40,7 @@ public abstract class InstallStagedUpdateTask<R>
             resourceManager.upgrade();
         } catch (UnresolvedResourceException e) {
             resourceManager.recordUpdateInstallFailure(e);
-            return AppInstallStatus.UnknownFailure;
+            return AppInstallStatus.MissingResources;
         }
 
         ResourceInstallUtils.initAndCommitApp(app);
