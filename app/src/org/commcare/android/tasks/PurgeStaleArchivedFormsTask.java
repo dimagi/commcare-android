@@ -20,8 +20,6 @@ import java.util.Vector;
  */
 public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
         extends CommCareTask<Void, Void, Void, FormRecordListAcivity> {
-    private static final String TAG =
-            PurgeStaleArchivedFormsTask.class.getSimpleName();
     public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
     private static final Object lock = new Object();
     private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
@@ -31,6 +29,7 @@ public class PurgeStaleArchivedFormsTask<FormRecordListAcivity>
     private final CommCareApp app;
 
     private PurgeStaleArchivedFormsTask() {
+        TAG = PurgeStaleArchivedFormsTask.class.getSimpleName();
         app = CommCareApplication._().getCurrentApp();
         this.taskId = PURGE_STALE_ARCHIVED_FORMS_TASK_ID;
     }
