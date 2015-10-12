@@ -37,6 +37,10 @@ public enum AppInstallStatus implements MessageTag {
         return root;
     }
 
+    public boolean canReusePartialUpdateTable() {
+        return (this == UnknownFailure || this == NoLocalStorage);
+    }
+
     public String getCategory() {
         return "install_update";
     }

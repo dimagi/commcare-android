@@ -212,11 +212,7 @@ public class AndroidResourceManager extends ResourceManager {
     public void processUpdateFailure(AppInstallStatus result, Context ctx) {
         updateStats.registerUpdateException(new Exception(result.toString()));
 
-        boolean reusePartialTable =
-                (result == AppInstallStatus.UnknownFailure ||
-                        result == AppInstallStatus.NoLocalStorage);
-
-        if (!reusePartialTable) {
+        if (!result.canReusePartialUpdateTable()) {
             upgradeTable.clear();
         }
 
