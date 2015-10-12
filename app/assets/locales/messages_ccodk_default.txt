@@ -464,7 +464,7 @@ notification.sending.quarantine.detail=CommCare had a problem reading one of you
 notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
 
 
-notification.network.timeout.title=Timed out waiting for Remote Response
+notification.network.timeout.title=It is taking a long time for the server to respond. Please try again.
 notification.network.timeout.detail=The remote service did not respond to CommCare's request within the time limit. It may be busy or this may indicate a connection problem.
 notification.network.timeout.action=Wait a short period and try your request again, or try again later when the remote service may be less busy. If the problem persists, contact your supervisor. 
 
