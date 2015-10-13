@@ -15,6 +15,11 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
+ * Remove saved forms that have passed their validity date from the device. If
+ * the user launches the saved forms list activity while this is running they
+ * should be blocked until it completes as a matter of not allowing loading
+ * forms that might be in the process of being purged.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Void> {
@@ -22,7 +27,6 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
     private static final Object lock = new Object();
     private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY = "cc-days-form-retain";
 
-    private final CommCareApp app;
     private static PurgeStaleArchivedFormsTask singletonRunningInstance = null;
 
     private TaskListener<Void, Void> taskListener = null;
@@ -30,16 +34,13 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
     public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
 
     private PurgeStaleArchivedFormsTask() {
-        app = CommCareApplication._().getCurrentApp();
     }
 
-    public static PurgeStaleArchivedFormsTask getNewInstance() {
+    public static void launchPurgeTask() {
         synchronized (lock) {
             if (singletonRunningInstance == null) {
                 singletonRunningInstance = new PurgeStaleArchivedFormsTask();
-                return singletonRunningInstance;
-            } else {
-                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+                singletonRunningInstance.execute();
             }
         }
     }
@@ -56,6 +57,7 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
 
     @Override
     protected Void doInBackground(Void... params) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
         performArchivedFormPurge(app);
         return null;
     }
@@ -135,7 +137,7 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
      *
      * @param ccApp Used to get the saved form validity date property.
      */
-    public static void performArchivedFormPurge(CommCareApp ccApp) {
+    private static void performArchivedFormPurge(CommCareApp ccApp) {
         int daysSavedFormIsValidFor = getArchivedFormsValidityInDays(ccApp);
         if (daysSavedFormIsValidFor == -1) {
             return;

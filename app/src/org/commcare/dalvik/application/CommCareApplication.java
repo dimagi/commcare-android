@@ -893,13 +893,8 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            try {
-                                PurgeStaleArchivedFormsTask purgeTask =
-                                        PurgeStaleArchivedFormsTask.getNewInstance();
-                                purgeTask.execute();
-                            } catch (IllegalStateException e) {
-                                // purge task instance already exists
-                            }
+
+                            PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
                     }
                 }

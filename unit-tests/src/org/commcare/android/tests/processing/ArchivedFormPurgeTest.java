@@ -1,6 +1,7 @@
 package org.commcare.android.tests.processing;
 
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -14,7 +15,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.odk.collect.android.logic.ArchivedFormManagement;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
@@ -59,22 +59,22 @@ public class ArchivedFormPurgeTest {
         DateTime twoMonthsLater = startTestDate.plusMonths(2);
         assertEquals("Only 1 form should remain if we're 2 months past the 1st form's create date.",
                 SAVED_FORM_COUNT - 1,
-                ArchivedFormManagement.getSavedFormsToPurge(twoMonthsLater).size());
+                PurgeStaleArchivedFormsTask.getSavedFormsToPurge(twoMonthsLater).size());
 
         DateTime twentyYearsLater = startTestDate.plusYears(20);
         assertEquals("All forms should be purged if we are way in the future.",
                 SAVED_FORM_COUNT,
-                ArchivedFormManagement.getSavedFormsToPurge(twentyYearsLater).size());
+                PurgeStaleArchivedFormsTask.getSavedFormsToPurge(twentyYearsLater).size());
 
         assertEquals("When the time is the 1st form's creation time, no forms should be purged",
                 0,
-                ArchivedFormManagement.getSavedFormsToPurge(startTestDate).size());
+                PurgeStaleArchivedFormsTask.getSavedFormsToPurge(startTestDate).size());
     }
 
     @Test
     public void testPurgeDateLoading() {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
-        int daysFormValidFor = ArchivedFormManagement.getArchivedFormsValidityInDays(ccApp);
+        int daysFormValidFor = PurgeStaleArchivedFormsTask.getArchivedFormsValidityInDays(ccApp);
         assertEquals("App should try to keep forms for 31 days", 31, daysFormValidFor);
     }
 }
