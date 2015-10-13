@@ -10,11 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <RelativeLayout android:id="@+id/screen_login_main"
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="match_parent"
-                        android:layout_height="fill_parent">
+        <RelativeLayout
+            android:id="@+id/screen_login_main"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
 
             <LinearLayout
                 android:id="@+id/screen_login_bottom_pane"
@@ -28,11 +28,8 @@
                     android:id="@+id/str_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/VersionIdText"
-                    />
-
+                    android:textAppearance="@style/VersionIdText"/>
             </LinearLayout>
-
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -76,10 +73,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
-                                android:text="Welcome back! Please log in."
                                 android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                />
+                                android:textSize="@dimen/text_medium"/>
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
@@ -102,8 +97,7 @@
                                 android:hint="Username"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
-                                android:textSize="@dimen/text_medium"
-                                >
+                                android:textSize="@dimen/text_medium">
 
                                 <requestFocus/>
                             </EditText>
@@ -120,8 +114,7 @@
                                 android:inputType="textPassword"
                                 android:nextFocusDown="@+id/checkserver"
                                 android:nextFocusUp="@+id/edit_username"
-                                android:textSize="@dimen/text_medium"
-                                />
+                                android:textSize="@dimen/text_medium"/>
 
                             <TextView
                                 android:id="@+id/screen_login_bad_password"
@@ -136,7 +129,6 @@
                                 android:paddingLeft="5dp"
                                 android:paddingRight="5dp"
                                 android:paddingTop="2dp"
-                                android:text="We couldn't find a user with this password. Please try another!"
                                 android:textColor="@color/red"
                                 android:textStyle="bold"
                                 android:visibility="gone"/>
@@ -150,13 +142,9 @@
                                 android:nextFocusUp="@+id/edit_password"
                                 android:paddingBottom="@dimen/content_start"
                                 android:paddingTop="@dimen/content_start"
-                                android:text="Login"
-                                android:textColor="@color/cc_neutral_bg"
-                                />
+                                android:textColor="@color/cc_neutral_bg"/>
                         </LinearLayout>
-
                     </LinearLayout>
-
                 </LinearLayout>
             </ScrollView>
         </RelativeLayout>
