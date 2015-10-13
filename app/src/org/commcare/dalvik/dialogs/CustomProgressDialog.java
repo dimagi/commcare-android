@@ -148,7 +148,7 @@ public class CustomProgressDialog extends DialogFragment {
         restoreFields(savedInstanceState);
         Context context = getActivity();
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setCancelable(isCancelable);
+        setCancelable(isCancelable);
 
         View view;
         if (usingHorizontalProgressBar) {
