@@ -32,7 +32,7 @@
 
         android:background="@android:color/transparent"
         android:textSize="@dimen/font_size_medium"
-        android:textColor="#2196F3"
+        android:textColor="@color/dialog_button_color"
         android:visibility="gone" >
     </Button>
 
@@ -49,7 +49,7 @@
 
         android:background="@android:color/transparent"
         android:textSize="@dimen/font_size_medium"
-        android:textColor="#2196F3"
+        android:textColor="@color/dialog_button_color"
         android:visibility="gone" >
     </Button>
 
@@ -68,7 +68,7 @@
 
         android:background="@android:color/transparent"
         android:textSize="@dimen/font_size_medium"
-        android:textColor="#2196F3"
+        android:textColor="@color/dialog_button_color"
         android:visibility="gone" >
     </Button>
 

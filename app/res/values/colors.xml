@@ -121,4 +121,7 @@
     <!-- Drawer pulldown odd row color -->
     <color name="drawer_pulldown_odd_row_color">#D0E8FF</color>
 
+    <!-- Dialog button color -->
+    <color name="dialog_button_color">#2196F3</color>
+
 </resources>
