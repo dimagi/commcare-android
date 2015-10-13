@@ -76,6 +76,7 @@ public class GridEntityView extends GridLayout {
 	public double densityRowMultiplier = 1;
 	
 	public String backgroundColor;
+    private boolean usingCustomBackgroundColor;
 	
 	public double cellWidth;
 	public double cellHeight;
@@ -279,9 +280,15 @@ public class GridEntityView extends GridLayout {
                         break;
                     case ("red-background"):
                         this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
+                        usingCustomBackgroundColor = true;
                         break;
                     case ("yellow-background"):
                         this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
+                        usingCustomBackgroundColor = true;
+                        break;
+                    case ("no-background"):
+                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_transparent));
+                        usingCustomBackgroundColor = true;
                         break;
                 }
 			}
@@ -460,7 +467,12 @@ public class GridEntityView extends GridLayout {
         this.searchTerms = currentSearchTerms;
     }
 
-    public void setTextColor(int color){
+    public void setTextColor(int color) {
+        if (usingCustomBackgroundColor) {
+            // If this case tile has a custom background color, we don't want to use a text color
+            // that was chosen to match the default background; just let the original color stand
+            return;
+        }
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
@@ -470,7 +482,12 @@ public class GridEntityView extends GridLayout {
         }
     }
 
-    public void setTitleTextColor(int color){
+    public void setTitleTextColor(int color) {
+        if (usingCustomBackgroundColor) {
+            // If this case tile has a custom background color, we don't want to use a text color
+            // that was chosen to match the default background; just let the original color stand
+            return;
+        }
         for (int i = 0; i < mRowViews.length; i++) {
             View v = mRowViews[i];
             if (v == null) continue;
