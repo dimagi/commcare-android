@@ -69,7 +69,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private boolean mBannerOverriden = false;
 
-    StateFragment stateHolder;
+    StateFragment<R> stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
@@ -109,7 +109,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
         if (stateHolder == null) {
-            stateHolder = new StateFragment();
+            stateHolder = new StateFragment<>();
             fm.beginTransaction().add(stateHolder, "state").commit();
             // entering new activity, not just rotating one, so release old
             // media
