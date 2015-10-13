@@ -8,12 +8,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -42,14 +38,7 @@ public class NodeEntityFactory {
 
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
-        Hashtable<String, XPathExpression> variables = getDetail().getVariableDeclarations();
-        //These are actually in an ordered hashtable, so we can't just get the keyset, since it's
-        //in a 1.3 hashtable equivalent
-        for (Enumeration<String> en = variables.keys(); en.hasMoreElements(); ) {
-            String key = en.nextElement();
-            nodeContext.setVariable(key, XPathFuncExpr.unpack(variables.get(key).eval(nodeContext)));
-        }
-
+        getDetail().populateEvaluationContextVariables(nodeContext);
         //return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 
         int length = detail.getHeaderForms().length;
