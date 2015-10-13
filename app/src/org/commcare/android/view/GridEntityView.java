@@ -19,7 +19,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
@@ -134,10 +133,10 @@ public class GridEntityView extends GridLayout {
 		int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
 
         //an additional row for every 160dpi
-        double extraDensity = (int)((densityDpi - defaultDensityDpi / 80)) * 0.5;
+        double extraDensity = (int)((densityDpi - defaultDensityDpi) / 80) * 0.5;
 
         densityRowMultiplier = 1 + extraDensity;
-		
+
 		this.mFuzzySearchEnabled = fuzzySearchEnabled;
 		
 		//setup all the various dimensions we need
@@ -152,6 +151,9 @@ public class GridEntityView extends GridLayout {
 			screenWidth = display.getWidth();
 			screenHeight = display.getHeight();
 		}
+
+		// subtract the margins since we don't have this space
+		screenWidth = screenWidth - ROW_PADDING_HORIZONTAL*2;
 
 		// If screen is rotated, use width for cell height measurement
 		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
@@ -321,7 +323,7 @@ public class GridEntityView extends GridLayout {
 			mGridParams.height = (int)cellHeight * currentCoordinate.getHeight()
 					// we need to account for any padding that wouldn be in these rows if the entity didn't overwrite
 					+ (2 * CELL_PADDING_VERTICAL * (currentCoordinate.getHeight() -1));
-			
+            
 			// get style attributes
 			String horzAlign = mStyle.getHorzAlign();
 			String vertAlign = mStyle.getVertAlign();

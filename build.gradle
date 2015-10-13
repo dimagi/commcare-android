@@ -29,6 +29,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.+'
     testCompile "org.robolectric:robolectric:3.0"
+    testCompile project(path: ':javarosa', configuration: 'testsAsJar')
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
     debugCompile project(':commcare')

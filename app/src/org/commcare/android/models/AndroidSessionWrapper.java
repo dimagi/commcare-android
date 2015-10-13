@@ -14,6 +14,8 @@ import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.SessionDatum;
@@ -22,8 +24,6 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.util.CommCareSession;
-import org.commcare.util.SessionFrame;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.model.xform.XPathReference;
@@ -254,7 +254,7 @@ public class AndroidSessionWrapper {
         //Now determine what nodeset that was going to be used to load this select
         TreeReference nodesetRef = datum.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        predicates.add(new XPathEqExpr(true, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
+        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
 
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
 

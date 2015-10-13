@@ -106,6 +106,11 @@ public class NotificationMessageFactory {
         Bad_Archive_File("notification.install.badarchive"),
 
         /**
+         * The phone could not store some part of the restore payload *
+         */
+        Storage_Full("notification.restore.storagefull"),
+
+        /**
          * Bad SSL Certificate *
          */
         BadSSLCertificate("notification.bad.certificate");

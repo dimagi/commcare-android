@@ -268,6 +268,8 @@ select.detail.title=Details
 select.list.title=Select
 
 home.logged.in.message=Logged In: ${0}
+notification.logged.in=Logged Into ${0}
+
 title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
@@ -361,6 +363,10 @@ notification.restore.nonetwork.badpass.action=Try re-entering your password. If 
 notification.bad.certificate.title=Couldn't securely connect to the server. 
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
+
+notification.restore.storagefull.title=Couldn't save your application's resources
+notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
+notification.restore.storagefull.action=Check the amount of space available on your device. If the SD card isn't full, then it's likely one of your fixtures is too large (> 1MB) and needs to be reduced or split.
 
 notification.restore.unknown.title=Unknown Error during Restore
 notification.restore.unknown.detail=CommCare had trouble dealing with something that happened when you tried to log in 
@@ -488,16 +494,16 @@ notification.case.predicate.action=Filtering your list failed with a bad filter 
 
 archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
-archive.install.state.empty=Please select a ZIP file to begin
+archive.install.state.empty=Please select a CCZ file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
-archive.install.state.done=Your zip file has been installed
-archive.install.state.invalid.path=The file path selected is not a valid zip file. Please select a valid file.
+archive.install.state.done=Your CCZ file has been installed
+archive.install.state.invalid.path=The file path selected is not a valid CCZ file. Please select a valid file.
 archive.install.cancelled=Offline installation cancelled
-archive.install.bad=The selected ZIP file is not valid. Please choose a valid zip file.
+archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.
 archive.install.unzip=Unzipping
 archive.install.no.browser=You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.
 
-archive.install.prompt=Install your CommCare application from a .zip file
+archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
 
 wifi.direct.transfer.forms=Transfer Forms
