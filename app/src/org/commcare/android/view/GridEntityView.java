@@ -53,8 +53,9 @@ public class GridEntityView extends GridLayout {
     View[] mRowViews;
 	boolean mFuzzySearchEnabled = false;
 	boolean mIsAsynchronous = false;
-	
-	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);		// load the screen-size dependent font sizes
+
+    // load the screen-size dependent font sizes
+	public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);
 	public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);	
 	public final float LARGE_FONT = getResources().getDimension(R.dimen.font_size_large);
 	public final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
@@ -64,27 +65,19 @@ public class GridEntityView extends GridLayout {
 	public final int CELL_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.cell_padding_vertical);
 	public final int ROW_PADDING_HORIZONTAL = (int)getResources().getDimension(R.dimen.row_padding_horizontal);
 	public final int ROW_PADDING_VERTICAL = (int)getResources().getDimension(R.dimen.row_padding_vertical);
-	
+
 	public final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-	public final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
-	
-	public int NUMBER_ROWS_PER_GRID = 6;															// number of rows per GridView
-	public int NUMBER_COLUMNS_PER_GRID = 12;														// number of columns per GridView
-	public double NUMBER_ROWS_PER_SCREEN_TALL = 5;													// number of rows the screen is divided into in portrait mode
-	public double NUMBER_CROWS_PER_SCREEN_WIDE = 3;	                                                // number of rows the screen is divided into in landscape mode
-	
-	public double densityRowMultiplier = 1;
-	
-	public String backgroundColor;
-	
+    public final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
+    public final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
+    public final int NUMBER_COLUMNS_PER_GRID = 12;
+
+    public int NUMBER_ROWS_PER_GRID;
+
 	public double cellWidth;
 	public double cellHeight;
-	
-	public double screenWidth;
-	public double screenHeight;
-	public double rowHeight;
-	public double rowWidth;
-	private CachingAsyncImageLoader mImageLoader;															// image loader used for all asyncronous imageView loading
+
+    // image loader used for all asynchronous imageView loading
+	private CachingAsyncImageLoader mImageLoader;
 
 	/**
 	 * Used to create a entity view tile outside of a managed context (like 
@@ -116,70 +109,64 @@ public class GridEntityView extends GridLayout {
 		
 		int maximumRows = this.getMaxRows(detail);
 		this.NUMBER_ROWS_PER_GRID = maximumRows;
-		// calibrate the size of each gridview relative to the screen size based on how many rows will be in each grid
-		// 
-		this.NUMBER_ROWS_PER_SCREEN_TALL = this.NUMBER_ROWS_PER_SCREEN_TALL * (this.DEFAULT_NUMBER_ROWS_PER_GRID/(NUMBER_ROWS_PER_GRID * 1.0));
-		this.NUMBER_CROWS_PER_SCREEN_WIDE = this.NUMBER_ROWS_PER_SCREEN_TALL * LANDSCAPE_TO_PORTRAIT_RATIO;
+
+		// Calibrate the # of grid views that appear on the screen, based on how many rows will
+		// be in each grid
+		double NUM_GRIDS_PER_SCREEN_PORTRAIT = this.DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT *
+                (this.DEFAULT_NUMBER_ROWS_PER_GRID / (float)NUMBER_ROWS_PER_GRID);
+		double NUM_GRIDS_PER_SCREEN_LANDSCAPE = NUM_GRIDS_PER_SCREEN_PORTRAIT * LANDSCAPE_TO_PORTRAIT_RATIO;
 		    
 		this.setColumnCount(NUMBER_COLUMNS_PER_GRID);
 		this.setRowCount(NUMBER_ROWS_PER_GRID);
 		this.setPadding(ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL,ROW_PADDING_HORIZONTAL,ROW_PADDING_VERTICAL);
 		
-		// get density metrics
+		// Get density metrics
 		DisplayMetrics metrics = getResources().getDisplayMetrics();
-		
 		int densityDpi = metrics.densityDpi;
-
 		int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
 
-        //an additional row for every 160dpi
+        // For every additional 160dpi, show one more grid view on the screen
         double extraDensity = (int)((densityDpi - defaultDensityDpi) / 80) * 0.5;
+        double densityRowMultiplier = 1 + extraDensity;
 
-        densityRowMultiplier = 1 + extraDensity;
-
-		this.mFuzzySearchEnabled = fuzzySearchEnabled;
-		
-		//setup all the various dimensions we need
+        double screenWidth, screenHeight, viewHeight, viewWidth;
 		Display display = ((Activity)context).getWindowManager().getDefaultDisplay();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
 			Point size = new Point();
 			display.getSize(size);
-
 			screenWidth = size.x;
 			screenHeight = size.y;
 		} else {
 			screenWidth = display.getWidth();
 			screenHeight = display.getHeight();
 		}
-
-		// subtract the margins since we don't have this space
+		// Subtract the margins since we don't have this space
 		screenWidth = screenWidth - ROW_PADDING_HORIZONTAL*2;
 
 		// If screen is rotated, use width for cell height measurement
-		if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
-		    //TODO: call to inAwesomeMode was not working for me. What's the best method to determine this?
-			if(context.getString(R.string.panes).equals("two")){
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+		    //TODO: call to inAwesomeMode() was not working for me. What's the best method to determine this?
+			if (context.getString(R.string.panes).equals("two")){
 			    // if in awesome mode, split available width in half
 				screenWidth = screenWidth/2;
 			}
 			
-			// calibrate row width and height based on screen density and divisor constant
-			rowHeight = screenHeight/(NUMBER_CROWS_PER_SCREEN_WIDE*densityRowMultiplier);
-			rowWidth = screenWidth;
-			
-		} else{
-			rowHeight = screenHeight/(NUMBER_ROWS_PER_SCREEN_TALL*densityRowMultiplier);
-			rowWidth = screenWidth;
+			// calibrate width and height of this view based on screen density and divisor constant
+			viewHeight = screenHeight / (NUM_GRIDS_PER_SCREEN_LANDSCAPE * densityRowMultiplier);
+		} else {
+			viewHeight = screenHeight / (NUM_GRIDS_PER_SCREEN_PORTRAIT * densityRowMultiplier);
 		}
-		
-		mImageLoader = mLoader;
-		cellWidth = rowWidth/NUMBER_COLUMNS_PER_GRID;
-		cellHeight = rowHeight / NUMBER_ROWS_PER_GRID;
-		
-		// now ready to setup all these views
-		setViews(context, detail, entity);
+        viewWidth = screenWidth;
 
+		cellWidth = viewWidth / NUMBER_COLUMNS_PER_GRID;
+		cellHeight = viewHeight / NUMBER_ROWS_PER_GRID;
+
+        mImageLoader = mLoader;
+        mFuzzySearchEnabled = fuzzySearchEnabled;
+		
+		setViews(context, detail, entity);
 	}
+
 	/**
 	 * Add Spaces to this GridLayout to strictly enforce that Grid columns and rows stay the width/height we want
 	 * Android GridLayout tries to be very "smart" about moving entries placed arbitrarily within the grid so that
@@ -191,7 +178,7 @@ public class GridEntityView extends GridLayout {
 	 */
 	public void addBuffers(Context context){
 		
-		for(int i=0; i<NUMBER_ROWS_PER_GRID;i++){
+		for (int i=0; i < NUMBER_ROWS_PER_GRID; i++) {
 			
 			Spec rowSpec = GridLayout.spec(i);
 			Spec colSpec = GridLayout.spec(0);
@@ -205,7 +192,7 @@ public class GridEntityView extends GridLayout {
 			this.addView(mSpace, mGridParams);
 		}
 		
-		for(int i=0; i<NUMBER_COLUMNS_PER_GRID;i++){
+		for (int i=0; i < NUMBER_COLUMNS_PER_GRID; i++) {
 			
 			Spec rowSpec = GridLayout.spec(0);
 			Spec colSpec = GridLayout.spec(i);
@@ -221,18 +208,17 @@ public class GridEntityView extends GridLayout {
 		
 	}
 	
-	// get the maximum height of this grid
-	
-	public int getMaxRows(Detail detail){
+	// Get the maximum height of this grid view
+	public int getMaxRows(Detail detail) {
 	    
 	    GridCoordinate[] coordinates = detail.getGridCoordinates();
 	    int currentMaxHeight = 0;
 	    
-	    for(int i=0; i< coordinates.length; i++){
+	    for (int i=0; i < coordinates.length; i++) {
 	        int yCoordinate = coordinates[i].getY();
 	        int height = coordinates[i].getHeight();
 	        int maxHeight = yCoordinate + height;
-	        if(maxHeight > currentMaxHeight){
+	        if (maxHeight > currentMaxHeight) {
 	            currentMaxHeight = maxHeight;
 	        }
 	    }
