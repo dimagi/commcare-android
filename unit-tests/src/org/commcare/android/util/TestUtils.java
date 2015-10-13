@@ -4,6 +4,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
@@ -12,6 +13,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.util.externalizable.AndroidClassHasher;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.CaseXmlParser;
 import org.javarosa.core.api.ClassNameHasher;
@@ -37,7 +39,6 @@ import java.util.Hashtable;
 public class TestUtils {
     
     //TODO: Move this to the application or somewhere better static
-    public static PrototypeFactory factory = new PrototypeFactory();
 
     /**
      * Initialize all of the static hooks we need to make storage possible
@@ -46,7 +47,7 @@ public class TestUtils {
     public static void initializeStaticTestStorage() {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
-        PrototypeFactory.setStaticHasher(new ClassNameHasher());
+        DbUtil.setDBUtilsPrototypeFactory(new LivePrototypeFactory(new AndroidClassHasher()));
         AndroidUtil.initializeStaticHandlers();
         
         // For now, disable the optimizations, since they require in-depth SQL code that
@@ -110,6 +111,10 @@ public class TestUtils {
         final SQLiteDatabase db = helper.getWritableDatabase("Test");
         return db;
     }
+
+    public static PrototypeFactory getStaticPrototypeFactory(){
+        return DbUtil.getPrototypeFactory(RuntimeEnvironment.application);
+    }
     
     /**
      * @return A test-db case storage object
@@ -126,7 +131,7 @@ public class TestUtils {
             return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
-                return factory;
+                return getStaticPrototypeFactory();
             }
                
         });

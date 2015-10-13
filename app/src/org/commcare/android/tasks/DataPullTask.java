@@ -12,7 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.RecordTooLargeException;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
