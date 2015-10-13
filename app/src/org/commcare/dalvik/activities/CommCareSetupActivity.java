@@ -595,7 +595,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "date >= now() - INTERVAL 1 DAY", null, "date desc");
         if (cursor == null) {
             return;
         }
