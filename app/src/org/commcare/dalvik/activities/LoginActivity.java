@@ -95,7 +95,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
-    @UiElement(value=R.id.welcome_msg, locale="login.welcome.message")
+    @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
     
     private static final int TASK_KEY_EXCHANGE = 1;

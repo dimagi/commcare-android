@@ -119,10 +119,11 @@ login.attempt.badcred=Username or password are incorrect. Please try again.
 
 login.username=Username
 login.password=Password
-login.welcome.message=Welcome back! Please log in.
 login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
+login.welcome.single=Welcome back! Please log in.
+login.welcome.multiple=Welcome back! Please select an app and log in.
 
 version.id.long=CommCare ODK, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
 version.id.short=CCODK:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
@@ -307,8 +308,6 @@ notification.sync.connections.action=You don't have any active data connections 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
 
-login.welcome.single=Welcome back! Please log in.
-login.welcome.multiple=Welcome back! Please select an app and log in.
 seating.app=CommCare is loading your app
 
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
