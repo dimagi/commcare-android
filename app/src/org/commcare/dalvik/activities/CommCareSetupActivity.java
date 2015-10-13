@@ -45,9 +45,12 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+import org.joda.time.DateTime;
+import org.odk.collect.android.utilities.SqlUtils;
 
 import java.io.IOException;
 import java.security.SignatureException;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -584,7 +587,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.scanSMSLinks(installTriggeredManually);
     }
 
-
     /**
      * Scan the most recent incoming text messages for a message with a
      * verified link to a commcare app and install it.  Message scanning stops
@@ -595,15 +597,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "date >= now() - INTERVAL 1 DAY", null, "date desc");
+        DateTime todayDateTime = new DateTime();
+        System.out.println("!Cursor Minus one: " + todayDateTime.minusDays(1));
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null,
+                "date >= ?", new String[] {SqlUtils.datetimeToSqlString(new DateTime().minusDays(1))}, "date desc");
         if (cursor == null) {
+            System.out.println("!Cursor Null");
             return;
+        } else{
+            System.out.println("!Cursor length: " + cursor.getCount());
         }
         int messageIterationCount = 0;
         try {
             while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
+                System.out.println("!Cursor message iterate");
                 messageIterationCount++;
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+                System.out.println("!Cursor message body: " + textMessageBody);
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     RetrieveParseVerifyMessageTask mTask =
                             new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
