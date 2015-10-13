@@ -10,12 +10,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Shows reason for unrecoverable crash to user and restarts CommCare
+ * Shows reason for unrecoverable crash to user, reports crash to server,
+ * and restarts CommCare.
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
@@ -25,6 +27,7 @@ public class CrashWarningActivity extends Activity {
 
     private LinearLayout errorView;
     private ImageButton infoButton;
+    private Throwable exception;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,20 @@ public class CrashWarningActivity extends Activity {
 
         setContentView(R.layout.activity_crash_warning);
 
+        loadExceptionFromIntent();
+
+        ExceptionReportTask task = new ExceptionReportTask();
+        task.execute(exception);
+
         setupUi();
+    }
+
+    private void loadExceptionFromIntent() {
+        Intent intent = getIntent();
+        if (intent.hasExtra(CommCareExceptionHandler.CRASH_EXCEPTION_KEY)) {
+            Bundle extras = intent.getExtras();
+            exception = (Throwable)extras.getSerializable(CommCareExceptionHandler.CRASH_EXCEPTION_KEY);
+        }
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -85,13 +101,8 @@ public class CrashWarningActivity extends Activity {
         simpleWarningView.setText(Localization.get("crash.warning.header"));
 
         TextView errorMessageView = (TextView)findViewById(R.id.ErrorText);
-
-        Intent intent = getIntent();
-        if (intent.hasExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY)) {
-            String warningMessage =
-                    intent.getStringExtra(CommCareExceptionHandler.WARNING_MESSAGE_KEY);
-            errorMessageView.setText(Localization.get("crash.warning.detail") + "\n" + warningMessage);
-        }
+        errorMessageView.setText(Localization.get("crash.warning.detail") +
+                "\n" + exception.getMessage());
 
         errorView = (LinearLayout)findViewById(R.id.Error);
         errorView.setVisibility(errorMessageVisibility);

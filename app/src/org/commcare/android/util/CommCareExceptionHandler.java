@@ -2,6 +2,7 @@ package org.commcare.android.util;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.dalvik.activities.CrashWarningActivity;
@@ -21,7 +22,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     private final UncaughtExceptionHandler parent;
     private final Context ctx;
 
-    public static final String WARNING_MESSAGE_KEY = "warning-message";
+    public static final String CRASH_EXCEPTION_KEY = "crash-exception";
 
     public CommCareExceptionHandler(UncaughtExceptionHandler parent,
                                     Context ctx) {
@@ -31,12 +32,13 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        ExceptionReportTask task = new ExceptionReportTask();
-        task.execute(ex);
 
         if (isUserCreatedCrash(ex)) {
             warnUserAndExit(ex);
         } else {
+            ExceptionReportTask task = new ExceptionReportTask();
+            task.execute(ex);
+
             // handle error normally (report to ACRA/play store)
             parent.uncaughtException(thread, ex);
         }
@@ -44,13 +46,17 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
     /**
      * Launch activity showing user details of the crash if it is something
-     * they can fix then exit.
+     * they can fix. Sends crash to CommCare server, then exits.
      */
     private void warnUserAndExit(Throwable ex) {
         Intent i = new Intent(ctx, CrashWarningActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
+
+        Bundle extras = new Bundle();
+        extras.putSerializable(CRASH_EXCEPTION_KEY, ex);
+        i.putExtras(extras);
+
         ctx.startActivity(i);
         // You must close the crashed thread in order to start a new activity.
         System.exit(0);
