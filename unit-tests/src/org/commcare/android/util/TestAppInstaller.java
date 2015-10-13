@@ -6,6 +6,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
@@ -53,10 +54,10 @@ public class TestAppInstaller {
 
         CommCareApp app = new CommCareApp(newRecord);
         ResourceEngineTask<Object> task =
-                new ResourceEngineTask<Object>(false, app, false, -1, false) {
+                new ResourceEngineTask<Object>(app, -1, false) {
                     @Override
                     protected void deliverResult(Object receiver,
-                                                 ResourceEngineOutcomes result) {
+                                                 AppInstallStatus result) {
                     }
 
                     @Override
