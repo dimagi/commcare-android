@@ -74,7 +74,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
-    @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
+    @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
@@ -95,7 +95,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
-    @UiElement(value = R.id.welcome_msg, locale="login.wecome.message")
+    @UiElement(value=R.id.welcome_msg, locale="login.wecome.message")
     private TextView welcomeMessage;
     
     private static final int TASK_KEY_EXCHANGE = 1;
