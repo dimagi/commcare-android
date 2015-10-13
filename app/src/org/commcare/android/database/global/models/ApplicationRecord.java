@@ -9,6 +9,7 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 /**
  * An Application Record tracks an individual CommCare app on the current
@@ -168,8 +169,13 @@ public class ApplicationRecord extends Persisted {
         this.uniqueId = p.getUniqueId();
         this.displayName = p.getDisplayName();
         if ("".equals(displayName)) {
-            // If this profile didn't have a display name, get it from Localization strings instead
-            displayName = Localization.get("app.display.name");
+            // If this profile didn't have a display name, try to get it from Localization
+            // strings instead
+            try {
+                displayName = Localization.get("app.display.name");
+            } catch (NoLocalizedTextException e) {
+                displayName = "CommCare";
+            }
         }
         this.versionNumber = p.getVersion();
         this.preMultipleAppsProfile = p.isOldVersion();
