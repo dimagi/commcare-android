@@ -41,8 +41,11 @@ public class AppDatabaseUpgrader {
                 oldVersion = 5;
             }
         }
+
         if (oldVersion == 5) {
-            upgradeFiveSix(db);
+            if (upgradeFiveSix(db)) {
+                oldVersion = 6;
+            }
         }
 
         //NOTE: If metadata changes are made to the Resource model, they need to be
