@@ -2,7 +2,6 @@ package org.commcare.android.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
@@ -53,7 +52,6 @@ public class TabbedDetailView extends RelativeLayout {
 
     private void loadViewConfig(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.TabbedDetailView);
-        Resources.Theme theme = context.getTheme();
         int[] defaults = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.detail_even_row_color, R.attr.detail_odd_row_color});
 
         mEvenColor = typedArray.getColor(R.styleable.TabbedDetailView_even_row_color, defaults[0]);

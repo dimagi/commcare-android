@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
@@ -46,7 +45,6 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
 
     Entity<TreeReference> entity;
-    EntityDetailAdapter adapter;
     NodeEntityFactory factory;
     Pair<Detail, TreeReference> mEntityContext;
 
