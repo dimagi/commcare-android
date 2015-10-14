@@ -598,22 +598,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
         DateTime todayDateTime = new DateTime();
-        System.out.println("!Cursor Minus one: " + todayDateTime.minusDays(1));
         Cursor cursor = getContentResolver().query(SMS_INBOX, null,
                 "date >= ?", new String[] {SqlUtils.datetimeToSqlString(new DateTime().minusDays(1))}, "date desc");
         if (cursor == null) {
-            System.out.println("!Cursor Null");
             return;
         } else{
-            System.out.println("!Cursor length: " + cursor.getCount());
         }
         int messageIterationCount = 0;
         try {
             while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
-                System.out.println("!Cursor message iterate");
                 messageIterationCount++;
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
-                System.out.println("!Cursor message body: " + textMessageBody);
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     RetrieveParseVerifyMessageTask mTask =
                             new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
