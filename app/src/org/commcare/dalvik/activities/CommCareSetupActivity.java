@@ -45,9 +45,12 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+import org.joda.time.DateTime;
+import org.odk.collect.android.utilities.SqlUtils;
 
 import java.io.IOException;
 import java.security.SignatureException;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -584,7 +587,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.scanSMSLinks(installTriggeredManually);
     }
 
-
     /**
      * Scan the most recent incoming text messages for a message with a
      * verified link to a commcare app and install it.  Message scanning stops
@@ -595,7 +597,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "date >= now() - INTERVAL 1 DAY", null, "date desc");
+        DateTime todayDateTime = new DateTime();
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null,
+                "date >= ?", new String[] {SqlUtils.datetimeToSqlString(new DateTime().minusDays(1))}, "date desc");
         if (cursor == null) {
             return;
         }
