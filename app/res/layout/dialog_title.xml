@@ -12,7 +12,6 @@
         android:id="@+id/dialog_title_icon"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_marginRight="@dimen/standard_spacer_double"
         android:visibility="gone">
     </ImageView>
@@ -21,7 +20,6 @@
         android:id="@+id/dialog_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/font_size_xlarger"
-        android:layout_alignParentTop="true" />
+        android:textSize="@dimen/font_size_xlarger" />
 
 </LinearLayout>

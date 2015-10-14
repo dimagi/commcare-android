@@ -17,8 +17,8 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class AlertDialogFactory {
 
-    private AlertDialog dialog;
-    private View view;
+    private final AlertDialog dialog;
+    private final View view;
 
     public AlertDialogFactory(Activity context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
