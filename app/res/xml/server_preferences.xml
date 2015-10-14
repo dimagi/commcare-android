@@ -27,7 +27,7 @@ the License.
     <EditTextPreference android:key="default_key_server" android:enabled="true" android:title="Key Server" android:defaultValue="@string/key_server"></EditTextPreference>
     <EditTextPreference android:key="form-record-url" android:enabled="true" android:title="Form Record Server" android:defaultValue="@string/form_record_url"></EditTextPreference>
     <ListPreference android:key="cc-autoup-freq" android:enabled="true" android:title="Auto Update Frequency" android:entryValues="@array/frequency_vals" android:entries="@array/frequency_vals_labels"/>
-    <ListPreference android:key="cc-fuzzy-search-enabled" android:enabled="true" android:title="Fuzzy Search Matches" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_lables" android:defaultValue="no"/>
+    <ListPreference android:key="cc-fuzzy-search-enabled" android:enabled="true" android:title="Fuzzy Search Matches" android:entryValues="@array/pref_enabled_vals" android:entries="@array/pref_enabled_labels" android:defaultValue="no"/>
     <PreferenceScreen android:key="print-doc-location" android:enabled="true" android:title="Set Print Template" android:dialogTitle="Set Print Template Location" android:id="@+id/printlocation"/>
 
 </PreferenceScreen>

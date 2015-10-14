@@ -37,6 +37,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     // Does the user want to download the latest app version deployed (built),
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+    public final static String QUESTION_TEXT_FORMAT = "cc-question-text-format";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-
     /**
      * @return true if developer option to download the latest app version
      * deployed (built) is enabled.  Otherwise the latest released (starred)
@@ -115,6 +115,16 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
 
     public static boolean isMarkdownEnabled(){
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static String getQuestionTextFormat() {
+        String defaultValue = "image-below-text";
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return defaultValue;
+        }
+        SharedPreferences properties = app.getAppPreferences();
+        return properties.getString(QUESTION_TEXT_FORMAT, defaultValue);
     }
 
 }
