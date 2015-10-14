@@ -45,7 +45,8 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     EntityStorageCache mEntityCache;
     CaseIndexTable mCaseIndexTable;
     
-    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, EntityStorageCache entityCache, CaseIndexTable indexTable) {
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
+                                EntityStorageCache entityCache, CaseIndexTable indexTable) {
         super(parser, storage);
         mEntityCache = entityCache;
         mCaseIndexTable = indexTable;
@@ -56,7 +57,8 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
     
     //TODO: Sync the following two constructors!
-    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage, Cipher attachmentCipher, Cipher userCipher, File folder) {
+    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
+                                Cipher attachmentCipher, Cipher userCipher, File folder) {
         this(parser, storage);
         this.attachmentCipher = attachmentCipher;
         this.userCipher = userCipher;
@@ -64,7 +66,9 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         processAttachments = true;
     }
 
-    public AndroidCaseXmlParser(KXmlParser parser, int[] tallies, boolean b, IStorageUtilityIndexed<Case> storage, HttpRequestGenerator generator) {
+    public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
+                                boolean b, IStorageUtilityIndexed<Case> storage,
+                                HttpRequestGenerator generator) {
         super(parser, tallies, b, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");

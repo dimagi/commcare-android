@@ -1,8 +1,6 @@
 package org.commcare.android.tests.initialization;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.DbUtil;
-import org.commcare.android.util.LivePrototypeFactory;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -33,11 +31,15 @@ public class AppInitializationTest {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
+<<<<<<< HEAD
         TestUtils.initializeStaticTestStorage();
+=======
+        TestAppInstaller.setupPrototypeFactory();
+>>>>>>> master
 
         TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/flipper/profile.ccpr",
-                        "fp", "123");
+                new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
+                        "test", "123");
         appTestInstaller.installAppAndLogin();
     }
 
@@ -46,6 +48,6 @@ public class AppInitializationTest {
         Assert.assertFalse(CommCareApplication._().isUpdatePending());
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 17);
+        Assert.assertTrue(p.getVersion() == 8);
     }
 }
