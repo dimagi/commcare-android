@@ -1,8 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -51,6 +49,7 @@ import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -376,7 +375,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            new AlertDialog.Builder(this).setMessage(Localization.get("form.record.gone.message")).create().show();
+            AlertDialogFactory.showBasicAlertDialog(this, "Form Missing",
+                    Localization.get("form.record.gone.message"), null);
         }
     }
 
@@ -437,23 +437,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(result.first ? R.drawable.checkmark : R.drawable.redx);
-        mAlertDialog.setTitle(result.first ? Localization.get("app.workflow.forms.scan.title.valid") : Localization.get("app.workflow.forms.scan.title.invalid"));
-        mAlertDialog.setMessage(result.second);
-
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1:
-                        break;
-                }
-            }
-        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        String title;
+        if (result.first) {
+            title = Localization.get("app.workflow.forms.scan.title.valid");
+        } else {
+            title = Localization.get("app.workflow.forms.scan.title.invalid");
+        }
+        int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
+        AlertDialogFactory.showBasicAlertWithIcon(this, title, result.second, resId, null);
     }
 
     /**

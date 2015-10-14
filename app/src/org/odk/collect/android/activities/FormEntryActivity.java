@@ -60,6 +60,7 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -194,8 +195,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     private ViewGroup mViewPane;
     private View mCurrentView;
-
-    private AlertDialog mAlertDialog;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -367,7 +366,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
         mBeenSwiped = false;
-        mAlertDialog = null;
         mCurrentView = null;
         mInAnimation = null;
         mOutAnimation = null;
@@ -1348,42 +1346,38 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 new String[] {StringUtils.getStringRobust(this, R.string.keep_changes), StringUtils.getStringRobust(this, R.string.do_not_save)} :
                 new String[] {StringUtils.getStringRobust(this, R.string.do_not_save)};
 
-                        mAlertDialog =
-                                new AlertDialog.Builder(this)
-                                        .setIcon(android.R.drawable.ic_dialog_info)
-                                        .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
-                                                .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-
-                                dialog.cancel();
-
-                            }
-                        }).setItems(items, new DialogInterface.OnClickListener() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
+                .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
+                    new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
+                        public void onClick(DialogInterface dialog, int id) {
 
-                                case 0: // save and exit
-                                    if(items.length == 1) {
-                                        discardChangesAndExit();
-                                    } else {
-                                        saveDataToDisk(EXIT, isInstanceComplete(false), null, false);
-                                    }
-                                    break;
+                            dialog.cancel();
 
-                                case 1: // discard changes and exit
-                                    discardChangesAndExit();
-                                    break;
-
-                                case 2:// do nothing
-                                    break;
-                            }
                         }
-                    }).create();
-        mAlertDialog.getListView().setSelector(R.drawable.selector);
-        mAlertDialog.show();
+                }).setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0: // save and exit
+                                if(items.length == 1) {
+                                    discardChangesAndExit();
+                                } else {
+                                    saveDataToDisk(EXIT, isInstanceComplete(false), null, false);
+                                }
+                                break;
+                            case 1: // discard changes and exit
+                                discardChangesAndExit();
+                                break;
+                            case 2:// do nothing
+                                break;
+                        }
+                    }
+        }).create();
+        dialog.getListView().setSelector(R.drawable.selector);
+        dialog.show();
     }
     
     private void discardChangesAndExit() {
@@ -1532,37 +1526,32 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * Confirm clear answer dialog
      */
     private void createClearDialog(final QuestionWidget qw) {
-        mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-
-        mAlertDialog.setTitle(StringUtils.getStringRobust(this, R.string.clear_answer_ask));
-
+        String title = StringUtils.getStringRobust(this, R.string.clear_answer_ask);
         String question = qw.getPrompt().getLongText();
-
         if (question.length() > 50) {
             question = question.substring(0, 50) + "...";
         }
-
-        mAlertDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question));
+        String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        factory.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                clearAnswer(qw);
-                                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                    }
-                };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-        mAlertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        mAlertDialog.show();
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        clearAnswer(qw);
+                        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+        factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
+        factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
+        factory.showDialog();
     }
 
     /**
@@ -1579,7 +1568,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 }
             }
         }
-        mAlertDialog =
+        AlertDialog dialog =
             new AlertDialog.Builder(this)
                     .setSingleChoiceItems(languages, selected,
                         new DialogInterface.OnClickListener() {
@@ -1614,7 +1603,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                             public void onClick(DialogInterface dialog, int whichButton) {
                             }
                         }).create();
-        mAlertDialog.show();
+        dialog.show();
     }
 
     @Override

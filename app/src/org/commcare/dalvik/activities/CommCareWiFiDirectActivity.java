@@ -43,6 +43,7 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
@@ -239,31 +240,28 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mManager.createGroup(mChannel, fragment);
     }
 
-    public void showDialog(Activity activity, String title, CharSequence message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        if (title != null)
-            builder.setTitle(title);
-        builder.setMessage(message);
-        builder.setNeutralButton(localize("wifi.direct.receive.forms"), new DialogInterface.OnClickListener(){
-
+    public void showDialog(Activity activity, String title, String message) {
+        AlertDialogFactory factory = new AlertDialogFactory(activity, title, message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                beReceiver();
-            }});
-
-        builder.setNegativeButton(localize("wifi.direct.transfer.forms"), new DialogInterface.OnClickListener(){
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                beSender();
-            }});
-
-        builder.setPositiveButton(localize("wifi.direct.submit.forms"), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                beSubmitter();
-            }});
-
-        builder.show();
+                switch(which) {
+                    case AlertDialog.BUTTON_POSITIVE:
+                        beSubmitter();
+                        break;
+                    case AlertDialog.BUTTON_NEUTRAL:
+                        beReceiver();
+                        break;
+                    case AlertDialog.BUTTON_NEGATIVE:
+                        beSender();
+                        break;
+                }
+            }
+        };
+        factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
+        factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
+        factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
+        factory.showDialog();
     }
 
     public void beSender(){

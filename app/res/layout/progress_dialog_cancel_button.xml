@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/min_button_height"
+    android:layout_below="@+id/main_content_holder"
+    android:layout_alignParentRight="true"
+    android:layout_marginBottom="@dimen/standard_spacer"
+    android:layout_marginRight="@dimen/standard_spacer_large"
+    android:padding="@dimen/standard_spacer"
+    android:background="@android:color/transparent"
+    android:text="STOP"
+    android:textSize="@dimen/font_size_medium"
+    android:visibility="gone" >
+</Button>

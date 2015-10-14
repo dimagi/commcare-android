@@ -25,6 +25,7 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
@@ -58,7 +59,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     boolean done = false;
 
-    AlertDialog mAlertDialog;
     static boolean acknowledgedRisk = false;
 
     static final String KEY_NUMBER_DUMPED = "num_dumped";
@@ -172,10 +172,8 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             }
         });
 
-        mAlertDialog = popupWarningMessage();
-
         if(!acknowledgedRisk){
-            mAlertDialog.show();
+            showWarningMessage();
         }
     }
 
@@ -192,31 +190,26 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
-    private AlertDialog popupWarningMessage(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle(Localization.get("bulk.form.alert.title"));
-        alertDialogBuilder
-            .setMessage(Localization.get("bulk.form.warning"))
-            .setCancelable(false)
-            .setPositiveButton("OK",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
+    private void showWarningMessage() {
+        AlertDialogFactory factory = new AlertDialogFactory(this,
+                Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                if (id == AlertDialog.BUTTON_POSITIVE) {
                     acknowledgedRisk = true;
-                    dialog.dismiss();
                     dialog.cancel();
-                }
-              })
-            .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
-                    dialog.dismiss();
+                } else {
                     exitDump();
                 }
-            });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            return alertDialog;
-            
+            }
+        };
+        factory.setPositiveButton("OK", listener);
+        factory.setNegativeButton("NO", listener);
+        factory.showDialog();
     }
     
-    public void updateCounters(){
+    public void updateCounters() {
         Vector<Integer> ids = getUnsyncedForms();
         File[] files = getDumpFiles();
         

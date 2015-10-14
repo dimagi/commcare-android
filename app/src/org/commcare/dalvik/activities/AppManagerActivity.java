@@ -17,6 +17,7 @@ import org.commcare.android.adapters.AppManagerAdapter;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.services.locale.Localization;
 
@@ -124,19 +125,16 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 break;
             case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.media_not_verified);
-                    builder.setMessage(R.string.skipped_verification_warning)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    String title = getString(R.string.media_not_verified);
+                    String msg  = getString(R.string.skipped_verification_warning);
+                    AlertDialogFactory.showBasicAlertDialog(this, title, msg, new DialogInterface.OnClickListener() {
 
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
 
-                            });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
+                    });
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -165,27 +163,22 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
      * session being logged out
      */
     private void triggerLogoutWarning() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.logging_out);
-        builder.setMessage(R.string.logout_warning)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        CommCareApplication._().expireUserSession();
-                        installApp();
-                    }
+        String title = getString(R.string.logging_out);
+        String message = getString(R.string.logout_warning);
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    CommCareApplication._().expireUserSession();
+                    installApp();
+                }
+            }
 
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        };
+        factory.setPositiveButton(getString(R.string.ok), listener);
+        factory.setNegativeButton(getString(R.string.cancel), listener);
+        factory.showDialog();
     }
 }

@@ -2,7 +2,6 @@ package org.commcare.android.framework;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -41,6 +40,7 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -387,24 +387,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param e Exception to handle
      */
     protected void displayException(Exception e) {
-        String mErrorMessage = e.getMessage();
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(Localization.get("notification.case.predicate.title"));
-        mAlertDialog.setMessage(Localization.get("notification.case.predicate.action", new String[]{mErrorMessage}));
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+        String title =  Localization.get("notification.case.predicate.title");
+        String message = Localization.get("notification.case.predicate.action", new String[]{e.getMessage()});
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
-                    case DialogInterface.BUTTON1:
+                    case DialogInterface.BUTTON_POSITIVE:
                         finish();
                         break;
                 }
             }
         };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        AlertDialogFactory.showBasicAlertWithIcon(this, title, message, android.R.drawable.ic_dialog_info, listener);
     }
 
     @Override
@@ -513,12 +508,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param activity   Activity to which to attach the dialog.
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
-    public static void createErrorDialog(final Activity activity, String errorMsg, final boolean shouldExit) {
-        AlertDialog dialog = new AlertDialog.Builder(activity).create();
-        dialog.setIcon(android.R.drawable.ic_dialog_info);
-        dialog.setTitle(StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured));
-        dialog.setMessage(errorMsg);
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
+    public static void createErrorDialog(final Activity activity, String errorMsg,
+                                         final boolean shouldExit) {
+        String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
+        AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
+        factory.setIcon(android.R.drawable.ic_dialog_info);
+        DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -531,15 +526,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
         };
-        dialog.setCancelable(false);
-        dialog.setButton(AlertDialog.BUTTON_POSITIVE, StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok), errorListener);
-        dialog.show();
+        CharSequence buttonDisplayText = StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
+        factory.setPositiveButton(buttonDisplayText, buttonListener);
+        factory.showDialog();
     }
 
-    /**
-     * All methods for implementation of DialogController *
-     */
-
+    // region - All methods for implementation of DialogController
 
     @Override
     public void updateProgress(String updateText, int taskId) {
@@ -596,6 +588,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         //dummy method for compilation, implementation handled in those subclasses that need it
         return null;
     }
+
+    // endregion
+
 
     public Pair<Detail, TreeReference> requestEntityContext() {
         return null;
