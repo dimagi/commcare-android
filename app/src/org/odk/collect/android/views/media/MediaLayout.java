@@ -270,38 +270,39 @@ public class MediaLayout extends RelativeLayout {
 
         if (mediaPane != null) {
 
-            String questionTextFormat = DeveloperPreferences.getQuestionTextFormat();
-            switch(questionTextFormat) {
-                case "side-by-side":
-                    mediaPaneParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                    this.addView(mediaPane, mediaPaneParams);
-                    questionTextPaneParams.addRule(RelativeLayout.LEFT_OF, mediaPane.getId());
-                    this.addView(questionTextPane, questionTextPaneParams);
-                    break;
-                case "image-below-text":
-                    this.addView(questionTextPane, questionTextPaneParams);
-                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                    break;
-                case "image-above-text":
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
-                    this.addView(questionTextPane, questionTextPaneParams);
-                    break;
+            if (!textVisible) {
+                this.addView(questionTextPane, questionTextPaneParams);
+                if (mAudioButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+                if (mVideoButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+            } else {
+                String questionTextFormat = DeveloperPreferences.getQuestionTextFormat();
+                switch(questionTextFormat) {
+                    case "side-by-side":
+                        mediaPaneParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                        this.addView(mediaPane, mediaPaneParams);
+                        questionTextPaneParams.addRule(RelativeLayout.LEFT_OF, mediaPane.getId());
+                        this.addView(questionTextPane, questionTextPaneParams);
+                        break;
+                    case "image-below-text":
+                        this.addView(questionTextPane, questionTextPaneParams);
+                        mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
+                        mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                        this.addView(mediaPane, mediaPaneParams);
+                        break;
+                    case "image-above-text":
+                        mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                        this.addView(mediaPane, mediaPaneParams);
+                        questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
+                        this.addView(questionTextPane, questionTextPaneParams);
+                        break;
+                }
             }
-
-            RelativeLayout parent = this;
-            if (mAudioButton != null && !textVisible) {
-                mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
-                parent = questionTextPane;
-            }
-            if (mVideoButton != null && !textVisible) {
-                mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
-                parent = questionTextPane;
-            }
-
         } else {
             this.addView(questionTextPane, questionTextPaneParams);
         }
