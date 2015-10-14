@@ -97,6 +97,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String EXTRA_IS_MAP = "is_map";
+    public static final String EXTRA_CLEAR_SEARCH = "clear_search";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -269,8 +270,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {

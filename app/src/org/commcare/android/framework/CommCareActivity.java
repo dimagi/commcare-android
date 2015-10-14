@@ -40,6 +40,7 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -138,10 +139,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString(String key) {
-        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-        lastQueryString = settings.getString(key, null);
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
+        if(!this.getIntent().getExtras().getBoolean(EntitySelectActivity.EXTRA_CLEAR_SEARCH)) {
+            SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+            lastQueryString = settings.getString(key, null);
+        } else{
+            this.getIntent().removeExtra(EntitySelectActivity.EXTRA_CLEAR_SEARCH);
         }
     }
 
