@@ -77,10 +77,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
-    @UiElement(value=R.id.login_button, locale="login.button")
-    private Button login;
-    
-    @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
+    @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
@@ -95,7 +92,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.str_version)
     private TextView versionDisplay;
 
-    @UiElement(R.id.login_button)
+    @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
 
     @UiElement(R.id.app_selection_spinner)
@@ -150,7 +147,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             }
         }
 
-        login.setOnClickListener(new OnClickListener() {
+        loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);

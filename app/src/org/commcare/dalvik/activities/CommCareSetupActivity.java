@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -466,26 +467,73 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *
      * @param installTriggeredManually don't install the found app link
      */
-    private void scanSMSLinks(boolean installTriggeredManually){
+    private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, null, null, "date desc");
+        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "date >= now() - INTERVAL 1 DAY", null, "date desc");
         if (cursor == null) {
             return;
         }
         int messageIterationCount = 0;
         try {
-            while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) {
-                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
+            while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
                 messageIterationCount++;
+                String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     RetrieveParseVerifyMessageTask mTask =
-                            new RetrieveParseVerifyMessageTask(this, installTriggeredManually);
-                    mTask.execute(textMessageBody);
+                            new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
+
+                                @Override
+                                protected void deliverResult(CommCareSetupActivity receiver, String result) {
+                                    if (installTriggeredManually) {
+                                        if (result != null) {
+                                            receiver.incomingRef = result;
+                                            receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.uiStateScreenTransition();
+                                            receiver.startResourceInstall();
+                                        } else {
+                                            // only notify if this was manually triggered, since most people won't use this
+                                            Toast.makeText(receiver, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+                                        }
+                                    } else {
+                                        if (result != null) {
+                                            receiver.incomingRef = result;
+                                            receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.uiStateScreenTransition();
+                                            Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                protected void deliverUpdate(CommCareSetupActivity receiver, Void... update) {
+                                    //do nothing for now
+                                }
+
+                                @Override
+                                protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+                                    if (e instanceof SignatureException) {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+                                    } else if (e instanceof IOException) {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+                                    } else {
+                                        e.printStackTrace();
+                                        Toast.makeText(receiver, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            };
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, textMessageBody);
+                    } else {
+                        mTask.execute(textMessageBody);
+                    }
                     break;
                 }
             }
-        } finally {
+        }
+        finally {
             cursor.close();
         }
     }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/dialog_title"
+        layout="@layout/dialog_title" />
+
+    <TextView
+        android:id="@+id/dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size_large"
+        android:layout_below="@id/dialog_title"
+        android:layout_marginLeft="@dimen/standard_spacer_large"
+        android:layout_marginRight="@dimen/standard_spacer_large"
+        android:layout_marginBottom="@dimen/standard_spacer_large" />
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/positive_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+
+        android:layout_below="@id/dialog_message"
+        android:layout_alignParentRight="true"
+
+        android:layout_marginBottom="@dimen/standard_spacer"
+        android:layout_marginRight="@dimen/standard_spacer"
+
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/font_size_medium"
+        android:textColor="@color/dialog_button_color"
+        android:visibility="gone" >
+    </Button>
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/neutral_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+
+        android:layout_below="@id/dialog_message"
+        android:layout_toLeftOf="@id/positive_button"
+
+        android:layout_marginBottom="@dimen/standard_spacer"
+
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/font_size_medium"
+        android:textColor="@color/dialog_button_color"
+        android:visibility="gone" >
+    </Button>
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/negative_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+
+        android:layout_below="@id/dialog_message"
+        android:layout_toLeftOf="@id/neutral_button"
+
+        android:layout_marginBottom="@dimen/standard_spacer"
+        android:layout_marginRight="@dimen/standard_spacer"
+        android:layout_marginLeft="@dimen/standard_spacer"
+
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/font_size_medium"
+        android:textColor="@color/dialog_button_color"
+        android:visibility="gone" >
+    </Button>
+
+
+</RelativeLayout>

@@ -1,8 +1,8 @@
 #new localizations should be added above the comment "Add new localization strings here" in this file
 
-option.yes=Yes
-option.no=No
-option.cancel=Cancel
+option.yes=YES
+option.no=NO
+option.cancel=CANCEL
 
 install.problem.unexpected=Unexpected install error!
 install.keep.trying=Keep trying if connection is interrupted
@@ -63,7 +63,7 @@ profile.found=Application found. ${0} resources loaded, of ${1} total.
 
 app.workflow.incomplete.continue.title=Continue Form
 app.workflow.incomplete.continue=You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?
-app.workflow.incomplete.continue.option.delete=Delete Old Copy
+app.workflow.incomplete.continue.option.delete=DELETE OLD COPY
 
 home.start=Start
 home.forms=Form Records
@@ -134,6 +134,8 @@ login.password=Password
 login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
+login.welcome.single=Welcome back! Please log in.
+login.welcome.multiple=Welcome back! Please select an app and log in.
 
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
@@ -167,6 +169,9 @@ form.record.unsent=Unsent
 
 form.record.gone=[Form Removed on Current Version]
 form.record.gone.message=The form that was used to enter this data is no longer on the current version of the app, and can't be viewed.
+
+form.archive.purge.title=Removing out-of-date archived forms
+form.archive.purge.message=Removing archived forms that are past their validation date.
 
 app.storage.missing.title=SD Card Missing
 app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
@@ -289,7 +294,7 @@ title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
 
-dialog.ok=Ok
+dialog.ok=OK
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test
@@ -318,8 +323,6 @@ notification.sync.connections.action=You don't have any active data connections 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
 
-login.welcome.single=Welcome back! Please log in.
-login.welcome.multiple=Welcome back! Please select an app and log in.
 seating.app=CommCare is loading your app
 
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.

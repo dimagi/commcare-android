@@ -54,6 +54,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -721,13 +722,8 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
-        mAlertDialog.setMessage(errorMsg);
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        AlertDialogFactory.showBasicAlertWithIcon(this, Localization.get("app.handled.error.title"),
+                errorMsg, android.R.drawable.ic_dialog_info, errorListener);
     }
 
     @Override
@@ -1214,10 +1210,10 @@ public class CommCareHomeActivity
 
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
-        mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
-        mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
-        DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
+        String title = Localization.get("app.workflow.incomplete.continue.title");
+        String msg = Localization.get("app.workflow.incomplete.continue");
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -1239,11 +1235,10 @@ public class CommCareHomeActivity
                 }
             }
         };
-        mAskOldDialog.setCancelable(false);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("option.yes"), useOldListener);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_NEUTRAL, Localization.get("option.no"), useOldListener);
-        mAskOldDialog.show();
+        factory.setPositiveButton(Localization.get("option.yes"), listener);
+        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        factory.setNeutralButton(Localization.get("option.no"), listener);
+        factory.showDialog();
     }
 
     private void displayMessage(String message) {
@@ -1429,11 +1424,11 @@ public class CommCareHomeActivity
 
     private Dialog createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        AlertDialog mAttemptFixDialog = new AlertDialog.Builder(this).create();
-
-        mAttemptFixDialog.setTitle("Storage is Corrupt :/");
-        mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
-        DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
+        String title = "Storage is Corrupt :/";
+        String message = "Sorry, something really bad has happened, and the app can't start up. " +
+                "With your permission CommCare can try to repair itself if you have network access.";
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE: // attempt repair
@@ -1446,11 +1441,9 @@ public class CommCareHomeActivity
                 }
             }
         };
-        mAttemptFixDialog.setCancelable(false);
-        mAttemptFixDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Enter Recovery Mode", attemptFixDialog);
-        mAttemptFixDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Shut Down", attemptFixDialog);
-
-        return mAttemptFixDialog;
+        factory.setPositiveButton("Enter Recovery Mode", listener);
+        factory.setNegativeButton("Shut Down", listener);
+        return factory.getDialog();
     }
 
     @Override

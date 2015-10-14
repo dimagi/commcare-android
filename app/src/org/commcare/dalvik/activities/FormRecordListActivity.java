@@ -1,8 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -41,6 +39,9 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.android.tasks.TaskListener;
+import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -48,6 +49,7 @@ import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -58,7 +60,8 @@ import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener {
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
+        implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener, TaskListener<Void, Void> {
     public static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
@@ -74,6 +77,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private AndroidCommCarePlatform platform;
 
     private IncompleteFormListAdapter adapter;
+
+    private PurgeStaleArchivedFormsTask purgeTask;
 
     private int initialSelection = -1;
 
@@ -138,10 +143,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         try {
             platform = CommCareApplication._().getCommCarePlatform();
             setContentView(R.layout.entity_select_layout);
@@ -230,6 +235,28 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        // stop showing blocking dialog and getting updates from purge task.
+        unregisterTask();
+    }
+
+    private void unregisterTask() {
+        if (purgeTask != null) {
+            try {
+                purgeTask.unregisterTaskListener(this);
+                dismissProgressDialog();
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to unregister a not previously " +
+                        "registered TaskListener.");
+            }
+            purgeTask = null;
+        }
+    }
+
+
+    @Override
     protected void onStop() {
         super.onStop();
 
@@ -286,8 +313,29 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     protected void onResume() {
         super.onResume();
+
+        attachToPurgeTask();
+
         if (adapter != null && initialSelection != -1) {
             listView.setSelection(adapter.findRecordPosition(initialSelection));
+        }
+    }
+
+    /**
+     * Attach activity to running purge task to block user while form purging
+     * is in progress.
+     */
+    private void attachToPurgeTask() {
+        purgeTask = PurgeStaleArchivedFormsTask.getRunningInstance();
+
+        try {
+            if (purgeTask != null) {
+                purgeTask.registerTaskListener(this);
+                showProgressDialog(PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID);
+            }
+        } catch (TaskListenerRegistrationException e) {
+            Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                    "registered task.");
         }
     }
 
@@ -327,7 +375,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            new AlertDialog.Builder(this).setMessage(Localization.get("form.record.gone.message")).create().show();
+            AlertDialogFactory.showBasicAlertDialog(this, "Form Missing",
+                    Localization.get("form.record.gone.message"), null);
         }
     }
 
@@ -388,23 +437,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(result.first ? R.drawable.checkmark : R.drawable.redx);
-        mAlertDialog.setTitle(result.first ? Localization.get("app.workflow.forms.scan.title.valid") : Localization.get("app.workflow.forms.scan.title.invalid"));
-        mAlertDialog.setMessage(result.second);
-
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1:
-                        break;
-                }
-            }
-        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        String title;
+        if (result.first) {
+            title = Localization.get("app.workflow.forms.scan.title.valid");
+        } else {
+            title = Localization.get("app.workflow.forms.scan.title.invalid");
+        }
+        int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
+        AlertDialogFactory.showBasicAlertWithIcon(this, title, result.second, resId, null);
     }
 
     /**
@@ -576,10 +616,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         enableSearch();
     }
 
-    /**
-     * Implementation of generateProgressDialog() for DialogController -- other methods
-     * handled entirely in CommCareActivity
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
@@ -592,6 +628,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 title = "Fetching Old Forms";
                 message = "Forms downloaded. Processing...";
                 break;
+            case PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID:
+                title = Localization.get("form.archive.purge.title");
+                message = Localization.get("form.archive.purge.message");
+                break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                         + "any valid possibilities in FormRecordListActivity");
@@ -599,4 +639,25 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
+
+    @Override
+    public void handleTaskUpdate(Void... updateVals) {
+    }
+
+    /**
+     * Archived form purging task complete, stop blocking user
+     */
+    @Override
+    public void handleTaskCompletion(Void result) {
+        dismissProgressDialog();
+    }
+
+    /**
+     * Archived form purging task cancelled, stop blocking user
+     */
+    @Override
+    public void handleTaskCancellation(Void result) {
+        dismissProgressDialog();
+    }
+
 }

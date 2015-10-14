@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/progress_fragment_determinate"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <include
+        android:id="@+id/progress_dialog_title"
+        layout="@layout/dialog_title" />
+
+    <RelativeLayout
+        android:id="@+id/main_content_holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/progress_dialog_title"
+        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:layout_marginLeft="@dimen/standard_spacer_large"
+        android:layout_marginRight="@dimen/standard_spacer_large" >
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/standard_spacer"
+            android:visibility="visible"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/progress_dialog_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/progress_bar"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/font_size_large" />
+
+    </RelativeLayout>
+
+    <include
+        android:id="@+id/dialog_cancel_button"
+        layout="@layout/progress_dialog_cancel_button" />
+     
+</RelativeLayout>

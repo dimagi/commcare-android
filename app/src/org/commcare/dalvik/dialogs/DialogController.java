@@ -24,6 +24,6 @@ public interface DialogController {
     /** Create an instance of CustomProgressDialog specific to the activity
      *  implementing this method -- this method should be implemented lower down
      *  in the activity hierarchy, in one of CommCareActivity's subclasses,
-     *  while the other 3 methods can be handled entirely by CommCareActivity */
+     *  while the other methods can be handled entirely by CommCareActivity */
     CustomProgressDialog generateProgressDialog(int taskId);
 }

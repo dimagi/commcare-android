@@ -19,6 +19,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.services.locale.Localization;
 
@@ -139,20 +140,9 @@ public class SingleAppManagerActivity extends Activity {
             case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.media_not_verified);
-                    builder.setMessage(R.string.skipped_verification_warning_2)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    dialog.dismiss();
-                                }
-
-                            });
-                    dialog = builder.create();
-                    dialog.show();
+                    String title = getString(R.string.media_not_verified);
+                    String msg = getString(R.string.skipped_verification_warning_2);
+                    AlertDialogFactory.showBasicAlertDialog(this, title, msg, null);
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -277,29 +267,20 @@ public class SingleAppManagerActivity extends Activity {
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
     public void rebootAlertDialog(View v) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.uninstalling);
-        builder.setMessage(R.string.uninstall_reboot_warning)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog,
-                                        int which) {
-                        dialog.dismiss();
-                        uninstall();
-                    }
-
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        dialog = builder.create();
-        dialog.show();
+        AlertDialogFactory factory = new AlertDialogFactory(this, getString(R.string.uninstalling),
+                getString(R.string.uninstall_reboot_warning));
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    uninstall();
+                }
+            }
+        };
+        factory.setPositiveButton(getString(R.string.ok), listener);
+        factory.setNegativeButton(getString(R.string.cancel), listener);
+        factory.showDialog();
     }
 
     /**
@@ -307,38 +288,32 @@ public class SingleAppManagerActivity extends Activity {
      * session being logged out
      */
     private void triggerLogoutWarning(final int actionKey) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.logging_out);
-        builder.setMessage(R.string.logout_warning)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        AlertDialogFactory factory = new AlertDialogFactory(this, getString(R.string.logging_out),
+                getString(R.string.logout_warning));
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog,
-                                        int which) {
-                        dialog.dismiss();
-                        CommCareApplication._().expireUserSession();
-                        switch (actionKey) {
-                            case LOGOUT_FOR_UPDATE:
-                                update();
-                                break;
-                            case LOGOUT_FOR_VERIFY_MM:
-                                verifyResources();
-                                break;
-                            case LOGOUT_FOR_ARCHIVE:
-                                toggleArchived();
-                        }
+            @Override
+            public void onClick(DialogInterface dialog,
+                                int which) {
+                dialog.dismiss();
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    CommCareApplication._().expireUserSession();
+                    switch (actionKey) {
+                        case LOGOUT_FOR_UPDATE:
+                            update();
+                            break;
+                        case LOGOUT_FOR_VERIFY_MM:
+                            verifyResources();
+                            break;
+                        case LOGOUT_FOR_ARCHIVE:
+                            toggleArchived();
                     }
+                }
+            }
 
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        };
+        factory.setPositiveButton(getString(R.string.ok), listener);
+        factory.setNegativeButton(getString(R.string.cancel), listener);
+        factory.showDialog();
     }
 }

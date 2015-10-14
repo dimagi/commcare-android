@@ -52,6 +52,7 @@ public class HomeActivityUIController {
     private String lastMessageKey = "home.sync.message.last";
     private String homeMessageKey = "home.start";
     private String logoutMessageKey = "home.logout";
+    private String savedFormsKey = "home.forms.saved";
 
     private long lastSyncTime;
     private int numUnsentForms;
@@ -172,7 +173,7 @@ public class HomeActivityUIController {
     private void setupViewSavedFormsButton() {
         viewSavedFormsButton = adapter.getButton(R.layout.home_savedforms_button);
         if (viewSavedFormsButton != null) {
-            viewSavedFormsButton.setText(Localization.get("home.forms.saved"));
+            viewSavedFormsButton.setText(Localization.get(savedFormsKey));
         }
         adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
     }
@@ -264,6 +265,7 @@ public class HomeActivityUIController {
         refreshDataFromSyncDetails();
         setIncompleteFormsText();
         refreshSyncButton();
+        refreshSavedFormsButton();
         showSyncMessage();
 
         setButtonVisibilities();
@@ -294,6 +296,7 @@ public class HomeActivityUIController {
         }
         if (logoutButton != null) {
             logoutButton.setText(Localization.get(logoutMessageKey));
+            logoutButton.setNotificationText(activity.getActivityTitle());
         } else {
             Logger.log(AndroidLogger.SOFT_ASSERT,
                     "logoutButton was null in refreshHomeAndLogoutButtons()");
@@ -322,6 +325,12 @@ public class HomeActivityUIController {
         } else {
             Logger.log(AndroidLogger.SOFT_ASSERT,
                     "syncButton was null in refreshSyncButton()");
+        }
+    }
+
+    private void refreshSavedFormsButton() {
+        if (viewSavedFormsButton != null) {
+            viewSavedFormsButton.setText(Localization.get(savedFormsKey));
         }
     }
 
