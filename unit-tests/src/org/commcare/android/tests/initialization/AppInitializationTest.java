@@ -31,11 +31,8 @@ public class AppInitializationTest {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
-<<<<<<< HEAD
         TestUtils.initializeStaticTestStorage();
-=======
         TestAppInstaller.setupPrototypeFactory();
->>>>>>> master
 
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
