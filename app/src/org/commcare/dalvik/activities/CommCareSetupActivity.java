@@ -602,7 +602,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 "date >= ?", new String[] {SqlUtils.datetimeToSqlString(new DateTime().minusDays(1))}, "date desc");
         if (cursor == null) {
             return;
-        } else{
         }
         int messageIterationCount = 0;
         try {
