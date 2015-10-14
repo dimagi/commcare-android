@@ -109,8 +109,6 @@ public class TestAppInstaller {
     public static void setupPrototypeFactory() {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
-        LivePrototypeFactory prototypeFactory = new LivePrototypeFactory();
-        PrototypeFactory.setStaticHasher(prototypeFactory);
-        DbUtil.setDBUtilsPrototypeFactory(prototypeFactory);
+        TestUtils.initializeStaticTestStorage();
     }
 }
