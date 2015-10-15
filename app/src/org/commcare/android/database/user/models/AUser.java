@@ -32,7 +32,8 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
- * Old Android user model now deprecated by combined User model in javarosa
+ * Old Android user model now deprecated by combined User model in javarosa. We can only really sunset
+ * once we're sure everyone is on 2.24 or above... which might be a while.
  */
 
 @Table(AUser.STORAGE_KEY)

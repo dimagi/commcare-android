@@ -34,6 +34,11 @@ public class AndroidTableBuilder extends TableBuilder {
         return sqlList(input, MAX_SQL_ARGS);
     }
 
+    /**
+     * Given a list of integer params to insert and a maximum number of args, return the
+     * String containing (?, ?,...) to be used in the SQL query and the array of args
+     * to replace them with
+     */
     public static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
 
         List<Pair<String, String[]>> ops = new ArrayList<Pair<String, String[]>>();

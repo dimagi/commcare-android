@@ -175,6 +175,10 @@ public class UserDatabaseUpgrader {
         }
     }
 
+    /**
+     * Depcrecate the old AUser object so that both platforms are using the User object
+     * to represents users
+     */
     private boolean upgradeSevenEight(SQLiteDatabase db, int oldVersion, int newVersion) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.

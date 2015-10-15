@@ -17,6 +17,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Essentially a wrapper around the Java-generic DatabaseHelper
@@ -40,8 +41,10 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     public ContentValues getContentValues(Externalizable e){
         ContentValues ret = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getMetaFieldsAndValues(e);
-        for(String key: metaFieldsAndValues.keySet()){
-            Object obj = metaFieldsAndValues.get(key);
+
+        for(Map.Entry<String, Object> entry:  metaFieldsAndValues.entrySet()){
+            String key = entry.getKey();
+            Object obj = entry.getValue();
             if(obj instanceof String){
                 ret.put(key,(String)obj);
             } else if(obj instanceof Integer){
