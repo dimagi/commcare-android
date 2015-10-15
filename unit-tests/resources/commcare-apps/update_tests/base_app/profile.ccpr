@@ -91,9 +91,9 @@
 
     <suite><resource id="suite" version="6">
         
+          <location authority="remote">jr://resource/commcare-apps/update_tests/base_app/suite.xml</location>
             <location authority="local">./suite.xml</location>
         
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/f8aa9cfbdb39d5979628d9225f358a4d/suite.xml</location>
     </resource></suite>
     
 </profile>

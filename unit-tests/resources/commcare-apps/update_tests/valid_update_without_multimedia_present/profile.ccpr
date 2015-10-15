@@ -90,17 +90,13 @@
     </features>
 
     <suite><resource id="suite" version="14">
-        
+          <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update_without_multimedia_present/suite.xml</location>
             <location authority="local">./suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/fbd2b71338d6c5e3dc7537d457297eb4/suite.xml</location>
     </resource></suite>
     
     <suite><resource id="media-suite" version="14">
-        
+          <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update_without_multimedia_present/media_suite.xml</location>
             <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/fbd2b71338d6c5e3dc7537d457297eb4/media_suite.xml</location>
     </resource></suite>
     
 </profile>

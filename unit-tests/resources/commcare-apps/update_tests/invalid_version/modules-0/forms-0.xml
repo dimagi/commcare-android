@@ -2,14 +2,13 @@
         xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
         xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
-        <h:title>Two</h:title>
+        <h:title>One</h:title>
         <model>
             <instance>
-                <data name="Two"
+                <data name="One"
                       uiVersion="1"
-                      version="14" xmlns="http://openrosa.org/formdesigner/216855D5-6804-4F01-A831-7EB95A8B0CFE" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
-                    <difficult_choice/>
-                    <question1/>
+                      version="8" xmlns="http://openrosa.org/formdesigner/8AF49831-5025-44F8-98E1-F48C984290D9" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <a_nice_number/>
                     <orx:meta xmlns:cc="http://commcarehq.org/xforms">
                         <orx:deviceID/>
                         <orx:timeStart/>
@@ -22,23 +21,11 @@
                 </data>
             </instance>
             <instance id="commcaresession" src="jr://instance/session"/>
-            <bind nodeset="/data/difficult_choice"/>
-            <bind nodeset="/data/question1"/>
+            <bind nodeset="/data/a_nice_number" type="xsd:int"/>
             <itext>
                 <translation default="" lang="en">
-                    <text id="difficult_choice-label">
-                        <value>Make this difficult choice</value>
-                    </text>
-                    <text id="difficult_choice-choice1-label">
-                        <value>Putin</value>
-                    </text>
-                    <text id="difficult_choice-choice2-label">
-                        <value>Poutine</value>
-                        <value form="image">jr://file/commcare/image/data/question1.jpg</value>
-                    </text>
-                    <text id="question1-label">
-                        <value>Did you make the correct choice?</value>
-                        <value form="image">jr://file/commcare/image/data/question2.jpg</value>
+                    <text id="a_nice_number-label">
+                        <value>Please provide a pleasant number</value>
                     </text>
                 </translation>
             </itext>
@@ -58,19 +45,8 @@
         </model>
     </h:head>
     <h:body>
-        <select1 ref="/data/difficult_choice">
-            <label ref="jr:itext('difficult_choice-label')"/>
-            <item>
-                <label ref="jr:itext('difficult_choice-choice1-label')"/>
-                <value>choice1</value>
-            </item>
-            <item>
-                <label ref="jr:itext('difficult_choice-choice2-label')"/>
-                <value>choice2</value>
-            </item>
-        </select1>
-        <trigger appearance="minimal" ref="/data/question1">
-            <label ref="jr:itext('question1-label')"/>
-        </trigger>
+        <input ref="/data/a_nice_number">
+            <label ref="jr:itext('a_nice_number-label')"/>
+        </input>
     </h:body>
 </h:html>

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<profile version="14"
-         update="https://www.commcarehq.org/a/flipper/apps/download/fbd2b71338d6c5e3dc7537d457297eb4/media_profile.ccpr?latest=true"
-         requiredMajor="2"
-         requiredMinor="23"
+<profile version="8"
+         update="https://www.commcarehq.org/a/flipper/apps/download/f8aa9cfbdb39d5979628d9225f358a4d/profile.ccpr?latest=true"
+         requiredMajor="100"
+         requiredMinor="0"
          uniqueid="ac46998a182d2e1d1fd8e75684d23903"
          name="App Update Tests"
          descriptor="Profile File">
@@ -11,8 +11,8 @@
     <property key="restore-url" value="file:///E:/CommCare.Backup"/>
     <property key="ota-restore-url" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
     <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
-    <property key="PostURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/fbd2b71338d6c5e3dc7537d457297eb4/" force="true"/>
-    <property key="PostTestURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/fbd2b71338d6c5e3dc7537d457297eb4/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/f8aa9cfbdb39d5979628d9225f358a4d/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/f8aa9cfbdb39d5979628d9225f358a4d/" force="true"/>
     <property key="key_server" value="https://www.commcarehq.org/a/flipper/phone/keys/"/>
     <property key="cur_locale" value="en"/>
     <property key="cc_user_domain" value="flipper.commcarehq.org"/>
@@ -89,17 +89,10 @@
         </users>
     </features>
 
-    <suite><resource id="suite" version="14">
+    <suite><resource id="suite" version="8">
         
-          <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update_with_multimedia_present/suite.xml</location>
+          <location authority="remote">jr://resource/commcare-apps/update_tests/base_app/suite.xml</location>
             <location authority="local">./suite.xml</location>
-        
-    </resource></suite>
-    
-    <suite><resource id="media-suite" version="14">
-        
-        <location authority="remote">jr://resource/commcare-apps/update_tests/valid_update_with_multimedia_present/media_suite.xml</location>
-        <location authority="local">./media_suite.xml</location>
         
     </resource></suite>
     
