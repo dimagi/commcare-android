@@ -42,6 +42,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -470,7 +471,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void scanSMSLinks(final boolean installTriggeredManually){
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
-        Cursor cursor = getContentResolver().query(SMS_INBOX, null, "date >= now() - INTERVAL 1 DAY", null, "date desc");
+
+        DateTime oneDayAgo = (new DateTime()).minusDays(1);
+        Cursor cursor = getContentResolver().query(SMS_INBOX,
+                null, "date >? ",
+                new String[] {"" + oneDayAgo.getMillis() },
+                "date DESC");
+
         if (cursor == null) {
             return;
         }
@@ -557,7 +564,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *                       home activity?
      * @param failed         did installation occur successfully?
      */
-    void done(boolean requireRefresh, boolean failed) {
+    private void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
@@ -576,7 +583,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Raise failure message and return to the home activity with cancel code
      */
-    void fail(NotificationMessage message, boolean alwaysNotify) {
+    private void fail(NotificationMessage message, boolean alwaysNotify) {
         Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
 
         if (alwaysNotify) {
