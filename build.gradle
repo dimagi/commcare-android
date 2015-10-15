@@ -201,6 +201,8 @@ android {
               // Needed for robolectric tests to work with kxml for some
               // bizarre reason
               jvmArgs '-noverify'
+              systemProperty 'robolectric.logging.enable', true
+              systemProperty 'robolectric.logging', 'stdout'
         }
     }
 
