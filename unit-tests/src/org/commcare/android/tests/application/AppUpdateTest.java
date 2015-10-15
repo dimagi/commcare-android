@@ -55,7 +55,7 @@ public class AppUpdateTest {
 
     @After
     public void tearDown() {
-        UpdateTask.clearInstance();
+        UpdateTask.clearTaskInstance();
     }
 
     private String buildResourceRef(String app, String resource) {

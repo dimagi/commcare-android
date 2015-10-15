@@ -163,10 +163,10 @@ public class UpdateTask
             taskListener.handleTaskCompletion(result);
         }
 
-        clearInstance();
+        clearTaskInstance();
     }
 
-    public static void clearInstance() {
+    public static void clearTaskInstance() {
         synchronized (lock) {
             singletonRunningInstance = null;
         }
@@ -190,7 +190,7 @@ public class UpdateTask
 
         resourceManager.upgradeCancelled();
 
-        clearInstance();
+        clearTaskInstance();
     }
 
     /**

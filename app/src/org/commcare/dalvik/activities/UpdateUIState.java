@@ -95,6 +95,7 @@ class UpdateUIState {
     protected void upToDateUiState() {
         idleUiState();
 
+        updateProgressBar(100, 100);
         progressText.setText(upToDateText);
     }
 

@@ -164,6 +164,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else if (result == AppInstallStatus.UpToDate) {
             uiState.upToDateUiState();
         } else {
+            // Gives user generic failure warning; even if update staging
+            // failed for a specific reason like xml syntax
             uiState.checkFailedUiState();
         }
 
