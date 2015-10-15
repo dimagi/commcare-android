@@ -156,15 +156,15 @@ public class ResizingImageView extends ImageView {
         float dHeight = dipToPixels(getContext(), drawable.getIntrinsicHeight());
         float ratio = (dWidth) / dHeight;
 
-        double width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
-        double height = (int) (width / ratio);
+        double width = Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
+        double height = width / ratio;
 
         height = Math.min(Math.max(height, getSuggestedMinimumHeight()), maxHeight);
-        width = (int) (height * ratio);
+        width = height * ratio;
 
         if (width > maxWidth) {
             width = maxWidth;
-            height = (int) (width / ratio);
+            height = width / ratio;
         }
 
         return new Pair<Integer, Integer>(new Double(width).intValue(), new Double(height).intValue());
