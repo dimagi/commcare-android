@@ -20,10 +20,11 @@
 					</text>
 					<text id="difficult_choice-choice2-label">
 						<value>Poutine</value>
+						<value form="image">jr://file/commcare/image/data/question1.jpg</value>
 					</text>
 					<text id="question1-label">
 						<value>Did you make the correct choice?</value>
-						<value form="image">jr://file/commcare/image/data/question1.jpg</value>
+						<value form="image">jr://file/commcare/image/data/question2.jpg</value>
 					</text>
 				</translation>
 			</itext>
