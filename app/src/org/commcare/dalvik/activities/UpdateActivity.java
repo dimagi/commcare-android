@@ -161,8 +161,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
             uiState.unappliedUpdateAvailableUiState();
-        } else {
+        } else if (result == AppInstallStatus.UpToDate) {
             uiState.upToDateUiState();
+        } else {
+            uiState.checkFailedUiState();
         }
 
         unregisterTask();

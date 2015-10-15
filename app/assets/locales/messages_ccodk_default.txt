@@ -9,6 +9,7 @@ install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=CommCare is up to date
 updates.check.begin=Checking for updates
+updates.check.failed=Failed to check for updates
 updates.check.cancel=Stop checking
 updates.check.cancelling=Cancelling check for updates
 updates.install.finished=Just finished updating!

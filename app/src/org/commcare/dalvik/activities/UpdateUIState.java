@@ -40,6 +40,8 @@ class UpdateUIState {
             Localization.get("updates.check.begin");
     private final String noConnectivityMsg =
             Localization.get("updates.check.network_unavailable");
+    private final String checkFailedMessage =
+            Localization.get("updates.check.failed");
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
@@ -104,6 +106,11 @@ class UpdateUIState {
         progressBar.setEnabled(false);
         updateProgressText("");
         updateProgressBar(0, 100);
+    }
+
+    protected void checkFailedUiState() {
+        idleUiState();
+        updateProgressText(checkFailedMessage);
     }
 
     protected void downloadingUiState() {
