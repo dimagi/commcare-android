@@ -9,6 +9,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.FormUploadUtil;
+import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -59,7 +60,7 @@ public class FormRecordProcessor {
             FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
-        org.commcare.core.process.FormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is);
+        XmlFormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is);
 
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");

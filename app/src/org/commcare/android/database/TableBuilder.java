@@ -22,11 +22,13 @@ import java.util.Vector;
  */
 public class TableBuilder {
 
-    private String name;
+    private final String name;
     private Class c;
 
-    private Vector<String> cols;
-    private Vector<String> rawCols;
+    private final Vector<String> cols;
+    private final Vector<String> rawCols;
+
+    private final HashSet<String> unique = new HashSet<String>();
 
     public TableBuilder(Class c) {
         this.c = c;
@@ -105,9 +107,6 @@ public class TableBuilder {
         cols.add(DbUtil.DATA_COL + " BLOB");
         rawCols.add(DbUtil.DATA_COL);
     }
-
-
-    HashSet<String> unique = new HashSet<String>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));
