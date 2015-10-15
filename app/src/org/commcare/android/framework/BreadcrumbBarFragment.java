@@ -300,7 +300,11 @@ public class BreadcrumbBarFragment extends Fragment {
             StackFrameStep step = v.elementAt(i);
 
             if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
-                stepToFrame = step;
+                //Only add steps which have a tile.
+                SessionDatum d = asw.getSession().findDatumDefinition(step.getId());
+                if(d.getPersistentDetail() != null) {
+                    stepToFrame = step;
+                }
             }
         }
 
