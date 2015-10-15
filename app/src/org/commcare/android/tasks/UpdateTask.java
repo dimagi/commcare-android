@@ -150,45 +150,47 @@ public class UpdateTask
 
     @Override
     protected void onPostExecute(AppInstallStatus result) {
+        super.onPostExecute(result);
+
+        if (!result.isUpdateInCompletedState()) {
+            resourceManager.processUpdateFailure(result, ctx, wasTriggeredByAutoUpdate);
+        }
+
+        if (pinnedNotificationProgress != null) {
+            pinnedNotificationProgress.handleTaskCompletion(result);
+        }
+        if (taskListener != null) {
+            taskListener.handleTaskCompletion(result);
+        }
+
+        clearInstance();
+    }
+
+    public static void clearInstance() {
         synchronized (lock) {
-            super.onPostExecute(result);
-
-            if (!result.isUpdateInCompletedState()) {
-                resourceManager.processUpdateFailure(result, ctx, wasTriggeredByAutoUpdate);
-            }
-
-            if (pinnedNotificationProgress != null) {
-                pinnedNotificationProgress.handleTaskCompletion(result);
-            }
-            if (taskListener != null) {
-                taskListener.handleTaskCompletion(result);
-            }
-
             singletonRunningInstance = null;
         }
     }
 
     @Override
     protected void onCancelled(AppInstallStatus result) {
-        synchronized (lock) {
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                super.onCancelled(result);
-            } else {
-                super.onCancelled();
-            }
-
-            if (pinnedNotificationProgress != null) {
-                pinnedNotificationProgress.handleTaskCancellation(result);
-            }
-
-            if (taskListener != null) {
-                taskListener.handleTaskCancellation(result);
-            }
-
-            resourceManager.upgradeCancelled();
-
-            singletonRunningInstance = null;
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            super.onCancelled(result);
+        } else {
+            super.onCancelled();
         }
+
+        if (pinnedNotificationProgress != null) {
+            pinnedNotificationProgress.handleTaskCancellation(result);
+        }
+
+        if (taskListener != null) {
+            taskListener.handleTaskCancellation(result);
+        }
+
+        resourceManager.upgradeCancelled();
+
+        clearInstance();
     }
 
     /**
