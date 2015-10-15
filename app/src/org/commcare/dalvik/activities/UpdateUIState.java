@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,6 +22,7 @@ import java.util.Date;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 class UpdateUIState {
+    private static final String UPDATE_UI_STATE_KEY = "update_activity_ui_state";
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
     private CustomButtonWithText installUpdateButton;
@@ -45,6 +47,13 @@ class UpdateUIState {
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
+    private enum UIState {
+        Idle, UpToDate, FailedCheck, Downloading, UnappliedUpdateAvailable,
+        Cancelling, Error, NoConnectivity, UpdateInstalled
+    }
+
+    private UIState currentUIState;
+
     public UpdateUIState(UpdateActivity updateActivity) {
         activity = updateActivity;
 
@@ -60,6 +69,7 @@ class UpdateUIState {
                 (TextView)activity.findViewById(R.id.current_version_text);
 
         setupButtonListeners();
+        idleUiState();
     }
 
     private void setupButtonListeners() {
@@ -94,12 +104,14 @@ class UpdateUIState {
 
     protected void upToDateUiState() {
         idleUiState();
+        currentUIState = UIState.UpToDate;
 
         updateProgressBar(100, 100);
         progressText.setText(upToDateText);
     }
 
     protected void idleUiState() {
+        currentUIState = UIState.Idle;
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -111,10 +123,12 @@ class UpdateUIState {
 
     protected void checkFailedUiState() {
         idleUiState();
+        currentUIState = UIState.FailedCheck;
         updateProgressText(checkFailedMessage);
     }
 
     protected void downloadingUiState() {
+        currentUIState = UIState.Downloading;
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(true);
         installUpdateButton.setEnabled(false);
@@ -125,11 +139,12 @@ class UpdateUIState {
     }
 
     protected void unappliedUpdateAvailableUiState() {
+        currentUIState = UIState.UnappliedUpdateAvailable;
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(true);
 
-        updateProgressBar(0, 100);
+        updateProgressBar(100, 100);
         progressBar.setEnabled(false);
 
         int version = ResourceInstallUtils.upgradeTableVersion();
@@ -141,6 +156,7 @@ class UpdateUIState {
     }
 
     protected void cancellingUiState() {
+        currentUIState = UIState.Cancelling;
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -150,6 +166,7 @@ class UpdateUIState {
     }
 
     protected void errorUiState() {
+        currentUIState = UIState.Error;
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -159,6 +176,7 @@ class UpdateUIState {
     }
 
     protected void noConnectivityUiState() {
+        currentUIState = UIState.NoConnectivity;
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -168,6 +186,7 @@ class UpdateUIState {
     }
 
     protected void updateInstalledUiState() {
+        currentUIState = UIState.UpdateInstalled;
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
@@ -207,5 +226,48 @@ class UpdateUIState {
                 Localization.get("install.current.version",
                         new String[]{Integer.toString(version)});
         currentVersionText.setText(versionMsg + "\n" + checkedMsg);
+    }
+
+    public void saveCurrentUIState(Bundle outState) {
+        outState.putSerializable(UPDATE_UI_STATE_KEY, currentUIState);
+    }
+
+    public void loadSavedUIState(Bundle savedInstanceState) {
+        currentUIState = (UIState)savedInstanceState.getSerializable(UPDATE_UI_STATE_KEY);
+        setUIFromState();
+    }
+
+    private void setUIFromState() {
+        switch (currentUIState) {
+            case Idle:
+                idleUiState();
+                break;
+            case UpToDate:
+                upToDateUiState();
+                break;
+            case FailedCheck:
+                checkFailedUiState();
+                break;
+            case Downloading:
+                downloadingUiState();
+                break;
+            case UnappliedUpdateAvailable:
+                unappliedUpdateAvailableUiState();
+                break;
+            case Cancelling:
+                cancellingUiState();
+                break;
+            case Error:
+                errorUiState();
+                break;
+            case NoConnectivity:
+                noConnectivityUiState();
+                break;
+            case UpdateInstalled:
+                updateInstalledUiState();
+                break;
+            default:
+                break;
+        }
     }
 }

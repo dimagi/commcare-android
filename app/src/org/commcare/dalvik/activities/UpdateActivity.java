@@ -49,6 +49,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         if (savedInstanceState != null) {
             taskIsCancelling =
                     savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
+            uiState.loadSavedUIState(savedInstanceState);
         }
     }
 
@@ -80,20 +81,19 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void setUiFromTask() {
-        int currentProgress = 0;
-        int maxProgress = 0;
         if (updateTask != null) {
-            currentProgress = updateTask.getProgress();
-            maxProgress = updateTask.getMaxProgress();
             if (taskIsCancelling) {
                 uiState.cancellingUiState();
             } else {
                 setUiStateFromTaskStatus(updateTask.getStatus());
             }
+
+            int currentProgress = updateTask.getProgress();
+            int maxProgress = updateTask.getMaxProgress();
+            uiState.updateProgressBar(currentProgress, maxProgress);
         } else {
-            pendingUpdateOrIdle();
+            setPendingUpdate();
         }
-        uiState.updateProgressBar(currentProgress, maxProgress);
         uiState.refreshStatusText();
     }
 
@@ -103,7 +103,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 uiState.downloadingUiState();
                 break;
             case PENDING:
-                pendingUpdateOrIdle();
                 break;
             case FINISHED:
                 uiState.errorUiState();
@@ -113,11 +112,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
-    private void pendingUpdateOrIdle() {
+    private void setPendingUpdate() {
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             uiState.unappliedUpdateAvailableUiState();
-        } else {
-            uiState.idleUiState();
         }
     }
 
@@ -145,6 +142,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
+        uiState.saveCurrentUIState(outState);
     }
 
     @Override
