@@ -302,7 +302,7 @@ public class BreadcrumbBarFragment extends Fragment {
             if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 //Only add steps which have a tile.
                 SessionDatum d = asw.getSession().findDatumDefinition(step.getId());
-                if(d.getPersistentDetail() != null) {
+                if(d != null && d.getPersistentDetail() != null) {
                     stepToFrame = step;
                 }
             }
