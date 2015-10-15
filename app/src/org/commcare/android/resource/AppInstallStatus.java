@@ -3,29 +3,32 @@ package org.commcare.android.resource;
 import org.commcare.android.models.notifications.MessageTag;
 
 public enum AppInstallStatus implements MessageTag {
-    // Success states:
+    // Statuses unique to app installation
     Installed("notification.install.installed"),
-    UpToDate("notification.install.uptodate"),
+    /**
+     * Error when attempting to install an app that is already installed
+     */
+    DuplicateApp("notification.install.duplicate"),
+
+    // Statuses unique to app updating
     /**
      * Update has been downloaded into update table
      */
     UpdateStaged("notification.install.updatestaged"),
 
-    // Error states:
+    /**
+     * Update attempt resulted in no new updates being found.
+     */
+    UpToDate("notification.install.uptodate"),
+
+    // Error states shared by both app installation and updating:
     MissingResources("notification.install.missing"),
     MissingResourcesWithMessage("notification.install.missing.withmessage"),
     IncompatibleReqs("notification.install.badreqs"),
     UnknownFailure("notification.install.unknown"),
     NoLocalStorage("notification.install.nolocal"),
     NoConnection("notification.install.no.connection"),
-
-    /**
-     * Attempting to install an app that is already installed
-     */
-    DuplicateApp("notification.install.duplicate"),
-
     BadCertificate("notification.install.badcert");
-
 
     AppInstallStatus(String root) {
         this.root = root;
