@@ -1,13 +1,14 @@
 <h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
         xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
-        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
         <h:title>One</h:title>
         <model>
             <instance>
                 <data name="One"
                       uiVersion="1"
-                      version="8" xmlns="http://openrosa.org/formdesigner/8AF49831-5025-44F8-98E1-F48C984290D9" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                      version="8"
+                      xmlns="http://openrosa.org/formdesigner/8AF49831-5025-44F8-98E1-F48C984290D9">
                     <a_nice_number/>
                     <orx:meta xmlns:cc="http://commcarehq.org/xforms">
                         <orx:deviceID/>
