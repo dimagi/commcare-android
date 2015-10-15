@@ -91,13 +91,9 @@ public class AndroidResourceManager extends ResourceManager {
                         "Couldn't install file to local storage|");
                 return AppInstallStatus.NoLocalStorage;
             } catch (UnfullfilledRequirementsException e) {
-                if (e.isDuplicateException()) {
-                    return AppInstallStatus.DuplicateApp;
-                } else {
-                    ResourceInstallUtils.logInstallError(e,
-                            "App resources are incompatible with this device|");
-                    return AppInstallStatus.IncompatibleReqs;
-                }
+                ResourceInstallUtils.logInstallError(e,
+                        "App resources are incompatible with this device|");
+                return AppInstallStatus.IncompatibleReqs;
             } catch (UnresolvedResourceException e) {
                 return ResourceInstallUtils.processUnresolvedResource(e);
             }
