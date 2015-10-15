@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="14" descriptor="Media Suite File">
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: question1.jpg" id="media-697924fa5c0a8a5f9d2930eca8ae2682-question1.jpg" version="14">
+      <location authority="local">./commcare/image/data/question1.jpg</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/8d119c2518dc0b7070c12c54dd34a804/question1.jpg</location>
+    </resource>
+  </media>
+</suite>

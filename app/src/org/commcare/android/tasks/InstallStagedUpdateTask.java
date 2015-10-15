@@ -24,12 +24,16 @@ public abstract class InstallStagedUpdateTask<R>
 
     @Override
     protected AppInstallStatus doTaskBackground(Void... params) {
+        return installStagedUpdate();
+    }
+
+    public static AppInstallStatus installStagedUpdate() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         app.setupSandbox();
 
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
         AndroidResourceManager resourceManager =
-            new AndroidResourceManager(platform);
+                new AndroidResourceManager(platform);
 
         if (!resourceManager.isUpgradeTableStaged()) {
             resourceManager.recordUpdateInstallFailure(AppInstallStatus.UnknownFailure);
