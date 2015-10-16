@@ -47,6 +47,7 @@ public class UpdateTask
     private Context ctx;
     private String profileRef;
     private boolean wasTriggeredByAutoUpdate = false;
+    private boolean taskWasCancelledByUser = false;
     private int currentProgress = 0;
     private int maxProgress = 0;
 
@@ -113,6 +114,11 @@ public class UpdateTask
 
     private void setupUpdate() {
         ResourceInstallUtils.recordUpdateAttemptTime(app);
+
+        if (wasTriggeredByAutoUpdate) {
+            ResourceInstallUtils.recordAutoUpdateStart(app);
+        }
+
         resourceManager.incrementUpdateAttempts();
 
         app.setupSandbox();
@@ -154,6 +160,9 @@ public class UpdateTask
 
         if (!result.isUpdateInCompletedState()) {
             resourceManager.processUpdateFailure(result, ctx, wasTriggeredByAutoUpdate);
+        } else if (wasTriggeredByAutoUpdate) {
+            // auto-update was successful or app was up-to-date.
+            ResourceInstallUtils.recordAutoUpdateCompletion(app);
         }
 
         if (pinnedNotificationProgress != null) {
@@ -179,6 +188,13 @@ public class UpdateTask
         } else {
             super.onCancelled();
         }
+
+        if (taskWasCancelledByUser && wasTriggeredByAutoUpdate) {
+            // task may have been cancelled by logout, in which case we want
+            // to keep trying to auto-update upon logging in again.
+            ResourceInstallUtils.recordAutoUpdateCompletion(app);
+        }
+        taskWasCancelledByUser = false;
 
         if (pinnedNotificationProgress != null) {
             pinnedNotificationProgress.handleTaskCancellation(result);
@@ -269,5 +285,14 @@ public class UpdateTask
      */
     public void setAsAutoUpdate() {
         wasTriggeredByAutoUpdate = true;
+    }
+
+    /**
+     * Record that task cancellation was triggered by user, not the app logging
+     * out. Useful for knowing if an auto-update should resume or not upon next
+     * login.
+     */
+    public void cancelWasUserTriggered() {
+        taskWasCancelledByUser = true;
     }
 }

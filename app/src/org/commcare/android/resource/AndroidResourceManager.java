@@ -221,9 +221,15 @@ public class AndroidResourceManager extends ResourceManager {
     private void retryUpdateOrGiveUp(Context ctx, boolean isAutoUpdate) {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
+            // NOTE PLM: this is currently the only place that update stats
+            // are uploaded to HQ via normal log uploads
             Logger.log("App Update", updateStats.toString());
 
             UpdateStats.clearPersistedStats(app);
+
+            if (isAutoUpdate) {
+                ResourceInstallUtils.recordAutoUpdateCompletion(app);
+            }
 
             upgradeTable.clear();
         } else {

@@ -56,6 +56,11 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
 
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
+    /**
+     * Stores boolean flag that tells of if an auto-update is in progress, that
+     * is, actively checking or with a retry check queued up.
+     */
+    public final static String AUTO_UPDATE_IN_PROGRESS = "cc-trying-to-auto-update";
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 

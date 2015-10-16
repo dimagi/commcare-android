@@ -211,6 +211,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     public void stopUpdateCheck() {
         if (updateTask != null) {
+            updateTask.cancelWasUserTriggered();
             updateTask.cancel(true);
             taskIsCancelling = true;
             uiState.cancellingUiState();

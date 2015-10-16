@@ -882,7 +882,7 @@ public class CommCareApplication extends Application {
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
-                        if (!areAutomatedActionsInvalid() && isUpdatePending()) {
+                        if (shouldAutoUpdate()) {
                             startAutoUpdate();
                         }
                         syncPending = getPendingSyncStatus();
@@ -953,6 +953,17 @@ public class CommCareApplication extends Application {
         } else {
             task.execute();
         }
+    }
+
+    /**
+     * @return True if we aren't a demo user and the time to check for an
+     * update has elapsed or we logged out while an auto-update was downlaoding
+     * or queued for retry.
+     */
+    private boolean shouldAutoUpdate() {
+        return (!areAutomatedActionsInvalid() &&
+                (ResourceInstallUtils.shouldAutoUpdateResume(getCurrentApp()) ||
+                        isUpdatePending()));
     }
 
     private void startAutoUpdate() {
@@ -1319,5 +1330,12 @@ public class CommCareApplication extends Application {
     public void setTestingService(CommCareSessionService service) {
         mIsBound = true;
         mBoundService = service;
+        mConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+            }
+        };
     }
 }
