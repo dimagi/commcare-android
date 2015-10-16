@@ -244,6 +244,7 @@ public class AndroidResourceManager extends ResourceManager {
                 try {
                     UpdateTask updateTask = UpdateTask.getNewInstance();
                     updateTask.startPinnedNotification(ctx);
+                    updateTask.setAsAutoUpdate();
                     updateTask.execute(ref);
                 } catch (IllegalStateException e) {
                     // The user may have started the update process in the meantime

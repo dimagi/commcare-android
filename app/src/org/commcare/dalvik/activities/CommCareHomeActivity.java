@@ -34,13 +34,11 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.SendTask;
-import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -1063,14 +1061,11 @@ public class CommCareHomeActivity
                 } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
                     // Path 1e: CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if (CommCareApplication._().isUpdatePending()) {
-                    // Path 1f: There is an update pending
-                    handlePendingUpdate();
                 } else if (CommCareApplication._().isSyncPending(false)) {
-                    // Path 1g: There is a sync pending
+                    // Path 1f: There is a sync pending
                     handlePendingSync();
                 } else {
-                    // Path 1h: Display the normal home screen!
+                    // Path 1g: Display the normal home screen!
                     uiController.refreshView();
                 }
             } catch (SessionUnavailableException sue) {
@@ -1169,22 +1164,6 @@ public class CommCareHomeActivity
         sessionNavigator.startNextSessionStep();
         //Only launch shortcuts once per intent
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-    }
-
-    private void handlePendingUpdate() {
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-        String ref = ResourceInstallUtils.getDefaultProfileRef();
-
-        try {
-            UpdateTask updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(this);
-            updateTask.setAsAutoUpdate();
-            updateTask.execute(ref);
-        } catch(IllegalStateException e) {
-            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
-                    "Should only happen if the user triggered a manual update before this fired.");
-        }
     }
 
     private void handlePendingSync() {

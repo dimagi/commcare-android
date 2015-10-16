@@ -65,12 +65,12 @@ public class AutoUpdateTest {
     public void testAutoUpdateCalc() {
         // should be ready for update if last check was 3 days ago
         long checkedThreeDaysAgo = DateTime.now().minusDays(3).getMillis();
-        Assert.assertTrue(CommCareApplication._().isUpdatePending(checkedThreeDaysAgo,
+        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeDaysAgo,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // shouldn't be ready for update if last check was 3 hours ago
         long checkedThreeHoursAgo = DateTime.now().minusHours(3).getMillis();
-        Assert.assertFalse(CommCareApplication._().isUpdatePending(checkedThreeHoursAgo,
+        Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // test different calendar day less than 24 hours ago trigger when
@@ -81,23 +81,23 @@ public class AutoUpdateTest {
         DateTime now = new DateTime();
         long diff = yesterdayNearMidnight.minus(now.getMillis()).getMillis();
         Assert.assertTrue(diff < DateUtils.DAY_IN_MILLIS);
-        Assert.assertTrue(CommCareApplication._().isUpdatePending(yesterdayNearMidnight.getMillis(),
+        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(yesterdayNearMidnight.getMillis(),
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // test timeshift a couple of hours in the future, shouldn't be enough
         // to warrant a update trigger
         long hoursInTheFuture = DateTime.now().plusHours(2).getMillis();
-        Assert.assertFalse(CommCareApplication._().isUpdatePending(hoursInTheFuture,
+        Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(hoursInTheFuture,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         // test timeshift where if we last checked more than one day in the
         // future then we trigger
         long daysLater = DateTime.now().plusDays(2).getMillis();
-        Assert.assertTrue(CommCareApplication._().isUpdatePending(daysLater,
+        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(daysLater,
                 CommCarePreferences.FREQUENCY_DAILY));
 
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
-        Assert.assertTrue(CommCareApplication._().isUpdatePending(weekLater,
+        Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(weekLater,
                 CommCarePreferences.FREQUENCY_DAILY));
     }
 }
