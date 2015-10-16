@@ -43,6 +43,7 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DialogCreationHelpers;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -180,7 +181,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     // Override default CommCare banner if requested
                     String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
-                        Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
+                        Bitmap bitmap = MediaUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
                             ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);

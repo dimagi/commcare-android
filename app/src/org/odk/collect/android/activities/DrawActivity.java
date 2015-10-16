@@ -40,6 +40,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.FileUtils;
@@ -379,7 +380,7 @@ public class DrawActivity extends Activity {
 
         public void resetImage(int w, int h) {
             if (mBackgroundBitmapFile.exists()) {
-                mBitmap = FileUtils.getBitmapScaledToContainer(
+                mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
                                 Bitmap.Config.ARGB_8888, true);
                 // mBitmap =

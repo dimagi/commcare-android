@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
@@ -29,7 +30,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
 import java.util.Vector;
@@ -119,8 +119,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                         Context.WINDOW_SERVICE)).getDefaultDisplay();
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
-                                b =
-                                    FileUtils.getBitmapScaledToContainer(imageFile, screenHeight,
+                                b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
                                             screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();

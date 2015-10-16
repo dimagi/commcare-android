@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.graph.DisplayData;
@@ -68,7 +69,7 @@ public class GridMediaView extends RelativeLayout {
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension,iconDimension);
 
-        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI);
 
         if(b == null){
             b = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.info_bubble);

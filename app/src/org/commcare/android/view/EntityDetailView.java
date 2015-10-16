@@ -168,7 +168,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setVisibility(View.GONE);
                 calloutText.setVisibility(View.GONE);
 
-                Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
+                Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imagePath);
 
                 if (b == null) {
                     calloutImageButton.setImageDrawable(null);
@@ -226,7 +226,7 @@ public class EntityDetailView extends FrameLayout {
             }
         } else if (FORM_IMAGE.equals(form)) {
             String imageLocation = textField;
-            Bitmap b = MediaUtil.getScaledImageFromReference(imageLocation);
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageLocation);
 
             if (b == null) {
                 imageView.setImageDrawable(null);

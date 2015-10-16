@@ -19,11 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
 
@@ -215,9 +215,8 @@ public class MediaLayout extends RelativeLayout {
 
                         int screenWidth = display.getWidth();
                         int screenHeight = display.getHeight();
-                        b =
-                            FileUtils
-                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
+                        b = MediaUtil
+                                .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                     } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }

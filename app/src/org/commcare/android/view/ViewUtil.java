@@ -4,16 +4,13 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,15 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.graph.DisplayData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
-import org.odk.collect.android.utilities.FileUtils;
 
-import java.io.File;
 import java.util.LinkedList;
 
 /**
@@ -39,9 +32,6 @@ import java.util.LinkedList;
  */
 public final class ViewUtil {
 
-    private static final String KEY_TARGET_DENSITY = "cc-target-density";
-    private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_280;
-
     // This is silly and isn't really what we want here, but it's a start.
     // (We'd like to be able to add a displayunit to a menu in a super
     // easy/straightforward way.
@@ -50,7 +40,7 @@ public final class ViewUtil {
         MenuItem item = menu.add(0, menuId, menuId,
                 Localizer.clearArguments(display.getName()).trim());
         if (display.getImageURI() != null) {
-            Bitmap b = ViewUtil.inflateDisplayImage(context, display.getImageURI());
+            Bitmap b = MediaUtil.inflateDisplayImage(context, display.getImageURI());
             if (b != null) {
                 item.setIcon(new BitmapDrawable(context.getResources(), b));
             }
@@ -69,7 +59,6 @@ public final class ViewUtil {
      */
     /*public static Bitmap inflateDisplayImage(Context context, String jrUri) {
         //TODO: Cache?
-
         // Now set up the image view
         if (jrUri != null && !jrUri.equals("")) {
             try {
@@ -94,66 +83,6 @@ public final class ViewUtil {
         }
         return null;
     }*/
-
-    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
-        if (jrUri == null || jrUri.equals("")) {
-            return null;
-        }
-        try {
-            //TODO: Fallback for non-local refs? Write to a file first or something...
-            String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
-            final File imageFile = new File(imageFilename);
-            if (imageFile.exists()) {
-                // Get target dpi
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                int TARGET_DENSITY = prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY);
-
-                // Get native dp scale factor from Android
-                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                double nativeDpScaleFactor = metrics.density;
-                Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
-
-                // Get dpi scale factor
-                final int SCREEN_DENSITY = metrics.densityDpi;
-                Log.i("10/15", "Target dpi: " + TARGET_DENSITY);
-                Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
-                double dpiScaleFactor = (double) SCREEN_DENSITY / TARGET_DENSITY;
-                Log.i("10/15", "dpi scale factor: " + dpiScaleFactor);
-
-                BitmapFactory.Options o = new BitmapFactory.Options();
-                o.inJustDecodeBounds = true;
-                o.inScaled = false;
-                BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
-                int imageHeight = o.outHeight;
-                int imageWidth = o.outWidth;
-                Log.i("10/15", "original image height: " + imageHeight);
-                Log.i("10/15", "original image width: " + imageWidth);
-
-                // Get new dimens based on dp and dpi scale factors
-                int newHeight = Math.round((float) (imageHeight * nativeDpScaleFactor * dpiScaleFactor));
-                int newWidth = Math.round((float) (imageWidth * nativeDpScaleFactor * dpiScaleFactor));
-                Log.i("10/15", "new calculated height: " + newHeight);
-                Log.i("10/15", "new new calculated width: " + newWidth);
-                Log.i("10/15", "---------------------------");
-
-                Bitmap scaledBitmap;
-                if (newHeight < imageHeight || newWidth < imageWidth) {
-                    // scaling down
-                    scaledBitmap = FileUtils.getBitmapScaledToContainer(imageFile, newHeight, newWidth);
-                } else {
-                    // scaling up
-                    o.inJustDecodeBounds = false;
-                    Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
-                    scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
-                }
-                return scaledBitmap;
-            }
-        } catch (InvalidReferenceException e) {
-            Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public static void hideVirtualKeyboard(Activity activity) {
         InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);

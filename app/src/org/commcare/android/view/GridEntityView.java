@@ -25,6 +25,7 @@ import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
@@ -87,7 +88,7 @@ public class GridEntityView extends GridLayout {
      * @param entity
      */
     public GridEntityView(Context context, Detail detail, Entity entity) {
-        this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context, 1), false);
+        this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
     }
 
     /**
@@ -361,12 +362,11 @@ public class GridEntityView extends GridLayout {
                         break;
                 }
                 retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
-                // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble);
                     } else {
-                        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+                        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData);
                         ((ImageView) retVal).setImageBitmap(b);
                     }
                 }

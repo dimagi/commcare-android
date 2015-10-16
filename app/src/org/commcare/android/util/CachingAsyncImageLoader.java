@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.LruCache;
 import android.widget.ImageView;
+
 /**
  * Class used for managing the LoadImageTasks that load images into a list. 
  * Ensures that proper caching occurs and attempts to limit overflows
@@ -19,16 +20,15 @@ import android.widget.ImageView;
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
     private TCLruCache cache;
-    public static final int RETRY_LIMIT=5;        // how many times we should retry loading the image before giving up
-    private int scaleFactor;                    // how much to degrade the quality of the image to ensure no heap overflow
-    private final int CACHE_DIVISOR =2 ;
+    private final int CACHE_DIVISOR =2;
+    private Context context;
 
-    public CachingAsyncImageLoader(Context context, int mScaleFactor) {
+    public CachingAsyncImageLoader(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(
                 Context.ACTIVITY_SERVICE);
         int memoryClass = (am.getMemoryClass() * 1024 * 1024)/CACHE_DIVISOR;        //basically, set the heap to be everything we can get
-        cache = new TCLruCache(memoryClass);
-        scaleFactor = mScaleFactor;
+        this.context = context;
+        this.cache = new TCLruCache(memoryClass);
     }
 
     public void display(String url, ImageView imageview, int defaultresource) {
@@ -41,7 +41,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             imageview.setImageBitmap(image);
         }
         else {
-            new SetImageTask(imageview).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+            new SetImageTask(imageview, this.context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
         }
     }
 
@@ -59,10 +59,12 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
      *
      */
     private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
-        private ImageView mImageView = null;
+        private ImageView mImageView;
+        private Context mContext;
 
-        public SetImageTask(ImageView imageView) {
+        public SetImageTask(ImageView imageView, Context context) {
             mImageView = imageView;
+            mContext = context;
         }
 
         protected Bitmap doInBackground(String... file) { 
@@ -76,13 +78,13 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             }
         }
 
-        public Bitmap getImageBitmap(String file){
-            Bitmap bitmap = null;
-            bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
+        public Bitmap getImageBitmap(String filePath) {
+            //Bitmap bitmap = MediaUtil.getScaledImageFromReference(file, scaleFactor);
+            Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath);
 
             if (bitmap != null) {
                 synchronized(cache) {
-                      cache.put(file, bitmap);
+                      cache.put(filePath, bitmap);
                   }
               }
 

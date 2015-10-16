@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.QuestionDataExtension;
@@ -28,7 +29,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.logic.PendingCalloutInterface;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
 
 import java.io.File;
@@ -175,7 +175,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
             checkFileSize(toDisplay);
 
             if (toDisplay.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToContainer(toDisplay,
+                Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay,
                         screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);

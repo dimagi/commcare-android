@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.graph.DisplayData;
@@ -134,7 +135,7 @@ public class HorizontalMediaView extends RelativeLayout {
             addView(mAudioButton, audioParams);
         }
 
-        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI);
         if (b != null) {
             mImageView = new ImageView(getContext());
             mImageView.setPadding(10, 10, 10, 10);

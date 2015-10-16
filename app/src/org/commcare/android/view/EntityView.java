@@ -22,6 +22,7 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
@@ -30,7 +31,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
@@ -282,7 +282,7 @@ public class EntityView extends LinearLayout {
             try {
                 if (onMeasureCalled) {
                     int columnWidthInPixels = layout.getLayoutParams().width;
-                    b = FileUtils.getBitmapScaledByMaxDimen(
+                    b = MediaUtil.getBitmapScaledByMaxDimen(
                             ReferenceManager._().DeriveReference(source).getStream(),
                             columnWidthInPixels, true);
                 } else {
