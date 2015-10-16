@@ -140,14 +140,14 @@ public class ResizingImageView extends ImageView {
     }
 
     private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor) {
-        double maxWidth = mMaxWidth;
-        double maxHeight = mMaxHeight;
+        int maxWidth = mMaxWidth;
+        int maxHeight = mMaxHeight;
 
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
-            maxWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth) * imageScaleFactor;
+            maxWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth);
         }
         if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-            maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight) * imageScaleFactor;
+            maxHeight = Math.min(MeasureSpec.getSize(heightMeasureSpec), mMaxHeight);
         }
 
         Drawable drawable = getDrawable();
@@ -156,8 +156,8 @@ public class ResizingImageView extends ImageView {
         float dHeight = dipToPixels(getContext(), drawable.getIntrinsicHeight());
         float ratio = (dWidth) / dHeight;
 
-        double width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
-        double height = (int) (width / ratio);
+        int width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
+        int height = (int) (width / ratio);
 
         height = Math.min(Math.max(height, getSuggestedMinimumHeight()), maxHeight);
         width = (int) (height * ratio);
@@ -167,7 +167,8 @@ public class ResizingImageView extends ImageView {
             height = (int) (width / ratio);
         }
 
-        return new Pair<Integer, Integer>(new Double(width).intValue(), new Double(height).intValue());
+        return new Pair<Integer, Integer>(new Double(width * imageScaleFactor).intValue(),
+                new Double(height * imageScaleFactor).intValue());
     }
     /*
      * The meat and potatoes of the class. Determines what algorithm to use
