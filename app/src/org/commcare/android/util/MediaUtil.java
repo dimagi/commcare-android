@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.data.GeoPointData;
@@ -25,8 +27,10 @@ import java.io.InputStream;
  */
 public class MediaUtil {
 
+    private static final String KEY_USE_SMART_SCALING = "cc-use-smart-scaling";
     private static final String KEY_TARGET_DENSITY = "cc-target-density";
-    private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_280;
+    private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_DEFAULT;
+
     private static final String TAG = MediaUtil.class.getSimpleName();
 
     public static final String FORM_VIDEO = "video";
@@ -165,30 +169,53 @@ public class MediaUtil {
         }
     }
 
+    /**
+     * Attempts to inflate an image from a <display> or other CommCare UI definition source.
+     *
+     * @param jrUri The image to inflate
+     * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
+     */
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
+
+        // Check if we should use our smart scaling inflation method
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
+        if (useSmartImageScaling) {
+            return inflateDisplayImage(context, jrUri,
+                    prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+        }
+
+        if (jrUri != null && !jrUri.equals("")) {
+            try {
+                //TODO: Fallback for non-local refs? Write to a file first or something...
+                String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
+                final File imageFile = new File(imageFilename);
+                if (imageFile.exists()) {
+                    Bitmap b;
+                    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                    int screenWidth = display.getWidth();
+                    int screenHeight = display.getHeight();
+                    b = getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
+                    if (b != null) {
+                        return b;
+                    }
+                }
+            } catch (InvalidReferenceException e) {
+                Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    private static Bitmap inflateDisplayImage(Context context, String jrUri, int targetDensity) {
         if (jrUri == null || jrUri.equals("")) {
             return null;
         }
         try {
-            //TODO: Fallback for non-local refs? Write to a file first or something...
             String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
             final File imageFile = new File(imageFilename);
             if (imageFile.exists()) {
-                // Get target dpi
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                int TARGET_DENSITY = prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY);
-
-                // Get native dp scale factor from Android
-                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-                double nativeDpScaleFactor = metrics.density;
-                Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
-
-                // Get dpi scale factor
-                final int SCREEN_DENSITY = metrics.densityDpi;
-                Log.i("10/15", "Target dpi: " + TARGET_DENSITY);
-                Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
-                double dpiScaleFactor = (double) SCREEN_DENSITY / TARGET_DENSITY;
-                Log.i("10/15", "dpi scale factor: " + dpiScaleFactor);
 
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
@@ -196,14 +223,21 @@ public class MediaUtil {
                 BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
                 int imageHeight = o.outHeight;
                 int imageWidth = o.outWidth;
-                Log.i("10/15", "original image height: " + imageHeight);
-                Log.i("10/15", "original image width: " + imageWidth);
+                Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
-                // Get new dimens based on dp and dpi scale factors
-                int newHeight = Math.round((float) (imageHeight * nativeDpScaleFactor * dpiScaleFactor));
-                int newWidth = Math.round((float) (imageWidth * nativeDpScaleFactor * dpiScaleFactor));
-                Log.i("10/15", "new calculated height: " + newHeight);
-                Log.i("10/15", "new new calculated width: " + newWidth);
+                double scaleFactor = chooseScaleFactor(context, targetDensity);
+                double scaledHeight = imageHeight * scaleFactor;
+                double scaledWidth = imageWidth * scaleFactor;
+                Log.i("10/15", "scaled height: " + scaledHeight + ", scaled width: " + scaledWidth);
+
+                Display display = ((WindowManager)
+                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                double screenWidth = display.getWidth();
+                double screenHeight = display.getHeight();
+
+                int newHeight = Math.round((float)Math.min(scaledHeight, screenHeight));
+                int newWidth = Math.round((float)Math.min(scaledWidth, screenWidth));
+                Log.i("10/15", "final height: " + newHeight + ", final width: " + newWidth);
                 Log.i("10/15", "---------------------------");
 
                 Bitmap scaledBitmap;
@@ -223,6 +257,24 @@ public class MediaUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static double chooseScaleFactor(Context context, int targetDensity) {
+        // Get native dp scale factor from Android
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        double nativeDpScaleFactor = metrics.density;
+        Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
+
+        // Get dpi scale factor
+        final int SCREEN_DENSITY = metrics.densityDpi;
+        Log.i("10/15", "Target dpi: " + targetDensity);
+        Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
+        double dpiScaleFactor = (double) SCREEN_DENSITY / targetDensity;
+        Log.i("10/15", "dpi scale factor: " + dpiScaleFactor);
+
+        double finalScaleFactor = (nativeDpScaleFactor + dpiScaleFactor) / 2;
+        Log.i("10/15", "FINAL scale factor: " + finalScaleFactor);
+        return finalScaleFactor;
     }
 
 
