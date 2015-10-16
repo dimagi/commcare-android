@@ -114,11 +114,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
-    <string-array name="question_text_layout_vals">
-        <item>side-by-side</item>
-        <item>image-below-text</item>
-        <item>image-above-text</item>
-    </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 

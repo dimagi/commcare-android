@@ -281,26 +281,16 @@ public class MediaLayout extends RelativeLayout {
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
             } else {
-                String questionTextFormat = DeveloperPreferences.getQuestionTextFormat();
-                switch(questionTextFormat) {
-                    case "side-by-side":
-                        mediaPaneParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                        this.addView(mediaPane, mediaPaneParams);
-                        questionTextPaneParams.addRule(RelativeLayout.LEFT_OF, mediaPane.getId());
-                        this.addView(questionTextPane, questionTextPaneParams);
-                        break;
-                    case "image-below-text":
-                        this.addView(questionTextPane, questionTextPaneParams);
-                        mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
-                        mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                        this.addView(mediaPane, mediaPaneParams);
-                        break;
-                    case "image-above-text":
-                        mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                        this.addView(mediaPane, mediaPaneParams);
-                        questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
-                        this.addView(questionTextPane, questionTextPaneParams);
-                        break;
+                if (DeveloperPreferences.imageAboveTextEnabled()) {
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
+                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
+                    this.addView(questionTextPane, questionTextPaneParams);
+                } else {
+                    this.addView(questionTextPane, questionTextPaneParams);
+                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
                 }
             }
         } else {
