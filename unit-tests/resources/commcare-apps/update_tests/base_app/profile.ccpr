@@ -30,7 +30,7 @@
     
         <property key="cc-fuzzy-search-enabled" value="yes"/>
     
-        <property key="cc-autoup-freq" value="freq-never"/>
+        <property key="cc-autoup-freq" value="freq-daily"/>
     
         <property key="purge-freq" value="0"/>
     

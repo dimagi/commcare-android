@@ -956,7 +956,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private boolean getPendingUpdateStatus() {
+    public boolean getPendingUpdateStatus() {
         SharedPreferences preferences = getCurrentApp().getAppPreferences();
         //Establish whether or not an AutoUpdate is Pending
         String autoUpdateFreq = preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
@@ -964,12 +964,21 @@ public class CommCareApplication extends Application {
         //See if auto update is even turned on
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
             long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-
-            long duration = (24 * 60 * 60 * 100) * (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq) ? 1 : 7);
-
-            return isPending(lastUpdateCheck, duration);
+            return isUpdatePending(lastUpdateCheck, autoUpdateFreq);
         }
         return false;
+    }
+
+    public boolean isUpdatePending(long lastUpdateCheck, String autoUpdateFreq) {
+        int checkEveryNDays;
+        if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
+            checkEveryNDays = 1;
+        } else {
+            checkEveryNDays = 7;
+        }
+        long duration = DateUtils.DAY_IN_MILLIS * checkEveryNDays;
+
+        return isPending(lastUpdateCheck, duration);
     }
 
     private boolean isPending(long last, long period) {
@@ -995,14 +1004,7 @@ public class CommCareApplication extends Application {
         //3) Major time change - (Phone might have had its calendar day manipulated).
         //for now we'll simply say that if last was more than a day in the future (timezone blur)
         //we should also trigger
-        if (now < (last - DateUtils.DAY_IN_MILLIS)) {
-            return true;
-        }
-
-        //TODO: maaaaybe trigger all if there's a substantial time difference
-        //noted between calls to a server
-
-        return false;
+        return (now < (last - DateUtils.DAY_IN_MILLIS));
     }
 
     /**

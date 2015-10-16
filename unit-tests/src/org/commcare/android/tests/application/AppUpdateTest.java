@@ -164,7 +164,7 @@ public class AppUpdateTest {
         Assert.assertTrue(p.getVersion() == 6);
     }
 
-    private void installUpdate(String app_folder,
+    private void installUpdate(String appFolder,
                                TaskListener<Integer, AppInstallStatus> listener,
                                AppInstallStatus expectedInstallStatus) {
         UpdateTask updateTask = UpdateTask.getNewInstance();
@@ -173,7 +173,7 @@ public class AppUpdateTest {
         } catch (TaskListenerRegistrationException e) {
             fail("failed to register listener for update task");
         }
-        updateTask.execute(buildResourceRef(app_folder, "profile.ccpr"));
+        updateTask.execute(buildResourceRef(appFolder, "profile.ccpr"));
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
