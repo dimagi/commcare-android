@@ -379,7 +379,7 @@ public class DrawActivity extends Activity {
 
         public void resetImage(int w, int h) {
             if (mBackgroundBitmapFile.exists()) {
-                mBitmap = FileUtils.getBitmapScaledToDisplay(
+                mBitmap = FileUtils.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
                                 Bitmap.Config.ARGB_8888, true);
                 // mBitmap =

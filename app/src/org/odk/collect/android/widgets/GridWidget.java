@@ -117,7 +117,7 @@ public class GridWidget extends QuestionWidget {
                         int screenHeight = display.getHeight();
                         Bitmap b =
                             FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
+                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                         if (b != null) {
 
                             if (b.getWidth() > maxColumnWidth) {
@@ -247,7 +247,7 @@ public class GridWidget extends QuestionWidget {
                         int screenHeight = display.getHeight();
                         Bitmap b =
                             FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
+                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                         if (b != null) {
 
                             if (b.getWidth() > maxColumnWidth) {
@@ -419,7 +419,7 @@ public class GridWidget extends QuestionWidget {
                         int screenHeight = display.getHeight();
                         Bitmap b =
                             FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
+                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                         if (b != null) {
 
                             if (mImageView == null) {

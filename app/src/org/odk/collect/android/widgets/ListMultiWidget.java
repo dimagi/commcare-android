@@ -144,7 +144,7 @@ public class ListMultiWidget extends QuestionWidget {
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
                                 b =
-                                        FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight,
+                                        FileUtils.getBitmapScaledToContainer(imageFile, screenHeight,
                                                 screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();

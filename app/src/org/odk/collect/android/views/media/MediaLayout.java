@@ -30,9 +30,8 @@ import org.odk.collect.android.views.ResizingImageView;
 import java.io.File;
 
 /**
- * This layout is used anywhere we can have image/audio/video/text. TODO: It
- * would probably be nice to put this in a layout.xml file of some sort at some
- * point.
+ * This layout is used anywhere we can have image/audio/video/text.
+ * TODO: Put this in a layout file!!!!
  *
  * @author carlhartung
  */
@@ -218,7 +217,7 @@ public class MediaLayout extends RelativeLayout {
                         int screenHeight = display.getHeight();
                         b =
                             FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
+                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                     } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }

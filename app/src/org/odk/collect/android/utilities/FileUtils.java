@@ -229,7 +229,7 @@ public class FileUtils {
         }
 
         Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        Bitmap scaledBitmap = getScaledBitmap(bitmap, maxDimen, false);
+        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen, false);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             FileOutputStream out = null;
@@ -253,8 +253,8 @@ public class FileUtils {
         return false;
     }
 
-    public static Bitmap getScaledBitmap(InputStream stream, int maxDimen, boolean mustScaleWidth) {
-        return getScaledBitmap(BitmapFactory.decodeStream(stream), maxDimen, mustScaleWidth);
+    public static Bitmap getBitmapScaledByMaxDimen(InputStream stream, int maxDimen, boolean mustScaleWidth) {
+        return getBitmapScaledByMaxDimen(BitmapFactory.decodeStream(stream), maxDimen, mustScaleWidth);
     }
 
     /**
@@ -274,7 +274,7 @@ public class FileUtils {
      * the original aspect ratio is maintained.
      *
      */
-    private static Bitmap getScaledBitmap(Bitmap originalBitmap, int maxDimen,
+    private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen,
                                           boolean mustScaleWidth) {
         if (originalBitmap == null) {
             return null;
@@ -308,8 +308,18 @@ public class FileUtils {
         }
     }
 
-
-    public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
+    /**
+     *
+     * @param f - the original image file
+     * @param containerHeight height in pixels of the display container in which this image is
+     *                        being shown
+     * @param containerWidth width in pixels of the display container in which this image is being
+     *                       shown
+     * @return A bitmap representation of the given image file, potentially scaled down from the
+     * original image size, if either the original image height exceeds containerHeight, or the
+     * original image width exceeds containerWidth
+     */
+    public static Bitmap getBitmapScaledToContainer(File f, int containerHeight, int containerWidth) {
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -318,9 +328,9 @@ public class FileUtils {
         int imageWidth = o.outWidth;
 
         // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
-        // just doing closest size that still fills the screen
-        int heightScale = Math.round((float)imageHeight / screenHeight);
-        int widthScale = Math.round((float)imageWidth / screenWidth);
+        // just doing closest size that still fills the container
+        int heightScale = Math.round((float)imageHeight / containerHeight);
+        int widthScale = Math.round((float)imageWidth / containerWidth);
         int scale = Math.max(widthScale, heightScale);
         if (scale == 0) {
             // Rounding could possibly have resulted in a scale factor of 0, which is invalid

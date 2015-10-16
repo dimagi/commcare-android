@@ -282,7 +282,7 @@ public class EntityView extends LinearLayout {
             try {
                 if (onMeasureCalled) {
                     int columnWidthInPixels = layout.getLayoutParams().width;
-                    b = FileUtils.getScaledBitmap(
+                    b = FileUtils.getBitmapScaledByMaxDimen(
                             ReferenceManager._().DeriveReference(source).getStream(),
                             columnWidthInPixels, true);
                 } else {

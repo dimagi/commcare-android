@@ -115,7 +115,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             File f = new File(mInstanceFolder + File.separator + mBinaryName);
 
             if (f.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f, screenHeight, screenWidth);
+                Bitmap bmp = FileUtils.getBitmapScaledToContainer(f, screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }

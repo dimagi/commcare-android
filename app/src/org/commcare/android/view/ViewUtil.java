@@ -4,23 +4,25 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -36,6 +38,9 @@ import java.util.LinkedList;
  * @author ctsims
  */
 public final class ViewUtil {
+
+    private static final String KEY_TARGET_DENSITY = "cc-target-density";
+    private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_280;
 
     // This is silly and isn't really what we want here, but it's a start.
     // (We'd like to be able to add a displayunit to a menu in a super
@@ -62,7 +67,7 @@ public final class ViewUtil {
      * @param jrUri The image to inflate
      * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
      */
-    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
+    /*public static Bitmap inflateDisplayImage(Context context, String jrUri) {
         //TODO: Cache?
 
         // Now set up the image view
@@ -72,16 +77,11 @@ public final class ViewUtil {
                 String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b = FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        Log.w("ImageInflater", "File too large to function on local device");
-                    }
-
+                    Bitmap b;
+                    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                    int screenWidth = display.getWidth();
+                    int screenHeight = display.getHeight();
+                    b = FileUtils.getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                     if (b != null) {
                         return b;
                     }
@@ -91,6 +91,66 @@ public final class ViewUtil {
                 Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
                 e.printStackTrace();
             }
+        }
+        return null;
+    }*/
+
+    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
+        if (jrUri == null || jrUri.equals("")) {
+            return null;
+        }
+        try {
+            //TODO: Fallback for non-local refs? Write to a file first or something...
+            String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
+            final File imageFile = new File(imageFilename);
+            if (imageFile.exists()) {
+                // Get target dpi
+                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+                int TARGET_DENSITY = prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY);
+
+                // Get native dp scale factor from Android
+                DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+                double nativeDpScaleFactor = metrics.density;
+                Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
+
+                // Get dpi scale factor
+                final int SCREEN_DENSITY = metrics.densityDpi;
+                Log.i("10/15", "Target dpi: " + TARGET_DENSITY);
+                Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
+                double dpiScaleFactor = (double) SCREEN_DENSITY / TARGET_DENSITY;
+                Log.i("10/15", "dpi scale factor: " + dpiScaleFactor);
+
+                BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                o.inScaled = false;
+                BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
+                int imageHeight = o.outHeight;
+                int imageWidth = o.outWidth;
+                Log.i("10/15", "original image height: " + imageHeight);
+                Log.i("10/15", "original image width: " + imageWidth);
+
+                // Get new dimens based on dp and dpi scale factors
+                int newHeight = Math.round((float) (imageHeight * nativeDpScaleFactor * dpiScaleFactor));
+                int newWidth = Math.round((float) (imageWidth * nativeDpScaleFactor * dpiScaleFactor));
+                Log.i("10/15", "new calculated height: " + newHeight);
+                Log.i("10/15", "new new calculated width: " + newWidth);
+                Log.i("10/15", "---------------------------");
+
+                Bitmap scaledBitmap;
+                if (newHeight < imageHeight || newWidth < imageWidth) {
+                    // scaling down
+                    scaledBitmap = FileUtils.getBitmapScaledToContainer(imageFile, newHeight, newWidth);
+                } else {
+                    // scaling up
+                    o.inJustDecodeBounds = false;
+                    Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
+                    scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+                }
+                return scaledBitmap;
+            }
+        } catch (InvalidReferenceException e) {
+            Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
+            e.printStackTrace();
         }
         return null;
     }

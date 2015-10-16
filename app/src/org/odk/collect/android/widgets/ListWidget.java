@@ -120,8 +120,8 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
                                 b =
-                                    FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight,
-                                        screenWidth);
+                                    FileUtils.getBitmapScaledToContainer(imageFile, screenHeight,
+                                            screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();
                             }
