@@ -169,6 +169,24 @@ public class MediaUtil {
         }
     }
 
+    private static Bitmap attemptScaleUp(File imageFile, int desiredHeight, int desiredWidth) {
+        try {
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inScaled = false;
+            Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
+            try {
+                return Bitmap.createScaledBitmap(originalBitmap, desiredWidth, desiredHeight, false);
+            } catch (OutOfMemoryError e) {
+                return originalBitmap;
+            }
+        }
+        catch (OutOfMemoryError e) {
+            // Just inflating the image at its original size caused an OOM error, don't have a
+            // choice but to scale down
+            return performSafeScaleDown(imageFile, 2, 1);
+        }
+    }
+
     /**
      * Attempts to inflate an image from a <display> or other CommCare UI definition source.
      *
@@ -215,6 +233,7 @@ public class MediaUtil {
             String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
             final File imageFile = new File(imageFilename);
             if (imageFile.exists()) {
+                Log.i("10/15", "src path: " + imageFilename);
 
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
@@ -225,31 +244,26 @@ public class MediaUtil {
                 Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
                 double scaleFactor = chooseScaleFactor(context, targetDensity);
-                double scaledHeight = imageHeight * scaleFactor;
-                double scaledWidth = imageWidth * scaleFactor;
-                Log.i("10/15", "scaled height: " + scaledHeight + ", scaled width: " + scaledWidth);
+                int newHeight = Math.round((float)(imageHeight * scaleFactor));
+                int newWidth = Math.round((float)(imageWidth * scaleFactor));
+                Log.i("10/15", "scaled height: " + newHeight + ", scaled width: " + newWidth);
 
-                Display display = ((WindowManager)
-                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                double screenWidth = display.getWidth();
-                double screenHeight = display.getHeight();
-
-                int newHeight = Math.round((float)Math.min(scaledHeight, screenHeight));
-                int newWidth = Math.round((float)Math.min(scaledWidth, screenWidth));
-                Log.i("10/15", "final height: " + newHeight + ", final width: " + newWidth);
-                Log.i("10/15", "---------------------------");
-
-                Bitmap scaledBitmap;
                 if (newHeight < imageHeight || newWidth < imageWidth) {
                     // scaling down
-                    scaledBitmap = getBitmapScaledToContainer(imageFile, newHeight, newWidth);
+                    Display display = ((WindowManager)
+                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                    int screenWidth = display.getWidth();
+                    int screenHeight = display.getHeight();
+                    if (newHeight > screenHeight || newWidth > screenWidth) {
+                        // the screen dimens are even smaller than our new dimens, so scale to those
+                        return getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
+                    } else {
+                        return getBitmapScaledToContainer(imageFile, newHeight, newWidth);
+                    }
                 } else {
                     // scaling up
-                    o.inJustDecodeBounds = false;
-                    Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
-                    scaledBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+                    return attemptScaleUp(imageFile, newHeight, newWidth);
                 }
-                return scaledBitmap;
             }
         } catch (InvalidReferenceException e) {
             Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
