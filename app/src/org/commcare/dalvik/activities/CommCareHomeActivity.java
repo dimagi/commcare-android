@@ -144,6 +144,7 @@ public class CommCareHomeActivity
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+    public static final String MENU_STYLE_GRID = "grid";
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
@@ -208,7 +209,7 @@ public class CommCareHomeActivity
 
     protected void enterRootModule() {
         Intent i;
-        if (useGridMenu("root")) {
+        if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
@@ -220,12 +221,11 @@ public class CommCareHomeActivity
         if(menuId == null) {
             menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
         }
-        if(DeveloperPreferences.isGridMenuEnabled()) { return true; }
-        String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
-        if("grid".equals(commonDisplayStyle)) {
+        if(DeveloperPreferences.isGridMenuEnabled()) {
             return true;
         }
-        return false;
+        String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
+        return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
     protected void returnToLogin() {
