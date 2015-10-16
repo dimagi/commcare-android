@@ -111,7 +111,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>yes</item>
         <item>no</item>
     </string-array>
-    <string-array name="pref_enabled_lables">
+    <string-array name="pref_enabled_labels">
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>

@@ -237,6 +237,9 @@ public class CustomProgressDialog extends DialogFragment {
     }
 
     public void updateProgressBar(int progress, int max) {
+        if (!usingHorizontalProgressBar) {
+            return;
+        }
         this.progressBarProgress = progress;
         this.progressBarMax = max;
         Dialog dialog = getDialog();
