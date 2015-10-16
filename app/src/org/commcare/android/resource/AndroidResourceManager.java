@@ -221,7 +221,7 @@ public class AndroidResourceManager extends ResourceManager {
     private void retryUpdateOrGiveUp(Context ctx, boolean isAutoUpdate) {
         if (updateStats.isUpgradeStale()) {
             Log.i(TAG, "Stop trying to download update. Here are the update stats:");
-            Log.i(TAG, updateStats.toString());
+            Logger.log("App Update", updateStats.toString());
 
             UpdateStats.clearPersistedStats(app);
 

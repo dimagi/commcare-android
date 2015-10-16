@@ -153,15 +153,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
                 if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+                    // install update, which triggers login upon completion
                     installPendingUpdate();
+                } else {
+                    localLoginOrPullAndLogin();
                 }
-
-                //Try logging in locally
-                if(tryLocalLogin(false)) {
-                    return;
-                }
-
-                startOta();
             }
         });
 
@@ -179,25 +175,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 int hideAll = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
                 int hideBanner = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
                 int height = activityRootView.getHeight();
-                
-                if(height < hideAll) {
+
+                if (height < hideAll) {
                     versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
-                } else if(height < hideBanner) {
+                } else if (height < hideBanner) {
                     banner.setVisibility(View.GONE);
-                }  else {
+                } else {
                     // Override default CommCare banner if requested
                     String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
+                            ImageView bannerView = (ImageView)banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
                     banner.setVisibility(View.VISIBLE);
                 }
-             }
+            }
         });
     }
 
@@ -665,6 +661,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         } else {
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
+
+                        localLoginOrPullAndLogin();
                     }
 
                     @Override
@@ -678,11 +676,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         e.printStackTrace();
                         Log.e(TAG, "update installation on login failed: " + e.getMessage());
                         Toast.makeText(receiver,
-                                Localization.get("login.update.install.success"),
+                                Localization.get("login.update.install.failure"),
                                 Toast.LENGTH_LONG).show();
+
+                        localLoginOrPullAndLogin();
                     }
                 };
         task.connect(this);
         task.execute();
+    }
+
+    private void localLoginOrPullAndLogin() {
+        if (tryLocalLogin(false)) {
+            return;
+        }
+
+        startOta();
     }
 }
