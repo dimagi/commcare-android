@@ -59,7 +59,7 @@ public class MenuList extends SessionAwareCommCareActivity implements OnItemClic
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if(menuId==null){
-           menuId="root";
+           menuId=Menu.ROOT_MENU_ID;
        }
 
        if(header == null) {
