@@ -166,9 +166,8 @@ public class MediaLayout extends RelativeLayout {
         String errorMsg = null;
         View centerView= null;
 
-        if(inlineVideoURI != null) {
+        if (inlineVideoURI != null) {
             centerView = getInlineVideoView(inlineVideoURI, centerViewParams);
-
         }
         else if(qrCodeContent != null ) {
             Bitmap image;
@@ -208,15 +207,7 @@ public class MediaLayout extends RelativeLayout {
                 if (imageFile.exists()) {
                     Bitmap b = null;
                     try {
-                        Display display =
-                                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                        .getDefaultDisplay();
-
-
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b = MediaUtil
-                                .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
+                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI);
                     } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }

@@ -177,7 +177,6 @@ public class MediaUtil {
      */
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
 
-        // Check if we should use our smart scaling inflation method
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
         if (useSmartImageScaling) {
