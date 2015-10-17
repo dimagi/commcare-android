@@ -338,12 +338,9 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="preference_form_entry_start_hide" cc:translatable="true">Show Intro Help Screen</string>
     <string name="preference_form_entry_start_summary" cc:translatable="true">If this is unchecked, the first screen that explains swiping will not be displayed</string>
     <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
-    <string name="preference_progress_bar" cc:translatable="true">Display Progress Bar</string>
     <string name="reset_image" cc:translatable="true">Reset</string>
     <string name="save_and_close" cc:translatable="true">Save and Close</string>
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="pref_nav_bar" cc:translatable="true">Enable Navigation Bar (BETA!)</string>
-
 </resources>

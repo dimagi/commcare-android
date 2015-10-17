@@ -14,7 +14,6 @@
 
 package org.odk.collect.android.preferences;
 
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,9 +59,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
 
     public static final String KEY_COMPLETED_DEFAULT = "default_completed";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
-    public static final String KEY_PROGRESS_BAR = "progress_bar";
-    public static final String KEY_NAVIGATION_BAR = "pref_nav_bar";
-    
 
     public static final String KEY_AUTH = "auth";
     public static final String KEY_ACCOUNT = "account";
@@ -234,8 +230,8 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         mSubmissionUrlPreference = (EditTextPreference) findPreference(KEY_SUBMISSION_URL);
         mSubmissionUrlPreference.setSummary(mSubmissionUrlPreference.getText());
 
-        mSubmissionUrlPreference.getEditText().setFilters(new InputFilter[] {
-            getReturnFilter()
+        mSubmissionUrlPreference.getEditText().setFilters(new InputFilter[]{
+                getReturnFilter()
         });
     }
 
@@ -400,31 +396,5 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
             }
         };
         return returnFilter;
-    }
-    
-    public enum ProgressBarMode {
-        None (false, false),
-        ProgressOnly (true, false),
-        NavBar (true, true),
-        //NOTE: We can't actually handle this yet
-        NavBarNoProgress (false, true);
-        
-        boolean progress = false;
-        boolean nav = false;
-        
-        private ProgressBarMode(boolean progress, boolean nav) { this.progress = progress; this.nav = nav; }
-        
-        public boolean useNavigationBar() { return nav;} 
-        public boolean useProgressBar() { return progress; }
-    }
-    
-    public static ProgressBarMode getProgressBarMode(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean navBar = prefs.getBoolean(KEY_NAVIGATION_BAR, true);
-        boolean progressBar = prefs.getBoolean(KEY_PROGRESS_BAR, true);
-        if(!navBar && !progressBar) { return ProgressBarMode.None;}
-        else if(!navBar && progressBar) { return ProgressBarMode.ProgressOnly;}
-        else if(navBar && !progressBar) { return ProgressBarMode.NavBarNoProgress;}
-        else { return ProgressBarMode.NavBar;}
     }
 }

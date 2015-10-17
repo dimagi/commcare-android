@@ -8,7 +8,6 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
@@ -25,7 +24,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
 import org.odk.collect.android.widgets.IBinaryWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
@@ -93,28 +91,6 @@ public class ODKView extends ScrollView
         dividers = new ArrayList<View>();
 
         mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
-        
-        if(PreferencesActivity.getProgressBarMode(context) == ProgressBarMode.ProgressOnly) {
-            this.mProgressEnabled = true;
-        }
-
-        // Construct progress bar
-        if (mProgressEnabled) {
-            mProgressBar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
-            mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar));
-            
-            LinearLayout.LayoutParams barLayout =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-            barLayout.setMargins(15, 15, 15, 15);
-            barLayout.gravity = Gravity.BOTTOM;
-            
-            LinearLayout barView = new LinearLayout(getContext());
-            barView.setOrientation(LinearLayout.VERTICAL);
-            barView.setGravity(Gravity.BOTTOM);
-            barView.addView(mProgressBar);
-            mView.addView(barView, barLayout);
-        }
 
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
