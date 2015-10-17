@@ -11,11 +11,10 @@ import org.commcare.dalvik.R;
 /**
  * @author yanokwa
  */
-public class PreferencesActivity extends SessionAwarePreferenceActivity implements
-        OnSharedPreferenceChangeListener {
+public class PreferencesActivity extends SessionAwarePreferenceActivity
+        implements OnSharedPreferenceChangeListener {
 
     public static final String KEY_FONT_SIZE = "font_size";
-
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
 
     @Override
@@ -53,7 +52,7 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     }
 
     private void updateFontSize() {
-        ListPreference lp = (ListPreference) findPreference(KEY_FONT_SIZE);
+        ListPreference lp = (ListPreference)findPreference(KEY_FONT_SIZE);
         lp.setSummary(lp.getEntry());
     }
 }
