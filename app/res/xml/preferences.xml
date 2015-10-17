@@ -1,27 +1,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<PreferenceScreen
-		android:id="@+id/info"
-		android:key="info"
-		android:title="@string/form_entry_settings_header_message">
+    <ListPreference
+        android:id="@+id/font_size"
+        android:defaultValue="21"
+        android:dialogTitle="@string/change_font_size"
+        android:entries="@array/font_size_entries"
+        android:entryValues="@array/font_size_entry_values"
+        android:key="font_size"
+        android:title="@string/font_size"/>
 
-		<intent
-			android:action="android.intent.action.VIEW"
-			android:data="http://opendatakit.org" />
-	</PreferenceScreen>
-	<PreferenceCategory android:title="@string/client">
-		<ListPreference
-			android:id="@+id/font_size"
-			android:key="font_size"
-			android:title="@string/font_size"
-			android:dialogTitle="@string/change_font_size"
-			android:defaultValue="21"
-			android:entries="@array/font_size_entries"
-			android:entryValues="@array/font_size_entry_values" />
-		
-		<CheckBoxPreference
-			android:id="@+id/tray_help"
-			android:key="help_mode_tray"
-			android:title="@string/preference_help_mode_tray"
-			android:defaultValue="false"/>
-	</PreferenceCategory>
+    <CheckBoxPreference
+        android:id="@+id/tray_help"
+        android:defaultValue="false"
+        android:key="help_mode_tray"
+        android:title="@string/preference_help_mode_tray"/>
 </PreferenceScreen>

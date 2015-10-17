@@ -95,7 +95,6 @@
 <string name="longitude">Longitude</string>
 <string name="main_menu">Menu Principal</string>
 <string name="main_menu_details">Coleta de dados facilitada...</string>
-<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Apagar Formulário Salvo</string>
 <string name="mark_finished">Marcar formulário como finalizado</string>
 <string name="no">Não</string>
@@ -150,8 +149,7 @@
 <string name="url_error">Desculpe, URL inválida!</string>
 <string name="username">Nome do usuário</string>
 <string name="view_hierarchy">Ir para atual</string>
-<string name="open_data_kit">Open Data Kit</string>
-<string name="general_preferences">Alterar configuração</string>
+<string name="form_entry_settings">Alterar configuração</string>
 <string name="first_run">Reiniciar do primeiro</string>
 <string name="client">Cliente</string>
 <string name="use_odk_default">Usar Imagem Padrão</string>

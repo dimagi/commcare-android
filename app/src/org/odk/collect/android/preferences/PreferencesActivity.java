@@ -23,7 +23,7 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
 
-        setTitle(getString(R.string.application_name) + " > " + getString(R.string.general_preferences));
+        setTitle(getString(R.string.application_name) + " > " + getString(R.string.form_entry_settings));
 
         updateFontSize();
     }

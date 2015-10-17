@@ -94,7 +94,6 @@
 <string name="longitude">Longitud</string>
 <string name="main_menu">Menu Principal</string>
 <string name="main_menu_details">Recoleccion de Datos mas facilmente...</string>
-<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Borrar el Formulario Guardado</string>
 <string name="mark_finished">Marcar el formulario como finalizado</string>
 <string name="no">No</string>
@@ -149,8 +148,7 @@
 <string name="url_error">URL invalido!</string>
 <string name="username">Nombre del Usuario</string>
 <string name="view_hierarchy">Ir a la Pregunta</string>
-<string name="open_data_kit">Open Data Kit</string>
-<string name="general_preferences">"Cambiar los Ajustes"</string>
+<string name="form_entry_settings">Cambiar los Ajustes</string>
 <string name="first_run">Corra lo primero despues de reiniciar</string>
 <string name="client">Cliente</string>
 <string name="use_odk_default">Usar la Imagen por Defecto</string>

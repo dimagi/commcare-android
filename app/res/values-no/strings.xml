@@ -95,7 +95,6 @@
 <string name="longitude">Breddegrad</string>
 <string name="main_menu">Hovedmeny</string>
 <string name="main_menu_details">Data collection made easier...</string>
-<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Delete Saved Form</string>
 <string name="mark_finished">Mark form as finalized</string>
 <string name="no">Nei</string>
@@ -150,8 +149,7 @@
 <string name="url_error">Beklager, ugyldig URL!</string>
 <string name="username">Brukernavn</string>
 <string name="view_hierarchy">Gå til prompt</string>
-<string name="open_data_kit">Open Data Kit</string>
-<string name="general_preferences">Endre innstillinger</string>
+<string name="form_entry_settings">Endre innstillinger</string>
 <string name="first_run">Do first run on restart</string>
 <string name="client">Klient</string>
 <string name="use_odk_default">Use Default Image</string>

@@ -95,7 +95,6 @@
 <string name="longitude">Ilguma</string>
 <string name="main_menu">Pagr. meniu</string>
 <string name="main_menu_details">Duomenų surinkimas tapo lengvesnis...</string>
-<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Ištrinti užpildytą formą</string>
 <string name="mark_finished">Pažymėti formą kaip užbaigtą</string>
 <string name="no">Ne</string>
@@ -150,8 +149,7 @@
 <string name="url_error">Netinkamas URL!</string>
 <string name="username">Naudotojo vardas</string>
 <string name="view_hierarchy">Atsakymų sąrašas</string>
-<string name="open_data_kit">Open Data Kit</string>
-<string name="general_preferences">Keisti nuostatas</string>
+<string name="form_entry_settings">Keisti nuostatas</string>
 <string name="first_run">"Perleidus iš naujo vykdyti pirmo karto paleidimą"</string>
 <string name="client">Klientas</string>
 <string name="use_odk_default">Naudoti numatytąjį paveikslėlį</string>
