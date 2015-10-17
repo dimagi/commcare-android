@@ -10,24 +10,6 @@
 	</PreferenceScreen>
 	<PreferenceCategory android:key="serverprefs" android:title="@string/server_preferences">
 		<EditTextPreference
-			android:id="@+id/server_url"
-			android:key="server_url"
-			android:defaultValue="@string/default_server_url"
-			android:title="@string/server_url"
-			android:dialogTitle="@string/change_server_url" />
-		<EditTextPreference
-			android:id="@+id/password"
-			android:key="password"
-			android:title="@string/password"
-			android:dialogTitle="@string/change_password" />
-		<!-- android:password="true" -->
-		<EditTextPreference
-			android:id="@+id/formlist_url"
-			android:key="formlist_url"
-			android:title="@string/formlist_url"
-			android:defaultValue="@string/default_odk_formlist"
-			android:dialogTitle="@string/change_formlist_url" />
-		<EditTextPreference
 			android:id="@+id/submission_url"
 			android:key="submission_url"
 			android:title="@string/submission_url"

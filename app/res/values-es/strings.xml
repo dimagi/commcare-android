@@ -33,7 +33,6 @@
 <string name="capture_image">Tomar la Foto</string>
 <string name="capture_video">Grabar el Video</string>
 <string name="change_language">Cambiar el Idioma</string>
-<string name="change_password">Contraseña</string>
 <string name="clear_answer">Borrar respuesta</string>
 <string name="clear_answer_ask">Borrar Esta Respuesta?</string>
 <string name="clear_answer_no">Cancelar</string>
@@ -43,7 +42,6 @@
 <string name="data_saved_ok">El formulario se guardo exitosamente!</string>
 <string name="default_completed">"Por defecto que se ponga como finalizado"</string>
 <string name="default_completed_summary">Marcar el formulario como terminado por defecto</string>
-<string name="default_server_url">https://opendatakit.appspot.com</string>
 <string name="delete_confirm">Borrar %s formulario(s)?</string>
 <string name="delete_file">Borrar los Seleccionados</string>
 <string name="delete_no">No Borrar</string>
@@ -115,7 +113,6 @@
 <string name="parse_error">"No se pudo analizar el formulario."</string>
 <string name="parse_legacy_formlist_failed">El servidor no hada dado un documento de available-forms compatible con Aggregate 0.9.x : %s</string>
 <string name="parse_openrosa_formlist_failed">El servidor no ha dado un documento de available-forms compatible con el estandar de OpenRosa version 1.0: %s</string>
-<string name="password">Contraseña</string>
 <string name="play_audio">Tocar el Sonido</string>
 <string name="play_video">Tocar el Video</string>
 <string name="please_wait">"Por favor espere unos momentos."</string>
@@ -169,9 +166,7 @@
 <string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Guardas los Cambios</string>
 <string name="go_to_location">Ir a Ubicacion</string>
-<string name="change_formlist_url">Ubicacion de la Lista del Formulario (se añade a la URL del Servidor)</string>
 <string name="change_submission_url">Ubicacion de Donde Mandar (se añade a la URL del Servidor)</string>
-<string name="formlist_url">La Ubicacion de la Lista de Formularios</string>
 <string name="submission_url">Ubicacion de Envio</string>
 <string name="font_size">Tamaño del Texto</string>
 <string name="change_font_size">Tamaño del Texto</string>

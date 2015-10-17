@@ -33,7 +33,6 @@
 <string name="capture_image">Take Picture</string>
 <string name="capture_video">Record Video</string>
 <string name="change_language">Change Language</string>
-<string name="change_password">Password</string>
 <string name="clearanswer_confirm">Remove the response to \"%s\"?</string>
 <string name="clear_answer">Remove response</string>
 <string name="clear_answer_ask">Remove This Response?</string>
@@ -44,7 +43,6 @@
 <string name="data_saved_ok">Form successfully saved!</string>
 <string name="default_completed">Default to Finalized</string>
 <string name="default_completed_summary">Mark form as finalized by default</string>
-<string name="default_server_url">https://opendatakit.appspot.com</string>
 <string name="delete_confirm">Delete %s form(s)?</string>
 <string name="delete_file">Delete Selected</string>
 <string name="delete_no">Do Not Delete</string>
@@ -116,7 +114,6 @@
 <string name="parse_error">Sorry, unable to parse form.</string>
 <string name="parse_legacy_formlist_failed">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
 <string name="parse_openrosa_formlist_failed">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
-<string name="password">Password</string>
 <string name="play_audio">Play Sound</string>
 <string name="play_video">Play Video</string>
 <string name="please_wait">Please wait a few moments.</string>
@@ -170,9 +167,7 @@
 <string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Save Changes</string>
 <string name="go_to_location">Go to Location</string>
-<string name="change_formlist_url">Form List Path (appended to Server URL)</string>
 <string name="change_submission_url">Submission Path (appended to Server URL)</string>
-<string name="formlist_url">Form List Path</string>
 <string name="submission_url">Submission Path</string>
 <string name="font_size">Text Font Size</string>
 <string name="change_font_size">Text Font Size</string>

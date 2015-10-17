@@ -33,7 +33,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     public static final String KEY_SPLASH_PATH = "splashPath";
     public static final String KEY_FONT_SIZE = "font_size";
 
-    public static final String KEY_FORMLIST_URL = "formlist_url";
     public static final String KEY_SUBMISSION_URL = "submission_url";
 
     public static final String KEY_COMPLETED_DEFAULT = "default_completed";
@@ -120,9 +119,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         switch (key) {
-            case KEY_FORMLIST_URL:
-                updateFormListUrl();
-                break;
             case KEY_SUBMISSION_URL:
                 updateSubmissionUrl();
                 break;
@@ -153,15 +149,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         mSplashPathPreference = (PreferenceScreen) findPreference(KEY_SPLASH_PATH);
         mSplashPathPreference.setSummary(mSplashPathPreference.getSharedPreferences().getString(
                 KEY_SPLASH_PATH, getString(R.string.default_splash_path)));
-    }
-
-    private void updateFormListUrl() {
-        mFormListUrlPreference = (EditTextPreference) findPreference(KEY_FORMLIST_URL);
-        mFormListUrlPreference.setSummary(mFormListUrlPreference.getText());
-
-        mFormListUrlPreference.getEditText().setFilters(new InputFilter[] {
-            getReturnFilter()
-        });
     }
 
     private void updateSubmissionUrl() {

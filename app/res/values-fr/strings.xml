@@ -32,7 +32,6 @@ License.
 <string name="capture_image">Prendre une photo</string>
 <string name="capture_video">Enregistrer une vidéo</string>
 <string name="change_language">Changer la Langue</string>
-<string name="change_password">Mot de passe</string>
 <string name="clearanswer_confirm">Enlever la réponse à \"%s\"?</string>
 <string name="clear_answer">Enlever la réponse</string>
 <string name="clear_answer_ask">Enlever cette réponse?</string>
@@ -43,7 +42,6 @@ License.
 <string name="data_saved_ok">Le Formulaire a été enregistré avec succès.</string>
 <string name="default_completed">Version finale par défaut</string>
 <string name="default_completed_summary">Marquer comme finalisé par défaut</string>
-<string name="default_server_url">https://opendatakit.appspot.com</string>
 <string name="delete_confirm">Supprimer %s formulaire(s)?</string>
 <string name="delete_file">Supprimer la sélection</string>
 <string name="delete_no">Ne pas supprimer</string>
@@ -115,8 +113,7 @@ License.
 <string name="parse_error">Désolé. Impossible d\'analyser le formulaire.</string> 
 <string name="parse_legacy_formlist_failed">Le serveur n\'a pas pu produire un document de formulaires compatible avec Aggregate 0.9.x. : %s</string> 
 <string name="parse_openrosa_formlist_failed">Le serveur n\'a pas pu produire un document de formulaires compatible avec OpenRosa 1.0 : %s</string> 
-<string name="password">Mot de Passe</string> 
-<string name="play_audio">Jouer le Son</string> 
+<string name="play_audio">Jouer le Son</string>
 <string name="play_video">Jouer la Vidéo</string> 
 <string name="please_wait">Veuillez patienter.</string> 
 <string name="please_wait_long">Veuillez patienter. Cette action peut prendre quelques minutes.</string> 
@@ -169,9 +166,7 @@ License.
 <string name="app_url">http://opendatakit.org</string> 
 <string name="keep_changes">Sauvegarder les Modifications</string> 
 <string name="go_to_location">Aller au Lieu</string> 
-<string name="change_formlist_url">Chemin de la liste de formulaires (ajouté à l\'URL du serveur)</string> 
 <string name="change_submission_url">Chemin d\'enregistrement (ajouté à l\'URL du serveur)</string> 
-<string name="formlist_url">Chemin de la liste de formulaires</string> 
 <string name="submission_url">Chemin d\'enregistrement</string> 
 <string name="font_size">Taille de la Police</string> 
 <string name="change_font_size">Taille de la Police</string> 

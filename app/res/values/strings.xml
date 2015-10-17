@@ -151,7 +151,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
-    <string name="change_password" cc:translatable="true">Password</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
@@ -162,7 +161,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="data_saved_ok" cc:translatable="true">Form successfully saved!</string>
     <string name="default_completed" cc:translatable="true">Default to Finalized</string>
     <string name="default_completed_summary" cc:translatable="true">Mark form as finalized by default</string>
-    <string name="default_server_url" cc:translatable="true">https://opendatakit.appspot.com</string>
     <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
@@ -234,7 +232,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="parse_error" cc:translatable="true">Sorry, unable to parse form.</string>
     <string name="parse_legacy_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
     <string name="parse_openrosa_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
-    <string name="password" cc:translatable="true">Password</string>
     <string name="play_audio" cc:translatable="true">Play Sound</string>
     <string name="play_video" cc:translatable="true">Play Video</string>
     <string name="please_wait" cc:translatable="true">Please wait a few moments.</string>
@@ -288,9 +285,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="app_url" cc:translatable="true">http://opendatakit.org</string>
     <string name="keep_changes" cc:translatable="true">Save Changes to Incomplete Form</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
-    <string name="change_formlist_url" cc:translatable="true">Form List Path (appended to Server URL)</string>
     <string name="change_submission_url" cc:translatable="true">Submission Path (appended to Server URL)</string>
-    <string name="formlist_url" cc:translatable="true">Form List Path</string>
     <string name="submission_url" cc:translatable="true">Submission Path</string>
     <string name="font_size" cc:translatable="true">Text Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>

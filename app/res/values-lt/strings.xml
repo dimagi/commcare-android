@@ -33,7 +33,6 @@
 <string name="capture_image">Užfiksuoti kadrą</string>
 <string name="capture_video">Įrašyti video</string>
 <string name="change_language">Pakeisti kalbą</string>
-<string name="change_password">Slaptažodis</string>
 <string name="clearanswer_confirm">Pašalinti atsakymą į \"%s\"?</string>
 <string name="clear_answer">Pašalinti atsakymą</string>
 <string name="clear_answer_ask">Pašalinti šį atsakymą?</string>
@@ -44,7 +43,6 @@
 <string name="data_saved_ok">Forma sėkmingai išsaugota!</string>
 <string name="default_completed">Numatyta kaip užbaigta</string>
 <string name="default_completed_summary">Numatytuoju atveju pažymėti formą kaip užbaigtą</string>
-<string name="default_server_url">https://opendatakit.appspot.com</string>
 <string name="delete_confirm">Ištrinti %s formą(-as)?</string>
 <string name="delete_file">Ištrinti pažymėtas</string>
 <string name="delete_no">Neištrinti</string>
@@ -116,7 +114,6 @@
 <string name="parse_error">Deja, nepavyko apdoroti formos.</string>
 <string name="parse_legacy_formlist_failed">Serveris nepateikė galimų formų dokumentų, suderinamų su Aggregate 0.9.x. : %s</string>
 <string name="parse_openrosa_formlist_failed">Serveris nepateikė galimų formų dokumentų, suderinamų su OpenRosa 1.0 standartu : %s</string>
-<string name="password">Slaptažodis</string>
 <string name="play_audio">Groti garsą</string>
 <string name="play_video">Groti video</string>
 <string name="please_wait">Prašome šiek tiek palaukti.</string>
@@ -170,10 +167,8 @@
 <string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Išsaugoti pakeitimus</string>
 <string name="go_to_location">Aplankyti vietovę</string>
-<string name="change_formlist_url">Formų sąrašo kelias (pridėtas prie serverio URL)</string>
 <string name="protocol">Protokolas</string>
 <string name="change_submission_url">Pateikimo kelias (pridėtas prie serverio URL)</string>
-<string name="formlist_url">Formų sąrašo kelias</string>
 <string name="submission_url">Pateikimo kelias</string>
 <string name="font_size">Teksto šrifto dydis</string>
 <string name="change_font_size">Teksto šrifto dydis</string>
