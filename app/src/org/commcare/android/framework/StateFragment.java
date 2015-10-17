@@ -1,6 +1,5 @@
 package org.commcare.android.framework;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,11 +34,11 @@ public class StateFragment<R> extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (activity instanceof CommCareActivity) {
-            this.boundActivity = (CommCareActivity) activity;
+        if (context instanceof CommCareActivity) {
+            this.boundActivity = (CommCareActivity)context;
             this.boundActivity.stateHolder = this;
 
             if (isCurrentTaskRunning()) {

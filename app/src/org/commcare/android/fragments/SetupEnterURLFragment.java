@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -133,14 +132,13 @@ public class SetupEnterURLFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        super.onAttach(activity);
-        if (!(activity instanceof URLInstaller)) {
-            throw new ClassCastException(activity + " must implemement " + interfaceName);
+        if (!(context instanceof URLInstaller)) {
+            throw new ClassCastException(context + " must implemement " + interfaceName);
         } else {
-            listener = (URLInstaller)activity;
+            listener = (URLInstaller)context;
         }
     }
 }
