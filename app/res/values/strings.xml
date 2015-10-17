@@ -274,26 +274,16 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="general_preferences" cc:translatable="true">Change Settings</string>
     <string name="first_run" cc:translatable="true">Do first run on restart</string>
     <string name="client" cc:translatable="true">Client</string>
-    <string name="show_splash" cc:translatable="true">Show Splash Screen</string>
-    <string name="show_splash_summary" cc:translatable="true">Shows when application starts</string>
-    <string name="splash_path" cc:translatable="true">Selected Splash Image</string>
-    <string name="default_splash_path" cc:translatable="true">ODK Default</string>
-    <string name="select_another_image" cc:translatable="true">Select Another Image</string>
     <string name="use_odk_default" cc:translatable="true">Use Default Image</string>
-    <string name="change_splash_path" cc:translatable="true">Change Image</string>
     <string name="show_location" cc:translatable="true">Show Location</string>
     <string name="app_url" cc:translatable="true">http://opendatakit.org</string>
     <string name="keep_changes" cc:translatable="true">Save Changes to Incomplete Form</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
-    <string name="change_submission_url" cc:translatable="true">Submission Path (appended to Server URL)</string>
-    <string name="submission_url" cc:translatable="true">Submission Path</string>
     <string name="font_size" cc:translatable="true">Text Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>
     <string name="form_scan_starting" cc:translatable="true">Scanning for forms...</string>
     <string name="form_scan_finished" cc:translatable="true">Form scanning completed</string>
     <string name="powered_by_odk" cc:translatable="true">v1.1.7 - Powered by Open Data Kit</string>
-    <string name="default_odk_formlist" cc:translatable="true">/formList</string>
-    <string name="default_odk_submission" cc:translatable="true">/submission</string>
     <string name="access_error" cc:translatable="true">Error while accessing %s: </string>
     <string name="manifest_server_error" cc:translatable="true">Manifest reply does not report an OpenRosa version -- bad server?</string>
     <string name="root_element_error" cc:translatable="true">Root element is not &lt;manifest\&gt; -- was %s</string>

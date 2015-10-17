@@ -17,13 +17,13 @@ the License.
 
     <EditTextPreference
     		android:dialogTitle="CommCare Application Server" android:title="CommCare Application Server" android:key="default_app_server" android:defaultValue="@string/default_app_server" android:enabled="true" android:id="@+id/appserver"/>
-            
+
                 <EditTextPreference
         android:title="Data Server" android:enabled="true" android:dialogTitle="CommCare Data Server" android:id="@+id/dataserver" android:key="ota-restore-url" android:defaultValue="@string/ota_restore_url"/>
-            
+
                 <EditTextPreference
         android:title="Submission Server" android:dialogTitle="CommCare Submission Server" android:enabled="true" android:id="@+id/submitserver" android:key="PostURL" android:defaultValue="@string/PostURL"/>
-                
+
     <EditTextPreference android:key="default_key_server" android:enabled="true" android:title="Key Server" android:defaultValue="@string/key_server"></EditTextPreference>
     <EditTextPreference android:key="form-record-url" android:enabled="true" android:title="Form Record Server" android:defaultValue="@string/form_record_url"></EditTextPreference>
     <ListPreference android:key="cc-autoup-freq" android:enabled="true" android:title="Auto Update Frequency" android:entryValues="@array/frequency_vals" android:entries="@array/frequency_vals_labels"/>
