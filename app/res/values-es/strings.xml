@@ -160,7 +160,6 @@
 <string name="change_font_size">Tamaño del Texto</string>
 <string name="form_scan_starting">Escaneando para formularios...</string>
 <string name="form_scan_finished">Escaneo del formulario completado</string>
-<string name="powered_by_odk">v1.1.7 - Desarrollado por Open Data Kit</string>
 <string name="access_error">"Error mientras accediendo a %s: "</string>
 <string name="manifest_server_error">Respuesta del manifiesto no reporta una version de OpenRosa -- servidor malo?</string>
 <string name="root_element_error">Elemento root no es &amp;lt;manifiesto\&gt; -- fue %s</string>

@@ -162,7 +162,6 @@
 <string name="change_font_size">Teksto šrifto dydis</string>
 <string name="form_scan_starting">Ieškoma formų...</string>
 <string name="form_scan_finished">Formų paieška baigta</string>
-<string name="powered_by_odk">v1.1.7 - variklis Open Data Kit</string>
 <string name="access_error">"Klaida bandant pasiekti %s: "</string>
 <string name="manifest_server_error">Manifesto atsakymas nepraneša OpenRosa versijos -- blogas serveris?</string>
 <string name="root_element_error">Šakninis elementas nėra &amp;lt;manifest\&gt; -- buvo %s</string>

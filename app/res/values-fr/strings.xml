@@ -160,7 +160,6 @@ License.
 <string name="change_font_size">Taille de la Police</string> 
 <string name="form_scan_starting">Recherche de formulaires...</string> 
 <string name="form_scan_finished">Recherche terminée</string> 
-<string name="powered_by_odk">v1.1.7 - Alimenté par Open Data Kit</string> 
 <string name="access_error">"Erreur lors de l\'accès à %s: "</string> 
 <string name="manifest_server_error">Réponse Manifest ne fourni pas une version OpenRosa -- Serveur défaillant?</string>
 <string name="root_element_error">L\'élément à la racine n\'est pas &amp;lt;manifest\&gt; -- c\'était %s</string>  
