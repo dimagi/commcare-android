@@ -34,7 +34,6 @@
 <string name="capture_video">Įrašyti video</string>
 <string name="change_language">Pakeisti kalbą</string>
 <string name="change_password">Slaptažodis</string>
-<string name="change_server_url">Serverio URL</string>
 <string name="clearanswer_confirm">Pašalinti atsakymą į \"%s\"?</string>
 <string name="clear_answer">Pašalinti atsakymą</string>
 <string name="clear_answer_ask">Pašalinti šį atsakymą?</string>

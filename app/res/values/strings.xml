@@ -152,7 +152,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
     <string name="change_password" cc:translatable="true">Password</string>
-    <string name="change_server_url" cc:translatable="true">Server URL</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>

@@ -34,7 +34,6 @@
 <string name="capture_video">Record Video</string>
 <string name="change_language">Change Language</string>
 <string name="change_password">Password</string>
-<string name="change_server_url">Server URL</string>
 <string name="clearanswer_confirm">Remove the response to \"%s\"?</string>
 <string name="clear_answer">Remove response</string>
 <string name="clear_answer_ask">Remove This Response?</string>

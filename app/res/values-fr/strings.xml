@@ -33,7 +33,6 @@ License.
 <string name="capture_video">Enregistrer une vidéo</string>
 <string name="change_language">Changer la Langue</string>
 <string name="change_password">Mot de passe</string>
-<string name="change_server_url">URL du serveur</string>
 <string name="clearanswer_confirm">Enlever la réponse à \"%s\"?</string>
 <string name="clear_answer">Enlever la réponse</string>
 <string name="clear_answer_ask">Enlever cette réponse?</string>

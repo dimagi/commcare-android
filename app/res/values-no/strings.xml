@@ -34,7 +34,6 @@
 <string name="capture_video">Spill inn video</string>
 <string name="change_language">Endre språk</string>
 <string name="change_password">Passord</string>
-<string name="change_server_url">Server URL</string>
 <string name="clearanswer_confirm">Fjern svar til \"%s\"?</string>
 <string name="clear_answer">Fjern svar</string>
 <string name="clear_answer_ask">Fjern dette svaret?</string>

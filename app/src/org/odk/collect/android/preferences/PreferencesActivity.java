@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2011 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.preferences;
 
 import android.content.CursorLoader;
@@ -47,15 +33,11 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     public static final String KEY_SPLASH_PATH = "splashPath";
     public static final String KEY_FONT_SIZE = "font_size";
 
-    public static final String KEY_SERVER_URL = "server_url";
-
     public static final String KEY_FORMLIST_URL = "formlist_url";
     public static final String KEY_SUBMISSION_URL = "submission_url";
 
     public static final String KEY_COMPLETED_DEFAULT = "default_completed";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
-
-    public static final String KEY_SERVER_PREFS = "serverprefs";
 
     private PreferenceScreen mSplashPathPreference;
     private EditTextPreference mSubmissionUrlPreference;
@@ -69,9 +51,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
 
         setTitle(getString(R.string.application_name) + " > " + getString(R.string.general_preferences));
 
-        //there's no ODK collect instance, so we should
-        //hide everything that's irrelevant
-        this.getPreferenceScreen().removePreference(this.findPreference(KEY_SERVER_PREFS));
         updateFontSize();
     }
 
@@ -141,9 +120,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         switch (key) {
-            case KEY_SERVER_URL:
-                updateServerUrl();
-                break;
             case KEY_FORMLIST_URL:
                 updateFormListUrl();
                 break;
@@ -171,22 +147,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
                     Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    private void updateServerUrl() {
-        mServerUrlPreference = (EditTextPreference) findPreference(KEY_SERVER_URL);
-
-        // remove all trailing "/"s
-        while (mServerUrlPreference.getText().endsWith("/")) {
-            mServerUrlPreference.setText(mServerUrlPreference.getText().substring(0,
-                mServerUrlPreference.getText().length() - 1));
-        }
-        validateUrl(mServerUrlPreference);
-        mServerUrlPreference.setSummary(mServerUrlPreference.getText());
-
-        mServerUrlPreference.getEditText().setFilters(new InputFilter[]{
-                getReturnFilter()
-        });
     }
 
     private void updateSplashPath() {
