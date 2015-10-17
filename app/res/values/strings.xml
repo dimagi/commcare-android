@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
 
-    <string name="application_name">CommCare ODK</string>
+    <string name="application_name">CommCare</string>
     <string name="title_bar_name">CommCare</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
@@ -39,8 +39,8 @@
     <string name="media_not_verified">Media Not Verified</string>
     <string name="media_verified">Media Validated!</string>
     <string name="no_installation">No app was installed!</string>
-    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare ODK from your device and then relaunch it.</string>
-    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare ODK in your device\'s Settings menu.</string>
+    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
+    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
 
     <!-- endregion -->
@@ -137,7 +137,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="add_repeat_no_exits" cc:translatable="true">Do Not Add, I\'m Finished</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
-    <string name="app_name" cc:translatable="true">ODK Collect</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
@@ -154,7 +153,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
     <string name="change_password" cc:translatable="true">Password</string>
     <string name="change_server_url" cc:translatable="true">Server URL</string>
-    <string name="change_username" cc:translatable="true">ODK Username</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>

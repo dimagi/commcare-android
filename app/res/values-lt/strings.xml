@@ -20,7 +20,6 @@
 <string name="add_repeat_no">Nekurti</string>
 <string name="advance">pereiti į\nkitą\npuslapį</string>
 <string name="altitude">Altitudė</string>
-<string name="app_name">ODK Collect</string>
 <string name="audio_file_error">Nebuvo nurodytas joks audio failas.</string>
 <string name="audio_file_invalid">Failas: %s nėra tinkamas audio failas.</string>
 <string name="backup">atgal į\nankstesnį\npuslapį</string>

@@ -865,7 +865,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             //Localization?
             return mHeaderString;
         } else {
-            return StringUtils.getStringRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
+            return StringUtils.getStringRobust(this, R.string.application_name) + " > " + mFormController.getFormTitle();
         }
     }
 
@@ -2315,7 +2315,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(mHeaderString != null) {
             setTitle(mHeaderString);
         } else {
-            setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
+            setTitle(StringUtils.getStringRobust(this, R.string.application_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
         }
     }
 

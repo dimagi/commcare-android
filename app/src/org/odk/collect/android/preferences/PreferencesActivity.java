@@ -97,7 +97,7 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         addPreferencesFromResource(R.xml.preferences);
         mContext = this;
 
-        setTitle(getString(R.string.app_name) + " > " + getString(R.string.general_preferences));
+        setTitle(getString(R.string.application_name) + " > " + getString(R.string.general_preferences));
 
         if(Collect.getInstance() != null) {
             setupSplashPathPreference();

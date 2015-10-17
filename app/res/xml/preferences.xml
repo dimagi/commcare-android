@@ -24,11 +24,6 @@
 			android:title="@string/server_url"
 			android:dialogTitle="@string/change_server_url" />
 		<EditTextPreference
-			android:id="@+id/username"
-			android:key="username"
-			android:title="@string/username"
-			android:dialogTitle="@string/change_username" />
-		<EditTextPreference
 			android:id="@+id/password"
 			android:key="password"
 			android:title="@string/password"

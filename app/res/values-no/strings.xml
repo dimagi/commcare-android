@@ -20,7 +20,6 @@
 <string name="add_repeat_no">Ikke legg til</string>
 <string name="advance">Gå til neste prompt</string>
 <string name="altitude">Høyde</string>
-<string name="app_name">ODK Collect</string>
 <string name="audio_file_error">Uspesifisert lydfil</string>
 <string name="audio_file_invalid">Filen: %s er ikke en gyldig lydfil</string>
 <string name="backup">tilbake til forrige prompt</string>

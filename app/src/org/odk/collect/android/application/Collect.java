@@ -58,7 +58,7 @@ public class Collect extends Application {
                 || cardstatus.equals(Environment.MEDIA_MOUNTED_READ_ONLY)
                 || cardstatus.equals(Environment.MEDIA_SHARED)) {
             RuntimeException e =
-                    new RuntimeException("ODK reports :: SDCard error: "
+                    new RuntimeException("CC reports :: SDCard error: "
                             + Environment.getExternalStorageState());
             throw e;
         }
@@ -72,13 +72,13 @@ public class Collect extends Application {
             if (!dir.exists()) {
                 if (!dir.mkdirs()) {
                     RuntimeException e =
-                            new RuntimeException("ODK reports :: Cannot create directory: " + dirName);
+                            new RuntimeException("CC reports :: Cannot create directory: " + dirName);
                     throw e;
                 }
             } else {
                 if (!dir.isDirectory()) {
                     RuntimeException e =
-                            new RuntimeException("ODK reports :: " + dirName
+                            new RuntimeException("CC reports :: " + dirName
                                     + " exists, but is not a directory");
                     throw e;
                 }
