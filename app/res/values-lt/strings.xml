@@ -173,7 +173,6 @@
 <string name="go_to_location">Aplankyti vietovę</string>
 <string name="change_formlist_url">Formų sąrašo kelias (pridėtas prie serverio URL)</string>
 <string name="protocol">Protokolas</string>
-<string name="change_protocol">Protokolas</string>
 <string name="change_submission_url">Pateikimo kelias (pridėtas prie serverio URL)</string>
 <string name="formlist_url">Formų sąrašo kelias</string>
 <string name="submission_url">Pateikimo kelias</string>
@@ -205,9 +204,6 @@
 <string name="save_as_error">Pavadinimas negali būti tuščias!</string>
 <string name="form_name">Formos pavadinimas:</string>
 <string name="edit_prompt">Keisti atsakymą</string>
-<string name="google_account">Parinkite Google sąskaitą</string>
-<string name="selected_google_account_text">Google sąskaita</string>
-<string name="google_submission_id_text">Google kolekcijos bandymas</string>
 <string name="exit">Exit</string>
 <string name="no_gps_title">Location Data Disabled</string>
 <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>

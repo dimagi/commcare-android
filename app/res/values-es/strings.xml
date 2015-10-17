@@ -171,8 +171,6 @@
 <string name="keep_changes">Guardas los Cambios</string>
 <string name="go_to_location">Ir a Ubicacion</string>
 <string name="change_formlist_url">Ubicacion de la Lista del Formulario (se añade a la URL del Servidor)</string>
-<string name="protocol">Protocolo</string>
-<string name="change_protocol">Protocolo</string>
 <string name="change_submission_url">Ubicacion de Donde Mandar (se añade a la URL del Servidor)</string>
 <string name="formlist_url">La Ubicacion de la Lista de Formularios</string>
 <string name="submission_url">Ubicacion de Envio</string>
@@ -204,9 +202,6 @@
 <string name="save_as_error">"El nombre no puede estar en blanco!"</string>
 <string name="form_name">Nombre del Formulario:</string>
 <string name="edit_prompt">"Editar el Aviso"</string>
-<string name="google_account">Escoga la Cuenta de Google</string>
-<string name="selected_google_account_text">Cuenta de Google</string>
-<string name="google_submission_id_text">Esfuerzo de Recoleccion de Google</string>
 <string name="exit">Exit</string>
 <string name="no_gps_title">Location Data Disabled</string>
 <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>

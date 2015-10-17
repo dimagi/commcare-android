@@ -172,8 +172,6 @@
 <string name="keep_changes">Save Changes</string>
 <string name="go_to_location">Go to Location</string>
 <string name="change_formlist_url">Form List Path (appended to Server URL)</string>
-<string name="protocol">Protocol</string>
-<string name="change_protocol">Protocol</string>
 <string name="change_submission_url">Submission Path (appended to Server URL)</string>
 <string name="formlist_url">Form List Path</string>
 <string name="submission_url">Submission Path</string>
@@ -205,9 +203,6 @@
 <string name="save_as_error">Saved name must not be blank!</string>
 <string name="form_name">Form Name:</string>
 <string name="edit_prompt">Edit Prompt</string>
-<string name="google_account">Select Google Account</string>
-<string name="selected_google_account_text">Google Account</string>
-<string name="google_submission_id_text">Google Collection Effort</string>
 <string name="exit">Exit</string>
 <string name="no_gps_title">Location Data Disabled</string>
 <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>

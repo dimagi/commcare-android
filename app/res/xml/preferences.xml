@@ -9,14 +9,6 @@
 			android:data="http://opendatakit.org" />
 	</PreferenceScreen>
 	<PreferenceCategory android:key="serverprefs" android:title="@string/server_preferences">
-		<ListPreference
-			android:id="@+id/protocol"
-			android:key="protocol"
-			android:title="@string/protocol"
-			android:dialogTitle="@string/change_protocol"
-			android:defaultValue="odk_default"
-			android:entries="@array/protocol_entries"
-			android:entryValues="@array/protocol_entry_values" />
 		<EditTextPreference
 			android:id="@+id/server_url"
 			android:key="server_url"
@@ -29,17 +21,6 @@
 			android:title="@string/password"
 			android:dialogTitle="@string/change_password" />
 		<!-- android:password="true" -->
-		<PreferenceScreen
-			android:id="@+id/selected_google_account"
-			android:key="selected_google_account"
-			android:defaultValue=""
-			android:title="@string/selected_google_account_text" />
-		<EditTextPreference
-			android:id="@+id/google_submission_id"
-			android:key="google_submission_id"
-			android:title="@string/google_submission_id_text"
-			android:defaultValue=""
-			android:dialogTitle="@string/google_submission_id_text" />
 		<EditTextPreference
 			android:id="@+id/formlist_url"
 			android:key="formlist_url"

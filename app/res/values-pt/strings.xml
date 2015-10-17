@@ -172,8 +172,6 @@
 <string name="keep_changes">Salvar Alterações</string>
 <string name="go_to_location">Ir para Localização</string>
 <string name="change_formlist_url">Listagem do caminho do formulário (adicionado do URL do Servidor)</string>
-<string name="protocol">Protocolo</string>
-<string name="change_protocol">Protocolo</string>
 <string name="change_submission_url">Caminho para submeter (adicionado do URL do Servidor)</string>
 <string name="formlist_url">Lista de Caminho do Formulário</string>
 <string name="submission_url">Caminho para submeter</string>
@@ -205,9 +203,6 @@
 <string name="save_as_error">Nome salvo não pode ser em branco!</string>
 <string name="form_name">Nome do Formulário:</string>
 <string name="edit_prompt">Editar Prompt</string>
-<string name="google_account">Selecionar Uma Conta Google</string>
-<string name="selected_google_account_text">Conta Google</string>
-<string name="google_submission_id_text">Esforço de coleta Google</string>
 <string name="exit">Exit</string>
 <string name="no_gps_title">Location Data Disabled</string>
 <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
