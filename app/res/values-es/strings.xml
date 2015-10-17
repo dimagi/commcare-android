@@ -95,7 +95,6 @@
 <string name="main_menu">Menu Principal</string>
 <string name="main_menu_details">Recoleccion de Datos mas facilmente...</string>
 <string name="manage_files">Borrar el Formulario Guardado</string>
-<string name="mark_finished">Marcar el formulario como finalizado</string>
 <string name="no">No</string>
 <string name="noselect_error">No ha escogido ningun formulario!</string>
 <string name="no_capture">Nada grabado todavia.</string>
@@ -153,7 +152,6 @@
 <string name="client">Cliente</string>
 <string name="use_odk_default">Usar la Imagen por Defecto</string>
 <string name="show_location">Mostar Ubicacion</string>
-<string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Guardas los Cambios</string>
 <string name="go_to_location">Ir a Ubicacion</string>
 <string name="font_size">Tamaño del Texto</string>

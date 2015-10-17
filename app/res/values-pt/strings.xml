@@ -96,7 +96,6 @@
 <string name="main_menu">Menu Principal</string>
 <string name="main_menu_details">Coleta de dados facilitada...</string>
 <string name="manage_files">Apagar Formulário Salvo</string>
-<string name="mark_finished">Marcar formulário como finalizado</string>
 <string name="no">Não</string>
 <string name="noselect_error">Desculpe, você não selecionou nenhum formulário!</string>
 <string name="no_capture">Nada gravado até o momento.</string>
@@ -154,7 +153,6 @@
 <string name="client">Cliente</string>
 <string name="use_odk_default">Usar Imagem Padrão</string>
 <string name="show_location">Mostrar Localização</string>
-<string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Salvar Alterações</string>
 <string name="go_to_location">Ir para Localização</string>
 <string name="font_size">Tamanho da Fonte do Texto</string>

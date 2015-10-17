@@ -96,7 +96,6 @@
 <string name="main_menu">Hovedmeny</string>
 <string name="main_menu_details">Data collection made easier...</string>
 <string name="manage_files">Delete Saved Form</string>
-<string name="mark_finished">Mark form as finalized</string>
 <string name="no">Nei</string>
 <string name="noselect_error">Sorry, you have not selected any forms!</string>
 <string name="no_capture">Nothing recorded yet.</string>
@@ -154,7 +153,6 @@
 <string name="client">Klient</string>
 <string name="use_odk_default">Use Default Image</string>
 <string name="show_location">Vis plassering</string>
-<string name="app_url">http://opendatakit.org</string>
 <string name="keep_changes">Lagre endringer</string>
 <string name="go_to_location">Gå til</string>
 <string name="protocol">Protokoll</string>
