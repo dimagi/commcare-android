@@ -29,12 +29,5 @@
 			android:key="help_mode_tray"
 			android:title="@string/preference_help_mode_tray"
 			android:defaultValue="false"/>
-		
-		<CheckBoxPreference
-			android:id="@+id/odk_show_start_screen"
-			android:key="odk_show_entry_screen"
-			android:title="@string/preference_form_entry_start_hide"
-			android:defaultValue="true"
-			android:summary="@string/preference_form_entry_start_summary" />
 	</PreferenceCategory>
 </PreferenceScreen>

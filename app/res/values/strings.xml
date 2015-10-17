@@ -315,7 +315,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="found_location" cc:translatable="true">Location Found!</string>
     <string name="form_entry_start_hide" cc:translatable="true">Thanks! Don\'t show this again.</string>
     <string name="preference_form_entry_start_hide" cc:translatable="true">Show Intro Help Screen</string>
-    <string name="preference_form_entry_start_summary" cc:translatable="true">If this is unchecked, the first screen that explains swiping will not be displayed</string>
     <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
     <string name="reset_image" cc:translatable="true">Reset</string>
     <string name="save_and_close" cc:translatable="true">Save and Close</string>
