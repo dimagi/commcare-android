@@ -284,7 +284,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         savingFormOnKeySessionExpiration = true;
         // start saving form, which will call the key session logout completion
         // function when it finishes.
-        saveDataToDisk(EXIT, false, null, true);
+        saveIncompleteFormToDisk(EXIT, null, true);
     }
 
     private void registerFormEntryReceiver() {
@@ -708,8 +708,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                // don't exit
-                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(), null, false);
+                saveFormToDisk(DO_NOT_EXIT, null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -1293,6 +1292,29 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         mBeenSwiped = false;
     }
 
+    private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        if (formHasLoaded()) {
+            boolean isFormComplete = isInstanceComplete();
+            saveDataToDisk(exit, isFormComplete, updatedSaveName, headless);
+        } else if (exit) {
+            showSaveErrorAndExit();
+        }
+    }
+
+    private void saveCompletedFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        saveDataToDisk(exit, true, updatedSaveName, headless);
+    }
+
+    private void saveIncompleteFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        saveDataToDisk(exit, false, updatedSaveName, headless);
+    }
+
+    private void showSaveErrorAndExit() {
+        Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
+        hasSaved = false;
+        finishReturnInstance();
+    }
+
     /**
      * Saves form data to disk.
      *
@@ -1305,9 +1327,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      */
     private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
         if (!formHasLoaded()) {
+            if (exit) {
+                showSaveErrorAndExit();
+            }
             return;
         }
-
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         if (headless &&
@@ -1363,7 +1387,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                                 if(items.length == 1) {
                                     discardChangesAndExit();
                                 } else {
-                                    saveDataToDisk(EXIT, isInstanceComplete(), null, false);
+                                    saveFormToDisk(EXIT, null, false);
                                 }
                                 break;
                             case 1: // discard changes and exit
@@ -1842,7 +1866,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+            saveCompletedFormToDisk(EXIT, getDefaultFormTitle(), false);
         }
     }
 
