@@ -81,7 +81,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormNavigationController;
 import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.ImageCaptureProcessing;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
@@ -233,7 +233,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
-            Collect.createODKDirs();
+            ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
@@ -2287,7 +2287,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
             this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
         } else {
-            mInstanceDestination = Collect.INSTANCES_PATH;
+            mInstanceDestination = ODKStorage.INSTANCES_PATH;
         }
         if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
             String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);

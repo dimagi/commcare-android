@@ -14,10 +14,8 @@
 
 package org.odk.collect.android.preferences;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -28,8 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.provider.MediaStore.Images;
@@ -39,9 +35,7 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.UrlUtils;
-import org.odk.collect.android.utilities.WebUtils;
 
 /**
  * @author yanokwa
@@ -51,9 +45,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
 
     protected static final int IMAGE_CHOOSER = 0;
 
-    public static final String KEY_LAST_VERSION = "lastVersion";
-    public static final String KEY_FIRST_RUN = "firstRun";
-    public static final String KEY_SHOW_SPLASH = "showSplash";
     public static final String KEY_SPLASH_PATH = "splashPath";
     public static final String KEY_FONT_SIZE = "font_size";
     public static final String KEY_SELECTED_GOOGLE_ACCOUNT = "selected_google_account";
@@ -88,101 +79,20 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     private EditTextPreference mPasswordPreference;
     private PreferenceScreen mSelectedGoogleAccountPreference;
     private EditTextPreference mGoogleCollectionEffortPreference;
-    private Context mContext;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-        mContext = this;
 
         setTitle(getString(R.string.application_name) + " > " + getString(R.string.general_preferences));
 
-        if(Collect.getInstance() != null) {
-            setupSplashPathPreference();
-            setupSelectedGoogleAccountPreference();
-    
-            updateServerUrl();
-    
-            updateUsername();
-            updatePassword();
-    
-            updateFormListUrl();
-            updateSubmissionUrl();
-    
-            updateSplashPath();
-            
-            updateProtocol();
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
-        } else {
-            //If there's no collect instance we're running in a library, so we should
-            //hide everything that's irrelevant
-            this.getPreferenceScreen().removePreference(this.findPreference(KEY_SERVER_PREFS));
-        }
+        //there's no ODK collect instance, so we should
+        //hide everything that's irrelevant
+        this.getPreferenceScreen().removePreference(this.findPreference(KEY_SERVER_PREFS));
         updateFontSize();
     }
-
-
-    private void setupSplashPathPreference() {
-        mSplashPathPreference = (PreferenceScreen) findPreference(KEY_SPLASH_PATH);
-
-        if (mSplashPathPreference != null) {
-            mSplashPathPreference.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-                private void launchImageChooser() {
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                    i.setType("image/*");
-                    startActivityForResult(i, PreferencesActivity.IMAGE_CHOOSER);
-                }
-
-
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    // if you have a value, you can clear it or select new.
-                    CharSequence cs = mSplashPathPreference.getSummary();
-                    if (cs != null && cs.toString().contains("/")) {
-
-                        final CharSequence[] items =
-                            {
-                                    getString(R.string.select_another_image),
-                                    getString(R.string.use_odk_default)
-                            };
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                        builder.setTitle(getString(R.string.change_splash_path));
-                        builder.setNeutralButton(getString(R.string.cancel),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.dismiss();
-                                }
-                            });
-                        builder.setItems(items, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int item) {
-                                if (items[item].equals(getString(R.string.select_another_image))) {
-                                    launchImageChooser();
-                                } else {
-                                    setSplashPath(getString(R.string.default_splash_path));
-
-                                }
-                            }
-                        });
-                        AlertDialog alert = builder.create();
-                        alert.show();
-
-                    } else {
-                        launchImageChooser();
-                    }
-
-                    return true;
-                }
-            });
-        }
-    }
-
 
     private void setSplashPath(String path) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -196,7 +106,7 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     protected void onPause() {
         super.onPause();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
-            this);
+                this);
     }
 
 
@@ -205,22 +115,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         
-        if(Collect.getInstance() != null) {
-            
-            updateServerUrl();
-    
-            updateUsername();
-            updatePassword();
-    
-            updateFormListUrl();
-            updateSubmissionUrl();
-    
-            updateSplashPath();
-    
-            updateProtocol();
-            updateSelectedGoogleAccount();
-            updateGoogleCollectionEffort();
-        }
         updateFontSize();
     }
 
@@ -269,26 +163,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     @Override
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         switch (key) {
-            case KEY_PROTOCOL:
-                updateProtocol();
-                updateSelectedGoogleAccount();
-                updateGoogleCollectionEffort();
-                updateServerUrl();
-                updateUsername();
-                updatePassword();
-                updateFormListUrl();
-                updateSubmissionUrl();
-                break;
-            case KEY_SELECTED_GOOGLE_ACCOUNT:
-                updateSelectedGoogleAccount();
-                updateGoogleCollectionEffort();
-                updateServerUrl();
-                break;
-            case KEY_GOOGLE_SUBMISSION:
-                updateSelectedGoogleAccount();
-                updateGoogleCollectionEffort();
-                updateServerUrl();
-                break;
             case KEY_SERVER_URL:
                 updateServerUrl();
                 break;
@@ -297,12 +171,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
                 break;
             case KEY_SUBMISSION_URL:
                 updateSubmissionUrl();
-                break;
-            case KEY_USERNAME:
-                updateUsername();
-                break;
-            case KEY_PASSWORD:
-                updatePassword();
                 break;
             case KEY_SPLASH_PATH:
                 updateSplashPath();
@@ -340,8 +208,8 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
         validateUrl(mServerUrlPreference);
         mServerUrlPreference.setSummary(mServerUrlPreference.getText());
 
-        mServerUrlPreference.getEditText().setFilters(new InputFilter[] {
-            getReturnFilter()
+        mServerUrlPreference.getEditText().setFilters(new InputFilter[]{
+                getReturnFilter()
         });
     }
 
@@ -349,37 +217,8 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
     private void updateSplashPath() {
         mSplashPathPreference = (PreferenceScreen) findPreference(KEY_SPLASH_PATH);
         mSplashPathPreference.setSummary(mSplashPathPreference.getSharedPreferences().getString(
-            KEY_SPLASH_PATH, getString(R.string.default_splash_path)));
+                KEY_SPLASH_PATH, getString(R.string.default_splash_path)));
     }
-
-
-    private void updateUsername() {
-        mUsernamePreference = (EditTextPreference) findPreference(KEY_USERNAME);
-        mUsernamePreference.setSummary(mUsernamePreference.getText());
-
-        mUsernamePreference.getEditText().setFilters(new InputFilter[] {
-            getWhitespaceFilter()
-        });
-
-        WebUtils.clearAllCredentials();
-    }
-
-
-    private void updatePassword() {
-        mPasswordPreference = (EditTextPreference) findPreference(KEY_PASSWORD);
-        if (mPasswordPreference.getText() != null && mPasswordPreference.getText().length() > 0) {
-            mPasswordPreference.setSummary("********");
-        } else {
-            mPasswordPreference.setSummary("");
-
-        }
-        mPasswordPreference.getEditText().setFilters(new InputFilter[] {
-            getWhitespaceFilter()
-        });
-
-        WebUtils.clearAllCredentials();
-    }
-
 
     private void updateFormListUrl() {
         mFormListUrlPreference = (EditTextPreference) findPreference(KEY_FORMLIST_URL);
