@@ -41,8 +41,6 @@
 <string name="data">Išsaugotos formos</string>
 <string name="data_saved_error">Deja, formos išsaugoti nepavyko!</string>
 <string name="data_saved_ok">Forma sėkmingai išsaugota!</string>
-<string name="default_completed">Numatyta kaip užbaigta</string>
-<string name="default_completed_summary">Numatytuoju atveju pažymėti formą kaip užbaigtą</string>
 <string name="delete_confirm">Ištrinti %s formą(-as)?</string>
 <string name="delete_file">Ištrinti pažymėtas</string>
 <string name="delete_no">Neištrinti</string>

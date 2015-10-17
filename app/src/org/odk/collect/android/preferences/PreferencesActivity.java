@@ -16,7 +16,6 @@ public class PreferencesActivity extends SessionAwarePreferenceActivity implemen
 
     public static final String KEY_FONT_SIZE = "font_size";
 
-    public static final String KEY_COMPLETED_DEFAULT = "default_completed";
     public static final String KEY_HELP_MODE_TRAY = "help_mode_tray";
 
     @Override

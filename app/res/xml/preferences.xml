@@ -17,12 +17,6 @@
 			android:defaultValue="21"
 			android:entries="@array/font_size_entries"
 			android:entryValues="@array/font_size_entry_values" />
-		<CheckBoxPreference
-			android:id="@+id/default_completed"
-			android:key="default_completed"
-			android:title="@string/default_completed"
-			android:defaultValue="true"
-			android:summary="@string/default_completed_summary" />
 		
 		<CheckBoxPreference
 			android:id="@+id/tray_help"

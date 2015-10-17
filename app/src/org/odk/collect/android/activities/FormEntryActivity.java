@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -18,7 +17,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -711,7 +709,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return true;
             case MENU_SAVE:
                 // don't exit
-                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(false), null, false);
+                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(), null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -1365,7 +1363,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                                 if(items.length == 1) {
                                     discardChangesAndExit();
                                 } else {
-                                    saveDataToDisk(EXIT, isInstanceComplete(false), null, false);
+                                    saveDataToDisk(EXIT, isInstanceComplete(), null, false);
                                 }
                                 break;
                             case 1: // discard changes and exit
@@ -1994,18 +1992,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * 
      * @return true if form has been marked completed, false otherwise.
      */
-    private boolean isInstanceComplete(boolean end) {
+    private boolean isInstanceComplete() {
         // default to false if we're mid form
         boolean complete = false;
-
-        // if we're at the end of the form, then check the preferences
-        if (end) {
-            // First get the value from the preferences
-            SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-            complete =
-                sharedPreferences.getBoolean(PreferencesActivity.KEY_COMPLETED_DEFAULT, true);
-        }
 
         // Then see if we've already marked this form as complete before
         String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";

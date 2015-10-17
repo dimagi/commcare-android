@@ -40,8 +40,6 @@
 <string name="data">Formularios Guardados</string>
 <string name="data_saved_error">Guardar el formulario fracaso!</string>
 <string name="data_saved_ok">El formulario se guardo exitosamente!</string>
-<string name="default_completed">"Por defecto que se ponga como finalizado"</string>
-<string name="default_completed_summary">Marcar el formulario como terminado por defecto</string>
 <string name="delete_confirm">Borrar %s formulario(s)?</string>
 <string name="delete_file">Borrar los Seleccionados</string>
 <string name="delete_no">No Borrar</string>

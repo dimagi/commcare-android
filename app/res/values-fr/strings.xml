@@ -40,8 +40,6 @@ License.
 <string name="data">Formulaires sauvegardés</string>
 <string name="data_saved_error">Désolé, la sauvegarde du formulaire a échoué.</string>
 <string name="data_saved_ok">Le Formulaire a été enregistré avec succès.</string>
-<string name="default_completed">Version finale par défaut</string>
-<string name="default_completed_summary">Marquer comme finalisé par défaut</string>
 <string name="delete_confirm">Supprimer %s formulaire(s)?</string>
 <string name="delete_file">Supprimer la sélection</string>
 <string name="delete_no">Ne pas supprimer</string>
