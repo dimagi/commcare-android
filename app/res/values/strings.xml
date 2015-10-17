@@ -218,9 +218,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
     <string name="longitude" cc:translatable="true">Longitude</string>
-    <string name="main_menu" cc:translatable="true">Main Menu</string>
-    <string name="main_menu_details" cc:translatable="true">Data collection made easier...</string>
-    <string name="main_menu_message" cc:translatable="true">ODK Collect v1.1.7</string>
+    <string name="form_entry_settings_header_message" cc:translatable="true">Form Entry Settings</string>
     <string name="manage_files" cc:translatable="true">Delete Saved Form</string>
     <string name="mark_finished" cc:translatable="true">This Form is Completed</string>
     <string name="no" cc:translatable="true">No</string>
@@ -278,7 +276,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="view_hierarchy" cc:translatable="true">Go To Prompt</string>
     <string name="open_data_kit" cc:translatable="true">Open Data Kit</string>
     <string name="general_preferences" cc:translatable="true">Change Settings</string>
-    <string name="click_to_web" cc:translatable="true">Tap to visit http://opendatakit.org</string>
     <string name="first_run" cc:translatable="true">Do first run on restart</string>
     <string name="client" cc:translatable="true">Client</string>
     <string name="show_splash" cc:translatable="true">Show Splash Screen</string>

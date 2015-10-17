@@ -34,7 +34,6 @@ License.
 <string name="change_language">Changer la Langue</string>
 <string name="change_password">Mot de passe</string>
 <string name="change_server_url">URL du serveur</string>
-<string name="change_username">Nom d\'utilisateur</string>
 <string name="clearanswer_confirm">Enlever la réponse à \"%s\"?</string>
 <string name="clear_answer">Enlever la réponse</string>
 <string name="clear_answer_ask">Enlever cette réponse?</string>
@@ -100,7 +99,7 @@ License.
 <string name="longitude">Longitude</string> 
 <string name="main_menu">Menu Principal</string> 
 <string name="main_menu_details">La collecte de données rendue plus facile...</string>
-<string name="main_menu_message">ODK Collect v1.1.7</string> 
+<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Supprimer le Formulaire Sauvegardé</string> 
 <string name="mark_finished">Marquer le formulaire comme finalisé</string> 
 <string name="no">Non</string> 
@@ -158,8 +157,7 @@ License.
 <string name="view_hierarchy">Aller à la ligne de saisie</string> 
 <string name="open_data_kit">Open Data Kit</string> 
 <string name="general_preferences">Modifier les Paramètres</string> 
-<string name="click_to_web">Sélectionner pour aller à http://opendatakit.org</string> 
-<string name="first_run">Exécuter première utilisation après redémmarage.</string> 
+<string name="first_run">Exécuter première utilisation après redémmarage.</string>
 <string name="client">Client</string> 
 <string name="show_splash">Afficher l\'écran de Bienvenue</string> 
 <string name="show_splash_summary">Montrer lors du démarrage</string> 

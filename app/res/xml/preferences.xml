@@ -2,8 +2,8 @@
 	<PreferenceScreen
 		android:id="@+id/info"
 		android:key="info"
-		android:title="@string/main_menu_message"
-		android:summary="@string/click_to_web">
+		android:title="@string/form_entry_settings_header_message">
+
 		<intent
 			android:action="android.intent.action.VIEW"
 			android:data="http://opendatakit.org" />

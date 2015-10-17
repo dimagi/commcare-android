@@ -35,8 +35,6 @@
 <string name="change_language">Cambiar el Idioma</string>
 <string name="change_password">Contraseña</string>
 <string name="change_server_url">URL del Servidor</string>
-<string name="change_username">Nombre del Usuario de ODK</string>
-<string name="clearanswer_confirm">Borrar la respuesta a \"%s\"?</string>
 <string name="clear_answer">Borrar respuesta</string>
 <string name="clear_answer_ask">Borrar Esta Respuesta?</string>
 <string name="clear_answer_no">Cancelar</string>
@@ -101,7 +99,7 @@
 <string name="longitude">Longitud</string>
 <string name="main_menu">Menu Principal</string>
 <string name="main_menu_details">Recoleccion de Datos mas facilmente...</string>
-<string name="main_menu_message">ODK Collect v1.1.7</string>
+<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Borrar el Formulario Guardado</string>
 <string name="mark_finished">Marcar el formulario como finalizado</string>
 <string name="no">No</string>
@@ -159,7 +157,6 @@
 <string name="view_hierarchy">Ir a la Pregunta</string>
 <string name="open_data_kit">Open Data Kit</string>
 <string name="general_preferences">"Cambiar los Ajustes"</string>
-<string name="click_to_web">Toque para visitar http://opendatakit.org</string>
 <string name="first_run">Corra lo primero despues de reiniciar</string>
 <string name="client">Cliente</string>
 <string name="show_splash">Mostar la Pantalla Inicial</string>

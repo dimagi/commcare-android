@@ -35,7 +35,6 @@
 <string name="change_language">Endre språk</string>
 <string name="change_password">Passord</string>
 <string name="change_server_url">Server URL</string>
-<string name="change_username">ODK brukernavn</string>
 <string name="clearanswer_confirm">Fjern svar til \"%s\"?</string>
 <string name="clear_answer">Fjern svar</string>
 <string name="clear_answer_ask">Fjern dette svaret?</string>
@@ -101,7 +100,7 @@
 <string name="longitude">Breddegrad</string>
 <string name="main_menu">Hovedmeny</string>
 <string name="main_menu_details">Data collection made easier...</string>
-<string name="main_menu_message">ODK Collect v1.1.7</string>
+<string name="form_entry_settings_header_message">Form Entry Settings</string>
 <string name="manage_files">Delete Saved Form</string>
 <string name="mark_finished">Mark form as finalized</string>
 <string name="no">Nei</string>
@@ -159,7 +158,6 @@
 <string name="view_hierarchy">Gå til prompt</string>
 <string name="open_data_kit">Open Data Kit</string>
 <string name="general_preferences">Endre innstillinger</string>
-<string name="click_to_web">Tap to visit http://opendatakit.org</string>
 <string name="first_run">Do first run on restart</string>
 <string name="client">Klient</string>
 <string name="show_splash">Vis oppstartsbilde</string>
