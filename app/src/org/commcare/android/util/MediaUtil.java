@@ -232,7 +232,7 @@ public class MediaUtil {
                 return scaleForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
                         prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
             } else {
-                // scale based on bounding dimens only
+                // just scaling down if the original image is too big for its container
                 return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);
             }
         } catch (InvalidReferenceException e) {

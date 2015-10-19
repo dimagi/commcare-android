@@ -31,7 +31,8 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         this.cache = new TCLruCache(memoryClass);
     }
 
-    public void display(String url, ImageView imageview, int defaultresource) {
+    public void display(String url, ImageView imageview, int defaultresource,
+                        int boundingWidth, int boundingHeight) {
         imageview.setImageResource(defaultresource);
         Bitmap image;
         synchronized(cache) {
@@ -41,7 +42,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             imageview.setImageBitmap(image);
         }
         else {
-            new SetImageTask(imageview, this.context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+            new SetImageTask(imageview, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
         }
     }
 
@@ -61,10 +62,14 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
     private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView mImageView;
         private Context mContext;
+        private int mBoundingWidth;
+        private int mBoundingHeight;
 
-        public SetImageTask(ImageView imageView, Context context) {
+        public SetImageTask(ImageView imageView, Context context, int maxWidth, int maxHeight) {
             mImageView = imageView;
             mContext = context;
+            mBoundingWidth = maxWidth;
+            mBoundingHeight = maxHeight;
         }
 
         protected Bitmap doInBackground(String... file) { 
@@ -79,7 +84,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         }
 
         public Bitmap getImageBitmap(String filePath) {
-            Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath);
+            Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath, mBoundingWidth, mBoundingHeight);
 
             if (bitmap != null) {
                 synchronized(cache) {

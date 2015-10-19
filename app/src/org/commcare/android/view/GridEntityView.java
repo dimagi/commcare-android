@@ -368,7 +368,8 @@ public class GridEntityView extends GridLayout {
                 retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
-                        mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble);
+                        mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
+                                maxWidth, maxHeight);
                     } else {
                         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
                                 maxWidth, maxHeight);
