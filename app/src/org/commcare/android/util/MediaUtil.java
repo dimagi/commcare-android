@@ -191,41 +191,51 @@ public class MediaUtil {
      * Attempts to inflate an image from a <display> or other CommCare UI definition source.
      *
      * @param jrUri The image to inflate
-     * @return A bitmap if one could be created. Null if there is an error or if the image is unavailable.
+     * @param boundingWidth the width of the container this image is being inflated into, to serve
+     *                      as a maximum width
+     * @param boundingHeight the height fo the container this image is being inflated into, to
+     *                       serve as a maximum height
+     * @return A bitmap if one could be created. Null if there is an error or the image is unavailable.
      */
-    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
-
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
-        if (useSmartImageScaling) {
-            return inflateDisplayImage(context, jrUri,
-                    prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+    public static Bitmap inflateDisplayImage(Context context, String jrUri) { return inflateDisplayImage(context, jrUri, -1, -1); }
+    public static Bitmap inflateDisplayImage(Context context, String jrUri,
+                                             int boundingWidth, int boundingHeight) {
+        if (jrUri == null || jrUri.equals("")) {
+            return null;
         }
-
-        if (jrUri != null && !jrUri.equals("")) {
-            try {
-                //TODO: Fallback for non-local refs? Write to a file first or something...
-                String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Bitmap b;
-                    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                    int screenWidth = display.getWidth();
-                    int screenHeight = display.getHeight();
-                    b = getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                    if (b != null) {
-                        return b;
-                    }
-                }
-            } catch (InvalidReferenceException e) {
-                Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
-                e.printStackTrace();
+        try {
+            String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
+            final File imageFile = new File(imageFilename);
+            if (!imageFile.exists()) {
+                return null;
             }
+
+            if (boundingWidth == -1 || boundingHeight == -1) {
+                Display display = ((WindowManager)
+                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                boundingWidth = display.getWidth();
+                boundingHeight = display.getHeight();
+            }
+
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
+            if (useSmartImageScaling) {
+                // scale based on native density AND bounding dimens
+                return scaleForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
+                        prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+            } else {
+                // scale based on bounding dimens only
+                return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);
+            }
+        } catch (InvalidReferenceException e) {
+            Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
+            e.printStackTrace();
         }
         return null;
     }
 
-    private static Bitmap inflateDisplayImage(Context context, String jrUri, int targetDensity) {
+    private static Bitmap scaleForNativeDensity(Context context, String jrUri, int containerHeight,
+                                              int containerWidth, int targetDensity) {
         if (jrUri == null || jrUri.equals("")) {
             return null;
         }
@@ -243,23 +253,25 @@ public class MediaUtil {
                 int imageWidth = o.outWidth;
                 Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
-                double scaleFactor = chooseScaleFactor(context, targetDensity);
-                int newHeight = Math.round((float)(imageHeight * scaleFactor));
-                int newWidth = Math.round((float)(imageWidth * scaleFactor));
-                Log.i("10/15", "scaled height: " + newHeight + ", scaled width: " + newWidth);
+                double scaleFactor = getScaleFactor(context, targetDensity);
+                int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
+                int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
+                Log.i("10/15", "scaled height: " + calculatedHeight + ", scaled width: " + calculatedWidth);
 
+                int newHeight, newWidth;
+                if (containerHeight < calculatedHeight || containerWidth < calculatedWidth) {
+                    // The container bounds should be our most stringent bounding box
+                    newHeight = containerHeight;
+                    newWidth = containerWidth;
+                } else {
+                    newHeight = calculatedHeight;
+                    newWidth = calculatedWidth;
+                }
+
+                // Now compare our desired dimens to the image's actual dimens
                 if (newHeight < imageHeight || newWidth < imageWidth) {
                     // scaling down
-                    Display display = ((WindowManager)
-                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                    int screenWidth = display.getWidth();
-                    int screenHeight = display.getHeight();
-                    if (newHeight > screenHeight || newWidth > screenWidth) {
-                        // the screen dimens are even smaller than our new dimens, so scale to those
-                        return getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                    } else {
-                        return getBitmapScaledToContainer(imageFile, newHeight, newWidth);
-                    }
+                    return getBitmapScaledToContainer(imageFile, newHeight, newWidth);
                 } else {
                     // scaling up
                     return attemptScaleUp(imageFile, newHeight, newWidth);
@@ -272,7 +284,7 @@ public class MediaUtil {
         return null;
     }
 
-    private static double chooseScaleFactor(Context context, int targetDensity) {
+    private static double getScaleFactor(Context context, int targetDensity) {
         // Get native dp scale factor from Android
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         double nativeDpScaleFactor = metrics.density;

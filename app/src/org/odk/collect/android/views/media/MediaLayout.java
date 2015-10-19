@@ -206,9 +206,10 @@ public class MediaLayout extends RelativeLayout {
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
+
                     Bitmap b = null;
                     try {
-                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI);
+                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0], maxBounds[1]);
                     } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }
@@ -218,13 +219,13 @@ public class MediaLayout extends RelativeLayout {
                         ImageView mImageView = new ImageView(getContext());;
 
                         //config specially if we need to do a custom resize
-                        if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
+                        /*if (ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
                                 || ResizingImageView.resizeMethod.equals("width")){
                             mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
-                        }
+                        }*/
 
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
@@ -358,7 +359,7 @@ public class MediaLayout extends RelativeLayout {
         int maxWidth = metrics.widthPixels;
         int maxHeight = metrics.heightPixels;
 
-        // subtract height for textviewa and buttons, if present
+        // subtract height for textview and buttons, if present
         if(mView_Text != null){
             maxHeight = maxHeight - mView_Text.getHeight();
         } if(mVideoButton != null){
