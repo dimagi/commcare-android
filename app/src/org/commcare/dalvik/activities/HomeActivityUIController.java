@@ -192,6 +192,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getViewOldFormsListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "View Saved Forms button clicked");
                 activity.goToFormArchive(false);
             }
         };
@@ -200,6 +201,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getSyncButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "Sync button clicked");
                 activity.attemptSync();
             }
         };
@@ -208,6 +210,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getStartButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "Start Form Entry button clicked");
                 activity.enterRootModule();
             }
         };
@@ -216,6 +219,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getIncompleteButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "View Incomplete forms button clicked");
                 activity.goToFormArchive(true);
             }
         };
@@ -224,6 +228,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getLogoutButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "Logout button clicked");
                 CommCareApplication._().closeUserSession();
                 activity.returnToLogin();
             }

@@ -88,6 +88,11 @@ public class AndroidLogger implements ILogger {
      */
     public static final String SOFT_ASSERT = "soft-assert";
 
+    /**
+     * Used for tracking the workflow and usage of CCODK features
+     */
+    public static final String TYPE_WORKFLOW = "workflow-usage";
+
     //TODO: Currently assumes that it gets back iterated records in RecordID order.
     //when serializing a limited number of records then clearing
 

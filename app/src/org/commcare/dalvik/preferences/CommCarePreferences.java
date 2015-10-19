@@ -31,6 +31,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
@@ -38,6 +39,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.UriToFilePath;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.utilities.FileUtils;
@@ -134,6 +136,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
+                Logger.log(AndroidLogger.TYPE_WORKFLOW, "Manage printer preference selected.");
                 if (preference.getKey().equals(PREF_MANAGER_PRINT_KEY)) {
                     startFileBrowser();
                     return true;
@@ -182,6 +185,19 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
         return true;
     }
 
+    private static String getMenuItemName(MenuItem menuItem){
+        switch (menuItem.getItemId()) {
+            case CLEAR_USER_DATA:
+                return "CLEAR_USER_DATA";
+            case FORCE_LOG_SUBMIT:
+                return "FORCE_LOG_SUBMIT";
+            case RECOVERY_MODE:
+                return "RECOVERY_MODE";
+            case SUPERUSER_PREFS:
+                return "SUPERUSER_PREFS";
+        }
+        return "Unknown selection";
+    }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -191,6 +207,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Logger.log(AndroidLogger.TYPE_WORKFLOW, "Shared preference selected: " + getMenuItemName(item));
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 CommCareApplication._().clearUserData();
@@ -288,6 +305,7 @@ public class CommCarePreferences extends SessionAwarePreferenceActivity implemen
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Logger.log(AndroidLogger.TYPE_WORKFLOW, "Shared settings with key: " + key + " changed.");
         if (key.equals("cur_locale")) {
             Localization.setLocale(sharedPreferences.getString(key, "default"));
         }
