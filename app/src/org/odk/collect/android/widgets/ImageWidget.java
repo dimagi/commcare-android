@@ -26,7 +26,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.UrlUtils;
@@ -41,7 +41,7 @@ import java.io.File;
  */
 public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final static String t = "MediaWidget";
-    public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(Collect.TMPFILE_PATH);
+    public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(ODKStorage.TMPFILE_PATH);
 
     private final Button mCaptureButton;
     private final Button mChooseButton;
