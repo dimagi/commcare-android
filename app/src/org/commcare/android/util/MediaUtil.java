@@ -131,6 +131,7 @@ public class MediaUtil {
     }
 
     public static Bitmap getBitmapScaledToContainer(File f, int screenHeight, int screenWidth) {
+        Log.i("10/15", "scaling down to height " + screenHeight + " and width " + screenWidth);
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -169,7 +170,21 @@ public class MediaUtil {
         }
     }
 
-    private static Bitmap attemptScaleUp(File imageFile, int desiredHeight, int desiredWidth) {
+    /**
+     *
+     * @return A bitmap representation of the given image file, scaled up as close as possible to
+     * the desired width and height, without exceeding either boundingHeight or boundingWidth
+     */
+    private static Bitmap attemptBoundedScaleUp(File imageFile, int desiredHeight, int desiredWidth,
+                                         int boundingHeight, int boundingWidth) {
+        if (boundingHeight < desiredHeight || boundingWidth < desiredWidth) {
+            float heightScale = ((float)boundingHeight) / desiredHeight;
+            float widthScale = ((float)boundingWidth) / desiredWidth;
+            float boundingScaleDownFactor = Math.max(heightScale, widthScale);
+            desiredHeight = Math.round(desiredHeight * boundingScaleDownFactor);
+            desiredWidth = Math.round(desiredWidth * boundingScaleDownFactor);
+        }
+        Log.i("10/15", "scaling up to height " + desiredHeight + " and width " + desiredWidth);
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inScaled = false;
@@ -197,7 +212,6 @@ public class MediaUtil {
      *                       serve as a maximum height
      * @return A bitmap if one could be created. Null if there is an error or the image is unavailable.
      */
-    public static Bitmap inflateDisplayImage(Context context, String jrUri) { return inflateDisplayImage(context, jrUri, -1, -1); }
     public static Bitmap inflateDisplayImage(Context context, String jrUri,
                                              int boundingWidth, int boundingHeight) {
         if (jrUri == null || jrUri.equals("")) {
@@ -209,13 +223,7 @@ public class MediaUtil {
             if (!imageFile.exists()) {
                 return null;
             }
-
-            if (boundingWidth == -1 || boundingHeight == -1) {
-                Display display = ((WindowManager)
-                        context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-                boundingWidth = display.getWidth();
-                boundingHeight = display.getHeight();
-            }
+            Log.i("10/15", "bounding height: " + boundingHeight + ", bounding width: " + boundingWidth);
 
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
@@ -232,6 +240,12 @@ public class MediaUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
+        Display display = ((WindowManager)
+                context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        return inflateDisplayImage(context, jrUri, display.getWidth(), display.getHeight());
     }
 
     private static Bitmap scaleForNativeDensity(Context context, String jrUri, int containerHeight,
@@ -256,25 +270,20 @@ public class MediaUtil {
                 double scaleFactor = getScaleFactor(context, targetDensity);
                 int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
                 int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
-                Log.i("10/15", "scaled height: " + calculatedHeight + ", scaled width: " + calculatedWidth);
+                Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
 
-                int newHeight, newWidth;
-                if (containerHeight < calculatedHeight || containerWidth < calculatedWidth) {
-                    // The container bounds should be our most stringent bounding box
-                    newHeight = containerHeight;
-                    newWidth = containerWidth;
-                } else {
-                    newHeight = calculatedHeight;
-                    newWidth = calculatedWidth;
-                }
-
-                // Now compare our desired dimens to the image's actual dimens
-                if (newHeight < imageHeight || newWidth < imageWidth) {
+                if (calculatedHeight < imageHeight || calculatedWidth < imageWidth) {
                     // scaling down
-                    return getBitmapScaledToContainer(imageFile, newHeight, newWidth);
+                    if (containerHeight < calculatedHeight || containerWidth < calculatedWidth) {
+                        // Container bounds are even smaller than calculated size, so scale to that
+                        return getBitmapScaledToContainer(imageFile, containerHeight, containerWidth);
+                    } else {
+                        return getBitmapScaledToContainer(imageFile, calculatedHeight, calculatedWidth);
+                    }
                 } else {
                     // scaling up
-                    return attemptScaleUp(imageFile, newHeight, newWidth);
+                    return attemptBoundedScaleUp(imageFile, calculatedHeight, calculatedWidth,
+                            containerHeight, containerWidth);
                 }
             }
         } catch (InvalidReferenceException e) {

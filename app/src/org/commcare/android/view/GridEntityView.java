@@ -318,7 +318,9 @@ public class GridEntityView extends GridLayout {
             String textsize = mStyle.getFontSize();
             String CssID = mStyle.getCssID();
 
-            mView = getView(context, multimediaType, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
+            mView = getView(context, multimediaType, horzAlign, vertAlign, textsize,
+                    entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i),
+                    mGridParams.width, mGridParams.height);
             if (!(mView instanceof ImageView)) {
                 mGridParams.height = LayoutParams.WRAP_CONTENT;
             }
@@ -345,7 +347,9 @@ public class GridEntityView extends GridLayout {
      * @param searchField
      * @return
      */
-    private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+    private View getView(Context context, String multimediaType, String horzAlign,
+                         String vertAlign, String textsize, String rowData, ViewId uniqueId,
+                         String cssid, String searchField, int maxWidth, int maxHeight) {
         View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -366,7 +370,8 @@ public class GridEntityView extends GridLayout {
                     if (mImageLoader != null) {
                         mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble);
                     } else {
-                        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData);
+                        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
+                                maxWidth, maxHeight);
                         ((ImageView) retVal).setImageBitmap(b);
                     }
                 }
