@@ -1326,9 +1326,35 @@ public class CommCareHomeActivity
         return true;
     }
 
+    public static String getMenuItemName(MenuItem item){
+        switch (item.getItemId()) {
+            case MENU_PREFERENCES:
+                return "MENU_PREFERENCES";
+            case MENU_UPDATE:
+                return "MENU_UPDATE";
+            case MENU_CALL_LOG:
+                return "MENU_CALL_LOG";
+            case MENU_REPORT_PROBLEM:
+                return "MENU_REPORT_PROBLEM";
+            case MENU_VALIDATE_MEDIA:
+                return "MENU_VALIDATE_MEDIA";
+            case MENU_DUMP_FORMS:
+                return "MENU_DUMP_FORMS";
+            case MENU_WIFI_DIRECT:
+                return "MENU_WIFI_DIRECT";
+            case MENU_CONNECTION_DIAGNOSTIC:
+                return "MENU_CONNECTION_DIAGNOSTIC";
+            case MENU_SAVED_FORMS:
+                return "MENU_SAVED_FORMS";
+            case MENU_ABOUT:
+                return "MENU_ABOUT";
+        }
+        return "Unknown Selection";
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        Logger.log(AndroidLogger.TYPE_WORKFLOW, "Menu Item Selected: " + getMenuItemName(item));
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
