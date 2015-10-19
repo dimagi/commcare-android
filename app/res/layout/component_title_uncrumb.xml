@@ -7,7 +7,7 @@
     android:clickable="true"
     android:gravity="center"
     android:paddingLeft="@dimen/title_padding"
-    android:text="CommCare ODK"
+    android:text="CommCare"
     android:textAppearance="@style/TextAppearance.Custom.WindowTitle.Menu" >
 
 </TextView>

@@ -19,7 +19,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.QuestionWidget;
 
@@ -45,23 +44,12 @@ public class FormNavigationUI {
     public void updateNavigationCues(View view) {
         updateFloatingLabels(view);
 
-        PreferencesActivity.ProgressBarMode mode = PreferencesActivity.getProgressBarMode(activity);
-
-        if (mode == PreferencesActivity.ProgressBarMode.None) {
-            return;
-        }
-
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(activity, e.getMessage(), true);
-            return;
-        }
-
-        if (mode == PreferencesActivity.ProgressBarMode.ProgressOnly && view instanceof ODKView) {
-            ((ODKView)view).updateProgressBar(details.completedQuestions, details.totalQuestions);
             return;
         }
 

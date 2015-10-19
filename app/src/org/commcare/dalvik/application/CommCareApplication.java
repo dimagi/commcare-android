@@ -92,7 +92,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
-import org.odk.collect.android.application.Collect;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -175,7 +174,6 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
