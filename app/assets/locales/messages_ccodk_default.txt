@@ -81,8 +81,8 @@ home.menu.about=About CommCare
 home.developer.options.enabled=Developer Mode Enabled
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
-install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
-install.minor.mismatch=Please update your version of CommCareODK from the Android Market to run this application. 
+install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
+install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application. 
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -125,8 +125,8 @@ login.bad.password=We couldn't find a user with this password. Please try anothe
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
 
-version.id.long=CommCare ODK, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
-version.id.short=CCODK:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
+version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
+version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
 
 app.workflow.incomplete.heading=Incomplete Forms
 app.workflow.saved.heading=Saved Forms
@@ -406,7 +406,7 @@ notification.install.unknown.detail=An unexpected failure happened while trying 
 
 notification.install.badstate.title=Attempt to install multiple apps
 notification.install.badstate.detail=There is already an CommCare app installed on this phone. Multiple apps are not currently supported. Please click below to login to your existing application, or clear application data from your device's Settings to install a new app.
-notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare ODK. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
+notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
 
 notification.install.nolocal.title=Couldn't install files to storage
 notification.install.nolocal.detail=CommCare couldn't open your local storage to write your app's files.

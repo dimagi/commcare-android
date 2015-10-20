@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
 
-    <string name="application_name">CommCare ODK</string>
+    <string name="application_name">CommCare</string>
     <string name="title_bar_name">CommCare</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
@@ -39,8 +39,8 @@
     <string name="media_not_verified">Media Not Verified</string>
     <string name="media_verified">Media Validated!</string>
     <string name="no_installation">No app was installed!</string>
-    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare ODK from your device and then relaunch it.</string>
-    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare ODK in your device\'s Settings menu.</string>
+    <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
+    <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
 
     <!-- endregion -->
@@ -155,7 +155,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="add_repeat_no_exits" cc:translatable="true">Do Not Add, I\'m Finished</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
-    <string name="app_name" cc:translatable="true">ODK Collect</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
@@ -170,9 +169,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
-    <string name="change_password" cc:translatable="true">Password</string>
-    <string name="change_server_url" cc:translatable="true">Server URL</string>
-    <string name="change_username" cc:translatable="true">ODK Username</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
@@ -181,9 +177,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="data" cc:translatable="true">Saved Forms</string>
     <string name="data_saved_error" cc:translatable="true">Sorry, form save failed!</string>
     <string name="data_saved_ok" cc:translatable="true">Form successfully saved!</string>
-    <string name="default_completed" cc:translatable="true">Default to Finalized</string>
-    <string name="default_completed_summary" cc:translatable="true">Mark form as finalized by default</string>
-    <string name="default_server_url" cc:translatable="true">https://opendatakit.appspot.com</string>
     <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
@@ -238,11 +231,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
     <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
     <string name="longitude" cc:translatable="true">Longitude</string>
-    <string name="main_menu" cc:translatable="true">Main Menu</string>
-    <string name="main_menu_details" cc:translatable="true">Data collection made easier...</string>
-    <string name="main_menu_message" cc:translatable="true">ODK Collect v1.1.7</string>
     <string name="manage_files" cc:translatable="true">Delete Saved Form</string>
-    <string name="mark_finished" cc:translatable="true">This Form is Completed</string>
     <string name="no" cc:translatable="true">No</string>
     <string name="noselect_error" cc:translatable="true">Sorry, you have not selected any forms!</string>
     <string name="no_capture" cc:translatable="true">Nothing recorded yet.</string>
@@ -257,7 +246,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="parse_error" cc:translatable="true">Sorry, unable to parse form.</string>
     <string name="parse_legacy_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
     <string name="parse_openrosa_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
-    <string name="password" cc:translatable="true">Password</string>
     <string name="play_audio" cc:translatable="true">Play Sound</string>
     <string name="play_video" cc:translatable="true">Play Video</string>
     <string name="please_wait" cc:translatable="true">Please wait a few moments.</string>
@@ -296,35 +284,17 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="url_error" cc:translatable="true">Sorry, invalid URL!</string>
     <string name="username" cc:translatable="true">Username</string>
     <string name="view_hierarchy" cc:translatable="true">Go To Prompt</string>
-    <string name="open_data_kit" cc:translatable="true">Open Data Kit</string>
-    <string name="general_preferences" cc:translatable="true">Change Settings</string>
-    <string name="click_to_web" cc:translatable="true">Tap to visit http://opendatakit.org</string>
+    <string name="form_entry_settings" cc:translatable="true">Change Settings</string>
     <string name="first_run" cc:translatable="true">Do first run on restart</string>
     <string name="client" cc:translatable="true">Client</string>
-    <string name="show_splash" cc:translatable="true">Show Splash Screen</string>
-    <string name="show_splash_summary" cc:translatable="true">Shows when application starts</string>
-    <string name="splash_path" cc:translatable="true">Selected Splash Image</string>
-    <string name="default_splash_path" cc:translatable="true">ODK Default</string>
-    <string name="select_another_image" cc:translatable="true">Select Another Image</string>
     <string name="use_odk_default" cc:translatable="true">Use Default Image</string>
-    <string name="change_splash_path" cc:translatable="true">Change Image</string>
     <string name="show_location" cc:translatable="true">Show Location</string>
-    <string name="app_url" cc:translatable="true">http://opendatakit.org</string>
     <string name="keep_changes" cc:translatable="true">Save Changes to Incomplete Form</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
-    <string name="change_formlist_url" cc:translatable="true">Form List Path (appended to Server URL)</string>
-    <string name="protocol" cc:translatable="true">Protocol</string>
-    <string name="change_protocol" cc:translatable="true">Protocol</string>
-    <string name="change_submission_url" cc:translatable="true">Submission Path (appended to Server URL)</string>
-    <string name="formlist_url" cc:translatable="true">Form List Path</string>
-    <string name="submission_url" cc:translatable="true">Submission Path</string>
     <string name="font_size" cc:translatable="true">Text Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>
     <string name="form_scan_starting" cc:translatable="true">Scanning for forms...</string>
     <string name="form_scan_finished" cc:translatable="true">Form scanning completed</string>
-    <string name="powered_by_odk" cc:translatable="true">v1.1.7 - Powered by Open Data Kit</string>
-    <string name="default_odk_formlist" cc:translatable="true">/formList</string>
-    <string name="default_odk_submission" cc:translatable="true">/submission</string>
     <string name="access_error" cc:translatable="true">Error while accessing %s: </string>
     <string name="manifest_server_error" cc:translatable="true">Manifest reply does not report an OpenRosa version -- bad server?</string>
     <string name="root_element_error" cc:translatable="true">Root element is not &lt;manifest\&gt; -- was %s</string>
@@ -346,9 +316,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="save_as_error" cc:translatable="true">Saved name must not be blank!</string>
     <string name="form_name" cc:translatable="true">Form Name:</string>
     <string name="edit_prompt" cc:translatable="true">Edit Prompt</string>
-    <string name="google_account" cc:translatable="true">Select Google Account</string>
-    <string name="selected_google_account_text" cc:translatable="true">Google Account</string>
-    <string name="google_submission_id_text" cc:translatable="true">Google Collection Effort</string>
     <string name="exit" cc:translatable="true">Exit</string>
     <string name="no_gps_title" cc:translatable="true">Location Data Disabled</string>
     <string name="no_gps_message" cc:translatable="true">The location providers on this device are currently disabled. Do you want to change those settings?</string>
@@ -357,16 +324,10 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="intent_callout_button_update" cc:translatable="true">Update Data</string>
     <string name="finding_location" cc:translatable="true">Finding Location...</string>
     <string name="found_location" cc:translatable="true">Location Found!</string>
-    <string name="form_entry_start_hide" cc:translatable="true">Thanks! Don\'t show this again.</string>
-    <string name="preference_form_entry_start_hide" cc:translatable="true">Show Intro Help Screen</string>
-    <string name="preference_form_entry_start_summary" cc:translatable="true">If this is unchecked, the first screen that explains swiping will not be displayed</string>
     <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
-    <string name="preference_progress_bar" cc:translatable="true">Display Progress Bar</string>
     <string name="reset_image" cc:translatable="true">Reset</string>
     <string name="save_and_close" cc:translatable="true">Save and Close</string>
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="pref_nav_bar" cc:translatable="true">Enable Navigation Bar (BETA!)</string>
-
 </resources>

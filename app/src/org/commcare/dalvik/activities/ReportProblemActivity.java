@@ -85,11 +85,11 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
         String version = ReportProblemActivity.getVersion();
         String username = ReportProblemActivity.getUser();
 
-        return "Problem reported via CommCareODK. " +
+        return "Problem reported via CommCare. " +
                 "\n User: " + username +
                 "\n Domain: " + domain +
                 "\n PostURL: " + postURL +
-                "\n CCODK version: " + version +
+                "\n CCDroid version: " + version +
                 "\n Device Model: " + Build.MODEL +
                 "\n Manufacturer: " + Build.MANUFACTURER +
                 "\n Android Version: " + Build.VERSION.RELEASE +

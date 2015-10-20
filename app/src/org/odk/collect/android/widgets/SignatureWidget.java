@@ -40,7 +40,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.DrawActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.utilities.UrlUtils;
 
 import java.io.File;
@@ -149,7 +149,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         }
         //path to output the signature file to
         i.putExtra(DrawActivity.EXTRA_OUTPUT, 
-                Uri.fromFile(new File(Collect.TMPFILE_PATH)));
+                Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
 
         try {
             //tells the form controller that when onActivityResult is called (when the DrawActivity)
