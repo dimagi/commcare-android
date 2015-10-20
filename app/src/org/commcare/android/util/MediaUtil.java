@@ -25,12 +25,19 @@ public class MediaUtil {
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
 
-    public static Bitmap getBitmapScaledToContainer(File f, int containerHeight, int containerWidth) {
+    /**
+     *
+     * @return A bitmap representation of the given image file, potentially adjusted from the
+     * image's original size such that its width is no larger than containerWidth, and its height
+     * is no larger than containerHeight
+     */
+    public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
+                                                    int containerWidth) {
         Log.i("10/15", "scaling down to height " + containerHeight + " and width " + containerWidth);
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(f.getAbsolutePath(), o);
+        BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
@@ -44,7 +51,7 @@ public class MediaUtil {
             scale = 1;
         }
 
-        return performSafeScaleDown(f, scale, 0);
+        return performSafeScaleDown(imageFile, scale, 0);
     }
 
     /**
@@ -96,8 +103,12 @@ public class MediaUtil {
         }
     }
 
+    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
+        return inflateDisplayImage(context, jrUri, -1, -1);
+    }
+
     /**
-     * Attempts to inflate an image from a <display> or other CommCare UI definition source.
+     * Attempts to inflate an image from a CommCare UI definition source.
      *
      * @param jrUri The image to inflate
      * @param boundingWidth the width of the container this image is being inflated into, to serve
@@ -130,7 +141,7 @@ public class MediaUtil {
 
             if (DeveloperPreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
-                return scaleForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
+                return getBitmapScaledForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
                         DeveloperPreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
@@ -143,12 +154,21 @@ public class MediaUtil {
         return null;
     }
 
-    public static Bitmap inflateDisplayImage(Context context, String jrUri) {
-        return inflateDisplayImage(context, jrUri, -1, -1);
-    }
-
-    private static Bitmap scaleForNativeDensity(Context context, String jrUri, int containerHeight,
-                                              int containerWidth, int targetDensity) {
+    /**
+     * Attempt to inflate an image source into a bitmap whose final dimensions are based upon
+     * 2 factors:
+     *
+     * 1) The application of a scaling factor, which is derived from the relative values of the
+     * target density declared by the app and the current device's actual density
+     * 2) The absolute dimensions of the bounding container into which this image is being inflated
+     * (may just be the screen dimens)
+     *
+     * @return the bitmap, or null if none could be created from the source
+     *
+     */
+    private static Bitmap getBitmapScaledForNativeDensity(Context context, String jrUri,
+                                                          int containerHeight, int containerWidth,
+                                                          int targetDensity) {
         if (jrUri == null || jrUri.equals("")) {
             return null;
         }
@@ -166,7 +186,7 @@ public class MediaUtil {
                 int imageWidth = o.outWidth;
                 Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
-                double scaleFactor = computeScaleFactor(context, targetDensity);
+                double scaleFactor = computeInflationScaleFactor(context, targetDensity);
                 int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
                 int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
                 Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
@@ -190,7 +210,7 @@ public class MediaUtil {
         return null;
     }
 
-    private static double computeScaleFactor(Context context, int targetDensity) {
+    private static double computeInflationScaleFactor(Context context, int targetDensity) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         final int SCREEN_DENSITY = metrics.densityDpi;
 
