@@ -88,7 +88,7 @@ import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
-import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveToDiskTask;
 import org.odk.collect.android.utilities.Base64Wrapper;
@@ -718,7 +718,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
-                Intent pref = new Intent(this, PreferencesActivity.class);
+                Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivity(pref);
                 return true;
             case android.R.id.home:

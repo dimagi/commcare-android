@@ -1,8 +1,7 @@
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,10 +30,7 @@ import java.net.Socket;
  */
 @SuppressLint("NewApi")
 public class FileServerFragment extends Fragment {
-
-    protected static final int CHOOSE_FILE_RESULT_CODE = 20;
     private View mContentView = null;
-    ProgressDialog progressDialog = null;
 
     private static CommCareWiFiDirectActivity mActivity;
 
@@ -51,14 +47,13 @@ public class FileServerFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mActivity = (CommCareWiFiDirectActivity) activity;
+            mActivity = (CommCareWiFiDirectActivity)context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement fileServerListener");
+            throw new ClassCastException(context.toString() + " must implement fileServerListener");
         }
-
     }
 
     @Override
