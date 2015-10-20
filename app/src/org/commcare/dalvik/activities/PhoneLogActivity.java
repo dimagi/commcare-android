@@ -21,7 +21,7 @@ public class PhoneLogActivity extends TabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.phone_logs);
         
-        this.setTitle("CommCare ODK");
+        this.setTitle("CommCare");
 
         Resources res = getResources(); // Resource object to get Drawables
         TabHost tabHost = getTabHost();  // The activity TabHost

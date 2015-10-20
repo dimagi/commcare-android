@@ -312,7 +312,7 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
-            android:name="org.odk.collect.android.preferences.PreferencesActivity"
+            android:name="org.odk.collect.android.preferences.FormEntryPreferences"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
