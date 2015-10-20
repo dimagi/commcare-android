@@ -11,7 +11,7 @@ import org.commcare.dalvik.R;
 /**
  * @author yanokwa
  */
-public class PreferencesActivity extends SessionAwarePreferenceActivity
+public class FormEntryPreferences extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
 
     public static final String KEY_FONT_SIZE = "font_size";

@@ -17,8 +17,7 @@
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -46,15 +45,11 @@ import org.javarosa.core.services.Logger;
  * i.e. setting up network connection and transferring data.
  */
 @SuppressLint("NewApi")
-public class WiFiDirectManagementFragment extends Fragment implements ConnectionInfoListener, ActionListener, ChannelListener {
-
-    private View mContentView = null;
-    ProgressDialog progressDialog = null;
-
+public class WiFiDirectManagementFragment extends Fragment
+        implements ConnectionInfoListener, ActionListener, ChannelListener {
     private static CommCareWiFiDirectActivity mActivity;
 
     private TextView mStatusText;
-    private View mView;
 
     private boolean isWifiP2pEnabled;
     private boolean isHost;
@@ -73,23 +68,22 @@ public class WiFiDirectManagementFragment extends Fragment implements Connection
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mActivity = (CommCareWiFiDirectActivity) activity;
+            mActivity = (CommCareWiFiDirectActivity) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement fileServerListener");
+            throw new ClassCastException(context.toString() + " must implement fileServerListener");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        mContentView = inflater.inflate(R.layout.wifi_manager, null);
+        View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
         mStatusText = (TextView) mContentView.findViewById(R.id.wifi_manager_status_text);
 
-        mView = (View) mContentView.findViewById(R.id.wifi_manager_view);
+        View mView = (View) mContentView.findViewById(R.id.wifi_manager_view);
 
         return mContentView;
     }
