@@ -1,7 +1,6 @@
 package org.commcare.android.util;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
@@ -9,7 +8,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -21,10 +20,6 @@ import java.io.File;
  * @author ctsims
  */
 public class MediaUtil {
-
-    public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
-    private static final String KEY_TARGET_DENSITY = "cc-target-density";
-    private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_DEFAULT;
 
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
@@ -133,11 +128,10 @@ public class MediaUtil {
             }
             Log.i("10/15", "bounding height: " + boundingHeight + ", bounding width: " + boundingWidth);
 
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            if (prefs.getBoolean(KEY_USE_SMART_INFLATION, true)) {
+            if (DeveloperPreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
                 return scaleForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
-                        prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+                        DeveloperPreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
                 return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);

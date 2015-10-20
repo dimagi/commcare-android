@@ -3,7 +3,6 @@ package org.odk.collect.android.views.media;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -22,7 +21,6 @@ import android.widget.VideoView;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -349,10 +347,8 @@ public class MediaLayout extends RelativeLayout {
     }
 
     private boolean useResizingImageView() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        boolean usingSmartImageInflation = prefs.getBoolean(MediaUtil.KEY_USE_SMART_INFLATION, true);
-        return !usingSmartImageInflation // only allow ResizingImageView to be used if not also using smart inflation
-                &&
+        // only allow ResizingImageView to be used if not also using smart inflation
+        return !DeveloperPreferences.isSmartInflationEnabled() &&
                 (ResizingImageView.resizeMethod.equals("full") ||
                         ResizingImageView.resizeMethod.equals("half") ||
                         ResizingImageView.resizeMethod.equals("width"));

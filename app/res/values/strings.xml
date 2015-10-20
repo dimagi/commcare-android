@@ -114,6 +114,24 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="target_density_labels">
+        <item>DENSITY_LOW</item>
+        <item>DENSITY_MEDIUM</item>
+        <item>DENSITY_HIGH</item>
+        <item>DENSITY_280</item>
+        <item>DENSITY_XHIGH</item>
+        <item>DENSITY_400</item>
+        <item>DENSITY_XXHIGH</item>
+    </string-array>
+    <string-array name="target_density_vals">
+        <item>120</item>
+        <item>160</item>
+        <item>240</item>
+        <item>280</item>
+        <item>320</item>
+        <item>400</item>
+        <item>480</item>
+    </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 
