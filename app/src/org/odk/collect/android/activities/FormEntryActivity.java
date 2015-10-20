@@ -2145,6 +2145,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            return;
         }
         FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
         formNavUi.updateNavigationCues(mCurrentView);

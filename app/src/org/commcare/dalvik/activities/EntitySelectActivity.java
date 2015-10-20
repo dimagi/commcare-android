@@ -38,6 +38,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
@@ -70,6 +71,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.views.media.AudioController;
 
@@ -761,7 +763,15 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private void triggerDetailAction() {
         Action action = shortSelect.getCustomAction();
-        asw.executeStackActions(action.getStackOperations());
+
+        try {
+            asw.executeStackActions(action.getStackOperations());
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            return;
+        }
+
         this.setResult(CommCareHomeActivity.RESULT_RESTART);
         this.finish();
     }
