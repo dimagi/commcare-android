@@ -31,13 +31,13 @@ public class MediaUtil {
      * image's original size such that its width is no larger than containerWidth, and its height
      * is no larger than containerHeight
      */
-    public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
+    private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
                                                     int containerWidth) {
         Log.i("10/15", "scaling down to height " + containerHeight + " and width " + containerWidth);
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
+        BitmapFactory.decodeFile(imageFilepath, o);
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
@@ -51,14 +51,20 @@ public class MediaUtil {
             scale = 1;
         }
 
-        return performSafeScaleDown(imageFile, scale, 0);
+        return performSafeScaleDown(imageFilepath, scale, 0);
+    }
+
+    public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
+                                                    int containerWidth) {
+        return getBitmapScaledToContainer(imageFile.getAbsolutePath(), containerHeight,
+                containerWidth);
     }
 
     /**
      * @return A scaled-down bitmap for the given image file, progressively increasing the
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
      */
-    private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
+    private static Bitmap performSafeScaleDown(String imageFilepath, int scale, int depth) {
         if (depth == 5) {
             // Limit the number of recursive calls
             return null;
@@ -66,9 +72,9 @@ public class MediaUtil {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = scale;
         try {
-            return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
+            return BitmapFactory.decodeFile(imageFilepath, options);
         } catch (OutOfMemoryError e) {
-            return performSafeScaleDown(f, scale + 1, depth + 1);
+            return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }
     }
 
@@ -76,7 +82,7 @@ public class MediaUtil {
      * @return A bitmap representation of the given image file, scaled up as close as possible to
      * desiredWidth and desiredHeight, without exceeding either boundingHeight or boundingWidth
      */
-    private static Bitmap attemptBoundedScaleUp(File imageFile, int desiredHeight, int desiredWidth,
+    private static Bitmap attemptBoundedScaleUp(String imageFilepath, int desiredHeight, int desiredWidth,
                                          int boundingHeight, int boundingWidth) {
         if (boundingHeight < desiredHeight || boundingWidth < desiredWidth) {
             float heightScale = ((float)boundingHeight) / desiredHeight;
@@ -89,7 +95,7 @@ public class MediaUtil {
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inScaled = false;
-            Bitmap originalBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
+            Bitmap originalBitmap = BitmapFactory.decodeFile(imageFilepath, o);
             try {
                 return Bitmap.createScaledBitmap(originalBitmap, desiredWidth, desiredHeight, false);
             } catch (OutOfMemoryError e) {
@@ -99,7 +105,7 @@ public class MediaUtil {
         catch (OutOfMemoryError e) {
             // Just inflating the image at its original size caused an OOM error, don't have a
             // choice but to scale down
-            return performSafeScaleDown(imageFile, 2, 1);
+            return performSafeScaleDown(imageFilepath, 2, 1);
         }
     }
 
@@ -141,11 +147,11 @@ public class MediaUtil {
 
             if (DeveloperPreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
-                return getBitmapScaledForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
+                return getBitmapScaledForNativeDensity(context, imageFile.getAbsolutePath(), boundingHeight, boundingWidth,
                         DeveloperPreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
-                return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);
+                return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight, boundingWidth);
             }
         } catch (InvalidReferenceException e) {
             Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
@@ -166,52 +172,36 @@ public class MediaUtil {
      * @return the bitmap, or null if none could be created from the source
      *
      */
-    private static Bitmap getBitmapScaledForNativeDensity(Context context, String jrUri,
+    private static Bitmap getBitmapScaledForNativeDensity(Context context, String imageFilepath,
                                                           int containerHeight, int containerWidth,
                                                           int targetDensity) {
-        if (jrUri == null || jrUri.equals("")) {
-            return null;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        o.inScaled = false;
+        BitmapFactory.decodeFile(imageFilepath, o);
+        int imageHeight = o.outHeight;
+        int imageWidth = o.outWidth;
+        Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
+
+        double scaleFactor = computeInflationScaleFactor(context.getResources().getDisplayMetrics(), targetDensity);
+        int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
+        int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
+        Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
+
+        int boundingHeight = Math.min(containerHeight, calculatedHeight);
+        int boundingWidth = Math.min(containerWidth, calculatedWidth);
+
+        if (boundingHeight < imageHeight || boundingWidth < imageWidth) {
+            // scaling down
+            return getBitmapScaledToContainer(imageFilepath, boundingHeight, boundingWidth);
+        } else {
+            // scaling up
+            return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
+                    containerHeight, containerWidth);
         }
-        try {
-            String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
-            final File imageFile = new File(imageFilename);
-            if (imageFile.exists()) {
-                Log.i("10/15", "src path: " + imageFilename);
-
-                BitmapFactory.Options o = new BitmapFactory.Options();
-                o.inJustDecodeBounds = true;
-                o.inScaled = false;
-                BitmapFactory.decodeFile(imageFile.getAbsolutePath(), o);
-                int imageHeight = o.outHeight;
-                int imageWidth = o.outWidth;
-                Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
-
-                double scaleFactor = computeInflationScaleFactor(context, targetDensity);
-                int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
-                int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
-                Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
-
-                int boundingHeight = Math.min(containerHeight, calculatedHeight);
-                int boundingWidth = Math.min(containerWidth, calculatedWidth);
-
-                if (boundingHeight < imageHeight || boundingWidth < imageWidth) {
-                    // scaling down
-                    return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);
-                } else {
-                    // scaling up
-                    return attemptBoundedScaleUp(imageFile, calculatedHeight, calculatedWidth,
-                            containerHeight, containerWidth);
-                }
-            }
-        } catch (InvalidReferenceException e) {
-            Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
-            e.printStackTrace();
-        }
-        return null;
     }
 
-    private static double computeInflationScaleFactor(Context context, int targetDensity) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+    private static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
         final int SCREEN_DENSITY = metrics.densityDpi;
 
         double actualNativeScaleFactor = metrics.density;
