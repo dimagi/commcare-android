@@ -147,7 +147,9 @@ public class MediaUtil {
 
             if (DeveloperPreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
-                return getBitmapScaledForNativeDensity(context, imageFile.getAbsolutePath(), boundingHeight, boundingWidth,
+                return getBitmapScaledForNativeDensity(
+                        context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
+                        boundingHeight, boundingWidth,
                         DeveloperPreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
@@ -172,7 +174,7 @@ public class MediaUtil {
      * @return the bitmap, or null if none could be created from the source
      *
      */
-    private static Bitmap getBitmapScaledForNativeDensity(Context context, String imageFilepath,
+    public static Bitmap getBitmapScaledForNativeDensity(DisplayMetrics metrics, String imageFilepath,
                                                           int containerHeight, int containerWidth,
                                                           int targetDensity) {
         BitmapFactory.Options o = new BitmapFactory.Options();
@@ -183,7 +185,7 @@ public class MediaUtil {
         int imageWidth = o.outWidth;
         Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
-        double scaleFactor = computeInflationScaleFactor(context.getResources().getDisplayMetrics(), targetDensity);
+        double scaleFactor = computeInflationScaleFactor(metrics, targetDensity);
         int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
         Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
