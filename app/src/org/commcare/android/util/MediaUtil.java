@@ -14,13 +14,8 @@ import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author ctsims
@@ -31,107 +26,12 @@ public class MediaUtil {
     private static final String KEY_TARGET_DENSITY = "cc-target-density";
     private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_DEFAULT;
 
-    private static final String TAG = MediaUtil.class.getSimpleName();
-
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
 
-    /**
-     * @return whether or not originalImage was scaled down according to maxDimen, and saved to
-     * the location given by finalFilePath
-     */
-    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
-        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
-        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
-        if (type == null) {
-            // The selected image is not of a type that can be decoded to or from a bitmap
-            Log.i(TAG, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
-            return false;
-        }
-
-        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen, false);
-        if (scaledBitmap != null) {
-            // Write this scaled bitmap to the final file location
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(finalFilePath);
-                scaledBitmap.compress(type.getCompressFormat(), 100, out);
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            } finally {
-                try {
-                    if (out != null) {
-                        out.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
-
-    public static Bitmap getBitmapScaledByMaxDimen(InputStream stream, int maxDimen, boolean mustScaleWidth) {
-        return getBitmapScaledByMaxDimen(BitmapFactory.decodeStream(stream), maxDimen, mustScaleWidth);
-    }
-
-    /**
-     * Attempts to scale down an image file based on the max dimension given.
-     *
-     * @param mustScaleWidth - if true, the side of the image that we try to scale down is the width
-     * @param maxDimen - the largest dimension that we want either side of the image to have
-     *                (unless mustScaleWidth is true, and then applies to the width specifically)
-     * @return A scaled down bitmap, or null if no scale-down is needed
-     *
-     * -If mustScaleWidth is false, employs the following logic: If at least one of the dimensions
-     * of the original image exceeds the max dimension given, then make the larger side's
-     * dimension equal to the max dimension, and scale down the smaller side such that the
-     * original aspect ratio is maintained.
-     * -If mustScaleWidth is true, employs the following logic: If the width exceeds the max
-     * dimension given, set the width equal to that size, and then sale down the height such that
-     * the original aspect ratio is maintained.
-     *
-     */
-    private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen,
-                                          boolean mustScaleWidth) {
-        if (originalBitmap == null) {
-            return null;
-        }
-        int height = originalBitmap.getHeight();
-        int width = originalBitmap.getWidth();
-        int sideToScale, otherSide;
-        if (mustScaleWidth) {
-            sideToScale = width;
-            otherSide = height;
-        } else {
-            sideToScale = Math.max(height, width);
-            otherSide = Math.min(height, width);
-        }
-
-        if (sideToScale > maxDimen) {
-            // If the side to scale exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) otherSide) / sideToScale;
-            sideToScale = maxDimen;
-            otherSide = (int) Math.floor(maxDimen * aspectRatio);
-            if (mustScaleWidth) {
-                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
-            }
-            if (width > height) {
-                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
-            } else {
-                return Bitmap.createScaledBitmap(originalBitmap, otherSide, sideToScale, false);
-            }
-        } else {
-            return null;
-        }
-    }
-
-    public static Bitmap getBitmapScaledToContainer(File f, int screenHeight, int screenWidth) {
-        Log.i("10/15", "scaling down to height " + screenHeight + " and width " + screenWidth);
+    public static Bitmap getBitmapScaledToContainer(File f, int containerHeight, int containerWidth) {
+        Log.i("10/15", "scaling down to height " + containerHeight + " and width " + containerWidth);
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
@@ -141,8 +41,8 @@ public class MediaUtil {
 
         // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
         // just doing closest size that still fills the screen
-        int heightScale = Math.round((float) imageHeight / screenHeight);
-        int widthScale = Math.round((float) imageWidth / screenWidth);
+        int heightScale = Math.round((float) imageHeight / containerHeight);
+        int widthScale = Math.round((float) imageWidth / containerWidth);
         int scale = Math.max(widthScale, heightScale);
         if (scale == 0) {
             // Rounding could possibly have resulted in a scale factor of 0, which is invalid
@@ -153,7 +53,7 @@ public class MediaUtil {
     }
 
     /**
-     * Returns a scaled-down bitmap for the given image file, progressively increasing the
+     * @return A scaled-down bitmap for the given image file, progressively increasing the
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
      */
     private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
@@ -171,16 +71,15 @@ public class MediaUtil {
     }
 
     /**
-     *
      * @return A bitmap representation of the given image file, scaled up as close as possible to
-     * the desired width and height, without exceeding either boundingHeight or boundingWidth
+     * desiredWidth and desiredHeight, without exceeding either boundingHeight or boundingWidth
      */
     private static Bitmap attemptBoundedScaleUp(File imageFile, int desiredHeight, int desiredWidth,
                                          int boundingHeight, int boundingWidth) {
         if (boundingHeight < desiredHeight || boundingWidth < desiredWidth) {
             float heightScale = ((float)boundingHeight) / desiredHeight;
             float widthScale = ((float)boundingWidth) / desiredWidth;
-            float boundingScaleDownFactor = Math.max(heightScale, widthScale);
+            float boundingScaleDownFactor = Math.min(heightScale, widthScale);
             desiredHeight = Math.round(desiredHeight * boundingScaleDownFactor);
             desiredWidth = Math.round(desiredWidth * boundingScaleDownFactor);
         }
@@ -207,10 +106,10 @@ public class MediaUtil {
      *
      * @param jrUri The image to inflate
      * @param boundingWidth the width of the container this image is being inflated into, to serve
-     *                      as a maximum width
+     *                      as a max width. If passed in as -1, gets set to screen width
      * @param boundingHeight the height fo the container this image is being inflated into, to
-     *                       serve as a maximum height
-     * @return A bitmap if one could be created. Null if there is an error or the image is unavailable.
+     *                       serve as a max height. If passed in as -1, gets set to screen height
+     * @return A bitmap if one could be created. Null if error occurs or the image is unavailable.
      */
     public static Bitmap inflateDisplayImage(Context context, String jrUri,
                                              int boundingWidth, int boundingHeight) {
@@ -222,6 +121,15 @@ public class MediaUtil {
             final File imageFile = new File(imageFilename);
             if (!imageFile.exists()) {
                 return null;
+            }
+
+            Display display = ((WindowManager)
+                    context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            if (boundingHeight == -1) {
+                boundingHeight = display.getHeight();
+            }
+            if (boundingWidth == -1) {
+                boundingWidth = display.getWidth();
             }
             Log.i("10/15", "bounding height: " + boundingHeight + ", bounding width: " + boundingWidth);
 
@@ -243,9 +151,7 @@ public class MediaUtil {
     }
 
     public static Bitmap inflateDisplayImage(Context context, String jrUri) {
-        Display display = ((WindowManager)
-                context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        return inflateDisplayImage(context, jrUri, display.getWidth(), display.getHeight());
+        return inflateDisplayImage(context, jrUri, -1, -1);
     }
 
     private static Bitmap scaleForNativeDensity(Context context, String jrUri, int containerHeight,
@@ -311,7 +217,7 @@ public class MediaUtil {
 
 
     /**
-     * Pass in a string representing either a GeoPont or an address and get back a valid
+     * Pass in a string representing either a GeoPoint or an address and get back a valid
      * GeoURI that can be passed as an intent argument 
      */
     public static String getGeoIntentURI(String rawInput){

@@ -1,6 +1,5 @@
 package org.odk.collect.android.activities.components;
 
-import org.commcare.android.util.MediaUtil;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.widgets.ImageWidget;
@@ -32,7 +31,7 @@ public class ImageCaptureProcessing {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
             int maxDimen = currentWidget.getMaxDimen();
             if (maxDimen != -1) {
-                savedScaledImage = MediaUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
+                savedScaledImage = FileUtils.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
             }
         }
 

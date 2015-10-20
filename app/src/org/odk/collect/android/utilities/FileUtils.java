@@ -18,6 +18,8 @@ import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -31,6 +33,7 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
+import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -204,6 +207,79 @@ public class FileUtils {
      */
     private static String last(String[] strings) {
         return strings[strings.length - 1];
+    }
+
+    /**
+     * @return whether or not originalImage was scaled down according to maxDimen, and saved to
+     * the location given by finalFilePath
+     */
+    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
+        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
+        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
+        if (type == null) {
+            // The selected image is not of a type that can be decoded to or from a bitmap
+            Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
+            return false;
+        }
+
+        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
+        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen);
+        if (scaledBitmap != null) {
+            // Write this scaled bitmap to the final file location
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(finalFilePath);
+                scaledBitmap.compress(type.getCompressFormat(), 100, out);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            } finally {
+                try {
+                    if (out != null) {
+                        out.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Attempts to scale down an image file based on the max dimension given, using the following
+     * logic: If at least one of the dimensions of the original image exceeds the max dimension
+     * given, then make the larger side's dimension equal to the max dimension, and scale down the
+     * smaller side such that the original aspect ratio is maintained.
+     *
+     * @param maxDimen - the largest dimension that we want either side of the image to have
+     * @return A scaled down bitmap, or null if no scale-down is needed
+     *
+     */
+    private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
+        if (originalBitmap == null) {
+            return null;
+        }
+        int height = originalBitmap.getHeight();
+        int width = originalBitmap.getWidth();
+        int sideToScale = Math.max(height, width);
+        int otherSide = Math.min(height, width);
+
+        if (sideToScale > maxDimen) {
+            // If the larger side exceeds our max dimension, scale down accordingly
+            double aspectRatio = ((double) otherSide) / sideToScale;
+            sideToScale = maxDimen;
+            otherSide = (int) Math.floor(maxDimen * aspectRatio);
+            if (width > height) {
+                // if width was the side that got scaled
+                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
+            } else {
+                return Bitmap.createScaledBitmap(originalBitmap, otherSide, sideToScale, false);
+            }
+        } else {
+            return null;
+        }
     }
 
     /**

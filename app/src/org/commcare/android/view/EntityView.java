@@ -2,7 +2,6 @@ package org.commcare.android.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
@@ -27,14 +26,11 @@ import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -277,44 +273,24 @@ public class EntityView extends LinearLayout {
      */
     public void setupImageLayout(View layout, final String source) {
         ImageView iv = (ImageView) layout;
-        Bitmap b;
-        if (!source.equals("")) {
-            try {
-                if (onMeasureCalled) {
-                    int columnWidthInPixels = layout.getLayoutParams().width;
-                    b = MediaUtil.getBitmapScaledByMaxDimen(
-                            ReferenceManager._().DeriveReference(source).getStream(),
-                            columnWidthInPixels, true);
-                } else {
-                    // Since case list images are scaled down based on the width of the column they
-                    // go into, we cannot set up an image layout until onMeasure() has been called
-                    addLayoutToRedrawQueue(layout, source);
-                    return;
-                }
-
-                if (b == null) {
-                    // Means we didn't need to scale down the image, so just decode it normally
-                    b = BitmapFactory.decodeStream(
-                            ReferenceManager._().DeriveReference(source).getStream());
-                }
-                if (b == null) {
-                    // Means the input stream could not be used to derive bitmap, so showing
-                    // error-indicating image
-                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-                } else {
-                    iv.setImageBitmap(b);
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                //Error loading image
+        if (source.equals("")) {
+            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
+            return;
+        }
+        if (onMeasureCalled) {
+            int columnWidthInPixels = layout.getLayoutParams().width;
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, -1);
+            if (b == null) {
+                // Means the input stream could not be used to derive the bitmap, so showing
+                // error-indicating image
                 iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-            } catch (InvalidReferenceException ex) {
-                ex.printStackTrace();
-                //No image
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+            } else {
+                iv.setImageBitmap(b);
             }
         } else {
-            iv.setImageDrawable(getResources().getDrawable(R.color.transparent));
+            // Since case list images are scaled down based on the width of the column they
+            // go into, we cannot set up an image layout until onMeasure() has been called
+            addLayoutToRedrawQueue(layout, source);
         }
     }
 
