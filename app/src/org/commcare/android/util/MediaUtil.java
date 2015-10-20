@@ -272,14 +272,12 @@ public class MediaUtil {
                 int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
                 Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
 
-                if (calculatedHeight < imageHeight || calculatedWidth < imageWidth) {
+                int boundingHeight = Math.min(containerHeight, calculatedHeight);
+                int boundingWidth = Math.min(containerWidth, calculatedWidth);
+
+                if (boundingHeight < imageHeight || boundingWidth < imageWidth) {
                     // scaling down
-                    if (containerHeight < calculatedHeight || containerWidth < calculatedWidth) {
-                        // Container bounds are even smaller than calculated size, so scale to that
-                        return getBitmapScaledToContainer(imageFile, containerHeight, containerWidth);
-                    } else {
-                        return getBitmapScaledToContainer(imageFile, calculatedHeight, calculatedWidth);
-                    }
+                    return getBitmapScaledToContainer(imageFile, boundingHeight, boundingWidth);
                 } else {
                     // scaling up
                     return attemptBoundedScaleUp(imageFile, calculatedHeight, calculatedWidth,
