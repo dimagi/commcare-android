@@ -608,10 +608,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
         int messageIterationCount = 0;
         try {
+            boolean attemptedInstall = false;
             while (cursor.moveToNext() && messageIterationCount <= SMS_CHECK_COUNT) { // must check the result to prevent exception
                 messageIterationCount++;
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
+                    attemptedInstall = true;
                     RetrieveParseVerifyMessageTask mTask =
                             new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
 
@@ -663,6 +665,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                     break;
                 }
+            }
+            // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
+            // if we found one, notification will be handle by the task receiver
+            if(!attemptedInstall) {
+                Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
             }
         }
         finally {
