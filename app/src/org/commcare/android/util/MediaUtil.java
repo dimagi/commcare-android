@@ -166,7 +166,7 @@ public class MediaUtil {
                 int imageWidth = o.outWidth;
                 Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
-                double scaleFactor = getScaleFactor(context, targetDensity);
+                double scaleFactor = computeScaleFactor(context, targetDensity);
                 int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
                 int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
                 Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
@@ -190,22 +190,35 @@ public class MediaUtil {
         return null;
     }
 
-    private static double getScaleFactor(Context context, int targetDensity) {
-        // Get native dp scale factor from Android
+    private static double computeScaleFactor(Context context, int targetDensity) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        double nativeDpScaleFactor = metrics.density;
-        Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
-
-        // Get scale factor based on this device's density, and what the image's target density was
         final int SCREEN_DENSITY = metrics.densityDpi;
+
+        double actualNativeScaleFactor = metrics.density;
+        // The formula below is what Android *usually* uses to compute the value of metrics.density
+        // for a device. If this is in fact the value being used, we are not interested in it.
+        // However, if the actual value differs at all from the standard calculation, it means
+        // Android is taking other factors into consideration (such as straight up screen size),
+        // and we want to incorporate that proportionally into our own version of the scale factor
+        double standardNativeScaleFactor = (double)SCREEN_DENSITY / DisplayMetrics.DENSITY_DEFAULT;
+        double proportionalAdjustmentFactor = 1;
+        if (actualNativeScaleFactor > standardNativeScaleFactor) {
+            proportionalAdjustmentFactor = 1 +
+                    ((actualNativeScaleFactor - standardNativeScaleFactor) / standardNativeScaleFactor);
+        } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
+            proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
+        }
+        Log.i("10/15", "proportional adjustment factor: " + proportionalAdjustmentFactor);
+
+        // Get our custom scale factor, based on this device's density and what the image's target
+        // density was
         Log.i("10/15", "Target dpi: " + targetDensity);
         Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
-        double dpiScaleFactor = (double) SCREEN_DENSITY / targetDensity;
-        Log.i("10/15", "dpi scale factor: " + dpiScaleFactor);
+        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
+        Log.i("10/15", "dpi scale factor: " + customDpiScaleFactor);
 
-        double finalScaleFactor = (nativeDpScaleFactor + dpiScaleFactor) / 2;
-        Log.i("10/15", "FINAL scale factor: " + finalScaleFactor);
-        return finalScaleFactor;
+        Log.i("10/15", "FINAL scale factor: " + (customDpiScaleFactor * proportionalAdjustmentFactor));
+        return customDpiScaleFactor * proportionalAdjustmentFactor;
     }
 
 
