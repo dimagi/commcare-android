@@ -214,7 +214,7 @@ public class FileUtils {
      * the location given by finalFilePath
      */
     public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
-        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
+        String extension = getExtension(originalImage.getAbsolutePath());
         ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
         if (type == null) {
             // The selected image is not of a type that can be decoded to or from a bitmap
