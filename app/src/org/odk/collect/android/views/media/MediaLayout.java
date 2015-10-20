@@ -3,6 +3,7 @@ package org.odk.collect.android.views.media;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import android.widget.VideoView;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -209,24 +211,20 @@ public class MediaLayout extends RelativeLayout {
 
                     Bitmap b = null;
                     try {
-                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0], maxBounds[1]);
+                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                                maxBounds[1]);
                     } catch (OutOfMemoryError e) {
                         errorMsg = "ERROR: " + e.getMessage();
                     }
 
                     if (b != null) {
-
                         ImageView mImageView = new ImageView(getContext());;
-
-                        //config specially if we need to do a custom resize
-                        /*if (ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
-                                || ResizingImageView.resizeMethod.equals("width")){
+                        if (useResizingImageView()) {
                             mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
-                        }*/
-
+                        }
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
@@ -348,6 +346,16 @@ public class MediaLayout extends RelativeLayout {
         } else {
             return null;
         }
+    }
+
+    private boolean useResizingImageView() {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        boolean usingSmartImageInflation = prefs.getBoolean(MediaUtil.KEY_USE_SMART_INFLATION, true);
+        return !usingSmartImageInflation // only allow ResizingImageView to be used if not also using smart inflation
+                &&
+                (ResizingImageView.resizeMethod.equals("full") ||
+                        ResizingImageView.resizeMethod.equals("half") ||
+                        ResizingImageView.resizeMethod.equals("width"));
     }
 
     /**

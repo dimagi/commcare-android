@@ -22,7 +22,7 @@ import java.io.File;
  */
 public class MediaUtil {
 
-    private static final String KEY_USE_SMART_SCALING = "cc-use-smart-scaling";
+    public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
     private static final String KEY_TARGET_DENSITY = "cc-target-density";
     private static final int DEFAULT_TARGET_DENSITY = DisplayMetrics.DENSITY_DEFAULT;
 
@@ -134,8 +134,7 @@ public class MediaUtil {
             Log.i("10/15", "bounding height: " + boundingHeight + ", bounding width: " + boundingWidth);
 
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            boolean useSmartImageScaling = prefs.getBoolean(KEY_USE_SMART_SCALING, true);
-            if (useSmartImageScaling) {
+            if (prefs.getBoolean(KEY_USE_SMART_INFLATION, true)) {
                 // scale based on native density AND bounding dimens
                 return scaleForNativeDensity(context, jrUri, boundingHeight, boundingWidth,
                         prefs.getInt(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
@@ -203,7 +202,7 @@ public class MediaUtil {
         double nativeDpScaleFactor = metrics.density;
         Log.i("10/15", "native dp scale factor: " + nativeDpScaleFactor);
 
-        // Get dpi scale factor
+        // Get scale factor based on this device's density, and what the image's target density was
         final int SCREEN_DENSITY = metrics.densityDpi;
         Log.i("10/15", "Target dpi: " + targetDensity);
         Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);

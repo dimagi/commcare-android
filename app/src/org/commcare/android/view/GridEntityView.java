@@ -309,7 +309,7 @@ public class GridEntityView extends GridLayout {
             GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
             mGridParams.width = (int) cellWidth * currentCoordinate.getWidth();
             mGridParams.height = (int) cellHeight * currentCoordinate.getHeight()
-                    // we need to account for any padding that wouldn be in these rows if the entity didn't overwrite
+                    // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
                     + (2 * CELL_PADDING_VERTICAL * (currentCoordinate.getHeight() - 1));
 
             // get style attributes
