@@ -54,7 +54,6 @@ public class MediaUtil {
             if (boundingWidth == -1) {
                 boundingWidth = display.getWidth();
             }
-            Log.i("10/15", "bounding height: " + boundingHeight + ", bounding width: " + boundingWidth);
 
             if (DeveloperPreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
@@ -97,12 +96,10 @@ public class MediaUtil {
         BitmapFactory.decodeFile(imageFilepath, o);
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
-        Log.i("10/15", "original height: " + imageHeight + ", original width: " + imageWidth);
 
         double scaleFactor = computeInflationScaleFactor(metrics, targetDensity);
         int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
-        Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
 
         if (containerHeight < imageHeight || containerWidth < imageWidth || calculatedHeight < imageHeight) {
             // If either the container dimens or calculated dimens impose a smaller dimension,
@@ -121,19 +118,11 @@ public class MediaUtil {
      * 1) newCalcHeight and newCalcWidth
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
      * exceeding either boundingWidth or boundingHeight
-     *
-     * If the aspect ratio given by newHeight and newWidth does not match the current aspect ratio
-     * of the image, return null
      */
     private static Bitmap getBitmapScaledDownExact(String imageFilepath,
                                                    int originalHeight, int originalWidth,
                                                    int calcHeight, int calcWidth,
                                                    int boundingHeight, int boundingWidth) {
-        int currentAspectRatio = originalWidth / originalHeight;
-        int newAspectRatio = calcWidth / calcHeight;
-        if (currentAspectRatio != newAspectRatio) {
-            return null;
-        }
 
         Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
@@ -188,7 +177,6 @@ public class MediaUtil {
             desiredHeight = Math.round(desiredHeight * boundingScaleDownFactor);
             desiredWidth = Math.round(desiredWidth * boundingScaleDownFactor);
         }
-        Log.i("10/15", "scaling up to height " + desiredHeight + " and width " + desiredWidth);
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inScaled = false;
@@ -223,16 +211,11 @@ public class MediaUtil {
         } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
             proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
         }
-        Log.i("10/15", "proportional adjustment factor: " + proportionalAdjustmentFactor);
 
         // Get our custom scale factor, based on this device's density and what the image's target
         // density was
-        Log.i("10/15", "Target dpi: " + targetDensity);
-        Log.i("10/15", "This screen's dpi: " + SCREEN_DENSITY);
         double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
-        Log.i("10/15", "dpi scale factor: " + customDpiScaleFactor);
 
-        Log.i("10/15", "FINAL scale factor: " + (customDpiScaleFactor * proportionalAdjustmentFactor));
         return customDpiScaleFactor * proportionalAdjustmentFactor;
     }
 
@@ -244,7 +227,6 @@ public class MediaUtil {
      */
     private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
                                                      int containerWidth) {
-        Log.i("10/15", "scaling down to height " + containerHeight + " and width " + containerWidth);
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
