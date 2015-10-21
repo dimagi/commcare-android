@@ -202,19 +202,11 @@ public class MediaLayout extends RelativeLayout {
         } else if (imageURI != null) {
             try {
                 int[] maxBounds = getMaxCenterViewBounds();
-
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
-
-                    Bitmap b = null;
-                    try {
-                        b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
                                 maxBounds[1]);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
                     if (b != null) {
                         ImageView mImageView = new ImageView(getContext());;
                         if (useResizingImageView()) {
@@ -231,7 +223,6 @@ public class MediaLayout extends RelativeLayout {
                         // An error hasn't been logged and loading the image failed, so it's likely
                         // a bad file.
                         errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-
                     }
                 } else {
                     // An error hasn't been logged. We should have an image, but the file doesn't
