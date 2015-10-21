@@ -399,29 +399,35 @@ public class GridEntityView extends GridLayout {
                     ((TextView) retVal).setText(mSpannable);
                 }
 
+                int gravity = 0;
+
                 // handle horizontal alignments
                 switch (horzAlign) {
                     case "center":
-                        ((TextView) retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+                        gravity |= Gravity.CENTER_HORIZONTAL;
                         break;
                     case "left":
-                        ((TextView) retVal).setGravity(Gravity.TOP);
+                        gravity |= Gravity.LEFT;
                         break;
                     case "right":
-                        ((TextView) retVal).setGravity(Gravity.RIGHT);
+                        gravity |= Gravity.RIGHT;
                         break;
                 }
                 // handle vertical alignment
                 switch (vertAlign) {
                     case "center":
-                        ((TextView) retVal).setGravity(Gravity.CENTER_VERTICAL);
+                        gravity |= Gravity.CENTER_VERTICAL;
                         break;
                     case "top":
-                        ((TextView) retVal).setGravity(Gravity.TOP);
+                        gravity |= Gravity.TOP;
                         break;
                     case "bottom":
-                        ((TextView) retVal).setGravity(Gravity.BOTTOM);
+                        gravity |= Gravity.BOTTOM;
                         break;
+                }
+
+                if(gravity != 0) {
+                    ((TextView) retVal).setGravity(gravity);
                 }
 
                 // handle text resizing
