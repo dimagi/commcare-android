@@ -9,11 +9,16 @@ import android.util.Pair;
 import android.view.Display;
 import android.view.WindowManager;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.references.JavaFileReference;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author ctsims
@@ -40,7 +45,20 @@ public class MediaUtil {
             return null;
         }
         try {
-            String imageFilename = ReferenceManager._().DeriveReference(jrUri).getLocalURI();
+            Reference ref = ReferenceManager._().DeriveReference(jrUri);
+            try {
+                if (!ref.doesBinaryExist()) {
+                    return null;
+                }
+                if (!(ref instanceof JavaFileReference)) {
+                    return BitmapFactory.decodeStream(ref.getStream());
+                }
+            } catch (IOException e) {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "IO Exception loading reference: " + jrUri);
+                return null;
+            }
+
+            String imageFilename = ref.getLocalURI();
             final File imageFile = new File(imageFilename);
             if (!imageFile.exists()) {
                 return null;
@@ -243,7 +261,6 @@ public class MediaUtil {
             // Rounding could possibly have resulted in a scale factor of 0, which is invalid
             scale = 1;
         }
-
         return performSafeScaleDown(imageFilepath, scale, 0);
     }
 
