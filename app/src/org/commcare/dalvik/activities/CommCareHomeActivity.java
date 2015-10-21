@@ -69,6 +69,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
@@ -650,10 +651,17 @@ public class CommCareHomeActivity
                     return false;
                 }
 
-                // XXX: probably refactor part of this logic into InstanceProvider -- PLM
                 // Before we can terminate the session, we need to know that the form has been processed
                 // in case there is state that depends on it.
-                if (!currentState.terminateSession()) {
+                boolean terminateSuccessful;
+                try {
+                    terminateSuccessful = currentState.terminateSession();
+                } catch (XPathTypeMismatchException e) {
+                    Logger.exception(e);
+                    CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+                    return false;
+                }
+                if (!terminateSuccessful) {
                     // If we didn't find somewhere to go, we're gonna stay here
                     return false;
                 }
@@ -812,7 +820,15 @@ public class CommCareHomeActivity
     }
 
     private void handleNoFormFromSessionNav(AndroidSessionWrapper asw) {
-        if (asw.terminateSession()) {
+        boolean terminateSuccesful;
+        try {
+            terminateSuccesful = asw.terminateSession();
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            return;
+        }
+        if (terminateSuccesful) {
             sessionNavigator.startNextSessionStep();
         } else {
             uiController.refreshView();
