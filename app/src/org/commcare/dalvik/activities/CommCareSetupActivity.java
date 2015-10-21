@@ -543,7 +543,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
             // if we found one, notification will be handle by the task receiver
-            if(!attemptedInstall) {
+            if(!attemptedInstall && installTriggeredManually) {
                 Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
             }
         }
