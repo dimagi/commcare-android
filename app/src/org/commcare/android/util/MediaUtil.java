@@ -213,6 +213,9 @@ public class MediaUtil {
         }
 
         int approximateScaleFactor = originalWidth / newWidth;
+        if (approximateScaleFactor == 0) {
+            approximateScaleFactor = 1;
+        }
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inSampleSize = approximateScaleFactor;
