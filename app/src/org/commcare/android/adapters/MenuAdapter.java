@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.view.ViewUtil;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -290,7 +290,7 @@ public class MenuAdapter implements ListAdapter {
 
         String imageURI = mObject.getImageURI();
 
-        Bitmap image = ViewUtil.inflateDisplayImage(context, imageURI);
+        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
         if (image != null && mIconView != null) {
             mIconView.setImageBitmap(image);
             mIconView.setAdjustViewBounds(true);

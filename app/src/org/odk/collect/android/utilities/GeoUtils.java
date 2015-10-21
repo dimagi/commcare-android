@@ -7,6 +7,8 @@ import android.location.LocationManager;
 
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 
 import java.util.HashSet;
 import java.util.List;
@@ -78,5 +80,21 @@ public class GeoUtils {
             factory.setOnCancelListener(onCancel);
         }
         factory.showDialog();
+    }
+
+    /**
+     * Pass in a string representing either a GeoPoint or an address and get back a valid
+     * GeoURI that can be passed as an intent argument
+     */
+    public static String getGeoIntentURI(String rawInput){
+        try {
+            GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
+            String latitude = Double.toString(mGeoPointData.getValue()[0]);
+            String longitude= Double.toString(mGeoPointData.getValue()[1]);
+            return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
+
+        } catch(IllegalArgumentException iae){
+            return "geo:0,0?q=" + rawInput;
+        }
     }
 }

@@ -34,9 +34,9 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -264,13 +264,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int screenHeight = display.getHeight();
-
         int maxBannerHeight = screenHeight / 4;
 
         // Override default CommCare banner if requested
         String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
         if (!"".equals(customBannerURI)) {
-            Bitmap bitmap = ViewUtil.inflateDisplayImage(this, customBannerURI);
+            Bitmap bitmap = MediaUtil.inflateDisplayImage(this, customBannerURI, display.getWidth(), maxBannerHeight);
             if (bitmap != null) {
                 if (topBannerImageView != null) {
                     topBannerImageView.setMaxHeight(maxBannerHeight);

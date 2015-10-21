@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.graph.DisplayData;
@@ -34,15 +35,11 @@ public class HorizontalMediaView extends RelativeLayout {
     private AudioButton mAudioButton;
     private ImageView mImageView;
     private TextView mMissingImage;
+    private EvaluationContext ec;
     private final int iconDimension;
-    private final int fontSize = 20;
 
     public static final int NAVIGATION_NONE = 0;
     public static final int NAVIGATION_NEXT = 1;
-    public static final int NAVIGATION_JUMP = 2;
-
-
-    private EvaluationContext ec;
 
 
     public HorizontalMediaView(Context c) {
@@ -56,11 +53,8 @@ public class HorizontalMediaView extends RelativeLayout {
         mImageView = null;
         mMissingImage = null;
         this.ec = ec;
-
         this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
-
     }
-
 
     public void setDisplay(DisplayUnit display) {
         DisplayData mData = display.evaluate(ec);
@@ -71,14 +65,11 @@ public class HorizontalMediaView extends RelativeLayout {
         this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
     }
 
-    //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
     public void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
         this.removeAllViews();
 
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
-
         mTextView.setText(displayText);
 
         // Layout configurations for our elements in the relative layout
@@ -134,7 +125,7 @@ public class HorizontalMediaView extends RelativeLayout {
             addView(mAudioButton, audioParams);
         }
 
-        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, iconDimension, iconDimension);
         if (b != null) {
             mImageView = new ImageView(getContext());
             mImageView.setPadding(10, 10, 10, 10);
