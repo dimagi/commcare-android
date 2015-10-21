@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -89,7 +88,6 @@ import java.util.TimerTask;
 public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
-        TextToSpeech.OnInitListener,
         DetailCalloutListener,
         BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
@@ -114,8 +112,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
-
-    private TextToSpeech tts;
 
     private SessionDatum selectDatum;
 
@@ -271,8 +267,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {
@@ -518,17 +512,15 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     @Override
     public void onCalloutResult(String result, Intent intent) {
-        boolean resultSet = false;
         if (result != null) {
             setSearchText(result);
-            resultSet = true;
-        }
-        for (String key : shortSelect.getCallout().getResponses()) {
-            result = intent.getExtras().getString(key);
-            if (result != null && !resultSet) {
-                resultSet = true;
-                setSearchText(result);
-                break;
+        } else {
+            for (String key : shortSelect.getCallout().getResponses()) {
+                result = intent.getExtras().getString(key);
+                if (result != null) {
+                    setSearchText(result);
+                    return;
+                }
             }
         }
     }
@@ -682,9 +674,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
-                        if (BuildConfig.DEBUG) {
-                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
-                        }
                         if (newText != null && newText.length() > 0) {
                         }
                         if (adapter != null) {
@@ -783,7 +772,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
 
-        List<String> namesList = new ArrayList<String>();
+        List<String> namesList = new ArrayList<>();
 
         final int[] keyarray = new int[fields.length];
 
@@ -846,23 +835,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (adapter != null) {
             adapter.signalKilled();
         }
-
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
     }
-
-    @Override
-    public void onInit(int status) {
-
-        if (status == TextToSpeech.SUCCESS) {
-            //using the default speech engine for now.
-        } else {
-        }
-
-    }
-
 
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
@@ -881,7 +854,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
