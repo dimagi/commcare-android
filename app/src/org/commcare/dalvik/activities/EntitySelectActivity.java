@@ -354,7 +354,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
 
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity =
+                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
                 if (inAwesomeMode) {
@@ -370,7 +372,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getShortDetail());
+                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                                selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -405,8 +408,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 header.addView(v);
             }
 
-            if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            if (adapter == null &&
+                    loader == null &&
+                    !EntityLoaderTask.attachToActivity(this)) {
+                EntityLoaderTask theloader =
+                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
                 theloader.execute(selectDatum.getNodeset());
             } else {
@@ -416,7 +422,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             createErrorDialog(re.getMessage(), true);
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -546,7 +551,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
                     if (inAwesomeMode) {
                         // Retain original element selection
-                        TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                        TreeReference r =
+                                SerializationUtil.deserializeFromIntent(intent,
+                                        EntityDetailActivity.CONTEXT_REFERENCE,
+                                        TreeReference.class);
                         if (r != null && adapter != null) {
                             // TODO: added 'adapter != null' due to a
                             // NullPointerException, we need to figure out how to
@@ -560,7 +568,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             case MAP_SELECT:
                 if (resultCode == RESULT_OK) {
-                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    TreeReference r =
+                            SerializationUtil.deserializeFromIntent(intent,
+                                    EntityDetailActivity.CONTEXT_REFERENCE,
+                                    TreeReference.class);
 
                     if (inAwesomeMode) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
@@ -804,7 +815,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         });
 
-
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -844,7 +854,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
+        adapter =
+                new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
@@ -1012,7 +1023,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
-            if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
+            if (inAwesomeMode &&
+                    detailView != null &&
+                    detailView.getCurrentTab() < detailView.getTabCount() - 1) {
                 return false;
             }
 
