@@ -23,7 +23,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.widgets.IBinaryWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
@@ -83,7 +83,7 @@ public class ODKView extends ScrollView
              PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
         String question_font =
-                settings.getString(PreferencesActivity.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
 
         mQuestionFontsize = Integer.valueOf(question_font);
         
