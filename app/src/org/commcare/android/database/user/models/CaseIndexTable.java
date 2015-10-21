@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
@@ -39,7 +40,8 @@ public class CaseIndexTable {
     }
 
     public static void createIndexes(SQLiteDatabase db) {
-        db.execSQL("CREATE INDEX RECORD_NAME_ID_TARGET ON " + TABLE_NAME + " (" + COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET + ")");
+        String columns = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("RECORD_NAME_ID_TARGET", TABLE_NAME, columns));
     }
 
     //TODO: We should do some synchronization to make it the case that nothing can hold

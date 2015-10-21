@@ -206,6 +206,10 @@
                 <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.UpdateActivity"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
             android:name=".application.AndroidShortcuts"

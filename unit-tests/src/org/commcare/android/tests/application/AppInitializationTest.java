@@ -1,4 +1,4 @@
-package org.commcare.android.tests.initialization;
+package org.commcare.android.tests.application;
 
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;

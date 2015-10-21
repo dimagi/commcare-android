@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -124,7 +124,11 @@ public class SingleAppManagerActivity extends Activity {
         switch (requestCode) {
             case CommCareHomeActivity.UPGRADE_APP:
                 if (resultCode == RESULT_CANCELED) {
-                    Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
+                    UpdateTask task = UpdateTask.getRunningInstance();
+                    if (task != null) {
+                        Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
+                        task.cancel(true);
+                    }
                 } else if (resultCode == RESULT_OK) {
                     if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
                         Toast.makeText(this, Localization.get("update.success"), Toast.LENGTH_LONG).show();
@@ -238,12 +242,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
-        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String ref = prefs.getString("default_app_server", null);
-        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-        i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
+        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
     }
 
