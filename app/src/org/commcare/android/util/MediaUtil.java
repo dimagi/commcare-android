@@ -81,7 +81,8 @@ public class MediaUtil {
                         DeveloperPreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
-                return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight, boundingWidth);
+                return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
+                        boundingWidth);
             }
         } catch (InvalidReferenceException e) {
             Log.e("ImageInflater", "image invalid reference exception for " + e.getReferenceString());
@@ -132,22 +133,32 @@ public class MediaUtil {
 
     /**
      * @return A bitmap representation of the given image file, scaled down such that the new
-     * dimensions of the image is the SMALLER of the following 2 options:
-     * 1) newCalcHeight and newCalcWidth
+     * dimensions of the image are the SMALLER of the following 2 options:
+     * 1) targetHeight and targetWidth
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
      * exceeding either boundingWidth or boundingHeight
+     *
+     * Provides for the possibility that there is no target height or target width (indicated by
+     * setting them to -1), in which case the 2nd option above is used.
      */
     private static Bitmap getBitmapScaledDownExact(String imageFilepath,
                                                    int originalHeight, int originalWidth,
-                                                   int calcHeight, int calcWidth,
+                                                   int targetHeight, int targetWidth,
                                                    int boundingHeight, int boundingWidth) {
 
         Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
-        int newWidth = Math.min(dimensImposedByContainer.first, calcWidth);
-        int newHeight = Math.min(dimensImposedByContainer.second, calcHeight);
-        int approximateScaleFactor = originalWidth / newWidth;
 
+        int newWidth, newHeight;
+        if (targetHeight == -1 || targetWidth == -1) {
+            newWidth = dimensImposedByContainer.first;
+            newHeight = dimensImposedByContainer.second;
+        } else {
+            newWidth = Math.min(dimensImposedByContainer.first, targetWidth);
+            newHeight = Math.min(dimensImposedByContainer.second, targetHeight);
+        }
+
+        int approximateScaleFactor = originalWidth / newWidth;
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inSampleSize = approximateScaleFactor;
@@ -186,14 +197,14 @@ public class MediaUtil {
      * @return A bitmap representation of the given image file, scaled up as close as possible to
      * desiredWidth and desiredHeight, without exceeding either boundingHeight or boundingWidth
      */
-    private static Bitmap attemptBoundedScaleUp(String imageFilepath, int desiredHeight, int desiredWidth,
-                                         int boundingHeight, int boundingWidth) {
+    private static Bitmap attemptBoundedScaleUp(String imageFilepath,
+                                                int desiredHeight, int desiredWidth,
+                                                int boundingHeight, int boundingWidth) {
         if (boundingHeight < desiredHeight || boundingWidth < desiredWidth) {
-            float heightScale = ((float)boundingHeight) / desiredHeight;
-            float widthScale = ((float)boundingWidth) / desiredWidth;
-            float boundingScaleDownFactor = Math.min(heightScale, widthScale);
-            desiredHeight = Math.round(desiredHeight * boundingScaleDownFactor);
-            desiredWidth = Math.round(desiredWidth * boundingScaleDownFactor);
+            Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
+                    desiredHeight, desiredWidth, boundingHeight, boundingWidth);
+            desiredWidth = dimensImposedByContainer.first;
+            desiredHeight = dimensImposedByContainer.second;
         }
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -239,9 +250,14 @@ public class MediaUtil {
 
 
     /**
-     * @return A bitmap representation of the given image file, potentially adjusted from the
-     * image's original size such that its width is no larger than containerWidth, and its height
-     * is no larger than containerHeight
+     * @return A bitmap representation of the given image file, scaled down to the smallest
+     * size that still fills the container
+     *
+     * More precisely, preserves the following 2 conditions:
+     * 1. The larger of the 2 sides takes on the size of the corresponding container dimension
+     * (e.g. if its width is larger than its height, then the new width should = containerWidth)
+     * 2. The aspect ratio of the original image is maintained (so the height would get scaled
+     * down proportionally with the width)
      */
     private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
                                                      int containerWidth) {
@@ -252,16 +268,8 @@ public class MediaUtil {
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
-        // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
-        // just doing closest size that still fills the screen
-        int heightScale = Math.round((float) imageHeight / containerHeight);
-        int widthScale = Math.round((float) imageWidth / containerWidth);
-        int scale = Math.max(widthScale, heightScale);
-        if (scale == 0) {
-            // Rounding could possibly have resulted in a scale factor of 0, which is invalid
-            scale = 1;
-        }
-        return performSafeScaleDown(imageFilepath, scale, 0);
+        return getBitmapScaledDownExact(imageFilepath, imageHeight, imageWidth, -1, -1,
+                containerHeight, containerWidth);
     }
 
     public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
