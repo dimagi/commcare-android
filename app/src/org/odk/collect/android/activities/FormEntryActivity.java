@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
@@ -18,7 +17,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -81,7 +79,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormNavigationController;
 import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.ImageCaptureProcessing;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
@@ -90,7 +88,7 @@ import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
-import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveToDiskTask;
 import org.odk.collect.android.utilities.Base64Wrapper;
@@ -233,7 +231,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
-            Collect.createODKDirs();
+            ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
@@ -286,7 +284,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         savingFormOnKeySessionExpiration = true;
         // start saving form, which will call the key session logout completion
         // function when it finishes.
-        saveDataToDisk(EXIT, false, null, true);
+        saveIncompleteFormToDisk(EXIT, null, true);
     }
 
     private void registerFormEntryReceiver() {
@@ -698,7 +696,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 .setEnabled(hasMultipleLanguages);
 
         
-        menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.general_preferences)).setIcon(
+        menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
         return true;
     }
@@ -710,8 +708,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                // don't exit
-                saveDataToDisk(DO_NOT_EXIT, isInstanceComplete(false), null, false);
+                saveFormToDisk(DO_NOT_EXIT, null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -721,7 +718,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
-                Intent pref = new Intent(this, PreferencesActivity.class);
+                Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivity(pref);
                 return true;
             case android.R.id.home:
@@ -865,7 +862,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             //Localization?
             return mHeaderString;
         } else {
-            return StringUtils.getStringRobust(this, R.string.app_name) + " > " + mFormController.getFormTitle();
+            return StringUtils.getStringRobust(this, R.string.application_name) + " > " + mFormController.getFormTitle();
         }
     }
 
@@ -1295,6 +1292,29 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         mBeenSwiped = false;
     }
 
+    private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        if (formHasLoaded()) {
+            boolean isFormComplete = isInstanceComplete();
+            saveDataToDisk(exit, isFormComplete, updatedSaveName, headless);
+        } else if (exit) {
+            showSaveErrorAndExit();
+        }
+    }
+
+    private void saveCompletedFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        saveDataToDisk(exit, true, updatedSaveName, headless);
+    }
+
+    private void saveIncompleteFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+        saveDataToDisk(exit, false, updatedSaveName, headless);
+    }
+
+    private void showSaveErrorAndExit() {
+        Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
+        hasSaved = false;
+        finishReturnInstance();
+    }
+
     /**
      * Saves form data to disk.
      *
@@ -1307,9 +1327,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      */
     private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless) {
         if (!formHasLoaded()) {
+            if (exit) {
+                showSaveErrorAndExit();
+            }
             return;
         }
-
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         if (headless &&
@@ -1365,7 +1387,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                                 if(items.length == 1) {
                                     discardChangesAndExit();
                                 } else {
-                                    saveDataToDisk(EXIT, isInstanceComplete(false), null, false);
+                                    saveFormToDisk(EXIT, null, false);
                                 }
                                 break;
                             case 1: // discard changes and exit
@@ -1844,7 +1866,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveDataToDisk(EXIT, true, getDefaultFormTitle(), false);
+            saveCompletedFormToDisk(EXIT, getDefaultFormTitle(), false);
         }
     }
 
@@ -1994,18 +2016,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * 
      * @return true if form has been marked completed, false otherwise.
      */
-    private boolean isInstanceComplete(boolean end) {
+    private boolean isInstanceComplete() {
         // default to false if we're mid form
         boolean complete = false;
-
-        // if we're at the end of the form, then check the preferences
-        if (end) {
-            // First get the value from the preferences
-            SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-            complete =
-                sharedPreferences.getBoolean(PreferencesActivity.KEY_COMPLETED_DEFAULT, true);
-        }
 
         // Then see if we've already marked this form as complete before
         String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
@@ -2287,7 +2300,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(intent.hasExtra(KEY_INSTANCEDESTINATION)) {
             this.mInstanceDestination = intent.getStringExtra(KEY_INSTANCEDESTINATION);
         } else {
-            mInstanceDestination = Collect.INSTANCES_PATH;
+            mInstanceDestination = ODKStorage.INSTANCES_PATH;
         }
         if(intent.hasExtra(KEY_AES_STORAGE_KEY)) {
             String base64Key = intent.getStringExtra(KEY_AES_STORAGE_KEY);
@@ -2315,7 +2328,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(mHeaderString != null) {
             setTitle(mHeaderString);
         } else {
-            setTitle(StringUtils.getStringRobust(this, R.string.app_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
+            setTitle(StringUtils.getStringRobust(this, R.string.application_name) + " > " + StringUtils.getStringRobust(this, R.string.loading_form));
         }
     }
 

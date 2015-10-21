@@ -6,6 +6,6 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:gravity="center"
-    android:text="CommCare ODK" >
+    android:text="CommCare" >
 
 </TextView>

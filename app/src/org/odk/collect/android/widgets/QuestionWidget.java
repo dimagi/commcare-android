@@ -38,9 +38,9 @@ import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
+import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
@@ -107,7 +107,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
         String question_font =
-                settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
         mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
@@ -433,7 +433,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // a dialog or inline, underneath the question text
 
         if(!PreferenceManager.getDefaultSharedPreferences(this.getContext().getApplicationContext()).
-                getBoolean(PreferencesActivity.KEY_HELP_MODE_TRAY, false)) {
+                getBoolean(FormEntryPreferences.KEY_HELP_MODE_TRAY, false)) {
 
             AlertDialog mAlertDialog = new AlertDialog.Builder(this.getContext()).create();
             mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);

@@ -38,6 +38,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     // Does the user want to download the latest app version deployed (built),
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +104,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-
     /**
      * @return true if developer option to download the latest app version
      * deployed (built) is enabled.  Otherwise the latest released (starred)
@@ -118,6 +118,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
+    public static boolean imageAboveTextEnabled() {
+        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+                
     public static boolean isHomeReportEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(HOME_REPORT_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);

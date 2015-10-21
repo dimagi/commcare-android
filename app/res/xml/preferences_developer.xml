@@ -15,13 +15,13 @@ the License.
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-superuser-enabled"
         android:title="Developer Mode Enabled" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-action-nav-enabled"
         android:title="Action Bar Enabled"
@@ -29,13 +29,13 @@ the License.
         />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-grid-menus"
         android:title="Grid Menus Enabled" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-nav-ui-enabled"
         android:title="Navigation UI"
@@ -43,31 +43,37 @@ the License.
         />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-list-refresh"
         android:title="Entity List Screen Auto-Refresh" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-newest-version-from-hq"
         android:title="Use Newest App Version From HQ" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-css-enabled"
         android:title="CSS Enabled" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-markdown-enabled"
         android:title="Markdown Enabled" />
     <ListPreference
         android:enabled="true"
-        android:entries="@array/pref_enabled_lables"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-alternate-question-text-format"
+        android:title="Image Above Question Text Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-home-report"
         android:title="Home Report Button enabled" />
