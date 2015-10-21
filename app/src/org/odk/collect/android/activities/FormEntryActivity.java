@@ -2140,7 +2140,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     @Override
     public void widgetEntryChanged() {
-        updateFormRelevencies();
+        try {
+            updateFormRelevencies();
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            return;
+        }
         FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
         formNavUi.updateNavigationCues(mCurrentView);
     }
