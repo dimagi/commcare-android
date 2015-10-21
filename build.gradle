@@ -40,7 +40,7 @@ dependencies {
     compile project(':libraries:AndroidStaggeredGrid:library')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
-    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.android.support:support-v4:23.1.0'
     compile 'com.android.support:gridlayout-v7:23.0.1'
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
