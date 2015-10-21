@@ -31,18 +31,18 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         this.cache = new TCLruCache(memoryClass);
     }
 
-    public void display(String url, ImageView imageview, int defaultresource,
+    public void display(String url, ImageView imageView, int defaultResource,
                         int boundingWidth, int boundingHeight) {
-        imageview.setImageResource(defaultresource);
+        imageView.setImageResource(defaultResource);
         Bitmap image;
         synchronized(cache) {
             image = cache.get(url);
         }
         if (image != null) {
-            imageview.setImageBitmap(image);
+            imageView.setImageBitmap(image);
         }
         else {
-            new SetImageTask(imageview, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+            new SetImageTask(imageView, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
         }
     }
 
