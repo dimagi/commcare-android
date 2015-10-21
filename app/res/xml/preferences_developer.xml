@@ -65,4 +65,10 @@ the License.
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-markdown-enabled"
         android:title="Markdown Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_lables"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-home-report"
+        android:title="Home Report Button enabled" />
 </PreferenceScreen>

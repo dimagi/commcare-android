@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.text.Spannable;
@@ -19,6 +20,7 @@ import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -42,6 +44,7 @@ public class HomeActivityUIController {
     private SquareButtonWithNotification viewIncompleteFormsButton;
     private SquareButtonWithNotification syncButton;
     private SquareButtonWithNotification viewSavedFormsButton;
+    private SquareButtonWithNotification reportButton;
 
     private HomeScreenAdapter adapter;
     private GridViewWithHeaderAndFooter gridView;
@@ -133,6 +136,7 @@ public class HomeActivityUIController {
         setupLogoutButton();
         setupViewSavedFormsButton();
         setupSyncButton();
+        setupReportButton();
     }
 
     private void setupStartButton() {
@@ -177,6 +181,15 @@ public class HomeActivityUIController {
         }
         adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
     }
+
+    private void setupReportButton() {
+        reportButton = adapter.getButton(R.layout.home_report_button);
+        if (reportButton != null) {
+            reportButton.setText(Localization.get("home.report"));
+        }
+        adapter.setOnClickListenerForButton(R.layout.home_report_button, getSubmitIssueListener());
+    }
+
 
     private void setupSyncButton() {
         syncButton = adapter.getButton(R.layout.home_sync_button);
@@ -229,6 +242,16 @@ public class HomeActivityUIController {
             }
         };
     }
+
+    private View.OnClickListener getSubmitIssueListener() {
+        return new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(activity, ReportProblemActivity.class);
+                activity.startActivityForResult(i, CommCareHomeActivity.REPORT_PROBLEM_ACTIVITY);
+            }
+        };
+    }
+
 
     private void setSyncButtonText(String syncTextKey) {
         if (syncTextKey == null) {
@@ -395,6 +418,10 @@ public class HomeActivityUIController {
 
         boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
         adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
+
+
+        boolean showHomeReport = DeveloperPreferences.isHomeReportEnabled();
+        adapter.setButtonVisibility(R.layout.home_report_button, !showHomeReport);
     }
 
 }

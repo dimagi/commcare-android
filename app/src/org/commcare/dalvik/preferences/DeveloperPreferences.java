@@ -34,6 +34,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+    public final static String HOME_REPORT_ENABLED = "cc-home-report";
     // Does the user want to download the latest app version deployed (built),
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
@@ -115,6 +116,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
 
     public static boolean isMarkdownEnabled(){
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean isHomeReportEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(HOME_REPORT_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.commcare.android.view.SquareButtonWithNotification
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home.report.sqbn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    app:subtitle="Start"
+    app:backgroundColor="@color/cc_attention_negative_color"
+    app:textColor="@color/white"
+    app:img="@drawable/home_report">
+</org.commcare.android.view.SquareButtonWithNotification>

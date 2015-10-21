@@ -103,7 +103,7 @@ public class CommCareHomeActivity
     public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
-    private static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.

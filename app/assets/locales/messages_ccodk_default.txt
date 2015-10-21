@@ -61,6 +61,7 @@ home.forms.saved=Saved
 home.sync=Sync with Server
 home.sync.indicator=${1} (${0})
 home.logout=Log out of CommCare
+home.report=Report an Issue
 
 home.sync.message.unsent.singular=You have 1 form which has not been submitted
 home.sync.message.unsent.plural=You have ${0} forms which have not been submitted
