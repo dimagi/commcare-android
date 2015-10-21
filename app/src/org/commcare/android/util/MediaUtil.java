@@ -104,12 +104,12 @@ public class MediaUtil {
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
         Log.i("10/15", "calculated height: " + calculatedHeight + ", calculated width: " + calculatedWidth);
 
-        if (containerHeight < imageHeight || calculatedHeight < imageHeight) {
-            // scaling down
+        if (containerHeight < imageHeight || containerWidth < imageWidth || calculatedHeight < imageHeight) {
+            // If either the container dimens or calculated dimens impose a smaller dimension,
+            // scale down
             return getBitmapScaledDownExact(imageFilepath, imageHeight, imageWidth,
                     calculatedHeight, calculatedWidth, containerHeight, containerWidth);
         } else {
-            // scaling up
             return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
         }
