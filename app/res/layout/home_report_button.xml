@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_weight="1"
-    app:subtitle="Start"
+    app:subtitle="Report Issue"
     app:backgroundColor="@color/cc_attention_negative_color"
     app:textColor="@color/white"
     app:img="@drawable/home_report">
