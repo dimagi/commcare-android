@@ -123,12 +123,66 @@ public class MediaUtil {
         if (containerHeight < imageHeight || containerWidth < imageWidth || calculatedHeight < imageHeight) {
             // If either the container dimens or calculated dimens impose a smaller dimension,
             // scale down
-            return getBitmapScaledDownExact(imageFilepath, imageHeight, imageWidth,
+            return getBitmapScaledByTargetAndContainer(imageFilepath, imageHeight, imageWidth,
                     calculatedHeight, calculatedWidth, containerHeight, containerWidth);
         } else {
             return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
         }
+    }
+
+    public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
+        final int SCREEN_DENSITY = metrics.densityDpi;
+
+        double actualNativeScaleFactor = metrics.density;
+        // The formula below is what Android *usually* uses to compute the value of metrics.density
+        // for a device. If this is in fact the value being used, we are not interested in it.
+        // However, if the actual value differs at all from the standard calculation, it means
+        // Android is taking other factors into consideration (such as straight up screen size),
+        // and we want to incorporate that proportionally into our own version of the scale factor
+        double standardNativeScaleFactor = (double)SCREEN_DENSITY / DisplayMetrics.DENSITY_DEFAULT;
+        double proportionalAdjustmentFactor = 1;
+        if (actualNativeScaleFactor > standardNativeScaleFactor) {
+            proportionalAdjustmentFactor = 1 +
+                    ((actualNativeScaleFactor - standardNativeScaleFactor) / standardNativeScaleFactor);
+        } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
+            proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
+        }
+
+        // Get our custom scale factor, based on this device's density and what the image's target
+        // density was
+        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
+
+        return customDpiScaleFactor * proportionalAdjustmentFactor;
+    }
+
+    /**
+     * @return A bitmap representation of the given image file, scaled down to the smallest
+     * size that still fills the container
+     *
+     * More precisely, preserves the following 2 conditions:
+     * 1. The larger of the 2 sides takes on the size of the corresponding container dimension
+     * (e.g. if its width is larger than its height, then the new width should = containerWidth)
+     * 2. The aspect ratio of the original image is maintained (so the height would get scaled
+     * down proportionally with the width)
+     */
+    private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
+                                                     int containerWidth) {
+        // Determine dimensions of original image
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imageFilepath, o);
+        int imageHeight = o.outHeight;
+        int imageWidth = o.outWidth;
+
+        return getBitmapScaledByTargetAndContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
+                containerHeight, containerWidth);
+    }
+
+    public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
+                                                    int containerWidth) {
+        return getBitmapScaledToContainer(imageFile.getAbsolutePath(), containerHeight,
+                containerWidth);
     }
 
     /**
@@ -141,7 +195,7 @@ public class MediaUtil {
      * Provides for the possibility that there is no target height or target width (indicated by
      * setting them to -1), in which case the 2nd option above is used.
      */
-    private static Bitmap getBitmapScaledDownExact(String imageFilepath,
+    private static Bitmap getBitmapScaledByTargetAndContainer(String imageFilepath,
                                                    int originalHeight, int originalWidth,
                                                    int targetHeight, int targetWidth,
                                                    int boundingHeight, int boundingWidth) {
@@ -167,30 +221,11 @@ public class MediaUtil {
             Bitmap originalBitmap = BitmapFactory.decodeFile(imageFilepath, o);
             // From that, generate a bitmap scaled to the exact right dimensions
             return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
-        }
-        catch (OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {
             // OOM encountered trying to decode the bitmap, so we know we need to scale down by
             // a larger factor
             return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 0);
         }
-    }
-
-    /**
-     * @return A (width, height) pair representing the largest dimensions for which the aspect
-     * ratio given by originalHeight and originalWidth is maintained, without exceeding
-     * boundingHeight or boundingWidth
-     */
-    private static Pair<Integer, Integer> getProportionalDimensForContainer(int originalHeight,
-                                                                            int originalWidth,
-                                                                            int boundingHeight,
-                                                                            int boundingWidth) {
-        double heightScaleFactor = (double)boundingHeight / originalHeight;
-        double widthScaleFactor =  (double)boundingWidth / originalWidth;
-        double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
-
-        int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);
-        int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleFactor);
-        return new Pair<>(widthImposedByContainer, heightImposedByContainer);
     }
 
     /**
@@ -223,61 +258,6 @@ public class MediaUtil {
         }
     }
 
-    public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
-        final int SCREEN_DENSITY = metrics.densityDpi;
-
-        double actualNativeScaleFactor = metrics.density;
-        // The formula below is what Android *usually* uses to compute the value of metrics.density
-        // for a device. If this is in fact the value being used, we are not interested in it.
-        // However, if the actual value differs at all from the standard calculation, it means
-        // Android is taking other factors into consideration (such as straight up screen size),
-        // and we want to incorporate that proportionally into our own version of the scale factor
-        double standardNativeScaleFactor = (double)SCREEN_DENSITY / DisplayMetrics.DENSITY_DEFAULT;
-        double proportionalAdjustmentFactor = 1;
-        if (actualNativeScaleFactor > standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = 1 +
-                    ((actualNativeScaleFactor - standardNativeScaleFactor) / standardNativeScaleFactor);
-        } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
-        }
-
-        // Get our custom scale factor, based on this device's density and what the image's target
-        // density was
-        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
-
-        return customDpiScaleFactor * proportionalAdjustmentFactor;
-    }
-
-
-    /**
-     * @return A bitmap representation of the given image file, scaled down to the smallest
-     * size that still fills the container
-     *
-     * More precisely, preserves the following 2 conditions:
-     * 1. The larger of the 2 sides takes on the size of the corresponding container dimension
-     * (e.g. if its width is larger than its height, then the new width should = containerWidth)
-     * 2. The aspect ratio of the original image is maintained (so the height would get scaled
-     * down proportionally with the width)
-     */
-    private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
-                                                     int containerWidth) {
-        // Determine dimensions of original image
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(imageFilepath, o);
-        int imageHeight = o.outHeight;
-        int imageWidth = o.outWidth;
-
-        return getBitmapScaledDownExact(imageFilepath, imageHeight, imageWidth, -1, -1,
-                containerHeight, containerWidth);
-    }
-
-    public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
-                                                    int containerWidth) {
-        return getBitmapScaledToContainer(imageFile.getAbsolutePath(), containerHeight,
-                containerWidth);
-    }
-
     /**
      * @return A scaled-down bitmap for the given image file, progressively increasing the
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
@@ -294,6 +274,24 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }
+    }
+
+    /**
+     * @return A (width, height) pair representing the largest dimensions for which the aspect
+     * ratio given by originalHeight and originalWidth is maintained, without exceeding
+     * boundingHeight or boundingWidth
+     */
+    private static Pair<Integer, Integer> getProportionalDimensForContainer(int originalHeight,
+                                                                            int originalWidth,
+                                                                            int boundingHeight,
+                                                                            int boundingWidth) {
+        double heightScaleFactor = (double)boundingHeight / originalHeight;
+        double widthScaleFactor =  (double)boundingWidth / originalWidth;
+        double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
+
+        int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);
+        int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleFactor);
+        return new Pair<>(widthImposedByContainer, heightImposedByContainer);
     }
 
 }
