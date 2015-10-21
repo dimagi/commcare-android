@@ -121,10 +121,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public static boolean imageAboveTextEnabled() {
         return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
+    }
                 
     public static boolean isHomeReportEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(HOME_REPORT_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
     }
 
 }
