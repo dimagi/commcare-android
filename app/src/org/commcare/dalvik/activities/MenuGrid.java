@@ -66,8 +66,8 @@ public class MenuGrid extends SessionAwareCommCareActivity implements OnItemClic
         
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
-       if(menuId==null){
-           menuId="root";
+       if (menuId == null) {
+           menuId= "root";
        }
        
        adapter = new GridMenuAdapter(this,platform,menuId);

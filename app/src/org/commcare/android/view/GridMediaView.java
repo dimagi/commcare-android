@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.graph.DisplayData;
@@ -53,24 +54,22 @@ public class GridMediaView extends RelativeLayout {
         setAVT(Localizer.processArguments(display.getText().evaluate(ec), new String[] {""}).trim(), mData.getImageURI());
     }
 
-    //accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
+    // Accepts a string to display and URI links to the audio and image, builds the proper TextImageAudio view
     public void setAVT(String displayText, String imageURI) {
         this.removeAllViews();
 
         LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
         mTextView = (TextView)inflater.inflate(R.layout.menu_grid_item, null);
-
         mTextView.setText(displayText);
         mTextView.setHeight((int)(2.5*mTextView.getLineHeight())); // because 2 lines isn't enough to show 2 lines
 
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension,iconDimension);
+        RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension, iconDimension);
 
-        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imageURI);
+        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, iconDimension, iconDimension);
 
-        if(b == null){
+        if (b == null) {
             b = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.info_bubble);
         }
 
