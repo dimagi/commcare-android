@@ -71,6 +71,14 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         return rootView;
     }
 
+    /**
+     * Creates an evaluation context which is preloaded with all of the variables and context from
+     * the parent detail definition.
+     *
+     * @param childReference The qualified reference for the nodeset in the parent detail
+     * @return An evaluation context ready to be used as the base of the subnode detail, including
+     * any variable definitions included by the parent.
+     */
     private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
         EvaluationContext sessionContext = asw.getEvaluationContext();
         EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
