@@ -206,7 +206,7 @@ public class MediaUtil {
         }
     }
 
-    private static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
+    public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
         final int SCREEN_DENSITY = metrics.densityDpi;
 
         double actualNativeScaleFactor = metrics.density;
