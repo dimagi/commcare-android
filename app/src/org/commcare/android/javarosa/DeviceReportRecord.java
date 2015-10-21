@@ -12,7 +12,6 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,11 +44,8 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     @Persisting(2)
     private byte[] aesKey;
 
-    /**
-     * Serialization Only!!!
-     */
     public DeviceReportRecord() {
-
+        // for externalization
     }
 
     public DeviceReportRecord(String fileName, byte[] aesKey) {
@@ -82,7 +78,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return fileName;
     }
 
-    public final OutputStream openOutputStream() throws FileNotFoundException, IOException {
+    public final OutputStream openOutputStream() throws IOException {
         try {
             String path = getFilePath();
             File f = new File(path);

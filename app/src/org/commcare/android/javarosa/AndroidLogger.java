@@ -88,6 +88,11 @@ public class AndroidLogger implements ILogger {
      */
     public static final String SOFT_ASSERT = "soft-assert";
 
+    /**
+     * Used for tracking the behavior of the form dump activity
+     */
+    public static final String TYPE_FORM_DUMP = "form-dump";
+
     //TODO: Currently assumes that it gets back iterated records in RecordID order.
     //when serializing a limited number of records then clearing
 

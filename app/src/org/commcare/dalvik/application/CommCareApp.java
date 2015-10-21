@@ -126,11 +126,7 @@ public class CommCareApp {
     public void setupSandbox() {
         setupSandbox(true);
     }
-    
-    void initializeStylizer() {
-        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
-    }
-    
+
     /**
      * @param createFilePaths True if file paths should be created as usual. False otherwise
      */
@@ -224,6 +220,11 @@ public class CommCareApp {
         }
         return false;
     }
+
+    private void initializeStylizer() {
+        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+    }
+
 
     public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();

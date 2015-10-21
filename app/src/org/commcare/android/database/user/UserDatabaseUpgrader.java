@@ -10,6 +10,7 @@ import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
@@ -116,7 +117,7 @@ public class UserDatabaseUpgrader {
     private boolean upgradeFourFive(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX ledger_entity_id ON ledger (entity_id)");
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -131,7 +132,7 @@ public class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX case_status_open_index ON AndroidCase (case_type,case_status)");
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_open_index", "AndroidCase", "case_type,case_status"));
 
             DbUtil.createNumbersTable(db);
             db.execSQL(EntityStorageCache.getTableDefinition());
@@ -202,9 +203,9 @@ public class UserDatabaseUpgrader {
     }
 
     private void updateIndexes(SQLiteDatabase db) {
-        db.execSQL("CREATE INDEX case_id_index ON AndroidCase (case_id)");
-        db.execSQL("CREATE INDEX case_type_index ON AndroidCase (case_type)");
-        db.execSQL("CREATE INDEX case_status_index ON AndroidCase (case_status)");
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_type_index", "AndroidCase", "case_type"));
+        db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_status_index", "AndroidCase", "case_status"));
     }
 
     private void addStockTable(SQLiteDatabase db) {

@@ -93,7 +93,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
-            SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
+            SqlStorage<DeviceReportRecord> storage =
+                    CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 
             if (serializeCurrentLogs && !serializeLogs(storage)) {
                 return LogSubmitOutcomes.Error;

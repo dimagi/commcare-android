@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 
 /**
@@ -38,6 +39,12 @@ public class AppDatabaseUpgrader {
         if (oldVersion == 4) {
             if (upgradeFourFive(db)) {
                 oldVersion = 5;
+            }
+        }
+
+        if (oldVersion == 5) {
+            if (upgradeFiveSix(db)) {
+                oldVersion = 6;
             }
         }
 
@@ -75,9 +82,9 @@ public class AppDatabaseUpgrader {
     private boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL("CREATE INDEX global_index_id ON GLOBAL_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX upgrade_index_id ON UPGRADE_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
-            db.execSQL("CREATE INDEX recovery_index_id ON RECOVERY_RESOURCE_TABLE ( " + Resource.META_INDEX_PARENT_GUID + " )");
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
+            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -89,6 +96,28 @@ public class AppDatabaseUpgrader {
         db.beginTransaction();
         try {
             DbUtil.createNumbersTable(db);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Create temporary upgrade table. Used to check for new updates without
+     * wiping progress from the main upgrade table
+     */
+    private boolean upgradeFiveSix(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            AndroidTableBuilder builder = new AndroidTableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            builder.addData(new Resource());
+            db.execSQL(builder.getTableCreateString());
+            String tableCmd =
+                    DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
+                            AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            db.execSQL(tableCmd);
+
             db.setTransactionSuccessful();
             return true;
         } finally {

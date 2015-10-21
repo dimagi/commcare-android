@@ -141,8 +141,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         try {
             db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
-            // TODO PLM: not sure how to fail elegantly here, so mimicking
-            // current behaviour by raising a runtime error.
             throw new UserStorageClosedException(e.getMessage());
         }
 

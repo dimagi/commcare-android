@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -45,6 +47,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 
 import java.util.Vector;
 
@@ -78,9 +81,13 @@ public class BreadcrumbBarFragment extends Fragment {
      * reference to the newly created Activity after each configuration change.
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        refresh(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity) {
+            refresh((Activity)context);
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT, "Unable to attach breadcrumb bar fragment");
+        }
     }
 
     public void refresh(Activity activity) {

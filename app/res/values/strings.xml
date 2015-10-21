@@ -21,7 +21,8 @@
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
-    <string name="update_canceled">Your update did not complete</string>
+    <string name="update_canceled">Your update was paused</string>
+    <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
@@ -47,7 +48,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>24</item>
+        <item>25</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -113,6 +114,24 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string-array name="pref_enabled_labels">
         <item>Enabled</item>
         <item>Disabled</item>
+    </string-array>
+    <string-array name="target_density_labels">
+        <item>DENSITY_LOW</item>
+        <item>DENSITY_MEDIUM</item>
+        <item>DENSITY_HIGH</item>
+        <item>DENSITY_280</item>
+        <item>DENSITY_XHIGH</item>
+        <item>DENSITY_400</item>
+        <item>DENSITY_XXHIGH</item>
+    </string-array>
+    <string-array name="target_density_vals">
+        <item>120</item>
+        <item>160</item>
+        <item>240</item>
+        <item>280</item>
+        <item>320</item>
+        <item>400</item>
+        <item>480</item>
     </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>

@@ -58,11 +58,13 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -141,8 +143,6 @@ public class CommCareApplication extends Application {
 
     private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
-
-    private boolean updatePending = false;
 
     private ArchiveFileRoot mArchiveFileRoot;
 
@@ -880,10 +880,9 @@ public class CommCareApplication extends Application {
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
-                        //See if there's an auto-update pending. We only want to be able to turn this
-                        //to "True" on login, not any other time
-                        //TODO: this should be associated with the app itself, not the global settings
-                        updatePending = getPendingUpdateStatus();
+                        if (shouldAutoUpdate()) {
+                            startAutoUpdate();
+                        }
                         syncPending = getPendingSyncStatus();
 
                         doReportMaintenance(false);
@@ -954,27 +953,63 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private boolean getPendingUpdateStatus() {
+    /**
+     * @return True if we aren't a demo user and the time to check for an
+     * update has elapsed or we logged out while an auto-update was downlaoding
+     * or queued for retry.
+     */
+    private boolean shouldAutoUpdate() {
+        return (!areAutomatedActionsInvalid() &&
+                (ResourceInstallUtils.shouldAutoUpdateResume(getCurrentApp()) ||
+                        isUpdatePending()));
+    }
+
+    private void startAutoUpdate() {
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
+
+        try {
+            UpdateTask updateTask = UpdateTask.getNewInstance();
+            updateTask.startPinnedNotification(this);
+            updateTask.setAsAutoUpdate();
+            updateTask.execute(ref);
+        } catch(IllegalStateException e) {
+            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
+                    "Should only happen if the user triggered a manual update before this fired.");
+        }
+    }
+
+    public boolean isUpdatePending() {
         SharedPreferences preferences = getCurrentApp().getAppPreferences();
         //Establish whether or not an AutoUpdate is Pending
-        String autoUpdateFreq = preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+        String autoUpdateFreq =
+                preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY,
+                        CommCarePreferences.FREQUENCY_NEVER);
 
         //See if auto update is even turned on
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
-            long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-
-            long duration = (24 * 60 * 60 * 100) * (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq) ? 1 : 7);
-
-            return isPending(lastUpdateCheck, duration);
+            long lastUpdateCheck =
+                    preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+            return isTimeForAutoUpdateCheck(lastUpdateCheck, autoUpdateFreq);
         }
         return false;
     }
 
-    private boolean isPending(long last, long period) {
-        Date current = new Date();
-        //There are a couple of conditions in which we want to trigger pending maintenance ops.
+    public boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
+        int checkEveryNDays;
+        if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
+            checkEveryNDays = 1;
+        } else {
+            checkEveryNDays = 7;
+        }
+        long duration = DateUtils.DAY_IN_MILLIS * checkEveryNDays;
 
-        long now = current.getTime();
+        return isPending(lastUpdateCheck, duration);
+    }
+
+    private boolean isPending(long last, long period) {
+        long now = new Date().getTime();
 
         //1) Straightforward - Time is greater than last + duration
         long diff = now - last;
@@ -996,15 +1031,7 @@ public class CommCareApplication extends Application {
         //3) Major time change - (Phone might have had its calendar day manipulated).
         //for now we'll simply say that if last was more than a day in the future (timezone blur)
         //we should also trigger
-        if (now < (last - DateUtils.DAY_IN_MILLIS)) {
-            return true;
-        }
-
-        //TODO: maaaaybe trigger all if there's a substantial time difference
-        //noted between calls to a server
-
-        //Otherwise we're fine
-        return false;
+        return (now < (last - DateUtils.DAY_IN_MILLIS));
     }
 
     /**
@@ -1013,25 +1040,10 @@ public class CommCareApplication extends Application {
      */
     private boolean areAutomatedActionsInvalid() {
         try {
-            if (User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
-                return true;
-            }
+            return User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
             return true;
         }
-        return false;
-    }
-
-    public boolean isUpdatePending() {
-        if (areAutomatedActionsInvalid()) {
-            return false;
-        }
-        // We only set this to true occasionally, but in theory it could be set
-        // to false from other factors, so turn it off if it is.
-        if (!getPendingUpdateStatus()) {
-            updatePending = false;
-        }
-        return updatePending;
     }
 
     private void unbindUserSessionService() {
@@ -1316,5 +1328,12 @@ public class CommCareApplication extends Application {
     public void setTestingService(CommCareSessionService service) {
         mIsBound = true;
         mBoundService = service;
+        mConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+            }
+        };
     }
 }
