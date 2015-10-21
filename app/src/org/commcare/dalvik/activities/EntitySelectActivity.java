@@ -149,6 +149,16 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private DataSetObserver mListStateObserver;
     private OnClickListener barcodeScanOnClickListener;
 
+    private boolean resuming = false;
+    private boolean startOther = false;
+
+    private boolean rightFrameSetup = false;
+    private NodeEntityFactory factory;
+
+    private Timer myTimer;
+    private final Object timerLock = new Object();
+    private boolean cancelled;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -216,7 +226,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
         setupDivider(view);
-
 
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
@@ -387,23 +396,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public String getActivityTitle() {
-        //Skipping this until it's a more general pattern
-
-//        String title = Localization.get("select.list.title");
-//        
-//        try {
-//            Detail detail = session.getDetail(selectDatum.getShortDetail());
-//            title = detail.getTitle().evaluate();
-//        } catch(Exception e) {
-//            
-//        }
-//        
-//        return title;
         return null;
     }
-
-    private boolean resuming = false;
-    private boolean startOther = false;
 
     @Override
     protected void onResume() {
@@ -491,7 +485,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
-
     /**
      * Get an intent for displaying the confirm detail screen for an element (either just populates
      * the given intent with the necessary information, or creates a new one if it is null)
@@ -512,8 +505,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
      * Attach all element selection information to the intent argument and return the resulting
      * intent
      */
-    protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
-                                                 SessionDatum selectDatum, AndroidSessionWrapper asw) {
+    protected static Intent populateDetailIntent(Intent detailIntent,
+                                                 TreeReference contextRef,
+                                                 SessionDatum selectDatum,
+                                                 AndroidSessionWrapper asw) {
 
         String caseId = SessionDatum.getCaseIdFromReference(
                 contextRef, selectDatum, asw.getEvaluationContext());
@@ -662,6 +657,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     }
 
 
+    @Override
     public void afterTextChanged(Editable s) {
         if (getSearchText() == s) {
             filterString = s.toString();
@@ -671,23 +667,17 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
         if (!isUsingActionBar()) {
             lastQueryString = filterString;
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
-            }
         }
     }
 
 
+    @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
-        // TODO Auto-generated method stub
-
     }
 
-
+    @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -735,11 +725,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
-                        if (BuildConfig.DEBUG) {
-                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
-                        }
-                        if (newText != null && newText.length() > 0) {
-                        }
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -918,7 +903,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
+    public void deliverResult(List<Entity<TreeReference>> entities,
+                              List<TreeReference> references,
+                              NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -967,17 +954,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
             Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
 
-            //region ListView divider information
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
             }
-            //endregion
 
-            //region Asserting divider instanceof LayerDrawable
             if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
                 throw new AssertionError("Divider should be a LayerDrawable!");
             }
-            //endregion
 
             LayerDrawable layerDrawable = (LayerDrawable)divider;
 
@@ -1022,9 +1005,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         this.loader = task;
     }
 
-    private boolean rightFrameSetup = false;
-    private NodeEntityFactory factory;
-
     private void select() {
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
@@ -1033,18 +1013,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         finish();
     }
 
+    @Override
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
+    @Override
     public void addressRequested(String address) {
         DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
 
+    @Override
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
@@ -1137,10 +1121,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    private Timer myTimer;
-    private final Object timerLock = new Object();
-    private boolean cancelled;
-
     private void startTimer() {
         if (!DeveloperPreferences.isListRefreshEnabled()) {
             return;
@@ -1176,5 +1156,4 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             }
         }
     }
-
 }
