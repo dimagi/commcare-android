@@ -123,8 +123,8 @@ public class MediaUtil {
         if (containerHeight < imageHeight || containerWidth < imageWidth || calculatedHeight < imageHeight) {
             // If either the container dimens or calculated dimens impose a smaller dimension,
             // scale down
-            return getBitmapScaledByTargetAndContainer(imageFilepath, imageHeight, imageWidth,
-                    calculatedHeight, calculatedWidth, containerHeight, containerWidth);
+            return getBitmapScaledByTargetOrContainer(imageFilepath, imageHeight, imageWidth,
+                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false);
         } else {
             return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
@@ -175,8 +175,8 @@ public class MediaUtil {
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
-        return getBitmapScaledByTargetAndContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
-                containerHeight, containerWidth);
+        return getBitmapScaledByTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
+                containerHeight, containerWidth, true);
     }
 
     public static Bitmap getBitmapScaledToContainer(File imageFile, int containerHeight,
@@ -192,19 +192,23 @@ public class MediaUtil {
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
      * exceeding either boundingWidth or boundingHeight
      *
-     * Provides for the possibility that there is no target height or target width (indicated by
-     * setting them to -1), in which case the 2nd option above is used.
+     * @param scaleByContainerOnly If true, means that we're just trying to ensure that our bitmap
+     *                             isn't way bigger than necessary, rather than creating a bitmap
+     *                             of an exact size based on a target width and height. In this
+     *                             case, targetWidth and targetHeight are ignored and the 2nd case
+     *                             above is used.
      */
-    private static Bitmap getBitmapScaledByTargetAndContainer(String imageFilepath,
-                                                   int originalHeight, int originalWidth,
-                                                   int targetHeight, int targetWidth,
-                                                   int boundingHeight, int boundingWidth) {
+    private static Bitmap getBitmapScaledByTargetOrContainer(String imageFilepath,
+                                                             int originalHeight, int originalWidth,
+                                                             int targetHeight, int targetWidth,
+                                                             int boundingHeight, int boundingWidth,
+                                                             boolean scaleByContainerOnly) {
 
         Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
         int newWidth, newHeight;
-        if (targetHeight == -1 || targetWidth == -1) {
+        if (scaleByContainerOnly) {
             newWidth = dimensImposedByContainer.first;
             newHeight = dimensImposedByContainer.second;
         } else {
@@ -222,8 +226,13 @@ public class MediaUtil {
             // Decode the bitmap with the largest integer scale down factor that will not make it
             // smaller than the final desired size
             Bitmap originalBitmap = BitmapFactory.decodeFile(imageFilepath, o);
-            // From that, generate a bitmap scaled to the exact right dimensions
-            return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+            if (scaleByContainerOnly) {
+                // Not worth performance loss of creating an exact scaled bitmap in this case
+                return originalBitmap;
+            } else {
+                // Here we want to be more precise because we had a target width and height
+                return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
+            }
         } catch (OutOfMemoryError e) {
             // OOM encountered trying to decode the bitmap, so we know we need to scale down by
             // a larger factor
