@@ -34,7 +34,10 @@ import org.javarosa.core.services.locale.Localization;
  * @author ctsims
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
+public class EntityDetailActivity
+        extends SessionAwareCommCareActivity
+        implements DetailCalloutListener {
+
     // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
@@ -80,9 +83,14 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
             mViewMode = session.isViewCommand(session.getCommand());
         }
 
-        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
+        factory =
+                new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)),
+                        asw.getEvaluationContext());
 
-        mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+        mTreeReference =
+                SerializationUtil.deserializeFromIntent(getIntent(),
+                        EntityDetailActivity.CONTEXT_REFERENCE,
+                        TreeReference.class);
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
