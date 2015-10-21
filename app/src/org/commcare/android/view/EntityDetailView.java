@@ -34,6 +34,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
@@ -219,7 +220,7 @@ public class EntityDetailView extends FrameLayout {
                 addressButton.setText(Localization.get("select.address.show"));
                 addressButton.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
-                        listener.addressRequested(MediaUtil.getGeoIntentURI(address));
+                        listener.addressRequested(GeoUtils.getGeoIntentURI(address));
                     }
                 });
                 updateCurrentView(ADDRESS, addressView);
