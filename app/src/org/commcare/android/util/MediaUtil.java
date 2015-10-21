@@ -146,21 +146,21 @@ public class MediaUtil {
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
         int newWidth = Math.min(dimensImposedByContainer.first, calcWidth);
         int newHeight = Math.min(dimensImposedByContainer.second, calcHeight);
+        int approximateScaleFactor = originalWidth / newWidth;
 
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inScaled = false;
+            o.inSampleSize = approximateScaleFactor;
+            // Decode the bitmap with the largest integer scale down factor that will not make it
+            // smaller than the final desired size
             Bitmap originalBitmap = BitmapFactory.decodeFile(imageFilepath, o);
+            // From that, generate a bitmap scaled to the exact right dimensions
             return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
         }
         catch (OutOfMemoryError e) {
-            // OOM encountered trying to decode the bitmap at its current size, so we know we
-            // need to scale down by some factor greater than 1
-            int scaleFactor = originalHeight / newHeight;
-            if (scaleFactor < 2) {
-                scaleFactor = 2;
-            }
-            return performSafeScaleDown(imageFilepath, scaleFactor, 0);
+            // OOM encountered trying to decode the bitmap, so we know we need to scale down by
+            // a larger factor
+            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 0);
         }
     }
 
