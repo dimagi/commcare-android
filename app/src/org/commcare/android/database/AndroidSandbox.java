@@ -4,7 +4,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.AbstractUserSandbox;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
@@ -16,7 +16,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
  *
  * Created by wpride1 on 8/11/15.
  */
-public class AndroidSandbox extends AbstractUserSandbox {
+public class AndroidSandbox extends UserSandbox {
 
     CommCareApplication app;
 
