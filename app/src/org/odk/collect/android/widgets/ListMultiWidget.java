@@ -46,46 +46,40 @@ import java.util.Vector;
 public class ListMultiWidget extends QuestionWidget {
     private static final String TAG = ListMultiWidget.class.getSimpleName();
 
-    int buttonIdBase;
+    private final int buttonIdBase;
     private final static int CHECKBOX_ID = 100;
-    protected final static int TEXTSIZE = 21;
-
-    // Layout holds the horizontal list of buttons
-    LinearLayout buttonLayout;
+    private final static int TEXTSIZE = 21;
 
     // Holds the entire question and answers. It is a horizontally aligned linear layout
-    LinearLayout questionLayout;
-
-    // Option to keep labels blank
-    boolean displayLabel;
-
-    private boolean mCheckboxInit = true;
-    Vector<SelectChoice> mItems;
-
-    private Vector<CheckBox> mCheckboxes;
-
-    private TextView questionText;
+    private LinearLayout questionLayout;
 
 
+    private final boolean mCheckboxInit = true;
+    private final Vector<SelectChoice> mItems;
+
+    private final Vector<CheckBox> mCheckboxes;
+
+
+    /**
+     * @param displayLabel Option to keep labels blank
+     */
     @SuppressWarnings("unchecked")
     public ListMultiWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
         mItems = mPrompt.getSelectChoices();
-        mCheckboxes = new Vector<CheckBox>();
+        mCheckboxes = new Vector<>();
 
-        this.displayLabel = displayLabel;
+        // Layout holds the horizontal list of buttons
+        LinearLayout buttonLayout = new LinearLayout(context);
 
-        buttonLayout = new LinearLayout(context);
-
-        Vector<Selection> ve = new Vector<Selection>();
+        Vector<Selection> ve = new Vector<>();
         if (mPrompt.getAnswerValue() != null) {
             ve = (Vector<Selection>) getCurrentAnswer().getValue();
         }
 
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
-
 
         if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
@@ -95,6 +89,7 @@ public class ListMultiWidget extends QuestionWidget {
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        // XXX PLM: hmmm, the conditional below is always false...
                         if (!mCheckboxInit && mPrompt.isReadOnly()) {
                             if (buttonView.isChecked()) {
                                 buttonView.setChecked(false);
@@ -119,8 +114,7 @@ public class ListMultiWidget extends QuestionWidget {
                 }
                 mCheckboxes.add(c);
 
-                String imageURI = null;
-                imageURI =
+                String imageURI =
                         mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
                                 FormEntryCaption.TEXT_FORM_IMAGE);
 
@@ -162,10 +156,7 @@ public class ListMultiWidget extends QuestionWidget {
                                 errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
-                        } else if (errorMsg == null) {
-                            // An error hasn't been logged. We should have an image, but the file
-                            // doesn't
-                            // exist.
+                        } else {
                             errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
@@ -182,8 +173,6 @@ public class ListMultiWidget extends QuestionWidget {
                         Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
-                } else {
-                    // There's no imageURI listed, so just ignore it.
                 }
 
                 // build text label. Don't assign the text to the built in label to he
@@ -264,7 +253,7 @@ public class ListMultiWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        Vector<Selection> vc = new Vector<Selection>();
+        Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
             CheckBox c = ((CheckBox) findViewById(CHECKBOX_ID + i));
             if (c.isChecked()) {
@@ -292,7 +281,7 @@ public class ListMultiWidget extends QuestionWidget {
     @Override
     protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
-        questionText = new TextView(getContext());
+        TextView questionText = new TextView(getContext());
         questionText.setText(mPrompt.getLongText());
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         questionText.setTypeface(null, Typeface.BOLD);
