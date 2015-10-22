@@ -7,19 +7,14 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import org.commcare.android.util.MediaUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
@@ -28,6 +23,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.odk.collect.android.adapters.ImageAdapter;
 
 import java.io.File;
 import java.util.Vector;
@@ -112,19 +108,16 @@ public class GridMultiWidget extends QuestionWidget {
                     Log.e("GridWidget", "image invalid reference exception");
                     e.printStackTrace();
                 }
-
             } else {
                 choices[i] = prompt.getSelectChoiceText(sc);
             }
-
         }
 
         // Use the custom image adapter and initialize the grid view
-        ImageAdapter ia = new ImageAdapter(choices);
+        ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
                 if (selected[position]) {
                     selected[position] = false;
                     imageViews[position].setBackgroundColor(Color.WHITE);
@@ -135,7 +128,6 @@ public class GridMultiWidget extends QuestionWidget {
                 }
                 
                 widgetEntryChanged();
-
             }
         });
 
@@ -230,99 +222,6 @@ public class GridMultiWidget extends QuestionWidget {
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
-    }
-
-    // Custom image adapter. Most of the code is copied from
-    // media layout for using a picture.
-    private class ImageAdapter extends BaseAdapter {
-        private final String[] choices;
-
-        public ImageAdapter(String[] choices) {
-            this.choices = choices;
-        }
-
-        @Override
-        public int getCount() {
-            return choices.length;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        // create a new ImageView for each item referenced by the Adapter
-        public View getView(int position, View convertView, ViewGroup parent) {
-            String imageURI = choices[position];
-
-            // It is possible that an imageview already exists and has been updated
-            // by updateViewAfterAnswer
-            ImageView mImageView = null;
-            if (imageViews[position] != null) {
-                mImageView = imageViews[position];
-            }
-            TextView mMissingImage = null;
-
-            String errorMsg = null;
-            if (imageURI != null) {
-                try {
-                    String imageFilename =
-                        ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                    final File imageFile = new File(imageFilename);
-                    if (imageFile.exists()) {
-                        Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        Bitmap b = MediaUtil
-                                .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                        if (b != null) {
-
-                            if (mImageView == null) {
-                                mImageView = new ImageView(getContext());
-                                mImageView.setBackgroundColor(Color.WHITE);
-                            }
-
-                            mImageView.setPadding(3, 3, 3, 3);
-                            mImageView.setImageBitmap(b);
-
-                            imageViews[position] = mImageView;
-
-                        } else {
-                            // Loading the image failed, so it's likely a bad file.
-                            errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
-                        }
-                    } else {
-                        // We should have an image, but the file doesn't exist.
-                        errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
-                    }
-
-                    if (errorMsg != null) {
-                        // errorMsg is only set when an error has occurred
-                        Log.e("GridWidget", errorMsg);
-                        mMissingImage = new TextView(getContext());
-                        mMissingImage.setText(errorMsg);
-                        mMissingImage.setPadding(10, 10, 10, 10);
-                    }
-                } catch (InvalidReferenceException e) {
-                    Log.e("GridWidget", "image invalid reference exception");
-                    e.printStackTrace();
-                }
-            }
-
-            if (mImageView != null) {
-                mImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                return mImageView;
-            } else {
-                return mMissingImage;
-            }
-        }
     }
 
     @Override
