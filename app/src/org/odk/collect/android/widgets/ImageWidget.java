@@ -55,15 +55,11 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        this(context, prompt);
-        this.pendingCalloutInterface = pic;
-    }
-
-    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
+        this.pendingCalloutInterface = pic;
 
         mMaxDimen = -1;
         mWaitingForData = false;
@@ -200,7 +196,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 projection, "_data='" + mInstanceFolder + mBinaryName + "'",
                                 null, null);
-                        if (c.getCount() > 0) {
+                        if (c != null && c.getCount() > 0) {
                             c.moveToFirst();
                             String id = c.getString(c.getColumnIndex("_id"));
 
@@ -324,33 +320,5 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
     public int getMaxDimen() {
         return this.mMaxDimen;
-    }
-
-    public enum ImageType {
-        JPEG(Bitmap.CompressFormat.JPEG),
-        PNG(Bitmap.CompressFormat.PNG);
-
-        private Bitmap.CompressFormat format;
-
-        ImageType(Bitmap.CompressFormat format) {
-            this.format = format;
-        }
-
-        public Bitmap.CompressFormat getCompressFormat() {
-            return this.format;
-        }
-
-        public static ImageType fromExtension(String extension) {
-            switch(extension.toLowerCase()) {
-                case "jpeg":
-                case "jpg":
-                    return JPEG;
-                case "png":
-                    return PNG;
-                default:
-                    return null;
-            }
-        }
-
     }
 }
