@@ -77,7 +77,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -97,7 +97,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                     mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -113,7 +113,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +127,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
                     mWaitingForData = true;
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -142,7 +142,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         addView(mCaptureButton);
         addView(mChooseButton);
 
-        String acq = prompt.getAppearanceHint();
+        String acq = mPrompt.getAppearanceHint();
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
@@ -150,7 +150,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
+        mBinaryName = mPrompt.getAnswerText();
 
         // Only add the imageView if the user has taken a picture
         if (mBinaryName != null) {
