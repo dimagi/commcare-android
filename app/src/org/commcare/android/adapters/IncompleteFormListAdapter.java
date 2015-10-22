@@ -109,6 +109,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
         if (isLoaded && satisfiesQuery(record)) {
             current.add(record);
+            notifyDataSetChanged();
         }
     }
 
@@ -117,7 +118,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     @Override
     public void notifyLoaded() {
-        this.notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     /**
@@ -178,6 +179,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         searchCache.clear();
         current.clear();
+        notifyDataSetChanged();
 
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
@@ -198,6 +200,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
+
         for (DataSetObserver observer : observers) {
             observer.onChanged();
         }
@@ -308,15 +311,15 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         if ("".equals(query)) {
             current.addAll(records);
-            return;
-        }
-
-        // collect all forms that have text data that contains pieces.
-        for (FormRecord r : records) {
-            if (satisfiesQuery(r)) {
-                current.add(r);
+        } else {
+            // collect all forms that have text data that contains pieces.
+            for (FormRecord r : records) {
+                if (satisfiesQuery(r)) {
+                    current.add(r);
+                }
             }
         }
+        notifyDataSetChanged();
     }
 
     /**
