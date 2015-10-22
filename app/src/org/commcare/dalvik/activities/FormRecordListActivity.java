@@ -44,7 +44,6 @@ import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -62,7 +61,7 @@ import java.io.IOException;
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener, TaskListener<Void, Void> {
-    public static final String TAG = FormRecordListActivity.class.getSimpleName();
+    private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;
@@ -83,9 +82,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private int initialSelection = -1;
 
     private EditText searchbox;
-    private LinearLayout header;
-    private ImageButton barcodeButton;
-    private Spinner filterSelect;
     private ListView listView;
     private SearchView searchView;
     private MenuItem searchItem;
@@ -131,7 +127,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         private final String message;
         private final String[] statuses;
-        public boolean visible;
+        public final boolean visible;
 
         public String getMessage() {
             return message;
@@ -147,90 +143,86 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        try {
-            platform = CommCareApplication._().getCommCarePlatform();
-            setContentView(R.layout.entity_select_layout);
-            findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        platform = CommCareApplication._().getCommCarePlatform();
+        setContentView(R.layout.entity_select_layout);
+        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-            searchbox = (EditText)findViewById(R.id.searchbox);
-            header = (LinearLayout)findViewById(R.id.entity_select_header);
-            barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        searchbox = (EditText)findViewById(R.id.searchbox);
+        LinearLayout header = (LinearLayout)findViewById(R.id.entity_select_header);
+        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-            filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+        Spinner filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
 
-            listView = (ListView)findViewById(R.id.screen_entity_select_list);
-            listView.setOnItemClickListener(this);
+        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+        listView.setOnItemClickListener(this);
 
-            header.setVisibility(View.GONE);
-            barcodeButton.setVisibility(View.GONE);
+        header.setVisibility(View.GONE);
+        barcodeButton.setVisibility(View.GONE);
 
-            barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
-                    FormRecordListActivity.this, null, null);
+        barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
+                FormRecordListActivity.this, null, null);
 
-            TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(this.localize("select.search.label"));
+        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        searchLabel.setText(this.localize("select.search.label"));
 
-            searchbox.addTextChangedListener(this);
-            FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
-            task.addListener(this);
+        searchbox.addTextChangedListener(this);
+        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
+        task.addListener(this);
 
-            adapter = new IncompleteFormListAdapter(this, platform, task);
+        adapter = new IncompleteFormListAdapter(this, platform, task);
 
-            initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
+        initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
 
-            if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
-                String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
-                if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-                    //special case, no special filtering options
-                    adapter.setFormFilter(FormRecordFilter.Incomplete);
-                }
-            } else {
-                FormRecordFilter[] filters = FormRecordFilter.values();
-                String[] names = new String[filters.length];
-                for (int i = 0; i < filters.length; ++i) {
-                    names[i] = Localization.get(filters[i].getMessage());
-                }
-                ArrayAdapter<String> spinneritems = new ArrayAdapter<String>(this, R.layout.form_filter_display, names);
-                filterSelect.setAdapter(spinneritems);
-                spinneritems.setDropDownViewResource(R.layout.form_filter_item);
-                filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
-                        // NOTE: This gets called every time a spinner gets
-                        // set-up and also every time spinner state is restored
-                        // on scree-rotation. Hence we defer onCreate record
-                        // loading until this gets triggered automatically.
-                        adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
-
-                        //This is only relevant with the new menu format, old menus have a hard
-                        //button and don't need their menu to be rebuilt
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            invalidateOptionsMenu();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        // TODO Auto-generated method stub
-
-                    }
-                });
-                filterSelect.setVisibility(View.VISIBLE);
+        if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
+            String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+            if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+                //special case, no special filtering options
+                adapter.setFormFilter(FormRecordFilter.Incomplete);
             }
-
-            this.registerForContextMenu(listView);
-            refreshView();
-
-            restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
-
-            if (!isUsingActionBar()) {
-                if (BuildConfig.DEBUG) {
-                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
-                }
-                setSearchText(lastQueryString);
+        } else {
+            FormRecordFilter[] filters = FormRecordFilter.values();
+            String[] names = new String[filters.length];
+            for (int i = 0; i < filters.length; ++i) {
+                names[i] = Localization.get(filters[i].getMessage());
             }
-        } catch (SessionUnavailableException sue) {
-            //TODO: session is dead, login and return
+            ArrayAdapter<String> spinneritems = new ArrayAdapter<>(this, R.layout.form_filter_display, names);
+            filterSelect.setAdapter(spinneritems);
+            spinneritems.setDropDownViewResource(R.layout.form_filter_item);
+            filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
+                    // NOTE: This gets called every time a spinner gets
+                    // set-up and also every time spinner state is restored
+                    // on scree-rotation. Hence we defer onCreate record
+                    // loading until this gets triggered automatically.
+                    adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
+
+                    //This is only relevant with the new menu format, old menus have a hard
+                    //button and don't need their menu to be rebuilt
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        invalidateOptionsMenu();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
+            filterSelect.setVisibility(View.VISIBLE);
+        }
+
+        this.registerForContextMenu(listView);
+        refreshView();
+
+        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+
+        if (!isUsingActionBar()) {
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+            }
+            setSearchText(lastQueryString);
         }
     }
 
@@ -260,7 +252,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     protected void onStop() {
         super.onStop();
 
-        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
     @Override
@@ -347,12 +339,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-    protected void disableSearch() {
+    private void disableSearch() {
         setSearchEnabled(false);
     }
 
 
-    protected void enableSearch() {
+    private void enableSearch() {
         setSearchEnabled(true);
     }
 
@@ -450,7 +442,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     /**
      * Checks if the action bar view is active
      */
-    public boolean isUsingActionBar() {
+    private boolean isUsingActionBar() {
         return searchView != null;
     }
 
@@ -514,7 +506,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
-            if (!(source == null || source.equals(""))) {
+            if (!source.equals("")) {
                 menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
             }
             menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
@@ -596,16 +588,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
 
+    @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
-        //nothing
     }
 
-
+    @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        //nothing        
     }
-
 
     @Override
     public void notifyPriorityLoaded(FormRecord record, boolean priority) {
@@ -659,5 +649,4 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public void handleTaskCancellation(Void result) {
         dismissProgressDialog();
     }
-
 }
