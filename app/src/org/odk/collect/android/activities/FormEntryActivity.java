@@ -159,6 +159,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+    private static final String KEY_LOAD_FAILURE_MESSAGE = "org.odk.collect.form.load.failure.message";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -196,6 +197,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
+    private String formLoadFailureMessage = null;
 
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
@@ -254,8 +256,10 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if (data instanceof FormLoaderTask) {
             mFormLoaderTask = (FormLoaderTask) data;
         } else if (data instanceof SaveToDiskTask) {
-            mSaveToDiskTask = (SaveToDiskTask) data;
+            mSaveToDiskTask = (SaveToDiskTask)data;
             mSaveToDiskTask.setFormSavedListener(this);
+        } else if (formLoadFailed()) {
+            CommCareActivity.createErrorDialog(this, formLoadFailureMessage, EXIT);
         } else if (hasFormLoadBeenTriggered) {
             // Screen orientation change
             refreshCurrentView();
@@ -381,7 +385,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
-        
+        outState.putString(KEY_LOAD_FAILURE_MESSAGE, formLoadFailureMessage);
+
         if(symetricKey != null) {
             try {
                 outState.putString(KEY_AES_STORAGE_KEY, new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
@@ -651,7 +656,10 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * dialogs and restarts caused by screen orientation changes, so they're resynchronized here.
      */
     private void refreshCurrentView(boolean animateLastView) {
-        if(mFormController == null) { throw new RuntimeException("Form state is lost! Cannot refresh current view. This shouldn't happen, please submit a bug report."); }
+        if (!formHasLoaded()) {
+            throw new RuntimeException("Form state is lost! Cannot refresh current view. This shouldn't happen, please submit a bug report.");
+        }
+
         int event = mFormController.getEvent();
 
         // When we refresh, repeat dialog state isn't maintained, so step back to the previous
@@ -1761,10 +1769,15 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    // stop showing form loading dialog
+                    receiver.dismissProgressDialog();
                     if (e != null) {
+                        receiver.setFormLoadFailure(e.getMessage());
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
-                        CommCareActivity.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
+                        String errorStr = StringUtils.getStringRobust(receiver, R.string.parse_error);
+                        receiver.setFormLoadFailure(errorStr);
+                        CommCareActivity.createErrorDialog(receiver, errorStr, EXIT);
                     }
                 }
             };
@@ -2210,6 +2223,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
                 ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
             }
+
+            if (savedInstanceState.containsKey(KEY_LOAD_FAILURE_MESSAGE)) {
+                formLoadFailureMessage = savedInstanceState.getString(KEY_LOAD_FAILURE_MESSAGE);
+            }
+
             if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
                  String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
                  try {
@@ -2346,5 +2364,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         FormQueryException(String msg) {
             super(msg);
         }
+    }
+
+    private void setFormLoadFailure(String failureMessage) {
+        formLoadFailureMessage = failureMessage;
+    }
+
+    private boolean formLoadFailed() {
+        return formLoadFailureMessage != null;
     }
 }
