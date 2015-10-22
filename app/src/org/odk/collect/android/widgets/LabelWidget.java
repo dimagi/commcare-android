@@ -38,11 +38,9 @@ import java.util.Vector;
 public class LabelWidget extends QuestionWidget {
     private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
-    protected final static int TEXTSIZE = 21;
+    private final static int TEXTSIZE = 21;
 
-    LinearLayout buttonLayout;
-    LinearLayout questionLayout;
-    Vector<SelectChoice> mItems;
+    private LinearLayout questionLayout;
 
     private TextView mQuestionText;
     private TextView mMissingImage;
@@ -52,17 +50,16 @@ public class LabelWidget extends QuestionWidget {
     public LabelWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
-        mItems = mPrompt.getSelectChoices();
+        Vector<SelectChoice> mItems = mPrompt.getSelectChoices();
 
-        buttonLayout = new LinearLayout(context);
+        LinearLayout buttonLayout = new LinearLayout(context);
 
         if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
 
-                String imageURI = null;
-                imageURI =
-                    mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_IMAGE);
+                String imageURI =
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
                 mImageView = null;
@@ -102,10 +99,7 @@ public class LabelWidget extends QuestionWidget {
                                 errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
-                        } else if (errorMsg == null) {
-                            // An error hasn't been logged. We should have an image, but the file
-                            // doesn't
-                            // exist.
+                        } else {
                             errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
@@ -122,8 +116,6 @@ public class LabelWidget extends QuestionWidget {
                         Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
-                } else {
-                    // There's no imageURI listed, so just ignore it.
                 }
 
                 // build text label. Don't assign the text to the built in label to he
