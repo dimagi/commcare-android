@@ -30,7 +30,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
-import org.odk.collect.android.listeners.WidgetChangedListener;
 
 import java.io.File;
 import java.util.Vector;
@@ -43,56 +42,51 @@ import java.util.Vector;
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class GridWidget extends QuestionWidget {
-    Vector<SelectChoice> mItems;
+    private final Vector<SelectChoice> mItems;
 
     // The possible select choices
-    String[] choices;
+    private final String[] choices;
 
     // The Gridview that will hol the icons
-    GridView gridview;
+    private final GridView gridview;
 
     // Defines which icon is selected
-    boolean[] selected;
+    private final boolean[] selected;
 
     // The image views for each of the icons
-    ImageView[] imageViews;
-
-    // The number of columns in the grid, can be user defined
-    int numColumns;
-
-    // The max width of an icon in a given column. Used to line
-    // up the columns and automatically fit the columns in when
-    // they are chosen automatically
-    int maxColumnWidth;
-
-    // Whether to advance immediately after the image is clicked
-    boolean quickAdvance;
+    private final ImageView[] imageViews;
 
     // The RGB value for the orange background
-    public static final int orangeRedVal = 255;
-    public static final int orangeGreenVal = 140;
-    public static final int orangeBlueVal = 0;
+    private static final int orangeRedVal = 255;
+    private static final int orangeGreenVal = 140;
+    private static final int orangeBlueVal = 0;
 
-    AdvanceToNextListener listener;
+    private final AdvanceToNextListener listener;
 
 
-    public GridWidget(Context context, FormEntryPrompt prompt, int numColumns,
-            final boolean quickAdvance) {
+    /**
+     * @param numColumns The number of columns in the grid, can be user defined
+     * @param quickAdvance Whether to advance immediately after the image is clicked
+     */
+    public GridWidget(Context context, FormEntryPrompt prompt,
+                      int numColumns, final boolean quickAdvance) {
         super(context, prompt);
-        mItems = prompt.getSelectChoices();
-        mPrompt = prompt;
+        mItems = mPrompt.getSelectChoices();
         listener = (AdvanceToNextListener) context;
 
         selected = new boolean[mItems.size()];
         choices = new String[mItems.size()];
         gridview = new GridView(context);
         imageViews = new ImageView[mItems.size()];
-        maxColumnWidth = -1;
-        this.numColumns = numColumns;
+
+        // The max width of an icon in a given column. Used to line
+        // up the columns and automatically fit the columns in when
+        // they are chosen automatically
+        int maxColumnWidth = -1;
+
         for (int i = 0; i < mItems.size(); i++) {
             imageViews[i] = new ImageView(getContext());
         }
-        this.quickAdvance = quickAdvance;
 
         // Build view
         for (int i = 0; i < mItems.size(); i++) {
@@ -100,7 +94,7 @@ public class GridWidget extends QuestionWidget {
             // Read the image sizes and set maxColumnWidth. This allows us to make sure all of our
             // columns are going to fit
             String imageURI =
-                prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
+                mPrompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
 
             if (imageURI != null) {
                 choices[i] = imageURI;
@@ -131,14 +125,11 @@ public class GridWidget extends QuestionWidget {
                     e.printStackTrace();
                 }
 
-            } else {
-                // choices[i] = prompt.getSelectChoiceText(sc);
             }
-
         }
 
         // Use the custom image adapter and initialize the grid view
-        ImageAdapter ia = new ImageAdapter(getContext(), choices);
+        ImageAdapter ia = new ImageAdapter(choices);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -154,7 +145,7 @@ public class GridWidget extends QuestionWidget {
                 }
                 selected[position] = true;
                 imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                    orangeBlueVal));
+                        orangeBlueVal));
                 if (quickAdvance) {
                     listener.advance();
                 }
@@ -187,8 +178,8 @@ public class GridWidget extends QuestionWidget {
 
         // Fill in answer
         String s = null;
-        if (prompt.getAnswerValue() != null) {
-            s = ((Selection) prompt.getAnswerValue().getValue()).getValue();
+        if (mPrompt.getAnswerValue() != null) {
+            s = ((Selection) mPrompt.getAnswerValue().getValue()).getValue();
         }
 
         for (int i = 0; i < mItems.size(); ++i) {
@@ -206,138 +197,6 @@ public class GridWidget extends QuestionWidget {
         addView(gridview);
     }
     
-    public GridWidget(Context context, FormEntryPrompt prompt, int numColumns,
-            final boolean quickAdvance, final WidgetChangedListener wcl) {
-        super(context, prompt);
-        mItems = prompt.getSelectChoices();
-        mPrompt = prompt;
-        listener = (AdvanceToNextListener) context;
-
-        selected = new boolean[mItems.size()];
-        choices = new String[mItems.size()];
-        gridview = new GridView(context);
-        imageViews = new ImageView[mItems.size()];
-        maxColumnWidth = -1;
-        this.numColumns = numColumns;
-        for (int i = 0; i < mItems.size(); i++) {
-            imageViews[i] = new ImageView(getContext());
-        }
-        this.quickAdvance = quickAdvance;
-
-        // Build view
-        for (int i = 0; i < mItems.size(); i++) {
-            SelectChoice sc = mItems.get(i);
-            // Read the image sizes and set maxColumnWidth. This allows us to make sure all of our
-            // columns are going to fit
-            String imageURI =
-                prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
-
-            if (imageURI != null) {
-                choices[i] = imageURI;
-
-                String imageFilename;
-                try {
-                    imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                    final File imageFile = new File(imageFilename);
-                    if (imageFile.exists()) {
-                        Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        Bitmap b =
-                                MediaUtil
-                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
-                        if (b != null) {
-
-                            if (b.getWidth() > maxColumnWidth) {
-                                maxColumnWidth = b.getWidth();
-                            }
-
-                        }
-                    }
-                } catch (InvalidReferenceException e) {
-                    Log.e("GridWidget", "image invalid reference exception");
-                    e.printStackTrace();
-                }
-
-            } else {
-                // choices[i] = prompt.getSelectChoiceText(sc);
-            }
-
-        }
-
-        // Use the custom image adapter and initialize the grid view
-        ImageAdapter ia = new ImageAdapter(getContext(), choices);
-        gridview.setAdapter(ia);
-        gridview.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                // Imitate the behavior of a radio button. Clear all buttons
-                // and then check the one clicked by the user. Update the
-                // background color accordingly
-                for (int i = 0; i < selected.length; i++) {
-                    selected[i] = false;
-                    if (imageViews[i] != null) {
-                        imageViews[i].setBackgroundColor(Color.WHITE);
-                    }
-                }
-                selected[position] = true;
-                imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                    orangeBlueVal));
-                if (quickAdvance) {
-                    listener.advance();
-                }
-                
-                wcl.widgetEntryChanged();
-            }
-        });
-
-        // Read the screen dimensions and fit the grid view to them. It is important that the grid
-        // view
-        // knows how far out it can stretch.
-        Display display =
-            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay();
-        int screenWidth = display.getWidth();
-        int screenHeight = display.getHeight();
-        GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, screenHeight - 5);
-        gridview.setLayoutParams(params);
-
-        // Use the user's choice for num columns, otherwise automatically decide.
-        if (numColumns > 0) {
-            gridview.setNumColumns(numColumns);
-        } else {
-            gridview.setNumColumns(GridView.AUTO_FIT);
-        }
-
-        gridview.setColumnWidth(maxColumnWidth);
-        gridview.setHorizontalSpacing(2);
-        gridview.setVerticalSpacing(2);
-        gridview.setGravity(Gravity.LEFT);
-        gridview.setStretchMode(GridView.NO_STRETCH);
-
-        // Fill in answer
-        String s = null;
-        if (prompt.getAnswerValue() != null) {
-            s = ((Selection) prompt.getAnswerValue().getValue()).getValue();
-        }
-
-        for (int i = 0; i < mItems.size(); ++i) {
-            String sMatch = mItems.get(i).getValue();
-
-            selected[i] = sMatch.equals(s);
-            if (selected[i]) {
-                imageViews[i].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                    orangeBlueVal));
-            } else {
-                imageViews[i].setBackgroundColor(Color.WHITE);
-            }
-        }
-
-        addView(gridview);
-    }
-
     @Override
     public IAnswerData getAnswer() {
         for (int i = 0; i < choices.length; ++i) {
@@ -355,7 +214,6 @@ public class GridWidget extends QuestionWidget {
             selected[i] = false;
             imageViews[i].setBackgroundColor(Color.WHITE);
         }
-
     }
 
     @Override
@@ -364,36 +222,34 @@ public class GridWidget extends QuestionWidget {
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-
     }
 
     // Custom image adapter. Most of the code is copied from
     // media layout for using a picture.
     private class ImageAdapter extends BaseAdapter {
-        private String[] choices;
+        private final String[] choices;
 
-
-        public ImageAdapter(Context c, String[] choices) {
+        public ImageAdapter(String[] choices) {
             this.choices = choices;
         }
 
-
+        @Override
         public int getCount() {
             return choices.length;
         }
 
-
+        @Override
         public Object getItem(int position) {
             return null;
         }
 
-
+        @Override
         public long getItemId(int position) {
             return 0;
         }
 
-
         // create a new ImageView for each item referenced by the Adapter
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             String imageURI = choices[position];
 
@@ -452,8 +308,6 @@ public class GridWidget extends QuestionWidget {
                     Log.e("GridWidget", "image invalid reference exception");
                     e.printStackTrace();
                 }
-            } else {
-                // There's no imageURI listed, so just ignore it.
             }
 
             if (mImageView != null) {
