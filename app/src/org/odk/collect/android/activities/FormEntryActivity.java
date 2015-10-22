@@ -591,7 +591,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    private void updateFormRelevencies(){
+    private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         
         if(!(mCurrentView instanceof ODKView)){
@@ -601,36 +601,37 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         ODKView oldODKV = (ODKView)mCurrentView;
         
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
-        Set<FormEntryPrompt> used = new HashSet<>();
+        Set<FormEntryPrompt> leftInOldList = new HashSet<>();
         
         ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
 
         ArrayList<Integer> removeList = new ArrayList<>();
-
-           for(int i=0;i<oldWidgets.size();i++){
+        for (int i = 0; i < oldWidgets.size(); i++){
             QuestionWidget oldWidget = oldWidgets.get(i);
-            boolean stillRelevent = false;
+            FormEntryPrompt oldPrompt = oldWidget.getPrompt();
+            FormIndex oldPromptIndex = oldPrompt.getIndex();
+            boolean stillRelevant = false;
 
-            for(FormEntryPrompt prompt : newValidPrompts) {
-            	if(prompt.getIndex().equals(oldWidget.getPrompt().getIndex())) {
-            		stillRelevent = true;
-            		used.add(prompt);
-            	}
+            for (FormEntryPrompt newPrompt : newValidPrompts) {
+                if (newPrompt.getIndex().equals(oldPromptIndex) && newPrompt.hasSameDisplayContent(oldPrompt)) {
+                    stillRelevant = true;
+                    leftInOldList.add(newPrompt);
+                    break;
+                }
             }
-            if(!stillRelevent){
+            if (!stillRelevant) {
                 removeList.add(i);
             }
         }
         // remove "atomically" to not mess up iterations
         oldODKV.removeQuestionsFromIndex(removeList);
 
-        //Now go through add add any new prompts that we need
-        for(int i = 0 ; i < newValidPrompts.length; ++i) {
+        // Now go through add add any new prompts that we need
+        for (int i = 0; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
-        	if(used.contains(prompt)) {
-        		continue;
-        	} 
-        	oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+        	if (!leftInOldList.contains(prompt)) {
+                oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+            }
         }
     }
 
@@ -2141,7 +2142,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     @Override
     public void widgetEntryChanged() {
         try {
-            updateFormRelevencies();
+            updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
