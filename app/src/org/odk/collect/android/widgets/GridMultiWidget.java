@@ -1,4 +1,3 @@
-
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
@@ -42,46 +41,38 @@ import java.util.Vector;
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class GridMultiWidget extends QuestionWidget {
-    Vector<SelectChoice> mItems;
-
-    // The possible select choices
-    String[] choices;
+    private final Vector<SelectChoice> mItems;
 
     // The Gridview that will hol the icons
-    GridView gridview;
+    private final GridView gridview;
 
     // Defines which icon is selected
-    boolean[] selected;
+    private final boolean[] selected;
 
     // The image views for each of the icons
-    ImageView[] imageViews;
-
-    // The number of columns in the grid, can be user defined
-    int numColumns;
-
-    // The max width of an icon in a given column. Used to line
-    // up the columns and automatically fit the columns in when
-    // they are chosen automatically
-    int maxColumnWidth;
+    private final ImageView[] imageViews;
 
     // The RGB value for the orange background
-    public static final int orangeRedVal = 255;
-    public static final int orangeGreenVal = 140;
-    public static final int orangeBlueVal = 0;
+    private static final int orangeRedVal = 255;
+    private static final int orangeGreenVal = 140;
+    private static final int orangeBlueVal = 0;
 
-
+    /**
+     * @param numColumns The number of columns in the grid, can be user defined
+     */
     @SuppressWarnings("unchecked")
     public GridMultiWidget(Context context, FormEntryPrompt prompt, int numColumns) {
         super(context, prompt);
-        mItems = prompt.getSelectChoices();
-        mPrompt = prompt;
+        mItems = mPrompt.getSelectChoices();
 
         selected = new boolean[mItems.size()];
-        choices = new String[mItems.size()];
+        String[] choices = new String[mItems.size()];
         gridview = new GridView(context);
         imageViews = new ImageView[mItems.size()];
-        maxColumnWidth = -1;
-        this.numColumns = numColumns;
+        // The max width of an icon in a given column. Used to line
+        // up the columns and automatically fit the columns in when
+        // they are chosen automatically
+        int maxColumnWidth = -1;
         for (int i = 0; i < mItems.size(); i++) {
             imageViews[i] = new ImageView(getContext());
         }
@@ -129,7 +120,7 @@ public class GridMultiWidget extends QuestionWidget {
         }
 
         // Use the custom image adapter and initialize the grid view
-        ImageAdapter ia = new ImageAdapter(getContext(), choices);
+        ImageAdapter ia = new ImageAdapter(choices);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -176,7 +167,7 @@ public class GridMultiWidget extends QuestionWidget {
         IAnswerData answer = prompt.getAnswerValue();
         Vector<Selection> ve;
         if ((answer == null) || (answer.getValue() == null)) {
-            ve = new Vector<Selection>();
+            ve = new Vector<>();
         } else {
             ve = (Vector<Selection>) answer.getValue();
         }
@@ -206,7 +197,7 @@ public class GridMultiWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        Vector<Selection> vc = new Vector<Selection>();
+        Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
             if (selected[i]) {
                 SelectChoice sc = mItems.get(i);
@@ -244,28 +235,26 @@ public class GridMultiWidget extends QuestionWidget {
     // Custom image adapter. Most of the code is copied from
     // media layout for using a picture.
     private class ImageAdapter extends BaseAdapter {
-        private String[] choices;
+        private final String[] choices;
 
-
-        public ImageAdapter(Context c, String[] choices) {
+        public ImageAdapter(String[] choices) {
             this.choices = choices;
         }
 
-
+        @Override
         public int getCount() {
             return choices.length;
         }
 
-
+        @Override
         public Object getItem(int position) {
             return null;
         }
 
-
+        @Override
         public long getItemId(int position) {
             return 0;
         }
-
 
         // create a new ImageView for each item referenced by the Adapter
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -325,8 +314,6 @@ public class GridMultiWidget extends QuestionWidget {
                     Log.e("GridWidget", "image invalid reference exception");
                     e.printStackTrace();
                 }
-            } else {
-                // There's no imageURI listed, so just ignore it.
             }
 
             if (mImageView != null) {
@@ -338,17 +325,14 @@ public class GridMultiWidget extends QuestionWidget {
         }
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         gridview.setOnLongClickListener(l);
     }
-
 
     @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         gridview.cancelLongPress();
     }
-
 }
