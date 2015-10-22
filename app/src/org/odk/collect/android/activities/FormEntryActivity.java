@@ -542,6 +542,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public QuestionWidget getPendingWidget() {
         FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
         if (pendingIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget called when pending callout form index was null");
             return null;
         }
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
@@ -549,6 +551,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return q;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
