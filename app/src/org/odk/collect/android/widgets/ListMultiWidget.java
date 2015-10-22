@@ -44,10 +44,11 @@ import java.util.Vector;
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class ListMultiWidget extends QuestionWidget {
+    private static final String TAG = ListMultiWidget.class.getSimpleName();
+
     int buttonIdBase;
     private final static int CHECKBOX_ID = 100;
     protected final static int TEXTSIZE = 21;
-    private static final String t = "ListMultiWidget";
 
     // Layout holds the horizontal list of buttons
     LinearLayout buttonLayout;
@@ -70,24 +71,23 @@ public class ListMultiWidget extends QuestionWidget {
     public ListMultiWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
-        mItems = prompt.getSelectChoices();
+        mItems = mPrompt.getSelectChoices();
         mCheckboxes = new Vector<CheckBox>();
-        mPrompt = prompt;
 
         this.displayLabel = displayLabel;
 
         buttonLayout = new LinearLayout(context);
 
         Vector<Selection> ve = new Vector<Selection>();
-        if (prompt.getAnswerValue() != null) {
+        if (mPrompt.getAnswerValue() != null) {
             ve = (Vector<Selection>) getCurrentAnswer().getValue();
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
 
 
-        if (prompt.getSelectChoices() != null) {
+        if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 CheckBox c = new CheckBox(getContext());
 
@@ -107,8 +107,8 @@ public class ListMultiWidget extends QuestionWidget {
                 });
 
                 c.setId(CHECKBOX_ID + i);
-                c.setFocusable(!prompt.isReadOnly());
-                c.setEnabled(!prompt.isReadOnly());
+                c.setFocusable(!mPrompt.isReadOnly());
+                c.setEnabled(!mPrompt.isReadOnly());
                 for (int vi = 0; vi < ve.size(); vi++) {
                     // match based on value, not key
                     if (mItems.get(i).getValue().equals(ve.elementAt(vi).getValue())) {
@@ -121,7 +121,7 @@ public class ListMultiWidget extends QuestionWidget {
 
                 String imageURI = null;
                 imageURI =
-                        prompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
                                 FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
@@ -171,7 +171,7 @@ public class ListMultiWidget extends QuestionWidget {
 
                         if (errorMsg != null) {
                             // errorMsg is only set when an error has occured
-                            Log.e(t, errorMsg);
+                            Log.e(TAG, errorMsg);
                             mMissingImage = new TextView(getContext());
                             mMissingImage.setText(errorMsg);
 
@@ -179,7 +179,7 @@ public class ListMultiWidget extends QuestionWidget {
                             mMissingImage.setId(234873453);
                         }
                     } catch (InvalidReferenceException e) {
-                        Log.e(t, "image invalid reference exception");
+                        Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
                 } else {
@@ -189,7 +189,7 @@ public class ListMultiWidget extends QuestionWidget {
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
-                label.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                label.setText(mPrompt.getSelectChoiceText(mItems.get(i)));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
@@ -281,7 +281,6 @@ public class ListMultiWidget extends QuestionWidget {
 
     }
 
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -290,14 +289,11 @@ public class ListMultiWidget extends QuestionWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    // Override QuestionWidget's add question text. Build it the same
-    // but add it to the questionLayout
-    protected void addQuestionText(FormEntryPrompt p) {
-
+    @Override
+    protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
         questionText = new TextView(getContext());
-        questionText.setText(p.getLongText());
+        questionText.setText(mPrompt.getLongText());
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         questionText.setTypeface(null, Typeface.BOLD);
         questionText.setPadding(0, 0, 0, 7);
@@ -306,7 +302,7 @@ public class ListMultiWidget extends QuestionWidget {
         // Wrap to the size of the parent view
         questionText.setHorizontallyScrolling(false);
 
-        if (p.getLongText() == null) {
+        if (mPrompt.getLongText() == null) {
             questionText.setVisibility(GONE);
         }
 
@@ -321,14 +317,12 @@ public class ListMultiWidget extends QuestionWidget {
         questionLayout.addView(questionText, labelParams);
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         for (CheckBox c : mCheckboxes) {
             c.setOnLongClickListener(l);
         }
     }
-
 
     @Override
     public void cancelLongPress() {

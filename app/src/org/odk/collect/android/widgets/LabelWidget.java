@@ -36,9 +36,9 @@ import java.util.Vector;
  * @author Jeff Beorse
  */
 public class LabelWidget extends QuestionWidget {
+    private static final String TAG = LabelWidget.class.getSimpleName();
     private static final int RANDOM_BUTTON_ID = 4853487;
     protected final static int TEXTSIZE = 21;
-    private static final String t = "LabelWidget";
 
     LinearLayout buttonLayout;
     LinearLayout questionLayout;
@@ -49,21 +49,19 @@ public class LabelWidget extends QuestionWidget {
     private ImageView mImageView;
     private TextView label;
 
-
     public LabelWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
-        mItems = prompt.getSelectChoices();
-        mPrompt = prompt;
+        mItems = mPrompt.getSelectChoices();
 
         buttonLayout = new LinearLayout(context);
 
-        if (prompt.getSelectChoices() != null) {
+        if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
 
                 String imageURI = null;
                 imageURI =
-                    prompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                    mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
                         FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
@@ -113,7 +111,7 @@ public class LabelWidget extends QuestionWidget {
 
                         if (errorMsg != null) {
                             // errorMsg is only set when an error has occured
-                            Log.e(t, errorMsg);
+                            Log.e(TAG, errorMsg);
                             mMissingImage = new TextView(getContext());
                             mMissingImage.setText(errorMsg);
 
@@ -121,7 +119,7 @@ public class LabelWidget extends QuestionWidget {
                             mMissingImage.setId(234873453);
                         }
                     } catch (InvalidReferenceException e) {
-                        Log.e(t, "image invalid reference exception");
+                        Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
                 } else {
@@ -131,7 +129,7 @@ public class LabelWidget extends QuestionWidget {
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
                 label = new TextView(getContext());
-                label.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                label.setText(mPrompt.getSelectChoiceText(mItems.get(i)));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
@@ -159,7 +157,6 @@ public class LabelWidget extends QuestionWidget {
                 answerParams.weight = 1;
 
                 buttonLayout.addView(answer, answerParams);
-
             }
         }
 
@@ -177,21 +174,17 @@ public class LabelWidget extends QuestionWidget {
 
         questionLayout.addView(buttonLayout, buttonParams);
         addView(questionLayout);
-
     }
-
 
     @Override
     public void clearAnswer() {
         // Do nothing, no answers to clear
     }
 
-
     @Override
     public IAnswerData getAnswer() {
         return null;
     }
-
 
     @Override
     public void setFocus(Context context) {
@@ -201,14 +194,11 @@ public class LabelWidget extends QuestionWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    // Override QuestionWidget's add question text. Build it the same
-    // but add it to the relative layout
-    protected void addQuestionText(FormEntryPrompt p) {
-
+    @Override
+    protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
         mQuestionText = new TextView(getContext());
-        mQuestionText.setText(p.getLongText());
+        mQuestionText.setText(mPrompt.getLongText());
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         mQuestionText.setTypeface(null, Typeface.BOLD);
         mQuestionText.setPadding(0, 0, 0, 7);
@@ -217,7 +207,7 @@ public class LabelWidget extends QuestionWidget {
         // Wrap to the size of the parent view
         mQuestionText.setHorizontallyScrolling(false);
 
-        if (p.getLongText() == null) {
+        if (mPrompt.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
         }
 
@@ -231,7 +221,6 @@ public class LabelWidget extends QuestionWidget {
 
         questionLayout.addView(mQuestionText, labelParams);
     }
-
 
     @Override
     public void cancelLongPress() {
@@ -249,7 +238,6 @@ public class LabelWidget extends QuestionWidget {
         }
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mQuestionText.setOnLongClickListener(l);
@@ -263,5 +251,4 @@ public class LabelWidget extends QuestionWidget {
             label.setOnLongClickListener(l);
         }
     }
-
 }
