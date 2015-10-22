@@ -51,7 +51,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
     private LinearLayout.LayoutParams mLayout;
-    protected FormEntryPrompt mPrompt;
+    protected final FormEntryPrompt mPrompt;
 
     protected final int mQuestionFontsize;
     protected final int mAnswerFontsize;
@@ -84,6 +84,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
         super(context);
+        mPrompt = p;
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
@@ -111,7 +112,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
 
-        mPrompt = p;
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
@@ -125,16 +125,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                         LinearLayout.LayoutParams.WRAP_CONTENT);
         //mLayout.setMargins(10, 0, 10, 0);
 
-        addQuestionText(p);
-        addHelpPlaceholder(p);
-        addHintText(p);
+        addQuestionText();
+        addHelpPlaceholder();
+        addHintText();
     }
 
     protected void acceptFocus() {
     }
 
-    private void addHelpPlaceholder(FormEntryPrompt p) {
-        if (!p.hasHelp()) {
+    private void addHelpPlaceholder() {
+        if (!mPrompt.hasHelp()) {
             return;
         }
         
@@ -146,12 +146,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         trigger.setScaleType(ScaleType.FIT_CENTER);
         trigger.setImageResource(R.drawable.icon_info_outline_lightcool);
         trigger.setBackgroundDrawable(null);
-        final FormEntryPrompt prompt = p;
         trigger.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 trigger.setImageResource(R.drawable.icon_info_fill_lightcool);
-                fireHelpText(prompt, new Runnable() {
+                fireHelpText(new Runnable() {
                     @Override
                     public void run() {
                         // back to the old icon
@@ -167,7 +166,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         triggerLayout.setGravity(Gravity.RIGHT);
         triggerLayout.addView(trigger);
 
-        MediaLayout helpLayout = createHelpLayout(p);
+        MediaLayout helpLayout = createHelpLayout();
         helpLayout.setBackgroundResource(R.color.very_light_blue);
         helpPlaceholder.addView(helpLayout);
 
@@ -364,21 +363,19 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * To satisfy the RelativeLayout constraints, we add the audio first if it exists, then the
      * TextView to fit the rest of the space, then the image if applicable.
      */
-    protected void addQuestionText(final FormEntryPrompt p) {
-        String imageURI = p.getImageText();
-        String audioURI = p.getAudioText();
-        String videoURI = p.getSpecialFormQuestionText("video");
-        String inlineVideoUri = p.getSpecialFormQuestionText("video-inline");
-        String qrCodeContent = p.getSpecialFormQuestionText("qrcode");
-        String markdownText = p.getMarkdownText();
-
+    protected void addQuestionText() {
+        String imageURI = mPrompt.getImageText();
+        String audioURI = mPrompt.getAudioText();
+        String videoURI = mPrompt.getSpecialFormQuestionText("video");
+        String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
+        String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
+        String markdownText = mPrompt.getMarkdownText();
 
         // shown when image is clicked
-        String bigImageURI = p.getSpecialFormQuestionText("big-image");
+        String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
-        
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
-        mQuestionText.setText(p.getLongText());
+        mQuestionText.setText(mPrompt.getLongText());
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
@@ -390,12 +387,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             // Wrap to the size of the parent view
             mQuestionText.setHorizontallyScrolling(false);
         } else {
-            mQuestionText.setText(p.getLongText());
+            mQuestionText.setText(mPrompt.getLongText());
             mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         }
 
-        if(p.getLongText()!= null){
-            if(p.getLongText().contains("\u260E")){
+        if(mPrompt.getLongText()!= null){
+            if(mPrompt.getLongText().contains("\u260E")){
                 if(Linkify.addLinks(mQuestionText,Linkify.PHONE_NUMBERS)){
                     stripUnderlines(mQuestionText);
                 }
@@ -405,7 +402,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             }
         }
 
-        if (p.getLongText() == null) {
+        if (mPrompt.getLongText() == null) {
             mQuestionText.setVisibility(GONE);
         }
 
@@ -417,15 +414,15 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         addView(mediaLayout, mLayout);
     }
 
-    private void fireHelpText(FormEntryPrompt prompt) {
-        fireHelpText(prompt, null);
+    private void fireHelpText() {
+        fireHelpText(null);
     }
 
     /**
     * Display extra help, triggered by user request.
     */
-    private void fireHelpText(FormEntryPrompt prompt, final Runnable r) {
-        if (!prompt.hasHelp()) {
+    private void fireHelpText(final Runnable r) {
+        if (!mPrompt.hasHelp()) {
             return;
         }                               
 
@@ -440,7 +437,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             mAlertDialog.setTitle("");
 
             ScrollView scrollView = new ScrollView(this.getContext());
-            scrollView.addView(createHelpLayout(prompt));
+            scrollView.addView(createHelpLayout());
             mAlertDialog.setView(scrollView);
             
             DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
@@ -470,16 +467,16 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     /**
      * Build MediaLayout for displaying any help associated with given FormEntryPrompt.
      */
-    private MediaLayout createHelpLayout(FormEntryPrompt prompt) {
+    private MediaLayout createHelpLayout() {
         TextView text = new TextView(getContext());
 
-        String markdownText =  prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
+        String markdownText =  mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_MARKDOWN);
 
         if (markdownText != null) {
             text.setText(forceMarkdown(markdownText));
             text.setMovementMethod(LinkMovementMethod.getInstance());
         } else {
-            text.setText(prompt.getHelpText());
+            text.setText(mPrompt.getHelpText());
         }
         text.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
@@ -488,11 +485,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         
         MediaLayout helpLayout = new MediaLayout(getContext());
         helpLayout.setAVT(
-            text, 
-            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
-            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
-            prompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
-            null
+                text,
+                mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_AUDIO),
+                mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_IMAGE),
+                mPrompt.getHelpMultimedia(FormEntryCaption.TEXT_FORM_VIDEO),
+                null
         );
         helpLayout.setPadding(padding, padding, padding, padding);
 
@@ -563,8 +560,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     /**
      * Add a TextView containing the help text.
      */
-    private void addHintText(FormEntryPrompt p) {
-        String s = p.getHintText();
+    private void addHintText() {
+        String s = mPrompt.getHintText();
 
         if (s != null && !s.equals("")) {
             mHintText = new ShrinkingTextView(getContext(),this.getMaxHintHeight());
