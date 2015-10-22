@@ -50,7 +50,7 @@ import java.io.File;
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
-    private LinearLayout.LayoutParams mLayout;
+    private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
 
     protected final int mQuestionFontsize;
@@ -62,7 +62,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     //the window without the keyboard/top bars/etc.)
     //Note that this value is only populated after the widget is
     //drawn for now.
-    protected int mFrameHeight = -1;
+    private int mFrameHeight = -1;
 
     protected TextView mQuestionText;
     private FrameLayout helpPlaceholder;
@@ -73,10 +73,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     //Whether this question widget needs to request focus on
     //its next draw, due to a new element having been added (which couldn't have
     //requested focus yet due to having not been layed out)
-    protected boolean focusPending = false;
+    private boolean focusPending = false;
 
     protected WidgetChangedListener widgetChangedListener;
-
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
         this(context, p, null);
@@ -94,16 +93,13 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             widgetChangedListener = w;
         }
         this.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 QuestionWidget.this.acceptFocus();
             }
-
         });
 
         hasListener = (w != null);
-
 
         SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -111,7 +107,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
         mQuestionFontsize = Integer.valueOf(question_font);
         mAnswerFontsize = mQuestionFontsize + 2;
-
 
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.TOP);
@@ -123,7 +118,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         mLayout =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-        //mLayout.setMargins(10, 0, 10, 0);
 
         addQuestionText();
         addHelpPlaceholder();
@@ -204,7 +198,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    public void notifyOnScreen(String text, boolean strong){
+    private void notifyOnScreen(String text, boolean strong){
         notifyOnScreen(text, strong, true);
     }
 
@@ -215,7 +209,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * @param requestFocus If true, bring focus to this question.
      */
     @SuppressLint("NewApi")
-    public void notifyOnScreen(String text, boolean strong, boolean requestFocus){
+    private void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         if(strong){
             ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
         } else{
@@ -245,7 +239,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    public void notifyWarning(String text) {
+    private void notifyWarning(String text) {
         notifyOnScreen(text, false);
     }
 
@@ -496,7 +490,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return helpLayout;
     }
 
-    public static void expand(final View v) {
+    private static void expand(final View v) {
         v.measure(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         final int targetHeight = v.getMeasuredHeight();
 
@@ -523,7 +517,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         v.startAnimation(a);
     }
 
-    public static void collapse(final View v) {
+    private static void collapse(final View v) {
         final int initialHeight = v.getMeasuredHeight();
 
         Animation a = new Animation()
@@ -576,7 +570,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    protected int getMaxHintHeight() {
+    private int getMaxHintHeight() {
         return -1;
     }
 
@@ -600,10 +594,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         return getTemplate().cast(current.uncast());
     }
 
-    protected IAnswerData getTemplate() {
+    private IAnswerData getTemplate() {
         return AnswerDataFactory.template(mPrompt.getControlType(), mPrompt.getDataType());
     }
-
 
     public void hideHintText() {
         mHintText.setVisibility(View.GONE);
@@ -639,7 +632,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * copied from CommCareActivity
      */
 
-    public Spannable forceMarkdown(String text){
+    private Spannable forceMarkdown(String text){
         return MarkupUtil.returnMarkdown(getContext(), text);
     }
 
