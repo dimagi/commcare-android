@@ -46,30 +46,26 @@ import java.util.Vector;
 public class ListWidget extends QuestionWidget implements OnCheckedChangeListener {
     private static final String TAG = ListWidget.class.getSimpleName();
 
-    int buttonIdBase;
-    protected final static int TEXTSIZE = 21;
-
-    // Layout holds the horizontal list of buttons
-    LinearLayout buttonLayout;
+    private final int buttonIdBase;
+    private final static int TEXTSIZE = 21;
 
     // Holds the entire question and answers. It is a horizontally aligned linear layout
-    LinearLayout questionLayout;
+    private LinearLayout questionLayout;
 
-    // Option to keep labels blank
-    boolean displayLabel;
+    private final Vector<SelectChoice> mItems;
+    private final Vector<RadioButton> buttons;
 
-    Vector<SelectChoice> mItems;
-    Vector<RadioButton> buttons;
-
+    /**
+     * @param displayLabel Option to keep labels blank
+     */
     public ListWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
         mItems = mPrompt.getSelectChoices();
-        buttons = new Vector<RadioButton>();
+        buttons = new Vector<>();
 
-        this.displayLabel = displayLabel;
-
-        buttonLayout = new LinearLayout(context);
+        // Layout holds the horizontal list of buttons
+        LinearLayout buttonLayout = new LinearLayout(context);
 
         String s = null;
         if (getCurrentAnswer() != null) {
@@ -94,10 +90,9 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                     r.setChecked(true);
                 }
 
-                String imageURI = null;
-                imageURI =
-                    mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_IMAGE);
+                String imageURI =
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
                 ImageView mImageView = null;
@@ -137,10 +132,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                 errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
-                        } else if (errorMsg == null) {
-                            // An error hasn't been logged. We should have an image, but the file
-                            // doesn't
-                            // exist.
+                        } else {
                             errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
@@ -157,8 +149,6 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                         Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
-                } else {
-                    // There's no imageURI listed, so just ignore it.
                 }
 
                 // build text label. Don't assign the text to the built in label to he
@@ -251,7 +241,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-    public int getCheckedId() {
+    private int getCheckedId() {
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 return button.getId();
