@@ -1236,6 +1236,7 @@ public class CommCareHomeActivity
                     default:
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setPositiveButton(Localization.get("option.yes"), listener);
