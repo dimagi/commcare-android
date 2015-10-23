@@ -256,7 +256,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (formHasLoaded()) {
             // Screen orientation change
             refreshCurrentView();
         }

@@ -155,8 +155,6 @@ public class CommCareHomeActivity
 
     private int mDeveloperModeClicks = 0;
 
-    private AndroidCommCarePlatform platform;
-
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
 
@@ -227,6 +225,8 @@ public class CommCareHomeActivity
         if(DeveloperPreferences.isGridMenuEnabled()) {
             return true;
         }
+
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
@@ -511,9 +511,7 @@ public class CommCareHomeActivity
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (CommCareApplication._().getCurrentApp() != null) {
-                        platform = CommCareApplication._().getCommCarePlatform();
-                    }
+                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
@@ -892,10 +890,7 @@ public class CommCareHomeActivity
 
         FormRecord record = state.getFormRecord();
 
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
-
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
@@ -1027,10 +1022,6 @@ public class CommCareHomeActivity
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
-
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
@@ -1209,6 +1200,7 @@ public class CommCareHomeActivity
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state,
                                        final SessionStateDescriptor existing) {
+        final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         AlertDialogFragment alertDialog = new AlertDialogFragment() {
             @Override
             public DialogInterface.OnClickListener getClickListener() {
