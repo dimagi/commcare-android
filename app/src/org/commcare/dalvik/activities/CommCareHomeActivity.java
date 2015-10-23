@@ -53,6 +53,7 @@ import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -158,6 +159,13 @@ public class CommCareHomeActivity
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
+
+    /**
+     * Save dialog created before fragments have resumed so that it can be
+     * shown at the correct part of the ActivityFragment lifecycle
+     */
+    private AlertDialogFragment dialogToShowOnResume;
+    private static final String ALERT_DIALOG_TAG = "alert-dialog-tag";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -764,9 +772,6 @@ public class CommCareHomeActivity
         return false;
     }
 
-
-    // region - implementing methods for SessionNavigationResponder
-
     @Override
     public void processSessionResponse(int statusCode) {
         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -803,9 +808,6 @@ public class CommCareHomeActivity
     public EvaluationContext getEvalContextForNavigator() {
         return CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
     }
-
-    // endregion
-
 
     private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
         EvaluationContext ec = asw.getEvaluationContext();
@@ -1030,8 +1032,11 @@ public class CommCareHomeActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        showPendingDialog();
+
         if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
@@ -1039,6 +1044,13 @@ public class CommCareHomeActivity
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
+    }
+
+    private void showPendingDialog() {
+        if (dialogToShowOnResume != null) {
+            dialogToShowOnResume.show(getSupportFragmentManager(), ALERT_DIALOG_TAG);
+            dialogToShowOnResume = null;
+        }
     }
 
     /**
@@ -1115,9 +1127,6 @@ public class CommCareHomeActivity
         }
     }
 
-    // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
-    // extremely long method
-
     private void handleDamagedApp() {
         if (!CommCareApplication._().isStorageAvailable()) {
             createNoStorageDialog();
@@ -1134,7 +1143,6 @@ public class CommCareHomeActivity
     }
 
     /**
-     *
      * @param record the ApplicationRecord corresponding to the seated, unusable app
      * @return if the unusable app was unseated by this method
      */
@@ -1214,40 +1222,54 @@ public class CommCareHomeActivity
         CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
     }
 
-    // endregion
-
-
-    private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        String title = Localization.get("app.workflow.incomplete.continue.title");
-        String msg = Localization.get("app.workflow.incomplete.continue");
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        // use the old form instance and load the it's state from the descriptor
-                        state.loadFromStateDescription(existing);
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        // delete the old incomplete form
-                        FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
-                        // fallthrough to new now that old record is gone
-                    case DialogInterface.BUTTON_NEUTRAL:
-                        // create a new form record and begin form entry
-                        state.commitStub();
-                        formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    default:
-                        break;
-                }
-                dialog.dismiss();
+    private void createAskUseOldDialog(final AndroidSessionWrapper state,
+                                       final SessionStateDescriptor existing) {
+        AlertDialogFragment alertDialog = new AlertDialogFragment() {
+            @Override
+            public DialogInterface.OnClickListener getClickListener() {
+                return new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                // use the old form instance and load the it's state from the descriptor
+                                state.loadFromStateDescription(existing);
+                                formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                // delete the old incomplete form
+                                FormRecordCleanupTask.wipeRecord(CommCareHomeActivity.this, existing);
+                                // fallthrough to new now that old record is gone
+                            case DialogInterface.BUTTON_NEUTRAL:
+                                // create a new form record and begin form entry
+                                state.commitStub();
+                                formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
+                                break;
+                            default:
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                };
             }
         };
-        factory.setPositiveButton(Localization.get("option.yes"), listener);
-        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
-        factory.setNeutralButton(Localization.get("option.no"), listener);
-        factory.showDialog();
+
+        Bundle args = new Bundle();
+        args.putString(AlertDialogFragment.TITLE_KEY,
+                Localization.get("app.workflow.incomplete.continue.title"));
+        args.putString(AlertDialogFragment.BODY_MESSAGE_KEY,
+                Localization.get("app.workflow.incomplete.continue"));
+        args.putString(AlertDialogFragment.POSITIVE_MESSAGE_KEY,
+                Localization.get("option.yes"));
+        args.putString(AlertDialogFragment.NEGATIVE_MESSAGE_KEY,
+                Localization.get("app.workflow.incomplete.continue.option.delete"));
+        args.putString(AlertDialogFragment.NEUTRAL_MESSAGE_KEY,
+                Localization.get("option.no"));
+
+        alertDialog.setArguments(args);
+
+        // We can't show the dialog here, because the fragments haven't resumed
+        // yet
+        dialogToShowOnResume = alertDialog;
     }
 
     private void displayMessage(String message) {
@@ -1487,5 +1509,4 @@ public class CommCareHomeActivity
     public boolean isBackEnabled() {
         return false;
     }
-
 }
