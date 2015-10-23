@@ -1762,9 +1762,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     if (e != null) {
-                        CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
+                        createPersistentErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
-                        CommCareActivity.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
+                        createPersistentErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
                     }
                 }
             };

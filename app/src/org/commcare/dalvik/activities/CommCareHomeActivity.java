@@ -160,13 +160,6 @@ public class CommCareHomeActivity
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
 
-    /**
-     * Save dialog created before fragments have resumed so that it can be
-     * shown at the correct part of the ActivityFragment lifecycle
-     */
-    private AlertDialogFragment dialogToShowOnResume;
-    private static final String ALERT_DIALOG_TAG = "alert-dialog-tag";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1035,22 +1028,14 @@ public class CommCareHomeActivity
     protected void onResumeFragments() {
         super.onResumeFragments();
 
-        showPendingDialog();
-
         if (CommCareApplication._().getCurrentApp() != null) {
             platform = CommCareApplication._().getCommCarePlatform();
         }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
-    }
-
-    private void showPendingDialog() {
-        if (dialogToShowOnResume != null) {
-            dialogToShowOnResume.show(getSupportFragmentManager(), ALERT_DIALOG_TAG);
-            dialogToShowOnResume = null;
-        }
     }
 
     /**

@@ -18,6 +18,7 @@ public abstract class AlertDialogFragment extends DialogFragment {
     public static final String NEGATIVE_MESSAGE_KEY = "negative";
     public static final String POSITIVE_MESSAGE_KEY = "positive";
     public static final String NEUTRAL_MESSAGE_KEY = "neutral";
+    public static final String ICON_KEY = "icon";
 
     /**
      * The click listener for the dialog buttons present. Should handle each case
@@ -39,6 +40,10 @@ public abstract class AlertDialogFragment extends DialogFragment {
         String message = args.getString(BODY_MESSAGE_KEY);
         AlertDialogFactory factory =
                 new AlertDialogFactory(getContext(), title, message);
+
+        if (args.containsKey(ICON_KEY)) {
+            factory.setIcon(args.getInt(ICON_KEY));
+        }
 
         DialogInterface.OnClickListener listener = getClickListener();
         if (args.containsKey(NEGATIVE_MESSAGE_KEY)) {
