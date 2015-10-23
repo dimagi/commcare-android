@@ -1761,6 +1761,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.dismissProgressDialog();
                     if (e != null) {
                         createPersistentErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
