@@ -41,6 +41,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -69,6 +70,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private final static String KEY_DIALOG_FRAG = "dialog_fragment";
 
     private boolean mBannerOverriden = false;
+
+    /**
+     * Save dialog created before fragments have resumed so that it can be
+     * shown at the correct part of the ActivityFragment lifecycle
+     */
+    protected AlertDialogFragment dialogToShowOnResume;
+    private static final String ALERT_DIALOG_TAG = "alert-dialog-tag";
 
     StateFragment<R> stateHolder;
 
@@ -226,8 +234,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     @TargetApi(11)
-    protected void onResume() {
-        super.onResume();
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        showPendingDialog();
 
         activityPaused = false;
 
@@ -241,6 +251,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         AudioController.INSTANCE.playPreviousAudio();
+    }
+
+    private void showPendingDialog() {
+        if (dialogToShowOnResume != null) {
+            dialogToShowOnResume.show(getSupportFragmentManager(), ALERT_DIALOG_TAG);
+            dialogToShowOnResume = null;
+        }
     }
 
     protected View getBannerHost() {
@@ -531,6 +548,47 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         factory.showDialog();
     }
 
+    public void createPersistentErrorDialog(final FragmentActivity activity,
+                                            String errorMsg,
+                                            final boolean shouldExit) {
+
+        AlertDialogFragment alertDialog = new AlertDialogFragment() {
+            @Override
+            public DialogInterface.OnClickListener getClickListener() {
+                return new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                if (shouldExit) {
+                                    activity.setResult(RESULT_CANCELED);
+                                    activity.finish();
+                                }
+                                break;
+                        }
+                    }
+                };
+            }
+        };
+
+        Bundle args = new Bundle();
+        String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
+        args.putString(AlertDialogFragment.TITLE_KEY, title);
+        args.putString(AlertDialogFragment.BODY_MESSAGE_KEY, errorMsg);
+        String buttonDisplayText = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.ok);
+        args.putString(AlertDialogFragment.POSITIVE_MESSAGE_KEY, buttonDisplayText);
+        args.putInt(AlertDialogFragment.ICON_KEY, android.R.drawable.ic_dialog_info);
+
+        alertDialog.setArguments(args);
+
+        if (isActivityPaused()) {
+            // We can't show the dialog here, because the fragments haven't resumed
+            // yet
+            dialogToShowOnResume = alertDialog;
+        } else {
+            alertDialog.show(activity.getSupportFragmentManager(), ALERT_DIALOG_TAG);
+        }
+    }
+
     // region - All methods for implementation of DialogController
 
     @Override
@@ -767,5 +825,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         FragmentManager fm = this.getSupportFragmentManager();
         BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
         bar.refresh(this);
+    }
+
+    /**
+     * Activity has been put in the background. Useful in knowing when to not
+     * perform dialog or fragment transactions
+     */
+    protected boolean isActivityPaused() {
+        return activityPaused;
     }
 }

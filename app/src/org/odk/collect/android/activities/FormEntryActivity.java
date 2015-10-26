@@ -257,7 +257,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (formHasLoaded()) {
             // Screen orientation change
             refreshCurrentView();
         }
@@ -1762,10 +1762,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.dismissProgressDialog();
                     if (e != null) {
-                        CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
+                        createPersistentErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
-                        CommCareActivity.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
+                        createPersistentErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
                     }
                 }
             };
