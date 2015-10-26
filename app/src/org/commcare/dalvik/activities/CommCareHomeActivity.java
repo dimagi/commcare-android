@@ -365,7 +365,6 @@ public class CommCareHomeActivity
         if(resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
-            AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
@@ -503,6 +502,8 @@ public class CommCareHomeActivity
                     //Retrieve and load the appropriate ssd
                     SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
                     Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+                    AndroidSessionWrapper currentState =
+                            CommCareApplication._().getCurrentSessionWrapper();
                     if(ssds.size() == 1) {
                         currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                     } else {
@@ -516,6 +517,8 @@ public class CommCareHomeActivity
                 break;
             case GET_COMMAND:
                 //TODO: We might need to load this from serialized state?
+                AndroidSessionWrapper currentState =
+                        CommCareApplication._().getCurrentSessionWrapper();
                 if (resultCode == RESULT_CANCELED) {
                     if (currentState.getSession().getCommand() == null) {
                         //Needed a command, and didn't already have one. Stepping back from
@@ -534,7 +537,8 @@ public class CommCareHomeActivity
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                CommCareSession currentSession = currentState.getSession();
+                CommCareSession currentSession =
+                        CommCareApplication._().getCurrentSessionWrapper().getSession();
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
