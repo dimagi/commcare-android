@@ -41,6 +41,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -66,7 +67,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
 
-    private final static String KEY_DIALOG_FRAG = "dialog_fragment";
+    private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
+    private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
     private boolean mBannerOverriden = false;
 
@@ -80,6 +82,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * should be dismissed because the task has completed or been canceled.
      */
     private boolean shouldDismissDialog = true;
+
+    protected AlertDialogFragment dialogToShowOnResume;
 
     private GestureDetector mGestureDetector;
 
@@ -224,8 +228,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return false;
     }
 
-    @Override
-    @TargetApi(11)
+
     protected void onResume() {
         super.onResume();
 
@@ -241,6 +244,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         AudioController.INSTANCE.playPreviousAudio();
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        showPendingAlertDialog();
     }
 
     protected View getBannerHost() {
@@ -292,6 +302,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
+        if (getCurrentAlertDialog() != null) {
+            dialogToShowOnResume = getCurrentAlertDialog();
+        }
+
         activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
@@ -302,7 +316,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         //If we've left an old dialog showing during the task transition and it was from the same task
         //as the one that is starting, don't dismiss it
-        CustomProgressDialog currDialog = getCurrentDialog();
+        CustomProgressDialog currDialog = getCurrentProgressDialog();
         if (currDialog != null && currDialog.getTaskId() == task.getTaskId()) {
             shouldDismissDialog = false;
         }
@@ -369,12 +383,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void stopTaskTransition() {
         inTaskTransition = false;
         attemptDismissDialog();
-        //reset shouldDismissDialog to true after this transition cycle is over
+        // Re-set shouldDismissDialog to true after this transition cycle is over
         shouldDismissDialog = true;
     }
 
-    //if shouldDismiss flag has not been set to false in the course of a task transition,
-    //then dismiss the dialog
+    /**
+     * If shouldDismiss flag has not been set to false in the course of a task transition, then
+     * dismiss the dialog
+     */
     void attemptDismissDialog() {
         if (shouldDismissDialog) {
             dismissProgressDialog();
@@ -399,7 +415,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
         };
-        AlertDialogFactory.showBasicAlertWithIcon(this, title, message, android.R.drawable.ic_dialog_info, listener);
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
+                message, android.R.drawable.ic_dialog_info, listener);
+        showAlertDialog(f);
     }
 
     @Override
@@ -508,7 +526,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param activity   Activity to which to attach the dialog.
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
-    public static void createErrorDialog(final Activity activity, String errorMsg,
+    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
                                          final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
@@ -528,14 +546,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         };
         CharSequence buttonDisplayText = StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
         factory.setPositiveButton(buttonDisplayText, buttonListener);
-        factory.showDialog();
+
+        activity.showAlertDialog(factory);
     }
 
     // region - All methods for implementation of DialogController
 
     @Override
     public void updateProgress(String updateText, int taskId) {
-        CustomProgressDialog mProgressDialog = getCurrentDialog();
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
@@ -549,7 +568,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
-        CustomProgressDialog mProgressDialog = getCurrentDialog();
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
@@ -565,21 +584,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void showProgressDialog(int taskId) {
         CustomProgressDialog dialog = generateProgressDialog(taskId);
         if (dialog != null) {
-            dialog.show(getSupportFragmentManager(), KEY_DIALOG_FRAG);
+            dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
         }
     }
 
     @Override
-    public CustomProgressDialog getCurrentDialog() {
+    public CustomProgressDialog getCurrentProgressDialog() {
         return (CustomProgressDialog) getSupportFragmentManager().
-                findFragmentByTag(KEY_DIALOG_FRAG);
+                findFragmentByTag(KEY_PROGRESS_DIALOG_FRAG);
     }
 
     @Override
     public void dismissProgressDialog() {
-        CustomProgressDialog mProgressDialog = getCurrentDialog();
-        if (mProgressDialog != null && mProgressDialog.isAdded()) {
-            mProgressDialog.dismissAllowingStateLoss();
+        CustomProgressDialog progressDialog = getCurrentProgressDialog();
+        if (progressDialog != null && progressDialog.isAdded()) {
+            progressDialog.dismissAllowingStateLoss();
         }
     }
 
@@ -587,6 +606,34 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public CustomProgressDialog generateProgressDialog(int taskId) {
         //dummy method for compilation, implementation handled in those subclasses that need it
         return null;
+    }
+
+    @Override
+    public AlertDialogFragment getCurrentAlertDialog() {
+        return (AlertDialogFragment) getSupportFragmentManager().
+                findFragmentByTag(KEY_ALERT_DIALOG_FRAG);
+    }
+
+    @Override
+    public void showPendingAlertDialog() {
+        if (dialogToShowOnResume != null && getCurrentAlertDialog() == null) {
+            dialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
+            dialogToShowOnResume = null;
+        }
+    }
+
+    @Override
+    public void showAlertDialog(AlertDialogFactory f) {
+        if (getCurrentAlertDialog() != null) {
+            // Means we already have an alert dialog on screen
+            return;
+        }
+        AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
+        if (activityPaused) {
+            dialogToShowOnResume = dialog;
+        } else {
+            dialog.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
+        }
     }
 
     // endregion

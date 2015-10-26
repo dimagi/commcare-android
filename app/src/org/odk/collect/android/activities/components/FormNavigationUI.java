@@ -1,6 +1,5 @@
 package org.odk.collect.android.activities.components;
 
-import android.app.Activity;
 import android.graphics.Rect;
 import android.util.Log;
 import android.util.Pair;
@@ -27,9 +26,9 @@ import java.util.ArrayList;
 public class FormNavigationUI {
     private final FormController mFormController;
     private final View mCurrentView;
-    private final Activity activity;
+    private final CommCareActivity activity;
 
-    public FormNavigationUI(Activity activity, View currentView, FormController formController) {
+    public FormNavigationUI(CommCareActivity activity, View currentView, FormController formController) {
         this.activity = activity;
         this.mCurrentView = currentView;
         this.mFormController = formController;

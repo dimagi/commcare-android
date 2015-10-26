@@ -375,8 +375,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            AlertDialogFactory.showBasicAlertDialog(this, "Form Missing",
+            AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this, "Form Missing",
                     Localization.get("form.record.gone.message"), null);
+            showAlertDialog(f);
         }
     }
 
@@ -444,7 +445,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             title = Localization.get("app.workflow.forms.scan.title.invalid");
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
-        AlertDialogFactory.showBasicAlertWithIcon(this, title, result.second, resId, null);
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
+                result.second, resId, null);
+        showAlertDialog(f);
     }
 
     /**

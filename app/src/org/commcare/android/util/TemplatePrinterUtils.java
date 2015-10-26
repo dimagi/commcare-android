@@ -144,14 +144,14 @@ public abstract class TemplatePrinterUtils {
      */
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
-        AlertDialogFactory.showBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
+        AlertDialogFactory.getBasicAlertFactory(activity, title, msg, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 if (finishActivity) {
                     activity.finish();
                 }
             }
-        });
+        }).showDialog();
     }
 
 }
