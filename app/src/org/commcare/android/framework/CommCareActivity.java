@@ -247,8 +247,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    @TargetApi(11)
     protected void onResumeFragments() {
+        super.onResumeFragments();
+
         showPendingAlertDialog();
     }
 
@@ -525,7 +526,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param activity   Activity to which to attach the dialog.
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
-    public static void createErrorDialog(final Activity activity, String errorMsg,
+    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
                                          final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
@@ -545,11 +546,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         };
         CharSequence buttonDisplayText = StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
         factory.setPositiveButton(buttonDisplayText, buttonListener);
-        if (activity instanceof CommCareActivity) {
-            ((CommCareActivity)activity).showAlertDialog(factory);
-        } else {
-            factory.showDialog();
-        }
+
+        activity.showAlertDialog(factory);
     }
 
     // region - All methods for implementation of DialogController
