@@ -812,6 +812,7 @@ public class CommCareHomeActivity
         createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
                 asw.getSession().stepBack();
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
