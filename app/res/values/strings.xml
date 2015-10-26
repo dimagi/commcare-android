@@ -173,7 +173,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
-    <string name="clear_answer_no" cc:translatable="true">Cancel</string>
+    <string name="clear_answer_no" cc:translatable="true">CANCEL</string>
     <string name="completed_data" cc:translatable="true">Complete (%s)</string>
     <string name="data" cc:translatable="true">Saved Forms</string>
     <string name="data_saved_error" cc:translatable="true">Sorry, form save failed!</string>
@@ -182,7 +182,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
     <string name="delete_yes" cc:translatable="true">Delete Forms</string>
-    <string name="discard_answer" cc:translatable="true">Remove response</string>
+    <string name="discard_answer" cc:translatable="true">REMOVE RESPONSE</string>
     <string name="download" cc:translatable="true">Get Selected</string>
     <string name="download_forms_result" cc:translatable="true">Download Result</string>
     <string name="downloading_data" cc:translatable="true">Connecting to Server</string>

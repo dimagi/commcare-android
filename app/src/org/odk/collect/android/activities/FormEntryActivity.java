@@ -1573,6 +1573,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);

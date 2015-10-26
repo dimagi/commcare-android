@@ -249,14 +249,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     @TargetApi(11)
     protected void onResumeFragments() {
-        showPendingDialog();
-    }
-
-    private void showPendingDialog() {
-        if (dialogToShowOnResume != null) {
-            dialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
-            dialogToShowOnResume = null;
-        }
+        showPendingAlertDialog();
     }
 
     protected View getBannerHost() {
