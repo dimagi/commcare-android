@@ -618,7 +618,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showPendingAlertDialog() {
-        if (dialogToShowOnResume != null) {
+        if (dialogToShowOnResume != null && getCurrentAlertDialog() == null) {
             dialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
             dialogToShowOnResume = null;
         }
@@ -626,6 +626,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showAlertDialog(AlertDialogFactory f) {
+        if (getCurrentAlertDialog() != null) {
+            // Means we already have an alert dialog on screen
+            return;
+        }
         AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
         if (activityPaused) {
             dialogToShowOnResume = dialog;
