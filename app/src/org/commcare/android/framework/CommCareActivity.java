@@ -67,7 +67,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
     private static final String TAG = CommCareActivity.class.getSimpleName();
 
-    private static final String KEY_PROGRESS_DIALOG_FRAG = "dialog_fragment";
+    private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
     private boolean mBannerOverriden = false;
@@ -228,12 +228,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return false;
     }
 
-    @Override
-    @TargetApi(11)
-    protected void onResumeFragments() {
-        super.onResumeFragments();
 
-        showPendingAlertDialog();
+    protected void onResume() {
+        super.onResume();
 
         activityPaused = false;
 
@@ -247,6 +244,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         AudioController.INSTANCE.playPreviousAudio();
+    }
+
+    @Override
+    @TargetApi(11)
+    protected void onResumeFragments() {
+        showPendingDialog();
+    }
+
+    private void showPendingDialog() {
+        if (dialogToShowOnResume != null) {
+            dialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
+            dialogToShowOnResume = null;
+        }
     }
 
     protected View getBannerHost() {
