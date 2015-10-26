@@ -127,14 +127,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg  = getString(R.string.skipped_verification_warning);
-                    AlertDialogFactory.showBasicAlertDialog(this, title, msg, new DialogInterface.OnClickListener() {
+                    AlertDialogFactory.getBasicAlertFactory(this, title, msg, new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
 
-                    });
+                    }).showDialog();
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }

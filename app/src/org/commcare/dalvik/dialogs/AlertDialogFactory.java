@@ -1,7 +1,7 @@
 package org.commcare.dalvik.dialogs;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +20,7 @@ public class AlertDialogFactory {
     private final AlertDialog dialog;
     private final View view;
 
-    public AlertDialogFactory(Activity context, String title, String msg) {
+    public AlertDialogFactory(Context context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
 
@@ -40,7 +40,7 @@ public class AlertDialogFactory {
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
      *                          null, applies a default listener of just dismissing the dialog
      */
-    public static void showBasicAlertDialog(Activity context, String title, String msg,
+    public static AlertDialogFactory getBasicAlertFactory(Context context, String title, String msg,
                                             DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
         if (positiveButtonListener == null) {
@@ -52,7 +52,7 @@ public class AlertDialogFactory {
             };
         }
         factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
-        factory.showDialog();
+        return factory;
     }
 
     /**
@@ -64,7 +64,7 @@ public class AlertDialogFactory {
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
      *                          null, applies a default listener of just dismissing the dialog
      */
-    public static void showBasicAlertWithIcon(Activity context, String title, String msg, int iconResId,
+    public static AlertDialogFactory getBasicAlertFactoryWithIcon(Context context, String title, String msg, int iconResId,
                                               DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
         if (positiveButtonListener == null) {
@@ -77,16 +77,21 @@ public class AlertDialogFactory {
         }
         factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
         factory.setIcon(iconResId);
-        factory.showDialog();
-    }
-
-    public void showDialog() {
-        dialog.setView(this.view);
-        dialog.show();
+        return factory;
     }
 
     public AlertDialog getDialog() {
+        finalizeView();
         return this.dialog;
+    }
+
+    public void showDialog() {
+        finalizeView();
+        dialog.show();
+    }
+
+    public void finalizeView() {
+        dialog.setView(this.view);
     }
 
     public void makeCancelable() {

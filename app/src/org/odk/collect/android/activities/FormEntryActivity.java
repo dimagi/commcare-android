@@ -1577,7 +1577,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         };
         factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
         factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     /**
