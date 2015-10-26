@@ -141,6 +141,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
+    private static final int FORM_PREFERENCES_KEY = 8;
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
@@ -395,6 +396,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == FORM_PREFERENCES_KEY) {
+            refreshCurrentView(false);
+            return;
+        }
 
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
@@ -723,7 +729,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return true;
             case MENU_PREFERENCES:
                 Intent pref = new Intent(this, FormEntryPreferences.class);
-                startActivity(pref);
+                startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
                 triggerUserQuitInput();
