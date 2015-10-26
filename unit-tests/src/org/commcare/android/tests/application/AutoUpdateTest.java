@@ -17,9 +17,7 @@ import org.commcare.suite.model.Profile;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -41,37 +39,13 @@ public class AutoUpdateTest {
     private final static String username = "test";
     private final static String password = "123";
 
-    @Before
-    public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller(buildResourceRef("base_app", "profile.ccpr"),
-                        username, password);
-        appTestInstaller.installAppAndLogin();
-
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
-    }
-
-    @After
-    public void tearDown() {
-        UpdateTask.clearTaskInstance();
-    }
-
-    private String buildResourceRef(String app, String resource) {
-        return REF_BASE_DIR + app + "/" + resource;
-    }
-
     /**
      * Check that logging out after an auto-update check failed once should
      * trigger the auto-update to resume.
      */
     @Test
     public void testAppAutoUpdateLogoutRetry() {
+        installBaseApp();
         CommCareApp app = CommCareApplication._().getCurrentApp();
         Assert.assertFalse(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
@@ -92,6 +66,55 @@ public class AutoUpdateTest {
 
         // auto-update should now want to resume
         Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
+
+        UpdateTask.clearTaskInstance();
+        CommCareApplication._().closeUserSession();
+    }
+
+    private void installBaseApp() {
+        // needed to resolve "jr://resource" type references
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+
+        TestAppInstaller.setupPrototypeFactory();
+
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(buildResourceRef("base_app", "profile.ccpr"),
+                        username, password);
+        appTestInstaller.installAppAndLogin();
+
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Assert.assertTrue(p.getVersion() == 6);
+    }
+
+    private String buildResourceRef(String app, String resource) {
+        return REF_BASE_DIR + app + "/" + resource;
+    }
+
+    private TaskListener<Integer, AppInstallStatus> logOutAndInOnCompletionListener(final AppInstallStatus expectedResult) {
+        return new TaskListener<Integer, AppInstallStatus>() {
+            @Override
+            public void handleTaskUpdate(Integer... updateVals) {
+            }
+
+            @Override
+            public void handleTaskCompletion(AppInstallStatus result) {
+                Assert.assertTrue(result == expectedResult);
+                logoutAndIntoApp();
+            }
+
+            @Override
+            public void handleTaskCancellation(AppInstallStatus result) {
+            }
+        };
+    }
+
+    private void logoutAndIntoApp() {
+        CommCareApplication._().closeUserSession();
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+
+        TestAppInstaller.login(username, password);
     }
 
     /**
@@ -136,32 +159,5 @@ public class AutoUpdateTest {
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
         Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(weekLater,
                 CommCarePreferences.FREQUENCY_DAILY));
-    }
-
-    private TaskListener<Integer, AppInstallStatus> logOutAndInOnCompletionListener(final AppInstallStatus expectedResult) {
-        return new TaskListener<Integer, AppInstallStatus>() {
-            @Override
-            public void handleTaskUpdate(Integer... updateVals) {
-            }
-
-            @Override
-            public void handleTaskCompletion(AppInstallStatus result) {
-                Assert.assertTrue(result == expectedResult);
-                logoutAndIntoApp();
-            }
-
-            @Override
-            public void handleTaskCancellation(AppInstallStatus result) {
-            }
-        };
-    }
-
-    private void logoutAndIntoApp() {
-        CommCareApplication._().closeUserSession();
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-
-        TestAppInstaller.login(username, password);
     }
 }
