@@ -262,7 +262,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
         factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     public void beSender(){

@@ -154,8 +154,6 @@ public class CommCareHomeActivity
 
     private int mDeveloperModeClicks = 0;
 
-    private AndroidCommCarePlatform platform;
-
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
 
@@ -226,6 +224,7 @@ public class CommCareHomeActivity
         if(DeveloperPreferences.isGridMenuEnabled()) {
             return true;
         }
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
@@ -510,9 +509,7 @@ public class CommCareHomeActivity
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (CommCareApplication._().getCurrentApp() != null) {
-                        platform = CommCareApplication._().getCommCarePlatform();
-                    }
+                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
@@ -740,8 +737,10 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialogFactory.showBasicAlertWithIcon(this, Localization.get("app.handled.error.title"),
-                errorMsg, android.R.drawable.ic_dialog_info, errorListener);
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+                Localization.get("app.handled.error.title"), errorMsg,
+                android.R.drawable.ic_dialog_info, errorListener);
+        showAlertDialog(f);
     }
 
     @Override
@@ -896,11 +895,7 @@ public class CommCareHomeActivity
         }
 
         FormRecord record = state.getFormRecord();
-
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
-
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
@@ -1030,11 +1025,8 @@ public class CommCareHomeActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
+    protected void onResumeFragments() {
+        super.onResumeFragments();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
@@ -1218,6 +1210,7 @@ public class CommCareHomeActivity
 
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
+        final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
         AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
@@ -1247,7 +1240,7 @@ public class CommCareHomeActivity
         factory.setPositiveButton(Localization.get("option.yes"), listener);
         factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
         factory.setNeutralButton(Localization.get("option.no"), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     private void displayMessage(String message) {

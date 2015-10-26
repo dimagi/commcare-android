@@ -13,7 +13,7 @@ public interface DialogController {
 
     /** Return the dialog that is currently showing, or null
      * if none exists */
-    CustomProgressDialog getCurrentDialog();
+    CustomProgressDialog getCurrentProgressDialog();
 
     /** Update the current dialog's message to the new text */
     void updateProgress(String updateText, int taskId);
@@ -26,4 +26,12 @@ public interface DialogController {
      *  in the activity hierarchy, in one of CommCareActivity's subclasses,
      *  while the other methods can be handled entirely by CommCareActivity */
     CustomProgressDialog generateProgressDialog(int taskId);
+
+
+    void showAlertDialog(AlertDialogFactory factory);
+
+    AlertDialogFragment getCurrentAlertDialog();
+
+    void showPendingAlertDialog();
+
 }

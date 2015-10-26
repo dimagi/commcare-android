@@ -374,7 +374,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             CommCareApp app = getCommCareApp();
             ccApp = app;
 
-            CustomProgressDialog lastDialog = getCurrentDialog();
+            CustomProgressDialog lastDialog = getCurrentProgressDialog();
             // used to tell the ResourceEngineTask whether or not it should
             // sleep before it starts, set based on whether we are currently
             // in keep trying mode.
@@ -666,7 +666,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         String checkboxText = Localization.get("install.keep.trying");
-        CustomProgressDialog lastDialog = getCurrentDialog();
+        CustomProgressDialog lastDialog = getCurrentProgressDialog();
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
         dialog.addProgressBar();

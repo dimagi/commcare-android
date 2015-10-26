@@ -20,7 +20,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
@@ -208,7 +207,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         };
         factory.setPositiveButton("OK", listener);
         factory.setNegativeButton("NO", listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
     
     public void updateCounters() {

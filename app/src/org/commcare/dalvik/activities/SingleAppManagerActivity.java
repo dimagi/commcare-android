@@ -142,7 +142,7 @@ public class SingleAppManagerActivity extends Activity {
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg = getString(R.string.skipped_verification_warning_2);
-                    AlertDialogFactory.showBasicAlertDialog(this, title, msg, null);
+                    AlertDialogFactory.getBasicAlertFactory(this, title, msg, null).showDialog();
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }

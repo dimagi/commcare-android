@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationManager;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.model.data.GeoPointData;
@@ -79,7 +80,11 @@ public class GeoUtils {
             factory.makeCancelable();
             factory.setOnCancelListener(onCancel);
         }
-        factory.showDialog();
+        if (activity instanceof CommCareActivity) {
+            ((CommCareActivity)activity).showAlertDialog(factory);
+        } else {
+            factory.showDialog();
+        }
     }
 
     /**
