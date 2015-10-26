@@ -199,7 +199,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 dialog.dismiss();
                 if (id == AlertDialog.BUTTON_POSITIVE) {
                     acknowledgedRisk = true;
-                    dialog.cancel();
+                    dialog.dismiss();
                 } else {
                     exitDump();
                 }

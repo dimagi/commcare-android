@@ -257,6 +257,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                         beSender();
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
