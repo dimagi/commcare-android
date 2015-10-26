@@ -21,7 +21,7 @@ public class AlertDialogFragment extends DialogFragment {
         return frag;
     }
 
-    public void setFactory(AlertDialogFactory f) {
+    private void setFactory(AlertDialogFactory f) {
         this.factory = f;
     }
 

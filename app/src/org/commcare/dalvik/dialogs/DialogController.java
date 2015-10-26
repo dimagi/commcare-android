@@ -27,11 +27,20 @@ public interface DialogController {
      *  while the other methods can be handled entirely by CommCareActivity */
     CustomProgressDialog generateProgressDialog(int taskId);
 
-
+    /**
+     * Show the alert dialog provided by the given AlertDialogFactory
+     */
     void showAlertDialog(AlertDialogFactory factory);
 
+    /**
+     * @return the alert dialog that is currently on screen (possibly null)
+     */
     AlertDialogFragment getCurrentAlertDialog();
 
+    /**
+     * If a dialog was showing when a previous instance of this activity was destroyed, this
+     * will re-pop up that dialog when the activity is re-launched
+     */
     void showPendingAlertDialog();
 
 }
