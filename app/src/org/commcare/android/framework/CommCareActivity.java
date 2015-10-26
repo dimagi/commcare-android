@@ -815,4 +815,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         BreadcrumbBarFragment bar = (BreadcrumbBarFragment) fm.findFragmentByTag("breadcrumbs");
         bar.refresh(this);
     }
+
+    /**
+     * Activity has been put in the background. Useful in knowing when to not
+     * perform dialog or fragment transactions
+     */
+    protected boolean isActivityPaused() {
+        return activityPaused;
+    }
+
 }

@@ -193,7 +193,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         "startAllowed is: " + startAllowed + " "
         );
 
-        uiStateScreenTransition();
         performSMSInstall(false);
     }
 
@@ -213,6 +212,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onResume() {
         super.onResume();
+
+        uiStateScreenTransition();
+
         // If clicking the regular app icon brought us to CommCareSetupActivity
         // (because that's where we were last time the app was up), but there are now
         // 1 or more available apps, we want to redirect to CCHomeActivity
@@ -234,6 +236,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void uiStateScreenTransition() {
+        if (isActivityPaused()) {
+            // Don't perform fragment transactions when the activity isn't visible
+            return;
+        }
+
         Fragment fragment;
         FragmentTransaction ft = fm.beginTransaction();
 
@@ -261,8 +268,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             default:
                 return;
         }
-        ft.replace(R.id.setup_fragment_container, fragment);
 
+        ft.replace(R.id.setup_fragment_container, fragment);
         ft.commit();
     }
 
@@ -283,12 +290,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return fragment;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        uiStateScreenTransition();
-    }
 
     @Override
     protected int getWakeLockLevel() {
@@ -310,6 +311,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         String result = null;
         switch (requestCode) {
             case BARCODE_CAPTURE:
@@ -342,6 +344,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
+
         uiStateScreenTransition();
     }
 
