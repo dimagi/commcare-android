@@ -282,7 +282,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
     @Override
     public boolean isEmpty() {
-        return getCount() > 0;
+        return getCount() == 0;
     }
 
     public void setFormFilter(FormRecordFilter filter) {
