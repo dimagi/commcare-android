@@ -529,22 +529,34 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
                                          final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
+
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);
-        DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE:
+
+        DialogInterface.OnCancelListener cancelListener =
+                new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
                         if (shouldExit) {
                             activity.setResult(RESULT_CANCELED);
                             activity.finish();
                         }
-                        break;
-                }
-            }
-        };
-        CharSequence buttonDisplayText = StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
+                    }
+                };
+        factory.setOnCancelListener(cancelListener);
+
+        CharSequence buttonDisplayText =
+                StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
+        DialogInterface.OnClickListener buttonListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        if (shouldExit) {
+                            activity.setResult(RESULT_CANCELED);
+                            activity.finish();
+                        }
+                    }
+                };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
 
         activity.showAlertDialog(factory);

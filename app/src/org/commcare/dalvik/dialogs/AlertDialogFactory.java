@@ -19,6 +19,8 @@ public class AlertDialogFactory {
 
     private final AlertDialog dialog;
     private final View view;
+    private DialogInterface.OnCancelListener cancelListener;
+    private boolean isCancelable = false;
 
     public AlertDialogFactory(Context context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -95,11 +97,20 @@ public class AlertDialogFactory {
     }
 
     public void makeCancelable() {
+        isCancelable = true;
         dialog.setCancelable(true);
     }
 
     public void setOnCancelListener(DialogInterface.OnCancelListener cancelListener) {
+        makeCancelable();
+        this.cancelListener = cancelListener;
         dialog.setOnCancelListener(cancelListener);
+    }
+
+    public void performCancel(DialogInterface dialog) {
+        if (cancelListener != null) {
+            cancelListener.onCancel(dialog);
+        }
     }
 
     public void setIcon(int resId) {
@@ -144,5 +155,7 @@ public class AlertDialogFactory {
         neutralButton.setVisibility(View.VISIBLE);
     }
 
-
+    public boolean isCancelable() {
+        return isCancelable;
+    }
 }
