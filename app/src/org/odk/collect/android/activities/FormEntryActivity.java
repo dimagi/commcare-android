@@ -171,6 +171,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
+    private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
     private static final int MENU_LANGUAGES = Menu.FIRST;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
@@ -197,6 +198,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
+    private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
@@ -257,7 +259,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
             refreshCurrentView();
         }
@@ -376,6 +378,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
+        outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -1768,6 +1771,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.setFormLoadFailure();
                     if (e != null) {
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -2202,6 +2206,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
             }
@@ -2353,5 +2360,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         FormQueryException(String msg) {
             super(msg);
         }
+    }
+
+    private void setFormLoadFailure() {
+        hasFormLoadFailed = true;
     }
 }
