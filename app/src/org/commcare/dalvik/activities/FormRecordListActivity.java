@@ -414,6 +414,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                             adapter.notifyDataSetInvalidated();
                         }
                     });
+                    return true;
                 case RESTORE_RECORD:
                     FormRecord record = (FormRecord)adapter.getItem(info.position);
                     try {
