@@ -302,10 +302,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
-        if (getCurrentAlertDialog() != null) {
-            dialogToShowOnResume = getCurrentAlertDialog();
-        }
-
         activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
