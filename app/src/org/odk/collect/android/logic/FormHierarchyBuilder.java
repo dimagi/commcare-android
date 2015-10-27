@@ -9,6 +9,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.activities.FormHierarchyActivity;
 
@@ -128,9 +129,17 @@ public class FormHierarchyBuilder {
         FormEntryPrompt fp = FormEntryActivity.mFormController.getQuestionPrompt();
 
         int fepIcon = getFormEntryPromptIcon(fp);
-        formList.add(new HierarchyElement(fp.getLongText(), fp.getAnswerText(),
+        String questionText;
+        int bgColor = Color.WHITE;
+        try {
+            questionText = fp.getLongText();
+        } catch (XPathTypeMismatchException e) {
+            questionText = e.getMessage();
+            bgColor = Color.RED;
+        }
+        formList.add(new HierarchyElement(questionText, fp.getAnswerText(),
                 fepIcon == -1 ? null : context.getResources().getDrawable(fepIcon),
-                Color.WHITE, HierarchyEntryType.question, fp.getIndex()));
+                bgColor, HierarchyEntryType.question, fp.getIndex()));
     }
 
     private void addNewRepeatHeading() {
