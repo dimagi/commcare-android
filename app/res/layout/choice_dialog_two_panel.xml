@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/content_wrapper"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="@dimen/standard_spacer_large"
+        android:layout_marginLeft="@dimen/standard_spacer_large"
+        android:layout_marginRight="@dimen/standard_spacer_large"
+        android:layout_marginBottom="@dimen/standard_spacer_large" >
+
+        <TextView
+            android:id="@+id/choice_dialog_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/standard_title_margin_bottom"
+            android:textSize="@dimen/font_size_xlarger" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="0dp"
+            android:divider="?android:attr/listDivider"
+            android:showDividers="middle">
+
+            <Button
+                android:id="@+id/choice_dialog_panel_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:drawablePadding="5dp"
+                android:layout_marginBottom="@dimen/standard_spacer" />
+
+            <Button
+                android:id="@+id/choice_dialog_panel_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:drawablePadding="5dp"
+                android:layout_marginTop="@dimen/standard_spacer" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

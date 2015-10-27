@@ -61,6 +61,7 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -1378,41 +1379,46 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Create a dialog with options to save and exit, save, or quit without saving
      */
     private void createQuitDialog() {
-        final String[] items = mIncompleteEnabled ?  
-                new String[] {StringUtils.getStringRobust(this, R.string.keep_changes), StringUtils.getStringRobust(this, R.string.do_not_save)} :
-                new String[] {StringUtils.getStringRobust(this, R.string.do_not_save)};
+        String title = "Exit Form?";
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
-                .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
+        final PaneledChoiceDialog dialog;
+        if (mIncompleteEnabled) {
+            dialog = new PaneledChoiceDialog(this,
+                    PaneledChoiceDialog.ChoiceDialogType.THREE_PANEL, title);
+        } else {
+            dialog = new PaneledChoiceDialog(this,
+                    PaneledChoiceDialog.ChoiceDialogType.TWO_PANEL, title);
+        }
 
-                            dialog.cancel();
+        View.OnClickListener stayInFormListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        };
+        dialog.addPanel1(Localization.get("quit.form.option.cancel"),
+                R.drawable.icon_back, stayInFormListener);
 
-                        }
-                }).setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: // save and exit
-                                if(items.length == 1) {
-                                    discardChangesAndExit();
-                                } else {
-                                    saveFormToDisk(EXIT, null, false);
-                                }
-                                break;
-                            case 1: // discard changes and exit
-                                discardChangesAndExit();
-                                break;
-                            case 2:// do nothing
-                                break;
-                        }
-                    }
-        }).create();
-        dialog.getListView().setSelector(R.drawable.selector);
+        View.OnClickListener exitFormListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                discardChangesAndExit();
+            }
+        };
+        dialog.addPanel2(Localization.get("quit.form.option.exit"),
+                R.drawable.icon_close_darkwarm, exitFormListener);
+
+        if (mIncompleteEnabled) {
+            View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveFormToDisk(EXIT, null, false);
+                }
+            };
+            dialog.addPanel3(Localization.get("quit.form.option.save.and.exit"),
+                    R.drawable.notebook_incomplete, saveIncompleteListener);
+        }
+
         dialog.show();
     }
     
