@@ -190,7 +190,7 @@ class UpdateUIState {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
-
+        updateProgressBar(100, 100);
         progressBar.setEnabled(false);
         updateProgressText(upgradeFinishedText);
 
