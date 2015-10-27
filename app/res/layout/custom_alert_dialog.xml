@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -8,69 +9,91 @@
         android:id="@+id/dialog_title"
         layout="@layout/dialog_title" />
 
-    <TextView
-        android:id="@+id/dialog_message"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/font_size_large"
-        android:layout_below="@id/dialog_title"
-        android:layout_marginLeft="@dimen/standard_spacer_large"
-        android:layout_marginRight="@dimen/standard_spacer_large"
-        android:layout_marginBottom="@dimen/standard_spacer_large" />
+        android:layout_weight="9">
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/positive_button"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/min_button_height"
-        android:padding="@dimen/standard_spacer"
+        <ScrollView
+            android:id="@+id/dialog_message_scroll_view"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:layout_marginLeft="@dimen/standard_spacer_large"
+            android:layout_marginRight="@dimen/standard_spacer_large"
+            android:layout_marginBottom="@dimen/standard_spacer_large">
 
-        android:layout_below="@id/dialog_message"
-        android:layout_alignParentRight="true"
+            <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        android:layout_marginBottom="@dimen/standard_spacer"
-        android:layout_marginRight="@dimen/standard_spacer"
+                <TextView
+                    android:id="@+id/dialog_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/font_size_large"/>
 
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/font_size_medium"
-        android:textColor="@color/dialog_button_color"
-        android:visibility="gone" >
-    </Button>
+            </RelativeLayout>
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/neutral_button"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/min_button_height"
-        android:padding="@dimen/standard_spacer"
+        </ScrollView>
 
-        android:layout_below="@id/dialog_message"
-        android:layout_toLeftOf="@id/positive_button"
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:layout_marginBottom="@dimen/standard_spacer" >
 
-        android:layout_marginBottom="@dimen/standard_spacer"
+            <Button xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/positive_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/min_button_height"
+                android:padding="@dimen/standard_spacer"
 
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/font_size_medium"
-        android:textColor="@color/dialog_button_color"
-        android:visibility="gone" >
-    </Button>
+                android:layout_alignParentRight="true"
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/negative_button"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/min_button_height"
-        android:padding="@dimen/standard_spacer"
+                android:layout_marginRight="@dimen/standard_spacer"
 
-        android:layout_below="@id/dialog_message"
-        android:layout_toLeftOf="@id/neutral_button"
+                android:background="@android:color/transparent"
+                android:textSize="@dimen/font_size_medium"
+                android:textColor="@color/dialog_button_color"
+                android:visibility="gone">
+            </Button>
 
-        android:layout_marginBottom="@dimen/standard_spacer"
-        android:layout_marginRight="@dimen/standard_spacer"
-        android:layout_marginLeft="@dimen/standard_spacer"
+            <Button xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/neutral_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/min_button_height"
+                android:padding="@dimen/standard_spacer"
 
-        android:background="@android:color/transparent"
-        android:textSize="@dimen/font_size_medium"
-        android:textColor="@color/dialog_button_color"
-        android:visibility="gone" >
-    </Button>
+                android:layout_toLeftOf="@id/positive_button"
 
+                android:background="@android:color/transparent"
+                android:textSize="@dimen/font_size_medium"
+                android:textColor="@color/dialog_button_color"
+                android:visibility="gone">
+            </Button>
 
-</RelativeLayout>
+            <Button xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/negative_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/min_button_height"
+                android:padding="@dimen/standard_spacer"
+
+                android:layout_toLeftOf="@id/neutral_button"
+
+                android:layout_marginRight="@dimen/standard_spacer"
+                android:layout_marginLeft="@dimen/standard_spacer"
+
+                android:background="@android:color/transparent"
+                android:textSize="@dimen/font_size_medium"
+                android:textColor="@color/dialog_button_color"
+                android:visibility="gone">
+            </Button>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

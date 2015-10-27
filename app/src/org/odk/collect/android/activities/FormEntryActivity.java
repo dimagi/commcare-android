@@ -50,6 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
@@ -123,7 +124,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
+public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryActivity>
         implements AnimationListener, FormSavedListener, FormSaveCallback,
         AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -141,6 +142,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
+    private static final int FORM_PREFERENCES_KEY = 8;
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
@@ -170,6 +172,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
+    private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
     private static final int MENU_LANGUAGES = Menu.FIRST;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
@@ -196,6 +199,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
+    private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
@@ -256,7 +260,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
             refreshCurrentView();
         }
@@ -375,6 +379,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
+        outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -395,6 +400,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == FORM_PREFERENCES_KEY) {
+            refreshCurrentView(false);
+            return;
+        }
 
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
@@ -542,6 +552,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public QuestionWidget getPendingWidget() {
         FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
         if (pendingIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget called when pending callout form index was null");
             return null;
         }
         for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
@@ -549,6 +561,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return q;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
@@ -720,7 +734,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return true;
             case MENU_PREFERENCES:
                 Intent pref = new Intent(this, FormEntryPreferences.class);
-                startActivity(pref);
+                startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
                 triggerUserQuitInput();
@@ -1570,11 +1584,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
         factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     /**
@@ -1758,6 +1773,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.setFormLoadFailure();
+                    receiver.dismissProgressDialog();
                     if (e != null) {
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -1823,11 +1840,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
-        //If we're just reviewing a read only form, don't worry about saving
-        //or what not, just quit
-        if(mFormController.isFormReadOnly()) {
-            //It's possible we just want to "finish" here, but
-            //I don't really wanna break any c compatibility
+        if(!formHasLoaded()) {
+            finish();
+        } else if (mFormController.isFormReadOnly()) {
+            // If we're just reviewing a read only form, don't worry about saving
+            // or what not, just quit
+            // It's possible we just want to "finish" here, but
+            // I don't really wanna break any c compatibility
             finishReturnInstance(false);
         } else {
             createQuitDialog();
@@ -2192,6 +2211,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
             }
@@ -2343,5 +2365,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         FormQueryException(String msg) {
             super(msg);
         }
+    }
+
+    private void setFormLoadFailure() {
+        hasFormLoadFailed = true;
     }
 }
