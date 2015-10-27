@@ -67,7 +67,7 @@ public class AutoUpdateTest {
         // auto-update should now want to resume
         Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
-        UpdateTask.clearTaskInstance();
+        updateTask.clearTaskInstance();
         CommCareApplication._().closeUserSession();
     }
 
