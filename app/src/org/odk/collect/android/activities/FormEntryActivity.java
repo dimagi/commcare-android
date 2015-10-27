@@ -142,6 +142,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
+    private static final int FORM_PREFERENCES_KEY = 8;
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
@@ -171,6 +172,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
+    private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
     private static final int MENU_LANGUAGES = Menu.FIRST;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
@@ -197,6 +199,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
+    private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
     private boolean mBeenSwiped;
@@ -257,7 +260,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
             refreshCurrentView();
         }
@@ -376,6 +379,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
+        outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -396,6 +400,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == FORM_PREFERENCES_KEY) {
+            refreshCurrentView(false);
+            return;
+        }
 
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
@@ -724,7 +733,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 return true;
             case MENU_PREFERENCES:
                 Intent pref = new Intent(this, FormEntryPreferences.class);
-                startActivity(pref);
+                startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
                 triggerUserQuitInput();
@@ -1574,11 +1583,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
         factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     /**
@@ -1762,6 +1772,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.setFormLoadFailure();
+                    receiver.dismissProgressDialog();
                     if (e != null) {
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -1827,11 +1839,13 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
-        //If we're just reviewing a read only form, don't worry about saving
-        //or what not, just quit
-        if(mFormController.isFormReadOnly()) {
-            //It's possible we just want to "finish" here, but
-            //I don't really wanna break any c compatibility
+        if(!formHasLoaded()) {
+            finish();
+        } else if (mFormController.isFormReadOnly()) {
+            // If we're just reviewing a read only form, don't worry about saving
+            // or what not, just quit
+            // It's possible we just want to "finish" here, but
+            // I don't really wanna break any c compatibility
             finishReturnInstance(false);
         } else {
             createQuitDialog();
@@ -2196,6 +2210,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
             }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+            }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
             }
@@ -2347,5 +2364,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         FormQueryException(String msg) {
             super(msg);
         }
+    }
+
+    private void setFormLoadFailure() {
+        hasFormLoadFailed = true;
     }
 }
