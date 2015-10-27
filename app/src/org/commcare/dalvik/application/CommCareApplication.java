@@ -340,8 +340,6 @@ public class CommCareApplication extends Application {
 
     public AndroidSessionWrapper getCurrentSessionWrapper() {
         if (sessionWrapper == null) {
-            // TODO PLM: should be able to init this so it is never null.
-            // Need to find the correct place after the currentApp is set.
             throw new SessionStateUninitException("CommCare user session isn't available");
         }
         return sessionWrapper;
