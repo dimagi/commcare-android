@@ -93,7 +93,6 @@ public class GeoUtils {
         factory.setNegativeButton(context.getString(R.string.cancel), onChange);
 
         if (onCancel != null) {
-            factory.makeCancelable();
             factory.setOnCancelListener(onCancel);
         }
         return factory;

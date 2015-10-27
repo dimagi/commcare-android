@@ -1772,6 +1772,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     receiver.setFormLoadFailure();
+                    receiver.dismissProgressDialog();
                     if (e != null) {
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -1837,11 +1838,13 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
-        //If we're just reviewing a read only form, don't worry about saving
-        //or what not, just quit
-        if(mFormController.isFormReadOnly()) {
-            //It's possible we just want to "finish" here, but
-            //I don't really wanna break any c compatibility
+        if(!formHasLoaded()) {
+            finish();
+        } else if (mFormController.isFormReadOnly()) {
+            // If we're just reviewing a read only form, don't worry about saving
+            // or what not, just quit
+            // It's possible we just want to "finish" here, but
+            // I don't really wanna break any c compatibility
             finishReturnInstance(false);
         } else {
             createQuitDialog();

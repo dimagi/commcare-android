@@ -1,6 +1,7 @@
 package org.commcare.dalvik.dialogs;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -18,6 +19,7 @@ public class AlertDialogFragment extends DialogFragment {
     public static AlertDialogFragment fromFactory(AlertDialogFactory f) {
         AlertDialogFragment frag = new AlertDialogFragment();
         frag.setFactory(f);
+        frag.setCancelable(f.isCancelable());
         return frag;
     }
 
@@ -29,6 +31,11 @@ public class AlertDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        factory.performCancel(dialog);
     }
 
     @Override
