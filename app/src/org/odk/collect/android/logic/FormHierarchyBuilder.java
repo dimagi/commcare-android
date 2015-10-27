@@ -1,7 +1,6 @@
 package org.odk.collect.android.logic;
 
 import android.content.Context;
-import android.graphics.Color;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
@@ -130,25 +129,25 @@ public class FormHierarchyBuilder {
 
         int fepIcon = getFormEntryPromptIcon(fp);
         String questionText;
-        int bgColor = Color.WHITE;
+        boolean isError = false;
         try {
             questionText = fp.getLongText();
         } catch (XPathTypeMismatchException e) {
             questionText = e.getMessage();
-            bgColor = Color.RED;
+            isError = true;
         }
-        formList.add(new HierarchyElement(questionText, fp.getAnswerText(),
+        formList.add(new HierarchyElement(context, questionText, fp.getAnswerText(),
                 fepIcon == -1 ? null : context.getResources().getDrawable(fepIcon),
-                bgColor, HierarchyEntryType.question, fp.getIndex()));
+                isError, HierarchyEntryType.question, fp.getIndex()));
     }
 
     private void addNewRepeatHeading() {
         FormEntryCaption fc = FormEntryActivity.mFormController.getCaptionPrompt();
 
         int fepIcon = R.drawable.avatar_vellum_repeat_group;
-        formList.add(new HierarchyElement(fc.getLongText(), null,
+        formList.add(new HierarchyElement(context, fc.getLongText(), null,
                 context.getResources().getDrawable(fepIcon),
-                Color.WHITE, HierarchyEntryType.question, fc.getIndex()));
+                false, HierarchyEntryType.question, fc.getIndex()));
     }
 
     private void addRepeatHeading() {
@@ -156,9 +155,9 @@ public class FormHierarchyBuilder {
         if (fc.getMultiplicity() == 0) {
             // Only add the heading if it is the repeat group entry, not an element in the group.
             HierarchyElement group =
-                    new HierarchyElement(fc.getLongText(), null,
+                    new HierarchyElement(context, fc.getLongText(), null,
                             context.getResources().getDrawable(R.drawable.expander_ic_minimized),
-                            Color.WHITE,
+                            false,
                             HierarchyEntryType.collapsed, fc.getIndex());
             formList.add(group);
         }
@@ -195,8 +194,8 @@ public class FormHierarchyBuilder {
         HierarchyElement h = formList.get(formList.size() - 1);
         String mIndent = "     ";
         FormEntryCaption fc = FormEntryActivity.mFormController.getCaptionPrompt();
-        h.addChild(new HierarchyElement(mIndent + fc.getLongText() + " "
-                + (fc.getMultiplicity() + 1), null, null, Color.WHITE, HierarchyEntryType.child, fc
+        h.addChild(new HierarchyElement(context, mIndent + fc.getLongText() + " "
+                + (fc.getMultiplicity() + 1), null, null, false, HierarchyEntryType.child, fc
                 .getIndex()));
     }
 

@@ -19,12 +19,14 @@ public class HierarchyElementView extends RelativeLayout {
 
         RelativeLayout layout = (RelativeLayout)inflate(context, R.layout.hierarchy_element_view, null);
 
-        setBackgroundColor(it.getColor());
+        setBackgroundColor(it.getBgColor());
 
         mPrimaryTextView = ((TextView)layout.findViewById(R.id.hev_primary_text));
         mPrimaryTextView.setText(it.getPrimaryText());
+        mPrimaryTextView.setTextColor(it.getTextColor());
         mSecondaryTextView = ((TextView)layout.findViewById(R.id.hev_secondary_text));
         mSecondaryTextView.setText(it.getSecondaryText());
+        mSecondaryTextView.setTextColor(it.getTextColor());
         mIcon = ((ImageView)layout.findViewById(R.id.hev_icon));
         mIcon.setImageDrawable(it.getIcon());
 
@@ -32,11 +34,13 @@ public class HierarchyElementView extends RelativeLayout {
     }
 
 
-    public void setPrimaryText(String text) {
+    public void setPrimaryText(String text, int color) {
+        mPrimaryTextView.setTextColor(color);
         mPrimaryTextView.setText(text);
     }
 
-    public void setSecondaryText(String text) {
+    public void setSecondaryText(String text, int color) {
+        mSecondaryTextView.setTextColor(color);
         mSecondaryTextView.setText(text);
     }
 
