@@ -11,7 +11,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -42,7 +41,6 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -1194,18 +1192,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * current group.
      */
     private void createRepeatDialog() {
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        
-        View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
 
-        AlertDialog repeatDialog = new AlertDialog.Builder(wrapper).create();
-        
-        final AlertDialog theDialog = repeatDialog;
-        
-        repeatDialog.setView(view);
-        
-        repeatDialog.setIcon(android.R.drawable.ic_dialog_info);
-        
+        // Determine the effect that back and next buttons should have
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
@@ -1214,96 +1202,91 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             return;
         }
-
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
-        
-        Button back = (Button)view.findViewById(R.id.component_repeat_back);
-        
-        back.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(backExitsForm) {
-					FormEntryActivity.this.triggerUserQuitInput();
-				} else {
-					theDialog.dismiss();
-		            FormEntryActivity.this.refreshCurrentView(false);
-				}
-			}
-        });
-        
-        Button newButton = (Button)view.findViewById(R.id.component_repeat_new);
 
-        newButton.setOnClickListener(new OnClickListener() {
-            @Override
-			public void onClick(View v) {
-                            theDialog.dismiss();
-                            try {
-                                mFormController.newRepeat();
-                            } catch (XPathTypeMismatchException e) {
-                                Logger.exception(e);
-                                CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
-                                return;
-                            }
-                            showNextView();				
-			}
-        });
-        
-        Button skip = (Button)view.findViewById(R.id.component_repeat_skip);
-        
-        skip.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				theDialog.dismiss();
-            	if(!nextExitsForm) {
-            		showNextView();
-            	} else {
-                    triggerUserFormComplete();
-            	}
-			}
-        });
-
-        back.setText(StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back));
-
-        //Load up our icons
-        Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
-        exitIcon.setBounds(0, 0, exitIcon.getIntrinsicWidth(), exitIcon.getIntrinsicHeight());
-
-        Drawable doneIcon = getResources().getDrawable(R.drawable.icon_done);
-        doneIcon.setBounds(0, 0, doneIcon.getIntrinsicWidth(), doneIcon.getIntrinsicHeight());
-        
+        // Assign title and text strings based on the current state
+        String title, addAnotherText, skipText, backText;
+        backText = StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back).toString();
         if (mFormController.getLastRepeatCount() > 0) {
-            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
-                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
-                            mFormController.getLastGroupText()));
-            newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.add_another));
-            if(!nextExitsForm) {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes));
+            title = StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
+                    mFormController.getLastGroupText()).toString();
+            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.add_another).toString();
+            if (!nextExitsForm) {
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes).toString();
             } else {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits));
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits).toString();
             }
         } else {
-            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
-                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
-                            mFormController.getLastGroupText()));
-            newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.entering_repeat));
-            if(!nextExitsForm) {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no));
+            title = StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
+                    mFormController.getLastGroupText()).toString();
+            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.entering_repeat).toString();
+            if (!nextExitsForm) {
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no).toString();
             } else {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits));
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits).toString();
             }
         }
-        
-        repeatDialog.setCancelable(false);
-        repeatDialog.show();
 
-        if(nextExitsForm) {
-        	skip.setCompoundDrawables(null, doneIcon, null, null);
-        } 
-        
-        if(backExitsForm) {
-        	back.setCompoundDrawables(null, exitIcon, null, null);
+        // Create the choice dialog
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, PaneledChoiceDialog.ChoiceDialogType.THREE_PANEL, title);
+
+        // Panel 1: Back option
+        View.OnClickListener backListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (backExitsForm) {
+                    FormEntryActivity.this.triggerUserQuitInput();
+                } else {
+                    dialog.dismiss();
+                    FormEntryActivity.this.refreshCurrentView(false);
+                }
+            }
+        };
+        if (backExitsForm) {
+            dialog.addPanel1(backText, R.drawable.icon_exit, backListener);
+        } else {
+            dialog.addPanel1(backText, R.drawable.icon_back, backListener);
         }
+
+        // Panel 2: Add another option
+        View.OnClickListener addAnotherListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                try {
+                    mFormController.newRepeat();
+                } catch (XPathTypeMismatchException e) {
+                    Logger.exception(e);
+                    CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                    return;
+                }
+                showNextView();
+            }
+        };
+        dialog.addPanel2(addAnotherText, R.drawable.icon_new, addAnotherListener);
+
+        // Panel 3: Skip option
+        View.OnClickListener skipListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                if (!nextExitsForm) {
+                    showNextView();
+                } else {
+                    triggerUserFormComplete();
+                }
+            }
+        };
+        if (nextExitsForm) {
+            dialog.addPanel3(skipText, R.drawable.icon_done, skipListener);
+        } else {
+            dialog.addPanel3(skipText, R.drawable.icon_next, skipListener);
+        }
+
+        dialog.makeNotCancelable();
+        dialog.show();
         mBeenSwiped = false;
     }
 

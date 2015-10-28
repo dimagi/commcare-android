@@ -36,11 +36,16 @@ public class PaneledChoiceDialog {
         }
 
         setTitle(title);
+        dialog.setCancelable(true); // cancelable by default
     }
 
     private void setTitle(String title) {
         TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title);
         tv.setText(title);
+    }
+
+    public void makeNotCancelable() {
+        dialog.setCancelable(false);
     }
 
     public void addPanel1(String buttonText, int iconResId, View.OnClickListener listener) {
