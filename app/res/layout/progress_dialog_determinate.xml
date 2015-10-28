@@ -22,7 +22,7 @@
             android:id="@+id/progress_dialog_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_large"
+            android:textSize="@dimen/font_size_dp_large"
             android:paddingBottom="@dimen/standard_spacer_double" />
 
         <ProgressBar
@@ -42,7 +42,7 @@
             android:layout_below="@id/progress_bar_horizontal"
             android:focusable="true"
             android:visibility="gone"
-            android:textSize="@dimen/font_size_large"
+            android:textSize="@dimen/font_size_dp_large"
             android:layout_marginTop="@dimen/standard_spacer_double" >
         </CheckBox>
 
