@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Display;
 import android.view.WindowManager;
 
 import org.commcare.android.javarosa.AndroidLogger;
@@ -64,13 +63,16 @@ public class MediaUtil {
                 return null;
             }
 
-            Display display = ((WindowManager)
-                    context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay()
+                    .getMetrics(displayMetrics);
+
             if (boundingHeight == -1) {
-                boundingHeight = display.getHeight();
+                boundingHeight = displayMetrics.heightPixels;
             }
             if (boundingWidth == -1) {
-                boundingWidth = display.getWidth();
+                boundingWidth = displayMetrics.widthPixels;
             }
 
             if (DeveloperPreferences.isSmartInflationEnabled()) {
