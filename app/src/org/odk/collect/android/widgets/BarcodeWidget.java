@@ -41,7 +41,7 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
-public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
+public class BarcodeWidget extends IntentWidget {
 
     private TextView mStringAnswer;
 
@@ -51,7 +51,6 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
         // todo: it's only here because it subclasses IntentWidget
         super(context, prompt, i, ic, pendingCalloutInterface, FormEntryActivity.BARCODE_CAPTURE);
 
-        mWaitingForData = false;
         setOrientation(LinearLayout.VERTICAL);
     }
 
@@ -69,16 +68,15 @@ public class BarcodeWidget extends IntentWidget implements IBinaryWidget {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                mWaitingForData = true;
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.BARCODE_CAPTURE);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
                                     R.string.barcode_scanner_error),
                             Toast.LENGTH_SHORT).show();
-                    mWaitingForData = false;
                 }
             }
         });

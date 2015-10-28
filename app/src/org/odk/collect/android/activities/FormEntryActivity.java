@@ -420,7 +420,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sb);
+                ((ODKView) mCurrentView).setBinaryData(sb, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
@@ -440,7 +440,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sl);
+                ((ODKView) mCurrentView).setBinaryData(sl, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case HIERARCHY_ACTIVITY:
@@ -520,7 +520,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        ((ODKView) mCurrentView).setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
@@ -538,7 +538,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     Localization.get("form.attachment.invalid"),
                     Toast.LENGTH_LONG).show();
         } else {
-            ((ODKView) mCurrentView).setBinaryData(media);
+            ((ODKView) mCurrentView).setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
@@ -1718,7 +1718,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
         }
+
         if (mFormController != null) {
+            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
     }

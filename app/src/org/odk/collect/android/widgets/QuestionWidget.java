@@ -649,4 +649,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     public Spannable stylize(String text){
         return MarkupUtil.styleSpannable(getContext(), text);
     }
+
+    public void setBinaryData(Object answer) {
+    }
 }
