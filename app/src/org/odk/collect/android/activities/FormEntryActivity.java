@@ -1380,7 +1380,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         };
         dialog.addPanel1(Localization.get("quit.form.option.cancel"),
-                R.drawable.icon_back, stayInFormListener);
+                R.drawable.ic_blue_back, stayInFormListener);
 
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
@@ -1389,7 +1389,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         };
         dialog.addPanel2(Localization.get("quit.form.option.exit"),
-                R.drawable.icon_close_darkwarm, exitFormListener);
+                R.drawable.ic_red_x, exitFormListener);
 
         if (mIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
@@ -1399,7 +1399,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             };
             dialog.addPanel3(Localization.get("quit.form.option.save.and.exit"),
-                    R.drawable.notebook_incomplete, saveIncompleteListener);
+                    R.drawable.ic_green_check, saveIncompleteListener);
         }
 
         dialog.show();
