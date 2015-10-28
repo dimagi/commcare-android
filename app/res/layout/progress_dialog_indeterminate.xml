@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/progress_bar"
             android:layout_centerVertical="true"
-            android:textSize="@dimen/font_size_large" />
+            android:textSize="@dimen/font_size_dp_large" />
 
     </RelativeLayout>
 
