@@ -1444,21 +1444,21 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             String where =
                 Images.Media.DATA + " like '" + instanceFolder + "%'";
 
-            String[] projection = {
-                Images.ImageColumns._ID
-            };
 
             // images
             Cursor imageCursor = null;
             try {
+                String[] projection = {
+                        Images.ImageColumns._ID
+                };
                 imageCursor = getContentResolver().query(
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             projection, where, null, null);
-                if (imageCursor.getCount() > 0) {
+                if (imageCursor != null && imageCursor.getCount() > 0) {
                     imageCursor.moveToFirst();
-                    String id =
-                        imageCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            imageCursor.getColumnIndex(Images.ImageColumns._ID);
+                    String id = imageCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1482,14 +1482,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             // audio
             Cursor audioCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Audio.AudioColumns._ID
+                };
                 audioCursor = getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (audioCursor.getCount() > 0) {
+                if (audioCursor != null && audioCursor.getCount() > 0) {
                     audioCursor.moveToFirst();
-                    String id =
-                        audioCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            audioCursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID);
+                    String id = audioCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1513,14 +1516,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             // video
             Cursor videoCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Video.VideoColumns._ID
+                };
                 videoCursor = getContentResolver().query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (videoCursor.getCount() > 0) {
+                if (videoCursor != null && videoCursor.getCount() > 0) {
                     videoCursor.moveToFirst();
-                    String id =
-                        videoCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            videoCursor.getColumnIndex(MediaStore.Video.VideoColumns._ID);
+                    String id = videoCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,

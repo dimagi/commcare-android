@@ -68,7 +68,7 @@
     <application
         tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
-        android:icon="@drawable/icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
         <activity
@@ -184,7 +184,7 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
-            <intent-filter android:icon="@drawable/icon" >
+            <intent-filter android:icon="@mipmap/ic_launcher" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -196,7 +196,7 @@
                     android:pathPattern=".*\\.ccz"
                     android:scheme="file" />
             </intent-filter>
-            <intent-filter android:icon="@drawable/icon" >
+            <intent-filter android:icon="@mipmap/ic_launcher" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
