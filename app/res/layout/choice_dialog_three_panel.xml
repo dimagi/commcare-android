@@ -19,8 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_title_margin_bottom"
-            android:text="Exit Form?"
-            android:textSize="@dimen/font_size_xlarger" />
+            android:textSize="@dimen/font_size_dp_xlarger" />
 
         <RelativeLayout
             android:layout_width="match_parent"
