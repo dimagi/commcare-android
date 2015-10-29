@@ -67,6 +67,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -115,6 +116,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -605,29 +607,39 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
     }
 
+    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
+            selectChoicesList.add(oldSelectChoices);
+        }
+        return selectChoicesList;
+    }
+
     private void updateFormRelevancies(){
+        ODKView oldODKV = (ODKView)mCurrentView;
+        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
+
         if(!(mCurrentView instanceof ODKView)){
             throw new RuntimeException("Tried to update form relevency not on compound view");
         }
-        
-        ODKView oldODKV = (ODKView)mCurrentView;
-        
+
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
         Set<FormEntryPrompt> leftInOldList = new HashSet<>();
-        
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
 
         ArrayList<Integer> removeList = new ArrayList<>();
         for (int i = 0; i < oldWidgets.size(); i++){
             QuestionWidget oldWidget = oldWidgets.get(i);
             FormEntryPrompt oldPrompt = oldWidget.getPrompt();
-            FormIndex oldPromptIndex = oldPrompt.getIndex();
+            Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
             boolean stillRelevant = false;
 
             for (FormEntryPrompt newPrompt : newValidPrompts) {
-                if (newPrompt.getIndex().equals(oldPromptIndex) && newPrompt.hasSameDisplayContent(oldPrompt)) {
+                if (newPrompt.getIndex().equals(oldPrompt.getIndex())
+                        && newPrompt.hasSameDisplayContent(oldPrompt, priorSelectChoicesForThisWidget)) {
                     stillRelevant = true;
                     leftInOldList.add(newPrompt);
                     break;
@@ -2022,7 +2034,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 mFormController.saveAnswer(index, answer);
                 return FormEntryController.ANSWER_OK;
             }
-        } catch(XPathException e) {
+        } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
             CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
             //We're exiting anyway
