@@ -64,6 +64,7 @@ public class CommCarePreferences
     public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
+    public final static String LAST_PASSWORD = "last_password";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";

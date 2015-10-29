@@ -39,6 +39,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
@@ -136,9 +137,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        if (DevSessionRestorer.autoLogin(this, prefs)) {
+            return;
+        }
+
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         setLoginBoxesColorNormal();
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+
         //Only on the initial creation
         if(savedInstanceState == null) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
@@ -150,15 +158,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-                errorBox.setVisibility(View.GONE);
-                ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-
-                if (ResourceInstallUtils.isUpdateReadyToInstall()) {
-                    // install update, which triggers login upon completion
-                    installPendingUpdate();
-                } else {
-                    localLoginOrPullAndLogin();
-                }
+                loginButtonPressed();
             }
         });
 
@@ -196,6 +196,24 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 }
             }
         });
+    }
+
+    public void performUILogin(String usernameString, String passwordString) {
+        password.setText(usernameString);
+        username.setText(passwordString);
+        loginButtonPressed();
+    }
+
+    private void loginButtonPressed() {
+        errorBox.setVisibility(View.GONE);
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+
+        if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+            // install update, which triggers login upon completion
+            installPendingUpdate();
+        } else {
+            localLoginOrPullAndLogin();
+        }
     }
 
     public String getActivityTitle() {
