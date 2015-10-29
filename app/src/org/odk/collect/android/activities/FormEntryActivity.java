@@ -616,30 +616,39 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         return selectChoicesList;
     }
 
-    private void updateFormRelevancies(){
-        ODKView oldODKV = (ODKView)mCurrentView;
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
-        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<String> questionTextList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            questionTextList.add(qw.getPrompt().getQuestionText());
+        }
+        return questionTextList;
+    }
 
+    private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
 
         if(!(mCurrentView instanceof ODKView)){
-            throw new RuntimeException("Tried to update form relevency not on compound view");
+            throw new RuntimeException("Tried to update form relevancy not on compound view");
         }
+
+        ODKView oldODKV = (ODKView)mCurrentView;
+        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+        ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
 
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
         Set<FormEntryPrompt> leftInOldList = new HashSet<>();
 
         ArrayList<Integer> removeList = new ArrayList<>();
         for (int i = 0; i < oldWidgets.size(); i++){
-            QuestionWidget oldWidget = oldWidgets.get(i);
-            FormEntryPrompt oldPrompt = oldWidget.getPrompt();
+            FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
+            String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
             boolean stillRelevant = false;
 
             for (FormEntryPrompt newPrompt : newValidPrompts) {
                 if (newPrompt.getIndex().equals(oldPrompt.getIndex())
-                        && newPrompt.hasSameDisplayContent(oldPrompt, priorSelectChoicesForThisWidget)) {
+                        && newPrompt.hasSameDisplayContent(priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget)) {
                     stillRelevant = true;
                     leftInOldList.add(newPrompt);
                     break;
