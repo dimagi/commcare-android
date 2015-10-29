@@ -140,10 +140,6 @@ public class AUser implements Persistable, IMetaData
         this.password = password;
     }
 
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
     public void setRememberMe(boolean rememberMe) {
         this.rememberMe = rememberMe;
     }

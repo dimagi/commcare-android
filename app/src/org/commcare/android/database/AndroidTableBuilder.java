@@ -50,10 +50,9 @@ public class AndroidTableBuilder extends TableBuilder {
 
             int startPoint = currentRound * maxArgs;
             int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
-
-            String ret = "(";
+            StringBuilder stringBuilder = new StringBuilder("(");
             for(int i = startPoint ; i < lastIndex ; ++i) {
-                ret += "?" + ",";
+                stringBuilder.append("?,");
             }
 
             String[] array = new String[lastIndex - startPoint];
@@ -62,7 +61,8 @@ public class AndroidTableBuilder extends TableBuilder {
                 array[count++] = String.valueOf(input.get(i));
             }
 
-            ops.add(new Pair<String, String[]>(ret.substring(0, ret.length()-1) + ")", array));
+            ops.add(new Pair<>(stringBuilder.toString().substring(0,
+                    stringBuilder.toString().length()-1) + ")", array));
 
         }
         return ops;

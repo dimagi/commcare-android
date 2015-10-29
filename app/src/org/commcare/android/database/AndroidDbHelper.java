@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public abstract class AndroidDbHelper extends DatabaseHelper {
     
-    protected Context c;
+    final protected Context c;
     
     public AndroidDbHelper(Context c) {
         this.c = c;
@@ -61,8 +61,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
 
     public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){
         org.commcare.modern.util.Pair<String, String[]> mPair = DatabaseHelper.createWhere(fieldNames, values, em, p);
-        Pair<String, String[]> returnPair = new Pair<String, String[]>(mPair.first, mPair.second);
-        return returnPair;
+        return new Pair<>(mPair.first, mPair.second);
 
     }
     

@@ -34,8 +34,8 @@ import java.util.Hashtable;
 
 public class AndroidTransactionParserFactory extends CommCareTransactionParserFactory {
 
-    private Context context;
-    HttpRequestGenerator generator;
+    final private Context context;
+    final private HttpRequestGenerator generator;
 
     private TransactionParserFactory formInstanceParser;
 

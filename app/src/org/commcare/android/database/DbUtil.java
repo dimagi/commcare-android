@@ -37,8 +37,6 @@ public class DbUtil {
 
     /**
      * Basically this is our PrototypeManager for Android
-     * @param c
-     * @return
      */
     public static PrototypeFactory getPrototypeFactory(Context c) {
         if(factory != null) {

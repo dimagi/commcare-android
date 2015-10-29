@@ -9,7 +9,7 @@ import org.kxml2.io.KXmlParser;
 
 public class AndroidUserXmlParser extends UserXmlParser {
 
-    byte[] wrappedKey;
+    private final byte[] wrappedKey;
     
     public AndroidUserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, byte[] wrappedKey) {
         super(parser, storage);

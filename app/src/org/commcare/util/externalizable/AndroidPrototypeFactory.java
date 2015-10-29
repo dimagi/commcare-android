@@ -16,7 +16,7 @@ import java.util.Hashtable;
  */
 public class AndroidPrototypeFactory extends PrototypeFactory {
     
-    Hashtable<Integer, Class> prototypes;
+    private Hashtable<Integer, Class> prototypes;
     
     public AndroidPrototypeFactory(PrefixTree classNames) {
         super(new AndroidClassHasher(), classNames);
@@ -31,7 +31,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
 
 
     private Integer getHash(byte[] hash) {
-        return (hash[3] << 0) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24);
+        return (hash[3]) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24);
     }
     
     @Override
