@@ -607,6 +607,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
     }
 
+    /**
+     * @return A list of the select choices for each widget in the list of old widgets, with the
+     * original order preserved
+     */
     private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
         ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
         for (QuestionWidget qw : oldWidgets) {
@@ -616,6 +620,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         return selectChoicesList;
     }
 
+    /**
+     * @return A list of the question texts for each widget in the list of old widgets, with the
+     * original order preserved
+     */
     private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
         ArrayList<String> questionTextList = new ArrayList<>();
         for (QuestionWidget qw : oldWidgets) {
@@ -649,6 +657,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             for (FormEntryPrompt newPrompt : newValidPrompts) {
                 if (newPrompt.getIndex().equals(oldPrompt.getIndex())
                         && newPrompt.hasSameDisplayContent(priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget)) {
+                    // The only prompt should only be left if it still exists in the list of new
+                    // prompts, and its display content has not changed at all
                     stillRelevant = true;
                     leftInOldList.add(newPrompt);
                     break;
