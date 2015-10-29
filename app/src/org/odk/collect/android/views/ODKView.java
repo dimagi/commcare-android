@@ -14,10 +14,12 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
@@ -333,6 +335,8 @@ public class ODKView extends ScrollView
     public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
         FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
         if (questionFormIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to find question widget to attach pending data to.");
             return;
         }
 
@@ -343,6 +347,8 @@ public class ODKView extends ScrollView
                 return;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "Unable to find question widget to attach pending data to.");
     }
 
 
