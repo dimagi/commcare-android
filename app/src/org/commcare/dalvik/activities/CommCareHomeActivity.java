@@ -1236,9 +1236,6 @@ public class CommCareHomeActivity
                         // create a new form record and begin form entry
                         state.commitStub();
                         formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    default:
-                        break;
                 }
                 dialog.dismiss();
             }
