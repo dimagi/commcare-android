@@ -1356,10 +1356,37 @@ public class CommCareHomeActivity
                 goToFormArchive(false);
                 return true;
             case MENU_ABOUT:
-                showAboutCommCareDialog();
+                //showAboutCommCareDialog();
+                showTestDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showTestDialog() {
+        final CharSequence[] items = {"Call", "Send SMS"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Action");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                //dispatchAction(item == 0 ? Intent.ACTION_CALL : Intent.ACTION_SENDTO);
+                dialog.dismiss();
+            }
+        });
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+
+            public void onCancel(DialogInterface dialog) {
+                Intent i = new Intent(getIntent());
+
+                setResult(RESULT_CANCELED, i);
+                finish();
+                return;
+            }
+
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
     
     public static void createPreferencesMenu(Activity activity) {
