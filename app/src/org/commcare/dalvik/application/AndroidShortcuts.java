@@ -1,15 +1,17 @@
 package org.commcare.dalvik.application;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.suite.model.Suite;
 
 import java.util.ArrayList;
@@ -37,14 +39,24 @@ public class AndroidShortcuts extends Activity {
             buildMenuList();
         }
     }
-    
+
     private void buildMenuList() {
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select CommCare Shortcut");
+        dialog.setChoiceItems(getChoiceItemList(dialog));
+        dialog.setOnCancelListener(new OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                AndroidShortcuts sc = AndroidShortcuts.this;
+                sc.setResult(RESULT_CANCELED);
+                sc.finish();
+                return;
+            }
+        });
+        dialog.show();
+    }
+    
+    private DialogChoiceItem[] getChoiceItemList(final PaneledChoiceDialog dialog) {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> commands = new ArrayList<>();
-        
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select CommCare Shortcut");
-
         for (Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
             for (org.commcare.suite.model.Menu m : s.getMenus()) {
                 if ("root".equals(m.getRoot())) {
@@ -57,23 +69,21 @@ public class AndroidShortcuts extends Activity {
         this.names = names.toArray(new String[0]);
         this.commands = commands.toArray(new String[0]);
 
-        builder.setItems(this.names, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                returnShortcut(AndroidShortcuts.this.names[item], AndroidShortcuts.this.commands[item]);
-            }
-        });
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[names.size()];
+        for (int i = 0; i < names.size(); i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                public void onClick(View v) {
+                    returnShortcut(AndroidShortcuts.this.names[index],
+                            AndroidShortcuts.this.commands[index]);
+                    dialog.dismiss();
+                }
+            };
+            DialogChoiceItem item = new DialogChoiceItem(names.get(i), -1, listener);
+            choiceItems[i] = item;
+        }
         
-        builder.setOnCancelListener(new OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-                AndroidShortcuts sc = AndroidShortcuts.this;
-                sc.setResult(RESULT_CANCELED);
-                sc.finish();
-                return;
-            }
-        });
-
-        AlertDialog alert = builder.create();
-        alert.show();
+        return choiceItems;
     }
     
     /**
