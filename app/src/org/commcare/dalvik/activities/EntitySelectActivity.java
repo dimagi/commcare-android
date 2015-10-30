@@ -14,7 +14,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -89,7 +88,6 @@ import java.util.TimerTask;
 public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
-        TextToSpeech.OnInitListener,
         DetailCalloutListener,
         BarcodeScanListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
@@ -114,8 +112,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
-
-    private TextToSpeech tts;
 
     private SessionDatum selectDatum;
 
@@ -144,6 +140,16 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private DataSetObserver mListStateObserver;
     private OnClickListener barcodeScanOnClickListener;
+
+    private boolean resuming = false;
+    private boolean startOther = false;
+
+    private boolean rightFrameSetup = false;
+    private NodeEntityFactory factory;
+
+    private Timer myTimer;
+    private final Object timerLock = new Object();
+    private boolean cancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,7 +219,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         view.setOnItemClickListener(this);
         setupDivider(view);
 
-
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -271,8 +276,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {
@@ -339,23 +342,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     @Override
     public String getActivityTitle() {
-        //Skipping this until it's a more general pattern
-
-//        String title = Localization.get("select.list.title");
-//        
-//        try {
-//            Detail detail = session.getDetail(selectDatum.getShortDetail());
-//            title = detail.getTitle().evaluate();
-//        } catch(Exception e) {
-//            
-//        }
-//        
-//        return title;
         return null;
     }
-
-    private boolean resuming = false;
-    private boolean startOther = false;
 
     @Override
     protected void onResume() {
@@ -366,7 +354,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
 
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity =
+                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
                 if (inAwesomeMode) {
@@ -382,7 +372,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getShortDetail());
+                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                                selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -417,8 +408,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 header.addView(v);
             }
 
-            if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            if (adapter == null &&
+                    loader == null &&
+                    !EntityLoaderTask.attachToActivity(this)) {
+                EntityLoaderTask theloader =
+                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
                 theloader.execute(selectDatum.getNodeset());
             } else {
@@ -428,7 +422,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             createErrorDialog(re.getMessage(), true);
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -442,7 +435,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         stopTimer();
         saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
-
 
     /**
      * Get an intent for displaying the confirm detail screen for an element (either just populates
@@ -464,8 +456,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * Attach all element selection information to the intent argument and return the resulting
      * intent
      */
-    protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
-                                                 SessionDatum selectDatum, AndroidSessionWrapper asw) {
+    protected static Intent populateDetailIntent(Intent detailIntent,
+                                                 TreeReference contextRef,
+                                                 SessionDatum selectDatum,
+                                                 AndroidSessionWrapper asw) {
 
         String caseId = SessionDatum.getCaseIdFromReference(
                 contextRef, selectDatum, asw.getEvaluationContext());
@@ -518,17 +512,15 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     @Override
     public void onCalloutResult(String result, Intent intent) {
-        boolean resultSet = false;
         if (result != null) {
             setSearchText(result);
-            resultSet = true;
-        }
-        for (String key : shortSelect.getCallout().getResponses()) {
-            result = intent.getExtras().getString(key);
-            if (result != null && !resultSet) {
-                resultSet = true;
-                setSearchText(result);
-                break;
+        } else {
+            for (String key : shortSelect.getCallout().getResponses()) {
+                result = intent.getExtras().getString(key);
+                if (result != null) {
+                    setSearchText(result);
+                    return;
+                }
             }
         }
     }
@@ -559,7 +551,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
                     if (inAwesomeMode) {
                         // Retain original element selection
-                        TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                        TreeReference r =
+                                SerializationUtil.deserializeFromIntent(intent,
+                                        EntityDetailActivity.CONTEXT_REFERENCE,
+                                        TreeReference.class);
                         if (r != null && adapter != null) {
                             // TODO: added 'adapter != null' due to a
                             // NullPointerException, we need to figure out how to
@@ -573,7 +568,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             case MAP_SELECT:
                 if (resultCode == RESULT_OK) {
-                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    TreeReference r =
+                            SerializationUtil.deserializeFromIntent(intent,
+                                    EntityDetailActivity.CONTEXT_REFERENCE,
+                                    TreeReference.class);
 
                     if (inAwesomeMode) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
@@ -609,6 +607,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
 
+    @Override
     public void afterTextChanged(Editable s) {
         if (getSearchText() == s) {
             filterString = s.toString();
@@ -618,23 +617,17 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
         if (!isUsingActionBar()) {
             lastQueryString = filterString;
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
-            }
         }
     }
 
 
+    @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
-        // TODO Auto-generated method stub
-
     }
 
-
+    @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -682,11 +675,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
-                        if (BuildConfig.DEBUG) {
-                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
-                        }
-                        if (newText != null && newText.length() > 0) {
-                        }
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -783,7 +771,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
 
-        List<String> namesList = new ArrayList<String>();
+        List<String> namesList = new ArrayList<>();
 
         final int[] keyarray = new int[fields.length];
 
@@ -827,7 +815,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         });
 
-
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -846,26 +833,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (adapter != null) {
             adapter.signalKilled();
         }
-
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
     }
 
     @Override
-    public void onInit(int status) {
-
-        if (status == TextToSpeech.SUCCESS) {
-            //using the default speech engine for now.
-        } else {
-        }
-
-    }
-
-
-    @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
+    public void deliverResult(List<Entity<TreeReference>> entities,
+                              List<TreeReference> references,
+                              NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -881,7 +854,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+        adapter =
+                new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
@@ -914,17 +888,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
             Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
 
-            //region ListView divider information
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
             }
-            //endregion
 
-            //region Asserting divider instanceof LayerDrawable
             if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
                 throw new AssertionError("Divider should be a LayerDrawable!");
             }
-            //endregion
 
             LayerDrawable layerDrawable = (LayerDrawable)divider;
 
@@ -969,9 +939,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         this.loader = task;
     }
 
-    private boolean rightFrameSetup = false;
-    private NodeEntityFactory factory;
-
     private void select() {
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
@@ -980,19 +947,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         finish();
     }
 
-    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    @Override
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
+    @Override
     public void addressRequested(String address) {
         DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
 
+    @Override
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
@@ -1053,7 +1023,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
-            if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
+            if (inAwesomeMode &&
+                    detailView != null &&
+                    detailView.getCurrentTab() < detailView.getTabCount() - 1) {
                 return false;
             }
 
@@ -1084,10 +1056,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             theloader.execute(selectDatum.getNodeset());
         }
     }
-
-    private Timer myTimer;
-    private final Object timerLock = new Object();
-    private boolean cancelled;
 
     private void startTimer() {
         if (!DeveloperPreferences.isListRefreshEnabled()) {
@@ -1124,5 +1092,4 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         }
     }
-
 }
