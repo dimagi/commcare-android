@@ -21,4 +21,17 @@
         android:showDividers="middle" >
     </ListView>
 
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/optional_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+        android:layout_gravity="right"
+        android:layout_marginRight="@dimen/standard_spacer"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/font_size_dp_medium"
+        android:textColor="@color/dialog_button_color"
+        android:visibility="gone">
+    </Button>
+
 </LinearLayout>

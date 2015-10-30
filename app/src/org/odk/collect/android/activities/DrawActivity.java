@@ -18,7 +18,6 @@ package org.odk.collect.android.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -42,6 +41,8 @@ import android.widget.RelativeLayout;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.utilities.FileUtils;
 
@@ -307,44 +308,36 @@ public class DrawActivity extends Activity {
      * saving
      */
     private void createQuitDrawDialog() {
-        String[] items = { getString(R.string.keep_changes),
-                getString(R.string.do_not_save) };
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-
-        alertDialog = new AlertDialog.Builder(this)
-        .setIcon(android.R.drawable.ic_dialog_info)
-        .setTitle(alertTitleString)
-        .setNeutralButton(getString(R.string.do_not_exit),
-                new DialogInterface.OnClickListener() {
+        View.OnClickListener keepChangesListener = new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int id) {
-
-
-                dialog.cancel();
-
+            public void onClick(View v) {
+                SaveAndClose();
             }
-        })
-        .setItems(items, new DialogInterface.OnClickListener() {
+        };
+        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
+                keepChangesListener);
+
+        View.OnClickListener discardChangesListener = new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-
-                case 0: // save and exit
-                    SaveAndClose();
-                    break;
-
-                case 1: // discard changes and exit
-
-                    CancelAndClose();
-                    break;
-
-                case 2:// do nothing
-
-                    break;
-                }
+            public void onClick(View v) {
+                CancelAndClose();
             }
-        }).create();
-        alertDialog.show();
+        };
+        DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
+                discardChangesListener);
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+
+        dialog.addButton(getString(R.string.do_not_exit), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     public class DrawView extends View {
@@ -382,7 +375,7 @@ public class DrawActivity extends Activity {
             if (mBackgroundBitmapFile.exists()) {
                 mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
-                                Bitmap.Config.ARGB_8888, true);
+                        Bitmap.Config.ARGB_8888, true);
                 // mBitmap =
                 // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
                 // w, h, true);
@@ -447,18 +440,18 @@ public class DrawActivity extends Activity {
             float y = event.getY();
 
             switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                invalidate();
-                break;
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
             }
             return true;
         }

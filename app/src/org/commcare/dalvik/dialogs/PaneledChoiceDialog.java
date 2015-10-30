@@ -85,6 +85,13 @@ public class PaneledChoiceDialog {
         dialog.setCancelable(false);
     }
 
+    public void addButton(String text, View.OnClickListener listener) {
+        Button button = (Button)view.findViewById(R.id.optional_button);
+        button.setText(text);
+        button.setVisibility(View.VISIBLE);
+        button.setOnClickListener(listener);
+    }
+
     public void show() {
         dialog.setView(view);
         dialog.show();
