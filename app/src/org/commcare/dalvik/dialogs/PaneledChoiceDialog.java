@@ -3,6 +3,7 @@ package org.commcare.dalvik.dialogs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -49,21 +50,35 @@ public class PaneledChoiceDialog {
         }
     }
 
+    private void setTitle(String title) {
+        TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title).
+                findViewById(R.id.dialog_title_text);
+        tv.setText(title);
+    }
+
     private void setupThreePanelView(DialogChoiceItem[] choiceItems) {
         Button panel1 = (Button)view.findViewById(R.id.choice_dialog_panel_1);
         Button panel2 = (Button)view.findViewById(R.id.choice_dialog_panel_2);
         Button panel3 = (Button)view.findViewById(R.id.choice_dialog_panel_3);
         Button[] panels = new Button[]{panel1, panel2, panel3};
         for (int i = 0; i < 3; i++) {
-            DialogChoiceItem.populateSingleChoicePanel(context, panels[i], choiceItems[i],
+            populateChoicePanel(context, panels[i], choiceItems[i],
                     DialogChoiceItem.ICON_ON_TOP);
         }
     }
 
-    private void setTitle(String title) {
-        TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title).
-                findViewById(R.id.dialog_title_text);
-        tv.setText(title);
+    public static void populateChoicePanel(Context context, Button choicePanel,
+                                                 DialogChoiceItem item, boolean iconToLeft) {
+        choicePanel.setText(item.text);
+        choicePanel.setOnClickListener(item.listener);
+        if (item.iconResId != -1) {
+            Drawable icon = context.getResources().getDrawable(item.iconResId);
+            if (iconToLeft) {
+                choicePanel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+            } else {
+                choicePanel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+            }
+        }
     }
 
     public void makeNotCancelable() {

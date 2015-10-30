@@ -28,7 +28,7 @@ public class ChoiceDialogAdapter extends ArrayAdapter<DialogChoiceItem> {
             choicePanel = (Button)View.inflate(context, R.layout.single_dialog_choice_view, null);
         }
         DialogChoiceItem choiceBeingDisplayed = this.getItem(position);
-        DialogChoiceItem.populateSingleChoicePanel(context, choicePanel, choiceBeingDisplayed,
+        PaneledChoiceDialog.populateChoicePanel(context, choicePanel, choiceBeingDisplayed,
                 DialogChoiceItem.ICON_TO_LEFT);
         return choicePanel;
     }
