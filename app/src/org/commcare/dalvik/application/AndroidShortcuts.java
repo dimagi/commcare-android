@@ -32,23 +32,22 @@ public class AndroidShortcuts extends Activity {
         final Intent intent = getIntent();
         final String action = intent.getAction();
 
-        //The Android needs to know what shortcuts are available, generate the list
+        // The Android needs to know what shortcuts are available, generate the list
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
             buildMenuList();
         }
     }
     
     private void buildMenuList() {
-        ArrayList<String> names = new ArrayList<String>();
-        ArrayList<String> commands = new ArrayList<String>();
+        ArrayList<String> names = new ArrayList<>();
+        ArrayList<String> commands = new ArrayList<>();
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        
         builder.setTitle("Select CommCare Shortcut");
 
-        for(Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
-            for(org.commcare.suite.model.Menu m : s.getMenus()) {
-                if("root".equals(m.getRoot())) {
+        for (Suite s : CommCareApplication._().getCommCarePlatform().getInstalledSuites()) {
+            for (org.commcare.suite.model.Menu m : s.getMenus()) {
+                if ("root".equals(m.getRoot())) {
                     String name = m.getName().evaluate();
                     names.add(name);
                     commands.add(m.getId());
@@ -73,7 +72,6 @@ public class AndroidShortcuts extends Activity {
             }
         });
 
-        
         AlertDialog alert = builder.create();
         alert.show();
     }

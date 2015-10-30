@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
@@ -778,17 +777,21 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private void createSortMenu() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //use the old method here because some Android versions don't like Spannables for titles
         builder.setTitle(Localization.get("select.menu.sort"));
+        setSortOptionsList(builder);
+        builder.setCancelable(true);
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void setSortOptionsList(AlertDialog.Builder builder) {
+
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        List<String> namesList = new ArrayList<>();
 
-        List<String> namesList = new ArrayList<String>();
-
-        final int[] keyarray = new int[fields.length];
-
+        final int[] keyArray = new int[fields.length];
         int[] sorts = adapter.getCurrentSort();
-
         int currentSort = sorts.length == 1 ? sorts[0] : -1;
         boolean reversed = adapter.isCurrentSortReversed();
 
@@ -807,29 +810,18 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
                 }
                 namesList.add(prepend + result);
-                keyarray[added] = i;
+                keyArray[added] = i;
                 added++;
             }
         }
-
         final String[] names = namesList.toArray(new String[namesList.size()]);
 
         builder.setItems(names, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                adapter.sortEntities(new int[]{keyarray[item]});
+                adapter.sortEntities(new int[]{keyArray[item]});
                 adapter.applyFilter(getSearchText().toString());
             }
         });
-
-        builder.setOnCancelListener(new OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-                //
-            }
-        });
-
-
-        AlertDialog alert = builder.create();
-        alert.show();
     }
 
     @Override
