@@ -3,10 +3,10 @@ package org.commcare.dalvik.dialogs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -18,26 +18,46 @@ public class PaneledChoiceDialog {
 
     private View view;
     private Context context;
-    private ChoiceDialogType type;
     private AlertDialog dialog;
+    private boolean usingThreePanelView;
 
-    public enum ChoiceDialogType {
-        TWO_PANEL, THREE_PANEL
+    public static boolean THREE_PANEL = true;
+
+    public PaneledChoiceDialog(Context context, String title) {
+        this(context, title, false);
     }
 
-    public PaneledChoiceDialog(Context context, ChoiceDialogType type, String title) {
+    public PaneledChoiceDialog(Context context, String title, boolean useSpecialThreePanelView) {
         this.context = context;
         this.dialog = new AlertDialog.Builder(context).create();
-        this.type = type;
-
-        if (type == ChoiceDialogType.THREE_PANEL) {
-            view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_three_panel, null);
+        this.usingThreePanelView = useSpecialThreePanelView;
+        if (usingThreePanelView) {
+            this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_three_panel, null);
         } else {
-            view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_two_panel, null);
+            this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_view, null);
         }
-
         setTitle(title);
         dialog.setCancelable(true); // cancelable by default
+    }
+
+    public void setChoiceItems(DialogChoiceItem[] choiceItems) {
+        if (usingThreePanelView) {
+             setupThreePanelView(choiceItems);
+        } else {
+            ListView lv = (ListView)view.findViewById(R.id.choices_list_view);
+            lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
+        }
+    }
+
+    private void setupThreePanelView(DialogChoiceItem[] choiceItems) {
+        Button panel1 = (Button)view.findViewById(R.id.choice_dialog_panel_1);
+        Button panel2 = (Button)view.findViewById(R.id.choice_dialog_panel_2);
+        Button panel3 = (Button)view.findViewById(R.id.choice_dialog_panel_3);
+        Button[] panels = new Button[]{panel1, panel2, panel3};
+        for (int i = 0; i < 3; i++) {
+            DialogChoiceItem.populateSingleChoicePanel(context, panels[i], choiceItems[i],
+                    DialogChoiceItem.ICON_ON_TOP);
+        }
     }
 
     private void setTitle(String title) {
@@ -48,48 +68,6 @@ public class PaneledChoiceDialog {
 
     public void makeNotCancelable() {
         dialog.setCancelable(false);
-    }
-
-    public void addPanel1(String buttonText, int iconResId, View.OnClickListener listener) {
-        Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_1);
-        panel.setText(buttonText);
-        panel.setOnClickListener(listener);
-        if (iconResId != -1) {
-            Drawable icon = context.getResources().getDrawable(iconResId);
-            if (type == ChoiceDialogType.THREE_PANEL) {
-                panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-            } else {
-                panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-            }
-        }
-    }
-
-    public void addPanel2(String buttonText, int iconResId, View.OnClickListener listener) {
-        Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_2);
-        panel.setText(buttonText);
-        panel.setOnClickListener(listener);
-        if (iconResId != -1) {
-            Drawable icon = context.getResources().getDrawable(iconResId);
-            if (type == ChoiceDialogType.THREE_PANEL) {
-                panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-            } else {
-                panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-            }
-        }
-
-    }
-
-    public void addPanel3(String buttonText, int iconResId, View.OnClickListener listener) {
-        if (type != ChoiceDialogType.THREE_PANEL) {
-            return;
-        }
-        Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_3);
-        panel.setText(buttonText);
-        panel.setOnClickListener(listener);
-        if (iconResId != -1) {
-            Drawable icon = context.getResources().getDrawable(iconResId);
-            panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-        }
     }
 
     public void show() {

@@ -11,6 +11,7 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Toast;
 
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -78,8 +79,7 @@ public class CallOutActivity extends Activity {
     
     
     private void showChoiceDialog() {
-        PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
-                PaneledChoiceDialog.ChoiceDialogType.TWO_PANEL, "Select Action");
+        PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select Action");
 
         View.OnClickListener callListener = new View.OnClickListener() {
             @Override
@@ -87,7 +87,7 @@ public class CallOutActivity extends Activity {
                 dispatchAction(Intent.ACTION_CALL);
             }
         };
-        dialog.addPanel1("Call", -1, callListener);
+        DialogChoiceItem item1 = new DialogChoiceItem("Call", -1, callListener);
 
         View.OnClickListener smsListener = new View.OnClickListener() {
             @Override
@@ -95,8 +95,9 @@ public class CallOutActivity extends Activity {
                 dispatchAction(Intent.ACTION_SENDTO);
             }
         };
-        dialog.addPanel2("Send SMS", -1, smsListener);
+        DialogChoiceItem item2 = new DialogChoiceItem("Send SMS", -1, smsListener);
 
+        dialog.setChoiceItems(new DialogChoiceItem[]{item1, item2});
         dialog.setOnCancelListener(new OnCancelListener() {
             public void onCancel(DialogInterface dialog) {
                 Intent i = new Intent(getIntent());
@@ -105,7 +106,6 @@ public class CallOutActivity extends Activity {
                 return;
             }
         });
-
         dialog.show();
     }
     

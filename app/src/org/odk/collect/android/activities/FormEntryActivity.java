@@ -59,6 +59,7 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -1230,7 +1231,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, PaneledChoiceDialog.ChoiceDialogType.THREE_PANEL, title);
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, title, PaneledChoiceDialog.THREE_PANEL);
 
         // Panel 1: Back option
         View.OnClickListener backListener = new OnClickListener() {
@@ -1244,11 +1245,13 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             }
         };
+        int backIconId;
         if (backExitsForm) {
-            dialog.addPanel1(backText, R.drawable.icon_exit, backListener);
+            backIconId = R.drawable.icon_exit;
         } else {
-            dialog.addPanel1(backText, R.drawable.icon_back, backListener);
+            backIconId = R.drawable.icon_back;
         }
+        DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
 
         // Panel 2: Add another option
         View.OnClickListener addAnotherListener = new OnClickListener() {
@@ -1265,7 +1268,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 showNextView();
             }
         };
-        dialog.addPanel2(addAnotherText, R.drawable.icon_new, addAnotherListener);
+        DialogChoiceItem addAnotherItem = new DialogChoiceItem(addAnotherText, R.drawable.icon_new, addAnotherListener);
 
         // Panel 3: Skip option
         View.OnClickListener skipListener = new OnClickListener() {
@@ -1279,12 +1282,15 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             }
         };
+        int skipIconId;
         if (nextExitsForm) {
-            dialog.addPanel3(skipText, R.drawable.icon_done, skipListener);
+            skipIconId = R.drawable.icon_done;
         } else {
-            dialog.addPanel3(skipText, R.drawable.icon_next, skipListener);
+            skipIconId = R.drawable.icon_next;
         }
+        DialogChoiceItem skipItem = new DialogChoiceItem(skipText, skipIconId, skipListener);
 
+        dialog.setChoiceItems(new DialogChoiceItem[]{backItem, addAnotherItem, skipItem});
         dialog.makeNotCancelable();
         dialog.show();
         mBeenSwiped = false;
@@ -1362,16 +1368,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Create a dialog with options to save and exit, save, or quit without saving
      */
     private void createQuitDialog() {
-        String title = "Exit Form?";
-
-        final PaneledChoiceDialog dialog;
-        if (mIncompleteEnabled) {
-            dialog = new PaneledChoiceDialog(this,
-                    PaneledChoiceDialog.ChoiceDialogType.THREE_PANEL, title);
-        } else {
-            dialog = new PaneledChoiceDialog(this,
-                    PaneledChoiceDialog.ChoiceDialogType.TWO_PANEL, title);
-        }
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Exit Form?");
 
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override
@@ -1379,8 +1376,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 dialog.dismiss();
             }
         };
-        dialog.addPanel1(Localization.get("quit.form.option.cancel"),
-                R.drawable.ic_blue_back, stayInFormListener);
+        DialogChoiceItem stayInFormItem = new DialogChoiceItem(
+                Localization.get("quit.form.option.cancel"),
+                R.drawable.ic_blue_back,
+                stayInFormListener);
 
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
@@ -1388,9 +1387,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 discardChangesAndExit();
             }
         };
-        dialog.addPanel2(Localization.get("quit.form.option.exit"),
-                R.drawable.ic_red_x, exitFormListener);
+        DialogChoiceItem quitFormItem = new DialogChoiceItem(
+                Localization.get("quit.form.option.exit"),
+                R.drawable.ic_red_x,
+                exitFormListener);
 
+        DialogChoiceItem[] items;
         if (mIncompleteEnabled) {
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
@@ -1398,10 +1400,16 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     saveFormToDisk(EXIT, null, false);
                 }
             };
-            dialog.addPanel3(Localization.get("quit.form.option.save.and.exit"),
-                    R.drawable.ic_green_check, saveIncompleteListener);
+            DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
+                    Localization.get("quit.form.option.save.and.exit"),
+                    R.drawable.ic_green_check,
+                    saveIncompleteListener);
+            items = new DialogChoiceItem[] {stayInFormItem, quitFormItem, saveIncompleteItem};
+        } else {
+            items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
 
+        dialog.setChoiceItems(items);
         dialog.show();
     }
     
