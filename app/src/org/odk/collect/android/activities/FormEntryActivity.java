@@ -325,6 +325,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
+                    dialog.dismiss();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
