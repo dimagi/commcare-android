@@ -1,9 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
@@ -55,6 +53,8 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -776,16 +776,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     private void createSortMenu() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(Localization.get("select.menu.sort"));
-        setSortOptionsList(builder);
-        builder.setCancelable(true);
-        AlertDialog alert = builder.create();
-        alert.show();
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
+        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.show();
     }
 
-    private void setSortOptionsList(AlertDialog.Builder builder) {
-
+    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
@@ -814,14 +810,21 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 added++;
             }
         }
-        final String[] names = namesList.toArray(new String[namesList.size()]);
 
-        builder.setItems(names, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                adapter.sortEntities(new int[]{keyArray[item]});
-                adapter.applyFilter(getSearchText().toString());
-            }
-        });
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
+        for (int i = 0; i < namesList.size(); i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                public void onClick(View v) {
+                    adapter.sortEntities(new int[]{keyArray[index]});
+                    adapter.applyFilter(getSearchText().toString());
+                    dialog.dismiss();
+                }
+            };
+            DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
+            choiceItems[i] = item;
+        }
+        return choiceItems;
     }
 
     @Override
