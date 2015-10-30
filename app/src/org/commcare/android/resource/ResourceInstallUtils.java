@@ -98,7 +98,7 @@ public class ResourceInstallUtils {
         updateProfileRef(currentApp.getAppPreferences(), authRef, profileRef);
     }
 
-    private static void updateProfileRef(SharedPreferences prefs,
+    public static void updateProfileRef(SharedPreferences prefs,
                                          String authRef, String profileRef) {
         SharedPreferences.Editor edit = prefs.edit();
         if (authRef != null) {

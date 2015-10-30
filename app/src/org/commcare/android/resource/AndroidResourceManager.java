@@ -247,20 +247,24 @@ public class AndroidResourceManager extends ResourceManager {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                String ref = ResourceInstallUtils.getDefaultProfileRef();
-                try {
-                    if (canUpdateRetryRun()) {
-                        UpdateTask updateTask = UpdateTask.getNewInstance();
-                        updateTask.startPinnedNotification(ctx);
-                        updateTask.setAsAutoUpdate();
-                        updateTask.execute(ref);
-                    }
-                } catch (IllegalStateException e) {
-                    // The user may have started the update process in the meantime
-                    Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
-                }
+                launchRetryTask(ctx);
             }
         }, exponentionalRetryDelay(numberOfRestarts));
+    }
+
+    protected void launchRetryTask(Context ctx) {
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
+        try {
+            if (canUpdateRetryRun()) {
+                UpdateTask updateTask = UpdateTask.getNewInstance();
+                updateTask.startPinnedNotification(ctx);
+                updateTask.setAsAutoUpdate();
+                updateTask.execute(ref);
+            }
+        } catch (IllegalStateException e) {
+            // The user may have started the update process in the meantime
+            Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
+        }
     }
 
     /**
