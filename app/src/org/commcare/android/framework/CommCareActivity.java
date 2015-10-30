@@ -8,13 +8,13 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -22,7 +22,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -69,8 +68,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
-
-    private boolean mBannerOverriden = false;
 
     StateFragment<R> stateHolder;
 
@@ -262,40 +259,39 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (hostView == null) {
             return;
         }
-        ImageView topBannerImageView = (ImageView) hostView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        ImageView topBannerImageView =
+                (ImageView)hostView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
         if (topBannerImageView == null) {
             return;
         }
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        if (app == null) {
-            return;
-        }
 
-        boolean resetBanner = mBannerOverriden;
-
-        Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int screenHeight = display.getHeight();
-        int maxBannerHeight = screenHeight / 4;
-
-        // Override default CommCare banner if requested
-        String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
-        if (!"".equals(customBannerURI)) {
-            Bitmap bitmap = MediaUtil.inflateDisplayImage(this, customBannerURI, display.getWidth(), maxBannerHeight);
-            if (bitmap != null) {
-                if (topBannerImageView != null) {
-                    topBannerImageView.setMaxHeight(maxBannerHeight);
-                    topBannerImageView.setImageBitmap(bitmap);
-                    mBannerOverriden = true;
-                    resetBanner = false;
-                } else {
-                    Log.i(TAG, "Coudln't load custom banner at: " + customBannerURI);
-                }
-            }
-        }
-
-        if (resetBanner) {
+        if (!useCustomBanner(topBannerImageView)) {
             topBannerImageView.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
         }
+    }
+
+    private boolean useCustomBanner(@NonNull ImageView topBannerImageView) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return false;
+        }
+
+        String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
+        if (!"".equals(customBannerURI)) {
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int screenHeight = displaymetrics.heightPixels;
+            int screenWidth = displaymetrics.widthPixels;
+            int maxBannerHeight = screenHeight / 4;
+
+            Bitmap bitmap = MediaUtil.inflateDisplayImage(this, customBannerURI, screenWidth, maxBannerHeight);
+            if (bitmap != null) {
+                topBannerImageView.setMaxHeight(maxBannerHeight);
+                topBannerImageView.setImageBitmap(bitmap);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.fail;
@@ -49,8 +50,13 @@ public class AutoUpdateTest {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         Assert.assertFalse(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
+        String profileOfInvalidApp = buildResourceRef("invalid_update", "profile.ccpr");
+        // necessary because retry auto-update task reads from the app's default profile
+        setAppsDefaultProfile(profileOfInvalidApp);
+
         // try to update to an app with syntax errors
         UpdateTask updateTask = UpdateTask.getNewInstance();
+        updateTask.startPinnedNotification(RuntimeEnvironment.application);
         updateTask.setAsAutoUpdate();
         try {
             TaskListener<Integer, AppInstallStatus> listener =
@@ -59,7 +65,7 @@ public class AutoUpdateTest {
         } catch (TaskListenerRegistrationException e) {
             fail("failed to register listener for update task");
         }
-        updateTask.execute(buildResourceRef("invalid_update", "profile.ccpr"));
+        updateTask.execute(profileOfInvalidApp);
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
@@ -67,8 +73,13 @@ public class AutoUpdateTest {
         // auto-update should now want to resume
         Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
 
-        UpdateTask.clearTaskInstance();
+        updateTask.clearTaskInstance();
         CommCareApplication._().closeUserSession();
+    }
+
+    private void setAppsDefaultProfile(String ref) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        ResourceInstallUtils.updateProfileRef(app.getAppPreferences(), ref, null);
     }
 
     private void installBaseApp() {
