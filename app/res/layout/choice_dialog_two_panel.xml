@@ -4,48 +4,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <include
+        android:id="@+id/choice_dialog_title"
+        layout="@layout/dialog_title" />
+
     <LinearLayout
-        android:id="@+id/content_wrapper"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/standard_spacer_large"
         android:layout_marginLeft="@dimen/standard_spacer_large"
         android:layout_marginRight="@dimen/standard_spacer_large"
-        android:layout_marginBottom="@dimen/standard_spacer_large" >
+        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:divider="?android:attr/listDivider"
+        android:showDividers="middle" >
 
-        <TextView
-            android:id="@+id/choice_dialog_title"
+        <Button
+            android:id="@+id/choice_dialog_panel_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/standard_title_margin_bottom"
-            android:textSize="@dimen/font_size_dp_xlarger" />
+            android:background="@android:color/transparent"
+            android:drawablePadding="5dp"
+            android:layout_marginBottom="@dimen/standard_spacer" />
 
-        <LinearLayout
+        <Button
+            android:id="@+id/choice_dialog_panel_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="0dp"
-            android:divider="?android:attr/listDivider"
-            android:showDividers="middle">
-
-            <Button
-                android:id="@+id/choice_dialog_panel_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="5dp"
-                android:layout_marginBottom="@dimen/standard_spacer" />
-
-            <Button
-                android:id="@+id/choice_dialog_panel_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawablePadding="5dp"
-                android:layout_marginTop="@dimen/standard_spacer" />
-
-        </LinearLayout>
+            android:background="@android:color/transparent"
+            android:drawablePadding="5dp"
+            android:layout_marginTop="@dimen/standard_spacer" />
 
     </LinearLayout>
 

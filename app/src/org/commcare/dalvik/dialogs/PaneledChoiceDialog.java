@@ -2,6 +2,7 @@ package org.commcare.dalvik.dialogs;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,8 @@ public class PaneledChoiceDialog {
     }
 
     private void setTitle(String title) {
-        TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title);
+        TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title).
+                findViewById(R.id.dialog_title_text);
         tv.setText(title);
     }
 
@@ -52,11 +54,13 @@ public class PaneledChoiceDialog {
         Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_1);
         panel.setText(buttonText);
         panel.setOnClickListener(listener);
-        Drawable icon = context.getResources().getDrawable(iconResId);
-        if (type == ChoiceDialogType.THREE_PANEL) {
-            panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-        } else {
-            panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+        if (iconResId != -1) {
+            Drawable icon = context.getResources().getDrawable(iconResId);
+            if (type == ChoiceDialogType.THREE_PANEL) {
+                panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+            } else {
+                panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+            }
         }
     }
 
@@ -64,12 +68,15 @@ public class PaneledChoiceDialog {
         Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_2);
         panel.setText(buttonText);
         panel.setOnClickListener(listener);
-        Drawable icon = context.getResources().getDrawable(iconResId);
-        if (type == ChoiceDialogType.THREE_PANEL) {
-            panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
-        } else {
-            panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+        if (iconResId != -1) {
+            Drawable icon = context.getResources().getDrawable(iconResId);
+            if (type == ChoiceDialogType.THREE_PANEL) {
+                panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+            } else {
+                panel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
+            }
         }
+
     }
 
     public void addPanel3(String buttonText, int iconResId, View.OnClickListener listener) {
@@ -79,13 +86,19 @@ public class PaneledChoiceDialog {
         Button panel = (Button) view.findViewById(R.id.choice_dialog_panel_3);
         panel.setText(buttonText);
         panel.setOnClickListener(listener);
-        Drawable icon = context.getResources().getDrawable(iconResId);
-        panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        if (iconResId != -1) {
+            Drawable icon = context.getResources().getDrawable(iconResId);
+            panel.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        }
     }
 
     public void show() {
         dialog.setView(view);
         dialog.show();
+    }
+
+    public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
+        dialog.setOnCancelListener(listener);
     }
 
     public void dismiss() {
