@@ -22,7 +22,7 @@ public class PaneledChoiceDialog {
     private AlertDialog dialog;
     private boolean usingThreePanelView;
 
-    public static boolean THREE_PANEL = true;
+    public static boolean HORIZONTAL_THREE_PANEL = true;
 
     public PaneledChoiceDialog(Context context, String title) {
         this(context, title, false);

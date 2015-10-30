@@ -1231,7 +1231,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, title, PaneledChoiceDialog.THREE_PANEL);
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, title,
+                PaneledChoiceDialog.HORIZONTAL_THREE_PANEL);
 
         // Panel 1: Back option
         View.OnClickListener backListener = new OnClickListener() {
