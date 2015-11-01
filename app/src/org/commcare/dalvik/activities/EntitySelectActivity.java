@@ -247,7 +247,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-        barcodeScanOnClickListener = makeCalloutAction(EntitySelectActivity.this, callout);
+        barcodeScanOnClickListener = makeBarcodeClickListener(EntitySelectActivity.this, callout);
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
 
@@ -277,7 +277,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    private View.OnClickListener makeCalloutAction(final Activity act, Callout callout) {
+    private View.OnClickListener makeBarcodeClickListener(final Activity act, Callout callout) {
         final CalloutData calloutData = callout.evaluate();
 
         if (calloutData.getImage() != null) {
@@ -292,8 +292,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("SCAN", "Using barcode scan with action: " + i.getAction());
-
                 try {
                     act.startActivityForResult(i, CALLOUT);
                 } catch (ActivityNotFoundException anfe) {
@@ -531,47 +529,14 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    public void onBarcodeFetch(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("SCAN_RESULT");
-            if (result != null) {
-                result = result.trim();
-            }
-            setSearchText(result);
-        }
-    }
-
-    public void onCalloutResult(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("odk_intent_data");
-            // I guess technically a (bad) application could return a null result with status OK
-            if (result != null){
-                result = result.trim();
-            }
-            boolean resultSet = false;
-            if (result != null) {
-                setSearchText(result);
-                resultSet = true;
-            }
-            for (String key : shortSelect.getCallout().getResponses()) {
-                result = intent.getExtras().getString(key);
-                if (result != null && !resultSet) {
-                    resultSet = true;
-                    setSearchText(result);
-                    break;
-                }
-            }
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case BARCODE_FETCH:
-                onBarcodeFetch(resultCode, intent);
+                processBarcodeFetch(resultCode, intent);
                 break;
             case CALLOUT:
-                onCalloutResult(resultCode, intent);
+                processCalloutResult(resultCode, intent);
                 break;
             case CONFIRM_SELECT:
                 resuming = true;
@@ -626,6 +591,33 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 }
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
+
+    private void processBarcodeFetch(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("SCAN_RESULT");
+            if (result != null) {
+                result = result.trim();
+            }
+            setSearchText(result);
+        }
+    }
+
+    private void processCalloutResult(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("odk_intent_data");
+            if (result != null){
+                setSearchText(result.trim());
+            } else {
+                for (String key : shortSelect.getCallout().getResponses()) {
+                    result = intent.getExtras().getString(key);
+                    if (result != null) {
+                        setSearchText(result);
+                        return;
+                    }
+                }
+            }
         }
     }
 
