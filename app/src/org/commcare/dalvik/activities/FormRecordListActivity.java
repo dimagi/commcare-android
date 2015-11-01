@@ -1,6 +1,8 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -26,6 +28,7 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.UserStorageClosedException;
@@ -33,7 +36,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
@@ -53,14 +55,13 @@ import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 
 import java.io.IOException;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
-        implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener, TaskListener<Void, Void> {
+        implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
     private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
@@ -70,6 +71,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private static final int DOWNLOAD_FORMS = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
+
+    private static final int BARCODE_FETCH = 1;
 
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
@@ -159,8 +162,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         header.setVisibility(View.GONE);
         barcodeButton.setVisibility(View.GONE);
 
-        barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
-                FormRecordListActivity.this, null, null);
+        barcodeScanOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBarcodeScanIntent(FormRecordListActivity.this);
+            }
+        };
 
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         searchLabel.setText(this.localize("select.search.label"));
@@ -226,6 +233,19 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
+    private static void callBarcodeScanIntent(Activity act) {
+        Log.i("SCAN", "Using default barcode scan");
+        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        try {
+            act.startActivityForResult(i, BARCODE_FETCH);
+        } catch (ActivityNotFoundException anfe) {
+            Toast.makeText(act,
+                    "No barcode reader available! You can install one " +
+                            "from the android market.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -255,26 +275,21 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
-    @Override
-    public void onBarcodeFetch(String result, Intent intent) {
-        setSearchText(result);
-    }
-
-    @Override
-    public void onCalloutResult(String result, Intent intent) {
-        if (BuildConfig.DEBUG) {
-            throw new IllegalArgumentException("Callout not implemented!");
+    public void onBarcodeFetch(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("SCAN_RESULT");
+            if (result != null) {
+                result = result.trim();
+            }
+            setSearchText(result);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case BarcodeScanListenerDefaultImpl.BARCODE_FETCH:
-                BarcodeScanListenerDefaultImpl.onBarcodeResult(this, requestCode, resultCode, intent);
-                break;
-            case BarcodeScanListenerDefaultImpl.CALLOUT:
-                BarcodeScanListenerDefaultImpl.onCalloutResult(this, requestCode, resultCode, intent);
+            case BARCODE_FETCH:
+                onBarcodeFetch(resultCode, intent);
                 break;
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
