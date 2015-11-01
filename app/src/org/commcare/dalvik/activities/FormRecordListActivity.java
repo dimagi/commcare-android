@@ -234,7 +234,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private static void callBarcodeScanIntent(Activity act) {
-        Log.i("SCAN", "Using default barcode scan");
         Intent i = new Intent("com.google.zxing.client.android.SCAN");
         try {
             act.startActivityForResult(i, BARCODE_FETCH);

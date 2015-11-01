@@ -246,7 +246,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         Callout callout = shortSelect.getCallout();
-        barcodeScanOnClickListener = makeBarcodeClickListener(callout);
+        if (callout ==  null) {
+            barcodeScanOnClickListener = makeBarcodeClickListener();
+        } else {
+            barcodeScanOnClickListener = makeCalloutClickListener(callout);
+        }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
 
@@ -276,7 +280,24 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    private View.OnClickListener makeBarcodeClickListener(Callout callout) {
+    private View.OnClickListener makeBarcodeClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                try {
+                    EntitySelectActivity.this.startActivityForResult(i, BARCODE_FETCH);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No barcode reader available! You can install one " +
+                                    "from the android market.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+    }
+
+    private View.OnClickListener makeCalloutClickListener(Callout callout) {
         final CalloutData calloutData = callout.evaluate();
 
         if (calloutData.getImage() != null) {
