@@ -243,11 +243,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-        final Callout callout = shortSelect.getCallout();
-
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-        barcodeScanOnClickListener = makeBarcodeClickListener(EntitySelectActivity.this, callout);
+        Callout callout = shortSelect.getCallout();
+        barcodeScanOnClickListener = makeBarcodeClickListener(callout);
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
 
@@ -277,11 +276,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    private View.OnClickListener makeBarcodeClickListener(final Activity act, Callout callout) {
+    private View.OnClickListener makeBarcodeClickListener(Callout callout) {
         final CalloutData calloutData = callout.evaluate();
 
         if (calloutData.getImage() != null) {
-            ImageButton barcodeButton = (ImageButton)act.findViewById(R.id.barcodeButton);
             setupImageLayout(barcodeButton, calloutData.getImage());
         }
 
@@ -293,9 +291,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             @Override
             public void onClick(View v) {
                 try {
-                    act.startActivityForResult(i, CALLOUT);
+                    EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
                 } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(act, "No application found for action: " + i.getAction(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No application found for action: " + i.getAction(), Toast.LENGTH_LONG).show();
                 }
             }
         };
