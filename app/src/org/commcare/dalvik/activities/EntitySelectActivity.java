@@ -300,7 +300,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     /**
      * Build click listener from callout: set button's image, get intent action,
-     * kand copy extras into intent.
+     * and copy extras into intent.
      *
      * @param callout contains intent action and extras, and sometimes button image
      * @return click listener that launches the callout's activity with the
