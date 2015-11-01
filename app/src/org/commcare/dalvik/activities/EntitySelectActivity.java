@@ -239,8 +239,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         searchResultStatus = (TextView)findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-
         mViewMode = session.isViewCommand(session.getCommand());
 
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
@@ -280,6 +278,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
+    /**
+     * @return A click listener that launches QR code scanner
+     */
     private View.OnClickListener makeBarcodeClickListener() {
         return new View.OnClickListener() {
             @Override
@@ -297,8 +298,16 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         };
     }
 
+    /**
+     * Build click listener from callout: set button's image, get intent action,
+     * kand copy extras into intent.
+     *
+     * @param callout contains intent action and extras, and sometimes button image
+     * @return click listener that launches the callout's activity with the
+     * associated callout extras
+     */
     private View.OnClickListener makeCalloutClickListener(Callout callout) {
-        final CalloutData calloutData = callout.evaluate();
+        final CalloutData calloutData = callout.getRawCalloutData();
 
         if (calloutData.getImage() != null) {
             setupImageLayout(barcodeButton, calloutData.getImage());
@@ -315,7 +324,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(EntitySelectActivity.this,
-                            "No application found for action: " + i.getAction(), Toast.LENGTH_LONG).show();
+                            "No application found for action: " + i.getAction(),
+                            Toast.LENGTH_LONG).show();
                 }
             }
         };
