@@ -21,7 +21,7 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
  *
- * @author Daniel Luna (dcluna@dimagi.com)
+ * @author Daniel Luna (dluna@dimagi.com)
  */
 public class SetupInstallFragment extends Fragment {
     @Override

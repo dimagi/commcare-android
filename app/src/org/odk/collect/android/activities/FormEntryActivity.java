@@ -52,7 +52,6 @@ import android.widget.Toast;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
@@ -420,7 +419,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
+                String sb = intent.getStringExtra("SCAN_RESULT");
                 ((ODKView) mCurrentView).setBinaryData(sb);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
