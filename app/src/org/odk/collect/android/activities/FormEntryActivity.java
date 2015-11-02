@@ -1598,7 +1598,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      */
     private void createLanguageDialog() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
-                StringUtils.getStringRobust(this, R.string.change_language));
+                StringUtils.getStringRobust(this, R.string.choose_language));
 
         final String[] languages = mFormController.getLanguages();
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
