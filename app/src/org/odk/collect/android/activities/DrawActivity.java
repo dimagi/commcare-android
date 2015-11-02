@@ -330,7 +330,7 @@ public class DrawActivity extends Activity {
 
         dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
 
-        dialog.addButton(getString(R.string.do_not_exit), new View.OnClickListener() {
+        dialog.addButton(getString(R.string.cancel), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();

@@ -2,7 +2,6 @@ package org.odk.collect.android.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -1598,51 +1597,52 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Creates and displays a dialog allowing the user to set the language for the form.
      */
     private void createLanguageDialog() {
-        final String[] languages = mFormController.getLanguages();
-        int selected = -1;
-        if (languages != null) {
-            String language = mFormController.getLanguage();
-            for (int i = 0; i < languages.length; i++) {
-                if (language.equals(languages[i])) {
-                    selected = i;
-                }
-            }
-        }
-        AlertDialog dialog =
-            new AlertDialog.Builder(this)
-                    .setSingleChoiceItems(languages, selected,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // Update the language in the content provider when selecting a new
-                                // language
-                                ContentValues values = new ContentValues();
-                                values.put(FormsColumns.LANGUAGE, languages[whichButton]);
-                                String selection = FormsColumns.FORM_FILE_PATH + "=?";
-                                String selectArgs[] = {
-                                    mFormPath
-                                };
-                                int updated =
-                                    getContentResolver().update(formProviderContentURI, values,
-                                        selection, selectArgs);
-                                Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
-                                        + updated + " rows");
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
+                StringUtils.getStringRobust(this, R.string.change_language));
 
-                                mFormController.setLanguage(languages[whichButton]);
-                                dialog.dismiss();
-                                if (currentPromptIsQuestion()) {
-                                    saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                                }
-                                refreshCurrentView();
-                            }
-                        })
-                    .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
-                    .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        }).create();
+        final String[] languages = mFormController.getLanguages();
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
+        for (int i = 0; i < languages.length; i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Update the language in the content provider when selecting a new
+                    // language
+                    ContentValues values = new ContentValues();
+                    values.put(FormsColumns.LANGUAGE, languages[index]);
+                    String selection = FormsColumns.FORM_FILE_PATH + "=?";
+                    String selectArgs[] = {
+                            mFormPath
+                    };
+                    int updated =
+                            getContentResolver().update(formProviderContentURI, values,
+                                    selection, selectArgs);
+                    Log.i(TAG, "Updated language to: " + languages[index] + " in "
+                            + updated + " rows");
+
+                    mFormController.setLanguage(languages[index]);
+                    dialog.dismiss();
+                    if (currentPromptIsQuestion()) {
+                        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                    }
+                    refreshCurrentView();
+                }
+            };
+            choiceItems[i] = new DialogChoiceItem(languages[i], -1, listener);
+        }
+
+        dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        dialog.setChoiceItems(choiceItems);
         dialog.show();
     }
 
