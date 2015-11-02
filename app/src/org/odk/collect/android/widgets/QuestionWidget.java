@@ -417,10 +417,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         addView(mediaLayout, mLayout);
     }
 
-    private void fireHelpText(FormEntryPrompt prompt) {
-        fireHelpText(prompt, null);
-    }
-
     /**
     * Display extra help, triggered by user request.
     */
@@ -432,13 +428,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // Depending on ODK setting, help may be displayed either as
         // a dialog or inline, underneath the question text
 
-        if(!PreferenceManager.getDefaultSharedPreferences(this.getContext().getApplicationContext()).
-                getBoolean(FormEntryPreferences.KEY_HELP_MODE_TRAY, false)) {
-
+        if (showHelpWithDialog()) {
             AlertDialog mAlertDialog = new AlertDialog.Builder(this.getContext()).create();
-            mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-            mAlertDialog.setTitle("");
-
             ScrollView scrollView = new ScrollView(this.getContext());
             scrollView.addView(createHelpLayout(prompt));
             mAlertDialog.setView(scrollView);
@@ -465,6 +456,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 collapse(helpPlaceholder);
             }
         }
+    }
+
+    private boolean showHelpWithDialog() {
+        return !PreferenceManager.getDefaultSharedPreferences(this.getContext().getApplicationContext()).
+                getBoolean(FormEntryPreferences.KEY_HELP_MODE_TRAY, false);
     }
     
     /**
