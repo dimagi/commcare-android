@@ -639,45 +639,69 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             throw new RuntimeException("Tried to update form relevancy not on compound view");
         }
 
-        ODKView oldODKV = (ODKView)mCurrentView;
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        ODKView odkView = (ODKView)mCurrentView;
+        ArrayList<QuestionWidget> oldWidgets = odkView.getWidgets();
+        // These 2 calls need to be made here, rather than in the for loop below, because at that
+        // point the widgets will have already started being updated to the values for the new view
         ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
         ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
 
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
-        Set<FormEntryPrompt> leftInOldList = new HashSet<>();
+        Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
-        ArrayList<Integer> removeList = new ArrayList<>();
+        ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
+        // Loop through all of the old widgets to determine which ones should stay in the new view
         for (int i = 0; i < oldWidgets.size(); i++){
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
-            boolean stillRelevant = false;
 
-            for (FormEntryPrompt newPrompt : newValidPrompts) {
-                if (newPrompt.getIndex().equals(oldPrompt.getIndex())
-                        && newPrompt.hasSameDisplayContent(priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget)) {
-                    // The only prompt should only be left if it still exists in the list of new
-                    // prompts, and its display content has not changed at all
-                    stillRelevant = true;
-                    leftInOldList.add(newPrompt);
-                    break;
-                }
-            }
-            if (!stillRelevant) {
-                removeList.add(i);
+            FormEntryPrompt equivalentNewPrompt = getEquivalentPromptInNewList(newValidPrompts,
+                    oldPrompt, priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget);
+            if (equivalentNewPrompt != null) {
+                promptsLeftInView.add(equivalentNewPrompt);
+            } else {
+                // If there is no equivalent prompt in list of new prompts, then this prompt is
+                // no longer relevant in the new view, so it should get removed
+                shouldRemoveFromView.add(i);
             }
         }
         // remove "atomically" to not mess up iterations
-        oldODKV.removeQuestionsFromIndex(removeList);
+        odkView.removeQuestionsFromIndex(shouldRemoveFromView);
 
         // Now go through add add any new prompts that we need
         for (int i = 0; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
-        	if (!leftInOldList.contains(prompt)) {
-                oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+        	if (!promptsLeftInView.contains(prompt)) {
+                // If the old version of this prompt was NOT left in the view, then add it
+                odkView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
             }
         }
+    }
+
+    /**
+     *
+     * @param newValidPrompts - All of the prompts that should be in the new view
+     * @param oldPrompt - The prompt from the prior view for which we are seeking a match in the
+     *                  list of new prompts
+     * @param oldQuestionText - the question text of the old prompt
+     * @param oldSelectChoices - the select choices of the old prompt
+     * @return The form entry prompt from the new list that is equivalent to oldPrompt, or null
+     * if none exists
+     */
+    private FormEntryPrompt getEquivalentPromptInNewList(FormEntryPrompt[] newValidPrompts,
+                                                           FormEntryPrompt oldPrompt,
+                                                           String oldQuestionText,
+                                                           Vector<SelectChoice> oldSelectChoices) {
+        for (FormEntryPrompt newPrompt : newValidPrompts) {
+            if (newPrompt.getIndex().equals(oldPrompt.getIndex())
+                    && newPrompt.hasSameDisplayContent(oldQuestionText, oldSelectChoices)) {
+                // A new prompt is considered equivalent to the old prompt if both their  form
+                // indices and display content (question text and select choices) are the same
+                return newPrompt;
+            }
+        }
+        return null;
     }
 
 	/**
