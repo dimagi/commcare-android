@@ -967,7 +967,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     case FormEntryController.EVENT_END_OF_FORM:
                         Logger.log(AndroidLogger.SOFT_ASSERT,
                                 "Trying to show an end of form event");
-                        showPreviousView(false);
+                        saveFormToDisk(EXIT, null, false);
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
