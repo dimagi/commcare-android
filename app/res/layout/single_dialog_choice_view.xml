@@ -2,7 +2,7 @@
 <Button xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/choice_dialog_panel"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/button_height_extra_space"
     android:background="@android:color/transparent"
     android:drawablePadding="5dp"
     android:layout_marginBottom="@dimen/standard_spacer" />
