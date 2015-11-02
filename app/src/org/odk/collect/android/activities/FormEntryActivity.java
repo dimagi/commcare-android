@@ -607,31 +607,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
     }
 
-    /**
-     * @return A list of the select choices for each widget in the list of old widgets, with the
-     * original order preserved
-     */
-    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
-        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
-        for (QuestionWidget qw : oldWidgets) {
-            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
-            selectChoicesList.add(oldSelectChoices);
-        }
-        return selectChoicesList;
-    }
-
-    /**
-     * @return A list of the question texts for each widget in the list of old widgets, with the
-     * original order preserved
-     */
-    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
-        ArrayList<String> questionTextList = new ArrayList<>();
-        for (QuestionWidget qw : oldWidgets) {
-            questionTextList.add(qw.getPrompt().getQuestionText());
-        }
-        return questionTextList;
-    }
-
     private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
 
@@ -677,6 +652,31 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 odkView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
             }
         }
+    }
+
+    /**
+     * @return A list of the select choices for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
+            selectChoicesList.add(oldSelectChoices);
+        }
+        return selectChoicesList;
+    }
+
+    /**
+     * @return A list of the question texts for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<String> questionTextList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            questionTextList.add(qw.getPrompt().getQuestionText());
+        }
+        return questionTextList;
     }
 
     /**
