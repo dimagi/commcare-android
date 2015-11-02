@@ -133,6 +133,21 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>400</item>
         <item>480</item>
     </string-array>
+    <string-array name="back_to_form_labels">
+        <item>back arrow, green</item>
+        <item>back arrow, blue</item>
+        <item>forward arrow, green</item>
+        <item>forward arrow, blue</item>
+    </string-array>
+    <string-array name="exit_form_labels">
+        <item>trash can, red</item>
+        <item>x, orange</item>
+    </string-array>
+    <string-array name="save_incomplete_labels">
+        <item>incomplete form, orange</item>
+        <item>incomplete form, blue</item>
+    </string-array>
+
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 
@@ -169,6 +184,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="capture_audio" cc:translatable="true">Record Sound</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
+    <string name="change_language" cc:translatable="true">Change Language</string>
     <string name="choose_language" cc:translatable="true">Choose Language</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
