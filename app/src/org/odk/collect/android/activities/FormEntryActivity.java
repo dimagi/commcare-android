@@ -661,12 +661,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             if (equivalentNewPrompt != null) {
                 promptsLeftInView.add(equivalentNewPrompt);
             } else {
-                // If there is no equivalent prompt in list of new prompts, then this prompt is
+                // If there is no equivalent prompt in the list of new prompts, then this prompt is
                 // no longer relevant in the new view, so it should get removed
                 shouldRemoveFromView.add(i);
             }
         }
-        // remove "atomically" to not mess up iterations
+        // Remove "atomically" to not mess up iterations
         odkView.removeQuestionsFromIndex(shouldRemoveFromView);
 
         // Now go through add add any new prompts that we need
