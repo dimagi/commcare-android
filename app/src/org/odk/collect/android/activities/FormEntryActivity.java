@@ -1377,7 +1377,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         };
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
-                Localization.get("quit.form.option.cancel"),
+                StringUtils.getStringRobust(this, R.string.do_not_exit),
                 DeveloperPreferences.getStayInFormIcon(),
                 stayInFormListener);
 
@@ -1388,7 +1388,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
-                Localization.get("quit.form.option.exit"),
+                StringUtils.getStringRobust(this, R.string.do_not_save),
                 DeveloperPreferences.getQuitFormIcon(),
                 exitFormListener);
 
@@ -1401,7 +1401,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
-                    Localization.get("quit.form.option.save.and.exit"),
+                    StringUtils.getStringRobust(this, R.string.keep_changes),
                     DeveloperPreferences.getSaveIncompleteIcon(),
                     saveIncompleteListener);
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem, saveIncompleteItem};

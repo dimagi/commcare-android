@@ -541,7 +541,3 @@ image.selection.not.saved=The image you have chosen was not able to be saved pro
 
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
-
-quit.form.option.cancel=BACK TO FORM
-quit.form.option.exit=DELETE & EXIT
-quit.form.option.save.and.exit=SAVE & EXIT
