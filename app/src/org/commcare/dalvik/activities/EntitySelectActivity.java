@@ -1,6 +1,8 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -33,11 +35,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -71,12 +73,12 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.listeners.BarcodeScanListener;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -85,12 +87,12 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
+public class EntitySelectActivity extends SessionAwareCommCareActivity
+        implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
         TextToSpeech.OnInitListener,
-        DetailCalloutListener,
-        BarcodeScanListener {
+        DetailCalloutListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
@@ -101,6 +103,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
+    private static final int BARCODE_FETCH = 1;
+    private static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST;
     private static final int MENU_MAP = Menu.FIRST + 1;
@@ -234,22 +238,16 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         searchResultStatus = (TextView)findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-
         mViewMode = session.isViewCommand(session.getCommand());
 
-        final Callout callout = shortSelect.getCallout();
-
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-        barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
-                EntitySelectActivity.this, callout,
-                new Callout.CalloutActionSetup() {
-                    @Override
-                    public void onImageFound(CalloutData calloutData) {
-                        setupImageLayout(barcodeButton, calloutData.getImage());
-                    }
-                });
+        Callout callout = shortSelect.getCallout();
+        if (callout ==  null) {
+            barcodeScanOnClickListener = makeBarcodeClickListener();
+        } else {
+            barcodeScanOnClickListener = makeCalloutClickListener(callout);
+        }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
 
@@ -275,11 +273,61 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
-            }
             searchbox.setText(lastQueryString);
         }
+    }
+
+    /**
+     * @return A click listener that launches QR code scanner
+     */
+    private View.OnClickListener makeBarcodeClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                try {
+                    EntitySelectActivity.this.startActivityForResult(i, BARCODE_FETCH);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No barcode reader available! You can install one " +
+                                    "from the android market.",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+    }
+
+    /**
+     * Build click listener from callout: set button's image, get intent action,
+     * and copy extras into intent.
+     *
+     * @param callout contains intent action and extras, and sometimes button image
+     * @return click listener that launches the callout's activity with the
+     * associated callout extras
+     */
+    private View.OnClickListener makeCalloutClickListener(Callout callout) {
+        final CalloutData calloutData = callout.getRawCalloutData();
+
+        if (calloutData.getImage() != null) {
+            setupImageLayout(barcodeButton, calloutData.getImage());
+        }
+
+        final Intent i = new Intent(calloutData.getActionName());
+        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
+            i.putExtra(keyValue.getKey(), keyValue.getValue());
+        }
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No application found for action: " + i.getAction(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        };
     }
 
     /**
@@ -511,35 +559,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     @Override
-    public void onBarcodeFetch(String result, Intent intent) {
-        setSearchText(result);
-    }
-
-    @Override
-    public void onCalloutResult(String result, Intent intent) {
-        boolean resultSet = false;
-        if (result != null) {
-            setSearchText(result);
-            resultSet = true;
-        }
-        for (String key : shortSelect.getCallout().getResponses()) {
-            result = intent.getExtras().getString(key);
-            if (result != null && !resultSet) {
-                resultSet = true;
-                setSearchText(result);
-                break;
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case BarcodeScanListenerDefaultImpl.BARCODE_FETCH:
-                BarcodeScanListenerDefaultImpl.onBarcodeResult(this, requestCode, resultCode, intent);
+            case BARCODE_FETCH:
+                processBarcodeFetch(resultCode, intent);
                 break;
-            case BarcodeScanListenerDefaultImpl.CALLOUT:
-                BarcodeScanListenerDefaultImpl.onCalloutResult(this, requestCode, resultCode, intent);
+            case CALLOUT:
+                processCalloutResult(resultCode, intent);
                 break;
             case CONFIRM_SELECT:
                 resuming = true;
@@ -594,6 +620,33 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
+        }
+    }
+
+    private void processBarcodeFetch(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("SCAN_RESULT");
+            if (result != null) {
+                result = result.trim();
+            }
+            setSearchText(result);
+        }
+    }
+
+    private void processCalloutResult(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("odk_intent_data");
+            if (result != null){
+                setSearchText(result.trim());
+            } else {
+                for (String key : shortSelect.getCallout().getResponses()) {
+                    result = intent.getExtras().getString(key);
+                    if (result != null) {
+                        setSearchText(result);
+                        return;
+                    }
+                }
+            }
         }
     }
 
@@ -975,7 +1028,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         finish();
     }
 
-    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
