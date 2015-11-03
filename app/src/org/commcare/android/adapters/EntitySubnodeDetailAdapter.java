@@ -13,6 +13,7 @@ import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by jschweers on 8/24/2015.
@@ -32,8 +33,24 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
         this.context = context;
         this.detail = detail;
         this.references = references;
-        this.entities = entities;
-        this.modifier = modifier;
+
+        // Only include data for entities that have at least one valid field
+        this.references = new Vector<>();
+        this.entities = new Vector<>();
+        int entityIndex = 0;
+        for (Entity e : entities) {
+            boolean isValid = false;
+            for (int i = 0; i < e.getNumFields(); i++) {
+                if (e.isValidField(i)) {
+                    isValid = true;
+                }
+            }
+            if (isValid) {
+                this.entities.add(e);
+                this.references.add(references.get(entityIndex));
+            }
+            entityIndex++;
+        }
     }
 
 
