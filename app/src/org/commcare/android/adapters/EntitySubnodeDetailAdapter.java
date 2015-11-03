@@ -13,7 +13,7 @@ import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Created by jschweers on 8/24/2015.
