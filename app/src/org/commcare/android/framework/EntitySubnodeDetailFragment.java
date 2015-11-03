@@ -51,7 +51,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
-            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext());
+            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
             theloader.attachListener(this);
             theloader.execute(childDetail.getNodeset().contextualize(childReference));
 

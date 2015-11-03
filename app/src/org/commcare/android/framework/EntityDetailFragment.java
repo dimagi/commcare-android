@@ -72,7 +72,7 @@ public class EntityDetailFragment extends Fragment {
         // Note that some of this setup could be moved into onAttach if it would help performance
         Detail childDetail = getChildDetail();
         TreeReference childReference = getChildReference();
-        NodeEntityFactory factory = new NodeEntityFactory(childDetail, this.getFactoryContext());
+        NodeEntityFactory factory = new NodeEntityFactory(childDetail, this.getFactoryContext(childReference));
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
@@ -111,9 +111,9 @@ public class EntityDetailFragment extends Fragment {
         return SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
     }
 
-    protected EvaluationContext getFactoryContext() {
+    protected EvaluationContext getFactoryContext(TreeReference childReference) {
         if (getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1) {
-            return prepareEvaluationContext(this.getChildReference());
+            return prepareEvaluationContext(childReference);
         }
         return asw.getEvaluationContext();
     }
