@@ -32,7 +32,7 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
     public EntitySubnodeDetailAdapter(Context context, Detail detail, List<TreeReference> references, List<Entity<TreeReference>> entities, ListItemViewModifier modifier) {
         this.context = context;
         this.detail = detail;
-        this.references = references;
+        this.modifier = modifier;
         this.initializeData(references, entities);
     }
 
@@ -40,15 +40,15 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
      * Populate entities and references. Will ignore any entities (and their
      * associated references) without any valid fields.
      */
-    private void initializeData(List<TreeReference> references, List<Entity<TreeReference>> entities) {
-        this.references = new Vector<>();
-        this.entities = new Vector<>();
+    private void initializeData(List<TreeReference> referenceList, List<Entity<TreeReference>> entityList) {
+        this.references = new ArrayList<>(referenceList.size());
+        this.entities = new ArrayList<>(entityList.size());
         int entityIndex = 0;
-        for (Entity e : entities) {
+        for (Entity e : entityList) {
             for (int i = 0; i < e.getNumFields(); i++) {
                 if (e.isValidField(i)) {
                     this.entities.add(e);
-                    this.references.add(references.get(entityIndex));
+                    this.references.add(referenceList.get(entityIndex));
                     break;
                 }
             }
