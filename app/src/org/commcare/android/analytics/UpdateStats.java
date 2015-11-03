@@ -1,17 +1,8 @@
 package org.commcare.android.analytics;
 
-import android.content.SharedPreferences;
-import android.util.Base64;
-import android.util.Log;
-
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.InstallStatsLogger;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -25,7 +16,6 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateStats implements InstallStatsLogger, Serializable {
-    private static final String TAG = UpdateStats.class.getSimpleName();
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private final long startInstallTime;
     private int restartCount = 0;
@@ -49,40 +39,28 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
      * update stats object.
      */
     public static UpdateStats loadUpdateStats(CommCareApp app) {
-        SharedPreferences prefs = app.getAppPreferences();
-        if (prefs.contains(UPGRADE_STATS_KEY)) {
-            try {
-                String serializedObj = prefs.getString(UPGRADE_STATS_KEY, "");
-                return (UpdateStats)UpdateStats.deserialize(serializedObj);
-            } catch (Exception e) {
-                Log.w(TAG, "Failed to deserialize update stats, defaulting to new instance.");
-                e.printStackTrace();
-                clearPersistedStats(app);
-                return new UpdateStats();
-            }
+        Object stats = PrefStats.loadStats(app, UPGRADE_STATS_KEY);
+        if (stats != null) {
+            return (UpdateStats)stats;
         } else {
             return new UpdateStats();
         }
     }
 
-    private static Object deserialize(String s) throws IOException,
-            ClassNotFoundException {
-        byte[] data = Base64.decode(s, Base64.DEFAULT);
-        ObjectInputStream ois = new ObjectInputStream(
-                new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return o;
+    /**
+     * Save update stats to app preferences for reuse if the update is ever
+     * resumed.
+     */
+    public static void saveStatsPersistently(CommCareApp app,
+                                             UpdateStats stats) {
+        PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
     }
 
     /**
      * Wipe stats associated with upgrade table from app preferences.
      */
     public static void clearPersistedStats(CommCareApp app) {
-        SharedPreferences prefs = app.getAppPreferences();
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(UPGRADE_STATS_KEY);
-        editor.commit();
+        PrefStats.clearPersistedStats(app, UPGRADE_STATS_KEY);
     }
 
     /**
@@ -155,31 +133,6 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
         }
 
         return statsStringBuilder.toString();
-    }
-
-    /**
-     * Save update stats to app preferences for reuse if the update is ever resumed.
-     */
-    public static void saveStatsPersistently(CommCareApp app,
-                                             UpdateStats updateStats) {
-        SharedPreferences prefs = app.getAppPreferences();
-        SharedPreferences.Editor editor = prefs.edit();
-        try {
-            String serializedObj = UpdateStats.serialize(updateStats);
-            editor.putString(UPGRADE_STATS_KEY, serializedObj);
-            editor.commit();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.w(TAG, "Failed to serialize and store resource installation stats");
-        }
-    }
-
-    private static String serialize(Serializable o) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(o);
-        oos.close();
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
 
     public int getRestartCount() {
