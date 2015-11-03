@@ -306,7 +306,7 @@ public class HttpRequestGenerator {
                 if (responseCode == 301) {
                     //only allow one level of redirection here for now.    
                     Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + con.getURL().toString());
-                    URL newUrl = con.getURL();
+                    URL newUrl = new URL(con.getHeaderField("Location"));
                     con.disconnect();
                     con = (HttpURLConnection) newUrl.openConnection();
                     setup(con);
