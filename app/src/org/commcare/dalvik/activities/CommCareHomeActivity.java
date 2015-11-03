@@ -29,6 +29,7 @@ import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -659,7 +660,7 @@ public class CommCareHomeActivity
                     terminateSuccessful = currentState.terminateSession();
                 } catch (XPathTypeMismatchException e) {
                     Logger.exception(e);
-                    CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+                    UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
                     return false;
                 }
                 if (!terminateSuccessful) {
@@ -829,7 +830,7 @@ public class CommCareHomeActivity
             terminateSuccesful = asw.terminateSession();
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
             return;
         }
         if (terminateSuccesful) {

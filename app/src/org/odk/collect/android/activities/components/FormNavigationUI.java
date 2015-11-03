@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -48,7 +49,7 @@ public class FormNavigationUI {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
-            CommCareActivity.createErrorDialog(activity, e.getMessage(), true);
+            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), true);
             return;
         }
 

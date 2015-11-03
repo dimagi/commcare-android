@@ -41,8 +41,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -473,7 +473,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 startTimer();
             }
         } catch (RuntimeException re) {
-            createErrorDialog(re.getMessage(), true);
+            UserfacingErrorHandling.createErrorDialog(this, re.getMessage(), true);
         }
     }
 
@@ -821,7 +821,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             asw.executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
             return;
         }
 
