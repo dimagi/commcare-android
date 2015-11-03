@@ -1,5 +1,6 @@
 package org.commcare.android.models;
 
+import org.commcare.android.analytics.XPathErrorStats;
 import org.commcare.android.database.user.models.User;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
@@ -63,12 +64,11 @@ public class NodeEntityFactory {
                     backgroundDetails[count] = backgroundText.evaluate(nodeContext);
                 }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
-            } catch (XPathSyntaxException | XPathException xpe) {
-                xpe.printStackTrace();
-                details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
-                backgroundDetails[count] = "";
-                // assume that if there's an error, user should see it
-                relevancyDetails[count] = true;
+            } catch (XPathSyntaxException e) {
+                storeErrorDetails(e, count, details, relevancyDetails, backgroundDetails);
+            } catch (XPathException xpe) {
+                XPathErrorStats.logErrorToCurrentApp(xpe);
+                storeErrorDetails(xpe, count, details, relevancyDetails, backgroundDetails);
             }
             count++;
         }
@@ -76,6 +76,16 @@ public class NodeEntityFactory {
         return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
     }
 
+    private static void storeErrorDetails(Exception e, int index,
+                                          Object[] details,
+                                          boolean[] relevancyDetails,
+                                          String[] backgroundDetails) {
+        e.printStackTrace();
+        details[index] = "<invalid xpath: " + e.getMessage() + ">";
+        backgroundDetails[index] = "";
+        // assume that if there's an error, user should see it
+        relevancyDetails[index] = true;
+    }
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
         List<TreeReference> references = ec.expandReference(treeReference);

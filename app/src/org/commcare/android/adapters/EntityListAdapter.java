@@ -11,6 +11,7 @@ import android.widget.ListAdapter;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.analytics.XPathErrorStats;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
@@ -420,12 +421,12 @@ public class EntityListAdapter implements ListAdapter {
                         return value;
                     }
                 } catch (XPathTypeMismatchException e) {
-                    //So right now this will fail 100% silently, which is bad.
+                    XPathErrorStats.logErrorToCurrentApp(e);
+
+                    e.printStackTrace();
                     return null;
                 }
-
             }
-
         });
     }
 

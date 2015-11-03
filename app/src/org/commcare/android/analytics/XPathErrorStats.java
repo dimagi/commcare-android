@@ -1,6 +1,8 @@
 package org.commcare.android.analytics;
 
 import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.xpath.XPathException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,6 +32,24 @@ public class XPathErrorStats implements Serializable {
         } else {
             return new XPathErrorStats();
         }
+    }
+
+    public static void logErrorToCurrentApp(String source, String message) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        XPathErrorStats stats = loadStats(app);
+
+        stats.addError(source, message);
+
+        saveStats(app, stats);
+    }
+
+    public static void logErrorToCurrentApp(XPathException exception) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        XPathErrorStats stats = loadStats(app);
+
+        stats.addError(exception.getSource(), exception.getMessage());
+
+        saveStats(app, stats);
     }
 
     /**

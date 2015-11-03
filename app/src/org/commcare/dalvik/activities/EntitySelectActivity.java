@@ -820,8 +820,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         try {
             asw.executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             return;
         }
 

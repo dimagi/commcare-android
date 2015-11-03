@@ -333,8 +333,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     private void handleXpathErrorBroadcast(Intent intent) {
         String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
-        UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this,
-                "There is a bug in one of your form's XPath Expressions \n" + problemXpath, EXIT);
+        UserfacingErrorHandling.logErrorAndShowDialog(this, new XPathException(problemXpath), EXIT);
     }
 
     private void setupUI() {
@@ -1059,8 +1058,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
             }catch(XPathTypeMismatchException e){
-                Logger.exception(e);
-                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
+                UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             }
         } else {
             mBeenSwiped = false;
@@ -1263,8 +1261,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
 
@@ -1294,8 +1291,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                             try {
                                 mFormController.newRepeat();
                             } catch (XPathTypeMismatchException e) {
-                                Logger.exception(e);
-                                UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                                UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                                 return;
                             }
                             showNextView();				
@@ -2083,7 +2079,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
-            UserfacingErrorHandling.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             //We're exiting anyway
             return FormEntryController.ANSWER_OK;
         }
@@ -2222,8 +2218,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         try {
             updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
         FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);

@@ -3,13 +3,24 @@ package org.commcare.android.framework;
 import android.app.Activity;
 import android.content.DialogInterface;
 
+import org.commcare.android.analytics.XPathErrorStats;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.javarosa.xpath.XPathException;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class UserfacingErrorHandling {
+
+    public static void logErrorAndShowDialog(final CommCareActivity activity,
+                                             XPathException exception,
+                                             final boolean shouldExit) {
+        XPathErrorStats.logErrorToCurrentApp(exception);
+
+        final String errorMsg = exception.getMessage();
+        createErrorDialog(activity, errorMsg, shouldExit);
+    }
 
     /**
      * Pop up a semi-friendly error dialog rather than crashing outright.
@@ -18,7 +29,7 @@ public class UserfacingErrorHandling {
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
     public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
-                                         final boolean shouldExit) {
+                                          final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
 
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);

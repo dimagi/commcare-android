@@ -48,8 +48,7 @@ public class FormNavigationUI {
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(activity, e.getMessage(), true);
+            UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;
         }
 

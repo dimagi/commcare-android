@@ -659,8 +659,7 @@ public class CommCareHomeActivity
                 try {
                     terminateSuccessful = currentState.terminateSession();
                 } catch (XPathTypeMismatchException e) {
-                    Logger.exception(e);
-                    UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
+                    UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
                     return false;
                 }
                 if (!terminateSuccessful) {
@@ -829,8 +828,7 @@ public class CommCareHomeActivity
         try {
             terminateSuccesful = asw.terminateSession();
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             return;
         }
         if (terminateSuccesful) {
