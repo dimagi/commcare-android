@@ -33,8 +33,8 @@ public class PrefStats {
      * Save stats to app preferences.
      */
     protected static void saveStatsPersistently(CommCareApp app,
-                                             String key,
-                                             Serializable stats) {
+                                                String key,
+                                                Serializable stats) {
         SharedPreferences prefs = app.getAppPreferences();
         SharedPreferences.Editor editor = prefs.edit();
         try {

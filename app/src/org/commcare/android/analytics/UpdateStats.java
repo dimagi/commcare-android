@@ -19,7 +19,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
     private final long startInstallTime;
     private int restartCount = 0;
-    private final static String TOP_LEVEL_STATS_KEY = "top-level-update-exceptions";
+    private final static String TOP_LEVEL_STATS_KEY =
+            "top-level-update-exceptions";
     private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
 
     private static final long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
@@ -33,7 +34,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     }
 
     /**
-     * Load update statistics associated with upgrade table from app preferences
+     * Load update statistics associated with upgrade table from app
+     * preferences
      *
      * @return Persistently-stored update stats or if no stats found then a new
      * update stats object.
@@ -89,7 +91,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
 
     @Override
     public void recordResourceInstallSuccess(String resourceName) {
-        InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
+        InstallAttempts<String> attempts =
+                resourceInstallStats.get(resourceName);
         if (attempts == null) {
             attempts = new InstallAttempts<>(resourceName);
             resourceInstallStats.put(resourceName, attempts);
@@ -100,7 +103,8 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     @Override
     public void recordResourceInstallFailure(String resourceName,
                                              Exception errorMsg) {
-        InstallAttempts<String> attempts = resourceInstallStats.get(resourceName);
+        InstallAttempts<String> attempts =
+                resourceInstallStats.get(resourceName);
         if (attempts == null) {
             attempts = new InstallAttempts<>(resourceName);
             resourceInstallStats.put(resourceName, attempts);
@@ -120,11 +124,15 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     public String toString() {
         StringBuilder statsStringBuilder = new StringBuilder();
 
-        statsStringBuilder.append("Update first started: ").append(new Date(startInstallTime).toString()).append(".\n");
-        statsStringBuilder.append("Update restarted ").append(restartCount).append(" times.\n");
-
-        statsStringBuilder.append("Failures logged to the update table: \n");
-        statsStringBuilder.append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString()).append("\n");
+        statsStringBuilder.append("Update first started: ")
+                .append(new Date(startInstallTime).toString())
+                .append(".\n")
+                .append("Update restarted ")
+                .append(restartCount)
+                .append(" times.\n")
+                .append("Failures logged to the update table: \n")
+                .append(resourceInstallStats.get(TOP_LEVEL_STATS_KEY).toString())
+                .append("\n");
 
         for (String resourceName : resourceInstallStats.keySet()) {
             if (!resourceName.equals(TOP_LEVEL_STATS_KEY)) {
