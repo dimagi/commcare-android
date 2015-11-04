@@ -112,11 +112,11 @@
         <provider
             android:name=".odk.provider.FormsProvider"
             android:exported="true"
-            android:authorities="${applicationId}.provider.odk.forms" />
+            android:authorities="${odkProvider}.forms" />
         <provider
             android:name=".odk.provider.InstanceProvider"
             android:exported="true"
-            android:authorities="${applicationId}.provider.odk.instances" />
+            android:authorities="${odkProvider}.instances" />
         <provider
             android:name=".provider.CaseDataContentProvider"
             android:authorities="${applicationId}.case"

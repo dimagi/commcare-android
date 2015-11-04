@@ -124,6 +124,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 22
         applicationId "org.commcare.dalvik"
+        manifestPlaceholders = [ odkProvider:"org.commcare.android.provider.odk"]
 
         versionCode getVersionCode()
 
@@ -194,9 +195,11 @@ android {
     }
     productFlavors {
       standard {
+        // use the settings from defaultConfig
       }
       standalone {
         applicationId "org.commcare.standalone"
+        manifestPlaceholders = [ odkProvider:"org.commcare.standalone.provider.odk"]
 
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
         // include this again so that the value get reloaded
