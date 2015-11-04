@@ -9,6 +9,6 @@
     android:padding="@dimen/standard_spacer"
     android:background="@android:color/transparent"
     android:text="STOP"
-    android:textSize="@dimen/font_size_medium"
+    android:textSize="@dimen/font_size_dp_medium"
     android:visibility="gone" >
 </Button>

@@ -39,7 +39,7 @@ import java.io.File;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class ImageWidget extends QuestionWidget implements IBinaryWidget {
+public class ImageWidget extends QuestionWidget {
     private final static String t = "MediaWidget";
     public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(ODKStorage.TMPFILE_PATH);
 
@@ -50,7 +50,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private String mBinaryName;
 
     private final String mInstanceFolder;
-    private boolean mWaitingForData;
 
     private final TextView mErrorTextView;
 
@@ -66,7 +65,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         super(context, prompt);
 
         mMaxDimen = -1;
-        mWaitingForData = false;
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
                         FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
@@ -102,7 +100,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
                     pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-                    mWaitingForData = true;
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -130,7 +127,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
-                    mWaitingForData = true;
                     pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -279,8 +275,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
-
-        mWaitingForData = false;
     }
 
     @Override
@@ -289,11 +283,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-    }
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
     }
 
     @Override
