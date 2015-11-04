@@ -7,6 +7,12 @@ import android.graphics.Paint.Align;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart;
 import org.achartengine.chart.PointStyle;
@@ -30,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -164,7 +171,50 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     public View getView(GraphData data) throws InvalidStateException {
-        render(data);
+        LineChart chart = new LineChart(mContext);
+
+        // Default rendering options
+        chart.setDescription("");
+        //chart.setNoDataTextDescription("You need to provide data for the chart.");    // TODO: localize
+
+        // Format axes
+        YAxis yAxis = chart.getAxisLeft();
+        // TODO: yAxis.setAxisMinValue();
+        // TODO: yAxis.setAxisMaxValue();
+        chart.getAxisRight().setEnabled(false); // TODO: unless there's a secondary axis
+
+        // Add data
+        float minX = Float.MAX_VALUE;
+        float maxX = Float.MIN_VALUE;
+        float step = 1; // TODO: calculate actual precision based on data
+        ArrayList<String> xLabels = new ArrayList<>();
+        for (SeriesData s : data.getSeries()) {
+            for (XYPointData p : s.getPoints()) {
+                double xValue = parseDouble(p.getX(), "x");
+                if (xValue > maxX) {
+                    maxX = (float) xValue;
+                }
+                if (xValue < minX) {
+                    minX = (float) xValue;
+                }
+            }
+        }
+        for (float i = minX; i <= maxX; i += step) {
+            xLabels.add(String.valueOf(i));
+        }
+
+        ArrayList<LineDataSet> yValues = new ArrayList<>();
+        for (SeriesData s : data.getSeries()) {
+            ArrayList<Entry> entries = new ArrayList<>();
+            for (XYPointData p : s.getPoints()) {
+                entries.add(new Entry(parseDouble(p.getY(), "y").floatValue(), parseDouble(p.getX(), "x").intValue() - (int) minX));
+            }
+            yValues.add(new LineDataSet(entries, ""));  // TODO: this is the series name
+        }
+        LineData chartData = new LineData(xLabels, yValues);
+        chart.setData(chartData);
+        return chart;
+        /*render(data);
 
         // Panning and zooming are allowed on in full-screen graphs (created by getIntent)
         setPanAndZoom(false);
@@ -199,7 +249,7 @@ public class GraphView {
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
         }
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
     }
 
     /**
@@ -313,10 +363,11 @@ public class GraphView {
         // and happened to look nice for partographs. Vertically-oriented graphs,
         // however, get squished unless they're drawn as a square. Expect to revisit 
         // this eventually (make all graphs square? user-configured aspect ratio?).
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
+        return 1;
+        /*if (Graph.TYPE_BAR.equals(mData.getType())) {
             return 1;
         }
-        return 2;
+        return 2;*/
     }
 
     private XYMultipleSeriesRenderer.Orientation getOrientation() {
