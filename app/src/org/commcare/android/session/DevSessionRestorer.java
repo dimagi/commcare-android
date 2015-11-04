@@ -50,4 +50,8 @@ public class DevSessionRestorer {
     private static boolean autoLoginEnabled() {
         return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
     }
+
+    public static void clearPassword(SharedPreferences prefs) {
+        prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
+    }
 }

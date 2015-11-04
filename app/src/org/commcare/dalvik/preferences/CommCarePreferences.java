@@ -271,6 +271,7 @@ public class CommCarePreferences
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("cur_locale")) {
             Localization.setLocale(sharedPreferences.getString(key, "default"));
