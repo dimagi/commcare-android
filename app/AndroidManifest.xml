@@ -6,7 +6,9 @@
           android:versionName="2.25">
 
     <uses-sdk
-        tools:overrideLibrary="com.etsy.android.grid"
+        tools:overrideLibrary="com.etsy.android.grid, com.google.android.gms.measurement,
+        com.google.android.gms.base, com.google.android.gms, com.google.android.gms.analytics,
+        com.google.android.gms.ads, com.google.android.gms.appindexing"
         tools:replace="minSdkVersion" />
 
     <uses-permission android:name="android.permission.NFC" />
