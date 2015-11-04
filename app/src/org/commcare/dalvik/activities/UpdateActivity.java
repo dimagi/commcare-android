@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.resource.AppInstallStatus;
@@ -231,7 +232,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            receiver.uiState.updateInstalledUiState();
+                            receiver.exitOnSuccessfulUpdate();
                         } else {
                             receiver.uiState.errorUiState();
                         }
@@ -265,5 +266,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         return dialog;
+    }
+
+    private void exitOnSuccessfulUpdate() {
+        final String upgradeFinishedText =
+                Localization.get("updates.install.finished");
+        Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
+        this.finish();
     }
 }
