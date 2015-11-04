@@ -22,7 +22,7 @@ import android.provider.BaseColumns;
 import org.commcare.dalvik.BuildConfig;
 
 public final class InstanceProviderAPI {
-    public static final String AUTHORITY = BuildConfig.AUTHORITY + ".odk.instances";
+    public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".instances";
 
     // This class cannot be instantiated
     private InstanceProviderAPI() {}

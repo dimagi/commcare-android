@@ -15,7 +15,7 @@ import org.commcare.dalvik.BuildConfig;
  *
  */
 public class CaseDataAPI {
-    public static final String AUTHORITY = BuildConfig.AUTHORITY + ".case";
+    public static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".case";
     
     public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
