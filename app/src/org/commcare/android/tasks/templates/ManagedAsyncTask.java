@@ -12,14 +12,15 @@ import java.util.ArrayList;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 
-public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
+public abstract class ManagedAsyncTask<Params, Progress, Result>
+        extends AsyncTask<Params, Progress, Result> {
 
     /**
      * List of running tasks. Tasks add/remove themselves automatically upon
      * start, cancellation, and completion.
      */
     private static final ArrayList<ManagedAsyncTask<?, ?, ?>> livingTasks =
-            new ArrayList<ManagedAsyncTask<?, ?, ?>>();
+            new ArrayList<>();
 
     /**
      * Call cancel on all tasks and then wipe the living task list.
@@ -49,7 +50,7 @@ public abstract class ManagedAsyncTask<A, B, C> extends AsyncTask<A, B, C> {
      * On execution completion remove task from managed task list.
      */
     @Override
-    protected void onPostExecute(C result) {
+    protected void onPostExecute(Result result) {
         super.onPostExecute(result);
 
         synchronized (livingTasks) {

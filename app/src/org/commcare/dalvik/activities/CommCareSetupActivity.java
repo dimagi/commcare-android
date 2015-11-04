@@ -23,7 +23,6 @@ import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -127,13 +126,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean offlineInstall;
 
-    //region UIState fragments
-
     private final FragmentManager fm = getSupportFragmentManager();
     private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
-
-    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -316,7 +311,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == Activity.RESULT_OK) {
-                    result = data.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
+                    result = data.getStringExtra("SCAN_RESULT");
                     String dbg = "Got url from barcode scanner: " + result;
                     Log.i(TAG, dbg);
                 }

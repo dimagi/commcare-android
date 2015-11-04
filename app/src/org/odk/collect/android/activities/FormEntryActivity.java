@@ -50,8 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
@@ -66,6 +66,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -114,6 +115,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -123,7 +125,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
+public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryActivity>
         implements AnimationListener, FormSavedListener, FormSaveCallback,
         AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -420,7 +422,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
+                String sb = intent.getStringExtra("SCAN_RESULT");
                 ((ODKView) mCurrentView).setBinaryData(sb, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
@@ -605,47 +607,101 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    private void updateFormRelevencies(){
+    private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
+
         if(!(mCurrentView instanceof ODKView)){
-            throw new RuntimeException("Tried to update form relevency not on compound view");
+            throw new RuntimeException("Tried to update form relevancy not on compound view");
         }
-        
-        ODKView oldODKV = (ODKView)mCurrentView;
-        
+
+        ODKView odkView = (ODKView)mCurrentView;
+        ArrayList<QuestionWidget> oldWidgets = odkView.getWidgets();
+        // These 2 calls need to be made here, rather than in the for loop below, because at that
+        // point the widgets will have already started being updated to the values for the new view
+        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+        ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
+
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
-        Set<FormEntryPrompt> used = new HashSet<>();
-        
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
-        ArrayList<Integer> removeList = new ArrayList<>();
+        ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
+        // Loop through all of the old widgets to determine which ones should stay in the new view
+        for (int i = 0; i < oldWidgets.size(); i++){
+            FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
+            String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
+            Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
 
-           for(int i=0;i<oldWidgets.size();i++){
-            QuestionWidget oldWidget = oldWidgets.get(i);
-            boolean stillRelevent = false;
-
-            for(FormEntryPrompt prompt : newValidPrompts) {
-            	if(prompt.getIndex().equals(oldWidget.getPrompt().getIndex())) {
-            		stillRelevent = true;
-            		used.add(prompt);
-            	}
-            }
-            if(!stillRelevent){
-                removeList.add(i);
+            FormEntryPrompt equivalentNewPrompt = getEquivalentPromptInNewList(newValidPrompts,
+                    oldPrompt, priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget);
+            if (equivalentNewPrompt != null) {
+                promptsLeftInView.add(equivalentNewPrompt);
+            } else {
+                // If there is no equivalent prompt in the list of new prompts, then this prompt is
+                // no longer relevant in the new view, so it should get removed
+                shouldRemoveFromView.add(i);
             }
         }
-        // remove "atomically" to not mess up iterations
-        oldODKV.removeQuestionsFromIndex(removeList);
+        // Remove "atomically" to not mess up iterations
+        odkView.removeQuestionsFromIndex(shouldRemoveFromView);
 
-        //Now go through add add any new prompts that we need
-        for(int i = 0 ; i < newValidPrompts.length; ++i) {
+        // Now go through add add any new prompts that we need
+        for (int i = 0; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
-        	if(used.contains(prompt)) {
-        		continue;
-        	} 
-        	oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+        	if (!promptsLeftInView.contains(prompt)) {
+                // If the old version of this prompt was NOT left in the view, then add it
+                odkView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+            }
         }
+    }
+
+    /**
+     * @return A list of the select choices for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
+            selectChoicesList.add(oldSelectChoices);
+        }
+        return selectChoicesList;
+    }
+
+    /**
+     * @return A list of the question texts for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<String> questionTextList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            questionTextList.add(qw.getPrompt().getQuestionText());
+        }
+        return questionTextList;
+    }
+
+    /**
+     *
+     * @param newValidPrompts - All of the prompts that should be in the new view
+     * @param oldPrompt - The prompt from the prior view for which we are seeking a match in the
+     *                  list of new prompts
+     * @param oldQuestionText - the question text of the old prompt
+     * @param oldSelectChoices - the select choices of the old prompt
+     * @return The form entry prompt from the new list that is equivalent to oldPrompt, or null
+     * if none exists
+     */
+    private FormEntryPrompt getEquivalentPromptInNewList(FormEntryPrompt[] newValidPrompts,
+                                                           FormEntryPrompt oldPrompt,
+                                                           String oldQuestionText,
+                                                           Vector<SelectChoice> oldSelectChoices) {
+        for (FormEntryPrompt newPrompt : newValidPrompts) {
+            if (newPrompt.getIndex().equals(oldPrompt.getIndex())
+                    && newPrompt.hasSameDisplayContent(oldQuestionText, oldSelectChoices)) {
+                // A new prompt is considered equivalent to the old prompt if both their  form
+                // indices and display content (question text and select choices) are the same
+                return newPrompt;
+            }
+        }
+        return null;
     }
 
 	/**
@@ -2029,7 +2085,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 mFormController.saveAnswer(index, answer);
                 return FormEntryController.ANSWER_OK;
             }
-        } catch(XPathException e) {
+        } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
             CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
             //We're exiting anyway
@@ -2168,7 +2224,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     @Override
     public void widgetEntryChanged() {
         try {
-            updateFormRelevencies();
+            updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
