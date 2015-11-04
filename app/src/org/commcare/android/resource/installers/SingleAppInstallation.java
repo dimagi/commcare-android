@@ -1,6 +1,7 @@
 package org.commcare.android.resource.installers;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.application.CommCareApp;
@@ -25,42 +26,47 @@ public class SingleAppInstallation {
         CommCareApp app = new CommCareApp(newRecord);
 
         ResourceEngineTask<CommCareSetupActivity> task =
-                new ResourceEngineTask<CommCareSetupActivity>(false,
-                        app, false,
-                        dialogId, false) {
-
+                new ResourceEngineTask<CommCareSetupActivity>(app, dialogId, false) {
                     @Override
                     protected void deliverResult(CommCareSetupActivity receiver,
-                                                 ResourceEngineTask.ResourceEngineOutcomes result) {
+                                                 AppInstallStatus result) {
                         switch (result) {
-                            case StatusInstalled:
+                            case Installed:
                                 receiver.reportSuccess(true);
                                 break;
-                            case StatusUpToDate:
+                            case DuplicateApp:
+                                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
+                                break;
+                            case UpdateStaged:
+                                // this should never occur
                                 receiver.reportSuccess(false);
                                 break;
-                            case StatusMissingDetails:
+                            case UpToDate:
+                                // this should never occur
+                                receiver.reportSuccess(false);
+                                break;
+                            case MissingResourcesWithMessage:
                                 // fall through to more general case:
-                            case StatusMissing:
+                            case MissingResources:
                                 receiver.failMissingResource(this.missingResourceException, result);
                                 break;
-                            case StatusBadReqs:
+                            case IncompatibleReqs:
                                 receiver.failBadReqs(badReqCode, vRequired, vAvailable, majorIsProblem);
                                 break;
-                            case StatusFailState:
-                                receiver.failWithNotification(ResourceEngineOutcomes.StatusFailState);
+                            case UnknownFailure:
+                                receiver.failWithNotification(AppInstallStatus.UnknownFailure);
                                 break;
-                            case StatusNoLocalStorage:
-                                receiver.failWithNotification(ResourceEngineOutcomes.StatusNoLocalStorage);
+                            case NoLocalStorage:
+                                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
                                 break;
-                            case StatusBadCertificate:
-                                receiver.failWithNotification(ResourceEngineOutcomes.StatusBadCertificate);
+                            case NoConnection:
+                                receiver.failWithNotification(AppInstallStatus.NoConnection);
                                 break;
-                            case StatusDuplicateApp:
-                                receiver.failWithNotification(ResourceEngineOutcomes.StatusDuplicateApp);
+                            case BadCertificate:
+                                receiver.failWithNotification(AppInstallStatus.BadCertificate);
                                 break;
                             default:
-                                receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+                                receiver.failUnknown(AppInstallStatus.UnknownFailure);
                                 break;
                         }
                     }
@@ -74,7 +80,7 @@ public class SingleAppInstallation {
                     @Override
                     protected void deliverError(CommCareSetupActivity receiver,
                                                 Exception e) {
-                        receiver.failUnknown(ResourceEngineOutcomes.StatusFailUnknown);
+                        receiver.failUnknown(AppInstallStatus.UnknownFailure);
                     }
                 };
         task.connect(activity);
