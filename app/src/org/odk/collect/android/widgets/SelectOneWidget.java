@@ -173,20 +173,14 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         onUserInteracton();
-        
-        widgetEntryChanged();
-        
-        if (!isChecked) {
-            // If it got unchecked, we don't care.
-            return;
-        }
-        
-        for (RadioButton button : this.buttons) {
-            if (button.isChecked() && !(buttonView == button)) {
-                button.setChecked(false);
+        if (isChecked) {
+            for (RadioButton button : this.buttons) {
+                if (button.isChecked() && !(buttonView == button)) {
+                    button.setChecked(false);
+                }
             }
         }
-        
+        widgetEntryChanged();
     }
 
 

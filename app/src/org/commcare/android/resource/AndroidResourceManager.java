@@ -10,6 +10,7 @@ import org.commcare.android.resource.installers.LocalStorageUnavailableException
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidResourceInstallerFactory;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.ResourceManager;
@@ -246,18 +247,39 @@ public class AndroidResourceManager extends ResourceManager {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                String ref = ResourceInstallUtils.getDefaultProfileRef();
-                try {
-                    UpdateTask updateTask = UpdateTask.getNewInstance();
-                    updateTask.startPinnedNotification(ctx);
-                    updateTask.setAsAutoUpdate();
-                    updateTask.execute(ref);
-                } catch (IllegalStateException e) {
-                    // The user may have started the update process in the meantime
-                    Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
-                }
+                launchRetryTask(ctx);
             }
         }, exponentionalRetryDelay(numberOfRestarts));
+    }
+
+    protected void launchRetryTask(Context ctx) {
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
+        try {
+            if (canUpdateRetryRun()) {
+                UpdateTask updateTask = UpdateTask.getNewInstance();
+                updateTask.startPinnedNotification(ctx);
+                updateTask.setAsAutoUpdate();
+                updateTask.execute(ref);
+            }
+        } catch (IllegalStateException e) {
+            // The user may have started the update process in the meantime
+            Log.w(TAG, "Trying trigger an auto-update retry when it is already running");
+        }
+    }
+
+    /**
+     * @return Logged into an app that has begun the auto-update process
+     */
+    private static boolean canUpdateRetryRun() {
+        try {
+            CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+            // NOTE PLM: Doesn't distinguish between two apps currently in the
+            // auto-update process.
+            return CommCareApplication._().getSession().isActive() &&
+                    ResourceInstallUtils.shouldAutoUpdateResume(currentApp);
+        } catch (SessionUnavailableException e) {
+            return false;
+        }
     }
 
     /**

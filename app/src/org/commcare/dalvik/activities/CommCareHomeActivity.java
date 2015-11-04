@@ -154,8 +154,6 @@ public class CommCareHomeActivity
 
     private int mDeveloperModeClicks = 0;
 
-    private AndroidCommCarePlatform platform;
-
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
 
@@ -226,6 +224,7 @@ public class CommCareHomeActivity
         if(DeveloperPreferences.isGridMenuEnabled()) {
             return true;
         }
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
@@ -366,7 +365,6 @@ public class CommCareHomeActivity
         if(resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
-            AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
@@ -504,21 +502,23 @@ public class CommCareHomeActivity
                     //Retrieve and load the appropriate ssd
                     SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
                     Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+                    AndroidSessionWrapper currentState =
+                            CommCareApplication._().getCurrentSessionWrapper();
                     if(ssds.size() == 1) {
                         currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                     } else {
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (CommCareApplication._().getCurrentApp() != null) {
-                        platform = CommCareApplication._().getCommCarePlatform();
-                    }
+                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
                 break;
             case GET_COMMAND:
                 //TODO: We might need to load this from serialized state?
+                AndroidSessionWrapper currentState =
+                        CommCareApplication._().getCurrentSessionWrapper();
                 if (resultCode == RESULT_CANCELED) {
                     if (currentState.getSession().getCommand() == null) {
                         //Needed a command, and didn't already have one. Stepping back from
@@ -537,7 +537,8 @@ public class CommCareHomeActivity
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                CommCareSession currentSession = currentState.getSession();
+                CommCareSession currentSession =
+                        CommCareApplication._().getCurrentSessionWrapper().getSession();
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
@@ -740,8 +741,10 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialogFactory.showBasicAlertWithIcon(this, Localization.get("app.handled.error.title"),
-                errorMsg, android.R.drawable.ic_dialog_info, errorListener);
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+                Localization.get("app.handled.error.title"), errorMsg,
+                android.R.drawable.ic_dialog_info, errorListener);
+        showAlertDialog(f);
     }
 
     @Override
@@ -813,6 +816,7 @@ public class CommCareHomeActivity
         createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
                 asw.getSession().stepBack();
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
@@ -896,11 +900,7 @@ public class CommCareHomeActivity
         }
 
         FormRecord record = state.getFormRecord();
-
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
-
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
@@ -1032,9 +1032,7 @@ public class CommCareHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
@@ -1218,6 +1216,7 @@ public class CommCareHomeActivity
 
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
+        final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
         AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
@@ -1237,9 +1236,6 @@ public class CommCareHomeActivity
                         // create a new form record and begin form entry
                         state.commitStub();
                         formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    default:
-                        break;
                 }
                 dialog.dismiss();
             }
@@ -1247,7 +1243,7 @@ public class CommCareHomeActivity
         factory.setPositiveButton(Localization.get("option.yes"), listener);
         factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
         factory.setNeutralButton(Localization.get("option.no"), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     private void displayMessage(String message) {

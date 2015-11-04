@@ -110,6 +110,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                             GeoPointActivity.this.finish();
                             break;
                     }
+                    dialog.dismiss();
                 }
             };
             

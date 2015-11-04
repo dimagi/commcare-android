@@ -40,6 +40,13 @@
     <dimen name="font_size_xlarger">23sp</dimen>
     <dimen name="font_size_xlargest">28sp</dimen>
 
+    <dimen name="font_size_dp_small">12dp</dimen>
+    <dimen name="font_size_dp_medium">15dp</dimen>
+    <dimen name="font_size_dp_large">18dp</dimen>
+    <dimen name="font_size_dp_xlarge">21dp</dimen>
+    <dimen name="font_size_dp_xlarger">23dp</dimen>
+    <dimen name="font_size_dp_xlargest">28dp</dimen>
+
     <dimen name="cell_padding_vertical">8dp</dimen>
     <dimen name="cell_padding_horizontal">8dp</dimen>
     <dimen name="row_padding_vertical">8dp</dimen>

@@ -3,7 +3,6 @@ package org.commcare.android.tasks;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -22,27 +21,17 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Void> {
-    private static final String TAG = PurgeStaleArchivedFormsTask.class.getSimpleName();
-    private static final Object lock = new Object();
-    private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY = "cc-days-form-retain";
-
-    private static PurgeStaleArchivedFormsTask singletonRunningInstance = null;
-
-    private TaskListener<Void, Void> taskListener = null;
+public class PurgeStaleArchivedFormsTask
+        extends SingletonTask<Void, Void, Void> {
+    private static final String DAYS_TO_RETAIN_SAVED_FORMS_KEY =
+            "cc-days-form-retain";
 
     public static final int PURGE_STALE_ARCHIVED_FORMS_TASK_ID = 1283;
+    private static PurgeStaleArchivedFormsTask singletonRunningInstance = null;
+    private static final Object lock = new Object();
 
     private PurgeStaleArchivedFormsTask() {
-    }
-
-    public static void launchPurgeTask() {
-        synchronized (lock) {
-            if (singletonRunningInstance == null) {
-                singletonRunningInstance = new PurgeStaleArchivedFormsTask();
-                singletonRunningInstance.execute();
-            }
-        }
+        TAG = PurgeStaleArchivedFormsTask.class.getSimpleName();
     }
 
     public static PurgeStaleArchivedFormsTask getRunningInstance() {
@@ -55,6 +44,16 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
         }
     }
 
+
+    public static void launchPurgeTask() {
+        synchronized (lock) {
+            if (singletonRunningInstance == null) {
+                singletonRunningInstance = new PurgeStaleArchivedFormsTask();
+                singletonRunningInstance.execute();
+            }
+        }
+    }
+
     @Override
     protected Void doInBackground(Void... params) {
         CommCareApp app = CommCareApplication._().getCurrentApp();
@@ -63,72 +62,10 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
     }
 
     @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
-
-        if (taskListener != null) {
-            taskListener.handleTaskUpdate(values);
-        }
-    }
-
-    @Override
-    protected void onPostExecute(Void result) {
+    public void clearTaskInstance() {
         synchronized (lock) {
-            super.onPostExecute(result);
-
-            if (taskListener != null) {
-                taskListener.handleTaskCompletion(result);
-            }
-
             singletonRunningInstance = null;
         }
-    }
-
-    @Override
-    protected void onCancelled(Void result) {
-        synchronized (lock) {
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                super.onCancelled(result);
-            } else {
-                super.onCancelled();
-            }
-
-            if (taskListener != null) {
-                taskListener.handleTaskCancellation(result);
-            }
-
-            singletonRunningInstance = null;
-        }
-    }
-
-    /**
-     * Start reporting task state with a listener process.
-     *
-     * @throws TaskListenerRegistrationException If this task was already
-     *                                           registered with a listener
-     */
-    public void registerTaskListener(TaskListener<Void, Void> listener)
-            throws TaskListenerRegistrationException {
-        if (taskListener != null) {
-            throw new TaskListenerRegistrationException("This " + TAG +
-                    " was already registered with a TaskListener");
-        }
-        taskListener = listener;
-    }
-
-    /**
-     * Stop reporting task state with a listener process
-     *
-     * @throws TaskListenerRegistrationException If this task wasn't registered
-     *                                           with the unregistering listener.
-     */
-    public void unregisterTaskListener(TaskListener<Void, Void> listener)
-            throws TaskListenerRegistrationException {
-        if (listener != taskListener) {
-            throw new TaskListenerRegistrationException("The provided listener wasn't " +
-                    "registered with this " + TAG);
-        }
-        taskListener = null;
     }
 
     /**
@@ -143,7 +80,8 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
             return;
         }
 
-        DateTime lastValidDate = getLastValidArchivedFormDate(daysSavedFormIsValidFor);
+        DateTime lastValidDate =
+                getLastValidArchivedFormDate(daysSavedFormIsValidFor);
 
         Vector<Integer> toPurge = getSavedFormsToPurge(lastValidDate);
 
@@ -200,12 +138,14 @@ public class PurgeStaleArchivedFormsTask extends ManagedAsyncTask<Void, Void, Vo
         return toPurge;
     }
 
-    private static DateTime parseModifiedDate(String dateString) throws ParseException {
+    private static DateTime parseModifiedDate(String dateString)
+            throws ParseException {
         // TODO PLM: the use of text timezones is buggy because timezone
         // abbreviations aren't unique. We need to do a refactor to use a
         // string date representation that is easily parsable by Joda's
         // DateTime.
-        SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+        SimpleDateFormat format =
+                new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
         Date parsed = format.parse(dateString);
         return new DateTime(parsed);
     }

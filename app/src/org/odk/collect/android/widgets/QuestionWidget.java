@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
@@ -36,6 +37,7 @@ import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
@@ -638,5 +640,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public Spannable stylize(String text){
         return MarkupUtil.styleSpannable(getContext(), text);
+    }
+
+    /**
+     * Implemented by questions that read binary data from and external source,
+     * such as the image chooser or a custom intent callout.
+     *
+     * @param answer generic object that individual implementations know how to
+     *               process
+     */
+    public void setBinaryData(Object answer) {
+        String instanceClass = this.getClass().getSimpleName();
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "Calling empty implementation of " + instanceClass + ".setBinaryData");
     }
 }

@@ -6,7 +6,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
-import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -31,18 +30,15 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateTask
-        extends ManagedAsyncTask<String, Integer, AppInstallStatus>
+        extends SingletonTask<String, Integer, AppInstallStatus>
         implements TableStateListener, InstallCancelled {
 
-    private static final String TAG = UpdateTask.class.getSimpleName();
-    private static final Object lock = new Object();
-
     private static UpdateTask singletonRunningInstance = null;
+    private static final Object lock = new Object();
 
     private final AndroidResourceManager resourceManager;
     private final CommCareApp app;
 
-    private TaskListener<Integer, AppInstallStatus> taskListener = null;
     private PinnedNotificationWithProgress pinnedNotificationProgress = null;
     private Context ctx;
     private String profileRef;
@@ -52,6 +48,7 @@ public class UpdateTask
     private int maxProgress = 0;
 
     private UpdateTask() {
+        TAG = UpdateTask.class.getSimpleName();
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
 
@@ -94,7 +91,6 @@ public class UpdateTask
         pinnedNotificationProgress =
                 new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
                         "updates.pinned.progress", R.drawable.update_download_icon);
-
     }
 
     @Override
@@ -149,9 +145,6 @@ public class UpdateTask
         if (pinnedNotificationProgress != null) {
             pinnedNotificationProgress.handleTaskUpdate(values);
         }
-        if (taskListener != null) {
-            taskListener.handleTaskUpdate(values);
-        }
     }
 
     @Override
@@ -168,26 +161,11 @@ public class UpdateTask
         if (pinnedNotificationProgress != null) {
             pinnedNotificationProgress.handleTaskCompletion(result);
         }
-        if (taskListener != null) {
-            taskListener.handleTaskCompletion(result);
-        }
-
-        clearTaskInstance();
-    }
-
-    public static void clearTaskInstance() {
-        synchronized (lock) {
-            singletonRunningInstance = null;
-        }
     }
 
     @Override
     protected void onCancelled(AppInstallStatus result) {
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            super.onCancelled(result);
-        } else {
-            super.onCancelled();
-        }
+        super.onCancelled(result);
 
         if (taskWasCancelledByUser && wasTriggeredByAutoUpdate) {
             // task may have been cancelled by logout, in which case we want
@@ -200,43 +178,14 @@ public class UpdateTask
             pinnedNotificationProgress.handleTaskCancellation(result);
         }
 
-        if (taskListener != null) {
-            taskListener.handleTaskCancellation(result);
-        }
-
         resourceManager.upgradeCancelled();
-
-        clearTaskInstance();
     }
 
-    /**
-     * Start reporting progress with a listener process.
-     *
-     * @throws TaskListenerRegistrationException If this task was already
-     *                                           registered with a listener
-     */
-    public void registerTaskListener(TaskListener<Integer, AppInstallStatus> listener)
-            throws TaskListenerRegistrationException {
-        if (taskListener != null) {
-            throw new TaskListenerRegistrationException("This " + TAG +
-                    " was already registered with a TaskListener");
+    @Override
+    public void clearTaskInstance() {
+        synchronized (lock) {
+            singletonRunningInstance = null;
         }
-        taskListener = listener;
-    }
-
-    /**
-     * Stop reporting progress with a listener process
-     *
-     * @throws TaskListenerRegistrationException If this task wasn't registered
-     *                                           with the unregistering listener.
-     */
-    public void unregisterTaskListener(TaskListener<Integer, AppInstallStatus> listener)
-            throws TaskListenerRegistrationException {
-        if (listener != taskListener) {
-            throw new TaskListenerRegistrationException("The provided listener wasn't " +
-                    "registered with this " + TAG);
-        }
-        taskListener = null;
     }
 
     /**
