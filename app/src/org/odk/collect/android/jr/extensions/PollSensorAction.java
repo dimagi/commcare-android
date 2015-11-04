@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -23,7 +24,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.odk.collect.android.application.Collect;
 import org.odk.collect.android.utilities.GeoUtils;
 
 import java.io.DataInputStream;
@@ -83,7 +83,7 @@ public class PollSensorAction extends Action implements LocationListener {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             public void run() {
                 // Start requesting GPS updates
-                Context context = Collect.getStaticApplicationContext();
+                Context context = CommCareApplication._();
                 mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
                 Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
                 if (providers.isEmpty()) {
@@ -143,7 +143,7 @@ public class PollSensorAction extends Action implements LocationListener {
                 EvaluationContext context = new EvaluationContext(mModel.getEvaluationContext(), qualifiedReference);
                 AbstractTreeElement node = context.resolveReference(qualifiedReference);
                 if(node == null) {
-                    Context applicationContext = Collect.getStaticApplicationContext();
+                    Context applicationContext = CommCareApplication._();
                     Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
                     xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
                     applicationContext.sendStickyBroadcast(xpathErrorIntent);

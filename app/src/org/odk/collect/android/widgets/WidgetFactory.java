@@ -93,7 +93,7 @@ public class WidgetFactory {
                         questionWidget = new IntegerWidget(context, fep,  fep.getControlType() == Constants.CONTROL_SECRET, 1);
                         break;
                     case Constants.DATATYPE_GEOPOINT:
-                        questionWidget = new GeoPointWidget(context, fep);
+                        questionWidget = new GeoPointWidget(context, fep, pendingCalloutInterface);
                         break;
                     case Constants.DATATYPE_BARCODE:
 
@@ -116,16 +116,16 @@ public class WidgetFactory {
                 break;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 if (appearance != null && appearance.equals("signature")) {
-                    questionWidget = new SignatureWidget(context, fep);
+                    questionWidget = new SignatureWidget(context, fep, pendingCalloutInterface);
                 } else {
                     questionWidget = new ImageWidget(context, fep, pendingCalloutInterface);
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioWidget(context, fep);
+                questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:
-                questionWidget = new VideoWidget(context, fep);
+                questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);
                 break;
             case Constants.CONTROL_SELECT_ONE:
                 if (appearance != null && appearance.contains("compact")) {

@@ -18,6 +18,7 @@ import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
@@ -50,7 +51,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
-            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, asw.getEvaluationContext());
+            EntityLoaderTask theloader = new EntityLoaderTask(childDetail,
+                    prepareEvaluationContext(childReference));
             theloader.attachListener(this);
             theloader.execute(childDetail.getNodeset().contextualize(childReference));
 
@@ -67,6 +69,25 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         return rootView;
+    }
+
+    /**
+     * Creates an evaluation context which is preloaded with all of the variables and context from
+     * the parent detail definition.
+     *
+     * @param childReference The qualified reference for the nodeset in the parent detail
+     * @return An evaluation context ready to be used as the base of the subnode detail, including
+     * any variable definitions included by the parent.
+     */
+    private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
+        EvaluationContext sessionContext = asw.getEvaluationContext();
+        EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
+        getParentDetail().populateEvaluationContextVariables(parentDetailContext);
+        return parentDetailContext;
+    }
+
+    public Detail getParentDetail() {
+        return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
     }
 
     @Override

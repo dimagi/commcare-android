@@ -19,20 +19,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
 
 import java.io.File;
 
 /**
- * This layout is used anywhere we can have image/audio/video/text. TODO: It
- * would probably be nice to put this in a layout.xml file of some sort at some
- * point.
+ * This layout is used anywhere we can have image/audio/video/text.
+ * TODO: Put this in a layout file!!!!
  *
  * @author carlhartung
  */
@@ -70,23 +70,23 @@ public class MediaLayout extends RelativeLayout {
                        final String qrCodeContent, String inlineVideoURI) {
         mView_Text = text;
 
-        // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
         RelativeLayout.LayoutParams audioParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams centerViewParams =
-            new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        centerViewParams.addRule(CENTER_IN_PARENT);
+
         RelativeLayout.LayoutParams videoParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-        RelativeLayout.LayoutParams topPaneParams =
+        RelativeLayout.LayoutParams questionTextPaneParams =
             new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout topPane = new RelativeLayout(this.getContext());
-        topPane.setId(2342134);
 
-        this.addView(topPane, topPaneParams);
+        RelativeLayout.LayoutParams mediaPaneParams =
+                new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+
+        RelativeLayout questionTextPane = new RelativeLayout(this.getContext());
+        questionTextPane.setId(2342134);
 
         if (audioURI != null) {
             mAudioButton = new AudioButton(getContext(), audioURI, true);
@@ -141,18 +141,18 @@ public class MediaLayout extends RelativeLayout {
         if (mAudioButton != null && mVideoButton == null) {
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
-            topPane.addView(mAudioButton, audioParams);
+            questionTextPane.addView(mAudioButton, audioParams);
         } else if (mAudioButton == null && mVideoButton != null) {
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
-            topPane.addView(mVideoButton, videoParams);
+            questionTextPane.addView(mVideoButton, videoParams);
         } else if (mAudioButton != null && mVideoButton != null) {
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             videoParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-            topPane.addView(mAudioButton, audioParams);
-            topPane.addView(mVideoButton, videoParams);
+            questionTextPane.addView(mAudioButton, audioParams);
+            questionTextPane.addView(mVideoButton, videoParams);
         } else {
             //Audio and Video are both null, let text bleed to right
             textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -160,18 +160,18 @@ public class MediaLayout extends RelativeLayout {
         boolean textVisible = (mView_Text.getVisibility() != GONE);
         if (textVisible) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            topPane.addView(mView_Text, textParams);
+            questionTextPane.addView(mView_Text, textParams);
         }
 
         // Now set up the center view, it is either an image, a QR Code, or an inline video
         String errorMsg = null;
-        View centerView= null;
+        View mediaPane = null;
 
-        if(inlineVideoURI != null) {
-            centerView = getInlineVideoView(inlineVideoURI, centerViewParams);
+        if (inlineVideoURI != null) {
+            mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
 
         }
-        else if(qrCodeContent != null ) {
+        else if (qrCodeContent != null ) {
             Bitmap image;
             Display display =
                     ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
@@ -195,56 +195,34 @@ public class MediaLayout extends RelativeLayout {
                 mImageView.setImageBitmap(image);
                 mImageView.setId(23423534);
 
-                centerView = mImageView;
+                mediaPane = mImageView;
             } catch(Exception e) {
                 e.printStackTrace();
             }
         } else if (imageURI != null) {
             try {
                 int[] maxBounds = getMaxCenterViewBounds();
-
-                //If we didn't get an image yet, try for a norm
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display =
-                                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                        .getDefaultDisplay();
-
-
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b =
-                            FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
+                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                                maxBounds[1]);
                     if (b != null) {
-
                         ImageView mImageView = new ImageView(getContext());;
-
-                        //config specially if we need to do a custom resize
-                        if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
-                                || ResizingImageView.resizeMethod.equals("width")){
+                        if (useResizingImageView()) {
                             mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
                         }
-
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
-                        centerView = mImageView;
+                        mediaPane = mImageView;
                     } else if (errorMsg == null) {
                         // An error hasn't been logged and loading the image failed, so it's likely
                         // a bad file.
                         errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-
                     }
                 } else {
                     // An error hasn't been logged. We should have an image, but the file doesn't
@@ -259,7 +237,7 @@ public class MediaLayout extends RelativeLayout {
                     mMissingImage.setText(errorMsg);
                     mMissingImage.setPadding(10, 10, 10, 10);
                     mMissingImage.setId(234873453);
-                    centerView = mMissingImage;
+                    mediaPane = mMissingImage;
                 }
             } catch (InvalidReferenceException e) {
                 Log.e(t, "image invalid reference exception");
@@ -267,22 +245,33 @@ public class MediaLayout extends RelativeLayout {
             }
         }
 
-        if(centerView != null) {
-            RelativeLayout parent = this;
-            centerViewParams.addRule(RelativeLayout.BELOW, topPane.getId());
-            if (mAudioButton != null) {
-                if (!textVisible) {
-                    centerViewParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
-                    parent = topPane;
+        if (mediaPane != null) {
+
+            if (!textVisible) {
+                this.addView(questionTextPane, questionTextPaneParams);
+                if (mAudioButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+                if (mVideoButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+            } else {
+                if (DeveloperPreferences.imageAboveTextEnabled()) {
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
+                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
+                    this.addView(questionTextPane, questionTextPaneParams);
+                } else {
+                    this.addView(questionTextPane, questionTextPaneParams);
+                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
                 }
             }
-            if (mVideoButton != null) {
-                if (!textVisible) {
-                    centerViewParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
-                    parent = topPane;
-                }
-            }
-            parent.addView(centerView, centerViewParams);
+        } else {
+            this.addView(questionTextPane, questionTextPaneParams);
         }
     }
 
@@ -348,6 +337,14 @@ public class MediaLayout extends RelativeLayout {
         }
     }
 
+    private boolean useResizingImageView() {
+        // only allow ResizingImageView to be used if not also using smart inflation
+        return !DeveloperPreferences.isSmartInflationEnabled() &&
+                (ResizingImageView.resizeMethod.equals("full") ||
+                        ResizingImageView.resizeMethod.equals("half") ||
+                        ResizingImageView.resizeMethod.equals("width"));
+    }
+
     /**
      * @return The appropriate max size of an image view pane in this widget. returned as an int
      * array of [width, height]
@@ -357,7 +354,7 @@ public class MediaLayout extends RelativeLayout {
         int maxWidth = metrics.widthPixels;
         int maxHeight = metrics.heightPixels;
 
-        // subtract height for textviewa and buttons, if present
+        // subtract height for textview and buttons, if present
         if(mView_Text != null){
             maxHeight = maxHeight - mView_Text.getHeight();
         } if(mVideoButton != null){

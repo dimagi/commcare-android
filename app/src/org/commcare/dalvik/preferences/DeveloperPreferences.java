@@ -19,6 +19,7 @@ package org.commcare.dalvik.preferences;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.BuildConfig;
@@ -37,6 +38,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     // Does the user want to download the latest app version deployed (built),
     // not just the latest app version released (starred)?
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
+    public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
+    private static final String KEY_TARGET_DENSITY = "cc-target-density";
+
+    private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +108,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
         return properties.getString(LIST_REFRESH_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
-
     /**
      * @return true if developer option to download the latest app version
      * deployed (built) is enabled.  Otherwise the latest released (starred)
-     * app version will be downloaed on upgrade.
+     * app version will be downloaded on upgrade.
      */
     public static boolean isNewestAppVersionEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -115,6 +120,21 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
 
     public static boolean isMarkdownEnabled(){
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
+    }
+
+    public static boolean imageAboveTextEnabled() {
+        return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+
+    public static boolean isSmartInflationEnabled() {
+        return doesPropertyMatch(KEY_USE_SMART_INFLATION, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+
+    public static int getTargetInflationDensity() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
 }

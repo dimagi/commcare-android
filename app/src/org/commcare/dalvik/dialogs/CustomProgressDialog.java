@@ -13,9 +13,9 @@ package org.commcare.dalvik.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,7 +59,7 @@ public class CustomProgressDialog extends DialogFragment {
     private boolean usingCancelButton;
     
     //for progress bar
-    private boolean usingProgressBar;
+    private boolean usingHorizontalProgressBar;
     private int progressBarProgress;
     private int progressBarMax;
         
@@ -86,7 +86,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
     
     public void addProgressBar() {
-        this.usingProgressBar = true;
+        this.usingHorizontalProgressBar = true;
         this.progressBarProgress = 0;
         this.progressBarMax = 0;
     }
@@ -127,7 +127,7 @@ public class CustomProgressDialog extends DialogFragment {
             this.usingCancelButton = savedInstanceState.getBoolean(KEY_USING_BUTTON);
             this.taskId = savedInstanceState.getInt(KEY_TASK_ID);
             this.isCancelable = savedInstanceState.getBoolean(KEY_CANCELABLE);
-            this.usingProgressBar = savedInstanceState.getBoolean(KEY_USING_PROGRESS_BAR);
+            this.usingHorizontalProgressBar = savedInstanceState.getBoolean(KEY_USING_PROGRESS_BAR);
             this.progressBarProgress = savedInstanceState.getInt(KEY_PROGRESS_BAR_PROGRESS);
             this.progressBarMax = savedInstanceState.getInt(KEY_PROGRESS_BAR_MAX);
         }
@@ -146,18 +146,41 @@ public class CustomProgressDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         restoreFields(savedInstanceState);
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(getActivity(), R.style.DialogBaseTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(wrapper);
-        builder.setTitle(title);
-        builder.setCancelable(isCancelable);
-        View view = LayoutInflater.from(wrapper).inflate(R.layout.fragment_progress_dialog, null);
-        
-        TextView tv = (TextView) view.findViewById(R.id.progress_dialog_message);
-        tv.setText(message);
-        
-         //All logic for if this dialog uses a checkbox
+        Context context = getActivity();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        setCancelable(isCancelable);
+
+        View view;
+        if (usingHorizontalProgressBar) {
+            view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_determinate, null);
+            setupDeterminateView(view);
+        } else {
+            view = LayoutInflater.from(context).inflate(R.layout.progress_dialog_indeterminate, null);
+        }
+
+        TextView titleView = (TextView) view.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
+        titleView.setText(title);
+        TextView messageView = (TextView) view.findViewById(R.id.progress_dialog_message);
+        messageView.setText(message);
+
+        if (usingCancelButton) {
+            setupCancelButton(view);
+        }
+
+        builder.setView(view);
+        Dialog d = builder.create();
+        d.setCanceledOnTouchOutside(isCancelable);
+
+        return d;
+    }
+
+    private void setupDeterminateView(View view) {
+        ProgressBar bar = (ProgressBar) view.findViewById(R.id.progress_bar_horizontal);
+        bar.setProgress(progressBarProgress);
+        bar.setMax(progressBarMax);
+
         if (usingCheckbox) {
-            
+
             CheckBox cb = (CheckBox) view.findViewById(R.id.progress_dialog_checkbox);
             cb.setVisibility(View.VISIBLE);
             cb.setText(checkboxText);
@@ -165,7 +188,7 @@ public class CustomProgressDialog extends DialogFragment {
 
                 @Override
                 public void onClick(View v) {
-                    isChecked = ((CheckBox)v).isChecked();                    
+                    isChecked = ((CheckBox)v).isChecked();
                 }
 
             });
@@ -173,36 +196,19 @@ public class CustomProgressDialog extends DialogFragment {
                 cb.toggle();
             }
         }
+    }
 
-        //Logic for cancel button
-        if (usingCancelButton) {
-            Button b = (Button) view.findViewById(R.id.dialog_cancel_button);
-            b.setOnClickListener(new OnClickListener() {
+    private void setupCancelButton(View v) {
+        Button b = (Button) v.findViewById(R.id.dialog_cancel_button);
+        b.setOnClickListener(new OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-                    ((CommCareActivity)getActivity()).cancelCurrentTask();
-                }
-                
-            });
-            b.setVisibility(View.VISIBLE);
-        }
-        
-        if (usingProgressBar) {
-            ProgressBar bar = (ProgressBar) view.findViewById(R.id.progress_bar_horizontal);
-            bar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar));
-            bar.setProgress(progressBarProgress);
-            bar.setMax(progressBarMax);
-            bar.setVisibility(View.VISIBLE);
+            @Override
+            public void onClick(View v) {
+                ((CommCareActivity)getActivity()).cancelCurrentTask();
+            }
 
-            // If there's a determinate progress bar, hide the spinning indicator
-            view.findViewById(R.id.progress_bar).setVisibility(View.GONE);
-        }
-        
-        builder.setView(view);
-        Dialog d = builder.create();
-        d.setCanceledOnTouchOutside(isCancelable);
-        return d;
+        });
+        b.setVisibility(View.VISIBLE);
     }
     
     public void updateMessage(String text) {
@@ -225,12 +231,15 @@ public class CustomProgressDialog extends DialogFragment {
         outState.putBoolean(KEY_USING_BUTTON, this.usingCancelButton);
         outState.putInt(KEY_TASK_ID, this.taskId);
         outState.putBoolean(KEY_CANCELABLE, this.isCancelable);
-        outState.putBoolean(KEY_USING_PROGRESS_BAR, this.usingProgressBar);
+        outState.putBoolean(KEY_USING_PROGRESS_BAR, this.usingHorizontalProgressBar);
         outState.putInt(KEY_PROGRESS_BAR_PROGRESS, this.progressBarProgress);
         outState.putInt(KEY_PROGRESS_BAR_MAX, this.progressBarMax);
     }
 
     public void updateProgressBar(int progress, int max) {
+        if (!usingHorizontalProgressBar) {
+            return;
+        }
         this.progressBarProgress = progress;
         this.progressBarMax = max;
         Dialog dialog = getDialog();

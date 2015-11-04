@@ -84,11 +84,11 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         this.searchCache = searchCache;
 
         if (descriptorCache == null) {
-            descriptorCache = new Hashtable<String, String>();
+            descriptorCache = new Hashtable<>();
         }
 
-        priorityQueue = new LinkedList<FormRecord>();
-        loaded = new HashSet<Integer>();
+        priorityQueue = new LinkedList<>();
+        loaded = new HashSet<>();
         this.formNames = formNames;
     }
 

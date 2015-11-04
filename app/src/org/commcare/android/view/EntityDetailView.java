@@ -34,6 +34,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioButton;
 import org.odk.collect.android.views.media.ViewId;
 
@@ -168,7 +169,7 @@ public class EntityDetailView extends FrameLayout {
                 calloutButton.setVisibility(View.GONE);
                 calloutText.setVisibility(View.GONE);
 
-                Bitmap b = ViewUtil.inflateDisplayImage(getContext(), imagePath);
+                Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imagePath);
 
                 if (b == null) {
                     calloutImageButton.setImageDrawable(null);
@@ -219,14 +220,14 @@ public class EntityDetailView extends FrameLayout {
                 addressButton.setText(Localization.get("select.address.show"));
                 addressButton.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
-                        listener.addressRequested(MediaUtil.getGeoIntentURI(address));
+                        listener.addressRequested(GeoUtils.getGeoIntentURI(address));
                     }
                 });
                 updateCurrentView(ADDRESS, addressView);
             }
         } else if (FORM_IMAGE.equals(form)) {
             String imageLocation = textField;
-            Bitmap b = MediaUtil.getScaledImageFromReference(imageLocation);
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageLocation);
 
             if (b == null) {
                 imageView.setImageDrawable(null);

@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -53,11 +52,13 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -68,6 +69,7 @@ import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
@@ -144,14 +146,13 @@ public class CommCareHomeActivity
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
+    public static final String MENU_STYLE_GRID = "grid";
 
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
 
     private int mDeveloperModeClicks = 0;
-
-    private AndroidCommCarePlatform platform;
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
@@ -208,12 +209,24 @@ public class CommCareHomeActivity
 
     protected void enterRootModule() {
         Intent i;
-        if (DeveloperPreferences.isGridMenuEnabled()) {
+        if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
         startActivityForResult(i, GET_COMMAND);
+    }
+
+    private boolean useGridMenu(String menuId) {
+        if(menuId == null) {
+            menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
+        }
+        if(DeveloperPreferences.isGridMenuEnabled()) {
+            return true;
+        }
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+        String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
+        return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
     protected void returnToLogin() {
@@ -223,8 +236,8 @@ public class CommCareHomeActivity
     }
 
     protected void attemptSync() {
-        if (isNetworkNotConnected()) {
-            if (isAirplaneModeOn()) {
+        if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
+            if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                 displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
@@ -352,7 +365,6 @@ public class CommCareHomeActivity
         if(resultCode == RESULT_RESTART) {
             sessionNavigator.startNextSessionStep();
         } else {
-            AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case INIT_APP:
@@ -368,9 +380,7 @@ public class CommCareHomeActivity
                 }
                 break;
             case UPGRADE_APP:
-                if(resultCode == RESULT_CANCELED) {
-                    //This might actually be bad, but try to go about your business
-                    //The onResume() will take us to the screen
+                if (resultCode == RESULT_CANCELED) {
                     return;
                 } else if(resultCode == RESULT_OK) {
                     if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
@@ -492,21 +502,23 @@ public class CommCareHomeActivity
                     //Retrieve and load the appropriate ssd
                     SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
                     Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+                    AndroidSessionWrapper currentState =
+                            CommCareApplication._().getCurrentSessionWrapper();
                     if(ssds.size() == 1) {
                         currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
                     } else {
                         currentState.setFormRecordId(r.getID());
                     }
 
-                    if (CommCareApplication._().getCurrentApp() != null) {
-                        platform = CommCareApplication._().getCommCarePlatform();
-                    }
+                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
                     formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
                     return;
                 }
                 break;
             case GET_COMMAND:
                 //TODO: We might need to load this from serialized state?
+                AndroidSessionWrapper currentState =
+                        CommCareApplication._().getCurrentSessionWrapper();
                 if (resultCode == RESULT_CANCELED) {
                     if (currentState.getSession().getCommand() == null) {
                         //Needed a command, and didn't already have one. Stepping back from
@@ -525,7 +537,8 @@ public class CommCareHomeActivity
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                CommCareSession currentSession = currentState.getSession();
+                CommCareSession currentSession =
+                        CommCareApplication._().getCurrentSessionWrapper().getSession();
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
@@ -639,10 +652,17 @@ public class CommCareHomeActivity
                     return false;
                 }
 
-                // XXX: probably refactor part of this logic into InstanceProvider -- PLM
                 // Before we can terminate the session, we need to know that the form has been processed
                 // in case there is state that depends on it.
-                if (!currentState.terminateSession()) {
+                boolean terminateSuccessful;
+                try {
+                    terminateSuccessful = currentState.terminateSession();
+                } catch (XPathTypeMismatchException e) {
+                    Logger.exception(e);
+                    CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+                    return false;
+                }
+                if (!terminateSuccessful) {
                     // If we didn't find somewhere to go, we're gonna stay here
                     return false;
                 }
@@ -721,13 +741,10 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(android.R.drawable.ic_dialog_info);
-        mAlertDialog.setTitle(Localization.get("app.handled.error.title"));
-        mAlertDialog.setMessage(errorMsg);
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+                Localization.get("app.handled.error.title"), errorMsg,
+                android.R.drawable.ic_dialog_info, errorListener);
+        showAlertDialog(f);
     }
 
     @Override
@@ -799,6 +816,7 @@ public class CommCareHomeActivity
         createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
+                dialog.dismiss();
                 asw.getSession().stepBack();
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
@@ -806,7 +824,15 @@ public class CommCareHomeActivity
     }
 
     private void handleNoFormFromSessionNav(AndroidSessionWrapper asw) {
-        if (asw.terminateSession()) {
+        boolean terminateSuccesful;
+        try {
+            terminateSuccesful = asw.terminateSession();
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            return;
+        }
+        if (terminateSuccesful) {
             sessionNavigator.startNextSessionStep();
         } else {
             uiController.refreshView();
@@ -815,7 +841,8 @@ public class CommCareHomeActivity
 
     private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
-        if (DeveloperPreferences.isGridMenuEnabled()) {
+        String command = asw.getSession().getCommand();
+        if (useGridMenu(command)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
@@ -873,11 +900,7 @@ public class CommCareHomeActivity
         }
 
         FormRecord record = state.getFormRecord();
-
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
-
+        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
     }
 
@@ -1009,9 +1032,7 @@ public class CommCareHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (CommCareApplication._().getCurrentApp() != null) {
-            platform = CommCareApplication._().getCommCarePlatform();
-        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
@@ -1067,14 +1088,11 @@ public class CommCareHomeActivity
                 } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
                     // Path 1e: CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if (CommCareApplication._().isUpdatePending()) {
-                    // Path 1f: There is an update pending
-                    handlePendingUpdate();
                 } else if (CommCareApplication._().isSyncPending(false)) {
-                    // Path 1g: There is a sync pending
+                    // Path 1f: There is a sync pending
                     handlePendingSync();
                 } else {
-                    // Path 1h: Display the normal home screen!
+                    // Path 1g: Display the normal home screen!
                     uiController.refreshView();
                 }
             } catch (SessionUnavailableException sue) {
@@ -1175,20 +1193,6 @@ public class CommCareHomeActivity
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
     }
 
-    private void handlePendingUpdate() {
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
-
-        //Create the update intent
-        Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String ref = prefs.getString("default_app_server", null);
-
-        i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-        i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-        i.putExtra(CommCareSetupActivity.KEY_AUTO, true);
-        startActivityForResult(i, UPGRADE_APP);
-    }
-
     private void handlePendingSync() {
         long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
         String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
@@ -1212,10 +1216,11 @@ public class CommCareHomeActivity
 
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
-        AlertDialog mAskOldDialog = new AlertDialog.Builder(this).create();
-        mAskOldDialog.setTitle(Localization.get("app.workflow.incomplete.continue.title"));
-        mAskOldDialog.setMessage(Localization.get("app.workflow.incomplete.continue"));
-        DialogInterface.OnClickListener useOldListener = new DialogInterface.OnClickListener() {
+        final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+        String title = Localization.get("app.workflow.incomplete.continue.title");
+        String msg = Localization.get("app.workflow.incomplete.continue");
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -1231,17 +1236,14 @@ public class CommCareHomeActivity
                         // create a new form record and begin form entry
                         state.commitStub();
                         formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
-                        break;
-                    default:
-                        break;
                 }
+                dialog.dismiss();
             }
         };
-        mAskOldDialog.setCancelable(false);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_POSITIVE, Localization.get("option.yes"), useOldListener);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_NEGATIVE, Localization.get("app.workflow.incomplete.continue.option.delete"), useOldListener);
-        mAskOldDialog.setButton(DialogInterface.BUTTON_NEUTRAL, Localization.get("option.no"), useOldListener);
-        mAskOldDialog.show();
+        factory.setPositiveButton(Localization.get("option.yes"), listener);
+        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        factory.setNeutralButton(Localization.get("option.no"), listener);
+        showAlertDialog(factory);
     }
 
     private void displayMessage(String message) {
@@ -1326,16 +1328,7 @@ public class CommCareHomeActivity
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
-                if (isNetworkNotConnected() && isAirplaneModeOn()) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode));
-                    return true;
-                }
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String ref = prefs.getString("default_app_server", null);
-                i.putExtra(CommCareSetupActivity.KEY_PROFILE_REF, ref);
-                i.putExtra(CommCareSetupActivity.KEY_UPGRADE_MODE, true);
-
+                Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivityForResult(i, UPGRADE_APP);
                 return true;
             case MENU_CALL_LOG:
@@ -1424,14 +1417,6 @@ public class CommCareHomeActivity
         dialog.show();
     }
 
-    private boolean isAirplaneModeOn() {
-        if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            return Settings.Global.getInt(getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
-        } else {
-            return Settings.System.getInt(getApplicationContext().getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-        }
-    }
-
     private boolean hasP2p() {
         return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
     }
@@ -1444,11 +1429,11 @@ public class CommCareHomeActivity
 
     private Dialog createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        AlertDialog mAttemptFixDialog = new AlertDialog.Builder(this).create();
-
-        mAttemptFixDialog.setTitle("Storage is Corrupt :/");
-        mAttemptFixDialog.setMessage("Sorry, something really bad has happened, and the app can't start up. With your permission CommCare can try to repair itself if you have network access.");
-        DialogInterface.OnClickListener attemptFixDialog = new DialogInterface.OnClickListener() {
+        String title = "Storage is Corrupt :/";
+        String message = "Sorry, something really bad has happened, and the app can't start up. " +
+                "With your permission CommCare can try to repair itself if you have network access.";
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE: // attempt repair
@@ -1461,11 +1446,9 @@ public class CommCareHomeActivity
                 }
             }
         };
-        mAttemptFixDialog.setCancelable(false);
-        mAttemptFixDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Enter Recovery Mode", attemptFixDialog);
-        mAttemptFixDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Shut Down", attemptFixDialog);
-
-        return mAttemptFixDialog;
+        factory.setPositiveButton("Enter Recovery Mode", listener);
+        factory.setNegativeButton("Shut Down", listener);
+        return factory.getDialog();
     }
 
     @Override

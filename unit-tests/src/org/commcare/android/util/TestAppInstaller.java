@@ -6,6 +6,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.database.user.models.User;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
@@ -41,9 +42,9 @@ public class TestAppInstaller {
     public void installAppAndLogin() {
         installApp();
 
-        UserKeyRecord keyRecord = buildTestUser();
+        buildTestUser();
 
-        startSessionService(keyRecord);
+        login(username, password);
     }
 
     private void installApp() {
@@ -53,10 +54,10 @@ public class TestAppInstaller {
 
         CommCareApp app = new CommCareApp(newRecord);
         ResourceEngineTask<Object> task =
-                new ResourceEngineTask<Object>(false, app, false, -1, false) {
+                new ResourceEngineTask<Object>(app, -1, false) {
                     @Override
                     protected void deliverResult(Object receiver,
-                                                 ResourceEngineOutcomes result) {
+                                                 AppInstallStatus result) {
                     }
 
                     @Override
@@ -77,16 +78,21 @@ public class TestAppInstaller {
         Robolectric.flushForegroundThreadScheduler();
     }
 
-    private UserKeyRecord buildTestUser() {
+    private void buildTestUser() {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
                 ccApp,
                 username, password);
-
-        return ManageKeyRecordTask.getCurrentValidRecord(ccApp, username, password, true);
     }
 
-    private void startSessionService(UserKeyRecord keyRecord) {
+    public static void login(String username, String password) {
+        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        UserKeyRecord keyRecord =
+                ManageKeyRecordTask.getCurrentValidRecord(ccApp, username, password, true);
+        startSessionService(keyRecord, password);
+    }
+
+    private static void startSessionService(UserKeyRecord keyRecord, String password) {
         // manually create/setup session service because robolectric doesn't
         // really support services
         CommCareSessionService ccService = new CommCareSessionService();
@@ -97,7 +103,7 @@ public class TestAppInstaller {
         CommCareApplication._().setTestingService(ccService);
     }
 
-    private User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
+    private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
         for (User u : CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
             if (keyRecord.getUsername().equals(u.getUsername())) {
                 return u;

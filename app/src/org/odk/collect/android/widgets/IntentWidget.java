@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,16 +42,15 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
  * 
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class IntentWidget extends QuestionWidget implements IBinaryWidget {
+public class IntentWidget extends QuestionWidget {
 
     protected Button launchIntentButton;
     protected TextView mStringAnswer;
-    protected boolean mWaitingForData;
     private Intent intent;
     protected IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
     protected FormEntryPrompt prompt;
-    private PendingCalloutInterface pendingCalloutInterface;
+    protected PendingCalloutInterface pendingCalloutInterface;
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface, int calloutId) {
@@ -69,11 +67,8 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.prompt = prompt;
 
-        mWaitingForData = false;
-
         makeTextView();
         makeButton();
-
     }
 
     public void makeTextView() {
@@ -93,7 +88,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
         if(s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()){
-
             performCallout();
         } else if (ic.getCancelled()) {
             // reset the cancelled flag
@@ -103,9 +97,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
 
     public void makeButton(){
         setOrientation(LinearLayout.VERTICAL);
-
-        TableLayout.LayoutParams params = new TableLayout.LayoutParams();
-        params.setMargins(7, 5, 7, 5);
 
         launchIntentButton = new Button(getContext());
 
@@ -133,21 +124,17 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
     }
 
     public void performCallout() {
-
-        mWaitingForData = true;
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();
             if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
+            ((Activity) getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-            ((Activity) getContext()).startActivityForResult(intent,
-                calloutId);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
-            mWaitingForData = false;
         }
     }
 
@@ -178,16 +165,13 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-
     /**
      * Allows answer to be set externally in {@Link FormEntryActivity}.
      */
     @Override
     public void setBinaryData(Object answer) {
-        mStringAnswer.setText((String) answer);
-        mWaitingForData = false;
+        mStringAnswer.setText((String)answer);
     }
-
 
     @Override
     public void setFocus(Context context) {
@@ -196,13 +180,6 @@ public class IntentWidget extends QuestionWidget implements IBinaryWidget {
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {

@@ -13,24 +13,24 @@ public interface CommCareTaskConnector<R> {
      * different way, they should be able to use a negative task id in order
      * to avoid this.
      */
-    public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task);
+    <A, B, C> void connectTask(CommCareTask<A, B, C, R> task);
 
     /**
      * Should call showProgressDialog() for a task if its id is non-negative,
      * and if there is no dialog already showing
      */
-    public void startBlockingForTask(int id);
+    void startBlockingForTask(int id);
 
     /**
      * Should call dismissProgressDialog() for a task if its id is
      * non-negative, and if shouldDismissDialog is true (this flag should be
      * controlled by the task transition)
      */
-    public void stopBlockingForTask(int id);
+    void stopBlockingForTask(int id);
 
-    public void taskCancelled(int id);
+    void taskCancelled(int id);
 
-    public R getReceiver();
+    R getReceiver();
 
     /**
      * Should be called at the beginning of onPostExecute or onCancelled for
@@ -38,12 +38,12 @@ public interface CommCareTaskConnector<R> {
      * from one task to another (if the end of the first task triggers the
      * start of another)
      */
-    public void startTaskTransition();
+    void startTaskTransition();
 
     /**
      * Should be called at the end of onPreExecute or onCancelled for any
      * CommCareTask, indicating that we are ending a potential transition from
      * one task to another
      */
-    public void stopTaskTransition();
+    void stopTaskTransition();
 }
