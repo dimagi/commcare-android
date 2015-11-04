@@ -26,12 +26,14 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.resource.installers.SingleAppInstallation;
 import org.commcare.android.resource.AppInstallStatus;
+import org.commcare.android.resource.installers.SingleAppInstallation;
+import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.android.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.android.tasks.network.DebugDataPullResponseFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -616,10 +618,42 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
 
-        if (!appChanged) {
-            Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
+        String payload = "jr://asset/post_install_payload.xml";
+        boolean toRestore = true;
+        try {
+            ReferenceManager._().DeriveReference(payload).getStream();
+        } catch (InvalidReferenceException | IOException e) {
+            toRestore = false;
         }
-        done(appChanged, false);
+
+        if (toRestore) {
+            restore(payload);
+        } else {
+            if (!appChanged) {
+                Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
+            }
+            done(appChanged, false);
+        }
+    }
+    private void restore(String payload) {
+        DebugDataPullResponseFactory pullResponseFactor = new DebugDataPullResponseFactory(payload);
+        DataPullTask<CommCareSetupActivity> pullTask = new DataPullTask<CommCareSetupActivity>("", "", "", this, pullResponseFactor) {
+            @Override
+            protected void deliverResult(CommCareSetupActivity receiver, Integer result) {
+                receiver.done(false, false);
+            }
+
+            @Override
+            protected void deliverUpdate(CommCareSetupActivity receiver, Integer... update) {
+            }
+
+            @Override
+            protected void deliverError(CommCareSetupActivity receiver, Exception e) {
+                receiver.done(false, false);
+            }
+        };
+        pullTask.connect(this);
+        pullTask.execute();
     }
 
     @Override
