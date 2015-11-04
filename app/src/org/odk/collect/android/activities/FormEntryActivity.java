@@ -326,6 +326,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
+                    dialog.dismiss();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
@@ -422,7 +423,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 String sb = intent.getStringExtra("SCAN_RESULT");
-                ((ODKView) mCurrentView).setBinaryData(sb);
+                ((ODKView) mCurrentView).setBinaryData(sb, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
@@ -442,7 +443,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sl);
+                ((ODKView) mCurrentView).setBinaryData(sl, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case HIERARCHY_ACTIVITY:
@@ -522,7 +523,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        ((ODKView) mCurrentView).setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
@@ -540,7 +541,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     Localization.get("form.attachment.invalid"),
                     Toast.LENGTH_LONG).show();
         } else {
-            ((ODKView) mCurrentView).setBinaryData(media);
+            ((ODKView) mCurrentView).setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
@@ -1022,7 +1023,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     case FormEntryController.EVENT_END_OF_FORM:
                         Logger.log(AndroidLogger.SOFT_ASSERT,
                                 "Trying to show an end of form event");
-                        showPreviousView(false);
+                        saveFormToDisk(EXIT, null, false);
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
@@ -1774,7 +1775,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
         }
+
         if (mFormController != null) {
+            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
     }
