@@ -52,7 +52,6 @@ import android.widget.Toast;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
@@ -67,6 +66,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -115,6 +115,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -325,6 +326,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
+                    dialog.dismiss();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
@@ -420,8 +422,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sb);
+                String sb = intent.getStringExtra("SCAN_RESULT");
+                ((ODKView) mCurrentView).setBinaryData(sb, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
@@ -441,7 +443,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sl);
+                ((ODKView) mCurrentView).setBinaryData(sl, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case HIERARCHY_ACTIVITY:
@@ -521,7 +523,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        ((ODKView) mCurrentView).setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
@@ -539,7 +541,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     Localization.get("form.attachment.invalid"),
                     Toast.LENGTH_LONG).show();
         } else {
-            ((ODKView) mCurrentView).setBinaryData(media);
+            ((ODKView) mCurrentView).setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
@@ -605,47 +607,101 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
     }
 
-    private void updateFormRelevencies(){
+    private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
+
         if(!(mCurrentView instanceof ODKView)){
-            throw new RuntimeException("Tried to update form relevency not on compound view");
+            throw new RuntimeException("Tried to update form relevancy not on compound view");
         }
-        
-        ODKView oldODKV = (ODKView)mCurrentView;
-        
+
+        ODKView odkView = (ODKView)mCurrentView;
+        ArrayList<QuestionWidget> oldWidgets = odkView.getWidgets();
+        // These 2 calls need to be made here, rather than in the for loop below, because at that
+        // point the widgets will have already started being updated to the values for the new view
+        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+        ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
+
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
-        Set<FormEntryPrompt> used = new HashSet<>();
-        
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
-        ArrayList<Integer> removeList = new ArrayList<>();
+        ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
+        // Loop through all of the old widgets to determine which ones should stay in the new view
+        for (int i = 0; i < oldWidgets.size(); i++){
+            FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
+            String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
+            Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
 
-           for(int i=0;i<oldWidgets.size();i++){
-            QuestionWidget oldWidget = oldWidgets.get(i);
-            boolean stillRelevent = false;
-
-            for(FormEntryPrompt prompt : newValidPrompts) {
-            	if(prompt.getIndex().equals(oldWidget.getPrompt().getIndex())) {
-            		stillRelevent = true;
-            		used.add(prompt);
-            	}
-            }
-            if(!stillRelevent){
-                removeList.add(i);
+            FormEntryPrompt equivalentNewPrompt = getEquivalentPromptInNewList(newValidPrompts,
+                    oldPrompt, priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget);
+            if (equivalentNewPrompt != null) {
+                promptsLeftInView.add(equivalentNewPrompt);
+            } else {
+                // If there is no equivalent prompt in the list of new prompts, then this prompt is
+                // no longer relevant in the new view, so it should get removed
+                shouldRemoveFromView.add(i);
             }
         }
-        // remove "atomically" to not mess up iterations
-        oldODKV.removeQuestionsFromIndex(removeList);
+        // Remove "atomically" to not mess up iterations
+        odkView.removeQuestionsFromIndex(shouldRemoveFromView);
 
-        //Now go through add add any new prompts that we need
-        for(int i = 0 ; i < newValidPrompts.length; ++i) {
+        // Now go through add add any new prompts that we need
+        for (int i = 0; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
-        	if(used.contains(prompt)) {
-        		continue;
-        	} 
-        	oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+        	if (!promptsLeftInView.contains(prompt)) {
+                // If the old version of this prompt was NOT left in the view, then add it
+                odkView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+            }
         }
+    }
+
+    /**
+     * @return A list of the select choices for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
+            selectChoicesList.add(oldSelectChoices);
+        }
+        return selectChoicesList;
+    }
+
+    /**
+     * @return A list of the question texts for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<String> questionTextList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            questionTextList.add(qw.getPrompt().getQuestionText());
+        }
+        return questionTextList;
+    }
+
+    /**
+     *
+     * @param newValidPrompts - All of the prompts that should be in the new view
+     * @param oldPrompt - The prompt from the prior view for which we are seeking a match in the
+     *                  list of new prompts
+     * @param oldQuestionText - the question text of the old prompt
+     * @param oldSelectChoices - the select choices of the old prompt
+     * @return The form entry prompt from the new list that is equivalent to oldPrompt, or null
+     * if none exists
+     */
+    private FormEntryPrompt getEquivalentPromptInNewList(FormEntryPrompt[] newValidPrompts,
+                                                           FormEntryPrompt oldPrompt,
+                                                           String oldQuestionText,
+                                                           Vector<SelectChoice> oldSelectChoices) {
+        for (FormEntryPrompt newPrompt : newValidPrompts) {
+            if (newPrompt.getIndex().equals(oldPrompt.getIndex())
+                    && newPrompt.hasSameDisplayContent(oldQuestionText, oldSelectChoices)) {
+                // A new prompt is considered equivalent to the old prompt if both their  form
+                // indices and display content (question text and select choices) are the same
+                return newPrompt;
+            }
+        }
+        return null;
     }
 
 	/**
@@ -967,7 +1023,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     case FormEntryController.EVENT_END_OF_FORM:
                         Logger.log(AndroidLogger.SOFT_ASSERT,
                                 "Trying to show an end of form event");
-                        showPreviousView(false);
+                        saveFormToDisk(EXIT, null, false);
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
@@ -1445,21 +1501,21 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             String where =
                 Images.Media.DATA + " like '" + instanceFolder + "%'";
 
-            String[] projection = {
-                Images.ImageColumns._ID
-            };
 
             // images
             Cursor imageCursor = null;
             try {
+                String[] projection = {
+                        Images.ImageColumns._ID
+                };
                 imageCursor = getContentResolver().query(
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             projection, where, null, null);
-                if (imageCursor.getCount() > 0) {
+                if (imageCursor != null && imageCursor.getCount() > 0) {
                     imageCursor.moveToFirst();
-                    String id =
-                        imageCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            imageCursor.getColumnIndex(Images.ImageColumns._ID);
+                    String id = imageCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1483,14 +1539,17 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             // audio
             Cursor audioCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Audio.AudioColumns._ID
+                };
                 audioCursor = getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (audioCursor.getCount() > 0) {
+                if (audioCursor != null && audioCursor.getCount() > 0) {
                     audioCursor.moveToFirst();
-                    String id =
-                        audioCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            audioCursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID);
+                    String id = audioCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1514,14 +1573,17 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             // video
             Cursor videoCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Video.VideoColumns._ID
+                };
                 videoCursor = getContentResolver().query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (videoCursor.getCount() > 0) {
+                if (videoCursor != null && videoCursor.getCount() > 0) {
                     videoCursor.moveToFirst();
-                    String id =
-                        videoCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            videoCursor.getColumnIndex(MediaStore.Video.VideoColumns._ID);
+                    String id = videoCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1713,7 +1775,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             //if this fails, we _really_ don't want to mess anything up. this is a last minute
             //fix
         }
+
         if (mFormController != null) {
+            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
     }
@@ -2021,7 +2085,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 mFormController.saveAnswer(index, answer);
                 return FormEntryController.ANSWER_OK;
             }
-        } catch(XPathException e) {
+        } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
             CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
             //We're exiting anyway
@@ -2160,7 +2224,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     @Override
     public void widgetEntryChanged() {
         try {
-            updateFormRelevencies();
+            updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);

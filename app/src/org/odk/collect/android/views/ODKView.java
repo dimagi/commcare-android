@@ -6,7 +6,6 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -15,16 +14,18 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.preferences.FormEntryPreferences;
-import org.odk.collect.android.widgets.IBinaryWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
@@ -61,7 +62,7 @@ public class ODKView extends ScrollView
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
-    
+
     private final SpannableStringBuilder mGroupLabel;
 
     /**
@@ -73,7 +74,7 @@ public class ODKView extends ScrollView
                    FormEntryCaption[] groups, WidgetFactory factory,
                    WidgetChangedListener wcl) {
         super(context);
-        
+
         if(wcl !=null){
             hasListener = true;
             wcListener = wcl;
@@ -121,7 +122,6 @@ public class ODKView extends ScrollView
         boolean first = true;
         
         for (FormEntryPrompt p: questionPrompts) {
-            
             if (!first) {
                 View divider = new View(getContext());
                 if(SEPERATORS_ENABLED) {
@@ -157,7 +157,7 @@ public class ODKView extends ScrollView
 
         addView(mView);
     }
-    
+
     void removeQuestionFromIndex(int i){
         int dividerIndex = Math.max(i - 1, 0);
 
@@ -332,28 +332,23 @@ public class ODKView extends ScrollView
     /**
      * Called when another activity returns information to answer this question.
      */
-    public void setBinaryData(Object answer) {
-        boolean set = false;
-        for (QuestionWidget q : widgets) {
-            if (q instanceof IBinaryWidget) {
-                if (((IBinaryWidget) q).isWaitingForBinaryData()) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    set = true;
-                    break;
-                }
-            }
+    public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
+        FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
+        if (questionFormIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to find question widget to attach pending data to.");
+            return;
         }
 
-        if (!set) {
-            Log.w(TAG, "Attempting to return data to a widget or set of widgets not looking for data");
-                     
-            for (QuestionWidget q : widgets) {
-                if (q instanceof IBinaryWidget) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    break;
-                }
+        for (QuestionWidget q : widgets) {
+            if (questionFormIndex.equals(q.getFormId())) {
+                q.setBinaryData(answer);
+                pendingCalloutInterface.setPendingCalloutFormIndex(null);
+                return;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "Unable to find question widget to attach pending data to.");
     }
 
 
