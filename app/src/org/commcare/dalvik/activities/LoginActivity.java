@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -78,6 +80,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
+    public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
@@ -140,10 +143,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        if (DevSessionRestorer.autoLogin(this, prefs)) {
-            return;
-        }
-
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         setLoginBoxesColorNormal();
 
@@ -198,15 +197,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         });
     }
 
-    public void performUILogin(String usernameString, String passwordString) {
-        password.setText(usernameString);
-        username.setText(passwordString);
-        loginButtonPressed();
-    }
-
     private void loginButtonPressed() {
         errorBox.setVisibility(View.GONE);
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+
+        if (DeveloperPreferences.isAutoLoginEnabled()) {
+            SharedPreferences prefs =
+                    CommCareApplication._().getCurrentApp().getAppPreferences();
+            DevSessionRestorer.saveAutoLoginPassword(prefs, password.getText().toString());
+        }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             // install update, which triggers login upon completion
@@ -309,6 +308,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         if (isAlreadyLoggedIn()) {
             return;
         }
+
         // It is possible that we left off at the LoginActivity last time we were on the main CC
         // screen, but have since done something in the app manager to either leave no seated app
         // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
@@ -322,6 +322,29 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         // Otherwise, refresh the login screen for current conditions
         refreshView();
+    }
+
+    @Override
+    public void onResumeFragments() {
+        super.onResumeFragments();
+
+        tryAutoLogin();
+    }
+
+    private void tryAutoLogin() {
+        SharedPreferences prefs =
+                CommCareApplication._().getCurrentApp().getAppPreferences();
+
+        Pair<String, String> userAndPass =
+                DevSessionRestorer.getAutoLoginCreds(prefs);
+        if (userAndPass != null) {
+            username.setText(userAndPass.first);
+            password.setText(userAndPass.second);
+
+            if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
+                loginButtonPressed();
+            }
+        }
     }
 
     private boolean isAlreadyLoggedIn() {

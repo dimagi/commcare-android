@@ -1,31 +1,27 @@
 package org.commcare.android.session;
 
 import android.content.SharedPreferences;
+import android.util.Pair;
 
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class DevSessionRestorer {
 
-    public static boolean autoLogin(LoginActivity loginActivity, SharedPreferences prefs) {
-        if (BuildConfig.DEBUG) {
+    public static Pair<String, String> getAutoLoginCreds(SharedPreferences prefs) {
+        if (DeveloperPreferences.isAutoLoginEnabled()) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, "");
             String lastPass = prefs.getString(CommCarePreferences.LAST_PASSWORD, "");
 
             if (!"".equals(lastPass)) {
-                loginActivity.performUILogin(lastUser, lastPass);
-                return true;
+                return new Pair<>(lastUser, lastPass);
             }
         }
 
-        return false;
-    }
-
-    public static void showAutoLoginBox() {
+        return null;
     }
 
     public static void saveAutoLoginPassword(SharedPreferences prefs, String password) {
