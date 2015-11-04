@@ -3,6 +3,8 @@ package org.commcare.android.session;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
+import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
@@ -11,8 +13,10 @@ import org.commcare.dalvik.preferences.DeveloperPreferences;
  */
 public class DevSessionRestorer {
 
-    public static Pair<String, String> getAutoLoginCreds(SharedPreferences prefs) {
-        if (DeveloperPreferences.isAutoLoginEnabled()) {
+    public static Pair<String, String> getAutoLoginCreds() {
+        if (autoLoginEnabled()) {
+            SharedPreferences prefs =
+                    CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, "");
             String lastPass = prefs.getString(CommCarePreferences.LAST_PASSWORD, "");
 
@@ -24,7 +28,15 @@ public class DevSessionRestorer {
         return null;
     }
 
-    public static void saveAutoLoginPassword(SharedPreferences prefs, String password) {
-        prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();
+    public static void tryAutoLoginPasswordSave(String password) {
+        if (autoLoginEnabled()) {
+            SharedPreferences prefs =
+                    CommCareApplication._().getCurrentApp().getAppPreferences();
+            prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();
+        }
+    }
+
+    private static boolean autoLoginEnabled() {
+        return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
     }
 }

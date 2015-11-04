@@ -56,7 +56,6 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -201,11 +200,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         errorBox.setVisibility(View.GONE);
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
-        if (DeveloperPreferences.isAutoLoginEnabled()) {
-            SharedPreferences prefs =
-                    CommCareApplication._().getCurrentApp().getAppPreferences();
-            DevSessionRestorer.saveAutoLoginPassword(prefs, password.getText().toString());
-        }
+        DevSessionRestorer.tryAutoLoginPasswordSave(password.getText().toString());
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             // install update, which triggers login upon completion
@@ -332,11 +327,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     private void tryAutoLogin() {
-        SharedPreferences prefs =
-                CommCareApplication._().getCurrentApp().getAppPreferences();
-
         Pair<String, String> userAndPass =
-                DevSessionRestorer.getAutoLoginCreds(prefs);
+                DevSessionRestorer.getAutoLoginCreds();
         if (userAndPass != null) {
             username.setText(userAndPass.first);
             password.setText(userAndPass.second);
