@@ -17,12 +17,11 @@ import org.commcare.suite.model.Profile;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.fail;
@@ -41,8 +40,49 @@ public class AutoUpdateTest {
     private final static String username = "test";
     private final static String password = "123";
 
-    @Before
-    public void setup() {
+    /**
+     * Check that logging out after an auto-update check failed once should
+     * trigger the auto-update to resume.
+     */
+    @Test
+    public void testAppAutoUpdateLogoutRetry() {
+        installBaseApp();
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        Assert.assertFalse(ResourceInstallUtils.shouldAutoUpdateResume(app));
+
+        String profileOfInvalidApp = buildResourceRef("invalid_update", "profile.ccpr");
+        // necessary because retry auto-update task reads from the app's default profile
+        setAppsDefaultProfile(profileOfInvalidApp);
+
+        // try to update to an app with syntax errors
+        UpdateTask updateTask = UpdateTask.getNewInstance();
+        updateTask.startPinnedNotification(RuntimeEnvironment.application);
+        updateTask.setAsAutoUpdate();
+        try {
+            TaskListener<Integer, AppInstallStatus> listener =
+                    logOutAndInOnCompletionListener(AppInstallStatus.MissingResourcesWithMessage);
+            updateTask.registerTaskListener(listener);
+        } catch (TaskListenerRegistrationException e) {
+            fail("failed to register listener for update task");
+        }
+        updateTask.execute(profileOfInvalidApp);
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+
+        // auto-update should now want to resume
+        Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
+
+        updateTask.clearTaskInstance();
+        CommCareApplication._().closeUserSession();
+    }
+
+    private void setAppsDefaultProfile(String ref) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        ResourceInstallUtils.updateProfileRef(app.getAppPreferences(), ref, null);
+    }
+
+    private void installBaseApp() {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -57,41 +97,35 @@ public class AutoUpdateTest {
         Assert.assertTrue(p.getVersion() == 6);
     }
 
-    @After
-    public void tearDown() {
-        UpdateTask.clearTaskInstance();
-    }
-
     private String buildResourceRef(String app, String resource) {
         return REF_BASE_DIR + app + "/" + resource;
     }
 
-    /**
-     * Check that logging out after an auto-update check failed once should
-     * trigger the auto-update to resume.
-     */
-    @Test
-    public void testAppAutoUpdateLogoutRetry() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        Assert.assertFalse(ResourceInstallUtils.shouldAutoUpdateResume(app));
+    private TaskListener<Integer, AppInstallStatus> logOutAndInOnCompletionListener(final AppInstallStatus expectedResult) {
+        return new TaskListener<Integer, AppInstallStatus>() {
+            @Override
+            public void handleTaskUpdate(Integer... updateVals) {
+            }
 
-        // try to update to an app with syntax errors
-        UpdateTask updateTask = UpdateTask.getNewInstance();
-        updateTask.setAsAutoUpdate();
-        try {
-            TaskListener<Integer, AppInstallStatus> listener =
-                    logOutAndInOnCompletionListener(AppInstallStatus.MissingResourcesWithMessage);
-            updateTask.registerTaskListener(listener);
-        } catch (TaskListenerRegistrationException e) {
-            fail("failed to register listener for update task");
-        }
-        updateTask.execute(buildResourceRef("invalid_update", "profile.ccpr"));
+            @Override
+            public void handleTaskCompletion(AppInstallStatus result) {
+                Assert.assertTrue(result == expectedResult);
+                logoutAndIntoApp();
+            }
+
+            @Override
+            public void handleTaskCancellation(AppInstallStatus result) {
+            }
+        };
+    }
+
+    private void logoutAndIntoApp() {
+        CommCareApplication._().closeUserSession();
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
-        // auto-update should now want to resume
-        Assert.assertTrue(ResourceInstallUtils.shouldAutoUpdateResume(app));
+        TestAppInstaller.login(username, password);
     }
 
     /**
@@ -136,32 +170,5 @@ public class AutoUpdateTest {
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
         Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(weekLater,
                 CommCarePreferences.FREQUENCY_DAILY));
-    }
-
-    private TaskListener<Integer, AppInstallStatus> logOutAndInOnCompletionListener(final AppInstallStatus expectedResult) {
-        return new TaskListener<Integer, AppInstallStatus>() {
-            @Override
-            public void handleTaskUpdate(Integer... updateVals) {
-            }
-
-            @Override
-            public void handleTaskCompletion(AppInstallStatus result) {
-                Assert.assertTrue(result == expectedResult);
-                logoutAndIntoApp();
-            }
-
-            @Override
-            public void handleTaskCancellation(AppInstallStatus result) {
-            }
-        };
-    }
-
-    private void logoutAndIntoApp() {
-        CommCareApplication._().closeUserSession();
-
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-
-        TestAppInstaller.login(username, password);
     }
 }

@@ -15,7 +15,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,11 +50,6 @@ public class AppUpdateTest {
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
-    }
-
-    @After
-    public void tearDown() {
-        UpdateTask.clearTaskInstance();
     }
 
     private String buildResourceRef(String app, String resource) {
@@ -180,6 +174,7 @@ public class AppUpdateTest {
 
         Assert.assertEquals(expectedInstallStatus,
                 InstallStagedUpdateTask.installStagedUpdate());
+        updateTask.clearTaskInstance();
     }
 
     private TaskListener<Integer, AppInstallStatus> taskListenerFactory(final AppInstallStatus expectedResult) {

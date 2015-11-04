@@ -13,7 +13,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -50,14 +49,14 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /**
      * Filtered form records. getView reads from this to display all the forms.
      */
-    private final List<FormRecord> current = new ArrayList<FormRecord>();
+    private final List<FormRecord> current = new ArrayList<>();
 
     /**
      * Maps FormRecord ID to an array of text that will be shown to the user
      * and query-able. Text should includes modified date, record title, and
      * form name.
      */
-    private final Hashtable<Integer, String[]> searchCache = new Hashtable<Integer, String[]>();
+    private final Hashtable<Integer, String[]> searchCache = new Hashtable<>();
 
     /**
      * The last query made, used to filter forms.
@@ -78,13 +77,15 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     private final Hashtable<String, Text> names;
 
-    public IncompleteFormListAdapter(Context context, AndroidCommCarePlatform platform, FormRecordLoaderTask loader) throws SessionUnavailableException {
+    public IncompleteFormListAdapter(Context context,
+                                     AndroidCommCarePlatform platform,
+                                     FormRecordLoaderTask loader) {
         this.context = context;
         this.filter = null;
         this.loader = loader;
 
-        observers = new ArrayList<DataSetObserver>();
-        names = new Hashtable<String, Text>();
+        observers = new ArrayList<>();
+        names = new Hashtable<>();
 
         loader.addListener(this);
 
@@ -109,6 +110,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
         if (isLoaded && satisfiesQuery(record)) {
             current.add(record);
+            notifyDataSetChanged();
         }
     }
 
@@ -117,7 +119,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     @Override
     public void notifyLoaded() {
-        this.notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     /**
@@ -154,7 +156,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             filter = FormRecordFilter.SubmittedAndPending;
         }
 
-        records = new Vector<FormRecord>();
+        records = new Vector<>();
         // for each type of status in the filter, grab all the records that satisfy it
         for (String status : filter.getStatus()) {
             records.addAll(storage.getRecordsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{status}));
@@ -178,6 +180,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         searchCache.clear();
         current.clear();
+        notifyDataSetChanged();
 
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
@@ -198,6 +201,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     @Override
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
+
         for (DataSetObserver observer : observers) {
             observer.onChanged();
         }
@@ -279,7 +283,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
     @Override
     public boolean isEmpty() {
-        return getCount() > 0;
+        return getCount() == 0;
     }
 
     public void setFormFilter(FormRecordFilter filter) {
@@ -308,15 +312,15 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
 
         if ("".equals(query)) {
             current.addAll(records);
-            return;
-        }
-
-        // collect all forms that have text data that contains pieces.
-        for (FormRecord r : records) {
-            if (satisfiesQuery(r)) {
-                current.add(r);
+        } else {
+            // collect all forms that have text data that contains pieces.
+            for (FormRecord r : records) {
+                if (satisfiesQuery(r)) {
+                    current.add(r);
+                }
             }
         }
+        notifyDataSetChanged();
     }
 
     /**
