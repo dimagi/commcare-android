@@ -35,10 +35,19 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
+
+    /**
+     * Stores last used password and performs auto-login when that password is
+     * present
+     */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
-    // Does the user want to download the latest app version deployed (built),
-    // not just the latest app version released (starred)?
+
+    /**
+     * Does the user want to download the latest app version deployed (built),
+     * not just the latest app version released (starred)?
+     */
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
     public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
     private static final String KEY_TARGET_DENSITY = "cc-target-density";
