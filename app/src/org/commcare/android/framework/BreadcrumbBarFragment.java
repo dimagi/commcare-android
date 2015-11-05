@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,8 +31,8 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.AndroidInstanceInitializer;
+import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -49,6 +50,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import java.util.Vector;
 
@@ -331,11 +333,12 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(tile != null) {
-            ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
-            //Check whether the view group is available. If so, this activity is a frame tile host 
-            if(vg != null) {
-                if(((ViewGroup) tile.getParent()) != null) {
+        if (tile != null) {
+            Activity a = this.getActivity();
+            ViewGroup vg = (ViewGroup)a.findViewById(R.id.universal_frame_tile);
+            // Check whether the view group is available. If so, this activity is a frame tile host
+            if (vg != null && !inLandscapeFormEntry(a)) {
+                if (((ViewGroup) tile.getParent()) != null) {
                     ((ViewGroup) tile.getParent()).removeView(tile);
                 }
                 vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -359,6 +362,10 @@ public class BreadcrumbBarFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private boolean inLandscapeFormEntry(Activity a) {
+        return (a instanceof FormEntryActivity) && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
     
     public static String getBestTitle(Activity activity) {
