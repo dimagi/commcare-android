@@ -259,20 +259,15 @@ bulk.form.dump.success=${1} forms dumped successfully
 
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
-login.menu.demo=Enter as Demo User
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
 main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in Demo mode. 
 
-home.start.demo=Explore CommCare Demo
+home.start.demo=Explore mLabour Demo
 home.sync.demo=Submit Demo Data to Server
-home.logout.demo=Log out of Demo Mode
+home.logout.demo=Log Out
 home.sync.message.last.demo=You are using CommCare in demo mode
-
-demo.mode.warning.title=Starting Demo Mode
-demo.mode.warning=You are logging into CommCare in Demo mode. Demo mode is for testing and practice only!
-demo.mode.warning.dismiss=I Understand
 
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
