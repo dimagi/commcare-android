@@ -4,6 +4,8 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.commcare.dalvik.BuildConfig;
+
 /**
  * This API provides the relevant interface cues for interacting with
  * the Fixture Data Content Provider.
@@ -11,8 +13,7 @@ import android.provider.BaseColumns;
  * @author wspride
  */
 public class FixtureDataAPI {
-    
-    public static final String AUTHORITY = "org.commcare.dalvik.fixture";
+    public static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".fixture";
     
     public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
