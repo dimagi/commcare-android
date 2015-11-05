@@ -221,6 +221,7 @@ public class GraphView {
 
         String html = "<html>" +
                 "<head>" +
+                //"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
                 "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graphing.css'></link>" +
                 "<script>" + js + "</script>" +
                 "<script type=\"text/javascript\" src=\"file:///android_asset/graphing/d3.min.js\"></script>" +
