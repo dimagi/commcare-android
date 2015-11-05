@@ -1851,7 +1851,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
     }
 
-    public void handleFormLoadCompletion(FormController fc) {
+    private void handleFormLoadCompletion(FormController fc) {
         mFormController = fc;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             // Newer menus may have already built the menu, before all data was ready

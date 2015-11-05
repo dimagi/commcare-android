@@ -21,7 +21,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -253,8 +253,8 @@ public class EntityMapActivity extends MapActivity {
         return entityContext;
     }
     
-    private CommCareInstanceInitializer getInstanceInit() {
-        return new CommCareInstanceInitializer(session);
+    private AndroidInstanceInitializer getInstanceInit() {
+        return new AndroidInstanceInitializer(session);
     }
 
     @Override

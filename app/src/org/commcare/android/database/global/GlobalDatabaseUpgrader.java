@@ -7,7 +7,7 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
@@ -62,7 +62,7 @@ public class GlobalDatabaseUpgrader {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
-                    new ConcreteDbHelper(c, db));
+                    new ConcreteAndroidDbHelper(c, db));
 
             if (multipleInstalledAppRecords(storage)) {
                 // If a device has multiple installed ApplicationRecords before the multiple apps
@@ -135,7 +135,7 @@ public class GlobalDatabaseUpgrader {
         SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                 ApplicationRecord.STORAGE_KEY,
                 ApplicationRecord.class,
-                new ConcreteDbHelper(c, db));
+                new ConcreteAndroidDbHelper(c, db));
         for (Persistable p : storage) {
             ApplicationRecord r = (ApplicationRecord) p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {

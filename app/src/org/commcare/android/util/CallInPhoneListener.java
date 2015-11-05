@@ -204,7 +204,7 @@ public class CallInPhoneListener extends PhoneStateListener {
             private EvaluationContext getEC(String commandId) {
                 CommCareSession session = new CommCareSession(platform);
                 session.setCommand(commandId);
-                return session.getEvaluationContext(new CommCareInstanceInitializer(session));
+                return session.getEvaluationContext(new AndroidInstanceInitializer(session));
             }
         };
         loader.execute();
