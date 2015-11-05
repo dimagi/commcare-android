@@ -124,4 +124,8 @@
     <!-- Dialog button color -->
     <color name="dialog_button_color">#2196F3</color>
 
+    <!-- Error Colors -->
+    <color name="cc_error_bg_color">#EE5555</color>
+    <color name="cc_error_text_color">#FFFFFF</color>
+
 </resources>
