@@ -4,7 +4,7 @@
          requiredMajor="2"
          requiredMinor="23"
          uniqueid="6bbf69cec278cff14d152ae8d1a30fe8"
-         name="mLabour"
+         name="mLabour by CommCare"
          descriptor="Profile File">
     <property key="BackupMode" value="file_mode"/>
     <property key="backup-url" value="file:///E:/CommCare.Backup"/>
