@@ -8,7 +8,4 @@
     android:layout_weight="1"
     app:subtitle="Disconnect"
     app:backgroundColor="@color/cc_neutral_color"
-    app:notificationBackgroundColor="@color/cc_neutral_text"
-    app:notificationTextColor="@color/white"
-    app:notificationText="Logged in as: "
     app:img="@drawable/disconnect" />
