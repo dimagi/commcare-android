@@ -271,7 +271,7 @@ public class EntityDetailView extends FrameLayout {
             }
 
             // Fetch full-screen graph intent from cache, or create it
-            Intent graphIntent = graphIntentsCache.get(index);
+            /*Intent graphIntent = graphIntentsCache.get(index);
             if (graphIntent == null && !graphsWithErrors.contains(index)) {
                 GraphView g = new GraphView(context, labelText);
                 try {
@@ -304,7 +304,7 @@ public class EntityDetailView extends FrameLayout {
                         return detector.onTouchEvent(event);
                     }
                 });
-            }
+            }*/
 
             graphLayout.removeAllViews();
             graphLayout.addView(graphView, GraphView.getLayoutParams());

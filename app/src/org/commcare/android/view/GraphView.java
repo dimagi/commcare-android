@@ -1,10 +1,14 @@
 package org.commcare.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
+import android.os.Build;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.achartengine.ChartFactory;
@@ -29,7 +33,11 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONStringer;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -163,8 +171,66 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData data) throws InvalidStateException {
-        render(data);
+        JSONObject json = new JSONObject();
+        JSONArray series = new JSONArray();
+        try {
+            for (SeriesData s : data.getSeries()) {
+                JSONArray points = new JSONArray();
+                for (XYPointData p : s.getPoints()) {
+                    JSONObject point = new JSONObject();
+                    point.put("x", p.getX());
+                    point.put("y", p.getY());
+                    points.put(point);
+                }
+                series.put(points);
+            }
+            json.put("series", series);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String js = "document.addEventListener(\"DOMContentLoaded\", function(event) { \n";
+        js += "var graphData = " + json.toString() + ";\n";
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(
+                    new InputStreamReader(mContext.getAssets().open("graphing/jenny.js"), "UTF-8"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                js += line + "\n";
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        js += "});\n";
+
+        WebView.setWebContentsDebuggingEnabled(true);
+        WebView webView = new WebView(mContext);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        String html = "<html>" +
+                "<head>" +
+                "<script>" + js + "</script>" +
+                "<script type=\"text/javascript\" src=\"file:///android_asset/graphing/google.js\"></script>" +
+                "</head>" +
+                "<body><div id='chart_div'></div></body>" +
+                "</html>";
+        webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
+        return webView;
+
+        /*render(data);
 
         // Panning and zooming are allowed on in full-screen graphs (created by getIntent)
         setPanAndZoom(false);
@@ -199,7 +265,7 @@ public class GraphView {
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
         }
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
     }
 
     /**
@@ -313,10 +379,11 @@ public class GraphView {
         // and happened to look nice for partographs. Vertically-oriented graphs,
         // however, get squished unless they're drawn as a square. Expect to revisit 
         // this eventually (make all graphs square? user-configured aspect ratio?).
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
+        return 1;
+        /*if (Graph.TYPE_BAR.equals(mData.getType())) {
             return 1;
         }
-        return 2;
+        return 2;*/
     }
 
     private XYMultipleSeriesRenderer.Orientation getOrientation() {

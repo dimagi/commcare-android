@@ -70,6 +70,7 @@
         android:name=".application.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
+        android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme" >
         <activity
             android:name=".activities.CommCareHomeActivity"
