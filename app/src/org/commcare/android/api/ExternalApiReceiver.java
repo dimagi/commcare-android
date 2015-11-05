@@ -12,7 +12,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
@@ -25,6 +24,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
 import java.math.BigInteger;
