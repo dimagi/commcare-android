@@ -76,11 +76,11 @@ public class EntityDetailActivity
 
         // Is the detail screen for showing entities, without option for moving
         // forward on to form manipulation?
-        boolean mViewMode;
+        boolean viewMode;
         if (passedCommand != null) {
-            mViewMode = session.isViewCommand(passedCommand);
+            viewMode = session.isViewCommand(passedCommand);
         } else {
-            mViewMode = session.isViewCommand(session.getCommand());
+            viewMode = session.isViewCommand(session.getCommand());
         }
 
         factory =
@@ -125,7 +125,7 @@ public class EntityDetailActivity
             }
         });
 
-        if (mViewMode) {
+        if (viewMode) {
             next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             next.setText(Localization.get("select.detail.bypass"));
         }
