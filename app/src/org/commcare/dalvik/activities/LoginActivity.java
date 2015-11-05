@@ -11,8 +11,6 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -29,7 +27,6 @@ import android.widget.Toast;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
@@ -48,7 +45,6 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.network.DebugDataPullResponseFactory;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -74,9 +70,7 @@ import java.util.ArrayList;
 public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-    
-    private static final int MENU_DEMO = Menu.FIRST;
-    private static final int MENU_ABOUT = Menu.FIRST + 1;
+
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
@@ -463,30 +457,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
         }
         return storage;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean otherResult = super.onOptionsItemSelected(item);
-        switch(item.getItemId()) {
-        case MENU_DEMO:
-            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false);
-            return true;
-        case MENU_ABOUT:
-            DialogCreationHelpers.buildAboutCommCareDialog(this).show();
-            return true;
-        default:
-            return otherResult;
-        }
     }
 
     private void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
