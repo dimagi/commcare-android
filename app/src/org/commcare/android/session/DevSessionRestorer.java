@@ -3,7 +3,6 @@ package org.commcare.android.session;
 import android.content.SharedPreferences;
 import android.util.Pair;
 
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
@@ -48,7 +47,7 @@ public class DevSessionRestorer {
     }
 
     private static boolean autoLoginEnabled() {
-        return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
+        return DeveloperPreferences.isAutoLoginEnabled();
     }
 
     public static void clearPassword(SharedPreferences prefs) {

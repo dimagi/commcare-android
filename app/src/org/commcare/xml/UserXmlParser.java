@@ -56,7 +56,8 @@ public class UserXmlParser extends TransactionParser<User> {
         }
         
         if(u == null) {
-            u = new User(username, passwordHash, uuid);
+            // XXX PLM: For parto demo app: always create demo user to disable syncing
+            u = new User(username, passwordHash, uuid, User.TYPE_DEMO);
             u.setWrappedKey(wrappedKey);
         } else {
             if(passwordHash != null && !passwordHash.equals(u.getPassword())) {

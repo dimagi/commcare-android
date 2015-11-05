@@ -45,6 +45,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.network.DebugDataPullResponseFactory;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DialogCreationHelpers;
@@ -56,9 +57,12 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -216,84 +220,45 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     }
 
     private void startOta() {
-        // We should go digest auth this user on the server and see whether to
-        // pull them down.
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        // XXX PLM: for parto demo app: don't do over-the-air restore,
+        // but grab a local restore file
+        String payload = "jr://asset/post_install_payload.xml";
+        try {
+            ReferenceManager._().DeriveReference(payload).getStream();
+        } catch (InvalidReferenceException | IOException e) {
+            throw new RuntimeException("Local restore file missing");
+        }
 
-        // TODO: we don't actually always want to do this. We need to have an
-        // alternate route where we log in locally and sync (with unsent form
-        // submissions) more centrally.
+        restore(payload);
+    }
 
-        DataPullTask<LoginActivity> dataPuller = 
-            new DataPullTask<LoginActivity>(getUsername(), password.getText().toString(),
-                 prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
-                 LoginActivity.this) {
+    private void restore(String payloadAssetPath) {
+        DebugDataPullResponseFactory pullResponseFactor =
+                new DebugDataPullResponseFactory(payloadAssetPath);
+        DataPullTask<LoginActivity> pullTask =
+                new DataPullTask<LoginActivity>(getUsername(),
+                        password.getText().toString(),
+                        "fake-server-that-is-never-used", this, pullResponseFactor) {
                     @Override
-                    protected void deliverResult( LoginActivity receiver, Integer result) {
-                        if (result == null) {
-                            // The task crashed unexpectedly
-                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                            return;
-                        }
-
-                        switch(result) {
-                        case DataPullTask.AUTH_FAILED:
-                            receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                            break;
-                        case DataPullTask.BAD_DATA:
-                            receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
-                            break;
-                        case DataPullTask.STORAGE_FULL:
-                            receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
-                            break;
-                        case DataPullTask.DOWNLOAD_SUCCESS:
-                            if(!tryLocalLogin(true)) {
-                                receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                            }
-                            break;
-                        case DataPullTask.UNREACHABLE_HOST:
-                            receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
-                            break;
-                        case DataPullTask.CONNECTION_TIMEOUT:
-                            receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
-                            break;
-                        case DataPullTask.SERVER_ERROR:
-                            receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                            break;
-                        case DataPullTask.UNKNOWN_FAILURE:
-                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                            break;
+                    protected void deliverResult(LoginActivity receiver, Integer result) {
+                        if (!receiver.tryLocalLogin(true)) {
+                            receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                         }
                     }
 
                     @Override
                     protected void deliverUpdate(LoginActivity receiver, Integer... update) {
-                        if(update[0] == DataPullTask.PROGRESS_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_CLEANED) {
-                            receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_AUTHED) {
-                            receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                            receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[] {String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                            receiver.updateProgress(Localization.get("sync.process.processing", new String[] {String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                            receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                            receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if(update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                        }
                     }
 
                     @Override
-                    protected void deliverError( LoginActivity receiver, Exception e) {
-                        receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                    protected void deliverError(LoginActivity receiver, Exception e) {
+                        if (!receiver.tryLocalLogin(true)) {
+                            receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
+                        }
                     }
-        };
-
-        dataPuller.connect(this);
-        dataPuller.execute();
+                };
+        pullTask.connect(this);
+        pullTask.execute();
     }
 
     @Override
