@@ -54,15 +54,11 @@ public class ImageWidget extends QuestionWidget {
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        this(context, prompt);
-        this.pendingCalloutInterface = pic;
-    }
-
-    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
+        this.pendingCalloutInterface = pic;
 
         mMaxDimen = -1;
         mInstanceFolder =
@@ -79,7 +75,7 @@ public class ImageWidget extends QuestionWidget {
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -114,7 +110,7 @@ public class ImageWidget extends QuestionWidget {
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -142,7 +138,7 @@ public class ImageWidget extends QuestionWidget {
         addView(mCaptureButton);
         addView(mChooseButton);
 
-        String acq = prompt.getAppearanceHint();
+        String acq = mPrompt.getAppearanceHint();
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
@@ -150,7 +146,7 @@ public class ImageWidget extends QuestionWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
+        mBinaryName = mPrompt.getAnswerText();
 
         // Only add the imageView if the user has taken a picture
         if (mBinaryName != null) {
@@ -196,7 +192,7 @@ public class ImageWidget extends QuestionWidget {
                                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 projection, "_data='" + mInstanceFolder + mBinaryName + "'",
                                 null, null);
-                        if (c.getCount() > 0) {
+                        if (c != null && c.getCount() > 0) {
                             c.moveToFirst();
                             String id = c.getString(c.getColumnIndex("_id"));
 
@@ -313,33 +309,5 @@ public class ImageWidget extends QuestionWidget {
 
     public int getMaxDimen() {
         return this.mMaxDimen;
-    }
-
-    public enum ImageType {
-        JPEG(Bitmap.CompressFormat.JPEG),
-        PNG(Bitmap.CompressFormat.PNG);
-
-        private Bitmap.CompressFormat format;
-
-        ImageType(Bitmap.CompressFormat format) {
-            this.format = format;
-        }
-
-        public Bitmap.CompressFormat getCompressFormat() {
-            return this.format;
-        }
-
-        public static ImageType fromExtension(String extension) {
-            switch(extension.toLowerCase()) {
-                case "jpeg":
-                case "jpg":
-                    return JPEG;
-                case "png":
-                    return PNG;
-                default:
-                    return null;
-            }
-        }
-
     }
 }
