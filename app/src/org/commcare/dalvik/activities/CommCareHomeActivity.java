@@ -229,8 +229,19 @@ public class CommCareHomeActivity
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
-    protected void returnToLogin() {
+    protected void userTriggeredLogout() {
+        returnToLogin(true);
+    }
+
+    protected void launchLogin() {
+        returnToLogin(false);
+    }
+
+    private void returnToLogin(boolean userTriggered) {
         Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
+        if (userTriggered) {
+            i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+        }
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivityForResult(i, LOGIN_USER);
     }
@@ -976,7 +987,7 @@ public class CommCareHomeActivity
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    launchLogin();
                     return;
                 }
                 uiController.refreshView();
@@ -1081,7 +1092,7 @@ public class CommCareHomeActivity
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    returnToLogin();
+                    launchLogin();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -1096,7 +1107,7 @@ public class CommCareHomeActivity
                     uiController.refreshView();
                 }
             } catch (SessionUnavailableException sue) {
-                returnToLogin();
+                launchLogin();
             }
         }
 
@@ -1126,7 +1137,7 @@ public class CommCareHomeActivity
                 showDialog(DIALOG_CORRUPTED);
             } catch(SessionUnavailableException e) {
                 // Otherwise, log in first
-                returnToLogin();
+                launchLogin();
             }
         }
     }
