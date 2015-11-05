@@ -5,18 +5,21 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.ConcreteDbHelper;
+import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
+import org.commcare.android.database.user.models.AUser;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
 /**
@@ -67,6 +70,12 @@ public class UserDatabaseUpgrader {
         if (oldVersion == 6) {
             if (upgradeSixSeven(db, oldVersion, newVersion)) {
                 oldVersion = 7;
+            }
+        }
+
+        if(oldVersion == 7) {
+            if(upgradeSevenEight(db, oldVersion, newVersion)) {
+                oldVersion = 8;
             }
         }
     }
@@ -135,7 +144,7 @@ public class UserDatabaseUpgrader {
 
             //NOTE: Need to use the PreV6 case model any time we manipulate cases in this model for upgraders
             //below 6
-            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteAndroidDbHelper(c, db));
 
             for (ACase c : caseStorage) {
                 cit.indexCase(c);
@@ -157,9 +166,34 @@ public class UserDatabaseUpgrader {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         try {
-
-            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteDbHelper(c, db));
+            SqlStorage<ACase> caseStorage = new SqlStorage<ACase>(ACase.STORAGE_KEY, ACasePreV6Model.class, new ConcreteAndroidDbHelper(c, db));
             updateModels(caseStorage);
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+            Log.d(TAG, "Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
+        }
+    }
+
+    /**
+     * Depcrecate the old AUser object so that both platforms are using the User object
+     * to represents users
+     */
+    private boolean upgradeSevenEight(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //On some devices this process takes a significant amount of time (sorry!) we should
+        //tell the service to wait longer to make sure this can finish.
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+        long start = System.currentTimeMillis();
+        db.beginTransaction();
+        try {
+            SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
+            SqlStorageIterator<Persistable> iterator = userStorage.iterate();
+            while(iterator.hasMore()){
+                AUser oldUser = (AUser)iterator.next();
+                User newUser = oldUser.toNewUser();
+                userStorage.write(newUser);
+            }
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -175,7 +209,7 @@ public class UserDatabaseUpgrader {
     }
 
     private void addStockTable(SQLiteDatabase db) {
-        TableBuilder builder = new TableBuilder(Ledger.STORAGE_KEY);
+        AndroidTableBuilder builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
         builder.addData(new Ledger());
         builder.setUnique(Ledger.INDEX_ENTITY_ID);
         db.execSQL(builder.getTableCreateString());
@@ -186,7 +220,7 @@ public class UserDatabaseUpgrader {
         if (inSenseMode) {
 
             //Get form record storage
-            SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteDbHelper(c, db));
+            SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class,new ConcreteAndroidDbHelper(c,db));
 
             //Iterate through all forms currently saved
             for (FormRecord record : storage) {

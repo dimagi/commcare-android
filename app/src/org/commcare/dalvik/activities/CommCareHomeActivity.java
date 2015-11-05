@@ -25,7 +25,6 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
@@ -42,7 +41,7 @@ import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -66,6 +65,9 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
+import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionFrame;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -115,6 +117,7 @@ public class CommCareHomeActivity
     private static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
+
 
     /**
      * Request code for launching media validator manually (Settings ->
@@ -360,6 +363,10 @@ public class CommCareHomeActivity
         }
     }
 
+    /*
+    * (non-Javadoc)
+    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
+    */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
@@ -767,7 +774,6 @@ public class CommCareHomeActivity
         return false;
     }
 
-
     // region - implementing methods for SessionNavigationResponder
 
     @Override
@@ -912,7 +918,7 @@ public class CommCareHomeActivity
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Form Entry Starting|" + r.getFormNamespace());
 
         //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new CommCareInstanceInitializer(CommCareApplication._().getCurrentSession());
+        FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
 
         //Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
