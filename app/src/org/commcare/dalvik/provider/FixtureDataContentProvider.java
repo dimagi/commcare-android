@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
@@ -111,7 +111,7 @@ public class FixtureDataContentProvider extends ContentProvider {
                 if(instanceId.equals(currentInstanceId)){
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-                    DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
+                    DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
 
                     s.serialize((DataInstance)fi, fi.getRoot().getRef());
 

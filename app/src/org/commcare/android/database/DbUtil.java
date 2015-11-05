@@ -8,7 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
-import org.commcare.util.externalizable.ImprovedPrototypeFactory;
+import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -35,6 +35,9 @@ public class DbUtil {
     }
 
 
+    /**
+     * Basically this is our PrototypeManager for Android
+     */
     public static PrototypeFactory getPrototypeFactory(Context c) {
         if(factory != null) {
             return factory;
@@ -43,16 +46,15 @@ public class DbUtil {
         PrefixTree tree = new PrefixTree();
         
         try {
-        List<String> classes = getClasses(new String[] { "org.javarosa", "org.commcare"}, c);
-        for(String cl : classes) {
-            tree.addString(cl);
-        }
+            List<String> classes = getClasses(new String[] { "org.javarosa", "org.commcare"}, c);
+            for(String cl : classes) {
+                tree.addString(cl);
+            }
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
         
-        
-        factory = new ImprovedPrototypeFactory(tree);
+        factory = new AndroidPrototypeFactory(tree);
         return factory;
         
     }

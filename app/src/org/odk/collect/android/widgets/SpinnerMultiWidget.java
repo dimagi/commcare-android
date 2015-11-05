@@ -1,4 +1,3 @@
-
 package org.odk.collect.android.widgets;
 
 import android.app.AlertDialog;
@@ -33,39 +32,37 @@ import java.util.Vector;
  */
 public class SpinnerMultiWidget extends QuestionWidget {
 
-    Vector<SelectChoice> mItems;
+    private final Vector<SelectChoice> mItems;
 
     // The possible select answers
-    CharSequence[] answer_items;
+    private final CharSequence[] answerItems;
 
     // The button to push to display the answers to choose from
-    Button button;
+    private final Button button;
 
     // Defines which answers are selected
-    boolean[] selections;
+    private final boolean[] selections;
 
     // The alert box that contains the answer selection view
-    AlertDialog.Builder alert_builder;
+    private final AlertDialog.Builder alert_builder;
 
     // Displays the current selections below the button
-    TextView selectionText;
-
+    private final TextView selectionText;
 
     @SuppressWarnings("unchecked")
     public SpinnerMultiWidget(final Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        mItems = prompt.getSelectChoices();
-        mPrompt = prompt;
+        mItems = mPrompt.getSelectChoices();
 
         selections = new boolean[mItems.size()];
-        answer_items = new CharSequence[mItems.size()];
+        answerItems = new CharSequence[mItems.size()];
         alert_builder = new AlertDialog.Builder(context);
         button = new Button(context);
         selectionText = new TextView(getContext());
 
         // Build View
         for (int i = 0; i < mItems.size(); i++) {
-            answer_items[i] = prompt.getSelectChoiceText(mItems.get(i));
+            answerItems[i] = mPrompt.getSelectChoiceText(mItems.get(i));
         }
 
         selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected));
@@ -92,11 +89,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
                                     if (first) {
                                         first = false;
                                         selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
-                                                + answer_items[i].toString());
+                                                + answerItems[i].toString());
                                         selectionText.setVisibility(View.VISIBLE);
                                     } else {
                                         selectionText.setText(selectionText.getText() + ", "
-                                                + answer_items[i].toString());
+                                                + answerItems[i].toString());
                                     }
                                 }
                             }
@@ -104,13 +101,11 @@ public class SpinnerMultiWidget extends QuestionWidget {
                             if(hasListener){
                                 widgetChangedListener.widgetEntryChanged();
                             }
-                            
                         }
                     });
 
-                alert_builder.setMultiChoiceItems(answer_items, selections,
+                alert_builder.setMultiChoiceItems(answerItems, selections,
                     new DialogInterface.OnMultiChoiceClickListener() {
-
                         @Override
                         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                             selections[which] = isChecked;
@@ -118,7 +113,6 @@ public class SpinnerMultiWidget extends QuestionWidget {
                             if(hasListener){
                                 widgetChangedListener.widgetEntryChanged();
                             }
-                            
                         }
                     });
                 AlertDialog alert = alert_builder.create();
@@ -129,16 +123,16 @@ public class SpinnerMultiWidget extends QuestionWidget {
         });
 
         // Fill in previous answers
-        Vector<Selection> ve = new Vector<Selection>();
-        if (prompt.getAnswerValue() != null) {
-            ve = (Vector<Selection>) prompt.getAnswerValue().getValue();
+        Vector<Selection> ve = new Vector<>();
+        if (mPrompt.getAnswerValue() != null) {
+            ve = (Vector<Selection>) mPrompt.getAnswerValue().getValue();
         }
 
         if (ve != null) {
             boolean first = true;
             for (int i = 0; i < selections.length; ++i) {
 
-                String value = prompt.getSelectChoices().get(i).getValue();
+                String value = mPrompt.getSelectChoices().get(i).getValue();
                 boolean found = false;
                 for (Selection s : ve) {
                     if (value.equals(s.getValue())) {
@@ -153,25 +147,23 @@ public class SpinnerMultiWidget extends QuestionWidget {
                     if (first) {
                         first = false;
                         selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
-                                + answer_items[i].toString());
+                                + answerItems[i].toString());
                         selectionText.setVisibility(View.VISIBLE);
                     } else {
                         selectionText.setText(selectionText.getText() + ", "
-                                + answer_items[i].toString());
+                                + answerItems[i].toString());
                     }
                 }
-
             }
         }
 
         addView(button);
         addView(selectionText);
-
     }
     
     @Override
     public IAnswerData getAnswer() {
-        Vector<Selection> vc = new Vector<Selection>();
+        Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
             if (selections[i]) {
                 SelectChoice sc = mItems.get(i);
@@ -183,9 +175,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
         } else {
             return new SelectMultiData(vc);
         }
-
     }
-
 
     @Override
     public void clearAnswer() {
@@ -196,22 +186,18 @@ public class SpinnerMultiWidget extends QuestionWidget {
         }
     }
 
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
             (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
-
     }
-
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         button.setOnLongClickListener(l);
     }
-
 
     @Override
     public void cancelLongPress() {

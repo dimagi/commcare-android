@@ -3,7 +3,7 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Log;
 
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
