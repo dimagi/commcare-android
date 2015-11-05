@@ -8,10 +8,10 @@ import android.os.Bundle;
 import android.os.Parcel;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.modern.models.MetaField;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 

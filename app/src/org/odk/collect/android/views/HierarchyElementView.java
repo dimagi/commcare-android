@@ -1,7 +1,6 @@
 package org.odk.collect.android.views;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -19,33 +18,27 @@ public class HierarchyElementView extends RelativeLayout {
 
         RelativeLayout layout = (RelativeLayout)inflate(context, R.layout.hierarchy_element_view, null);
 
-        setBackgroundColor(it.getColor());
-
         mPrimaryTextView = ((TextView)layout.findViewById(R.id.hev_primary_text));
-        mPrimaryTextView.setText(it.getPrimaryText());
         mSecondaryTextView = ((TextView)layout.findViewById(R.id.hev_secondary_text));
-        mSecondaryTextView.setText(it.getSecondaryText());
         mIcon = ((ImageView)layout.findViewById(R.id.hev_icon));
-        mIcon.setImageDrawable(it.getIcon());
+
+        setFromHierarchyElement(it);
 
         addView(layout);
     }
 
+    public void setFromHierarchyElement(HierarchyElement hierarchyElement) {
+        final int textColor = hierarchyElement.getTextColor();
 
-    public void setPrimaryText(String text) {
-        mPrimaryTextView.setText(text);
-    }
+        setBackgroundColor(hierarchyElement.getBgColor());
 
-    public void setSecondaryText(String text) {
-        mSecondaryTextView.setText(text);
-    }
+        mPrimaryTextView.setTextColor(textColor);
+        mPrimaryTextView.setText(hierarchyElement.getPrimaryText());
 
-    public void setIcon(Drawable icon) {
-        mIcon.setImageDrawable(icon);
-    }
+        mSecondaryTextView.setTextColor(textColor);
+        mSecondaryTextView.setText(hierarchyElement.getSecondaryText());
 
-    public void setColor(int color) {
-        setBackgroundColor(color);
+        mIcon.setImageDrawable(hierarchyElement.getIcon());
     }
 
     public void showSecondary(boolean bool) {

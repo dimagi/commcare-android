@@ -5,7 +5,7 @@ package org.commcare.android.database.user.models;
 
 import com.google.android.maps.GeoPoint;
 
-import org.commcare.android.database.EncryptedModel;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;

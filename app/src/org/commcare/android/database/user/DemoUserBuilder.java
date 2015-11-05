@@ -5,12 +5,12 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DirectDbHelper;
+import org.commcare.android.database.DirectAndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.User;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.util.Date;
@@ -42,7 +42,7 @@ public class DemoUserBuilder {
         if (isDemo) {
             userType = User.TYPE_DEMO;
         } else{
-            userType = User.TYPE_STANDARD;
+            userType = User.STANDARD;
         }
     }
 
@@ -98,7 +98,7 @@ public class DemoUserBuilder {
             User user = new User(username, passwordHash, username, userType);
 
             SqlStorage<User> userStorage =
-                    new SqlStorage<>(User.STORAGE_KEY, User.class, new DirectDbHelper(context, userDatabase));
+                    new SqlStorage<>(User.STORAGE_KEY, User.class, new DirectAndroidDbHelper(context, userDatabase));
             userStorage.write(user);
         } finally {
             if (userDatabase != null) {
