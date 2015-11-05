@@ -297,10 +297,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         if (userAndPass != null) {
             username.setText(userAndPass.first);
             password.setText(userAndPass.second);
+            username.setEnabled(false);
+            password.setEnabled(false);
 
+            /*
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
                 loginButtonPressed();
             }
+            */
         }
     }
 
