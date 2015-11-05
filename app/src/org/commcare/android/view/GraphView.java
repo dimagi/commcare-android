@@ -221,10 +221,11 @@ public class GraphView {
 
         String html = "<html>" +
                 "<head>" +
+                "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graphing.css'></link>" +
                 "<script>" + js + "</script>" +
                 "<script type=\"text/javascript\" src=\"file:///android_asset/graphing/d3.min.js\"></script>" +
                 "</head>" +
-                "<body><div id='chart_div'></div>here is some stuff</body>" +
+                "<body><svg class=\"chart\"></svg></body>" +
                 "</html>";
         webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
         return webView;
