@@ -154,7 +154,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
             if(lastUser != null) {
                 username.setText(lastUser);
-                password.requestFocus();
+                // password.requestFocus();
             }
         }
 
@@ -297,8 +297,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         if (userAndPass != null) {
             username.setText(userAndPass.first);
             password.setText(userAndPass.second);
-            username.setEnabled(false);
-            password.setEnabled(false);
+
+            disableEditText(username);
+            disableEditText(password);
 
             /*
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
@@ -306,6 +307,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             }
             */
         }
+    }
+    private static void disableEditText(EditText editText) {
+        editText.setEnabled(false);
+        editText.setFocusable(false);
+        editText.setFocusableInTouchMode(false);
+        editText.setClickable(false);
     }
 
     private boolean isAlreadyLoggedIn() {
@@ -610,11 +617,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         if (lastUser != null) {
             // If there was a last user for this app, show it
             username.setText(lastUser);
-            password.requestFocus();
+            // password.requestFocus();
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
-            username.requestFocus();
+            // username.requestFocus();
         }
 
         // Clear any password text that was entered for a different app
