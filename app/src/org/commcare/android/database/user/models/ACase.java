@@ -1,7 +1,7 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.cases.model.Case;
+import org.commcare.modern.models.EncryptedModel;
 
 /**
  * NOTE: All new fields should be added to the case class using the "data" class,

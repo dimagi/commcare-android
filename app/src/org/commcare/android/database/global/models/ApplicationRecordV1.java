@@ -1,9 +1,9 @@
 package org.commcare.android.database.global.models;
 
-import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.modern.models.MetaField;
 
 /**
  * The version of ApplicationRecord that exists in databases on any pre- multiple apps version

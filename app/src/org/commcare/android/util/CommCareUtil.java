@@ -90,7 +90,7 @@ public class CommCareUtil {
     public static void printInstance(String instanceRef) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new CommCareInstanceInitializer(null));
+            DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
             
             s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
             Log.d(TAG, new String(bos.toByteArray()));
