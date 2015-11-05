@@ -1,0 +1,102 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Record Notes &amp; Flags</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/8B5058C9-30E9-4263-9647-63285682367B" uiVersion="1" version="3" name="Record Notes &amp; Flags">
+					<flag_notes>
+						<nurse_name/>
+						<flag/>
+						<patient_notes/>
+						<prev_patient_notes/>
+					</flag_notes>
+					<nurse_flag/>
+					<patient_notes_in/>
+					<patient_notes_out/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><nurse_flag/><patient_notes/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/flag_notes"/>
+			<bind nodeset="/data/flag_notes/nurse_name" type="xsd:string"/>
+			<bind nodeset="/data/flag_notes/flag"/>
+			<bind nodeset="/data/flag_notes/patient_notes" type="xsd:string"/>
+			<bind nodeset="/data/flag_notes/prev_patient_notes"/>
+			<bind nodeset="/data/nurse_flag" calculate="if(selected(/data/flag_notes/flag, 'flag_yes'), 'yes', 'no')"/>
+			<bind nodeset="/data/patient_notes_in"/>
+			<bind nodeset="/data/patient_notes_out" calculate="concat(/data/flag_notes/nurse_name, ': ', /data/flag_notes/patient_notes, '       ', /data/patient_notes_in)"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="flag_notes-label">
+						<value>Flag patient and add patient notes</value>
+					</text>
+					<text id="flag_notes/nurse_name-label">
+						<value>Nurse or Doctor's Name:</value>
+					</text>
+					<text id="flag_notes/flag-label">
+						<value>Would you like to:</value>
+					</text>
+					<text id="flag_notes/flag-flag_yes-label">
+						<value>Flag this patient for closer monitoring?</value>
+					</text>
+					<text id="flag_notes/flag-remove_flag_option-label">
+						<value>Remove a flag previously placed on this patient?</value>
+					</text>
+					<text id="flag_notes/patient_notes-label">
+						<value>Patient Notes:</value>
+					</text>
+					<text id="flag_notes/prev_patient_notes-label">
+						<value>Previous patient notes:<output value="/data/patient_notes_in"/></value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="flag_notes-label">
+						<value>&#2350;&#2352;&#2368;&#2395; &#2325;&#2379; &#2347;&#2381;&#2354;&#2376;&#2327; &#2325;&#2352;&#2344;&#2366; &#2324;&#2352; &#2350;&#2352;&#2368;&#2395; &#2325;&#2375; &#2344;&#2379;&#2335;&#2381;&#2360;</value>
+					</text>
+					<text id="flag_notes/nurse_name-label">
+						<value>&#2344;&#2352;&#2381;&#2360; &#2325;&#2366; &#2344;&#2366;&#2350;</value>
+					</text>
+					<text id="flag_notes/flag-label">
+						<value>&#2310;&#2346; &#2325;&#2381;&#2351;&#2366; &#2325;&#2352;&#2344;&#2366; &#2330;&#2366;&#2361;&#2379;&#2327;&#2375;?</value>
+					</text>
+					<text id="flag_notes/flag-flag_yes-label">
+						<value>&#2311;&#2360; &#2350;&#2352;&#2368;&#2395; &#2325;&#2379; &#2325;&#2352;&#2368;&#2348; &#2344;&#2367;&#2327;&#2352;&#2366;&#2344;&#2368; &#2325;&#2368; &#2395;&#2352;&#2369;&#2352;&#2340; &#2361;&#2376;? (&#2347;&#2381;&#2354;&#2376;&#2327;)</value>
+					</text>
+					<text id="flag_notes/flag-remove_flag_option-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2346;&#2361;&#2354;&#2375; &#2354;&#2327;&#2366;&#2351;&#2366;  &#2327;&#2351;&#2366; &#2347;&#2381;&#2354;&#2376;&#2327; &#2361;&#2335;&#2366;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375;?</value>
+					</text>
+					<text id="flag_notes/patient_notes-label">
+						<value>&#2350;&#2352;&#2368;&#2395; &#2325;&#2375; &#2344;&#2379;&#2335;&#2381;&#2360;:</value>
+					</text>
+					<text id="flag_notes/prev_patient_notes-label">
+						<value>&#2346;&#2369;&#2344;&#2307; &#2342;&#2352;&#2381;&#2395; &#2325;&#2367;&#2351;&#2375; &#2350;&#2352;&#2368;&#2395; &#2325;&#2375; &#2344;&#2379;&#2335;&#2381;&#2360;:<output value="/data/patient_notes_in"/>
+</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/nurse_flag" nodeset="/data/case/update/nurse_flag" relevant="count(/data/nurse_flag) &gt; 0"/><bind calculate="/data/patient_notes_out" nodeset="/data/case/update/patient_notes" relevant="count(/data/patient_notes_out) &gt; 0"/><setvalue event="xforms-ready" ref="/data/patient_notes_in" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/patient_notes"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/flag_notes" appearance="field-list">
+			<label ref="jr:itext('flag_notes-label')"/>
+			<input ref="/data/flag_notes/nurse_name">
+				<label ref="jr:itext('flag_notes/nurse_name-label')"/>
+			</input>
+			<select1 ref="/data/flag_notes/flag">
+				<label ref="jr:itext('flag_notes/flag-label')"/>
+				<item>
+					<label ref="jr:itext('flag_notes/flag-flag_yes-label')"/>
+					<value>flag_yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('flag_notes/flag-remove_flag_option-label')"/>
+					<value>remove_flag_option</value>
+				</item>
+			</select1>
+			<input ref="/data/flag_notes/patient_notes">
+				<label ref="jr:itext('flag_notes/patient_notes-label')"/>
+			</input>
+			<trigger ref="/data/flag_notes/prev_patient_notes" appearance="minimal">
+				<label ref="jr:itext('flag_notes/prev_patient_notes-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

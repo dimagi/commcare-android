@@ -1,0 +1,50 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>(IGNORE) Remove Maternal Indicators</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/97C564A5-DD4E-40F2-A1D3-ACBBD56412C3" uiVersion="1" version="3" name="(IGNORE) Remove Maternal Indicators">
+					<close/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><close/></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/close"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="close-label">
+						<value>Close this case?</value>
+					</text>
+					<text id="close-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="close-no-label">
+						<value>No</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="close-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2325;&#2376;&#2360;&#2375; &#2348;&#2306;&#2342; &#2325;&#2352;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375;?</value>
+					</text>
+					<text id="close-yes-label">
+						<value>&#2361;&#2366;&#2305;</value>
+					</text>
+					<text id="close-no-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind nodeset="/data/case/close" relevant="/data/close = 'yes'"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/close">
+			<label ref="jr:itext('close-label')"/>
+			<item>
+				<label ref="jr:itext('close-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('close-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>

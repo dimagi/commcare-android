@@ -1,0 +1,1160 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Update Registration</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/1a503d291461f4d7ee820fcc3a80719b00b94f04" uiVersion="1" version="3" name="Update Registration">
+					<update_info_select>
+						<update_info_list/>
+					</update_info_select>
+					<patient_info_list>
+						<name/>
+						<id/>
+						<ward/>
+						<septic_reason/>
+						<septic_other_reason/>
+						<septic_readiness/>
+						<spetic/>
+						<bed/>
+						<wife_of/>
+						<autofill_wo/>
+						<age_input/>
+						<admission_date/>
+						<admission_time/>
+						<blood_group/>
+						<parity/>
+						<gravida/>
+						<live_births/>
+						<abortions/>
+						<number_of_babies/>
+						<lmp/>
+					</patient_info_list>
+					<patient_info_cont>
+						<edd/>
+					</patient_info_cont>
+					<high_risk_list>
+						<age_risk_label/>
+						<age_risk/>
+						<para_risk_label/>
+						<para_risk/>
+						<height_risk/>
+						<height_risk_label/>
+						<weight_risk/>
+						<weight_risk_label/>
+						<prev_outcome/>
+						<risk_history_label/>
+						<risk_lbw/>
+						<lbw_risk_label/>
+						<prev_conditions/>
+					</high_risk_list>
+					<high_risk_page>
+						<high_risk_score_label/>
+						<high_risk_flag/>
+					</high_risk_page>
+					<t_f_labour/>
+					<age_input/>
+					<parity/>
+					<age_risk_1/>
+					<para_risk_1/>
+					<height_risk_1/>
+					<weight_risk_3/>
+					<risk_history_2/>
+					<lbw_risk_1/>
+					<risk_uterine_surgery_2/>
+					<risk_aph_pph_2/>
+					<risk_manual_placenta_2/>
+					<risk_anaemia_3/>
+					<risk_febrile_ailment_1/>
+					<risk_hyptertension_2/>
+					<risk_medical_condition_2/>
+					<risk_bleeding_2/>
+					<risk_presentation_2/>
+					<risk_maturity_2/>
+					<risk_prom_2/>
+					<risk_fetal_distress_2/>
+					<risk_prolonged_labour_2/>
+					<risk_uterine_size_2/>
+					<risk_dai_2/>
+					<risk_pre_eclampsia_2/>
+					<risk_eclampsia_2/>
+					<high_risk_score/>
+					<edd_calc/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><abortions/><admission_date/><admission_time/><age/><autofill_wo/><blood_group/><case_name/><edd_calc/><gravida/><height_risk/><id/><live_births/><lmp/><number_of_babies/><parity/><prev_outcome/><risk_lbw/><septic/><septic_other_reason/><septic_readiness/><septic_reason/><t_f_labour/><weight_risk/><wife_of/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/update_info_select"/>
+			<bind nodeset="/data/update_info_select/update_info_list"/>
+			<bind nodeset="/data/patient_info_list" relevant="selected(/data/update_info_select/update_info_list, 'patient_info_update')"/>
+			<bind nodeset="/data/patient_info_list/name" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/patient_info_list/id" type="xsd:int" required="true()"/>
+			<bind nodeset="/data/patient_info_list/ward"/>
+			<bind nodeset="/data/patient_info_list/septic_reason" relevant="/data/patient_info_list/ward = 'yes'"/>
+			<bind nodeset="/data/patient_info_list/septic_other_reason" type="xsd:string" relevant="/data/patient_info_list/septic_reason = 'other'"/>
+			<bind nodeset="/data/patient_info_list/septic_readiness"/>
+			<bind nodeset="/data/patient_info_list/spetic" calculate="if(/data/patient_info_list/ward=&quot;yes&quot;, &quot;(Septic)&quot;, &quot;&quot;)"/>
+			<bind nodeset="/data/patient_info_list/bed" type="xsd:int" required="true()"/>
+			<bind nodeset="/data/patient_info_list/wife_of" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/patient_info_list/autofill_wo" calculate="if(/data/patient_info_list/wife_of=&quot;&quot;, &quot;NA&quot;, &quot;/data/patient_info_list/wife_of&quot;)"/>
+			<bind nodeset="/data/patient_info_list/age_input" type="xsd:int" constraint=". &gt;= '10' or . &lt;= 70" jr:constraintMsg="jr:itext('patient_info_list/age_input-constraintMsg')" required="true()"/>
+			<bind nodeset="/data/patient_info_list/admission_date" type="xsd:date" required="true()"/>
+			<bind nodeset="/data/patient_info_list/admission_time" type="xsd:time" required="true()"/>
+			<bind nodeset="/data/patient_info_list/blood_group"/>
+			<bind nodeset="/data/patient_info_list/parity" required="true()"/>
+			<bind nodeset="/data/patient_info_list/gravida" required="true()"/>
+			<bind nodeset="/data/patient_info_list/live_births"/>
+			<bind nodeset="/data/patient_info_list/abortions"/>
+			<bind nodeset="/data/patient_info_list/number_of_babies"/>
+			<bind nodeset="/data/patient_info_list/lmp" type="xsd:date"/>
+			<bind nodeset="/data/patient_info_cont" relevant="selected(/data/update_info_select/update_info_list, 'patient_info_update')"/>
+			<bind nodeset="/data/patient_info_cont/edd" relevant="/data/patient_info_list/lmp != ''"/>
+			<bind nodeset="/data/high_risk_list" relevant="selected(/data/update_info_select/update_info_list, 'high_risk_update')"/>
+			<bind nodeset="/data/high_risk_list/age_risk_label" relevant="/data/age_input != ''"/>
+			<bind nodeset="/data/high_risk_list/age_risk" relevant="/data/age_risk_1 = 1"/>
+			<bind nodeset="/data/high_risk_list/para_risk_label" relevant="/data/para_risk_1 = 1"/>
+			<bind nodeset="/data/high_risk_list/para_risk"/>
+			<bind nodeset="/data/high_risk_list/height_risk" type="xsd:int"/>
+			<bind nodeset="/data/high_risk_list/height_risk_label" relevant="/data/height_risk_1 = 1"/>
+			<bind nodeset="/data/high_risk_list/weight_risk" type="xsd:int"/>
+			<bind nodeset="/data/high_risk_list/weight_risk_label" relevant="/data/weight_risk_3 = 3"/>
+			<bind nodeset="/data/high_risk_list/prev_outcome" relevant="/data/patient_info_list/gravida != 'primi'"/>
+			<bind nodeset="/data/high_risk_list/risk_history_label" relevant="/data/risk_history_2 = 2"/>
+			<bind nodeset="/data/high_risk_list/risk_lbw" relevant="/data/patient_info_list/parity != 'primi'"/>
+			<bind nodeset="/data/high_risk_list/lbw_risk_label" relevant="/data/lbw_risk_1 = 1"/>
+			<bind nodeset="/data/high_risk_list/prev_conditions" relevant="/data/patient_info_list/gravida != 'primi'"/>
+			<bind nodeset="/data/high_risk_page" relevant="selected(/data/update_info_select/update_info_list, 'high_risk_update')"/>
+			<bind nodeset="/data/high_risk_page/high_risk_score_label"/>
+			<bind nodeset="/data/high_risk_page/high_risk_flag" relevant="/data/high_risk_score &gt; 3"/>
+			<bind nodeset="/data/t_f_labour" relevant="selected(/data/update_info_select/update_info_list, 't_f_labour')"/>
+			<bind nodeset="/data/age_input" calculate="/data/patient_info_list/age_input"/>
+			<bind nodeset="/data/parity" calculate="/data/patient_info_list/parity"/>
+			<bind nodeset="/data/age_risk_1" calculate="if(/data/age_input &lt; 18 or /data/age_input &gt; 35, 1, 0)"/>
+			<bind nodeset="/data/para_risk_1" calculate="if(/data/patient_info_list/parity = &quot;primi&quot; or /data/patient_info_list/parity = &quot;multi&quot;, 1, 0)"/>
+			<bind nodeset="/data/height_risk_1" calculate="if(/data/high_risk_list/height_risk &lt; 145, 1, 0)"/>
+			<bind nodeset="/data/weight_risk_3" calculate="if((/data/high_risk_list/weight_risk &lt; 45) or (/data/high_risk_list/weight_risk &gt; 90), 3, 0)"/>
+			<bind nodeset="/data/risk_history_2" calculate="if((/data/high_risk_list/prev_outcome = &quot;still_birth&quot;) or (/data/high_risk_list/prev_outcome = &quot;miscarriage&quot;) or (/data/high_risk_list/prev_outcome = &quot;spont_abortion&quot;), 2, 0)"/>
+			<bind nodeset="/data/lbw_risk_1" calculate="if(/data/high_risk_list/risk_lbw = &quot;yes&quot;, 1, 0)"/>
+			<bind nodeset="/data/risk_uterine_surgery_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;uterine_surgery&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_aph_pph_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;aph_pph&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_manual_placenta_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;manual_placenta&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_anaemia_3" calculate="if(/data/high_risk_list/prev_conditions = &quot;anaemia&quot;, 3, 0)"/>
+			<bind nodeset="/data/risk_febrile_ailment_1" calculate="if(/data/high_risk_list/prev_conditions = &quot;febrile_ailment&quot;, 1, 0)"/>
+			<bind nodeset="/data/risk_hyptertension_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;hypertension&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_medical_condition_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;medical_condition&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_bleeding_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;bleeding&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_presentation_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;presentation&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_maturity_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;maturity&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_prom_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;prom&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_fetal_distress_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;fetal_distress&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_prolonged_labour_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;prolonged_labour&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_uterine_size_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;uterine_size&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_dai_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;dai&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_pre_eclampsia_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;pre_eclampsia&quot;, 2, 0)"/>
+			<bind nodeset="/data/risk_eclampsia_2" calculate="if(/data/high_risk_list/prev_conditions = &quot;eclampsia&quot;, 2, 0)"/>
+			<bind nodeset="/data/high_risk_score" calculate="/data/age_risk_1+/data/para_risk_1+/data/height_risk_1+/data/weight_risk_3+/data/risk_history_2+/data/lbw_risk_1+/data/risk_uterine_surgery_2+/data/risk_aph_pph_2+/data/risk_manual_placenta_2+/data/risk_anaemia_3+/data/risk_febrile_ailment_1+/data/risk_hyptertension_2+/data/risk_medical_condition_2+/data/risk_bleeding_2+/data/risk_presentation_2+/data/risk_maturity_2+/data/risk_prom_2+/data/risk_fetal_distress_2+/data/risk_prolonged_labour_2+/data/risk_uterine_size_2+/data/risk_dai_2+/data/risk_pre_eclampsia_2+/data/risk_eclampsia_2"/>
+			<bind nodeset="/data/edd_calc" calculate="date(/data/patient_info_list/lmp + 280)"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="update_info_select/update_info_list-label">
+						<value>Select the initial information to update:</value>
+					</text>
+					<text id="update_info_select/update_info_list-patient_info_update-label">
+						<value>Patient Information</value>
+					</text>
+					<text id="update_info_select/update_info_list-high_risk_update-label">
+						<value>High Risk Screening</value>
+					</text>
+					<text id="update_info_select/update_info_list-t_f_labour-label">
+						<value>True/False Labour</value>
+					</text>
+					<text id="patient_info_list/name-label">
+						<value>Name: *</value>
+					</text>
+					<text id="patient_info_list/id-label">
+						<value>ID #: *</value>
+					</text>
+					<text id="patient_info_list/ward-label">
+						<value>Is the patient in the septic ward?</value>
+					</text>
+					<text id="patient_info_list/septic_reason-label">
+						<value>Reason for being in the Septic Ward</value>
+					</text>
+					<text id="patient_info_list/septic_reason-hiv-label">
+						<value>HIV</value>
+					</text>
+					<text id="patient_info_list/septic_reason-sti-label">
+						<value>STI</value>
+					</text>
+					<text id="patient_info_list/septic_reason-other-label">
+						<value>Other</value>
+					</text>
+					<text id="patient_info_list/septic_other_reason-label">
+						<value>Specify the other reason:</value>
+					</text>
+					<text id="patient_info_list/septic_readiness-label">
+						<value>Is the delivery room ready for the Septic patient to deliver in? Are the required kit available?</value>
+					</text>
+					<text id="patient_info_list/bed-label">
+						<value>Bed #: *</value>
+					</text>
+					<text id="patient_info_list/wife_of-label">
+						<value>Wife of (W/0): *</value>
+					</text>
+					<text id="patient_info_list/age_input-label">
+						<value>Age: *</value>
+					</text>
+					<text id="patient_info_list/age_input-constraintMsg">
+						<value>Please enter a valid age</value>
+					</text>
+					<text id="patient_info_list/admission_date-label">
+						<value>Date of Admission: *</value>
+					</text>
+					<text id="patient_info_list/admission_time-label">
+						<value>Time of Admission: *</value>
+					</text>
+					<text id="patient_info_list/blood_group-label">
+						<value>Blood Group</value>
+					</text>
+					<text id="patient_info_list/blood_group-o+-label">
+						<value>O+</value>
+					</text>
+					<text id="patient_info_list/blood_group-o--label">
+						<value>O-</value>
+					</text>
+					<text id="patient_info_list/blood_group-a+-label">
+						<value>A+</value>
+					</text>
+					<text id="patient_info_list/blood_group-a--label">
+						<value>A-</value>
+					</text>
+					<text id="patient_info_list/blood_group-b+-label">
+						<value>B+</value>
+					</text>
+					<text id="patient_info_list/blood_group-b--label">
+						<value>B-</value>
+					</text>
+					<text id="patient_info_list/blood_group-ab+-label">
+						<value>AB+</value>
+					</text>
+					<text id="patient_info_list/parity-label">
+						<value>Parity: *</value>
+					</text>
+					<text id="patient_info_list/parity-zero-label">
+						<value>Zero (P0)</value>
+					</text>
+					<text id="patient_info_list/parity-primi-label">
+						<value>Primi para (P1)</value>
+					</text>
+					<text id="patient_info_list/parity-second-label">
+						<value>Second para (P2)</value>
+					</text>
+					<text id="patient_info_list/parity-third-label">
+						<value>Third para (P3)</value>
+					</text>
+					<text id="patient_info_list/parity-fourth-label">
+						<value>Fourth para (P4)</value>
+					</text>
+					<text id="patient_info_list/parity-multi-label">
+						<value>Multi para (P5 or higher)</value>
+					</text>
+					<text id="patient_info_list/gravida-label">
+						<value>Gravida: *</value>
+					</text>
+					<text id="patient_info_list/gravida-primi-label">
+						<value>Primi gravida (G1)</value>
+					</text>
+					<text id="patient_info_list/gravida-second-label">
+						<value>Second gravida (G2)</value>
+					</text>
+					<text id="patient_info_list/gravida-third-label">
+						<value>Third gravida (G3)</value>
+					</text>
+					<text id="patient_info_list/gravida-fourth-label">
+						<value>Fourth gravida (G4)</value>
+					</text>
+					<text id="patient_info_list/gravida-multi-label">
+						<value>Multi gravida (G5 or higher)</value>
+					</text>
+					<text id="patient_info_list/live_births-label">
+						<value>Live Births:</value>
+					</text>
+					<text id="patient_info_list/live_births-L1-label">
+						<value>L1</value>
+					</text>
+					<text id="patient_info_list/live_births-l2-label">
+						<value>L2</value>
+					</text>
+					<text id="patient_info_list/live_births-L3-label">
+						<value>L3</value>
+					</text>
+					<text id="patient_info_list/live_births-L4-label">
+						<value>L4 or higher</value>
+					</text>
+					<text id="patient_info_list/abortions-label">
+						<value>Abortions:</value>
+					</text>
+					<text id="patient_info_list/abortions-A1-label">
+						<value>A1</value>
+					</text>
+					<text id="patient_info_list/abortions-A2-label">
+						<value>A2</value>
+					</text>
+					<text id="patient_info_list/abortions-A3-label">
+						<value>A3</value>
+					</text>
+					<text id="patient_info_list/abortions-A4-label">
+						<value>A4 or higher</value>
+					</text>
+					<text id="patient_info_list/question1-label">
+						<value>Present Pregnancy:</value>
+					</text>
+					<text id="patient_info_list/twins-yes-label">
+						<value>1 (One)</value>
+					</text>
+					<text id="patient_info_list/question1-item2-label">
+						<value>1 (Twins)</value>
+					</text>
+					<text id="patient_info_list/number_of_babies-three-label">
+						<value>3 (Triplets)</value>
+					</text>
+					<text id="patient_info_list/number_of_babies-more-label">
+						<value>4 (Quadruplets)</value>
+					</text>
+					<text id="patient_info_list/lmp-label">
+						<value>LMP</value>
+					</text>
+					<text id="patient_info_list/edd-label">
+						<value>EDD:<output value="/data/edd_calc"/></value>
+					</text>
+					<text id="high_risk_list-label">
+						<value>High Risk Screening:</value>
+					</text>
+					<text id="high_risk_list/age_risk_label-label">
+						<value>Age<output value="/data/age_input"/></value>
+					</text>
+					<text id="high_risk_list/age_risk-label">
+						<value>Age is less than 18 or greater than 35, +1</value>
+					</text>
+					<text id="high_risk_list/para_risk_label-label">
+						<value>Parity<output value="/data/parity"/></value>
+					</text>
+					<text id="high_risk_list/para_risk-label">
+						<value>Primi or multi para, +1</value>
+					</text>
+					<text id="high_risk_list/height_risk-label">
+						<value>What is her height (cm)?</value>
+					</text>
+					<text id="high_risk_list/height_risk_label-label">
+						<value>Height is less than 145cm: +1</value>
+					</text>
+					<text id="high_risk_list/weight_risk-label">
+						<value>What is her weight (kg)?</value>
+					</text>
+					<text id="high_risk_list/weight_risk_label-label">
+						<value>Weight is less than 45kg or more than 90kg: +3</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-label">
+						<value>What was the outcome of her previous pregnancy?</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-normal-label">
+						<value>Normal delivery</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-assisted-label">
+						<value>Assisted delivery</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-cesarean-label">
+						<value>Cesarean</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-still_birth-label">
+						<value>Still birth</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-miscarriage-label">
+						<value>Miscarriage</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-spont_abortion-label">
+						<value>Spontaneous abortion</value>
+					</text>
+					<text id="high_risk_list/risk_history_label-label">
+						<value>Patient has a high risk obstetrical history: +2</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-label">
+						<value>History of low birth weight?</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-no-label">
+						<value>No</value>
+					</text>
+					<text id="high_risk_list/lbw_risk_label-label">
+						<value>History of low birth weight: +1</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-label">
+						<value>Has the patient experienced any of the following in previous pregnancies?</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-pre_eclampsia-label">
+						<value>Pre-eclampsia</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-eclampsia-label">
+						<value>Eclampsia</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-uterine_surgery-label">
+						<value>Uterine Surgery</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-aph_pph-label">
+						<value>APH or PPH (puerperal sepsis)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-manual_placenta-label">
+						<value>Manual removal of placenta</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-anaemia-label">
+						<value>Anaemia (less than 6g %)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-febrile_ailment-label">
+						<value>Febrile ailment in pregnancy</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-hypertension-label">
+						<value>Pregnancy associate with hypertension</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-medical_condition-label">
+						<value>Medical condition with pregnancy (TB, diabetes, thyroid disorder, ashtma)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-bleeding-label">
+						<value>Bleeding P/V (APH Abortion)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-presentation-label">
+						<value>Abnormal presentation (apart from cephalic)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-maturity-label">
+						<value>Maturity &lt; 37 weeks or maturity &gt; 45 weeks</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-prom-label">
+						<value>PROM (Premature Rupture Of Membranes)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-fetal_distress-label">
+						<value>Fetal distress</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-prolonged_labour-label">
+						<value>Prolonged labour &gt; 24 hours</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-uterine_size-label">
+						<value>Uterine size &lt; period of gestation</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-dai-label">
+						<value>Dai handling / Outside interference</value>
+					</text>
+					<text id="high_risk_page/high_risk_score_label-label">
+						<value>High Risk Score:<output value="/data/high_risk_score"/></value>
+					</text>
+					<text id="high_risk_page/high_risk_flag-label">
+						<value>This patient is HIGH RISK.</value>
+					</text>
+					<text id="high_risk_page/question6-label">
+						<value>Select if the patient is in TRUE or FALSE labour:</value>
+					</text>
+					<text id="high_risk_page/question6-item1-label">
+						<value>True Labour</value>
+					</text>
+					<text id="high_risk_page/question6-item2-label">
+						<value>False Labour</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="update_info_select/update_info_list-label">
+						<value>&#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368; &#2330;&#2369;&#2344;&#2375; &#2332;&#2379; &#2310;&#2346; &#2348;&#2342;&#2354;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375;</value>
+					</text>
+					<text id="update_info_select/update_info_list-patient_info_update-label">
+						<value>&#2350;&#2352;&#2368;&#2395; &#2325;&#2368; &#2332;&#2366;&#2344;&#2325;&#2366;&#2352;&#2368;</value>
+					</text>
+					<text id="update_info_select/update_info_list-high_risk_update-label">
+						<value>&#2313;&#2330;&#2381;&#2330; &#2332;&#2379;&#2326;&#2367;&#2350; &#2360;&#2381;&#2325;&#2381;&#2352;&#2368;&#2344;&#2367;&#2306;&#2327;</value>
+					</text>
+					<text id="update_info_select/update_info_list-t_f_labour-label">
+						<value>True/False Labour</value>
+					</text>
+					<text id="patient_info_list/name-label">
+						<value>&#2344;&#2366;&#2350;</value>
+					</text>
+					<text id="patient_info_list/id-label">
+						<value>&#2346;&#2306;&#2332;&#2368;&#2325;&#2352;&#2339; &#2360;&#2306;&#2326;&#2381;&#2351;&#2366;</value>
+					</text>
+					<text id="patient_info_list/ward-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2350;&#2352;&#2368;&#2395; &#2360;&#2375;&#2346;&#2381;&#2335;&#2367;&#2325; &#2357;&#2366;&#2352;&#2381;&#2337; &#2350;&#2375;&#2306; &#2361;&#2376;?</value>
+					</text>
+					<text id="patient_info_list/septic_reason-label">
+						<value>&#2360;&#2375;&#2346;&#2381;&#2335;&#2367;&#2325; &#2357;&#2366;&#2352;&#2381;&#2337; &#2350;&#2375;&#2306; &#2361;&#2379;&#2344;&#2375; &#2325;&#2366; &#2325;&#2366;&#2352;&#2339; </value>
+					</text>
+					<text id="patient_info_list/septic_reason-hiv-label">
+						<value>&#2319;&#2330; &#2310;&#2312; &#2357;&#2368; </value>
+					</text>
+					<text id="patient_info_list/septic_reason-sti-label">
+						<value>&#2319;&#2360; &#2335;&#2368; &#2310;&#2319;</value>
+					</text>
+					<text id="patient_info_list/septic_reason-other-label">
+						<value>&#2309;&#2344;&#2381;&#2351;</value>
+					</text>
+					<text id="patient_info_list/septic_other_reason-label">
+						<value>&#2309;&#2344;&#2381;&#2351; &#2325;&#2366;&#2352;&#2339; &#2348;&#2340;&#2366;&#2319;&#2306;:</value>
+					</text>
+					<text id="patient_info_list/septic_readiness-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2337;&#2367;&#2354;&#2368;&#2357;&#2352;&#2368; &#2352;&#2370;&#2350; &#2340;&#2376;&#2351;&#2366;&#2352; &#2361;&#2376; &#2360;&#2375;&#2346;&#2381;&#2335;&#2367;&#2325; &#2350;&#2352;&#2368;&#2395; &#2325;&#2368; &#2337;&#2367;&#2354;&#2368;&#2357;&#2352;&#2368; &#2325;&#2375; &#2354;&#2367;&#2319;? &#2325;&#2381;&#2351;&#2366; &#2395;&#2352;&#2370;&#2352;&#2368; &#2325;&#2367;&#2335; &#2340;&#2376;&#2351;&#2366;&#2352; &#2361;&#2376;?
+</value>
+					</text>
+					<text id="patient_info_list/bed-label">
+						<value>&#2348;&#2367;&#2360;&#2381;&#2340;&#2352; &#2360;&#2306;&#2326;&#2381;&#2351;&#2366;:</value>
+					</text>
+					<text id="patient_info_list/wife_of-label">
+						<value>&#2346;&#2340;&#2367; &#2325;&#2366; &#2344;&#2366;&#2350;:</value>
+					</text>
+					<text id="patient_info_list/age_input-label">
+						<value>&#2313;&#2350;&#2381;&#2352;</value>
+					</text>
+					<text id="patient_info_list/age_input-constraintMsg">
+						<value>Please enter a valid age</value>
+					</text>
+					<text id="patient_info_list/admission_date-label">
+						<value>&#2349;&#2352;&#2381;&#2340;&#2368; &#2325;&#2352;&#2344;&#2375; &#2325;&#2368; &#2340;&#2366;&#2352;&#2368;&#2326;</value>
+					</text>
+					<text id="patient_info_list/admission_time-label">
+						<value>&#2349;&#2352;&#2381;&#2340;&#2368; &#2325;&#2352;&#2344;&#2375; &#2325;&#2366; &#2360;&#2350;&#2351;</value>
+					</text>
+					<text id="patient_info_list/blood_group-label">
+						<value>&#2348;&#2381;&#2354;&#2337; &#2327;&#2381;&#2352;&#2369;&#2346;</value>
+					</text>
+					<text id="patient_info_list/blood_group-o+-label">
+						<value>O+</value>
+					</text>
+					<text id="patient_info_list/blood_group-o--label">
+						<value>O-</value>
+					</text>
+					<text id="patient_info_list/blood_group-a+-label">
+						<value>A+</value>
+					</text>
+					<text id="patient_info_list/blood_group-a--label">
+						<value>A-</value>
+					</text>
+					<text id="patient_info_list/blood_group-b+-label">
+						<value>B+</value>
+					</text>
+					<text id="patient_info_list/blood_group-b--label">
+						<value>B-</value>
+					</text>
+					<text id="patient_info_list/blood_group-ab+-label">
+						<value>AB+</value>
+					</text>
+					<text id="patient_info_list/parity-label">
+						<value>&#2346;&#2361;&#2354;&#2375; &#2346;&#2381;&#2352;&#2360;&#2357;&#2379; &#2325;&#2368; &#2327;&#2367;&#2344;&#2340;&#2368;</value>
+					</text>
+					<text id="patient_info_list/parity-zero-label">
+						<value>Zero (P0)</value>
+					</text>
+					<text id="patient_info_list/parity-primi-label">
+						<value>&#2346;&#2361;&#2354; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="patient_info_list/parity-second-label">
+						<value>&#2342;&#2370;&#2360;&#2352;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="patient_info_list/parity-third-label">
+						<value>&#2340;&#2368;&#2360;&#2352;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="patient_info_list/parity-fourth-label">
+						<value>&#2330;&#2380;&#2341;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="patient_info_list/parity-multi-label">
+						<value>&#2330;&#2366;&#2352; &#2360;&#2375; &#2332;&#2364;&#2381;&#2351;&#2366;&#2342;&#2366; &#2348;&#2366;&#2352; &#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2368; &#2327;&#2367;&#2344;&#2340;&#2368;</value>
+					</text>
+					<text id="patient_info_list/gravida-label">
+						<value>&#2327;&#2352;&#2381;&#2349; &#2343;&#2366;&#2352;&#2339; &#2325;&#2352;&#2344;&#2375; &#2325;&#2366; &#2327;&#2367;&#2344;&#2340;&#2368;</value>
+					</text>
+					<text id="patient_info_list/gravida-primi-label">
+						<value>&#2346;&#2361;&#2354;&#2366; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339;</value>
+					</text>
+					<text id="patient_info_list/gravida-second-label">
+						<value>&#2342;&#2370;&#2360;&#2352;&#2366; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339;</value>
+					</text>
+					<text id="patient_info_list/gravida-third-label">
+						<value>&#2340;&#2368;&#2360;&#2352;&#2366; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339;</value>
+					</text>
+					<text id="patient_info_list/gravida-fourth-label">
+						<value>&#2330;&#2380;&#2341;&#2366; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339;</value>
+					</text>
+					<text id="patient_info_list/gravida-multi-label">
+						<value>&#2330;&#2366;&#2352; &#2360;&#2375; &#2332;&#2364;&#2381;&#2351;&#2366;&#2342;&#2366; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339;</value>
+					</text>
+					<text id="patient_info_list/live_births-label">
+						<value>Live Births:</value>
+					</text>
+					<text id="patient_info_list/live_births-L1-label">
+						<value>L1</value>
+					</text>
+					<text id="patient_info_list/live_births-l2-label">
+						<value>L2</value>
+					</text>
+					<text id="patient_info_list/live_births-L3-label">
+						<value>L3</value>
+					</text>
+					<text id="patient_info_list/live_births-L4-label">
+						<value>L4 or higher</value>
+					</text>
+					<text id="patient_info_list/abortions-label">
+						<value>Abortions:</value>
+					</text>
+					<text id="patient_info_list/abortions-A1-label">
+						<value>A1</value>
+					</text>
+					<text id="patient_info_list/abortions-A2-label">
+						<value>A2</value>
+					</text>
+					<text id="patient_info_list/abortions-A3-label">
+						<value>A3</value>
+					</text>
+					<text id="patient_info_list/abortions-A4-label">
+						<value>A4 or higher</value>
+					</text>
+					<text id="patient_info_list/question1-label">
+						<value>&#2350;&#2366;&#2305; &#2325;&#2375; &#2325;&#2367;&#2340;&#2344;&#2375; &#2348;&#2330;&#2381;&#2330;&#2375; &#2361;&#2379;&#2344;&#2375; &#2357;&#2366;&#2354;&#2375; &#2361;&#2376;?
+</value>
+					</text>
+					<text id="patient_info_list/twins-yes-label">
+						<value>&#2319;&#2325;</value>
+					</text>
+					<text id="patient_info_list/question1-item2-label">
+						<value>&#2342;&#2379;</value>
+					</text>
+					<text id="patient_info_list/number_of_babies-three-label">
+						<value>&#2340;&#2368;&#2344;</value>
+					</text>
+					<text id="patient_info_list/number_of_babies-more-label">
+						<value>&#2395;&#2381;&#2351;&#2366;&#2342;&#2366;</value>
+					</text>
+					<text id="patient_info_list/lmp-label">
+						<value>&#2310;&#2326;&#2367;&#2352;&#2368; &#2350;&#2366;&#2361;&#2357;&#2366;&#2352;&#2368; &#2325;&#2368; &#2340;&#2366;&#2352;&#2368;&#2326;</value>
+					</text>
+					<text id="patient_info_list/edd-label">
+						<value>&#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2368; &#2309;&#2344;&#2369;&#2350;&#2366;&#2344;&#2367;&#2340; &#2340;&#2366;&#2352;&#2368;&#2326;:<output value="/data/edd_calc"/></value>
+					</text>
+					<text id="high_risk_list-label">
+						<value>&#2313;&#2330;&#2381;&#2330; &#2332;&#2379;&#2326;&#2367;&#2350; &#2360;&#2381;&#2325;&#2381;&#2352;&#2368;&#2344;&#2367;&#2306;&#2327;</value>
+					</text>
+					<text id="high_risk_list/age_risk_label-label">
+						<value>1. &#2313;&#2350;&#2381;&#2352;<output value="/data/age_input"/></value>
+					</text>
+					<text id="high_risk_list/age_risk-label">
+						<value>(&#2313;&#2350;&#2381;&#2352; 18 &#2360;&#2366;&#2354; &#2360;&#2375; &#2325;&#2350; &#2351;&#2366; 35  &#2360;&#2366;&#2354; &#2360;&#2375; &#2332;&#2381;&#2351;&#2366;&#2342;&#2366; &#2361;&#2376;, +1)</value>
+					</text>
+					<text id="high_risk_list/para_risk_label-label">
+						<value>2. &#2346;&#2381;&#2352;&#2360;&#2357;<output value="/data/parity"/></value>
+					</text>
+					<text id="high_risk_list/para_risk-label">
+						<value>(&#2346;&#2361;&#2354;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357; &#2351;&#2366; &#2330;&#2366;&#2352; &#2360;&#2375; &#2395;&#2381;&#2351;&#2366;&#2342;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2368; &#2327;&#2367;&#2344;&#2340;&#2367;,+1)</value>
+					</text>
+					<text id="high_risk_list/height_risk-label">
+						<value>3. &#2350;&#2352;&#2368;&#2395; &#2325;&#2368; &#2354;&#2306;&#2348;&#2366;&#2312; &#2325;&#2367;&#2340;&#2344;&#2368; &#2361;&#2376; (cm)?</value>
+					</text>
+					<text id="high_risk_list/height_risk_label-label">
+						<value>(&#2354;&#2350;&#2381;&#2348;&#2366;&#2312; 145cm &#2360;&#2375; &#2325;&#2350; &#2361;&#2376;: +1)</value>
+					</text>
+					<text id="high_risk_list/weight_risk-label">
+						<value>4. &#2350;&#2352;&#2368;&#2395; &#2325;&#2366; &#2357;&#2395;&#2344; &#2325;&#2367;&#2340;&#2344;&#2366; &#2361;&#2376;&#2306; (kg)?</value>
+					</text>
+					<text id="high_risk_list/weight_risk_label-label">
+						<value>(&#2357;&#2332;&#2344; 45 &#2325;&#2367;&#2354;&#2379;&#2327;&#2381;&#2352;&#2366;&#2350; &#2360;&#2375; &#2325;&#2350; &#2351;&#2366; 90 &#2325;&#2367;&#2354;&#2379;&#2327;&#2381;&#2352;&#2366;&#2350; &#2360;&#2375; &#2309;&#2343;&#2367;&#2325; &#2361;&#2376;:+3 )</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-label">
+						<value>&#2313;&#2344;&#2325;&#2375; &#2346;&#2367;&#2331;&#2354;&#2375; &#2327;&#2352;&#2381;&#2349;&#2366;&#2357;&#2360;&#2381;&#2341;&#2366; &#2325;&#2366; &#2346;&#2352;&#2367;&#2339;&#2366;&#2350; &#2325;&#2381;&#2351;&#2366; &#2341;&#2366;?</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-normal-label">
+						<value>&#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-assisted-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2375; (&#2325;&#2376;&#2306;&#2330;&#2368;, &#2342;&#2348;&#2366;&#2357;)</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-cesarean-label">
+						<value>&#2321;&#2346;&#2352;&#2375;&#2358;&#2344;</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-still_birth-label">
+						<value>&#2350;&#2371;&#2340; &#2332;&#2344;&#2381;&#2350;&#2366; &#2348;&#2330;&#2381;&#2330;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-miscarriage-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2346;&#2366;&#2340;</value>
+					</text>
+					<text id="high_risk_list/prev_outcome-spont_abortion-label">
+						<value>&#2360;&#2361;&#2332;/ &#2360;&#2381;&#2357;&#2340;&#2307; &#2327;&#2352;&#2381;&#2349;&#2346;&#2366;&#2340; / (&#2348;&#2330;&#2381;&#2330;&#2366; &#2327;&#2367;&#2352;&#2344;&#2366;)</value>
+					</text>
+					<text id="high_risk_list/risk_history_label-label">
+						<value>&#2350;&#2352;&#2368;&#2395; &#2325;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2366; &#2393;&#2352;&#2366;&#2348; &#2311;&#2340;&#2367;&#2361;&#2366;&#2360; &#2352;&#2361;&#2366; &#2361;&#2376; : +2</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2309;&#2340;&#2368;&#2340; &#2350;&#2375;&#2306; &#2332;&#2344;&#2381;&#2350; &#2325;&#2375; &#2360;&#2350;&#2351; &#2325;&#2350; &#2357;&#2332;&#2344; &#2357;&#2366;&#2354;&#2375; &#2348;&#2330;&#2381;&#2330;&#2375; &#2361;&#2369;&#2319; &#2361;&#2376;&#2306;?</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-yes-label">
+						<value>&#2361;&#2366;&#2305;</value>
+					</text>
+					<text id="high_risk_list/risk_lbw-no-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+					</text>
+					<text id="high_risk_list/lbw_risk_label-label">
+						<value>&#2309;&#2340;&#2368;&#2340; &#2350;&#2375;&#2306; &#2332;&#2344;&#2381;&#2350; &#2325;&#2375; &#2360;&#2350;&#2351; &#2325;&#2350; &#2357;&#2332;&#2344; &#2357;&#2366;&#2354;&#2375; &#2348;&#2330;&#2381;&#2330;&#2375; &#2361;&#2369;&#2319; &#2361;&#2376;&#2306;: +1</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2350;&#2352;&#2368;&#2395; &#2344;&#2375; &#2346;&#2367;&#2331;&#2354;&#2375; &#2327;&#2352;&#2381;&#2349;&#2343;&#2366;&#2352;&#2339; &#2350;&#2375;&#2306; &#2344;&#2367;&#2350;&#2381;&#2344; &#2350;&#2375;&#2306; &#2360;&#2375; &#2325;&#2367;&#2360;&#2368; &#2325;&#2366; &#2349;&#2368; &#2309;&#2344;&#2369;&#2349;&#2357; &#2325;&#2367;&#2351;&#2366; &#2361;&#2376;?</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-pre_eclampsia-label">
+						<value>&#2346;&#2370;&#2352;&#2381;&#2357; &#2319;&#2325;&#2381;&#2354;&#2366;&#2350;&#2381;&#2346;&#2381;&#2360;&#2367;&#2351;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-eclampsia-label">
+						<value>&#2319;&#2325;&#2381;&#2354;&#2366;&#2350;&#2381;&#2346;&#2381;&#2360;&#2367;&#2351;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-uterine_surgery-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2366;&#2358;&#2351; &#2325;&#2366; &#2321;&#2346;&#2352;&#2375;&#2358;&#2344;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-aph_pph-label">
+						<value>&#2346;&#2381;&#2352;&#2360;&#2357; &#2360;&#2375; &#2346;&#2361;&#2354;&#2375; &#2351;&#2366; &#2348;&#2366;&#2342; &#2350;&#2375;&#2306; &#2309;&#2340;&#2381;&#2351;&#2343;&#2367;&#2325; &#2350;&#2366;&#2340;&#2381;&#2352;&#2366; &#2350;&#2375;&#2306;&#2326;&#2370;&#2344; &#2348;&#2361;&#2344;&#2366; &#2309;&#2341;&#2357;&#2366; &#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2375; &#2348;&#2366;&#2342; &#2346;&#2370;&#2352;&#2375; &#2358;&#2352;&#2368;&#2352; &#2350;&#2375;&#2306; &#2360;&#2306;&#2325;&#2381;&#2352;&#2350;&#2339; &#2347;&#2375;&#2354;&#2344;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-manual_placenta-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2344;&#2366;&#2354; &#2325;&#2379; &#2361;&#2366;&#2341;&#2379;&#2306; &#2360;&#2375; &#2344;&#2367;&#2325;&#2354;&#2344;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-anaemia-label">
+						<value>&#2309;&#2344;&#2368;&#2350;&#2367;&#2351;&#2366; (&#2326;&#2370;&#2344; 6gm% &#2360;&#2375; &#2325;&#2350;)</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-febrile_ailment-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2366;&#2357;&#2360;&#2381;&#2341;&#2366; &#2350;&#2375;&#2306; &#2348;&#2369;&#2326;&#2366;&#2352; &#2361;&#2379;&#2344;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-hypertension-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2366;&#2357;&#2360;&#2381;&#2341;&#2366; &#2325;&#2375; &#2342;&#2380;&#2352;&#2366;&#2344; &#2313;&#2330;&#2381;&#2330; &#2352;&#2325;&#2381;&#2340;&#2330;&#2366;&#2346;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-medical_condition-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2366;&#2357;&#2360;&#2381;&#2341;&#2366; &#2325;&#2375; &#2342;&#2380;&#2352;&#2366;&#2344; (&#2335;&#2368;&#2348;&#2368; , &#2350;&#2343;&#2369;&#2350;&#2375;&#2361; , &#2341;&#2366;&#2351;&#2352;&#2366;&#2311;&#2337; &#2357;&#2367;&#2325;&#2366;&#2352; , &#2342;&#2350;&#2366; ) &#2332;&#2376;&#2360;&#2375; &#2352;&#2379;&#2327;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-bleeding-label">
+						<value>&#2352;&#2325;&#2381;&#2340; &#2360;&#2381;&#2352;&#2366;&#2357; &#2346;&#2368; / &#2357;&#2368; ( &#2320; &#2346;&#2368; &#2319;&#2330; &#2327;&#2352;&#2381;&#2349;&#2346;&#2366;&#2340; )</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-presentation-label">
+						<value>&#2309;&#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2346;&#2381;&#2352;&#2360;&#2381;&#2340;&#2369;&#2340;&#2367;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-maturity-label">
+						<value>&#2346;&#2352;&#2367;&#2346;&#2325;&#2381;&#2357; &lt; 37 &#2360;&#2346;&#2381;&#2340;&#2366;&#2361; &#2351;&#2366; &#2346;&#2352;&#2367;&#2346;&#2325;&#2381;&#2357; &gt; 45 &#2360;&#2346;&#2381;&#2340;&#2366;&#2361;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-prom-label">
+						<value>&#2360;&#2350;&#2351; &#2360;&#2375; &#2346;&#2370;&#2352;&#2381;&#2357; &#2346;&#2366;&#2344;&#2368; &#2325;&#2368; &#2341;&#2376;&#2354;&#2368; &#2325;&#2375; &#2347;&#2335;&#2344;&#2375; &#2325;&#2366; &#2309;&#2344;&#2369;&#2349;&#2357;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-fetal_distress-label">
+						<value>&#2325;&#2379;&#2326; &#2350;&#2375;&#2306; &#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2366; &#2393;&#2352;&#2366;&#2348; &#2361;&#2379;&#2344;&#2366;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-prolonged_labour-label">
+						<value>&#2354;&#2350;&#2381;&#2348;&#2375; &#2360;&#2350;&#2351; &#2360;&#2375; &#2354;&#2376;&#2348;&#2352; &#2325;&#2366; &#2342;&#2352;&#2381;&#2342; &gt; 24 &#2328;&#2306;&#2335;&#2375; &#2360;&#2375; &#2309;&#2343;&#2367;&#2325;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-uterine_size-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2366;&#2358;&#2351; &#2325;&#2366; &#2310;&#2325;&#2366;&#2352; &lt; &#2327;&#2352;&#2381;&#2349; &#2325;&#2368; &#2309;&#2357;&#2343;&#2367;</value>
+					</text>
+					<text id="high_risk_list/prev_conditions-dai-label">
+						<value>&#2342;&#2366;&#2312; &#2342;&#2381;&#2357;&#2366;&#2352;&#2366; &#2342;&#2375;&#2326;&#2349;&#2366;&#2354; / &#2348;&#2366;&#2361;&#2352;&#2368; &#2360;&#2361;&#2351;&#2379;&#2327;</value>
+					</text>
+					<text id="high_risk_page/high_risk_score_label-label">
+						<value>&#2313;&#2330;&#2381;&#2330; &#2332;&#2379;&#2326;&#2367;&#2350; &#2360;&#2381;&#2325;&#2379;&#2352;:<output value="/data/high_risk_score"/></value>
+					</text>
+					<text id="high_risk_page/high_risk_flag-label">
+						<value>&#2351;&#2361; &#2350;&#2352;&#2368;&#2395; &#2313;&#2330;&#2381;&#2330; &#2332;&#2379;&#2326;&#2367;&#2350; &#2325;&#2368; &#2360;&#2367;&#2340;&#2381;&#2341;&#2368; &#2350;&#2375;&#2306; &#2361;&#2376;&#2306;</value>
+					</text>
+					<text id="high_risk_page/question6-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2350;&#2352;&#2368;&#2395; &#2354;&#2375;&#2348;&#2352; &#2350;&#2375;&#2306; &#2361;&#2376;&#2306;?</value>
+					</text>
+					<text id="high_risk_page/question6-item1-label">
+						<value>&#2361;&#2366;&#2305;</value>
+					</text>
+					<text id="high_risk_page/question6-item2-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/patient_info_list/abortions" nodeset="/data/case/update/abortions" relevant="count(/data/patient_info_list/abortions) &gt; 0"/><bind calculate="/data/patient_info_list/admission_date" nodeset="/data/case/update/admission_date" relevant="count(/data/patient_info_list/admission_date) &gt; 0"/><bind calculate="/data/patient_info_list/admission_time" nodeset="/data/case/update/admission_time" relevant="count(/data/patient_info_list/admission_time) &gt; 0"/><bind calculate="/data/patient_info_list/age_input" nodeset="/data/case/update/age" relevant="count(/data/patient_info_list/age_input) &gt; 0"/><bind calculate="/data/patient_info_list/autofill_wo" nodeset="/data/case/update/autofill_wo" relevant="count(/data/patient_info_list/autofill_wo) &gt; 0"/><bind calculate="/data/patient_info_list/blood_group" nodeset="/data/case/update/blood_group" relevant="count(/data/patient_info_list/blood_group) &gt; 0"/><bind calculate="/data/patient_info_list/name" nodeset="/data/case/update/case_name" relevant="count(/data/patient_info_list/name) &gt; 0"/><bind calculate="/data/edd_calc" nodeset="/data/case/update/edd_calc" relevant="count(/data/edd_calc) &gt; 0"/><bind calculate="/data/patient_info_list/gravida" nodeset="/data/case/update/gravida" relevant="count(/data/patient_info_list/gravida) &gt; 0"/><bind calculate="/data/high_risk_list/height_risk" nodeset="/data/case/update/height_risk" relevant="count(/data/high_risk_list/height_risk) &gt; 0"/><bind calculate="/data/patient_info_list/id" nodeset="/data/case/update/id" relevant="count(/data/patient_info_list/id) &gt; 0"/><bind calculate="/data/patient_info_list/live_births" nodeset="/data/case/update/live_births" relevant="count(/data/patient_info_list/live_births) &gt; 0"/><bind calculate="/data/patient_info_list/lmp" nodeset="/data/case/update/lmp" relevant="count(/data/patient_info_list/lmp) &gt; 0"/><bind calculate="/data/patient_info_list/number_of_babies" nodeset="/data/case/update/number_of_babies" relevant="count(/data/patient_info_list/number_of_babies) &gt; 0"/><bind calculate="/data/patient_info_list/parity" nodeset="/data/case/update/parity" relevant="count(/data/patient_info_list/parity) &gt; 0"/><bind calculate="/data/high_risk_list/prev_outcome" nodeset="/data/case/update/prev_outcome" relevant="count(/data/high_risk_list/prev_outcome) &gt; 0"/><bind calculate="/data/high_risk_list/risk_lbw" nodeset="/data/case/update/risk_lbw" relevant="count(/data/high_risk_list/risk_lbw) &gt; 0"/><bind calculate="/data/patient_info_list/ward" nodeset="/data/case/update/septic" relevant="count(/data/patient_info_list/ward) &gt; 0"/><bind calculate="/data/patient_info_list/septic_other_reason" nodeset="/data/case/update/septic_other_reason" relevant="count(/data/patient_info_list/septic_other_reason) &gt; 0"/><bind calculate="/data/patient_info_list/septic_readiness" nodeset="/data/case/update/septic_readiness" relevant="count(/data/patient_info_list/septic_readiness) &gt; 0"/><bind calculate="/data/patient_info_list/septic_reason" nodeset="/data/case/update/septic_reason" relevant="count(/data/patient_info_list/septic_reason) &gt; 0"/><bind calculate="/data/t_f_labour" nodeset="/data/case/update/t_f_labour" relevant="count(/data/t_f_labour) &gt; 0"/><bind calculate="/data/high_risk_list/weight_risk" nodeset="/data/case/update/weight_risk" relevant="count(/data/high_risk_list/weight_risk) &gt; 0"/><bind calculate="/data/patient_info_list/wife_of" nodeset="/data/case/update/wife_of" relevant="count(/data/patient_info_list/wife_of) &gt; 0"/><setvalue event="xforms-ready" ref="/data/patient_info_list/gravida" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/gravida"/><setvalue event="xforms-ready" ref="/data/patient_info_list/septic_readiness" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/septic_readiness"/><setvalue event="xforms-ready" ref="/data/patient_info_list/number_of_babies" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/number_of_babies"/><setvalue event="xforms-ready" ref="/data/high_risk_list/weight_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/weight_risk"/><setvalue event="xforms-ready" ref="/data/patient_info_list/admission_time" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/admission_time"/><setvalue event="xforms-ready" ref="/data/high_risk_list/risk_lbw" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/risk_lbw"/><setvalue event="xforms-ready" ref="/data/patient_info_list/septic_reason" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/septic_reason"/><setvalue event="xforms-ready" ref="/data/patient_info_list/lmp" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/lmp"/><setvalue event="xforms-ready" ref="/data/patient_info_list/parity" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/parity"/><setvalue event="xforms-ready" ref="/data/high_risk_list/height_risk" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/height_risk"/><setvalue event="xforms-ready" ref="/data/patient_info_list/ward" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/septic"/><setvalue event="xforms-ready" ref="/data/patient_info_list/age_input" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/age"/><setvalue event="xforms-ready" ref="/data/patient_info_list/bed" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/bed"/><setvalue event="xforms-ready" ref="/data/patient_info_list/blood_group" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/blood_group"/><setvalue event="xforms-ready" ref="/data/high_risk_list/prev_outcome" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/prev_outcome"/><setvalue event="xforms-ready" ref="/data/t_f_labour" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/t_f_labour"/><setvalue event="xforms-ready" ref="/data/high_risk_score" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/high_risk"/><setvalue event="xforms-ready" ref="/data/patient_info_list/id" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/id"/><setvalue event="xforms-ready" ref="/data/patient_info_list/live_births" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/live_births"/><setvalue event="xforms-ready" ref="/data/patient_info_list/wife_of" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/wife_of"/><setvalue event="xforms-ready" ref="/data/patient_info_list/name" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/case_name"/><setvalue event="xforms-ready" ref="/data/patient_info_list/autofill_wo" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/autofill_wo"/><setvalue event="xforms-ready" ref="/data/patient_info_list/abortions" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/abortions"/><setvalue event="xforms-ready" ref="/data/patient_info_list/admission_date" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/admission_date"/><setvalue event="xforms-ready" ref="/data/patient_info_list/septic_other_reason" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/septic_other_reason"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/update_info_select" appearance="field-list">
+			<select ref="/data/update_info_select/update_info_list">
+				<label ref="jr:itext('update_info_select/update_info_list-label')"/>
+				<item>
+					<label ref="jr:itext('update_info_select/update_info_list-patient_info_update-label')"/>
+					<value>patient_info_update</value>
+				</item>
+				<item>
+					<label ref="jr:itext('update_info_select/update_info_list-high_risk_update-label')"/>
+					<value>high_risk_update</value>
+				</item>
+				<item>
+					<label ref="jr:itext('update_info_select/update_info_list-t_f_labour-label')"/>
+					<value>t_f_labour</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/patient_info_list" appearance="field-list">
+			<input ref="/data/patient_info_list/name">
+				<label ref="jr:itext('patient_info_list/name-label')"/>
+			</input>
+			<input ref="/data/patient_info_list/id">
+				<label ref="jr:itext('patient_info_list/id-label')"/>
+			</input>
+			<select1 ref="/data/patient_info_list/ward">
+				<label ref="jr:itext('patient_info_list/ward-label')"/>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/septic_reason">
+				<label ref="jr:itext('patient_info_list/septic_reason-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/septic_reason-hiv-label')"/>
+					<value>hiv</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/septic_reason-sti-label')"/>
+					<value>sti</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/septic_reason-other-label')"/>
+					<value>other</value>
+				</item>
+			</select1>
+			<input ref="/data/patient_info_list/septic_other_reason">
+				<label ref="jr:itext('patient_info_list/septic_other_reason-label')"/>
+			</input>
+			<select1 ref="/data/patient_info_list/septic_readiness">
+				<label ref="jr:itext('patient_info_list/septic_readiness-label')"/>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-no-label')"/>
+					<value>item2</value>
+				</item>
+			</select1>
+			<input ref="/data/patient_info_list/bed">
+				<label ref="jr:itext('patient_info_list/bed-label')"/>
+			</input>
+			<input ref="/data/patient_info_list/wife_of">
+				<label ref="jr:itext('patient_info_list/wife_of-label')"/>
+			</input>
+			<input ref="/data/patient_info_list/age_input">
+				<label ref="jr:itext('patient_info_list/age_input-label')"/>
+				<alert ref="jr:itext('patient_info_list/age_input-constraintMsg')"/>
+			</input>
+			<input ref="/data/patient_info_list/admission_date">
+				<label ref="jr:itext('patient_info_list/admission_date-label')"/>
+			</input>
+			<input ref="/data/patient_info_list/admission_time">
+				<label ref="jr:itext('patient_info_list/admission_time-label')"/>
+			</input>
+			<select1 ref="/data/patient_info_list/blood_group">
+				<label ref="jr:itext('patient_info_list/blood_group-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-o+-label')"/>
+					<value>o+</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-o--label')"/>
+					<value>o-</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-a+-label')"/>
+					<value>a+</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-a--label')"/>
+					<value>a-</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-b+-label')"/>
+					<value>b+</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-b--label')"/>
+					<value>b-</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/blood_group-ab+-label')"/>
+					<value>ab+</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/parity">
+				<label ref="jr:itext('patient_info_list/parity-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-zero-label')"/>
+					<value>zero</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-primi-label')"/>
+					<value>primi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-second-label')"/>
+					<value>second</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-third-label')"/>
+					<value>third</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-fourth-label')"/>
+					<value>fourth</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/parity-multi-label')"/>
+					<value>multi</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/gravida">
+				<label ref="jr:itext('patient_info_list/gravida-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/gravida-primi-label')"/>
+					<value>primi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/gravida-second-label')"/>
+					<value>second</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/gravida-third-label')"/>
+					<value>third</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/gravida-fourth-label')"/>
+					<value>fourth</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/gravida-multi-label')"/>
+					<value>multi</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/live_births">
+				<label ref="jr:itext('patient_info_list/live_births-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/live_births-L1-label')"/>
+					<value>L1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/live_births-l2-label')"/>
+					<value>l2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/live_births-L3-label')"/>
+					<value>L3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/live_births-L4-label')"/>
+					<value>L4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/abortions">
+				<label ref="jr:itext('patient_info_list/abortions-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/abortions-A1-label')"/>
+					<value>A1</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/abortions-A2-label')"/>
+					<value>A2</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/abortions-A3-label')"/>
+					<value>A3</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/abortions-A4-label')"/>
+					<value>A4</value>
+				</item>
+			</select1>
+			<select1 ref="/data/patient_info_list/number_of_babies">
+				<label ref="jr:itext('patient_info_list/question1-label')"/>
+				<item>
+					<label ref="jr:itext('patient_info_list/twins-yes-label')"/>
+					<value>one</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/question1-item2-label')"/>
+					<value>two</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/number_of_babies-three-label')"/>
+					<value>three</value>
+				</item>
+				<item>
+					<label ref="jr:itext('patient_info_list/number_of_babies-more-label')"/>
+					<value>more</value>
+				</item>
+			</select1>
+			<input ref="/data/patient_info_list/lmp">
+				<label ref="jr:itext('patient_info_list/lmp-label')"/>
+			</input>
+		</group>
+		<group ref="/data/patient_info_cont" appearance="field-list">
+			<trigger ref="/data/patient_info_cont/edd" appearance="minimal">
+				<label ref="jr:itext('patient_info_list/edd-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/high_risk_list" appearance="field-list">
+			<label ref="jr:itext('high_risk_list-label')"/>
+			<trigger ref="/data/high_risk_list/age_risk_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/age_risk_label-label')"/>
+			</trigger>
+			<trigger ref="/data/high_risk_list/age_risk" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/age_risk-label')"/>
+			</trigger>
+			<trigger ref="/data/high_risk_list/para_risk_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/para_risk_label-label')"/>
+			</trigger>
+			<trigger ref="/data/high_risk_list/para_risk" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/para_risk-label')"/>
+			</trigger>
+			<input ref="/data/high_risk_list/height_risk">
+				<label ref="jr:itext('high_risk_list/height_risk-label')"/>
+			</input>
+			<trigger ref="/data/high_risk_list/height_risk_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/height_risk_label-label')"/>
+			</trigger>
+			<input ref="/data/high_risk_list/weight_risk">
+				<label ref="jr:itext('high_risk_list/weight_risk-label')"/>
+			</input>
+			<trigger ref="/data/high_risk_list/weight_risk_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/weight_risk_label-label')"/>
+			</trigger>
+			<select1 ref="/data/high_risk_list/prev_outcome">
+				<label ref="jr:itext('high_risk_list/prev_outcome-label')"/>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-normal-label')"/>
+					<value>normal</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-assisted-label')"/>
+					<value>assisted</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-cesarean-label')"/>
+					<value>cesarean</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-still_birth-label')"/>
+					<value>still_birth</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-miscarriage-label')"/>
+					<value>miscarriage</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_outcome-spont_abortion-label')"/>
+					<value>spont_abortion</value>
+				</item>
+			</select1>
+			<trigger ref="/data/high_risk_list/risk_history_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/risk_history_label-label')"/>
+			</trigger>
+			<select1 ref="/data/high_risk_list/risk_lbw">
+				<label ref="jr:itext('high_risk_list/risk_lbw-label')"/>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/risk_lbw-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<trigger ref="/data/high_risk_list/lbw_risk_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_list/lbw_risk_label-label')"/>
+			</trigger>
+			<select ref="/data/high_risk_list/prev_conditions">
+				<label ref="jr:itext('high_risk_list/prev_conditions-label')"/>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-pre_eclampsia-label')"/>
+					<value>pre_eclampsia</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-eclampsia-label')"/>
+					<value>eclampsia</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-uterine_surgery-label')"/>
+					<value>uterine_surgery</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-aph_pph-label')"/>
+					<value>aph_pph</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-manual_placenta-label')"/>
+					<value>manual_placenta</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-anaemia-label')"/>
+					<value>anaemia</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-febrile_ailment-label')"/>
+					<value>febrile_ailment</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-hypertension-label')"/>
+					<value>hypertension</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-medical_condition-label')"/>
+					<value>medical_condition</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-bleeding-label')"/>
+					<value>bleeding</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-presentation-label')"/>
+					<value>presentation</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-maturity-label')"/>
+					<value>maturity</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-prom-label')"/>
+					<value>prom</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-fetal_distress-label')"/>
+					<value>fetal_distress</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-prolonged_labour-label')"/>
+					<value>prolonged_labour</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-uterine_size-label')"/>
+					<value>uterine_size</value>
+				</item>
+				<item>
+					<label ref="jr:itext('high_risk_list/prev_conditions-dai-label')"/>
+					<value>dai</value>
+				</item>
+			</select>
+		</group>
+		<group ref="/data/high_risk_page" appearance="field-list">
+			<trigger ref="/data/high_risk_page/high_risk_score_label" appearance="minimal">
+				<label ref="jr:itext('high_risk_page/high_risk_score_label-label')"/>
+			</trigger>
+			<trigger ref="/data/high_risk_page/high_risk_flag" appearance="minimal">
+				<label ref="jr:itext('high_risk_page/high_risk_flag-label')"/>
+			</trigger>
+		</group>
+		<select1 ref="/data/t_f_labour">
+			<label ref="jr:itext('high_risk_page/question6-label')"/>
+			<item>
+				<label ref="jr:itext('high_risk_page/question6-item1-label')"/>
+				<value>true_labour</value>
+			</item>
+			<item>
+				<label ref="jr:itext('high_risk_page/question6-item2-label')"/>
+				<value>false_labour</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>

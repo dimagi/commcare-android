@@ -1,0 +1,393 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Getting Started</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/1F3CF50A-9B7C-4E9B-8099-C385400D35E9" uiVersion="1" version="3" name="Getting Started">
+					<welcome/>
+					<question13>
+						<question2/>
+						<question3/>
+						<question4/>
+						<question5/>
+						<question6/>
+					</question13>
+					<question14>
+						<question7/>
+						<question8/>
+					</question14>
+					<question15>
+						<question9/>
+						<question18/>
+						<question16/>
+						<question17/>
+					</question15>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/welcome"/>
+			<bind nodeset="/data/question13"/>
+			<bind nodeset="/data/question13/question2"/>
+			<bind nodeset="/data/question13/question3"/>
+			<bind nodeset="/data/question13/question4"/>
+			<bind nodeset="/data/question13/question5"/>
+			<bind nodeset="/data/question13/question6"/>
+			<bind nodeset="/data/question14"/>
+			<bind nodeset="/data/question14/question7"/>
+			<bind nodeset="/data/question14/question8"/>
+			<bind nodeset="/data/question15"/>
+			<bind nodeset="/data/question15/question9"/>
+			<bind nodeset="/data/question15/question18"/>
+			<bind nodeset="/data/question15/question16"/>
+			<bind nodeset="/data/question15/question17"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="welcome-label">
+						<value># Welcome to mLabour. 
+
+This is an application that uses the basic principles of the partograph to organize the labour ward. When you move to the next screen you will see the options to do the following: 
+
+* **Register New Patient** by filling out the proper biographic information.
+* View all of your **Active Patients** and receive alerts and reminders to monitor their progress and update their information.
+* Track and manage all current **Deliveries**.
+* Track and manage all current **Transfers**.
+* Access **Education Extras: Labour Videos** that help provide guidance in various scenarios dealing with childbirth.</value>
+						<value form="markdown"># Welcome to mLabour. 
+
+This is an application that uses the basic principles of the partograph to organize the labour ward. When you move to the next screen you will see the options to do the following: 
+
+* **Register New Patient** by filling out the proper biographic information.
+* View all of your **Active Patients** and receive alerts and reminders to monitor their progress and update their information.
+* Track and manage all current **Deliveries**.
+* Track and manage all current **Transfers**.
+* Access **Education Extras: Labour Videos** that help provide guidance in various scenarios dealing with childbirth.</value>
+					</text>
+					<text id="question13-label">
+						<value>question13</value>
+					</text>
+					<text id="question13/question2-label">
+						<value>### Patient Information
+
+On the **Active Patients**, **Deliveries**, and **Transfers** modules you will see a list of patients. There will be some basic information provided for each of these patients in a case tile. Here is an example of this information:</value>
+						<value form="image">jr://file/commcare/image/data/question2.png</value>
+						<value form="markdown">### Patient Information
+
+On the **Active Patients**, **Deliveries**, and **Transfers** modules you will see a list of patients. There will be some basic information provided for each of these patients in a case tile. Here is an example of this information:</value>
+					</text>
+					<text id="question13/question3-label">
+						<value>On this case tile, we can tell the following information about the patient:
+
+* The patient's name is Pooja.
+* She is 20 years old.
+* She is on bed #5.
+* She has parity primi.
+* She was admitted 31/8 at 02:26:00.
+* There are 14 minutes until the next exam.
+* There are 3 hours and 59 minutes until the next PV exam.
+* The first PV exam was 31/8 at 02:33:30.
+* Her cervix is dilated 4cm.</value>
+						<value form="markdown">On this case tile, we can tell the following information about the patient:
+
+* The patient's name is Pooja.
+* She is 20 years old.
+* She is on bed #5.
+* She has parity primi.
+* She was admitted 31/8 at 02:26:00.
+* There are 14 minutes until the next exam.
+* There are 3 hours and 59 minutes until the next PV exam.
+* The first PV exam was 31/8 at 02:33:30.
+* Her cervix is dilated 4cm.</value>
+					</text>
+					<text id="question13/question4-label">
+						<value>Along the top of the case tile, there are also a set of icons that represent flags or alerts for the patients. From left to right, the icons mean the following:
+
+* An **alert circle** appears if an alert is raised for a patient.
+* The **flag** indicates the patient needs extra care in the flag patient module or extra monitoring due to an irregular indicator.
+is set by the nurses in the flag patient module if the patient needs extra care or i.
+* The **clock** appears if the exam time has reached and will persist until the exam is conducted.
+* The **triangle** appears if the patient is calculated to be high risk. </value>
+						<value form="markdown">Along the top of the case tile, there are also a set of icons that represent flags or alerts for the patients. From left to right, the icons mean the following:
+
+* An **alert circle** appears if an alert is raised for a patient.
+* The **flag** indicates the patient needs extra care in the flag patient module or extra monitoring due to an irregular indicator.
+is set by the nurses in the flag patient module if the patient needs extra care or i.
+* The **clock** appears if the exam time has reached and will persist until the exam is conducted.
+* The **triangle** appears if the patient is calculated to be high risk. </value>
+					</text>
+					<text id="question13/question5-label">
+						<value>In some cases, the case tile itself will be a different color. The background colors are related to the progress of the cervical dilation of the patient and the different regions of the graph as seen in the paper partograph, an example of which is shown below:</value>
+						<value form="image">jr://file/commcare/image/data/question5.png</value>
+					</text>
+					<text id="question13/question6-label">
+						<value>The colors mean the following:
+
+* **No color** represents that the the patient's cervical dilation is progressing normally.
+* **Yellow** background demonstrates that the patient is in the "alert" region. The cervical dilation is proceeding slightly more slowly than normal, additional monitoring of the patient should be conducted, and necessary .
+* **Red** background demonstrates that the patient is in the "action" region. The cervical dilation is proceeding at an abnormal rate and immediate necessary actions should be taken.</value>
+						<value form="markdown">The colors mean the following:
+
+* **No color** represents that the the patient's cervical dilation is progressing normally.
+* **Yellow** background demonstrates that the patient is in the "alert" region. The cervical dilation is proceeding slightly more slowly than normal, additional monitoring of the patient should be conducted, and necessary .
+* **Red** background demonstrates that the patient is in the "action" region. The cervical dilation is proceeding at an abnormal rate and immediate necessary actions should be taken.</value>
+					</text>
+					<text id="question14-label">
+						<value>question14</value>
+					</text>
+					<text id="question14/question7-label">
+						<value>### Patient Details
+
+When you click on the case tile of the patient, more detailed information will appear. Here is an example of this:</value>
+						<value form="image">jr://file/commcare/image/data/question7.png</value>
+						<value form="markdown">### Patient Details
+
+When you click on the case tile of the patient, more detailed information will appear. Here is an example of this:</value>
+					</text>
+					<text id="question14/question8-label">
+						<value>On this screen, you can see the original case tile at the top of the screen. You can also see three tabs: 
+
+* The **Partograph** tab displays automatically created graphs based on the measurements taken.
+* On the next tab, you can see the latest **Measurements** that have been taken.
+* The **Patient Information** tab displays information that was inputted in the registration form.
+
+You will also be able to record measurements by clicking on the **Record** button at the bottom of the page.</value>
+						<value form="markdown">On this screen, you can see the original case tile at the top of the screen. You can also see three tabs: 
+
+* The **Partograph** tab displays automatically created graphs based on the measurements taken.
+* On the next tab, you can see the latest **Measurements** that have been taken.
+* The **Patient Information** tab displays information that was inputted in the registration form.
+
+You will also be able to record measurements by clicking on the **Record** button at the bottom of the page.</value>
+					</text>
+					<text id="question15-label">
+						<value>question15</value>
+					</text>
+					<text id="question15/question9-label">
+						<value>### Graphs
+
+Automatically generated graphs of the data you **Record** will appear on the **Partograph** tab. You can scroll through the graphs or tap on each twice in order to examine the graph more closely.
+
+* Most of the graphs that you see will be basic graphs, for example the **Pulse** and **Respiration** graphs. These have a horizontal x-axis that represents the time in hours and a vertical y-axis as labeled. As you record the **Pulse** and **Respiration** measurements, they will appear on the graph as dots with lines connecting the subsequent measurements, as seen below.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question9.png</value>
+						<value form="markdown">### Graphs
+
+Automatically generated graphs of the data you **Record** will appear on the **Partograph** tab. You can scroll through the graphs or tap on each twice in order to examine the graph more closely.
+
+* Most of the graphs that you see will be basic graphs, for example the **Pulse** and **Respiration** graphs. These have a horizontal x-axis that represents the time in hours and a vertical y-axis as labeled. As you record the **Pulse** and **Respiration** measurements, they will appear on the graph as dots with lines connecting the subsequent measurements, as seen below.</value>
+					</text>
+					<text id="question15/question18-label">
+						<value>* The **Blood Pressure** graph is slightly different because there is a point for both the systolic (above) and diastolic (below) blood pressure markings. 
+* The **Fetal Heart Rate** graph is slightly different from the other graphs because there are already two dark lines on the graph at 110 and 160. These represent thresholds at which fetal heart rate should stay within in order to ensure the fetus is not undergoing distress. Furthermore, in the case of twins, the fetal heart sounds for each twin will be graphed separately.</value>
+						<value form="markdown">* The **Blood Pressure** graph is slightly different because there is a point for both the systolic (above) and diastolic (below) blood pressure markings. 
+* The **Fetal Heart Rate** graph is slightly different from the other graphs because there are already two dark lines on the graph at 110 and 160. These represent thresholds at which fetal heart rate should stay within in order to ensure the fetus is not undergoing distress. Furthermore, in the case of twins, the fetal heart sounds for each twin will be graphed separately.</value>
+					</text>
+					<text id="question15/question16-label">
+						<value>* The **Contractions** graph represents not only the timing (x-axis) and number (y-axis) of contractions at a given examination but also the severity of contractions in terms of their duration (radius of the point). That means that contractions that last longer in seconds will be represented by larger circles on the graph.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question16.png</value>
+						<value form="markdown">* The **Contractions** graph represents not only the timing (x-axis) and number (y-axis) of contractions at a given examination but also the severity of contractions in terms of their duration (radius of the point). That means that contractions that last longer in seconds will be represented by larger circles on the graph.</value>
+					</text>
+					<text id="question15/question17-label">
+						<value>* The **Cervical Dilation/Descent of Head** graph is perhaps the most complicated graph. First and foremost, this represents two pieces of information: the dilation of the cervix (seen on the left y-axis and represented by squares) as well as the descent of the fetus' head (seen on the secondary right y-axis and represented by circles). Furthermore, there are two colored regions on the graph: yellow alert and red action. When the line tracking cervical dilation crosses into the yellow region that means that the cervix is dilating slowly and additional monitoring and necessary actions must be taken. When the line crosses into the red region that means the cervix is dilating abnormally and immediate action must be taken.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question17.png</value>
+						<value form="markdown">* The **Cervical Dilation/Descent of Head** graph is perhaps the most complicated graph. First and foremost, this represents two pieces of information: the dilation of the cervix (seen on the left y-axis and represented by squares) as well as the descent of the fetus' head (seen on the secondary right y-axis and represented by circles). Furthermore, there are two colored regions on the graph: yellow alert and red action. When the line tracking cervical dilation crosses into the yellow region that means that the cervix is dilating slowly and additional monitoring and necessary actions must be taken. When the line crosses into the red region that means the cervix is dilating abnormally and immediate action must be taken.</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="welcome-label">
+						<value># Welcome to mLabour. 
+
+This is an application that uses the basic principles of the partograph to organize the labour ward. When you move to the next screen you will see the options to do the following: 
+
+* **Register New Patient** by filling out the proper biographic information.
+* View all of your **Active Patients** and receive alerts and reminders to monitor their progress and update their information.
+* Track and manage all current **Deliveries**.
+* Track and manage all current **Transfers**.
+* Access **Education Extras: Labour Videos** that help provide guidance in various scenarios dealing with childbirth.</value>
+						<value form="markdown"># Welcome to mLabour. 
+
+This is an application that uses the basic principles of the partograph to organize the labour ward. When you move to the next screen you will see the options to do the following: 
+
+* **Register New Patient** by filling out the proper biographic information.
+* View all of your **Active Patients** and receive alerts and reminders to monitor their progress and update their information.
+* Track and manage all current **Deliveries**.
+* Track and manage all current **Transfers**.
+* Access **Education Extras: Labour Videos** that help provide guidance in various scenarios dealing with childbirth.</value>
+					</text>
+					<text id="question13-label">
+						<value>question13</value>
+					</text>
+					<text id="question13/question2-label">
+						<value>### Patient Information
+
+On the **Active Patients**, **Deliveries**, and **Transfers** modules you will see a list of patients. There will be some basic information provided for each of these patients in a case tile. Here is an example of this information:</value>
+						<value form="image">jr://file/commcare/image/data/question2.png</value>
+						<value form="markdown">### Patient Information
+
+On the **Active Patients**, **Deliveries**, and **Transfers** modules you will see a list of patients. There will be some basic information provided for each of these patients in a case tile. Here is an example of this information:</value>
+					</text>
+					<text id="question13/question3-label">
+						<value>On this case tile, we can tell the following information about the patient:
+
+* The patient's name is Pooja.
+* She is 20 years old.
+* She is on bed #5.
+* She has parity primi.
+* She was admitted 31/8 at 02:26:00.
+* There are 14 minutes until the next exam.
+* There are 3 hours and 59 minutes until the next PV exam.
+* The first PV exam was 31/8 at 02:33:30.
+* Her cervix is dilated 4cm.</value>
+						<value form="markdown">On this case tile, we can tell the following information about the patient:
+
+* The patient's name is Pooja.
+* She is 20 years old.
+* She is on bed #5.
+* She has parity primi.
+* She was admitted 31/8 at 02:26:00.
+* There are 14 minutes until the next exam.
+* There are 3 hours and 59 minutes until the next PV exam.
+* The first PV exam was 31/8 at 02:33:30.
+* Her cervix is dilated 4cm.</value>
+					</text>
+					<text id="question13/question4-label">
+						<value>Along the top of the case tile, there are also a set of icons that represent flags or alerts for the patients. From left to right, the icons mean the following:
+
+* An **alert circle** appears if an alert is raised for a patient.
+* The **flag** indicates the patient needs extra care in the flag patient module or extra monitoring due to an irregular indicator.
+is set by the nurses in the flag patient module if the patient needs extra care or i.
+* The **clock** appears if the exam time has reached and will persist until the exam is conducted.
+* The **triangle** appears if the patient is calculated to be high risk. </value>
+						<value form="markdown">Along the top of the case tile, there are also a set of icons that represent flags or alerts for the patients. From left to right, the icons mean the following:
+
+* An **alert circle** appears if an alert is raised for a patient.
+* The **flag** indicates the patient needs extra care in the flag patient module or extra monitoring due to an irregular indicator.
+is set by the nurses in the flag patient module if the patient needs extra care or i.
+* The **clock** appears if the exam time has reached and will persist until the exam is conducted.
+* The **triangle** appears if the patient is calculated to be high risk. </value>
+					</text>
+					<text id="question13/question5-label">
+						<value>In some cases, the case tile itself will be a different color. The background colors are related to the progress of the cervical dilation of the patient and the different regions of the graph as seen in the paper partograph, an example of which is shown below:</value>
+						<value form="image">jr://file/commcare/image/data/question5.png</value>
+					</text>
+					<text id="question13/question6-label">
+						<value>The colors mean the following:
+
+* **No color** represents that the the patient's cervical dilation is progressing normally.
+* **Yellow** background demonstrates that the patient is in the "alert" region. The cervical dilation is proceeding slightly more slowly than normal, additional monitoring of the patient should be conducted, and necessary .
+* **Red** background demonstrates that the patient is in the "action" region. The cervical dilation is proceeding at an abnormal rate and immediate necessary actions should be taken.</value>
+						<value form="markdown">The colors mean the following:
+
+* **No color** represents that the the patient's cervical dilation is progressing normally.
+* **Yellow** background demonstrates that the patient is in the "alert" region. The cervical dilation is proceeding slightly more slowly than normal, additional monitoring of the patient should be conducted, and necessary .
+* **Red** background demonstrates that the patient is in the "action" region. The cervical dilation is proceeding at an abnormal rate and immediate necessary actions should be taken.</value>
+					</text>
+					<text id="question14-label">
+						<value>question14</value>
+					</text>
+					<text id="question14/question7-label">
+						<value>### Patient Details
+
+When you click on the case tile of the patient, more detailed information will appear. Here is an example of this:</value>
+						<value form="image">jr://file/commcare/image/data/question7.png</value>
+						<value form="markdown">### Patient Details
+
+When you click on the case tile of the patient, more detailed information will appear. Here is an example of this:</value>
+					</text>
+					<text id="question14/question8-label">
+						<value>On this screen, you can see the original case tile at the top of the screen. You can also see three tabs: 
+
+* The **Partograph** tab displays automatically created graphs based on the measurements taken.
+* On the next tab, you can see the latest **Measurements** that have been taken.
+* The **Patient Information** tab displays information that was inputted in the registration form.
+
+You will also be able to record measurements by clicking on the **Record** button at the bottom of the page.</value>
+						<value form="markdown">On this screen, you can see the original case tile at the top of the screen. You can also see three tabs: 
+
+* The **Partograph** tab displays automatically created graphs based on the measurements taken.
+* On the next tab, you can see the latest **Measurements** that have been taken.
+* The **Patient Information** tab displays information that was inputted in the registration form.
+
+You will also be able to record measurements by clicking on the **Record** button at the bottom of the page.</value>
+					</text>
+					<text id="question15-label">
+						<value>question15</value>
+					</text>
+					<text id="question15/question9-label">
+						<value>### Graphs
+
+Automatically generated graphs of the data you **Record** will appear on the **Partograph** tab. You can scroll through the graphs or tap on each twice in order to examine the graph more closely.
+
+* Most of the graphs that you see will be basic graphs, for example the **Pulse** and **Respiration** graphs. These have a horizontal x-axis that represents the time in hours and a vertical y-axis as labeled. As you record the **Pulse** and **Respiration** measurements, they will appear on the graph as dots with lines connecting the subsequent measurements, as seen below.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question9.png</value>
+						<value form="markdown">### Graphs
+
+Automatically generated graphs of the data you **Record** will appear on the **Partograph** tab. You can scroll through the graphs or tap on each twice in order to examine the graph more closely.
+
+* Most of the graphs that you see will be basic graphs, for example the **Pulse** and **Respiration** graphs. These have a horizontal x-axis that represents the time in hours and a vertical y-axis as labeled. As you record the **Pulse** and **Respiration** measurements, they will appear on the graph as dots with lines connecting the subsequent measurements, as seen below.</value>
+					</text>
+					<text id="question15/question18-label">
+						<value>* The **Blood Pressure** graph is slightly different because there is a point for both the systolic (above) and diastolic (below) blood pressure markings. 
+* The **Fetal Heart Rate** graph is slightly different from the other graphs because there are already two dark lines on the graph at 110 and 160. These represent thresholds at which fetal heart rate should stay within in order to ensure the fetus is not undergoing distress. Furthermore, in the case of twins, the fetal heart sounds for each twin will be graphed separately.</value>
+						<value form="markdown">* The **Blood Pressure** graph is slightly different because there is a point for both the systolic (above) and diastolic (below) blood pressure markings. 
+* The **Fetal Heart Rate** graph is slightly different from the other graphs because there are already two dark lines on the graph at 110 and 160. These represent thresholds at which fetal heart rate should stay within in order to ensure the fetus is not undergoing distress. Furthermore, in the case of twins, the fetal heart sounds for each twin will be graphed separately.</value>
+					</text>
+					<text id="question15/question16-label">
+						<value>* The **Contractions** graph represents not only the timing (x-axis) and number (y-axis) of contractions at a given examination but also the severity of contractions in terms of their duration (radius of the point). That means that contractions that last longer in seconds will be represented by larger circles on the graph.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question16.png</value>
+						<value form="markdown">* The **Contractions** graph represents not only the timing (x-axis) and number (y-axis) of contractions at a given examination but also the severity of contractions in terms of their duration (radius of the point). That means that contractions that last longer in seconds will be represented by larger circles on the graph.</value>
+					</text>
+					<text id="question15/question17-label">
+						<value>* The **Cervical Dilation/Descent of Head** graph is perhaps the most complicated graph. First and foremost, this represents two pieces of information: the dilation of the cervix (seen on the left y-axis and represented by squares) as well as the descent of the fetus' head (seen on the secondary right y-axis and represented by circles). Furthermore, there are two colored regions on the graph: yellow alert and red action. When the line tracking cervical dilation crosses into the yellow region that means that the cervix is dilating slowly and additional monitoring and necessary actions must be taken. When the line crosses into the red region that means the cervix is dilating abnormally and immediate action must be taken.</value>
+						<value form="image">jr://file/commcare/image/data/question15/question17.png</value>
+						<value form="markdown">* The **Cervical Dilation/Descent of Head** graph is perhaps the most complicated graph. First and foremost, this represents two pieces of information: the dilation of the cervix (seen on the left y-axis and represented by squares) as well as the descent of the fetus' head (seen on the secondary right y-axis and represented by circles). Furthermore, there are two colored regions on the graph: yellow alert and red action. When the line tracking cervical dilation crosses into the yellow region that means that the cervix is dilating slowly and additional monitoring and necessary actions must be taken. When the line crosses into the red region that means the cervix is dilating abnormally and immediate action must be taken.</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/welcome" appearance="minimal">
+			<label ref="jr:itext('welcome-label')"/>
+		</trigger>
+		<group ref="/data/question13" appearance="field-list">
+			<label ref="jr:itext('question13-label')"/>
+			<trigger ref="/data/question13/question2" appearance="minimal">
+				<label ref="jr:itext('question13/question2-label')"/>
+			</trigger>
+			<trigger ref="/data/question13/question3" appearance="minimal">
+				<label ref="jr:itext('question13/question3-label')"/>
+			</trigger>
+			<trigger ref="/data/question13/question4" appearance="minimal">
+				<label ref="jr:itext('question13/question4-label')"/>
+			</trigger>
+			<trigger ref="/data/question13/question5" appearance="minimal">
+				<label ref="jr:itext('question13/question5-label')"/>
+			</trigger>
+			<trigger ref="/data/question13/question6" appearance="minimal">
+				<label ref="jr:itext('question13/question6-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/question14" appearance="field-list">
+			<label ref="jr:itext('question14-label')"/>
+			<trigger ref="/data/question14/question7" appearance="minimal">
+				<label ref="jr:itext('question14/question7-label')"/>
+			</trigger>
+			<trigger ref="/data/question14/question8" appearance="minimal">
+				<label ref="jr:itext('question14/question8-label')"/>
+			</trigger>
+		</group>
+		<group ref="/data/question15" appearance="field-list">
+			<label ref="jr:itext('question15-label')"/>
+			<trigger ref="/data/question15/question9" appearance="minimal">
+				<label ref="jr:itext('question15/question9-label')"/>
+			</trigger>
+			<trigger ref="/data/question15/question18" appearance="minimal">
+				<label ref="jr:itext('question15/question18-label')"/>
+			</trigger>
+			<trigger ref="/data/question15/question16" appearance="minimal">
+				<label ref="jr:itext('question15/question16-label')"/>
+			</trigger>
+			<trigger ref="/data/question15/question17" appearance="minimal">
+				<label ref="jr:itext('question15/question17-label')"/>
+			</trigger>
+		</group>
+	</h:body>
+</h:html>

@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="3" descriptor="Media Suite File">
+  <media path="../../commcare/image/data/exam_indicators/urine">
+    <resource descriptor="Image File: abnormal_urine.png" id="media-6bf6f61333d0363811c385ed5714a603-abnormal_urine.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/urine/abnormal_urine.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/01cca625a7c90064f28f555c6fb5aad2/abnormal_urine.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: question7.png" id="media-a3158a1c30bf9fcd1e27f7f4a66cec2c-question7.png" version="3">
+      <location authority="local">./commcare/image/data/question7.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/f0f79d7a61fa99ca4d8679c32c043b23/question7.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/exam_indicators/pulse">
+    <resource descriptor="Image File: abnormal_pulse.png" id="media-1a6a93897878755e595e22c2f059fd80-abnormal_pulse.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/pulse/abnormal_pulse.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/01cca625a7c90064f28f555c6fb5aad2/abnormal_pulse.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: question5.png" id="media-d547629f6b0568ea8597ebaf37c22122-question5.png" version="3">
+      <location authority="local">./commcare/image/data/question5.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/60c394749e8f6bec09cdec0bd189b047/question5.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: yellow.png" id="media-6897a7e9b1041b794a231a1943c23662-yellow.png" version="3">
+      <location authority="local">./commcare/image/data/icons/yellow.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/0ccf0fb412e655529db3c7fbe3485e67/yellow.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/question15">
+    <resource descriptor="Image File: question17.png" id="media-005b3d2ad66d4792bdcb0fbe5a4f4ca0-question17.png" version="3">
+      <location authority="local">./commcare/image/data/question15/question17.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/285a557e196cdd79820724c729b9c575/question17.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/es_alert">
+    <resource descriptor="Image File: alert.png" id="media-3a9c8ab04a8cca8d4d55eca9a7bde6dd-alert.png" version="3">
+      <location authority="local">./commcare/image/data/es_alert/alert.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/81769eb8a3266518b4405681ca89c731/alert.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: red.png" id="media-05d8b5f2f7d013ce7c3f5cffb1ce820c-red.png" version="3">
+      <location authority="local">./commcare/image/data/icons/red.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/69a7ee69ed488a6c48103d4dbff829f3/red.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module3.png" id="media-630fbf963e9a231cd9d396822e72dd2b-module3.png" version="3">
+      <location authority="local">./commcare/image/module3.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/ab0e76115a4f3f9bd33092bd84976f4f/module3.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/exam_indicators/resp">
+    <resource descriptor="Image File: abnormal_respiration.png" id="media-402a6134c5def3eb3511dd2072a5ac7f-abnormal_respiration.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/resp/abnormal_respiration.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/01cca625a7c90064f28f555c6fb5aad2/abnormal_respiration.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form4.png" id="media-9ef15461632349360e525a94f39dbb75-module2_form4.png" version="3">
+      <location authority="local">./commcare/image/module2_form4.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/f480f30fec7c15b9b389fc98ec6df80a/module2_form4.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/exam_indicators/station_of_the_head">
+    <resource descriptor="Image File: station.png" id="media-59c3e69f8d5065c42031a87411abdbc6-station.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/station_of_the_head/station.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/198231c03b563eb1c11bcd17fda92ab4/station.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2.png" id="media-a221b5ad7f63aaaecb3d2fae5a229694-module2.png" version="3">
+      <location authority="local">./commcare/image/module2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/8c2cc336275d8008e0a5be47bdf578af/module2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1.png" id="media-d139a929895dde37763e3cf661f9371f-module1.png" version="3">
+      <location authority="local">./commcare/image/module1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/6b7ae6bd80f29d9268f8f85a0842be0f/module1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/question15">
+    <resource descriptor="Image File: question16.png" id="media-27b19d02ef90aae76abd84a72e994a8d-question16.png" version="3">
+      <location authority="local">./commcare/image/data/question15/question16.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/0496fe32fd830e2a636b0d9fa1fdbaec/question16.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/exam_indicators/bp">
+    <resource descriptor="Image File: abnormal_bp_low.png" id="media-20aebc112ae7985117baa9c7d179b965-abnormal_bp_low.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/bp/abnormal_bp_low.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/01cca625a7c90064f28f555c6fb5aad2/abnormal_bp_low.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: flag.png" id="media-8a8284c844faf72a8c220e3d0868be11-flag.png" version="3">
+      <location authority="local">./commcare/image/data/icons/flag.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7ed4d42d187e81857e7aabbd0fad4432/flag.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module4.png" id="media-1c2d56018af6db07624ee721996358ad-module4.png" version="3">
+      <location authority="local">./commcare/image/module4.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/3bcd29006b53a437a893dda5932e892d/module4.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/question15">
+    <resource descriptor="Image File: question9.png" id="media-11c166af830caeb0d169237434aa43f5-question9.png" version="3">
+      <location authority="local">./commcare/image/data/question15/question9.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7217279bde48435aa0298a427e78b5c5/question9.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/high_risk_page">
+    <resource descriptor="Image File: high_risk_flag.png" id="media-2826d869bd2fef1c66b96d48a0293f11-high_risk_flag.png" version="3">
+      <location authority="local">./commcare/image/data/high_risk_page/high_risk_flag.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/9c8b3138b163c3592864870460d47202/high_risk_flag.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: transparent.png" id="media-ef4c0f42a29252e94cf594039e22146d-transparent.png" version="3">
+      <location authority="local">./commcare/image/data/icons/transparent.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/1bd000b47f0c9a8a90a3a7a331b195c3/transparent.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/exam_indicators/moulding">
+    <resource descriptor="Image File: moulding.png" id="media-40c7809231a85b4ae796f5fc8b321951-moulding.png" version="3">
+      <location authority="local">./commcare/image/data/exam_indicators/moulding/moulding.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/74dda1e466a604d5849c6f11a6cd0804/moulding.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: question1.png" id="media-374e28065e2b1c593d998f65f177ffce-question1.png" version="3">
+      <location authority="local">./commcare/image/data/question1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/54705a643118b6ac844b700108c4e0c1/question1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/es_alert">
+    <resource descriptor="Image File: contine_label.png" id="media-d3abea788707bc7d43facfedafbb260f-contine_label.png" version="3">
+      <location authority="local">./commcare/image/data/es_alert/contine_label.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/ca930c1df39ab2b2687406dba14d9bf9/contine_label.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data">
+    <resource descriptor="Image File: question2.png" id="media-0c68f9e4735c84064f5a7e4e5e53f8a8-question2.png" version="3">
+      <location authority="local">./commcare/image/data/question2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/92d9ff540198af34d62dc0ed873f7250/question2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form1.png" id="media-055cc3de107c93c43ff7e217dbb02abe-module2_form1.png" version="3">
+      <location authority="local">./commcare/image/module2_form1.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/efd12369a3ddcf451af964855c79e6f1/module2_form1.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form3.png" id="media-e4b48b3f88ebb535d9d6211b4e7748c2-module2_form3.png" version="3">
+      <location authority="local">./commcare/image/module2_form3.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/3bcd29006b53a437a893dda5932e892d/module2_form3.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form2.png" id="media-5421008cda094dc5b277a1b0c29a9fcf-module2_form2.png" version="3">
+      <location authority="local">./commcare/image/module2_form2.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/6e2846368c8b47c86b142a1397846cb0/module2_form2.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image/data/icons">
+    <resource descriptor="Image File: clock.png" id="media-cf75228d145aa89e7e7963930c75e776-clock.png" version="3">
+      <location authority="local">./commcare/image/data/icons/clock.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/8d4b48b0c8882129a102e0dc1b8ce029/clock.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_form0.png" id="media-d67eea5a7151d4f81a5488985e28b41b-module1_form0.png" version="3">
+      <location authority="local">./commcare/image/module1_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/6b7ae6bd80f29d9268f8f85a0842be0f/module1_form0.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module2_form0.png" id="media-c1314ce4a2f1e527b28aec27c9d5633b-module2_form0.png" version="3">
+      <location authority="local">./commcare/image/module2_form0.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/9181dba51bcb554d209bd4e86598cf82/module2_form0.png</location>
+    </resource>
+  </media>
+</suite>

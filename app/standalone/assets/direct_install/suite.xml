@@ -1,0 +1,3849 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="3" descriptor="Suite File">
+  <xform>
+    <resource id="dcc6852c98d1113bc30950e047a5ee0255f632da" version="3" descriptor="Form: (Module Getting Started) - Getting Started">
+      <location authority="local">./modules-0/forms-0.xml</location>
+      <location authority="remote">./modules-0/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="52082afbaa79d58930e4f45f12bd1bb952b3d9f4" version="3" descriptor="Form: (Module Registration) - Register New Patient">
+      <location authority="local">./modules-1/forms-0.xml</location>
+      <location authority="remote">./modules-1/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="a5dd2ef9e86643d943c5e4c8f5236743af9d6de2" version="3" descriptor="Form: (Module Active Patients) - Record Measurements">
+      <location authority="local">./modules-2/forms-0.xml</location>
+      <location authority="remote">./modules-2/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="c2647aba028d4b86c1c730ebf8b7824823428761" version="3" descriptor="Form: (Module Active Patients) - Record Notes &amp; Flags">
+      <location authority="local">./modules-2/forms-1.xml</location>
+      <location authority="remote">./modules-2/forms-1.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="5376738e161b3407937c485c145b35cf99f15942" version="3" descriptor="Form: (Module Active Patients) - Record Delivery">
+      <location authority="local">./modules-2/forms-2.xml</location>
+      <location authority="remote">./modules-2/forms-2.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="16adbeec8d00e5484ac39af26e334c5729b5f476" version="3" descriptor="Form: (Module Active Patients) - Transfer Patient">
+      <location authority="local">./modules-2/forms-3.xml</location>
+      <location authority="remote">./modules-2/forms-3.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="32c728bab8320a18af13a80696a93641da42d1ab" version="3" descriptor="Form: (Module Active Patients) - Update Registration">
+      <location authority="local">./modules-2/forms-4.xml</location>
+      <location authority="remote">./modules-2/forms-4.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="98cb1d911a7c1e434fafe8b23e16ead83a1f8d9e" version="3" descriptor="Form: (Module Deliveries) - Close Case (Don't close during the study)">
+      <location authority="local">./modules-3/forms-0.xml</location>
+      <location authority="remote">./modules-3/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="c3aaa4f712bc2f995f1402d253dedf88fd93dd46" version="3" descriptor="Form: (Module Transfers) - Close Case (Don't close during the study)">
+      <location authority="local">./modules-4/forms-0.xml</location>
+      <location authority="remote">./modules-4/forms-0.xml</location>
+    </resource>
+  </xform>
+  <xform>
+    <resource id="1329ce2d049a6a6ae14c9ed0b28676593c139c57" version="3" descriptor="Form: (Module -) - (IGNORE) Remove Maternal Indicators">
+      <location authority="local">./modules-5/forms-0.xml</location>
+      <location authority="remote">./modules-5/forms-0.xml</location>
+    </resource>
+  </xform>
+  <locale language="default">
+    <resource id="app_default_strings" version="3" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+      <location authority="remote">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="en">
+    <resource id="app_en_strings" version="3" descriptor="Translations: English">
+      <location authority="local">./en/app_strings.txt</location>
+      <location authority="remote">./en/app_strings.txt</location>
+    </resource>
+  </locale>
+  <locale language="hin">
+    <resource id="app_hin_strings" version="3" descriptor="Translations: Unknown Language (hin)">
+      <location authority="local">./hin/app_strings.txt</location>
+      <location authority="remote">./hin/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m1_case_short">
+    <title>
+      <text>
+        <locale id="m1.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+  </detail>
+  <detail id="m1_case_long">
+    <title>
+      <text>
+        <locale id="m1.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m2_case_short">
+<title>
+      <text>
+        <locale id="m2.case_short.title"/>
+      </text>
+    </title>
+    <variables>
+	   <first_dilation function="coalesce(first_active_dilation, 4)"/>
+	   <first_dilation_hours function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, 0)"/>
+
+      <next_exam function="if(last_exam_time = '', '', minutes_until_next_exam - int((double(now()) - double(last_exam_time)) * 24 * 60))"/>
+	   <next_exam_abs function="if(last_exam_time = '', '', if($next_exam &lt; 0, $next_exam * -1, $next_exam))"/>
+	   <next_exam_hours function="if(last_exam_time='', '', int($next_exam_abs div 60))"/>
+	   <next_exam_minutes function="if(last_exam_time = '', '', $next_exam_abs mod 60)"/>
+	   <next_exam_string function="if(last_exam_time = '', '', concat($next_exam_hours, ':', if($next_exam_minutes &lt; 10, '0', ''), $next_exam_minutes))"/>
+
+      <next_pv function="if(last_pv_time = '', '', pv_reminder_minutes - int((double(now()) - double(last_pv_time)) * 24 * 60))"/>
+	   <next_pv_abs function="if(last_pv_time = '', '', if($next_pv &lt; 0, $next_pv * -1, $next_pv))"/>
+	   <next_pv_hours function="if(last_pv_time='', '', int($next_pv_abs div 60))"/>
+	   <next_pv_minutes function="if(last_pv_time = '', '', $next_pv_abs mod 60)"/>
+	   <next_pv_string function="if(last_pv_time = '' or pv_reminder_minutes = '', '', concat($next_pv_hours, ':', if($next_pv_minutes &lt; 10, '0', ''), $next_pv_minutes))"/>
+
+           <background function="if(dilation &lt; 4, 'none', if(dilation &lt; dilation_hours_current - 4 + $first_dilation - $first_dilation_hours, 'background-red', if(dilation &lt; dilation_hours_current + $first_dilation - $first_dilation_hours, 'background-yellow', 'none')))"/>
+	 </variables>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="large">
+      	<grid grid-height="2" grid-width="5" grid-x="1" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="6" grid-x="6" grid-y="3"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+            <xpath function="if($next_pv = 0, '&lt;b&gt;Next PV exam due now&lt;/b&gt;', if($next_pv &lt; 0, concat('&lt;b&gt;Next PV exam late by ', $next_pv_string, '&lt;/b&gt;'), concat('Time until next PV exam: ', $next_pv_string)))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="6" grid-x="6" grid-y="4"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_minutes_until_next_exam_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('First PV exam: ', first_measured_dilation_time_display)"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="$next_exam"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="6" grid-x="6" grid-y="5"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+	       <xpath function="if(dilation = '', 'Dilation:', concat('Dilation: ', dilation, ' cm'))"/>
+        </text>
+      </template>
+      <sort type="string" order="2" direction="ascending">
+        <text>
+          <xpath function="$next_exam"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_age_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat(age, ' years old')"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <value/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="descending">
+        <text>
+          <xpath function="if($background = 'background-red', 3, if($background = 'background-yellow', 2, 1))"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style>
+      	<grid grid-height="2" grid-width="2" grid-x="10" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(nurse_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/flag.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string" order="4" direction="descending">
+        <text>
+          <xpath function="nurse_flag"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style>
+      	<grid grid-height="2" grid-width="2" grid-x="8" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($next_exam &lt;= 0 or $next_pv &lt;= 0, $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/clock.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+       <style>
+      	<grid grid-height="2" grid-width="2" grid-x="6" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(alert_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/es_alert/alert.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+
+    <field>
+      <style>
+        <grid grid-height="6" grid-width="1" grid-x="0" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($background = 'background-red', $red-rectangle, if($background = 'background-yellow', $yellow-rectangle, $no-rectangle))">
+            <variable name="red-rectangle">
+              <value>jr://file/commcare/image/data/icons/red.png</value>
+            </variable>
+            <variable name="yellow-rectangle">
+              <value>jr://file/commcare/image/data/icons/yellow.png</value>
+            </variable>
+            <variable name="no-rectangle">
+              <value>jr://file/commcare/image/data/icons/transparent.png</value>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+
+    <field>
+       <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="6" grid-x="6" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+             <xpath function="if($next_exam = 0, '&lt;b&gt;Next exam due now&lt;/b&gt;', if($next_exam &lt; 0, concat('&lt;b&gt;Next exam late by ', $next_exam_string, '&lt;/b&gt;'), concat('Time until next exam: ', $next_exam_string)))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="5"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Admitted: ',format-date(admission_date,'%e/%n'),' ',substr(admission_time,0,8))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="4"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Parity: ', parity)"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="3"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Bed #', bed, ' ', septic)"/>
+        </text>
+      </template>
+        <background>
+          <text>
+              <xpath function="$background"/>
+          </text>
+        </background>
+    </field>
+</detail>
+  <detail id="m2_case_long">
+    <title>
+      <text>
+        <locale id="m2.case_long.title"/>
+      </text>
+    </title>
+    <detail>
+      <title>
+        <text>
+          <locale id="m2.case_long.tab.1.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_fhs_1.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ffff0000'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ff0000ff'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'diamond'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs_2"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="fill-above">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, max(180, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 180)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[80, 120, 160]'"/>
+              </text>
+              <text id="y-min">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, min(80, min(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 80)"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_fhs_1.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_fhs_1.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_fhs_1.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_dilation_2.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffff99'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours - ($fd - 4), if(index = 1, $fdhours + (10 - $fd), $fdhours + (10 - $fd) + 6))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffee5555'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000' "/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours + (10 - $fd) - 2, if(index = 1, $fdhours + (10 - $fd) + 4, max($xmax, $fdhours + (10 - $fd) + 4)))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffffff'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="4"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="dilation"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'x'"/>
+                </text>
+                <text id="secondary-y">
+                  <xpath function="true()"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="if(station = '', station, station * -1 + 3)"/>
+            </series>
+            <configuration>
+              <text id="secondary-y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="secondary-y-labels">
+                <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
+              </text>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
+              </text>
+              <text id="var-fd">
+                <xpath function="coalesce(first_active_dilation, 4)"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="secondary-y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_dilation_2.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_dilation_2.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_dilation_2.graph.key.y-title"/>
+              </text>
+            </configuration>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd)"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m2.case_long.case_graph_dilation_2.graph.a.0"/>
+              </text>
+            </annotation>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd) + 4"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m2.case_long.case_graph_dilation_2.graph.a.1"/>
+              </text>
+            </annotation>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_contractions_3.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="bubble">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#99000000'"/>
+                </text>
+                <text id="max-radius">
+                  <xpath function="3"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="contractions_num"/>
+              <radius function="if(contractions_dur &lt; 20, 1, if(contractions_dur &lt; 40, 2, 3))"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) +2"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) + 3"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_contractions_3.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_contractions_3.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_contractions_3.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_bp_4.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="systolic"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="diastolic"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic) &gt; 0, max(250, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic)), 250)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="6"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_bp_4.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_bp_4.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_bp_4.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_pulse_5.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="pulse"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse) &gt; 0, max(140, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse)), 140)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_pulse_5.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_pulse_5.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_pulse_5.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_graph_respiration_6.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="resp"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp) &gt; 0, max(35, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp)), 35)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m2.case_long.case_graph_respiration_6.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m2.case_long.case_graph_respiration_6.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m2.case_long.case_graph_respiration_6.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m2.case_long.tab.2.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_dilation_7.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="dilation"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_station_8.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="station"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_fhs_9.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_fhs_2_10.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs_2"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_af_display_out_11.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="af_display_out"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_moulding_12.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="moulding"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_systolic_13.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="systolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_diastolic_14.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="diastolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_contractions_num_15.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_num"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_contractions_dur_16.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_dur"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_pulse_17.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="pulse"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_temp_18.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="temp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_resp_19.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="resp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_urine_vol_20.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="urine_vol"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_urine_out_21.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="urine_out"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_oxytocin_display_22.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="oxytocin_display"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_drugs_iv_23.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="drugs_iv"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_lab_reports_out_24.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="lab_reports_out"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_explanation_out_25.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="explanation_out"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_patient_notes_26.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="patient_notes"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m2.case_long.tab.3.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_mrd_27.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="mrd"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_bed_28.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="bed"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_wife_of_29.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="wife_of"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_lmp_30.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="lmp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_edd_31.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="edd"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_admission_date_32.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="admission_date"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_admission_time_33.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="substr(admission_time,0,5)"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_blood_group_34.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="blood_group"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_gravida_35.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="gravida"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_parity_36.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="parity"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_live_births_37.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="live_births"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_abortions_38.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="abortions"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_number_of_babies_39.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="number_of_babies"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_pelvic_grip_1_40.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="pelvic_grip_1"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_pelvic_grip_2_41.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="pelvic_grip_2"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_fundal_grip_42.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fundal_grip"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_fetal_lie_43.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fetal_lie"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_fetal_presentation_44.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fetal_presentation"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_last_exam_time_formatted_45.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="last_exam_time_formatted"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_high_risk_score_46.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="high_risk_score"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_high_risk_flag_reason_47.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="high_risk_flag_reason"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_t_f_labour_48.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="t_f_labour"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_septic_reason_49.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="septic_reason"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_septic_readiness_50.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="septic_readiness"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m2.case_long.case_medical_conditions_51.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="medical_conditions"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <variables>
+      <case_id function="./@case_id"/>
+    </variables>
+  </detail>
+  <detail id="m3_case_short">
+    <title>
+      <text>
+        <locale id="m3.case_short.title"/>
+      </text>
+    </title>
+    <variables>
+	   <first_dilation function="coalesce(first_active_dilation, 4)"/>
+	   <first_dilation_hours function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, 0)"/>
+      <next_exam function="if(last_exam_time = '', '', minutes_until_next_exam - int((double(now()) - double(last_exam_time)) * 24 * 60))"/>
+	   <next_exam_abs function="if(last_exam_time = '', '', if($next_exam &lt; 0, $next_exam * -1, $next_exam))"/>
+	   <next_exam_hours function="if(last_exam_time='', '', int($next_exam_abs div 60))"/>
+	   <next_exam_minutes function="if(last_exam_time = '', '', $next_exam_abs mod 60)"/>
+	   <next_exam_string function="if(last_exam_time = '', '', concat($next_exam_hours, ':', if($next_exam_minutes &lt; 10, '0', ''), $next_exam_minutes))"/>
+
+           <background function="if(dilation &lt; 4, 'none', if(dilation &lt; dilation_hours_current - 4 + $first_dilation - $first_dilation_hours, 'background-red', if(dilation &lt; dilation_hours_current + $first_dilation - $first_dilation_hours, 'background-yellow', 'none')))"/>
+	 </variables>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="large">
+      	<grid grid-height="2" grid-width="5" grid-x="1" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_age_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat(age, ' years old')"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <value/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="descending">
+        <text>
+          <xpath function="if($background = 'background-red', 3, if($background = 'background-yellow', 2, 1))"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style>
+      	<grid grid-height="2" grid-width="2" grid-x="10" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(nurse_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/flag.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string" order="4" direction="descending">
+        <text>
+          <xpath function="nurse_flag"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+       <style>
+      	<grid grid-height="2" grid-width="2" grid-x="6" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(alert_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/es_alert/alert.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="5"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Admitted: ',format-date(admission_date,'%e/%n'),' ',substr(admission_time,0,8))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="4"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Parity: ', parity)"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+      	<grid grid-height="1" grid-width="5" grid-x="1" grid-y="3"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Bed #', bed, ' ', septic)"/>
+        </text>
+      </template>
+        <background>
+          <text>
+              <xpath function="$background"/>
+          </text>
+        </background>
+    </field>
+    <field>
+      <style>
+      	<grid grid-height="2" grid-width="2" grid-x="8" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($next_exam &lt;= 0 or $next_pv &lt;= 0, $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/clock.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style>
+        <grid grid-height="6" grid-width="1" grid-x="0" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($background = 'background-red', $red-rectangle, if($background = 'background-yellow', $yellow-rectangle, $no-rectangle))">
+            <variable name="red-rectangle">
+              <value>jr://file/commcare/image/data/icons/red.png</value>
+            </variable>
+            <variable name="yellow-rectangle">
+              <value>jr://file/commcare/image/data/icons/yellow.png</value>
+            </variable>
+            <variable name="no-rectangle">
+              <value>jr://file/commcare/image/data/icons/transparent.png</value>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m3_case_long">
+    <title>
+      <text>
+        <locale id="m3.case_long.title"/>
+      </text>
+    </title>
+    <detail>
+      <title>
+        <text>
+          <locale id="m3.case_long.tab.1.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_fhs_1.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ffff0000'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ff0000ff'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'diamond'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs_2"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="fill-above">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, max(180, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 180)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[80, 120, 160]'"/>
+              </text>
+              <text id="y-min">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, min(80, min(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 80)"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_fhs_1.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_fhs_1.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_fhs_1.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_dilation_2.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffff99'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours - ($fd - 4), if(index = 1, $fdhours + (10 - $fd), $fdhours + (10 - $fd) + 6))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffee5555'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours + (10 - $fd) - 2, if(index = 1, $fdhours + (10 - $fd) + 4, max($xmax, $fdhours + (10 - $fd) + 4)))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffffff'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="4"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="dilation"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'x'"/>
+                </text>
+                <text id="secondary-y">
+                  <xpath function="true()"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="if(station = '', station, station * -1 + 3)"/>
+            </series>
+            <configuration>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="secondary-y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="secondary-y-labels">
+                <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
+              </text>
+              <text id="var-fd">
+                <xpath function="coalesce(first_active_dilation, 4)"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="secondary-y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_dilation_2.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_dilation_2.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_dilation_2.graph.key.y-title"/>
+              </text>
+            </configuration>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd)"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m3.case_long.case_graph_dilation_2.graph.a.0"/>
+              </text>
+            </annotation>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd) + 4"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m3.case_long.case_graph_dilation_2.graph.a.1"/>
+              </text>
+            </annotation>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_contractions_3.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="bubble">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#99000000'"/>
+                </text>
+                <text id="max-radius">
+                  <xpath function="3"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="contractions_num"/>
+              <radius function="if(contractions_dur &lt; 20, 1, if(contractions_dur &lt; 40, 2, 3))"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) + 2"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) + 3"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_contractions_3.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_contractions_3.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_contractions_3.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_bp_4.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="systolic"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="diastolic"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic) &gt; 0, max(250, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic)), 250)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="6"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_bp_4.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_bp_4.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_bp_4.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_pulse_5.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="pulse"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse) &gt; 0, max(140, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse)), 140)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_pulse_5.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_pulse_5.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_pulse_5.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_graph_respiration_6.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="resp"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp) &gt; 0, max(35, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp)), 35)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m3.case_long.case_graph_respiration_6.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m3.case_long.case_graph_respiration_6.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m3.case_long.case_graph_respiration_6.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m3.case_long.tab.2.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_dilation_7.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="dilation"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_station_8.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="station"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_fhs_9.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_fhs_2_10.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs_2"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_af_11.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="af"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_moulding_12.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="moulding"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_systolic_13.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="systolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_diastolic_14.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="diastolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_pulse_15.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="pulse"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_temp_16.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="temp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_resp_17.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="resp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_contractions_num_18.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_num"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_contractions_dur_19.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_dur"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_urine_vol_20.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="urine_vol"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_oxytocin_21.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="oxytocin"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_drugs_iv_22.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="drugs_iv"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_patient_notes_23.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="patient_notes"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m3.case_long.tab.3.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_name_24.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="case_name"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_age_25.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="age"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_admission_date_26.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="if(admission_date = '', '', format_date(date(if(admission_date = '', 0, admission_date)),'short'))"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_admission_time_27.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="admission_time"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_patient_status_28.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="patient_status"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_delivery_type_29.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="delivery_type"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_maternal_outcome_30.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="maternal_outcome"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m3.case_long.case_number_of_babies_31.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="number_of_babies"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <variables>
+      <case_id function="./@case_id"/>
+    </variables>
+  </detail>
+  <detail id="m4_case_short">
+    <title>
+      <text>
+        <locale id="m4.case_short.title"/>
+      </text>
+    </title>
+    <variables>
+     <first_dilation function="coalesce(first_active_dilation, 4)"/>
+     <first_dilation_hours function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, 0)"/>
+      <next_exam function="if(last_exam_time = '', '', minutes_until_next_exam - int((double(now()) - double(last_exam_time)) * 24 * 60))"/>
+     <next_exam_abs function="if(last_exam_time = '', '', if($next_exam &lt; 0, $next_exam * -1, $next_exam))"/>
+     <next_exam_hours function="if(last_exam_time='', '', int($next_exam_abs div 60))"/>
+     <next_exam_minutes function="if(last_exam_time = '', '', $next_exam_abs mod 60)"/>
+     <next_exam_string function="if(last_exam_time = '', '', concat($next_exam_hours, ':', if($next_exam_minutes &lt; 10, '0', ''), $next_exam_minutes))"/>
+
+           <background function="if(dilation &lt; 4, 'none', if(dilation &lt; dilation_hours_current - 4 + $first_dilation - $first_dilation_hours, 'background-red', if(dilation &lt; dilation_hours_current + $first_dilation - $first_dilation_hours, 'background-yellow', 'none')))"/>
+   </variables>
+    <field>
+      <style horz-align="left" vert-align="center" font-size="large">
+        <grid grid-height="2" grid-width="5" grid-x="1" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+        <grid grid-height="1" grid-width="5" grid-x="1" grid-y="2"/>
+       </style>
+      <header>
+        <text>
+          <locale id="m2.case_short.case_age_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat(age, ' years old')"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header width="0">
+        <text/>
+      </header>
+      <template width="0">
+        <text>
+          <value/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="descending">
+        <text>
+          <xpath function="if($background = 'background-red', 3, if($background = 'background-yellow', 2, 1))"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <style>
+        <grid grid-height="2" grid-width="2" grid-x="10" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(nurse_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/flag.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+      <sort type="string" order="4" direction="descending">
+        <text>
+          <xpath function="nurse_flag"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+       <style>
+        <grid grid-height="2" grid-width="2" grid-x="6" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if(alert_flag = 'yes', $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/es_alert/alert.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+        <grid grid-height="1" grid-width="5" grid-x="1" grid-y="5"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Admitted: ',format-date(admission_date,'%e/%n'),' ',substr(admission_time,0,8))"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+        <grid grid-height="1" grid-width="5" grid-x="1" grid-y="4"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Parity: ', parity)"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style horz-align="left" font-size="medium">
+        <grid grid-height="1" grid-width="5" grid-x="1" grid-y="3"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="concat('Bed #', bed, ' ', septic)"/>
+        </text>
+      </template>
+        <background>
+          <text>
+              <xpath function="$background"/>
+          </text>
+        </background>
+    </field>
+<field>
+      <style>
+      	<grid grid-height="2" grid-width="2" grid-x="8" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($next_exam &lt;= 0 or $next_pv &lt;= 0, $ky, $kx)">
+            <variable name="ky">
+              <value>jr://file/commcare/image/data/icons/clock.png</value>
+            </variable>
+            <variable name="kx">
+              <locale id="image.shadow.path"/>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+    <field>
+      <style>
+        <grid grid-height="6" grid-width="1" grid-x="0" grid-y="0"/>
+       </style>
+      <header>
+        <text>
+          <value/>
+        </text>
+      </header>
+      <template form="image">
+        <text>
+          <xpath function="if($background = 'background-red', $red-rectangle, if($background = 'background-yellow', $yellow-rectangle, $no-rectangle))">
+            <variable name="red-rectangle">
+              <value>jr://file/commcare/image/data/icons/red.png</value>
+            </variable>
+            <variable name="yellow-rectangle">
+              <value>jr://file/commcare/image/data/icons/yellow.png</value>
+            </variable>
+            <variable name="no-rectangle">
+              <value>jr://file/commcare/image/data/icons/transparent.png</value>
+            </variable>
+          </xpath>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m4_case_long">
+    <title>
+      <text>
+        <locale id="m4.case_long.title"/>
+      </text>
+    </title>
+    <detail>
+      <title>
+        <text>
+          <locale id="m4.case_long.tab.1.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_fhs_1.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ffff0000'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#ff0000ff'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'diamond'"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="fhs_2"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="fill-above">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="160"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#BFB5B5B5'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="110"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, max(180, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 180)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[80, 120, 160]'"/>
+              </text>
+              <text id="y-min">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs) &gt; 0, min(80, min(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/fhs)), 80)"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_fhs_1.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_fhs_1.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_fhs_1.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_dilation_2.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffff99'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours - ($fd - 4), if(index = 1, $fdhours + (10 - $fd), $fdhours + (10 - $fd) + 6))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffee5555'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, $fdhours + (10 - $fd) - 2, if(index = 1, $fdhours + (10 - $fd) + 4, max($xmax, $fdhours + (10 - $fd) + 4)))"/>
+              <y function="if(index = 0, 4, 10)"/>
+            </series>
+            <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
+              <configuration>
+                <text id="fill-below">
+                  <xpath function="'#ffffffff'"/>
+                </text>
+                <text id="line-color">
+                  <xpath function="'#00000000'"/>
+                </text>
+                <text id="point-style">
+                  <xpath function="'none'"/>
+                </text>
+              </configuration>
+              <x function="if(index = 0, 0, $xmax)"/>
+              <y function="4"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="dilation"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="point-style">
+                  <xpath function="'x'"/>
+                </text>
+                <text id="secondary-y">
+                  <xpath function="true()"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="if(station = '', station, station * -1 + 3)"/>
+            </series>
+            <configuration>
+              <text id="secondary-y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="10"/>
+              </text>
+              <text id="secondary-y-labels">
+                <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
+              </text>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
+              </text>
+              <text id="var-fd">
+                <xpath function="coalesce(first_active_dilation, 4)"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="secondary-y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_dilation_2.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_dilation_2.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_dilation_2.graph.key.y-title"/>
+              </text>
+            </configuration>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd)"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m4.case_long.case_graph_dilation_2.graph.a.0"/>
+              </text>
+            </annotation>
+            <annotation>
+              <x>
+                <text>
+                  <xpath function="$fdhours + (10 - $fd) + 4"/>
+                </text>
+              </x>
+              <y>
+                <text>
+                  <xpath function="7"/>
+                </text>
+              </y>
+              <text>
+                <locale id="m4.case_long.case_graph_dilation_2.graph.a.1"/>
+              </text>
+            </annotation>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_contractions_3.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="bubble">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration>
+                <text id="line-color">
+                  <xpath function="'#99000000'"/>
+                </text>
+                <text id="max-radius">
+                  <xpath function="3"/>
+                </text>
+              </configuration>
+              <x function="hours"/>
+              <y function="contractions_num"/>
+              <radius function="if(contractions_dur &lt; 20, 1, if(contractions_dur &lt; 40, 2, 3))"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) + 2"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num) &gt; 0, max(6, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open'][not(contractions_num = '')]/contractions_num)), 6) + 3"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_contractions_3.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_contractions_3.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_contractions_3.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_bp_4.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="systolic"/>
+            </series>
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="diastolic"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic) &gt; 0, max(250, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/systolic)), 250)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="6"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_bp_4.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_bp_4.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_bp_4.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_pulse_5.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="pulse"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse) &gt; 0, max(140, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/pulse)), 140)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_pulse_5.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_pulse_5.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_pulse_5.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_graph_respiration_6.header"/>
+          </text>
+        </header>
+        <template form="graph">
+          <graph type="xy">
+            <series nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']">
+              <configuration/>
+              <x function="hours"/>
+              <y function="resp"/>
+            </series>
+            <configuration>
+              <text id="x-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-max">
+                <xpath function="$xmax"/>
+              </text>
+              <text id="y-max">
+                <xpath function="if(count(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp) &gt; 0, max(35, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/resp)), 35)"/>
+              </text>
+              <text id="y-labels">
+                <xpath function="8"/>
+              </text>
+              <text id="y-min">
+                <xpath function="0"/>
+              </text>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
+              <text id="var-xmax">
+                <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
+              </text>
+              <text id="secondary-y-title">
+                <locale id="m4.case_long.case_graph_respiration_6.graph.key.secondary-y-title"/>
+              </text>
+              <text id="x-title">
+                <locale id="m4.case_long.case_graph_respiration_6.graph.key.x-title"/>
+              </text>
+              <text id="y-title">
+                <locale id="m4.case_long.case_graph_respiration_6.graph.key.y-title"/>
+              </text>
+            </configuration>
+          </graph>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m4.case_long.tab.2.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_dilation_7.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="dilation"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_station_8.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="station"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_fhs_9.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_fhs_2_10.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="fhs_2"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_af_11.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="af"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_moulding_12.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="moulding"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_systolic_13.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="systolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_diastolic_14.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="diastolic"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_contractions_num_15.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_num"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_contractions_dur_16.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="contractions_dur"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_pulse_17.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="pulse"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_temp_18.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="temp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_resp_19.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="resp"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_urine_vol_20.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="urine_vol"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_oxytocin_21.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="oxytocin"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_drugs_iv_22.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="drugs_iv"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_patient_notes_23.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="patient_notes"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <detail>
+      <title>
+        <text>
+          <locale id="m4.case_long.tab.3.title"/>
+        </text>
+      </title>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_name_24.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="case_name"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_age_25.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="age"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_admission_date_26.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="admission_date"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_admission_time_27.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="admission_time"/>
+          </text>
+        </template>
+      </field>
+      <field>
+        <header>
+          <text>
+            <locale id="m4.case_long.case_patient_status_28.header"/>
+          </text>
+        </header>
+        <template>
+          <text>
+            <xpath function="patient_status"/>
+          </text>
+        </template>
+      </field>
+    </detail>
+    <variables>
+      <case_id function="./@case_id"/>
+    </variables>
+  </detail>
+  <detail id="m5_case_short">
+    <title>
+      <text>
+        <locale id="m5.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_short.case_parent/name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_short.case_hours_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="hours"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m5_case_long">
+    <title>
+      <text>
+        <locale id="m5.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_parent/name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="instance('casedb')/casedb/case[@case_id=index/parent]/case_name"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_hours_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="hours"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_fhs_3.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="fhs"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_dilation_4.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="dilation"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_station_5.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="station"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_contractions_num_6.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="contractions_num"/>
+        </text>
+      </template>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m5.case_long.case_contractions_dur_7.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="contractions_dur"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/1F3CF50A-9B7C-4E9B-8099-C385400D35E9</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/CD27A16C-D3FC-4DBA-A151-608D1D10A62B</form>
+    <command id="m1-f0">
+      <display>
+        <text>
+          <locale id="forms.m1f0"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m1f0.icon"/>
+        </text>
+      </display>
+    </command>
+    <session>
+      <datum id="case_id_new_patient_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create/>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/78143AF8-0E4D-4E91-A025-D23B215BD183</form>
+    <command id="m2-f0">
+      <display>
+        <text>
+          <locale id="forms.m2f0"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m2f0.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='active']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" detail-persistent="m2_case_short"/>
+      <datum id="case_id_new_Indicators_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/8B5058C9-30E9-4263-9647-63285682367B</form>
+    <command id="m2-f1">
+      <display>
+        <text>
+          <locale id="forms.m2f1"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m2f1.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='active']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" detail-persistent="m2_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/75514312-FF32-43BF-A863-F14ED4370546</form>
+    <command id="m2-f2">
+      <display>
+        <text>
+          <locale id="forms.m2f2"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m2f2.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='active']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" detail-persistent="m2_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/7E74D2A2-3F9D-4CA3-89AA-AC48312D3C16</form>
+    <command id="m2-f3">
+      <display>
+        <text>
+          <locale id="forms.m2f3"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m2f3.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='active']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" detail-persistent="m2_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/1a503d291461f4d7ee820fcc3a80719b00b94f04</form>
+    <command id="m2-f4">
+      <display>
+        <text>
+          <locale id="forms.m2f4"/>
+        </text>
+        <text form="image">
+          <locale id="forms.m2f4.icon"/>
+        </text>
+      </display>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='active']" value="./@case_id" detail-select="m2_case_short" detail-confirm="m2_case_long" detail-persistent="m2_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m2'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/9e368c2d88c21cb5e45dec3049df7e6e730cd022</form>
+    <command id="m3-f0">
+      <text>
+        <locale id="forms.m3f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='delivered']" value="./@case_id" detail-select="m3_case_short" detail-confirm="m3_case_long" detail-persistent="m3_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m3'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/4FDCF451-D469-40C5-A090-9142F6D848C3</form>
+    <command id="m4-f0">
+      <text>
+        <locale id="forms.m4f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="item-list:sequence" src="jr://fixture/item-list:sequence"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='patient'][@status='open'][patient_status='transfered']" value="./@case_id" detail-select="m4_case_short" detail-confirm="m4_case_long" detail-persistent="m4_case_short"/>
+    </session>
+    <stack>
+      <create>
+        <command value="'m4'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/97C564A5-DD4E-40F2-A1D3-ACBBD56412C3</form>
+    <command id="m5-f0">
+      <text>
+        <locale id="forms.m5f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='Indicators'][@status='open']" value="./@case_id" detail-select="m5_case_short" detail-confirm="m5_case_long"/>
+    </session>
+  </entry>
+  <menu id="root">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+  </menu>
+  <menu id="root">
+    <display>
+      <text>
+        <locale id="modules.m1"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m1.icon"/>
+      </text>
+    </display>
+    <command id="m1-f0"/>
+  </menu>
+  <menu id="m2">
+    <display>
+      <text>
+        <locale id="modules.m2"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m2.icon"/>
+      </text>
+    </display>
+    <command id="m2-f0"/>
+    <command id="m2-f1"/>
+    <command id="m2-f2"/>
+    <command id="m2-f3"/>
+    <command id="m2-f4"/>
+  </menu>
+  <menu id="m3">
+    <display>
+      <text>
+        <locale id="modules.m3"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m3.icon"/>
+      </text>
+    </display>
+    <command id="m3-f0"/>
+  </menu>
+  <menu id="m4">
+    <display>
+      <text>
+        <locale id="modules.m4"/>
+      </text>
+      <text form="image">
+        <locale id="modules.m4.icon"/>
+      </text>
+    </display>
+    <command id="m4-f0"/>
+  </menu>
+  <menu relevant="false()" id="m5">
+    <text>
+      <locale id="modules.m5"/>
+    </text>
+    <command id="m5-f0"/>
+  </menu>
+</suite>

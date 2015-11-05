@@ -1,0 +1,424 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Record Delivery</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/75514312-FF32-43BF-A863-F14ED4370546" uiVersion="1" version="3" name="Record Delivery">
+					<delivery_questions>
+						<delivery_type/>
+						<maternal_outcome/>
+						<no_of_babies jr:template="">
+							<fetal_outcome/>
+							<synto/>
+							<placenta/>
+							<bleeding/>
+							<excess_bleeding/>
+							<baby_questions>
+								<birth_date/>
+								<birth_time/>
+								<cried/>
+								<baby_sex/>
+								<apgar_score/>
+								<weight/>
+								<vit_k/>
+								<rh_negative/>
+								<drugs_adminstered_baby/>
+								<baby_transfer/>
+							</baby_questions>
+						</no_of_babies>
+					</delivery_questions>
+					<paediatrician_name/>
+					<number_of_babies/>
+					<numbre_of_babies_repeat/>
+					<patient_status/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><update><delivery_type/><maternal_outcome/><number_of_babies/><patient_status/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/><instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/delivery_questions"/>
+			<bind nodeset="/data/delivery_questions/delivery_type" required="true()"/>
+			<bind nodeset="/data/delivery_questions/maternal_outcome"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/fetal_outcome"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/synto" required="true()"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/placenta" required="true()"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/bleeding" required="true()"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/excess_bleeding" type="xsd:string" relevant="/data/delivery_questions/no_of_babies/bleeding = 'no'"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/birth_date" type="xsd:date"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/birth_time" type="xsd:time"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/cried" required="true()"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/baby_sex" required="false()"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/apgar_score" type="xsd:int"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/weight" type="xsd:double"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/vit_k"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/rh_negative"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/drugs_adminstered_baby" type="xsd:string"/>
+			<bind nodeset="/data/delivery_questions/no_of_babies/baby_questions/baby_transfer"/>
+			<bind nodeset="/data/paediatrician_name" type="xsd:string"/>
+			<bind nodeset="/data/number_of_babies"/>
+			<bind nodeset="/data/numbre_of_babies_repeat" calculate="if(/data/number_of_babies=&quot;four&quot;, 4, if(/data/number_of_babies=&quot;two&quot;, 2, if(/data/number_of_babies=&quot;three&quot;, 3, 1)))"/>
+			<bind nodeset="/data/patient_status" calculate="'delivered'"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="delivery_type-label">
+						<value>Delivery type: *</value>
+					</text>
+					<text id="delivery_type-normal_vd-label">
+						<value>Full-term normal vaginal delivery</value>
+					</text>
+					<text id="delivery_type-vd_epi-label">
+						<value>Normal vaginal delivery with episiotomy</value>
+					</text>
+					<text id="delivery_type-vd_malpresentation-label">
+						<value>Vaginal delivery in malpresentation</value>
+					</text>
+					<text id="delivery_type-assisted-label">
+						<value>Assisted delivery (forceps or vent use)</value>
+					</text>
+					<text id="delivery_type-cesarean-label">
+						<value>cesarean</value>
+					</text>
+					<text id="delivery_questions/maternal_outcome-label">
+						<value>Is the mother alive?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies-label">
+						<value>Number of babies</value>
+					</text>
+					<text id="delivery_questions/fetal_outcome-label">
+						<value>Is the baby alive?</value>
+					</text>
+					<text id="synto-label">
+						<value>Administered 10 units of Synto? *</value>
+					</text>
+					<text id="placenta-label">
+						<value>Was the placenta delivered completely? *</value>
+					</text>
+					<text id="bleeding-label">
+						<value>Bleeding within normal limits (&lt;500ml)? *</value>
+					</text>
+					<text id="bleeding-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="bleeding-no-label">
+						<value>No</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/excess_bleeding-label">
+						<value>How much did the mother bleed?</value>
+					</text>
+					<text id="birth-label">
+						<value>Date of birth:</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/birth_time-label">
+						<value>Time of birth:</value>
+					</text>
+					<text id="cried-label">
+						<value>Baby cried immediately after birth? *</value>
+					</text>
+					<text id="baby_questions/baby_sex-label">
+						<value>Sex of the baby:</value>
+					</text>
+					<text id="baby_questions/baby_sex-female-label">
+						<value>Female</value>
+					</text>
+					<text id="baby_questions/baby_sex-male-label">
+						<value>Male</value>
+					</text>
+					<text id="baby_questions/baby_sex-other-label">
+						<value>Other</value>
+					</text>
+					<text id="apgar_score-label">
+						<value>APGAR score:</value>
+					</text>
+					<text id="weight-label">
+						<value>Weight (kg):</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/vit_k-label">
+						<value>Was Vitamin K administered? </value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/rh_negative-label">
+						<value>Is the child Rh negative?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/drugs_adminstered_baby-label">
+						<value>If drugs were administered to the baby then mention below:</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-label">
+						<value>Where was the baby transferred?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-transfer_out-label">
+						<value>Transfer out</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-nicu-label">
+						<value>NICU</value>
+					</text>
+					<text id="baby_questions/paediatrician_name-label">
+						<value>Pediatrician's name:</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="delivery_type-label">
+						<value>&#2346;&#2381;&#2352;&#2360;&#2357; &#2325;&#2366; &#2346;&#2381;&#2352;&#2325;&#2366;&#2352;</value>
+					</text>
+					<text id="delivery_type-normal_vd-label">
+						<value>&#2346;&#2370;&#2352;&#2381;&#2339; &#2309;&#2357;&#2343;&#2367; &#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2351;&#2379;&#2344;&#2367; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="delivery_type-vd_epi-label">
+						<value>&#2319;&#2346;&#2367;&#2360;&#2367;&#2335;&#2379;&#2350;&#2368; &#2325;&#2352;&#2325;&#2375; &#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2346;&#2381;&#2352;&#2360;&#2357;</value>
+					</text>
+					<text id="delivery_type-vd_malpresentation-label">
+						<value>&#2351;&#2379;&#2344;&#2368; &#2360;&#2375; &#2346;&#2381;&#2352;&#2360;&#2357; (&#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2375; &#2346;&#2376;&#2352; &#2346;&#2361;&#2354;&#2375;)</value>
+					</text>
+					<text id="delivery_type-assisted-label">
+						<value>&#2325;&#2367;&#2360;&#2368; &#2360;&#2361;&#2366;&#2351;&#2340;&#2366; &#2360;&#2375; (&#2325;&#2376;&#2306;&#2330;&#2368;, &#2342;&#2348;&#2366;&#2357;)</value>
+					</text>
+					<text id="delivery_type-cesarean-label">
+						<value>&#2321;&#2346;&#2352;&#2375;&#2358;&#2344;</value>
+					</text>
+					<text id="delivery_questions/maternal_outcome-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2350;&#2366;&#2305; &#2332;&#2368;&#2357;&#2367;&#2340; &#2361;&#2376;&#2306;?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies-label">
+						<value>Number of babies</value>
+					</text>
+					<text id="delivery_questions/fetal_outcome-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2348;&#2330;&#2381;&#2330;&#2366; &#2332;&#2368;&#2357;&#2367;&#2340; &#2361;&#2376;?</value>
+					</text>
+					<text id="synto-label">
+						<value>&#2346;&#2381;&#2352;&#2358;&#2366;&#2360;&#2344; 10 &#2351;&#2370;&#2344;&#2367;&#2335;&#2381;&#2360;  of &#2360;&#2381;&#2351;&#2381;&#2344;&#2381;&#2340;&#2379;/&#2342;&#2357;&#2366;&#2312;?</value>
+					</text>
+					<text id="placenta-label">
+						<value>&#2327;&#2352;&#2381;&#2349;&#2344;&#2366;&#2354; &#2346;&#2370;&#2352;&#2368; &#2340;&#2352;&#2361; &#2344;&#2367;&#2325;&#2354;&#2368;?</value>
+					</text>
+					<text id="bleeding-label">
+						<value>&#2360;&#2366;&#2350;&#2366;&#2344;&#2381;&#2351; &#2360;&#2368;&#2350;&#2366; &#2325;&#2375; &#2349;&#2368;&#2340;&#2352; &#2352;&#2325;&#2381;&#2340; &#2360;&#2381;&#2352;&#2366;&#2357; (&lt;500ml)?</value>
+					</text>
+					<text id="bleeding-yes-label">
+						<value>&#2361;&#2366;&#2305;</value>
+					</text>
+					<text id="bleeding-no-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/excess_bleeding-label">
+						<value>&#2350;&#2366;&#2305; &#2325;&#2366; &#2325;&#2367;&#2340;&#2344;&#2366; &#2326;&#2370;&#2344; &#2348;&#2361;&#2366;?</value>
+					</text>
+					<text id="birth-label">
+						<value>&#2332;&#2344;&#2381;&#2350; &#2325;&#2366; &#2360;&#2350;&#2351; &#2324;&#2352; &#2342;&#2367;&#2344;:</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/birth_time-label">
+						<value>Time of birth:</value>
+					</text>
+					<text id="cried-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2348;&#2330;&#2381;&#2330;&#2366; &#2332;&#2344;&#2381;&#2350; &#2325;&#2375; &#2340;&#2369;&#2352;&#2306;&#2340; &#2348;&#2366;&#2342; &#2352;&#2379;&#2351;&#2366;</value>
+					</text>
+					<text id="baby_questions/baby_sex-label">
+						<value>&#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2366; &#2354;&#2367;&#2306;&#2327;:</value>
+					</text>
+					<text id="baby_questions/baby_sex-female-label">
+						<value>&#2354;&#2396;&#2325;&#2368;</value>
+					</text>
+					<text id="baby_questions/baby_sex-male-label">
+						<value>&#2354;&#2396;&#2325;&#2366;</value>
+					</text>
+					<text id="baby_questions/baby_sex-other-label">
+						<value>&#2309;&#2344;&#2381;&#2351;</value>
+					</text>
+					<text id="apgar_score-label">
+						<value>&#2320; &#2346; &#2327;&#2366; &#2352; &#2360;&#2381;&#2325;&#2379;&#2352;:</value>
+					</text>
+					<text id="weight-label">
+						<value>&#2357;&#2395;&#2344; (&#2325;&#2332;&#2368;):</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/vit_k-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2357;&#2367;&#2335;&#2366;&#2350;&#2367;&#2344; - &#2325;&#2375; &#2342;&#2367;&#2351;&#2366; &#2327;&#2351;&#2366; &#2341;&#2366;?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/rh_negative-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2348;&#2330;&#2381;&#2330;&#2366; &#2352;&#2361; &#2344;&#2375;&#2327;&#2375;&#2335;&#2367;&#2357; &#2361;&#2376;?</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/drugs_adminstered_baby-label">
+						<value>&#2309;&#2327;&#2352; &#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2379; &#2342;&#2366;&#2357;&#2366; &#2342;&#2368; &#2327;&#2351;&#2368; &#2341;&#2368; &#2340;&#2379;&#2361; &#2344;&#2368;&#2330;&#2375; &#2342;&#2352;&#2381;&#2395; &#2325;&#2352;&#2375;&#2306; :</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-label">
+						<value>&#2348;&#2330;&#2381;&#2330;&#2375; &#2325;&#2379; &#2325;&#2361;&#2366;&#2305; &#2349;&#2375;&#2332;&#2366; &#2327;&#2351;&#2366; &#2341;&#2366;?
+</value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-transfer_out-label">
+						<value>&#2335;&#2381;&#2352;&#2366;&#2306;&#2360;&#2347;&#2352; &#2310;&#2313;&#2335; </value>
+					</text>
+					<text id="delivery_questions/no_of_babies/baby_questions/baby_transfer-nicu-label">
+						<value>&#2344;&#2368; &#2311;&#2325; &#2351;&#2370;</value>
+					</text>
+					<text id="baby_questions/paediatrician_name-label">
+						<value>&#2348;&#2366;&#2354; &#2352;&#2379;&#2327; &#2357;&#2367;&#2358;&#2375;&#2359;&#2332;&#2381;&#2334; &#2325;&#2366; &#2344;&#2366;&#2350;:</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind calculate="/data/delivery_questions/delivery_type" nodeset="/data/case/update/delivery_type" relevant="count(/data/delivery_questions/delivery_type) &gt; 0"/><bind calculate="/data/delivery_questions/maternal_outcome" nodeset="/data/case/update/maternal_outcome" relevant="count(/data/delivery_questions/maternal_outcome) &gt; 0"/><bind calculate="/data/number_of_babies" nodeset="/data/case/update/number_of_babies" relevant="count(/data/number_of_babies) &gt; 0"/><bind calculate="/data/patient_status" nodeset="/data/case/update/patient_status" relevant="count(/data/patient_status) &gt; 0"/><setvalue event="xforms-ready" ref="/data/number_of_babies" value="instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id]/number_of_babies"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<group ref="/data/delivery_questions" appearance="field-list">
+			<select1 ref="/data/delivery_questions/delivery_type">
+				<label ref="jr:itext('delivery_type-label')"/>
+				<item>
+					<label ref="jr:itext('delivery_type-normal_vd-label')"/>
+					<value>normal_vd</value>
+				</item>
+				<item>
+					<label ref="jr:itext('delivery_type-vd_epi-label')"/>
+					<value>vd_epi</value>
+				</item>
+				<item>
+					<label ref="jr:itext('delivery_type-vd_malpresentation-label')"/>
+					<value>vd_malpresentation</value>
+				</item>
+				<item>
+					<label ref="jr:itext('delivery_type-assisted-label')"/>
+					<value>assisted</value>
+				</item>
+				<item>
+					<label ref="jr:itext('delivery_type-cesarean-label')"/>
+					<value>cesarean</value>
+				</item>
+			</select1>
+			<select1 ref="/data/delivery_questions/maternal_outcome">
+				<label ref="jr:itext('delivery_questions/maternal_outcome-label')"/>
+				<item>
+					<label ref="jr:itext('bleeding-yes-label')"/>
+					<value>yes</value>
+				</item>
+				<item>
+					<label ref="jr:itext('bleeding-no-label')"/>
+					<value>no</value>
+				</item>
+			</select1>
+			<group>
+				<label ref="jr:itext('delivery_questions/no_of_babies-label')"/>
+				<repeat jr:count="/data/numbre_of_babies_repeat" jr:noAddRemove="true()" nodeset="/data/delivery_questions/no_of_babies">
+					<select1 ref="/data/delivery_questions/no_of_babies/fetal_outcome">
+						<label ref="jr:itext('delivery_questions/fetal_outcome-label')"/>
+						<item>
+							<label ref="jr:itext('bleeding-yes-label')"/>
+							<value>yes</value>
+						</item>
+						<item>
+							<label ref="jr:itext('bleeding-no-label')"/>
+							<value>no</value>
+						</item>
+					</select1>
+					<select1 ref="/data/delivery_questions/no_of_babies/synto">
+						<label ref="jr:itext('synto-label')"/>
+						<item>
+							<label ref="jr:itext('bleeding-yes-label')"/>
+							<value>yes</value>
+						</item>
+						<item>
+							<label ref="jr:itext('bleeding-no-label')"/>
+							<value>no</value>
+						</item>
+					</select1>
+					<select1 ref="/data/delivery_questions/no_of_babies/placenta">
+						<label ref="jr:itext('placenta-label')"/>
+						<item>
+							<label ref="jr:itext('bleeding-yes-label')"/>
+							<value>yes</value>
+						</item>
+						<item>
+							<label ref="jr:itext('bleeding-no-label')"/>
+							<value>no</value>
+						</item>
+					</select1>
+					<select1 ref="/data/delivery_questions/no_of_babies/bleeding">
+						<label ref="jr:itext('bleeding-label')"/>
+						<item>
+							<label ref="jr:itext('bleeding-yes-label')"/>
+							<value>yes</value>
+						</item>
+						<item>
+							<label ref="jr:itext('bleeding-no-label')"/>
+							<value>no</value>
+						</item>
+					</select1>
+					<input ref="/data/delivery_questions/no_of_babies/excess_bleeding">
+						<label ref="jr:itext('delivery_questions/no_of_babies/excess_bleeding-label')"/>
+					</input>
+					<group ref="/data/delivery_questions/no_of_babies/baby_questions" appearance="field-list">
+						<input ref="/data/delivery_questions/no_of_babies/baby_questions/birth_date">
+							<label ref="jr:itext('birth-label')"/>
+						</input>
+						<input ref="/data/delivery_questions/no_of_babies/baby_questions/birth_time">
+							<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/birth_time-label')"/>
+						</input>
+						<select1 ref="/data/delivery_questions/no_of_babies/baby_questions/cried">
+							<label ref="jr:itext('cried-label')"/>
+							<item>
+								<label ref="jr:itext('bleeding-yes-label')"/>
+								<value>yes</value>
+							</item>
+							<item>
+								<label ref="jr:itext('bleeding-no-label')"/>
+								<value>no</value>
+							</item>
+						</select1>
+						<select1 ref="/data/delivery_questions/no_of_babies/baby_questions/baby_sex">
+							<label ref="jr:itext('baby_questions/baby_sex-label')"/>
+							<item>
+								<label ref="jr:itext('baby_questions/baby_sex-female-label')"/>
+								<value>female</value>
+							</item>
+							<item>
+								<label ref="jr:itext('baby_questions/baby_sex-male-label')"/>
+								<value>male</value>
+							</item>
+							<item>
+								<label ref="jr:itext('baby_questions/baby_sex-other-label')"/>
+								<value>other</value>
+							</item>
+						</select1>
+						<input ref="/data/delivery_questions/no_of_babies/baby_questions/apgar_score">
+							<label ref="jr:itext('apgar_score-label')"/>
+						</input>
+						<input ref="/data/delivery_questions/no_of_babies/baby_questions/weight">
+							<label ref="jr:itext('weight-label')"/>
+						</input>
+						<select1 ref="/data/delivery_questions/no_of_babies/baby_questions/vit_k">
+							<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/vit_k-label')"/>
+							<item>
+								<label ref="jr:itext('bleeding-yes-label')"/>
+								<value>yes</value>
+							</item>
+							<item>
+								<label ref="jr:itext('bleeding-no-label')"/>
+								<value>no</value>
+							</item>
+						</select1>
+						<select1 ref="/data/delivery_questions/no_of_babies/baby_questions/rh_negative">
+							<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/rh_negative-label')"/>
+							<item>
+								<label ref="jr:itext('bleeding-yes-label')"/>
+								<value>yes</value>
+							</item>
+							<item>
+								<label ref="jr:itext('bleeding-no-label')"/>
+								<value>no</value>
+							</item>
+						</select1>
+						<input ref="/data/delivery_questions/no_of_babies/baby_questions/drugs_adminstered_baby">
+							<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/drugs_adminstered_baby-label')"/>
+						</input>
+						<select1 ref="/data/delivery_questions/no_of_babies/baby_questions/baby_transfer">
+							<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/baby_transfer-label')"/>
+							<item>
+								<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/baby_transfer-transfer_out-label')"/>
+								<value>transfer_out</value>
+							</item>
+							<item>
+								<label ref="jr:itext('delivery_questions/no_of_babies/baby_questions/baby_transfer-nicu-label')"/>
+								<value>nicu</value>
+							</item>
+						</select1>
+					</group>
+				</repeat>
+			</group>
+		</group>
+		<input ref="/data/paediatrician_name">
+			<label ref="jr:itext('baby_questions/paediatrician_name-label')"/>
+		</input>
+	</h:body>
+</h:html>

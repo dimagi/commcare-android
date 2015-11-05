@@ -1,0 +1,75 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Close Case (Don't close during the study)</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/9e368c2d88c21cb5e45dec3049df7e6e730cd022" uiVersion="1" version="3" name="Close Case (Don't close during the study)">
+					<close/>
+					<num_patient_cases/>
+					<patient_case_ids/>
+					<patient_case jr:template="">
+						<case_id/>
+						<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+							<close/>
+						</case>
+					</patient_case>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><close/></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data></instance><instance id="commcaresession" src="jr://instance/session"/>
+			<instance id="casedb" src="jr://instance/casedb"/>
+			<bind nodeset="/data/close"/>
+			<bind nodeset="/data/num_patient_cases" calculate="count-selected(/data/patient_case_ids)"/>
+			<bind nodeset="/data/patient_case_ids" calculate="join(' ', instance('casedb')/casedb/case[@case_type='patient_phone_number'][@status='open']/@case_id)"/>
+			
+			<bind xmlns="http://commcarehq.org/case/transaction/v2" nodeset="/data/patient_case" case_id="" date_modified="" user_id=""/>
+			<bind nodeset="/data/patient_case/case_id" calculate="selected-at(/data/patient_case_ids, position(..))"/>
+			<bind nodeset="/data/patient_case/case"/>
+			<bind nodeset="/data/patient_case/case/@case_id" calculate="../../case_id"/>
+			<bind nodeset="/data/patient_case/case/@date_modified" type="xsd:dateTime" calculate="/data/meta/timeEnd"/>
+			<bind nodeset="/data/patient_case/case/@user_id" calculate="/data/meta/userID"/>
+			
+			
+			<itext>
+				<translation lang="en" default="">
+					<text id="close-label">
+						<value>Do you wish to close this patient's case?</value>
+					</text>
+					<text id="close-yes-label">
+						<value>Yes</value>
+					</text>
+					<text id="close-no-label">
+						<value>No</value>
+					</text>
+				</translation>
+				<translation lang="hin">
+					<text id="close-label">
+						<value>&#2325;&#2381;&#2351;&#2366; &#2310;&#2346; &#2311;&#2360; &#2350;&#2352;&#2368;&#2395; &#2325;&#2366; &#2325;&#2375;&#2360; &#2348;&#2306;&#2342; &#2325;&#2352;&#2344;&#2366; &#2330;&#2366;&#2361;&#2375;&#2306;&#2327;&#2375;</value>
+					</text>
+					<text id="close-yes-label">
+						<value>&#2361;&#2366;&#2305;</value>
+					</text>
+					<text id="close-no-label">
+						<value>&#2344;&#2361;&#2368;&#2306;</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><bind calculate="instance('commcaresession')/session/data/case_id" nodeset="/data/case/@case_id"/><bind nodeset="/data/case/close" relevant="/data/close = 'yes'"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<select1 ref="/data/close">
+			<label ref="jr:itext('close-label')"/>
+			<item>
+				<label ref="jr:itext('close-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('close-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		
+		<group>
+			<label ref="jr:itext('close-label')"/>
+			<repeat jr:count="/data/num_patient_cases" jr:noAddRemove="true()" nodeset="/data/patient_case">
+			</repeat>
+		</group>
+	</h:body>
+</h:html>
