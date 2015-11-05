@@ -190,49 +190,29 @@ public class GraphView {
             e.printStackTrace();
         }
 
-        String js = "document.addEventListener(\"DOMContentLoaded\", function(event) { \n";
-        js += "var graphData = " + json.toString() + ";\n";
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(mContext.getAssets().open("graphing/graph.js"), "UTF-8"));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                js += line + "\n";
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        js += "});\n";
+        String js = "var graphData = " + json.toString() + ";\n";
 
-        WebView.setWebContentsDebuggingEnabled(true);
+        WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
         WebView webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);   // TODO: deprecated
         webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-        String html = "<html>" +
-                "<head>" +
-                //"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
-                "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
-                "<script>" + js + "</script>" +
-                "<script type=\"text/javascript\" src=\"file:///android_asset/graphing/d3.min.js\"></script>" +
-                "</head>" +
-                "<body><svg class='chart'></svg></body>" +
+        String html =
+                "<html>" +
+                    "<head>" +
+                        "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
+                        "<script type='text/javascript'>var graphData = " + json.toString() + ";</script>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
+                    "</head>" +
+                    "<body><svg class='chart'></svg></body>" +
                 "</html>";
         webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
         return webView;
         /*render(data);
 
-        // Panning and zooming are allowed on in full-screen graphs (created by getIntent)
+        // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
         setPanAndZoom(false);
 
         // Graph will not render correctly unless it has data, so
