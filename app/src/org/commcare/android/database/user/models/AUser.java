@@ -18,6 +18,7 @@ package org.commcare.android.database.user.models;
 
 
 import org.commcare.android.storage.framework.Table;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -30,9 +31,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
+/**
+ * Old Android user model now deprecated by combined User model in javarosa. We can only really sunset
+ * once we're sure everyone is on 2.24 or above... which might be a while.
+ */
 
-@Table(User.STORAGE_KEY)
-public class User implements Persistable, IMetaData {
+@Table(AUser.STORAGE_KEY)
+public class AUser implements Persistable, IMetaData
+{
     public static final String STORAGE_KEY = "USER";
     public static final String TYPE_STANDARD = "standard";
     public static final String TYPE_DEMO = "demo";
@@ -59,15 +65,14 @@ public class User implements Persistable, IMetaData {
      */
     private Hashtable<String, String> properties = new Hashtable<String, String>();
 
-    public User() {
+    public AUser() {
         setUserType(TYPE_STANDARD);
     }
 
-    public User(String name, String passw, String uniqueID) {
+    public AUser(String name, String passw, String uniqueID) {
         this(name, passw, uniqueID, TYPE_STANDARD);
     }
-
-    public User(String name, String passw, String uniqueID, String userType) {
+    public AUser(String name, String passw, String uniqueID, String userType) {
         username = name.toLowerCase();
         password = passw;
         uniqueId = uniqueID;
@@ -133,10 +138,6 @@ public class User implements Persistable, IMetaData {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public boolean isRememberMe() {
-        return rememberMe;
     }
 
     public void setRememberMe(boolean rememberMe) {
@@ -217,4 +218,13 @@ public class User implements Persistable, IMetaData {
         return this.cachedPwd;
     }
 
+    public User toNewUser() {
+        User user = new User(username, password, uniqueId, getUserType());
+        user.setRecordId(recordId);
+        user.setWrappedKey(getWrappedKey());
+        user.properties = getProperties();
+        user.setLastSyncToken(syncToken);
+        user.setRememberMe(this.rememberMe);
+        return user;
+    }
 }

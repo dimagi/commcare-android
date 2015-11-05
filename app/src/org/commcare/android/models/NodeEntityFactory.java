@@ -1,7 +1,7 @@
 package org.commcare.android.models;
 
 import org.commcare.android.analytics.XPathErrorStats;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;

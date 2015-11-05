@@ -9,7 +9,7 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
@@ -317,13 +317,12 @@ public class AndroidSessionWrapper {
     public EvaluationContext getEvaluationContext(String commandId) {
         return session.getEvaluationContext(getIIF(), commandId);
     }
-
-    CommCareInstanceInitializer initializer;
-
-    protected CommCareInstanceInitializer getIIF() {
-        if (initializer == null) {
-            initializer = new CommCareInstanceInitializer(session);
-        }
+    
+    AndroidInstanceInitializer initializer;
+    protected AndroidInstanceInitializer getIIF() {
+        if(initializer == null) {
+            initializer = new AndroidInstanceInitializer(session);
+        } 
 
         return initializer;
     }

@@ -1,7 +1,5 @@
 package org.commcare.util.externalizable;
 
-import android.util.Log;
-
 import org.javarosa.core.util.externalizable.Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -11,8 +9,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * @author ctsims
  */
-public class AndroidClassHasher implements Hasher {
-    private static final String TAG = AndroidClassHasher.class.getSimpleName();
+public class AndroidClassHasher extends Hasher {
+
+    private static final int CLASS_HASH_SIZE = 4;
 
     MessageDigest mMessageDigester;
     
@@ -29,22 +28,19 @@ public class AndroidClassHasher implements Hasher {
         PrototypeFactory.setStaticHasher(new AndroidClassHasher());
     }
 
-    @Override
-    public byte[] getClassHashValue(Class type) {
-        byte[] hash = new byte[PrototypeFactory.CLASS_HASH_SIZE];
-        
-        byte[] md5;
+    public byte[] getHash(Class c){
+        byte[] ret;
         synchronized(mMessageDigester) {
-             md5 = mMessageDigester.digest(type.getName().getBytes());
+            ret = mMessageDigester.digest(c.getName().getBytes());
         }
-
-        System.arraycopy(md5, 0, hash, 0, hash.length);
-        byte[] badHash = new byte[] {0,4,78,97};
-        if(PrototypeFactory.compareHash(badHash, hash)) {
-            Log.d(TAG, "BAD CLASS: " + type.getName());
-        }
-        
-        return hash;
+        return ret;
     }
+
+
+    @Override
+    public int getHashSize(){
+        return CLASS_HASH_SIZE;
+    }
+
 
 }

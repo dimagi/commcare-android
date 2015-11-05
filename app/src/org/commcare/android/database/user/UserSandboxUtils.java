@@ -9,7 +9,7 @@ import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -67,7 +67,7 @@ public class UserSandboxUtils {
         try {
 
             //If we were able to iterate over the users, the key was fine, so let's use it to open our db
-            DbHelper dbh = new DbHelper(c) {
+            AndroidDbHelper dbh = new AndroidDbHelper(c) {
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;
@@ -203,7 +203,7 @@ public class UserSandboxUtils {
         final SQLiteDatabase db = new CommCareUserOpenHelper(CommCareApplication._(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
 
         try {
-            DbHelper dbh = new DbHelper(context) {
+            AndroidDbHelper dbh = new AndroidDbHelper(context) {
                 @Override
                 public SQLiteDatabase getHandle() {
                     return db;
