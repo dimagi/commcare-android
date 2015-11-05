@@ -195,7 +195,7 @@ public class GraphView {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(
-                    new InputStreamReader(mContext.getAssets().open("graphing/jenny.js"), "UTF-8"));
+                    new InputStreamReader(mContext.getAssets().open("graphing/graph.js"), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 js += line + "\n";
@@ -222,11 +222,11 @@ public class GraphView {
         String html = "<html>" +
                 "<head>" +
                 //"<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
-                "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graphing.css'></link>" +
+                "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                 "<script>" + js + "</script>" +
                 "<script type=\"text/javascript\" src=\"file:///android_asset/graphing/d3.min.js\"></script>" +
                 "</head>" +
-                "<body><svg class=\"chart\"></svg></body>" +
+                "<body><svg class='chart'></svg></body>" +
                 "</html>";
         webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
         return webView;
