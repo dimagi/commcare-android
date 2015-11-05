@@ -11,7 +11,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.mime.EncryptedFileBody;
