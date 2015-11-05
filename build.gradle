@@ -84,6 +84,7 @@ ext {
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
+def ccDomainSafe = ccDomain.replaceAll("-", "")
 
 /**
  * Get the version code from command line param
@@ -203,8 +204,8 @@ android {
         // use the settings from defaultConfig
       }
       standalone {
-        applicationId "org.commcare.${ccDomain}"
-        def odkProviderStr = "org.commcare.${ccDomain}.provider.odk"
+        applicationId "org.commcare.${ccDomainSafe}"
+        def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]
 
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"

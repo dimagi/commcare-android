@@ -635,6 +635,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             done(appChanged, false);
         }
     }
+
     private void restore(String payload) {
         DebugDataPullResponseFactory pullResponseFactor = new DebugDataPullResponseFactory(payload);
         DataPullTask<CommCareSetupActivity> pullTask = new DataPullTask<CommCareSetupActivity>("", "", "", this, pullResponseFactor) {
