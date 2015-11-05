@@ -161,7 +161,7 @@ public class HomeActivityUIController {
         logoutButton = adapter.getButton(R.layout.home_disconnect_button);
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
-            logoutButton.setNotificationText(activity.getActivityTitle());
+            //logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
         } else {
             Logger.log(AndroidLogger.SOFT_ASSERT,
@@ -296,7 +296,7 @@ public class HomeActivityUIController {
         }
         if (logoutButton != null) {
             logoutButton.setText(Localization.get(logoutMessageKey));
-            logoutButton.setNotificationText(activity.getActivityTitle());
+            //logoutButton.setNotificationText(activity.getActivityTitle());
         } else {
             Logger.log(AndroidLogger.SOFT_ASSERT,
                     "logoutButton was null in refreshHomeAndLogoutButtons()");
