@@ -65,8 +65,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
@@ -496,9 +494,9 @@ public class CommCareHomeActivity
                             checkAndStartUnsentTask(false);
                         }
                         
-                        if(isDemoUser()) {
+                        /*if (isDemoUser()) {
                             showDemoModeWarning();
-                        }
+                        }*/
                     }
                     return;
                 }
