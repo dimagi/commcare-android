@@ -6,7 +6,6 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
@@ -68,7 +67,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
     public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
-                                boolean b, SqlStorage<ACase> storage,
+                                boolean b, IStorageUtilityIndexed<Case> storage,
                                 HttpRequestGenerator generator) {
         super(parser, tallies, b, storage);
         this.generator = generator;

@@ -1,6 +1,5 @@
 package org.commcare.android.javarosa;
 
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
@@ -8,6 +7,7 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
@@ -24,6 +24,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+
 /**
  * A small DB record for keeping track of serialized device reports which we are planning
  * on submitting. Keeps track of the location on disk, and the key we use to encrypt it.
@@ -36,7 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Table(DeviceReportRecord.STORAGE_KEY)
 public class DeviceReportRecord extends Persisted implements EncryptedModel {
-
     public static final String STORAGE_KEY = "log_records";
 
     @Persisting(1)
