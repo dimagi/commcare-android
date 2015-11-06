@@ -99,6 +99,9 @@ public class CommCareInstanceInitializer extends InstanceInitializationFactory {
             } catch (SessionUnavailableException e) {
                 throw new UserStorageClosedException(e.getMessage());
             }
+            for(String key: u.getProperties().keySet()){
+                System.out.println("1104 key: " + key + " val: " + u.getProperties().get(key));
+            }
             TreeElement root = session.getSessionInstance(app.getPhoneId(), app.getCurrentVersionString(), u.getUsername(), u.getUniqueId(), u.getProperties()).getRoot();
             root.setParent(instance.getBase());
             return root;
