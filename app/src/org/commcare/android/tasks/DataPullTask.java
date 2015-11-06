@@ -259,6 +259,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         this.context.sendBroadcast(i);
                         
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
+                        CommCareApplication._().getSession().setNewUser();
                         this.publishProgress(PROGRESS_DONE);
                         return DOWNLOAD_SUCCESS;
                     } catch (InvalidStructureException e) {
