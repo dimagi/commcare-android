@@ -102,7 +102,6 @@ public class GraphView {
     }
 
     private void render(GraphData data) throws InvalidStateException {
-        mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
             renderSeries(s);
@@ -172,6 +171,8 @@ public class GraphView {
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData data) throws InvalidStateException {
+        mData = data;
+        
         WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
         WebView webView = new WebView(mContext);
         configureSettings(webView);
@@ -180,13 +181,14 @@ public class GraphView {
                 "<html>" +
                     "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/underscore.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                         "<script type='text/javascript'>var graphData = " + jsonify(data).toString() + ";</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
                     "<body><svg class='chart'></svg></body>" +
                 "</html>";
-        webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
+        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null );
         return webView;
         /*
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
@@ -356,11 +358,10 @@ public class GraphView {
         // and happened to look nice for partographs. Vertically-oriented graphs,
         // however, get squished unless they're drawn as a square. Expect to revisit 
         // this eventually (make all graphs square? user-configured aspect ratio?).
-        return 1;
-        /*if (Graph.TYPE_BAR.equals(mData.getType())) {
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
             return 1;
         }
-        return 2;*/
+        return 2;
     }
 
     private XYMultipleSeriesRenderer.Orientation getOrientation() {

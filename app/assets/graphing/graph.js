@@ -9,9 +9,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
         .attr("width", width)
         .attr("height", height);
 
-    // TODO: d3.min and d3.max, across all series
-    x.domain([0, 10]);
-    y.domain([10, 0]);
+    var allPoints = _.flatten(_.pluck(graphData.series, 'points'))
+    var allX = _.map(allPoints, function(p) { return parseInt(p.x); });
+    var allY = _.map(allPoints, function(p) { return parseInt(p.y); });
+    if (allPoints.length) {
+        x.domain([_.min(allX), _.max(allX)]);
+        y.domain([_.max(allY), _.min(allY)]);
+    }
 
     for (var s = 0; s < graphData.series.length; s++) {
         if (graphData.type === "xy") {
