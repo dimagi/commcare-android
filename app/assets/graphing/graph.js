@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(event) {
+    //graphData = {"type":"xy","series":[{"points":[{"y":"2","x":"2"},{"y":"3","x":"3"},{"y":"1","x":"1"}]}]}
     var width = document.body.offsetWidth;
     var height = document.body.offsetHeight;
     var x = d3.scale.linear().range([0, width]);
@@ -13,12 +14,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     y.domain([10, 0]);
 
     for (var s = 0; s < graphData.series.length; s++) {
-        var lineFunction = d3.svg.line()
-                                .x(function(d) { return x(+d.x); })
-                                .y(function(d) { return y(+d.y); })
-                                .interpolate("linear");
+        if (graphData.type === "xy") {
+            var lineFunction = d3.svg.line()
+                                    .x(function(d) { return x(+d.x); })
+                                    .y(function(d) { return y(+d.y); })
+                                    .interpolate("linear");
 
-        chart.append("path")
-                .attr("d", lineFunction(graphData.series[s]));
+            chart.append("path")
+                    .attr("d", lineFunction(graphData.series[s].points));
+        }
     }
 });

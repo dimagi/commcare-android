@@ -172,70 +172,23 @@ public class GraphView {
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData data) throws InvalidStateException {
-        JSONObject json = new JSONObject();
-        JSONArray series = new JSONArray();
-        try {
-            for (SeriesData s : data.getSeries()) {
-                JSONArray points = new JSONArray();
-                for (XYPointData p : s.getPoints()) {
-                    JSONObject point = new JSONObject();
-                    point.put("x", p.getX());
-                    point.put("y", p.getY());
-                    points.put(point);
-                }
-                series.put(points);
-            }
-            json.put("series", series);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        String js = "var graphData = " + json.toString() + ";\n";
-
         WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
         WebView webView = new WebView(mContext);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);   // TODO: deprecated
-        webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        configureSettings(webView);
 
         String html =
                 "<html>" +
                     "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                        "<script type='text/javascript'>var graphData = " + json.toString() + ";</script>" +
+                        "<script type='text/javascript'>var graphData = " + jsonify(data).toString() + ";</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
                     "<body><svg class='chart'></svg></body>" +
                 "</html>";
         webView.loadDataWithBaseURL( "file:///android_asset/", html, "text/html", "utf-8", null );
         return webView;
-        /*render(data);
-
-        // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
-        setPanAndZoom(false);
-
-        // Graph will not render correctly unless it has data, so
-        // add a dummy series if needed.
-        boolean hasPoints = false;
-        Vector<SeriesData> allSeries = data.getSeries();
-        for (int i = 0; i < allSeries.size() && !hasPoints; i++) {
-            hasPoints = hasPoints || allSeries.get(i).getPoints().size() > 0;
-        }
-        if (!hasPoints) {
-            SeriesData s = new SeriesData();
-            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-                s.addPoint(new BubblePointData("0", "0", "0"));
-            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
-                s.addPoint(new XYPointData(DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601), "0"));
-            } else {
-                s.addPoint(new XYPointData("0", "0"));
-            }
-            s.setConfiguration("line-color", "#00000000");
-            s.setConfiguration("point-style", "none");
-            renderSeries(s);
-        }
-
+        /*
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
@@ -246,6 +199,50 @@ public class GraphView {
             return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
         }
         return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
+    }
+
+    private void configureSettings(WebView view) {
+        WebSettings settings = view.getSettings();
+
+        settings.setJavaScriptEnabled(true);
+
+        // Improve performance
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
+        settings.setSupportZoom(false);
+    }
+
+    private JSONObject jsonify(GraphData data) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("type", data.getType());
+            JSONArray series = new JSONArray();
+            for (SeriesData s : data.getSeries()) {
+                series.put(jsonify(s));
+            }
+            json.put("series", series);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    private JSONObject jsonify(SeriesData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        JSONArray points = new JSONArray();
+        for (XYPointData p : data.getPoints()) {
+            points.put(jsonify(p));
+        }
+        json.put("points", points);
+        return json;
+    }
+
+    private JSONObject jsonify(XYPointData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("x", data.getX());
+        json.put("y", data.getY());
+        return json;
     }
 
     /**
