@@ -137,7 +137,7 @@ android {
         // resources from assets folder
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
 
-        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}.provider\""
+        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
         buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
         buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
@@ -215,7 +215,7 @@ android {
 
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
         // include this again so that the value get reloaded
-        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}.provider\""
+        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
         buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
       }
     }
