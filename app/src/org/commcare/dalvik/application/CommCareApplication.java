@@ -912,6 +912,17 @@ public class CommCareApplication extends Application {
         mIsBinding = true;
     }
 
+    public User getCurrentUserFromDB(String username){
+        for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
+            System.out.println("user: " + u);
+            if (username.equals(u.getUsername())) {
+                System.out.println("User found: " + u);
+                return u;
+            }
+        }
+        return null;
+    }
+
     @SuppressLint("NewApi")
     protected void doReportMaintenance(boolean force) {
         //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
