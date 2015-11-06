@@ -825,4 +825,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return activityPaused;
     }
 
+    public void setLastQueryString(String lastQueryString){
+        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(lastQueryString);
+    }
+
+    public String getLastQueryString(){
+        return CommCareApplication._().getCurrentSessionWrapper().getLastQueryString();
+    }
+
 }

@@ -227,9 +227,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         if (!isUsingActionBar()) {
             if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString (" + CommCareApplication._().getCurrentSessionWrapper().getLastQueryString() + ") in searchbox");
+                Log.v(TAG, "Setting lastQueryString (" + getLastQueryString() + ") in searchbox");
             }
-            setSearchText(CommCareApplication._().getCurrentSessionWrapper().getLastQueryString());
+            setSearchText(getLastQueryString());
         }
     }
 
@@ -491,7 +491,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
             public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
-                String lastQueryString = CommCareApplication._().getCurrentSessionWrapper().getLastQueryString();
+                String lastQueryString = getLastQueryString();
                 FormRecordListActivity.this.searchItem = searchItem;
                 FormRecordListActivity.this.searchView = searchView;
                 if (lastQueryString != null && lastQueryString.length() > 0) {
@@ -599,7 +599,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             adapter.applyTextFilter(filtertext);
         }
         if (!isUsingActionBar()) {
-            CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(filtertext);
+            setLastQueryString(filtertext);
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Setting lastQueryString to (" + filtertext + ") in searchbox afterTextChanged event");
             }

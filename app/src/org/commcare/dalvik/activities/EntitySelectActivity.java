@@ -282,7 +282,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {
-            searchbox.setText(CommCareApplication._().getCurrentSessionWrapper().getLastQueryString());
+            searchbox.setText(getLastQueryString());
         }
     }
 
@@ -676,7 +676,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             }
         }
         if (!isUsingActionBar()) {
-            CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(filterString);
+            setLastQueryString(filterString);
         }
     }
 
@@ -713,7 +713,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 EntitySelectActivity.this.searchItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
-                String lastQueryString = CommCareApplication._().getCurrentSessionWrapper().getLastQueryString();
+                String lastQueryString = getLastQueryString();
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -735,7 +735,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(newText);
+                        setLastQueryString(newText);
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -1172,7 +1172,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     @Override
     public void onBackPressed()
     {
-        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(null);
+        setLastQueryString(null);
         super.onBackPressed();
     }
 }
