@@ -9,8 +9,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.TrackedCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -21,7 +21,7 @@ import org.javarosa.core.services.storage.StorageFullException;
  *
  */
 @ManagedUi(R.layout.screen_permission_request)
-public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestActivity> {
+public class KeyAccessRequestActivity extends TrackedCommCareActivity<KeyAccessRequestActivity> {
     
     @UiElement(value = R.id.screen_permission_grant_text_message, locale="app.key.request.message")
     TextView message;

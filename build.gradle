@@ -87,6 +87,18 @@ ext {
             "HaAJkjpnc165Os+aYwIDAQAB";
 }
 
+afterEvaluate {
+    tasks.matching {
+        it.name.startsWith('dex')
+    }.each { dx ->
+        if (dx.additionalParameters == null) {
+            dx.additionalParameters = ['--multi-dex']
+        } else {
+            dx.additionalParameters += '--multi-dex'
+        }
+    }
+}
+
 /**
  * Get the version code from command line param
  * 
@@ -121,7 +133,7 @@ android {
     }
 
     dexOptions {
-        preDexLibraries = true
+        preDexLibraries = false
         jumboMode = true
     }
 

@@ -3,12 +3,12 @@
  */
 package org.commcare.dalvik.activities;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.android.framework.TrackedActivity;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -16,7 +16,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author ctsims
  *
  */
-public class UnrecoverableErrorActivity extends Activity {
+public class UnrecoverableErrorActivity extends TrackedActivity {
     
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";

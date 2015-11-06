@@ -5,7 +5,8 @@ package org.commcare.android.framework;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> {
+public abstract class SessionAwareCommCareActivity<R> extends TrackedCommCareActivity<R> {
+
     @Override
     protected void onResume() {
         super.onResume();

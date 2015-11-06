@@ -21,8 +21,8 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.TrackedCommCareActivity;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -58,7 +58,7 @@ import java.util.List;
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
+public class CommCareSetupActivity extends TrackedCommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();

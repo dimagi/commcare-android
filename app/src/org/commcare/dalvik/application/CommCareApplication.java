@@ -1,7 +1,6 @@
 package org.commcare.dalvik.application;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,12 +22,17 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
+
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -44,7 +48,6 @@ import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
-import org.javarosa.core.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -85,6 +88,7 @@ import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.externalizable.AndroidClassHasher;
+import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -117,7 +121,7 @@ import javax.crypto.SecretKey;
         formUriBasicAuthPassword="your_password",
         reportType = org.acra.sender.HttpSender.Type.JSON,
         httpMethod = org.acra.sender.HttpSender.Method.PUT)
-public class CommCareApplication extends Application {
+public class CommCareApplication extends MultiDexApplication {
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
     public static final int STATE_UNINSTALLED = 0;
@@ -169,6 +173,8 @@ public class CommCareApplication extends Application {
      * Handler to receive notifications and show them the user using toast.
      */
     private final PopupHandler toaster = new PopupHandler(this);
+
+    private Tracker mTracker;
 
     @Override
     public void onCreate() {
@@ -225,6 +231,12 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     public void triggerHandledAppExit(Context c, String message) {
@@ -315,6 +327,15 @@ public class CommCareApplication extends Application {
         return listener;
     }
 
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            //mTracker = analytics.newTracker(R.xml.global_tracker);
+        }
+        return mTracker;
+    }
+
     public int[] getCommCareVersion() {
         return this.getResources().getIntArray(R.array.commcare_version);
     }
@@ -330,7 +351,6 @@ public class CommCareApplication extends Application {
     public CommCareApp getCurrentApp() {
         return this.currentApp;
     }
-
 
     /**
      * Get the current CommCare session that's being executed

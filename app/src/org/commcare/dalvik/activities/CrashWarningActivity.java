@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.android.framework.TrackedActivity;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -19,7 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class CrashWarningActivity extends Activity {
+public class CrashWarningActivity extends TrackedActivity {
     private int errorMessageVisibility = View.GONE;
     private static final String ERROR_VISIBLE = "error-message-is-visible";
 

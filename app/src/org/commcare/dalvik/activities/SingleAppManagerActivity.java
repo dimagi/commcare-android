@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.TrackedActivity;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
@@ -32,7 +32,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author amstone
  */
 
-public class SingleAppManagerActivity extends Activity {
+public class SingleAppManagerActivity extends TrackedActivity {
 
     private ApplicationRecord appRecord;
     private AlertDialog dialog;

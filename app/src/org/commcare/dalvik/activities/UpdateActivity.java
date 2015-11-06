@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.TrackedCommCareActivity;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
@@ -23,7 +23,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class UpdateActivity extends CommCareActivity<UpdateActivity>
+public class UpdateActivity extends TrackedCommCareActivity<UpdateActivity>
         implements TaskListener<Integer, AppInstallStatus> {
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
@@ -266,4 +266,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         dialog.setCancelable(false);
         return dialog;
     }
+
+
 }

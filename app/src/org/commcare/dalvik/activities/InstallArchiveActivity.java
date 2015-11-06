@@ -13,8 +13,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.TrackedCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.tasks.UnzipTask;
@@ -33,7 +33,7 @@ import java.io.File;
  */
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
-public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
+public class InstallArchiveActivity extends TrackedCommCareActivity<InstallArchiveActivity> {
     private static final int REQUEST_FILE_LOCATION = 1;
 
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";

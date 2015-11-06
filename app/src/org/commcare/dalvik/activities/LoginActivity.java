@@ -29,8 +29,8 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.TrackedCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -65,7 +65,7 @@ import java.util.ArrayList;
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
+public class LoginActivity extends TrackedCommCareActivity<LoginActivity> implements OnItemSelectedListener {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     
@@ -188,7 +188,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = MediaUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView)banner.findViewById(R.id.main_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
