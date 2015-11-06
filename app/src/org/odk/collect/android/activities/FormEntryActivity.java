@@ -2497,7 +2497,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         }
 
-        if(numberOfGroupLinesAllowed <= 0) {
+        if(numberOfGroupLinesAllowed == 0) {
             this.mGroupForcedInvisible = true;
             updateGroupViewVisibility();
             groupLabel.setMaxLines(0);
