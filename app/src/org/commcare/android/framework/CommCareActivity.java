@@ -144,6 +144,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         mGestureDetector = new GestureDetector(this, this);
     }
 
+    /**
+     * Call this method from an implementing activity to request a new event trigger for any time
+     * the available space for the core content view changes significantly, for instance when the
+     * soft keyboard is displayed or hidden.
+     *
+     * This method will also be reliably triggered upon the end of the first layout pass, so it
+     * can be used to do the initial setup for adaptive layouts as well as their updates.
+     *
+     * After this is called, major layout size changes will be triggered in the onMajorLayoutChange
+     * method.
+     */
     protected void requestMajorLayoutUpdates() {
         final View decorView = getWindow().getDecorView();
         decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -153,16 +164,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             @Override
             public void onGlobalLayout() {
                 Rect r = new Rect();
-                //r will be populated with the coordinates of your view that area still visible.
+                //r will be populated with the coordinates of your view that are visible after the
+                //recent change.
                 decorView.getWindowVisibleDisplayFrame(r);
 
                 int mainContentHeight = r.height();
 
-                //int viewFrameWindowDifference = Math.abs(mainContentHeight - (r.bottom - r.top));
-
                 int previousMeasurementDifference = Math.abs(mainContentHeight - mPreviousDecorViewFrameHeight);
 
-                if (previousMeasurementDifference > 100) { // if more than 100 pixels, its probably a keyboard...
+                if (previousMeasurementDifference > 100) {
                     onMajorLayoutChange(r);
                 }
                 mPreviousDecorViewFrameHeight = mainContentHeight;
@@ -170,6 +180,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         });
     }
 
+    /**
+     * This method is called when the root view size available to the activity has changed
+     * significantly. It is the appropriate place to trigger adaptive layout behaviors.
+     *
+     * Note for performance that changes to declarative view properties here will trigger another
+     * layout pass.
+     *
+     * This callback is only triggered if the parent view has called requestMajorLayoutUpdates
+     *
+     * @param newRootViewDimensions The dimensions of the new root screen view that is available
+     *                              to the activity.
+     */
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
    }

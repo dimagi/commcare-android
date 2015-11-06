@@ -2430,7 +2430,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             }
         }
 
-        if(numberOfGroupLinesAllowed <= 0) {
+        if(numberOfGroupLinesAllowed == 0) {
             this.mGroupForcedInvisible = true;
             updateGroupViewVisibility();
             groupLabel.setMaxLines(0);
