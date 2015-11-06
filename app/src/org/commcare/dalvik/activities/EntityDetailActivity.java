@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
@@ -35,42 +34,35 @@ import org.javarosa.core.services.locale.Localization;
  * @author ctsims
  */
 @ManagedUi(R.layout.entity_detail)
-public class EntityDetailActivity extends SessionAwareCommCareActivity implements DetailCalloutListener {
-
-    private CommCareSession session;
-    private AndroidSessionWrapper asw;
+public class EntityDetailActivity
+        extends SessionAwareCommCareActivity
+        implements DetailCalloutListener {
 
     // reference id of selected element being detailed
     public static final String CONTEXT_REFERENCE = "eda_crid";
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
 
-    Entity<TreeReference> entity;
-    EntityDetailAdapter adapter;
-    NodeEntityFactory factory;
-    Pair<Detail, TreeReference> mEntityContext;
-
-    TreeReference mTreeReference;
-
+    private NodeEntityFactory factory;
+    private Pair<Detail, TreeReference> mEntityContext;
+    private TreeReference mTreeReference;
     private int detailIndex;
 
-    // Is the detail screen for showing entities, without option for moving
-    // forward on to form manipulation?
-    private boolean mViewMode = false;
-
     @UiElement(value = R.id.entity_detail)
-    RelativeLayout container;
+    private RelativeLayout container;
 
     @UiElement(value = R.id.entity_select_button, locale = "select.detail.confirm")
-    Button next;
+    private Button next;
 
     @UiElement(value = R.id.entity_detail_tabs)
-    TabbedDetailView mDetailView;
+    private TabbedDetailView mDetailView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent i = getIntent();
 
+        AndroidSessionWrapper asw;
+        CommCareSession session;
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
             session = asw.getSession();
@@ -82,22 +74,30 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         }
         String passedCommand = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
 
+        // Is the detail screen for showing entities, without option for moving
+        // forward on to form manipulation?
+        boolean viewMode;
         if (passedCommand != null) {
-            mViewMode = session.isViewCommand(passedCommand);
+            viewMode = session.isViewCommand(passedCommand);
         } else {
-            mViewMode = session.isViewCommand(session.getCommand());
+            viewMode = session.isViewCommand(session.getCommand());
         }
 
-        factory = new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)), asw.getEvaluationContext());
+        factory =
+                new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)),
+                        asw.getEvaluationContext());
 
-        mTreeReference = SerializationUtil.deserializeFromIntent(getIntent(), EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+        mTreeReference =
+                SerializationUtil.deserializeFromIntent(getIntent(),
+                        EntityDetailActivity.CONTEXT_REFERENCE,
+                        TreeReference.class);
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
             this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
         }
 
-        entity = factory.getEntity(mTreeReference);
+        Entity<TreeReference> entity = factory.getEntity(mTreeReference);
 
         super.onCreate(savedInstanceState);
         
@@ -125,7 +125,7 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
             }
         });
 
-        if (mViewMode) {
+        if (viewMode) {
             next.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
             next.setText(Localization.get("select.detail.bypass"));
         }
@@ -145,24 +145,12 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         return true;
     }
 
-
     @Override
     public String getActivityTitle() {
-        //Skipping this until it's a more general pattern
         return null;
-//        String title = Localization.get("select.detail.title");
-//        
-//        try {
-//            Detail detail = factory.getDetail();
-//            title = detail.getTitle().evaluate();
-//        } catch(Exception e) {
-//            
-//        }
-//        
-//        return title;
     }
 
-    protected void loadOutgoingIntent(Intent i) {
+    private void loadOutgoingIntent(Intent i) {
         i.putExtra(SessionFrame.STATE_DATUM_VAL, this.getIntent().getStringExtra(SessionFrame.STATE_DATUM_VAL));
     }
 
@@ -189,19 +177,22 @@ public class EntityDetailActivity extends SessionAwareCommCareActivity implement
         }
     }
 
-
+    @Override
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
+    @Override
     public void addressRequested(String address) {
         DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
 
+    @Override
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }

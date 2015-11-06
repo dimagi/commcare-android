@@ -41,10 +41,8 @@ public class HierarchyListAdapter extends BaseAdapter {
             hev = new HierarchyElementView(mContext, mItems.get(position));
         } else {
             hev = (HierarchyElementView)convertView;
-            hev.setPrimaryText(mItems.get(position).getPrimaryText());
-            hev.setSecondaryText(mItems.get(position).getSecondaryText());
-            hev.setIcon(mItems.get(position).getIcon());
-            hev.setColor(mItems.get(position).getColor());
+            HierarchyElement entry = mItems.get(position);
+            hev.setFromHierarchyElement(entry);
         }
 
         if (mItems.get(position).getSecondaryText() == null

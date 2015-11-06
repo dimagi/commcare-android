@@ -4,23 +4,24 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-
 /**
+ * A Db Handler for direct DB Handle access, when
+ * lazy handoff isn't necessary.
+ * 
  * @author ctsims
  *
  */
-public class DirectDbHelper extends DbHelper {
-    
+public class ConcreteAndroidDbHelper extends AndroidDbHelper {
     private SQLiteDatabase handle;
 
-    public DirectDbHelper(Context c, SQLiteDatabase database) {
+    public ConcreteAndroidDbHelper(Context c, SQLiteDatabase handle) {
         super(c);
-        handle = database;
+        this.handle = handle;
     }
 
     @Override
     public SQLiteDatabase getHandle() {
         return handle;
     }
-    
+
 }

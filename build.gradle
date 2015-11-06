@@ -53,7 +53,7 @@ dependencies {
 
 project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:22"
-    buildToolsVersion = "22.0.1"
+    buildToolsVersion = "23.0.2"
 }
 project(':libraries:AndroidStaggeredGrid:library') {
   android{
@@ -90,10 +90,10 @@ ext {
 /**
  * Get the version code from command line param
  * 
- * @return int If the param -PversionCode is present then return int value or -1
+ * @return int If the param -PversionCode is present then return int value or 1
  */
 def getVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : -1
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 1
     println "VersionCode is set to $code"
     return code
 }

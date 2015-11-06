@@ -4,8 +4,8 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.TableBuilder;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 
@@ -56,7 +56,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            AndroidTableBuilder builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -69,7 +69,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
+            AndroidTableBuilder builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             db.setTransactionSuccessful();
@@ -110,7 +110,7 @@ public class AppDatabaseUpgrader {
     private boolean upgradeFiveSix(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            TableBuilder builder = new TableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
+            AndroidTableBuilder builder = new AndroidTableBuilder(AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY);
             builder.addData(new Resource());
             db.execSQL(builder.getTableCreateString());
             String tableCmd =
