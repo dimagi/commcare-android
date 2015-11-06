@@ -12,8 +12,8 @@
 
         <RelativeLayout
             android:id="@+id/screen_first_start_main"
-            xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
-            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+            xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
