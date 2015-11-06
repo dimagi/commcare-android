@@ -1,7 +1,7 @@
 <OpenRosaResponse xmlns="http://openrosa.org/http/response">
     <message nature="ota_restore_success">Successfully restored account demo!</message>
     <Sync xmlns="http://commcarehq.org/sync">
-        <restore_id>d5633d7bbbae9c4def16be570d8ce0aa</restore_id>
+        <restore_id>f725f1bb5f281f3da720b794612e1705</restore_id>
     </Sync>
     <Registration xmlns="http://openrosa.org/user/registration">
         <username>demo</username>
@@ -32,7 +32,7 @@
             </sequence>
         </sequence_list>
     </fixture>
-    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="48be7bd1-7715-4b55-a66b-f1e9cdd044ba" date_modified="2015-11-06T14:25:18.593000Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="48be7bd1-7715-4b55-a66b-f1e9cdd044ba" date_modified="2015-11-06T22:04:54.833560Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
         <create>
             <case_type>patient</case_type>
             <case_name>Aishwarya Rai</case_name>
@@ -54,7 +54,7 @@
             <contractions_time>16745.59990326389</contractions_time>
             <diastolic>79</diastolic>
             <dilation>7</dilation>
-            <dilation_hours_current>1.7178338889498264</dilation_hours_current>
+            <dilation_hours_current>4</dilation_hours_current>
             <dilation_time>16745.59990326389</dilation_time>
             <double_now>16745.59990326389</double_now>
             <double_now_pv>16745.59990326389</double_now_pv>
@@ -341,7 +341,7 @@
             <parent case_type="patient">745cb6c5-6079-4535-baf7-61e471ca24a6</parent>
         </index>
     </case>
-    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="54c9300f0479484f9423642e32adbc4b" date_modified="2015-11-06T12:19:47.557000Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="54c9300f0479484f9423642e32adbc4b" date_modified="2015-11-06T22:17:31.934100Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
         <create>
             <case_type>patient</case_type>
             <case_name>Sunita Gupta</case_name>
@@ -372,7 +372,7 @@
             <contractions_time>16745.512937881944</contractions_time>
             <diastolic>80</diastolic>
             <dilation>10</dilation>
-            <dilation_hours_current>0.29236416664207354</dilation_hours_current>
+            <dilation_hours_current>6</dilation_hours_current>
             <dilation_time>16745.512937881944</dilation_time>
             <double_now>16745.512937881944</double_now>
             <double_now_pv>16745.512937881944</double_now_pv>
@@ -629,7 +629,7 @@
             <parent case_type="patient">53669ca4-43f4-43fe-8cbb-5e359cd0963c</parent>
         </index>
     </case>
-    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="53669ca4-43f4-43fe-8cbb-5e359cd0963c" date_modified="2015-11-06T14:29:29.559000Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="53669ca4-43f4-43fe-8cbb-5e359cd0963c" date_modified="2015-11-06T22:16:50.099302Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
         <create>
             <case_type>patient</case_type>
             <case_name>Priyanka Chopra</case_name>
@@ -660,7 +660,7 @@
             <contractions_time>16745.602671666667</contractions_time>
             <diastolic>85</diastolic>
             <dilation>8</dilation>
-            <dilation_hours_current>0.03351583331823349</dilation_hours_current>
+            <dilation_hours_current>1.5</dilation_hours_current>
             <dilation_time>16745.602671666667</dilation_time>
             <double_now>16745.602671666667</double_now>
             <double_now_pv>16745.602671666667</double_now_pv>
@@ -818,7 +818,7 @@
             <wife_of/>
         </update>
     </case>
-    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="f9c80d47-2280-4a80-aa9a-7550e649e506" date_modified="2015-11-06T12:34:36.256000Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="f9c80d47-2280-4a80-aa9a-7550e649e506" date_modified="2015-11-06T22:01:15.457877Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
         <create>
             <case_type>patient</case_type>
             <case_name>Kareena Kapoor</case_name>
@@ -850,7 +850,7 @@
             <contractions_time>16745.521008449075</contractions_time>
             <diastolic>78</diastolic>
             <dilation>6</dilation>
-            <dilation_hours_current>0.05506916670128703</dilation_hours_current>
+            <dilation_hours_current>4</dilation_hours_current>
             <dilation_time>16745.521008449075</dilation_time>
             <double_now>16745.521008449075</double_now>
             <double_now_pv>16745.521008449075</double_now_pv>
@@ -955,7 +955,7 @@
             <parent case_type="patient">54c9300f0479484f9423642e32adbc4b</parent>
         </index>
     </case>
-    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="745cb6c5-6079-4535-baf7-61e471ca24a6" date_modified="2015-11-06T14:37:56.518000Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="745cb6c5-6079-4535-baf7-61e471ca24a6" date_modified="2015-11-06T22:17:39.701882Z" user_id="eb2f3cd4ebdfcd730fd09f47c462701f">
         <create>
             <case_type>patient</case_type>
             <case_name>Deepika Padukone</case_name>
@@ -986,7 +986,7 @@
             <contractions_time>16745.608893680557</contractions_time>
             <diastolic>80</diastolic>
             <dilation>4</dilation>
-            <dilation_hours_current>0.11464722227538005</dilation_hours_current>
+            <dilation_hours_current>0</dilation_hours_current>
             <dilation_time>16745.608893680557</dilation_time>
             <double_now>16745.608893680557</double_now>
             <double_now_pv>16745.608893680557</double_now_pv>
