@@ -609,7 +609,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
 
-    public void afterTextChanged(Editable s) {
+    public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
         final String currentSearchText = getSearchText().toString();
         if (incomingString.equals(currentSearchText)) {
