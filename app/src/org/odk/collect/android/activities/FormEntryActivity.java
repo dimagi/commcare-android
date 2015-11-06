@@ -203,7 +203,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
-    private boolean shouldIgnoreSwipeAction;
     private boolean isAnimatingSwipe;
     private boolean isDialogShowing;
 
@@ -371,7 +370,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
+        // re-set defaults in case the app got in a bad state.
         isAnimatingSwipe = false;
+        isDialogShowing = false;
         mCurrentView = null;
         mInAnimation = null;
         mOutAnimation = null;
