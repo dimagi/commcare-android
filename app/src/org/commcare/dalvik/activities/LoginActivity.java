@@ -246,9 +246,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
                     @Override
                     protected void deliverError(LoginActivity receiver, Exception e) {
-                        if (!receiver.tryLocalLogin(true)) {
-                            receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                        }
+                        receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                     }
                 };
         pullTask.connect(this);
