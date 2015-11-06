@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<suite version="3" descriptor="Suite File">
+<suite version="11" descriptor="Suite File">
   <xform>
     <resource id="dcc6852c98d1113bc30950e047a5ee0255f632da" version="3" descriptor="Form: (Module Getting Started) - Getting Started">
       <location authority="local">./modules-0/forms-0.xml</location>
@@ -13,7 +13,7 @@
     </resource>
   </xform>
   <xform>
-    <resource id="a5dd2ef9e86643d943c5e4c8f5236743af9d6de2" version="3" descriptor="Form: (Module Active Patients) - Record Measurements">
+    <resource id="a5dd2ef9e86643d943c5e4c8f5236743af9d6de2" version="11" descriptor="Form: (Module Active Patients) - Record Measurements">
       <location authority="local">./modules-2/forms-0.xml</location>
       <location authority="remote">./modules-2/forms-0.xml</location>
     </resource>
@@ -37,7 +37,7 @@
     </resource>
   </xform>
   <xform>
-    <resource id="32c728bab8320a18af13a80696a93641da42d1ab" version="3" descriptor="Form: (Module Active Patients) - Update Registration">
+    <resource id="32c728bab8320a18af13a80696a93641da42d1ab" version="5" descriptor="Form: (Module Active Patients) - Update Registration">
       <location authority="local">./modules-2/forms-4.xml</location>
       <location authority="remote">./modules-2/forms-4.xml</location>
     </resource>
@@ -61,19 +61,19 @@
     </resource>
   </xform>
   <locale language="default">
-    <resource id="app_default_strings" version="3" descriptor="Translations: Default Language">
+    <resource id="app_default_strings" version="11" descriptor="Translations: Default Language">
       <location authority="local">./default/app_strings.txt</location>
       <location authority="remote">./default/app_strings.txt</location>
     </resource>
   </locale>
   <locale language="en">
-    <resource id="app_en_strings" version="3" descriptor="Translations: English">
+    <resource id="app_en_strings" version="11" descriptor="Translations: English">
       <location authority="local">./en/app_strings.txt</location>
       <location authority="remote">./en/app_strings.txt</location>
     </resource>
   </locale>
   <locale language="hin">
-    <resource id="app_hin_strings" version="3" descriptor="Translations: Unknown Language (hin)">
+    <resource id="app_hin_strings" version="11" descriptor="Translations: Unknown Language (hin)">
       <location authority="local">./hin/app_strings.txt</location>
       <location authority="remote">./hin/app_strings.txt</location>
     </resource>
@@ -587,7 +587,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffffff99'"/>
+                  <xpath function="'#fff8ecbd'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000'"/>
@@ -602,7 +602,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffee5555'"/>
+                  <xpath function="'#ffe53e30'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000' "/>
@@ -647,6 +647,9 @@
               <y function="if(station = '', station, station * -1 + 3)"/>
             </series>
             <configuration>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
               <text id="secondary-y-max">
                 <xpath function="10"/>
               </text>
@@ -662,9 +665,6 @@
               <text id="secondary-y-labels">
                 <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
               </text>
-              <text id="var-fdhours">
-                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
-              </text>
               <text id="y-labels">
                 <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
               </text>
@@ -677,8 +677,8 @@
               <text id="secondary-y-min">
                 <xpath function="0"/>
               </text>
-              <text id="x-labels">
-                <xpath function="13"/>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
               </text>
               <text id="var-xmax">
                 <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
@@ -1834,7 +1834,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffffff99'"/>
+                  <xpath function="'#fff8ecbd'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000'"/>
@@ -1849,7 +1849,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffee5555'"/>
+                  <xpath function="'#ffe53e30'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000'"/>
@@ -1894,9 +1894,6 @@
               <y function="if(station = '', station, station * -1 + 3)"/>
             </series>
             <configuration>
-              <text id="x-labels">
-                <xpath function="13"/>
-              </text>
               <text id="secondary-y-max">
                 <xpath function="10"/>
               </text>
@@ -1912,6 +1909,9 @@
               <text id="secondary-y-labels">
                 <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
               </text>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
+              </text>
               <text id="y-labels">
                 <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
               </text>
@@ -1924,8 +1924,8 @@
               <text id="secondary-y-min">
                 <xpath function="0"/>
               </text>
-              <text id="var-fdhours">
-                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
+              <text id="x-labels">
+                <xpath function="13"/>
               </text>
               <text id="var-xmax">
                 <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
@@ -2841,7 +2841,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffffff99'"/>
+                  <xpath function="'#fff8ecbd'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000'"/>
@@ -2856,7 +2856,7 @@
             <series nodeset="instance('item-list:sequence')/sequence_list/sequence">
               <configuration>
                 <text id="fill-below">
-                  <xpath function="'#ffee5555'"/>
+                  <xpath function="'#ffe53e30'"/>
                 </text>
                 <text id="line-color">
                   <xpath function="'#00000000'"/>
@@ -2901,6 +2901,9 @@
               <y function="if(station = '', station, station * -1 + 3)"/>
             </series>
             <configuration>
+              <text id="x-labels">
+                <xpath function="13"/>
+              </text>
               <text id="secondary-y-max">
                 <xpath function="10"/>
               </text>
@@ -2916,9 +2919,6 @@
               <text id="secondary-y-labels">
                 <xpath function="'{ &quot;0&quot;: &quot;3&quot;, &quot;1&quot;: &quot;2&quot;, &quot;2&quot;: &quot;1&quot;, &quot;3&quot;: &quot;0&quot;, &quot;4&quot;: &quot;-1&quot;, &quot;5&quot;: &quot;-2&quot;, &quot;6&quot;: &quot;-3&quot; }'"/>
               </text>
-              <text id="var-fdhours">
-                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
-              </text>
               <text id="y-labels">
                 <xpath function="'[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]'"/>
               </text>
@@ -2931,8 +2931,8 @@
               <text id="secondary-y-min">
                 <xpath function="0"/>
               </text>
-              <text id="x-labels">
-                <xpath function="13"/>
+              <text id="var-fdhours">
+                <xpath function="if(first_active_measured_dilation_time, (first_active_measured_dilation_time - first_exam_time) * 24, if(first_dilation, hours, 0))"/>
               </text>
               <text id="var-xmax">
                 <xpath function="if(max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours) &gt; 12, max(instance('casedb')/casedb/case[@case_type='Indicators'][index/parent=current()/@case_id][@status='open']/hours), 12)"/>
