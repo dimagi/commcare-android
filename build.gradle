@@ -200,10 +200,15 @@ android {
       release.setRoot('build-types/release')
     }
     productFlavors {
-      standard {
+      commcare {
+        // builds normal commcare
         // use the settings from defaultConfig
       }
       standalone {
+        // Builds commcare w/ ccz app packaged in the apk.
+        // Must be invoked from command-line w/ args pointing to app domain &
+        // id
+
         applicationId "org.commcare.${ccDomainSafe}"
         def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]
