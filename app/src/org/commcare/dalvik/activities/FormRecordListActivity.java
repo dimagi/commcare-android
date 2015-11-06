@@ -1,14 +1,13 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.speech.tts.TextToSpeech;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -35,33 +34,35 @@ import org.commcare.android.adapters.IncompleteFormListAdapter;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.android.tasks.TaskListener;
+import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.odk.collect.android.listeners.BarcodeScanListener;
+import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 
 import java.io.IOException;
 
 
-public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity> implements TextWatcher, FormRecordLoadListener, OnItemClickListener, BarcodeScanListener {
-    public static final String TAG = FormRecordListActivity.class.getSimpleName();
+public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
+        implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
+    private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;
@@ -71,7 +72,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private static final int DOWNLOAD_FORMS = Menu.FIRST;
     private static final int MENU_SUBMIT_QUARANTINE_REPORT = Menu.FIRST + 1;
 
-    private static final int CLEANUP_ID = 0;
+    private static final int BARCODE_FETCH = 1;
 
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
@@ -79,12 +80,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     private IncompleteFormListAdapter adapter;
 
+    private PurgeStaleArchivedFormsTask purgeTask;
+
     private int initialSelection = -1;
 
     private EditText searchbox;
-    private LinearLayout header;
-    private ImageButton barcodeButton;
-    private Spinner filterSelect;
     private ListView listView;
     private SearchView searchView;
     private MenuItem searchItem;
@@ -130,7 +130,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
         private final String message;
         private final String[] statuses;
-        public boolean visible;
+        public final boolean visible;
 
         public String getMessage() {
             return message;
@@ -142,124 +142,153 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            platform = CommCareApplication._().getCommCarePlatform();
-            setContentView(R.layout.entity_select_layout);
-            findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-            searchbox = (EditText)findViewById(R.id.searchbox);
-            header = (LinearLayout)findViewById(R.id.entity_select_header);
-            barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        platform = CommCareApplication._().getCommCarePlatform();
+        setContentView(R.layout.entity_select_layout);
+        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-            filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
+        searchbox = (EditText)findViewById(R.id.searchbox);
+        LinearLayout header = (LinearLayout)findViewById(R.id.entity_select_header);
+        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-            listView = (ListView)findViewById(R.id.screen_entity_select_list);
-            listView.setOnItemClickListener(this);
+        Spinner filterSelect = (Spinner)findViewById(R.id.entity_select_filter_dropdown);
 
-            header.setVisibility(View.GONE);
-            barcodeButton.setVisibility(View.GONE);
+        listView = (ListView)findViewById(R.id.screen_entity_select_list);
+        listView.setOnItemClickListener(this);
 
-            barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
-                    FormRecordListActivity.this, null, null);
+        header.setVisibility(View.GONE);
+        barcodeButton.setVisibility(View.GONE);
 
-            TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
-            searchLabel.setText(this.localize("select.search.label"));
-
-            searchbox.addTextChangedListener(this);
-            FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
-            task.addListener(this);
-
-            adapter = new IncompleteFormListAdapter(this, platform, task);
-
-            initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
-
-            if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
-                String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
-                if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
-                    //special case, no special filtering options
-                    adapter.setFormFilter(FormRecordFilter.Incomplete);
-                }
-            } else {
-                FormRecordFilter[] filters = FormRecordFilter.values();
-                String[] names = new String[filters.length];
-                for (int i = 0; i < filters.length; ++i) {
-                    names[i] = Localization.get(filters[i].getMessage());
-                }
-                ArrayAdapter<String> spinneritems = new ArrayAdapter<String>(this, R.layout.form_filter_display, names);
-                filterSelect.setAdapter(spinneritems);
-                spinneritems.setDropDownViewResource(R.layout.form_filter_item);
-                filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
-                        // NOTE: This gets called every time a spinner gets
-                        // set-up and also every time spinner state is restored
-                        // on scree-rotation. Hence we defer onCreate record
-                        // loading until this gets triggered automatically.
-                        adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
-
-                        //This is only relevant with the new menu format, old menus have a hard
-                        //button and don't need their menu to be rebuilt
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                            invalidateOptionsMenu();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> arg0) {
-                        // TODO Auto-generated method stub
-
-                    }
-                });
-                filterSelect.setVisibility(View.VISIBLE);
+        barcodeScanOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBarcodeScanIntent(FormRecordListActivity.this);
             }
+        };
 
-            this.registerForContextMenu(listView);
-            refreshView();
+        TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
+        searchLabel.setText(this.localize("select.search.label"));
 
-            restoreLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+        searchbox.addTextChangedListener(this);
+        FormRecordLoaderTask task = new FormRecordLoaderTask(this, CommCareApplication._().getUserStorage(SessionStateDescriptor.class), platform);
+        task.addListener(this);
 
-            if (!isUsingActionBar()) {
-                if (BuildConfig.DEBUG) {
-                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
-                }
-                setSearchText(lastQueryString);
+        adapter = new IncompleteFormListAdapter(this, platform, task);
+
+        initialSelection = this.getIntent().getIntExtra(KEY_INITIAL_RECORD_ID, -1);
+
+        if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
+            String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
+            if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+                //special case, no special filtering options
+                adapter.setFormFilter(FormRecordFilter.Incomplete);
             }
-        } catch (SessionUnavailableException sue) {
-            //TODO: session is dead, login and return
+        } else {
+            FormRecordFilter[] filters = FormRecordFilter.values();
+            String[] names = new String[filters.length];
+            for (int i = 0; i < filters.length; ++i) {
+                names[i] = Localization.get(filters[i].getMessage());
+            }
+            ArrayAdapter<String> spinneritems = new ArrayAdapter<>(this, R.layout.form_filter_display, names);
+            filterSelect.setAdapter(spinneritems);
+            spinneritems.setDropDownViewResource(R.layout.form_filter_item);
+            filterSelect.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long id) {
+                    // NOTE: This gets called every time a spinner gets
+                    // set-up and also every time spinner state is restored
+                    // on scree-rotation. Hence we defer onCreate record
+                    // loading until this gets triggered automatically.
+                    adapter.setFilterAndResetRecords(FormRecordFilter.values()[index]);
+
+                    //This is only relevant with the new menu format, old menus have a hard
+                    //button and don't need their menu to be rebuilt
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        invalidateOptionsMenu();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    // TODO Auto-generated method stub
+
+                }
+            });
+            filterSelect.setVisibility(View.VISIBLE);
+        }
+
+        this.registerForContextMenu(listView);
+        refreshView();
+
+        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+
+        if (!isUsingActionBar()) {
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+            }
+            setSearchText(lastQueryString);
         }
     }
+
+    private static void callBarcodeScanIntent(Activity act) {
+        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        try {
+            act.startActivityForResult(i, BARCODE_FETCH);
+        } catch (ActivityNotFoundException anfe) {
+            Toast.makeText(act,
+                    "No barcode reader available! You can install one " +
+                            "from the android market.",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // stop showing blocking dialog and getting updates from purge task.
+        unregisterTask();
+    }
+
+    private void unregisterTask() {
+        if (purgeTask != null) {
+            try {
+                purgeTask.unregisterTaskListener(this);
+                dismissProgressDialog();
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to unregister a not previously " +
+                        "registered TaskListener.");
+            }
+            purgeTask = null;
+        }
+    }
+
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        saveLastQueryString(this.TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
     }
 
-    @Override
-    public void onBarcodeFetch(String result, Intent intent) {
-        setSearchText(result);
-    }
-
-    @Override
-    public void onCalloutResult(String result, Intent intent) {
-        if (BuildConfig.DEBUG) {
-            throw new IllegalArgumentException("Callout not implemented!");
+    public void onBarcodeFetch(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("SCAN_RESULT");
+            if (result != null) {
+                result = result.trim();
+            }
+            setSearchText(result);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case BarcodeScanListenerDefaultImpl.BARCODE_FETCH:
-                BarcodeScanListenerDefaultImpl.onBarcodeResult(this, requestCode, resultCode, intent);
-                break;
-            case BarcodeScanListenerDefaultImpl.CALLOUT:
-                BarcodeScanListenerDefaultImpl.onCalloutResult(this, requestCode, resultCode, intent);
+            case BARCODE_FETCH:
+                onBarcodeFetch(resultCode, intent);
                 break;
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
@@ -279,11 +308,10 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-
     /**
      * Get form list from database and insert into view.
      */
-    private void refreshView() {
+    public void refreshView() {
         disableSearch();
         adapter.resetRecords();
         listView.setAdapter(adapter);
@@ -291,8 +319,29 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     protected void onResume() {
         super.onResume();
+
+        attachToPurgeTask();
+
         if (adapter != null && initialSelection != -1) {
             listView.setSelection(adapter.findRecordPosition(initialSelection));
+        }
+    }
+
+    /**
+     * Attach activity to running purge task to block user while form purging
+     * is in progress.
+     */
+    private void attachToPurgeTask() {
+        purgeTask = PurgeStaleArchivedFormsTask.getRunningInstance();
+
+        try {
+            if (purgeTask != null) {
+                purgeTask.registerTaskListener(this);
+                showProgressDialog(PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID);
+            }
+        } catch (TaskListenerRegistrationException e) {
+            Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                    "registered task.");
         }
     }
 
@@ -304,12 +353,12 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-    protected void disableSearch() {
+    private void disableSearch() {
         setSearchEnabled(false);
     }
 
 
-    protected void enableSearch() {
+    private void enableSearch() {
         setSearchEnabled(true);
     }
 
@@ -332,7 +381,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            new AlertDialog.Builder(this).setMessage(Localization.get("form.record.gone.message")).create().show();
+            AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this, "Form Missing",
+                    Localization.get("form.record.gone.message"), null);
+            showAlertDialog(f);
         }
     }
 
@@ -369,6 +420,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                             adapter.notifyDataSetInvalidated();
                         }
                     });
+                    return true;
                 case RESTORE_RECORD:
                     FormRecord record = (FormRecord)adapter.getItem(info.position);
                     try {
@@ -393,29 +445,22 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     private void createFormRecordScanResultDialog(Pair<Boolean, String> result) {
-        AlertDialog mAlertDialog = new AlertDialog.Builder(this).create();
-        mAlertDialog.setIcon(result.first ? R.drawable.checkmark : R.drawable.redx);
-        mAlertDialog.setTitle(result.first ? Localization.get("app.workflow.forms.scan.title.valid") : Localization.get("app.workflow.forms.scan.title.invalid"));
-        mAlertDialog.setMessage(result.second);
-
-        DialogInterface.OnClickListener errorListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON1:
-                        break;
-                }
-            }
-        };
-        mAlertDialog.setCancelable(false);
-        mAlertDialog.setButton(Localization.get("dialog.ok"), errorListener);
-        mAlertDialog.show();
+        String title;
+        if (result.first) {
+            title = Localization.get("app.workflow.forms.scan.title.valid");
+        } else {
+            title = Localization.get("app.workflow.forms.scan.title.invalid");
+        }
+        int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
+                result.second, resId, null);
+        showAlertDialog(f);
     }
 
     /**
      * Checks if the action bar view is active
      */
-    public boolean isUsingActionBar() {
+    private boolean isUsingActionBar() {
         return searchView != null;
     }
 
@@ -479,7 +524,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
-            if (!(source == null || source.equals(""))) {
+            if (!source.equals("")) {
                 menu.add(0, DOWNLOAD_FORMS, 0, Localization.get("app.workflow.forms.fetch")).setIcon(android.R.drawable.ic_menu_rotate);
             }
             menu.add(0, MENU_SUBMIT_QUARANTINE_REPORT, MENU_SUBMIT_QUARANTINE_REPORT, Localization.get("app.workflow.forms.quarantine.report"));
@@ -502,107 +547,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         return menu.hasVisibleItems();
     }
 
-
-    TextToSpeech mTts;
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-                User u;
-                try {
-                    u = CommCareApplication._().getSession().getLoggedInUser();
-                } catch (SessionUnavailableException sue) {
-                    // abort and let default processing happen, since it looks
-                    // like the session expired.
-                    return false;
-                }
-
                 String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
-
-                //We should go digest auth this user on the server and see whether to pull them
-                //down.
-                DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), source, this) {
-
-                    @Override
-                    protected void deliverResult(FormRecordListActivity receiver, Integer status) {
-                        switch (status) {
-                            case DataPullTask.DOWNLOAD_SUCCESS:
-                                FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(FormRecordListActivity.this, platform, CLEANUP_ID) {
-
-                                    @Override
-                                    protected void deliverResult(FormRecordListActivity receiver, Integer result) {
-                                        receiver.refreshView();
-
-                                    }
-
-                                    @Override
-                                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... values) {
-                                        if (values[0] < 0) {
-                                            if (values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
-                                                receiver.updateProgress("Forms Processed. "
-                                                        + "Cleaning up form records...", CLEANUP_ID);
-                                            }
-                                        } else {
-                                            receiver.updateProgress("Forms downloaded. Processing "
-                                                    + values[0] + " of " + values[1] + "...", CLEANUP_ID);
-                                        }
-
-                                    }
-
-                                    @Override
-                                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
-                                        receiver.taskError(e);
-                                    }
-
-
-                                };
-                                task.connect(receiver);
-                                task.execute();
-                                break;
-                            case DataPullTask.UNKNOWN_FAILURE:
-                                Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.AUTH_FAILED:
-                                Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.BAD_DATA:
-                                Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.CONNECTION_TIMEOUT:
-                                Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.SERVER_ERROR:
-                                Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
-                                break;
-                            case DataPullTask.UNREACHABLE_HOST:
-                                Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... update) {
-                        switch (update[0]) {
-                            case DataPullTask.PROGRESS_AUTHED:
-                                receiver.updateProgress("Authed with server, downloading forms" +
-                                                (update[1] == 0 ? "" : " (" + update[1] + ")"),
-                                        DataPullTask.DATA_PULL_TASK_ID);
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
-                        receiver.taskError(e);
-                    }
-                };
-                pull.connect(this);
-                pull.execute();
+                ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
-
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
@@ -654,16 +606,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
 
+    @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
-        //nothing
     }
 
-
+    @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        //nothing        
     }
-
 
     @Override
     public void notifyPriorityLoaded(FormRecord record, boolean priority) {
@@ -674,10 +624,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         enableSearch();
     }
 
-    /**
-     * Implementation of generateProgressDialog() for DialogController -- other methods
-     * handled entirely in CommCareActivity
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
@@ -686,9 +632,13 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 title = "Fetching Old Forms";
                 message = "Connecting to server...";
                 break;
-            case CLEANUP_ID:
+            case ArchivedFormRemoteRestore.CLEANUP_ID:
                 title = "Fetching Old Forms";
                 message = "Forms downloaded. Processing...";
+                break;
+            case PurgeStaleArchivedFormsTask.PURGE_STALE_ARCHIVED_FORMS_TASK_ID:
+                title = Localization.get("form.archive.purge.title");
+                message = Localization.get("form.archive.purge.message");
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "
@@ -696,5 +646,25 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public void handleTaskUpdate(Void... updateVals) {
+    }
+
+    /**
+     * Archived form purging task complete, stop blocking user
+     */
+    @Override
+    public void handleTaskCompletion(Void result) {
+        dismissProgressDialog();
+    }
+
+    /**
+     * Archived form purging task cancelled, stop blocking user
+     */
+    @Override
+    public void handleTaskCancellation(Void result) {
+        dismissProgressDialog();
     }
 }

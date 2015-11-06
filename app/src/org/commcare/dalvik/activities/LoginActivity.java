@@ -37,12 +37,16 @@ import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.android.resource.AppInstallStatus;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
+import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.DialogCreationHelpers;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -74,10 +78,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
 
-    @UiElement(value=R.id.login_button, locale="login.button")
-    private Button login;
-    
-    @UiElement(value = R.id.screen_login_bad_password, locale = "login.bad.password")
+    @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
@@ -92,7 +93,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(R.id.str_version)
     private TextView versionDisplay;
 
-    @UiElement(R.id.login_button)
+    @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
 
     @UiElement(R.id.app_selection_spinner)
@@ -102,7 +103,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private TextView welcomeMessage;
     
     private static final int TASK_KEY_EXCHANGE = 1;
-    
+    private static final int TASK_UPGRADE_INSTALL = 2;
+
     private SqlStorage<UserKeyRecord> storage;
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
@@ -146,16 +148,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             }
         }
 
-        login.setOnClickListener(new OnClickListener() {
+        loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
                 errorBox.setVisibility(View.GONE);
                 ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-                //Try logging in locally
-                if(tryLocalLogin(false)) {
-                    return;
-                }
 
-                startOta();
+                if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+                    // install update, which triggers login upon completion
+                    installPendingUpdate();
+                } else {
+                    localLoginOrPullAndLogin();
+                }
             }
         });
 
@@ -173,25 +176,25 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 int hideAll = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_all_cuttoff);
                 int hideBanner = LoginActivity.this.getResources().getInteger(R.integer.login_screen_hide_banner_cuttoff);
                 int height = activityRootView.getHeight();
-                
-                if(height < hideAll) {
+
+                if (height < hideAll) {
                     versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
-                } else if(height < hideBanner) {
+                } else if (height < hideBanner) {
                     banner.setVisibility(View.GONE);
-                }  else {
+                } else {
                     // Override default CommCare banner if requested
                     String customBannerURI = prefs.getString(CommCarePreferences.BRAND_BANNER_LOGIN, "");
                     if (!"".equals(customBannerURI)) {
-                        Bitmap bitmap = ViewUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
+                        Bitmap bitmap = MediaUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
+                            ImageView bannerView = (ImageView)banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
                     banner.setVisibility(View.VISIBLE);
                 }
-             }
+            }
         });
     }
 
@@ -529,6 +532,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             dialog.addCancelButton();
             dialog.addProgressBar();
             break;
+        case TASK_UPGRADE_INSTALL:
+            dialog = CustomProgressDialog.newInstance(Localization.get("updates.installing.title"), 
+                    Localization.get("updates.installing.message"), taskId);
+            break;
         default:
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in LoginActivity");
@@ -637,5 +644,54 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         return;
+    }
+
+    /**
+     * Block the user with a dialog while downloaded update is installed.
+     */
+    private void installPendingUpdate() {
+        InstallStagedUpdateTask<LoginActivity> task =
+                new InstallStagedUpdateTask<LoginActivity>(TASK_UPGRADE_INSTALL) {
+                    @Override
+                    protected void deliverResult(LoginActivity receiver,
+                                                 AppInstallStatus result) {
+                        if (result == AppInstallStatus.Installed) {
+                            Toast.makeText(receiver,
+                                    Localization.get("login.update.install.success"),
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+                        }
+
+                        localLoginOrPullAndLogin();
+                    }
+
+                    @Override
+                    protected void deliverUpdate(LoginActivity receiver,
+                                                 int[]... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(LoginActivity receiver,
+                                                Exception e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "update installation on login failed: " + e.getMessage());
+                        Toast.makeText(receiver,
+                                Localization.get("login.update.install.failure"),
+                                Toast.LENGTH_LONG).show();
+
+                        localLoginOrPullAndLogin();
+                    }
+                };
+        task.connect(this);
+        task.execute();
+    }
+
+    private void localLoginOrPullAndLogin() {
+        if (tryLocalLogin(false)) {
+            return;
+        }
+
+        startOta();
     }
 }

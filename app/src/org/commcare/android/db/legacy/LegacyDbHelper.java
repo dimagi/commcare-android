@@ -9,10 +9,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.database.TableBuilder;
 import org.commcare.android.util.Base64;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -129,8 +129,8 @@ public abstract class LegacyDbHelper {
                     continue;
                 }
                 String value = o.toString();
-                if (encrypt && ((EncryptedModel) e).isEncrypted(key)) {
-                    values.put(TableBuilder.scrubName(key), encrypt(value));
+                if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
+                    values.put(AndroidTableBuilder.scrubName(key), encrypt(value));
                 } else {
                     values.put(LegacyTableBuilder.scrubName(key), value);
                 }

@@ -33,7 +33,6 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
-import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -78,11 +77,6 @@ public class FileUtils {
             made = dir.mkdirs();
         }
         return made;
-    }
-
-    
-    public static byte[] getFileAsBytes(File file) {
-        return getFileAsBytes(file, null);
     }
 
     public static byte[] getFileAsBytes(File file, SecretKeySpec symetricKey) {
@@ -215,45 +209,30 @@ public class FileUtils {
     }
 
     /**
-     * Attempts to scale down an image file based on the max dimension given. If at least one of
-     * the dimensions of the original image exceeds that maximum, then make the larger side's
-     * dimension equal to the max dimension, and scale down the smaller side such that the
-     * original aspect ratio is maintained
+     * @return whether or not originalImage was scaled down according to maxDimen, and saved to
+     * the location given by finalFilePath
      */
-    public static boolean scaleImage(File originalImage, String finalFilePath, int maxDimen) {
-        boolean scaledImage = false;
+    public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
         String extension = getExtension(originalImage.getAbsolutePath());
-        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
+        ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
             // The selected image is not of a type that can be decoded to or from a bitmap
             Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
             return false;
         }
 
-        // Create a bitmap out of the image file to see if we need to scale it down
         Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        int height = bitmap.getHeight();
-        int width = bitmap.getWidth();
-        int largerDimen = Math.max(height, width);
-        int smallerDimen = Math.min(height, width);
-        if (largerDimen > maxDimen) {
-            // If the larger dimension exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) smallerDimen) / largerDimen;
-            largerDimen = maxDimen;
-            smallerDimen = (int) Math.floor(maxDimen * aspectRatio);
-            if (width > height) {
-                bitmap = Bitmap.createScaledBitmap(bitmap, largerDimen, smallerDimen, false);
-            } else {
-                bitmap = Bitmap.createScaledBitmap(bitmap, smallerDimen, largerDimen, false);
-            }
+        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen);
+        if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             FileOutputStream out = null;
             try {
                 out = new FileOutputStream(finalFilePath);
-                bitmap.compress(type.getCompressFormat(), 100, out);
-                scaledImage = true;
+                scaledBitmap.compress(type.getCompressFormat(), 100, out);
+                return true;
             } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             } finally {
                 try {
                     if (out != null) {
@@ -264,45 +243,41 @@ public class FileUtils {
                 }
             }
         }
-        return scaledImage;
-    }
-
-    public static Bitmap getBitmapScaledToDisplay(File f, int screenHeight, int screenWidth) {
-        // Determine dimensions of original image
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(f.getAbsolutePath(), o);
-        int imageHeight = o.outHeight;
-        int imageWidth = o.outWidth;
-
-        // Get a scale-down factor -- Powers of 2 work faster according to the docs, but we're
-        // just doing closest size that still fills the screen
-        int heightScale = Math.round((float)imageHeight / screenHeight);
-        int widthScale = Math.round((float)imageWidth / screenWidth);
-        int scale = Math.max(widthScale, heightScale);
-        if (scale == 0) {
-            // Rounding could possibly have resulted in a scale factor of 0, which is invalid
-            scale = 1;
-        }
-
-        return performSafeScaleDown(f, scale, 0);
+        return false;
     }
 
     /**
-     * Returns a scaled-down bitmap for the given image file, progressively increasing the
-     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
+     * Attempts to scale down an image file based on the max dimension given, using the following
+     * logic: If at least one of the dimensions of the original image exceeds the max dimension
+     * given, then make the larger side's dimension equal to the max dimension, and scale down the
+     * smaller side such that the original aspect ratio is maintained.
+     *
+     * @param maxDimen - the largest dimension that we want either side of the image to have
+     * @return A scaled down bitmap, or null if no scale-down is needed
+     *
      */
-    private static Bitmap performSafeScaleDown(File f, int scale, int depth) {
-        if (depth == 5) {
-            // Limit the number of recursive calls
+    private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
+        if (originalBitmap == null) {
             return null;
         }
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = scale;
-        try {
-            return BitmapFactory.decodeFile(f.getAbsolutePath(), options);
-        } catch (OutOfMemoryError e) {
-            return performSafeScaleDown(f, scale + 1, depth + 1);
+        int height = originalBitmap.getHeight();
+        int width = originalBitmap.getWidth();
+        int sideToScale = Math.max(height, width);
+        int otherSide = Math.min(height, width);
+
+        if (sideToScale > maxDimen) {
+            // If the larger side exceeds our max dimension, scale down accordingly
+            double aspectRatio = ((double) otherSide) / sideToScale;
+            sideToScale = maxDimen;
+            otherSide = (int) Math.floor(maxDimen * aspectRatio);
+            if (width > height) {
+                // if width was the side that got scaled
+                return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
+            } else {
+                return Bitmap.createScaledBitmap(originalBitmap, otherSide, sideToScale, false);
+            }
+        } else {
+            return null;
         }
     }
 

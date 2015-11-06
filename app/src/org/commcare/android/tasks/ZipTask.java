@@ -91,6 +91,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException {
         File[] files = folder.listFiles();
 
+        Logger.log(TAG, "Trying to zip: " + files.length + " files.");
+
         File myDir = new File(dumpFolder, folder.getName());
         myDir.mkdirs();
 

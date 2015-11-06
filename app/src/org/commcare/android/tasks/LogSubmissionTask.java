@@ -8,7 +8,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
@@ -93,7 +93,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     @Override
     protected LogSubmitOutcomes doInBackground(Void... params) {
         try {
-            SqlStorage<DeviceReportRecord> storage = CommCareApplication._().getUserStorage(DeviceReportRecord.class);
+            SqlStorage<DeviceReportRecord> storage =
+                    CommCareApplication._().getUserStorage(DeviceReportRecord.class);
 
             if (serializeCurrentLogs && !serializeLogs(storage)) {
                 return LogSubmitOutcomes.Error;

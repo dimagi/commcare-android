@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.util.Log;
 import android.util.TypedValue;
@@ -130,12 +128,5 @@ public class AndroidUtil {
             }
         }
         return colors;
-    }
-
-    public static boolean isNetworkAvailable(Context ctx) {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

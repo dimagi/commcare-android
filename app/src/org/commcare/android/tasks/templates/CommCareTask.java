@@ -13,12 +13,15 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     public static final int GENERIC_TASK_ID = 32;
     public static final int DONT_WAKELOCK = -1;
 
-    private Object connectorLock = new Object();
+    private final Object connectorLock = new Object();
     private CommCareTaskConnector<R> connector;
 
     private Exception unknownError;
 
     protected int taskId = GENERIC_TASK_ID;
+
+    //Wait for 2 seconds for something to reconnnect for now (very high)
+    private final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
     public CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();
@@ -53,15 +56,12 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
 
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startTaskTransition();
+                connector.stopBlockingForTask(getTaskId());
+                connector.taskCancelled(getTaskId());
+                connector.stopTaskTransition();
             }
-
-            connector.startTaskTransition();
-            connector.stopBlockingForTask(getTaskId());
-            connector.taskCancelled(getTaskId());
-            connector.stopTaskTransition();
         }
     }
 
@@ -71,18 +71,16 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         synchronized (connectorLock) {
             //TODO: extend blocking here?
             CommCareTaskConnector<R> connector = getConnector();
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startTaskTransition();
+                connector.stopBlockingForTask(getTaskId());
+                if (unknownError != null) {
+                    deliverError(connector.getReceiver(), unknownError);
+                    return;
+                }
+                this.deliverResult(connector.getReceiver(), result);
+                connector.stopTaskTransition();
             }
-            connector.startTaskTransition();
-            connector.stopBlockingForTask(getTaskId());
-            if (unknownError != null) {
-                deliverError(connector.getReceiver(), unknownError);
-                return;
-            }
-            this.deliverResult(connector.getReceiver(), result);
-            connector.stopTaskTransition();
         }
     }
 
@@ -97,11 +95,9 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         super.onPreExecute();
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = getConnector();
-            if (connector == null) {
-                //TODO: FailedConnection
-                return;
+            if (connector != null) {
+                connector.startBlockingForTask(getTaskId());
             }
-            connector.startBlockingForTask(getTaskId());
         }
     }
 
@@ -116,20 +112,16 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    //Wait for 2 seconds for something to reconnnect for now (very high)
-    private int allowableDelay = 2000;
-
-
-    protected CommCareTaskConnector<R> getConnector() {
+    private CommCareTaskConnector<R> getConnector() {
         return getConnector(true);
     }
 
-    protected CommCareTaskConnector<R> getConnector(boolean required) {
+    private CommCareTaskConnector<R> getConnector(boolean required) {
         //So there might have been some transfer of ownership happening.
         //We wanna hold off on anything that requires the connector
         //until there is one present, up until some specified limit
         long requested = System.currentTimeMillis();
-        while (System.currentTimeMillis() - requested < allowableDelay) {
+        while (System.currentTimeMillis() - requested < ALLOWABLE_CONNECTOR_ACQUISITION_DELAY) {
             //See if we've gotten a connector
             synchronized (connectorLock) {
                 if (connector != null) {
@@ -169,9 +161,11 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected void transitionPhase(int newTaskId) {
         synchronized (connectorLock) {
             CommCareTaskConnector<R> connector = this.getConnector(true);
-            connector.stopBlockingForTask(taskId);
-            connector.startBlockingForTask(newTaskId);
-            this.taskId = newTaskId;
+            if (connector != null) {
+                connector.stopBlockingForTask(taskId);
+                connector.startBlockingForTask(newTaskId);
+                this.taskId = newTaskId;
+            }
         }
     }
 

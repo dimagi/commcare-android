@@ -40,8 +40,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -108,9 +109,9 @@ public class DrawActivity extends Activity {
         if (extras == null) {
             loadOption = OPTION_DRAW;
             refImage = null;
-            savepointImage = new File(Collect.TMPDRAWFILE_PATH);
+            savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
             savepointImage.delete();
-            output = new File(Collect.TMPFILE_PATH);
+            output = new File(ODKStorage.TMPFILE_PATH);
         } else {
             loadOption = extras.getString(OPTION);
             if (loadOption == null) {
@@ -129,7 +130,7 @@ public class DrawActivity extends Activity {
                     FileUtils.copyFile(refImage, savepointImage);
                 }
             } else {
-                savepointImage = new File(Collect.TMPDRAWFILE_PATH);
+                savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
                 savepointImage.delete();
                 if (refImage != null && refImage.exists()) {
                     FileUtils.copyFile(refImage, savepointImage);
@@ -140,7 +141,7 @@ public class DrawActivity extends Activity {
             if (uri != null) {
                 output = new File(uri.getPath());
             } else {
-                output = new File(Collect.TMPFILE_PATH);
+                output = new File(ODKStorage.TMPFILE_PATH);
             }
         }
 
@@ -165,7 +166,7 @@ public class DrawActivity extends Activity {
                     getString(R.string.draw_image));
         }
 
-        setTitle(getString(R.string.app_name) + " > "
+        setTitle(getString(R.string.application_name) + " > "
                 + getString(R.string.draw_image));
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -360,7 +361,7 @@ public class DrawActivity extends Activity {
             mBitmapPaint = new Paint(Paint.DITHER_FLAG);
             mCurrentPath = new Path();
             setBackgroundColor(0xFFFFFFFF);
-            mBackgroundBitmapFile = new File(Collect.TMPDRAWFILE_PATH);
+            mBackgroundBitmapFile = new File(ODKStorage.TMPDRAWFILE_PATH);
         }
 
         public DrawView(Context c, boolean isSignature, File f) {
@@ -379,7 +380,7 @@ public class DrawActivity extends Activity {
 
         public void resetImage(int w, int h) {
             if (mBackgroundBitmapFile.exists()) {
-                mBitmap = FileUtils.getBitmapScaledToDisplay(
+                mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
                                 Bitmap.Config.ARGB_8888, true);
                 // mBitmap =

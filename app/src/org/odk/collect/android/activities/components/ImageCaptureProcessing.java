@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class ImageCaptureProcessing {
+
     /**
      * Performs any necessary relocating and scaling of an image coming from either a
      * SignatureWidget or ImageWidget (capture or choose)
@@ -29,9 +30,11 @@ public class ImageCaptureProcessing {
         // TODO PLM: this scale flag should be decoupled such that getPendingWidget doesn't need to be called
         if (shouldScale) {
             ImageWidget currentWidget = (ImageWidget)formEntryActivity.getPendingWidget();
-            int maxDimen = currentWidget.getMaxDimen();
-            if (maxDimen != -1) {
-                savedScaledImage = FileUtils.scaleImage(originalImage, finalFilePath, maxDimen);
+            if (currentWidget != null) {
+                int maxDimen = currentWidget.getMaxDimen();
+                if (maxDimen != -1) {
+                    savedScaledImage = FileUtils.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
+                }
             }
         }
 

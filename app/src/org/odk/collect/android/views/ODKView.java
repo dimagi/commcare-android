@@ -6,9 +6,7 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
@@ -16,17 +14,18 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.Collect;
+import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.PreferencesActivity;
-import org.odk.collect.android.preferences.PreferencesActivity.ProgressBarMode;
-import org.odk.collect.android.widgets.IBinaryWidget;
+import org.odk.collect.android.logic.PendingCalloutInterface;
+import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
@@ -63,7 +62,7 @@ public class ODKView extends ScrollView
     private int mViewBannerCount = 0;
 
     private boolean mProgressEnabled;
-    
+
     private final SpannableStringBuilder mGroupLabel;
 
     /**
@@ -75,7 +74,7 @@ public class ODKView extends ScrollView
                    FormEntryCaption[] groups, WidgetFactory factory,
                    WidgetChangedListener wcl) {
         super(context);
-        
+
         if(wcl !=null){
             hasListener = true;
             wcListener = wcl;
@@ -85,7 +84,7 @@ public class ODKView extends ScrollView
              PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
         String question_font =
-                settings.getString(PreferencesActivity.KEY_FONT_SIZE, Collect.DEFAULT_FONTSIZE);
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
 
         mQuestionFontsize = Integer.valueOf(question_font);
         
@@ -93,28 +92,6 @@ public class ODKView extends ScrollView
         dividers = new ArrayList<View>();
 
         mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
-        
-        if(PreferencesActivity.getProgressBarMode(context) == ProgressBarMode.ProgressOnly) {
-            this.mProgressEnabled = true;
-        }
-
-        // Construct progress bar
-        if (mProgressEnabled) {
-            mProgressBar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
-            mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.progressbar));
-            
-            LinearLayout.LayoutParams barLayout =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-            barLayout.setMargins(15, 15, 15, 15);
-            barLayout.gravity = Gravity.BOTTOM;
-            
-            LinearLayout barView = new LinearLayout(getContext());
-            barView.setOrientation(LinearLayout.VERTICAL);
-            barView.setGravity(Gravity.BOTTOM);
-            barView.addView(mProgressBar);
-            mView.addView(barView, barLayout);
-        }
 
         mLayout =
             new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
@@ -145,7 +122,6 @@ public class ODKView extends ScrollView
         boolean first = true;
         
         for (FormEntryPrompt p: questionPrompts) {
-            
             if (!first) {
                 View divider = new View(getContext());
                 if(SEPERATORS_ENABLED) {
@@ -181,7 +157,7 @@ public class ODKView extends ScrollView
 
         addView(mView);
     }
-    
+
     void removeQuestionFromIndex(int i){
         int dividerIndex = Math.max(i - 1, 0);
 
@@ -356,28 +332,23 @@ public class ODKView extends ScrollView
     /**
      * Called when another activity returns information to answer this question.
      */
-    public void setBinaryData(Object answer) {
-        boolean set = false;
-        for (QuestionWidget q : widgets) {
-            if (q instanceof IBinaryWidget) {
-                if (((IBinaryWidget) q).isWaitingForBinaryData()) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    set = true;
-                    break;
-                }
-            }
+    public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
+        FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
+        if (questionFormIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to find question widget to attach pending data to.");
+            return;
         }
 
-        if (!set) {
-            Log.w(TAG, "Attempting to return data to a widget or set of widgets not looking for data");
-                     
-            for (QuestionWidget q : widgets) {
-                if (q instanceof IBinaryWidget) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    break;
-                }
+        for (QuestionWidget q : widgets) {
+            if (questionFormIndex.equals(q.getFormId())) {
+                q.setBinaryData(answer);
+                pendingCalloutInterface.setPendingCalloutFormIndex(null);
+                return;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "Unable to find question widget to attach pending data to.");
     }
 
 

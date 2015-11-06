@@ -1,0 +1,11 @@
+app.display.name=ODK unit tests
+cchq.case=Case
+cchq.referral=Referral
+en=English
+forms.m0f0=archived-form-purge
+homescreen.title=ODK unit tests
+m0.case_long.case_name_1.header=Name
+m0.case_long.title=Cases
+m0.case_short.case_name_1.header=Name
+m0.case_short.title=Cases
+modules.m0=Test form save and archive logic

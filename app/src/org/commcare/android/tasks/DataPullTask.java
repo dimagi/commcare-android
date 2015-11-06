@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -12,13 +11,14 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.RecordTooLargeException;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.android.storage.FormSaveUtil;
 import org.commcare.android.tasks.network.DataPullRequester;
 import org.commcare.android.tasks.network.DataPullResponseFactory;
 import org.commcare.android.tasks.network.RemoteDataPullResponse;
@@ -32,11 +32,10 @@ import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
-import org.commcare.xml.CommCareTransactionParserFactory;
+import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -69,7 +68,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private final String server;
     private final String username;
     private final String password;
-    private final Context c;
+    private final Context context;
     
     private int mCurrentProgress = -1;
     private int mTotalItems = -1;
@@ -100,19 +99,19 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
     
-    public DataPullTask(String username, String password, String server, Context c) {
+    public DataPullTask(String username, String password, String server, Context context) {
         this.server = server;
         this.username = username;
         this.password = password;
-        this.c = c;
+        this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = new DataPullResponseFactory();
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
-    public DataPullTask(String username, String password, String server, Context c, DataPullRequester dataPullRequester) {
-        this(username, password, server, c);
+    public DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
+        this(username, password, server, context);
         this.dataPullRequester = dataPullRequester;
     }
 
@@ -164,8 +163,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
         
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
-        
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(c, requestor) {
+
+        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
             boolean publishedAuth = false;
             @Override
             public void reportProgress(int progress) {
@@ -240,7 +239,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
                                         
                     try {
-                        BitCache cache = pullResponse.writeResponseToCache(c);
+                        BitCache cache = pullResponse.writeResponseToCache(context);
                         
                         InputStream cacheIn = cache.retrieveCache();
                         String syncToken = readInput(cacheIn, factory);
@@ -257,7 +256,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         
                         //Let anyone who is listening know!
                         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-                        this.c.sendBroadcast(i);
+                        this.context.sendBroadcast(i);
                         
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
                         this.publishProgress(PROGRESS_DONE);
@@ -361,7 +360,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
     
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
+    private int recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
         
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
@@ -383,7 +382,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             
             //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
             //restore fresh from the downloaded file
-            cache = pullResponse.writeResponseToCache(c);
+            cache = pullResponse.writeResponseToCache(context);
                 
         } catch(IOException e) {
             e.printStackTrace();
@@ -460,11 +459,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
 
-    private void updateUserSyncToken(String syncToken) {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+    private void updateUserSyncToken(String syncToken) throws StorageFullException {
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);
-            u.setSyncToken(syncToken);
+            u.setLastSyncToken(syncToken);
             storage.write(u);
         } catch(NoSuchElementException nsee) {
             //TODO: Something here? Maybe figure out if we downloaded a user from the server and attach the data to it?
@@ -476,7 +475,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>(); 
-        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.class).iterate(); userIterator.hasMore();) {
+        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
             String id = userIterator.nextRecord().getUniqueId();
             owners.addElement(id);
             users.addElement(id);
@@ -509,25 +508,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
+    private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
         DataModelPullParser parser;
         
         factory.initCaseParser();
         factory.initStockParser();
-        
-        Hashtable<String,String> formNamespaces = new Hashtable<String, String>(); 
-        
-        for(String xmlns : CommCareApplication._().getCommCarePlatform().getInstalledForms()) {
-            Cursor cur = c.getContentResolver().query(CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns), new String[] {FormsColumns.FORM_FILE_PATH}, null, null, null);
-            if(cur.moveToFirst()) {
-                String path = cur.getString(cur.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-                formNamespaces.put(xmlns, path);
-            } else {
-                throw new RuntimeException("No form registered for xmlns at content URI: " + CommCareApplication._().getCommCarePlatform().getFormContentUri(xmlns));
-            }
-            cur.close();
-        }
+
+        Hashtable<String, String> formNamespaces = FormSaveUtil.getNamespaceToFilePathMap(context);
         factory.initFormInstanceParser(formNamespaces);
         
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains

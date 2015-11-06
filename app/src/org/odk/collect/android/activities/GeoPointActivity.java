@@ -50,7 +50,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTitle(StringUtils.getStringRobust(this, R.string.app_name) +
+        setTitle(StringUtils.getStringRobust(this, R.string.application_name) +
                 " > " + StringUtils.getStringRobust(this, R.string.get_location));
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -110,6 +110,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
                             GeoPointActivity.this.finish();
                             break;
                     }
+                    dialog.dismiss();
                 }
             };
             

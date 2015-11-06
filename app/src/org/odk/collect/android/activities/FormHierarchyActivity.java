@@ -2,7 +2,6 @@ package org.odk.collect.android.activities;
 
 import android.app.ActionBar;
 import android.app.ListActivity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -227,7 +226,6 @@ public class FormHierarchyActivity extends ListActivity {
                     formList.remove(position + 1);
                 }
                 h.setIcon(getResources().getDrawable(R.drawable.expander_ic_minimized));
-                h.setColor(Color.WHITE);
                 break;
             case collapsed:
                 h.setType(HierarchyEntryType.expanded);
@@ -236,7 +234,6 @@ public class FormHierarchyActivity extends ListActivity {
                     formList.add(position + 1 + i, children1.get(i));
                 }
                 h.setIcon(getResources().getDrawable(R.drawable.expander_ic_maximized));
-                h.setColor(Color.WHITE);
                 break;
             case question:
                 FormEntryActivity.mFormController.jumpToIndex(h.getFormIndex());

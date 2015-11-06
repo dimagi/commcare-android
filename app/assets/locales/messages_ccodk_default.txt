@@ -1,21 +1,31 @@
 #new localizations should be added above the comment "Add new localization strings here" in this file
 
-option.yes=Yes
-option.no=No
-option.cancel=Cancel
+option.yes=YES
+option.no=NO
+option.cancel=CANCEL
 
 install.problem.unexpected=Unexpected install error!
-updates.check=Please wait while CommCare checks for upgrade
+install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
-updates.downloaded=Updates downloaded. Committing new resources....
 updates.success=CommCare is up to date
-updates.title=CommCare App Update
-updates.checking=Checking for updates...
-updates.keep.trying=Keep trying if connection is interrupted
+updates.check.begin=Checking for updates
+updates.check.failed=Failed to download updates
+updates.check.cancel=Stop checking
+updates.check.cancelling=Cancelling check for updates
+updates.install.finished=App update was successful
+updates.check.last=Last checked for updates: ${0}
+updates.check.network_unavailable=No network connectivity
+updates.staged.version=Update to version ${0}
+updates.error=Error encountered during update download
+
+updates.pinned.download=Downloading updates
+updates.pinned.progress=${0}/${1}
+
+install.current.version=Version currently installed: ${0}
 
 verify.title=CommCare Resource Verification
 verify.checking=Verifying Resources
-verify.progress = Verifying resources. ${0} resources verified of ${1} total
+verify.progress=Verifying resources. ${0} resources verified of ${1} total
 
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below
@@ -37,6 +47,9 @@ upgrade.button.startover=Restart Upgrade
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
 
+updates.installing.title=Installing new app version
+updates.installing.message=Installing downloaded updates
+
 menu.basic=Basic Install
 menu.advanced=Advanced Install
 menu.archive=Offline Install
@@ -51,7 +64,7 @@ profile.found=Application found. ${0} resources loaded, of ${1} total.
 
 app.workflow.incomplete.continue.title=Continue Form
 app.workflow.incomplete.continue=You've got a saved copy of an incomplete form for this client. Do you want to continue filling out that form?
-app.workflow.incomplete.continue.option.delete=Delete Old Copy
+app.workflow.incomplete.continue.option.delete=DELETE OLD COPY
 
 home.start=Start
 home.forms=Form Records
@@ -81,8 +94,8 @@ home.menu.about=About CommCare
 home.developer.options.enabled=Developer Mode Enabled
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
-install.major.mismatch=Please uninstall your CommCare ODK Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
-install.minor.mismatch=Please update your version of CommCareODK from the Android Market to run this application. 
+install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
+install.minor.mismatch=Please update your version of CommCare from the Android Market to run this application. 
 
 sync.success.sent.singular=Form sent to server!
 sync.success.sent=${0} forms sent to server!
@@ -122,9 +135,14 @@ login.password=Password
 login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
+login.welcome.single=Welcome back! Please log in.
+login.welcome.multiple=Welcome back! Please select an app and log in.
 
-version.id.long=CommCare ODK, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
-version.id.short=CCODK:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
+login.update.install.success=App update successfully applied!
+login.update.install.failure=App update failed to apply!
+
+version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
+version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
 
 app.workflow.incomplete.heading=Incomplete Forms
 app.workflow.saved.heading=Saved Forms
@@ -152,6 +170,9 @@ form.record.unsent=Unsent
 
 form.record.gone=[Form Removed on Current Version]
 form.record.gone.message=The form that was used to enter this data is no longer on the current version of the app, and can't be viewed.
+
+form.archive.purge.title=Removing out-of-date archived forms
+form.archive.purge.message=Removing archived forms that are past their validation date.
 
 app.storage.missing.title=SD Card Missing
 app.storage.missing.message=Your device's SD card has been removed, please return the SD card to continue using CommCare
@@ -274,7 +295,7 @@ title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
 
-dialog.ok=Ok
+dialog.ok=OK
 
 connection.test.prompt=This will try to fix connection problems that you may be having.
 connection.test.run=Run Connection Test
@@ -303,8 +324,6 @@ notification.sync.connections.action=You don't have any active data connections 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
 
-login.welcome.single=Welcome back! Please log in.
-login.welcome.multiple=Welcome back! Please select an app and log in.
 seating.app=CommCare is loading your app
 
 no.print.data=No data has been provided for your print activity. Please see a supervisor to fix this.
@@ -403,7 +422,7 @@ notification.install.unknown.detail=An unexpected failure happened while trying 
 
 notification.install.badstate.title=Attempt to install multiple apps
 notification.install.badstate.detail=There is already an CommCare app installed on this phone. Multiple apps are not currently supported. Please click below to login to your existing application, or clear application data from your device's Settings to install a new app.
-notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare ODK. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
+notification.install.badstate.action=If you want to remove the currently installed app: First log in and click Sync to ensure all data is off the phone. Then navigate to the "Applications" menu on the phone's settings, and select CommCare. Click "Clear Data" to wipe all data from the current app. Then try to reinstall.
 
 notification.install.nolocal.title=Couldn't install files to storage
 notification.install.nolocal.detail=CommCare couldn't open your local storage to write your app's files.
@@ -416,6 +435,8 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
 
+notification.install.updatestaged.title=CommCare update ready to install
+notification.install.updatestaged.detail=A newer version of CommCare is ready to install on next login
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.
@@ -464,7 +485,7 @@ notification.sending.quarantine.detail=CommCare had a problem reading one of you
 notification.sending.quarantine.action=You can view the record in the saved records screen by checking the quarantine filter. From there you can restore quarantined records back onto the unsent queue to try to submit them again. Restarting the device and/or ejecting and re-inserting your external storage first may correct the issue. 
 
 
-notification.network.timeout.title=Timed out waiting for Remote Response
+notification.network.timeout.title=It is taking a long time for the server to respond. Please try again.
 notification.network.timeout.detail=The remote service did not respond to CommCare's request within the time limit. It may be busy or this may indicate a connection problem.
 notification.network.timeout.action=Wait a short period and try your request again, or try again later when the remote service may be less busy. If the problem persists, contact your supervisor. 
 

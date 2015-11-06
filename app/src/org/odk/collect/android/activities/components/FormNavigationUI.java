@@ -1,6 +1,5 @@
 package org.odk.collect.android.activities.components;
 
-import android.app.Activity;
 import android.graphics.Rect;
 import android.util.Log;
 import android.util.Pair;
@@ -19,7 +18,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.preferences.PreferencesActivity;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.QuestionWidget;
 
@@ -28,9 +26,9 @@ import java.util.ArrayList;
 public class FormNavigationUI {
     private final FormController mFormController;
     private final View mCurrentView;
-    private final Activity activity;
+    private final CommCareActivity activity;
 
-    public FormNavigationUI(Activity activity, View currentView, FormController formController) {
+    public FormNavigationUI(CommCareActivity activity, View currentView, FormController formController) {
         this.activity = activity;
         this.mCurrentView = currentView;
         this.mFormController = formController;
@@ -45,23 +43,12 @@ public class FormNavigationUI {
     public void updateNavigationCues(View view) {
         updateFloatingLabels(view);
 
-        PreferencesActivity.ProgressBarMode mode = PreferencesActivity.getProgressBarMode(activity);
-
-        if (mode == PreferencesActivity.ProgressBarMode.None) {
-            return;
-        }
-
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(activity, e.getMessage(), true);
-            return;
-        }
-
-        if (mode == PreferencesActivity.ProgressBarMode.ProgressOnly && view instanceof ODKView) {
-            ((ODKView)view).updateProgressBar(details.completedQuestions, details.totalQuestions);
             return;
         }
 

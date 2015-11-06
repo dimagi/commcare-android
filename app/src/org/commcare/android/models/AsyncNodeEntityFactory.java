@@ -7,10 +7,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.TableBuilder;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -128,9 +128,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         //Build the where clause for the provided key names
         String whereClause = "";
-        for (int i = 0; i < names.length; ++i) {
-            whereClause += TableBuilder.scrubName(names[i]) + " = ?";
-            if (i + 1 < names.length) {
+        for(int i = 0 ; i < names.length; ++ i) {
+            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
+            if(i + 1 < names.length) {
                 whereClause += " AND ";
             }
         }
@@ -141,8 +141,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         try {
             db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
-            // TODO PLM: not sure how to fail elegantly here, so mimicking
-            // current behaviour by raising a runtime error.
             throw new UserStorageClosedException(e.getMessage());
         }
 

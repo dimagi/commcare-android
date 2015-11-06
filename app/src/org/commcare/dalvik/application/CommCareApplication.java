@@ -34,7 +34,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -44,7 +44,7 @@ import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -57,11 +57,13 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
+import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.tasks.LogSubmissionTask;
+import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
+import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -91,8 +93,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
-import org.odk.collect.android.application.Collect;
-import org.odk.collect.android.utilities.StethoInitializer;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -106,6 +106,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
+
 
 /**
  * @author ctsims
@@ -142,8 +143,6 @@ public class CommCareApplication extends Application {
     private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
 
-    private boolean updatePending = false;
-
     private ArchiveFileRoot mArchiveFileRoot;
 
     // Fields for managing a connection to the CommCareSessionService
@@ -174,8 +173,6 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        StethoInitializer.initStetho(this);
-        Collect.setStaticApplicationContext(this);
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
@@ -344,8 +341,6 @@ public class CommCareApplication extends Application {
 
     public AndroidSessionWrapper getCurrentSessionWrapper() {
         if (sessionWrapper == null) {
-            // TODO PLM: should be able to init this so it is never null.
-            // Need to find the correct place after the currentApp is set.
             throw new SessionStateUninitException("CommCare user session isn't available");
         }
         return sessionWrapper;
@@ -678,7 +673,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
-        return new SqlStorage<T>(table, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(table, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
@@ -704,7 +699,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
-        return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -717,7 +712,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
-        return new SqlStorage<T>(storage, c, new DbHelper(this.getApplicationContext()) {
+        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;
@@ -882,10 +877,9 @@ public class CommCareApplication extends Application {
                         attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
-                        //See if there's an auto-update pending. We only want to be able to turn this
-                        //to "True" on login, not any other time
-                        //TODO: this should be associated with the app itself, not the global settings
-                        updatePending = getPendingUpdateStatus();
+                        if (shouldAutoUpdate()) {
+                            startAutoUpdate();
+                        }
                         syncPending = getPendingSyncStatus();
 
                         doReportMaintenance(false);
@@ -893,7 +887,8 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
-                            performArchivedFormPurge(getCurrentApp());
+
+                            PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
                     }
                 }
@@ -955,82 +950,63 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private boolean getPendingUpdateStatus() {
+    /**
+     * @return True if we aren't a demo user and the time to check for an
+     * update has elapsed or we logged out while an auto-update was downlaoding
+     * or queued for retry.
+     */
+    private boolean shouldAutoUpdate() {
+        return (!areAutomatedActionsInvalid() &&
+                (ResourceInstallUtils.shouldAutoUpdateResume(getCurrentApp()) ||
+                        isUpdatePending()));
+    }
+
+    private void startAutoUpdate() {
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Auto-Update Triggered");
+
+        String ref = ResourceInstallUtils.getDefaultProfileRef();
+
+        try {
+            UpdateTask updateTask = UpdateTask.getNewInstance();
+            updateTask.startPinnedNotification(this);
+            updateTask.setAsAutoUpdate();
+            updateTask.execute(ref);
+        } catch(IllegalStateException e) {
+            Log.w(TAG, "Trying trigger auto-update when it is already running. " +
+                    "Should only happen if the user triggered a manual update before this fired.");
+        }
+    }
+
+    public boolean isUpdatePending() {
         SharedPreferences preferences = getCurrentApp().getAppPreferences();
         //Establish whether or not an AutoUpdate is Pending
-        String autoUpdateFreq = preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY, CommCarePreferences.FREQUENCY_NEVER);
+        String autoUpdateFreq =
+                preferences.getString(CommCarePreferences.AUTO_UPDATE_FREQUENCY,
+                        CommCarePreferences.FREQUENCY_NEVER);
 
         //See if auto update is even turned on
         if (!autoUpdateFreq.equals(CommCarePreferences.FREQUENCY_NEVER)) {
-            long lastUpdateCheck = preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-
-            long duration = (24 * 60 * 60 * 100) * (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq) ? 1 : 7);
-
-            return isPending(lastUpdateCheck, duration);
+            long lastUpdateCheck =
+                    preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
+            return isTimeForAutoUpdateCheck(lastUpdateCheck, autoUpdateFreq);
         }
         return false;
     }
 
-    /**
-     * Check through user storage and identify whether there are any forms
-     * which can be purged from the device.
-     *
-     * @param app  The current app
-     */
-    private void performArchivedFormPurge(CommCareApp app) {
-        int daysForReview = -1;
-        String daysToPurge = app.getAppPreferences().getString("cc-days-form-retain", "-1");
-        try {
-            daysForReview = Integer.parseInt(daysToPurge);
-        } catch (NumberFormatException nfe) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Invalid days to purge: " + daysToPurge);
+    public boolean isTimeForAutoUpdateCheck(long lastUpdateCheck, String autoUpdateFreq) {
+        int checkEveryNDays;
+        if (CommCarePreferences.FREQUENCY_DAILY.equals(autoUpdateFreq)) {
+            checkEveryNDays = 1;
+        } else {
+            checkEveryNDays = 7;
         }
+        long duration = DateUtils.DAY_IN_MILLIS * checkEveryNDays;
 
-        //If we don't define a days for review flag, we should just keep the forms around
-        //indefinitely
-        if (daysForReview == -1) {
-            return;
-        }
-
-        SqlStorage<FormRecord> forms = this.getUserStorage(FormRecord.class);
-
-        //Get the last date for froms to be valid (n days prior to today)
-        long lastValidDate = new Date().getTime() - daysForReview * 24 * 60 * 60 * 1000;
-
-        Vector<Integer> toPurge = new Vector<Integer>();
-        //Get all saved forms currently in storage
-        for (int id : forms.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
-            String date = forms.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
-
-            try {
-                //If the date the form was saved is before the last valid date, we can purge it
-                if (lastValidDate > Date.parse(date)) {
-                    toPurge.add(id);
-                }
-            } catch (Exception e) {
-                //Catch all for now, we know that at least "" and null
-                //are causing problems (neither of which should be acceptable
-                //but if we see them, we should consider the form
-                //purgable.
-                toPurge.add(id);
-            }
-
-        }
-
-        if (toPurge.size() > 0) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Purging " + toPurge.size() + " archived forms for being before the last valid date " + new Date(lastValidDate).toString());
-            //Actually purge the old forms
-            for (int formRecord : toPurge) {
-                FormRecordCleanupTask.wipeRecord(this, formRecord);
-            }
-        }
+        return isPending(lastUpdateCheck, duration);
     }
 
     private boolean isPending(long last, long period) {
-        Date current = new Date();
-        //There are a couple of conditions in which we want to trigger pending maintenance ops.
-
-        long now = current.getTime();
+        long now = new Date().getTime();
 
         //1) Straightforward - Time is greater than last + duration
         long diff = now - last;
@@ -1052,15 +1028,7 @@ public class CommCareApplication extends Application {
         //3) Major time change - (Phone might have had its calendar day manipulated).
         //for now we'll simply say that if last was more than a day in the future (timezone blur)
         //we should also trigger
-        if (now < (last - DateUtils.DAY_IN_MILLIS)) {
-            return true;
-        }
-
-        //TODO: maaaaybe trigger all if there's a substantial time difference
-        //noted between calls to a server
-
-        //Otherwise we're fine
-        return false;
+        return (now < (last - DateUtils.DAY_IN_MILLIS));
     }
 
     /**
@@ -1069,25 +1037,10 @@ public class CommCareApplication extends Application {
      */
     private boolean areAutomatedActionsInvalid() {
         try {
-            if (User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType())) {
-                return true;
-            }
+            return User.TYPE_DEMO.equals(getSession().getLoggedInUser().getUserType());
         } catch (SessionUnavailableException sue) {
             return true;
         }
-        return false;
-    }
-
-    public boolean isUpdatePending() {
-        if (areAutomatedActionsInvalid()) {
-            return false;
-        }
-        // We only set this to true occasionally, but in theory it could be set
-        // to false from other factors, so turn it off if it is.
-        if (!getPendingUpdateStatus()) {
-            updatePending = false;
-        }
-        return updatePending;
     }
 
     private void unbindUserSessionService() {
@@ -1372,5 +1325,12 @@ public class CommCareApplication extends Application {
     public void setTestingService(CommCareSessionService service) {
         mIsBound = true;
         mBoundService = service;
+        mConnection = new ServiceConnection() {
+            public void onServiceConnected(ComponentName className, IBinder service) {
+            }
+
+            public void onServiceDisconnected(ComponentName className) {
+            }
+        };
     }
 }

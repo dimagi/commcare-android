@@ -1,6 +1,5 @@
 package org.commcare.android.framework;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,11 +18,11 @@ import org.commcare.android.tasks.templates.CommCareTask;
  *
  * @author ctsims
  */
-public class StateFragment extends Fragment {
-    private CommCareActivity boundActivity;
-    private CommCareActivity lastActivity;
+public class StateFragment<R> extends Fragment {
+    private CommCareActivity<R> boundActivity;
+    private CommCareActivity<R> lastActivity;
 
-    private CommCareTask currentTask;
+    private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
 
@@ -35,11 +34,11 @@ public class StateFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (activity instanceof CommCareActivity) {
-            this.boundActivity = (CommCareActivity) activity;
+        if (context instanceof CommCareActivity) {
+            this.boundActivity = (CommCareActivity)context;
             this.boundActivity.stateHolder = this;
 
             if (isCurrentTaskRunning()) {
@@ -96,7 +95,7 @@ public class StateFragment extends Fragment {
         return lastActivity;
     }
 
-    public void connectTask(CommCareTask task) {
+    public void connectTask(CommCareTask<?, ?, ?, R> task) {
         acquireWakeLock();
         this.currentTask = task;
     }

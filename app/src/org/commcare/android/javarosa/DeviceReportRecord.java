@@ -1,6 +1,5 @@
 package org.commcare.android.javarosa;
 
-import org.commcare.android.database.EncryptedModel;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
@@ -8,11 +7,11 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,6 +23,7 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
+
 
 /**
  * A small DB record for keeping track of serialized device reports which we are planning
@@ -37,7 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Table(DeviceReportRecord.STORAGE_KEY)
 public class DeviceReportRecord extends Persisted implements EncryptedModel {
-
     public static final String STORAGE_KEY = "log_records";
 
     @Persisting(1)
@@ -45,11 +44,8 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     @Persisting(2)
     private byte[] aesKey;
 
-    /**
-     * Serialization Only!!!
-     */
     public DeviceReportRecord() {
-
+        // for externalization
     }
 
     public DeviceReportRecord(String fileName, byte[] aesKey) {
@@ -82,7 +78,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return fileName;
     }
 
-    public final OutputStream openOutputStream() throws FileNotFoundException, IOException {
+    public final OutputStream openOutputStream() throws IOException {
         try {
             String path = getFilePath();
             File f = new File(path);

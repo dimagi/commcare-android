@@ -5,7 +5,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.DbHelper;
+import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -126,11 +126,7 @@ public class CommCareApp {
     public void setupSandbox() {
         setupSandbox(true);
     }
-    
-    void initializeStylizer() {
-        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
-    }
-    
+
     /**
      * @param createFilePaths True if file paths should be created as usual. False otherwise
      */
@@ -225,6 +221,11 @@ public class CommCareApp {
         return false;
     }
 
+    private void initializeStylizer() {
+        mStylizer = new Stylizer(CommCareApplication._().getApplicationContext());
+    }
+
+
     public boolean areMMResourcesValidated() {
         SharedPreferences appPreferences = getAppPreferences();
         return (appPreferences.getBoolean("isValidated", false) ||
@@ -271,7 +272,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
-        return new SqlStorage<T>(name, c, new DbHelper(CommCareApplication._().getApplicationContext()) {
+        return new SqlStorage<T>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {

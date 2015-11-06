@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.SelectChoice;
@@ -28,8 +29,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
 import java.util.Vector;
@@ -45,32 +44,28 @@ import java.util.Vector;
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class ListWidget extends QuestionWidget implements OnCheckedChangeListener {
-    int buttonIdBase;
-    protected final static int TEXTSIZE = 21;
-    private static final String t = "ListWidget";
+    private static final String TAG = ListWidget.class.getSimpleName();
 
-    // Layout holds the horizontal list of buttons
-    LinearLayout buttonLayout;
+    private final int buttonIdBase;
+    private final static int TEXTSIZE = 21;
 
     // Holds the entire question and answers. It is a horizontally aligned linear layout
-    LinearLayout questionLayout;
+    private LinearLayout questionLayout;
 
-    // Option to keep labels blank
-    boolean displayLabel;
+    private final Vector<SelectChoice> mItems;
+    private final Vector<RadioButton> buttons;
 
-    Vector<SelectChoice> mItems;
-    Vector<RadioButton> buttons;
-
-
+    /**
+     * @param displayLabel Option to keep labels blank
+     */
     public ListWidget(Context context, FormEntryPrompt prompt, boolean displayLabel) {
         super(context, prompt);
 
-        mItems = prompt.getSelectChoices();
-        buttons = new Vector<RadioButton>();
+        mItems = mPrompt.getSelectChoices();
+        buttons = new Vector<>();
 
-        this.displayLabel = displayLabel;
-
-        buttonLayout = new LinearLayout(context);
+        // Layout holds the horizontal list of buttons
+        LinearLayout buttonLayout = new LinearLayout(context);
 
         String s = null;
         if (getCurrentAnswer() != null) {
@@ -78,16 +73,16 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         }
         
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
 
-        if (prompt.getSelectChoices() != null) {
+        if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 RadioButton r = new RadioButton(getContext());
 
                 r.setOnCheckedChangeListener(this);
                 r.setId(i + buttonIdBase);
-                r.setEnabled(!prompt.isReadOnly());
-                r.setFocusable(!prompt.isReadOnly());
+                r.setEnabled(!mPrompt.isReadOnly());
+                r.setFocusable(!mPrompt.isReadOnly());
 
                 buttons.add(r);
 
@@ -95,10 +90,9 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                     r.setChecked(true);
                 }
 
-                String imageURI = null;
-                imageURI =
-                    prompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_IMAGE);
+                String imageURI =
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_IMAGE);
 
                 // build image view (if an image is provided)
                 ImageView mImageView = null;
@@ -119,9 +113,8 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                         Context.WINDOW_SERVICE)).getDefaultDisplay();
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
-                                b =
-                                    FileUtils.getBitmapScaledToDisplay(imageFile, screenHeight,
-                                        screenWidth);
+                                b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
+                                            screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();
                             }
@@ -139,16 +132,13 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                                 errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
 
                             }
-                        } else if (errorMsg == null) {
-                            // An error hasn't been logged. We should have an image, but the file
-                            // doesn't
-                            // exist.
+                        } else {
                             errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
                         }
 
                         if (errorMsg != null) {
                             // errorMsg is only set when an error has occured
-                            Log.e(t, errorMsg);
+                            Log.e(TAG, errorMsg);
                             mMissingImage = new TextView(getContext());
                             mMissingImage.setText(errorMsg);
 
@@ -156,17 +146,15 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                             mMissingImage.setId(234873453);
                         }
                     } catch (InvalidReferenceException e) {
-                        Log.e(t, "image invalid reference exception");
+                        Log.e(TAG, "image invalid reference exception");
                         e.printStackTrace();
                     }
-                } else {
-                    // There's no imageURI listed, so just ignore it.
                 }
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
-                label.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                label.setText(mPrompt.getSelectChoiceText(mItems.get(i)));
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);
@@ -222,12 +210,8 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
         questionLayout.addView(buttonLayout, buttonParams);
         addView(questionLayout);
+    }
 
-    }
-    
-    public ListWidget(Context context, FormEntryPrompt prompt, boolean displayLabel, WidgetChangedListener wcl) {
-        super(context, prompt, wcl);
-    }
     @Override
     public void clearAnswer() {
         for (RadioButton button : this.buttons) {
@@ -237,7 +221,6 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
             }
         }
     }
-
 
     @Override
     public IAnswerData getAnswer() {
@@ -250,7 +233,6 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         }
     }
 
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -259,8 +241,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    public int getCheckedId() {
+    private int getCheckedId() {
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 return button.getId();
@@ -268,7 +249,6 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         }
         return -1;
     }
-
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -284,17 +264,13 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         }
         
         widgetEntryChanged();
-        
     }
 
-
-    // Override QuestionWidget's add question text. Build it the same
-    // but add it to the relative layout
-    protected void addQuestionText(FormEntryPrompt p) {
-
+    @Override
+    protected void addQuestionText() {
         // Add the text view. Textview always exists, regardless of whether there's text.
         TextView questionText = new TextView(getContext());
-        questionText.setText(p.getLongText());
+        questionText.setText(mPrompt.getLongText());
         questionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
         questionText.setTypeface(null, Typeface.BOLD);
         questionText.setPadding(0, 0, 0, 7);
@@ -303,7 +279,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         // Wrap to the size of the parent view
         questionText.setHorizontallyScrolling(false);
 
-        if (p.getLongText() == null) {
+        if (mPrompt.getLongText() == null) {
             questionText.setVisibility(GONE);
         }
 
@@ -318,14 +294,12 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
         questionLayout.addView(questionText, labelParams);
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         for (RadioButton r : buttons) {
             r.setOnLongClickListener(l);
         }
     }
-
 
     @Override
     public void cancelLongPress() {
@@ -334,5 +308,4 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
             r.cancelLongPress();
         }
     }
-
 }

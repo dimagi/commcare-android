@@ -30,7 +30,6 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         this.storage = logStorage;
 
         this.setPurger(new Purger() {
-
             @Override
             public void purge(final SortedIntSet IDs) {
                 storage.removeAll(new EntityFilter<LogEntry>() {
@@ -42,9 +41,7 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
                         throw new RuntimeException("can't happen");
                     }
                 });
-
             }
-
         });
     }
 

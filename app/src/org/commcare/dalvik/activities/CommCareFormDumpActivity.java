@@ -20,11 +20,11 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
-import org.commcare.android.tasks.ExceptionReportTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
@@ -58,7 +58,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     boolean done = false;
 
-    AlertDialog mAlertDialog;
     static boolean acknowledgedRisk = false;
 
     static final String KEY_NUMBER_DUMPED = "num_dumped";
@@ -83,6 +82,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             public void onClick(View v){
 
                 formsOnSD = getDumpFiles().length;
+                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the SD card.");
 
                 //if there're no forms to dump, just return
                 if(formsOnSD == 0){
@@ -92,7 +92,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 }
 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(),
                         settings.getString("PostURL", url), getFolderPath()){
                     @Override
@@ -103,6 +102,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             Intent i = new Intent(getIntent());
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
+                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnSD + " forms.");
                             receiver.finish();
                             return;
                         } else {
@@ -121,7 +121,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "SendTask error: " + ExceptionReportTask.getStackTrace(e));
+                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -140,7 +140,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
-                SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
                 DumpTask mDumpTask = new DumpTask(getApplicationContext(), txtInteractiveMessages){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
@@ -148,6 +147,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             Intent i = new Intent(getIntent());
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
+                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
@@ -163,6 +163,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
+                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
                         receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -172,10 +173,8 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             }
         });
 
-        mAlertDialog = popupWarningMessage();
-
         if(!acknowledgedRisk){
-            mAlertDialog.show();
+            showWarningMessage();
         }
     }
 
@@ -192,37 +191,30 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
-    private AlertDialog popupWarningMessage(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle(Localization.get("bulk.form.alert.title"));
-        alertDialogBuilder
-            .setMessage(Localization.get("bulk.form.warning"))
-            .setCancelable(false)
-            .setPositiveButton("OK",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
+    private void showWarningMessage() {
+        AlertDialogFactory factory = new AlertDialogFactory(this,
+                Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                if (id == AlertDialog.BUTTON_POSITIVE) {
                     acknowledgedRisk = true;
                     dialog.dismiss();
-                    dialog.cancel();
-                }
-              })
-            .setNegativeButton("No",new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog,int id) {
-                    dialog.dismiss();
+                } else {
                     exitDump();
                 }
-            });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            return alertDialog;
-            
+            }
+        };
+        factory.setPositiveButton("OK", listener);
+        factory.setNegativeButton("NO", listener);
+        showAlertDialog(factory);
     }
     
-    public void updateCounters(){
+    public void updateCounters() {
         Vector<Integer> ids = getUnsyncedForms();
         File[] files = getDumpFiles();
-        
         formsOnPhone = ids.size();
         formsOnSD = files.length;
-        
         setDisplayText();
     }
     
@@ -239,30 +231,23 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
     
     public File getFolderPath() {
-        
         String fileRoot = FileUtil.getDumpDirectory(this);
-        
         if (fileRoot == null){
             return null;
         }
-        
         String folderName = getFolderName();
-        
         File dumpDirectory = new File( fileRoot + "/" + folderName);
-        
+        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Got folder path " + dumpDirectory);
         return dumpDirectory;
     }
     
     public File[] getDumpFiles(){
-
         File dumpDirectory = getFolderPath();
-        
         if(dumpDirectory == null || !dumpDirectory.isDirectory()){
             return new File[] {};
         }
-            
         File[] files = dumpDirectory.listFiles();
-            
+        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + files.length + " dump files.");
         return files;
     }
     
@@ -271,6 +256,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
         ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
         return ids;
     }
 

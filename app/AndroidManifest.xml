@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.24">
+          android:versionName="2.25">
 
     <uses-sdk
         tools:overrideLibrary="com.etsy.android.grid"
@@ -59,7 +59,7 @@
         android:required="false" />
 
     <permission
-        android:name="org.commcare.dalvik.provider.cases.read"
+        android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         android:protectionLevel="dangerous" >
@@ -68,7 +68,7 @@
     <application
         tools:replace="android:label,android:icon"
         android:name=".application.CommCareApplication"
-        android:icon="@drawable/icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
         android:theme="@style/AppBaseTheme" >
         <activity
@@ -80,7 +80,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="org.commcare.dalvik.action.CommCareSession" />
+                <action android:name="${applicationId}.action.CommCareSession" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -112,29 +112,29 @@
         <provider
             android:name=".odk.provider.FormsProvider"
             android:exported="true"
-            android:authorities="org.commcare.android.provider.odk.forms" />
+            android:authorities="${odkProvider}.forms" />
         <provider
             android:name=".odk.provider.InstanceProvider"
             android:exported="true"
-            android:authorities="org.commcare.android.provider.odk.instances" />
+            android:authorities="${odkProvider}.instances" />
         <provider
             android:name=".provider.CaseDataContentProvider"
-            android:authorities="org.commcare.dalvik.case"
+            android:authorities="${applicationId}.case"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="org.commcare.dalvik.provider.cases.read" />
+            android:readPermission="{applicationId}.provider.cases.read" />
         <provider
             android:name=".provider.FixtureDataContentProvider"
-            android:authorities="org.commcare.dalvik.fixture"
+            android:authorities="${applicationId}.fixture"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="org.commcare.dalvik.provider.cases.read" />
+            android:readPermission="${applicationId}.provider.cases.read" />
 
         <activity android:name=".preferences.CommCarePreferences" >
         </activity>
         <activity android:name=".activities.DotsEntryActivity" >
             <intent-filter>
-                <action android:name="org.commcare.dalvik.action.DotsEntry" />
+                <action android:name="${applicationId}.action.DotsEntry" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -184,7 +184,7 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccpr" />
             </intent-filter>
-            <intent-filter android:icon="@drawable/icon" >
+            <intent-filter android:icon="@mipmap/ic_launcher" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -196,7 +196,7 @@
                     android:pathPattern=".*\\.ccz"
                     android:scheme="file" />
             </intent-filter>
-            <intent-filter android:icon="@drawable/icon" >
+            <intent-filter android:icon="@mipmap/ic_launcher" >
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -205,6 +205,10 @@
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.ccz" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.UpdateActivity"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
@@ -308,11 +312,11 @@
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
-            android:name="org.odk.collect.android.preferences.PreferencesActivity"
+            android:name="org.odk.collect.android.preferences.FormEntryPreferences"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
-            android:name="org.commcare.dalvik.activities.InstallArchiveActivity"
+            android:name=".activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
 
@@ -340,7 +344,7 @@
             android:label="@string/title_activity_report_problem" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.commcare.dalvik.activities.CommCareSetupActivity" />
+                android:value=".activities.CommCareSetupActivity" />
         </activity>
         <activity
             android:name=".activities.CommCareVerificationActivity"
@@ -353,14 +357,14 @@
         <activity android:name=".activities.KeyAccessRequestActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="org.commcare.dalvik.action.CommCareKeyAccessRequest" />
+                <action android:name="${applicationId}.action.CommCareKeyAccessRequest" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <receiver android:name="org.commcare.android.api.ExternalApiReceiver" >
             <intent-filter>
-                <action android:name="org.commcare.dalvik.api.action.ExternalAction" />
+                <action android:name="${applicationId}.api.action.ExternalAction" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -384,7 +388,7 @@
             android:name=".activities.TemplatePrinterActivity"
             android:theme="@style/Theme.Dialog.NoTitle" >
             <intent-filter>
-                <action android:name="org.commcare.dalvik.action.PRINT" />
+                <action android:name="${applicationId}.action.PRINT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

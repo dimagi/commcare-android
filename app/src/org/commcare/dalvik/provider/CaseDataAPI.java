@@ -4,6 +4,8 @@ import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.commcare.dalvik.BuildConfig;
+
 /**
  * This API provides the relevant interface cues for interacting with
  * the Case Data Content Provider, along with the structure of the
@@ -13,8 +15,7 @@ import android.provider.BaseColumns;
  *
  */
 public class CaseDataAPI {
-    
-    public static final String AUTHORITY = "org.commcare.dalvik.case";
+    public static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".case";
     
     public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
