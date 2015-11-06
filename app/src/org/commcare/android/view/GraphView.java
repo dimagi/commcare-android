@@ -25,6 +25,7 @@ import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
+import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -34,12 +35,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -177,18 +176,19 @@ public class GraphView {
         WebView webView = new WebView(mContext);
         configureSettings(webView);
 
+        System.out.println("[jls] graphData = " + jsonifyGraph(data).toString());
         String html =
                 "<html>" +
                     "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/underscore.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                        "<script type='text/javascript'>var graphData = " + jsonify(data).toString() + ";</script>" +
+                        "<script type='text/javascript'>var graphData = " + jsonifyGraph(data).toString() + ";</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
                     "<body><svg class='chart'></svg></body>" +
                 "</html>";
-        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null );
+        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
         /*
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
@@ -215,35 +215,47 @@ public class GraphView {
         settings.setSupportZoom(false);
     }
 
-    private JSONObject jsonify(GraphData data) {
+    private JSONObject jsonifyGraph(GraphData data) {
         JSONObject json = new JSONObject();
         try {
             json.put("type", data.getType());
             JSONArray series = new JSONArray();
             for (SeriesData s : data.getSeries()) {
-                series.put(jsonify(s));
+                series.put(jsonifySeries(s));
             }
             json.put("series", series);
+            json.put("configuration", jsonifyConfigurable(data));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return json;
     }
 
-    private JSONObject jsonify(SeriesData data) throws JSONException {
+    private JSONObject jsonifySeries(SeriesData data) throws JSONException {
         JSONObject json = new JSONObject();
         JSONArray points = new JSONArray();
         for (XYPointData p : data.getPoints()) {
-            points.put(jsonify(p));
+            points.put(jsonifyXYPoint(p));
         }
         json.put("points", points);
+        json.put("configuration", jsonifyConfigurable(data));
         return json;
     }
 
-    private JSONObject jsonify(XYPointData data) throws JSONException {
+    private JSONObject jsonifyXYPoint(XYPointData data) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("x", data.getX());
         json.put("y", data.getY());
+        return json;
+    }
+
+    private JSONObject jsonifyConfigurable(ConfigurableData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        Enumeration e = data.getConfigurationKeys();
+        while (e.hasMoreElements()) {
+            String key = (String) e.nextElement();
+            json.put(key, data.getConfiguration(key));
+        }
         return json;
     }
 

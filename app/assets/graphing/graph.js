@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function(event) {
-    //graphData = {"type":"xy","series":[{"points":[{"y":"2","x":"2"},{"y":"3","x":"3"},{"y":"1","x":"1"}]}]}
     var width = document.body.offsetWidth;
     var height = document.body.offsetHeight;
     var x = d3.scale.linear().range([0, width]);
@@ -10,12 +9,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         .attr("height", height);
 
     var allPoints = _.flatten(_.pluck(graphData.series, 'points'))
-    var allX = _.map(allPoints, function(p) { return parseInt(p.x); });
-    var allY = _.map(allPoints, function(p) { return parseInt(p.y); });
-    if (allPoints.length) {
-        x.domain([_.min(allX), _.max(allX)]);
-        y.domain([_.max(allY), _.min(allY)]);
-    }
+    x.domain([getXMin(), getXMax()]);
+    y.domain([getYMax(), getYMin()]);
 
     for (var s = 0; s < graphData.series.length; s++) {
         if (graphData.type === "xy") {
@@ -29,3 +24,33 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
     }
 });
+
+function getBoundary(axis, direction, fallback, lambda) {
+    var bound = graphData.configuration[axis + "-" + direction];
+    if (!bound) {
+        var points = _.flatten(_.pluck(graphData.series, 'points'));
+        if (points.length) {
+            bound = lambda.call(null, _.map(points, function(p) { return parseInt(p[axis]); }));
+        }
+    }
+    if (bound) {
+        return parseInt(bound);
+    }
+    return fallback;
+}
+
+function getXMax(axis) {
+    return getBoundary("x", "max", 10, _.max);
+}
+
+function getXMin(axis) {
+    return getBoundary("x", "min", 0, _.min)
+}
+
+function getYMax(axis) {
+    return getBoundary("y", "max", 10, _.max);
+}
+
+function getYMin(axis) {
+    return getBoundary("y", "min", 0, _.min)
+}

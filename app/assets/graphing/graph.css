@@ -1,9 +1,9 @@
 .chart {
-    background-color: #eee;
+    background-color: #fff;
 }
 
 .chart path {
-    stroke: steelblue;
-    stroke-width: 2;
+    stroke: #004ebc;
+    stroke-width: 3;
     fill: none;
 }
