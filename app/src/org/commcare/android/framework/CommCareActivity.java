@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +15,7 @@ import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -22,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -140,6 +143,74 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         mGestureDetector = new GestureDetector(this, this);
     }
+
+    /**
+     * Call this method from an implementing activity to request a new event trigger for any time
+     * the available space for the core content view changes significantly, for instance when the
+     * soft keyboard is displayed or hidden.
+     *
+     * This method will also be reliably triggered upon the end of the first layout pass, so it
+     * can be used to do the initial setup for adaptive layouts as well as their updates.
+     *
+     * After this is called, major layout size changes will be triggered in the onMajorLayoutChange
+     * method.
+     */
+    protected void requestMajorLayoutUpdates() {
+        final View decorView = getWindow().getDecorView();
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            int mPreviousDecorViewFrameHeight = 0;
+
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+                //r will be populated with the coordinates of your view that are visible after the
+                //recent change.
+                decorView.getWindowVisibleDisplayFrame(r);
+
+                int mainContentHeight = r.height();
+
+                int previousMeasurementDifference = Math.abs(mainContentHeight - mPreviousDecorViewFrameHeight);
+
+                if (previousMeasurementDifference > 100) {
+                    onMajorLayoutChange(r);
+                }
+                mPreviousDecorViewFrameHeight = mainContentHeight;
+            }
+        });
+    }
+
+    /**
+     * This method is called when the root view size available to the activity has changed
+     * significantly. It is the appropriate place to trigger adaptive layout behaviors.
+     *
+     * Note for performance that changes to declarative view properties here will trigger another
+     * layout pass.
+     *
+     * This callback is only triggered if the parent view has called requestMajorLayoutUpdates
+     *
+     * @param newRootViewDimensions The dimensions of the new root screen view that is available
+     *                              to the activity.
+     */
+    protected void onMajorLayoutChange(Rect newRootViewDimensions) {
+
+   }
+
+    protected int getActionBarSize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            int actionBarHeight = getActionBar().getHeight();
+
+            if (actionBarHeight != 0) {
+                return actionBarHeight;
+            }
+            final TypedValue tv = new TypedValue();
+            if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+            }
+            return actionBarHeight;
+        } return 0;
+    }
+
 
     protected void restoreLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
