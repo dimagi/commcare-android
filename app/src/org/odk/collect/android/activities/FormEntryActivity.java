@@ -1983,6 +1983,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
         return super.onKeyDown(keyCode, event);
     }
+
     private boolean shouldIgnoreSwipeAction() {
         return isAnimatingSwipe || isDialogShowing;
     }
