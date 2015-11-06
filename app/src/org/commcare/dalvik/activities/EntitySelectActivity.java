@@ -279,7 +279,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
             }
-            searchbox.setText(lastQueryString);
+            if(getLastQueryString() != null){
+                searchbox.setText(getLastQueryString());
+            }
         }
     }
 
@@ -619,9 +621,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         }
         if (!isUsingActionBar()) {
-            lastQueryString = filterString;
+            setLastQueryString(filterString);
             if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
+                Log.v(TAG, "Setting lastQueryString to (" + filterString + ") from searchbox afterTextChanged event");
             }
         }
     }
@@ -663,6 +665,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 EntitySelectActivity.this.searchItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
                 // restore last query string in the searchView if there is one
+                String lastQueryString = getLastQueryString();
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         searchItem.expandActionView();
@@ -683,7 +686,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        lastQueryString = newText;
+                        setLastQueryString(newText);
                         filterString = newText;
                         if (BuildConfig.DEBUG) {
                             Log.v(TAG, "Setting lastQueryString to (" + newText + ")");

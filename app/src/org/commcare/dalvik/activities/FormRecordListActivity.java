@@ -225,9 +225,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             if (!isUsingActionBar()) {
                 if (BuildConfig.DEBUG) {
-                    Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
+                    Log.v(TAG, "Setting lastQueryString (" + getLastQueryString() + ") in searchbox");
                 }
-                setSearchText(lastQueryString);
+                setSearchText(getLastQueryString());
             }
         } catch (SessionUnavailableException sue) {
             //TODO: session is dead, login and return
@@ -487,6 +487,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 FormRecordListActivity.this.searchItem = searchItem;
                 FormRecordListActivity.this.searchView = searchView;
+                String lastQueryString = getLastQueryString();
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                         searchItem.expandActionView();
@@ -592,9 +593,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             adapter.applyTextFilter(filtertext);
         }
         if (!isUsingActionBar()) {
-            lastQueryString = filtertext;
+            setLastQueryString(filtertext);
             if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
+                Log.v(TAG, "Setting lastQueryString to (" + filtertext + ") in searchbox afterTextChanged event");
             }
         }
     }

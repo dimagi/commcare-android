@@ -51,6 +51,7 @@ public class AndroidSessionWrapper {
     private CommCarePlatform platform;
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
+    protected String lastQueryString;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
@@ -414,5 +415,13 @@ public class AndroidSessionWrapper {
         //regardless of whether we just updated the current stack, we need to
         //assume our current volatile states are no longer relevant
         cleanVolatiles();
+    }
+
+    public void setLastQueryString(String lastQueryString){
+        this.lastQueryString = lastQueryString;
+    }
+
+    public String getLastQueryString(){
+        return this.lastQueryString;
     }
 }

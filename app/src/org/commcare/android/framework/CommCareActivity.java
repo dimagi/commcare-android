@@ -91,7 +91,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private GestureDetector mGestureDetector;
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
-    protected String lastQueryString;
 
     /**
      * Activity has been put in the background. Flag prevents dialogs
@@ -214,9 +213,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected void restoreLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-        lastQueryString = settings.getString(key, null);
+        setLastQueryString(settings.getString(key, null));
         if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
+            Log.v(TAG, "Recovered lastQueryString: (" + settings.getString(key, null) + ")");
         }
     }
 
@@ -397,7 +396,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected int getWakeLockLevel() {
         return CommCareTask.DONT_WAKELOCK;
     }
-    
+
     /*
      * Override these to control the UI for your task
      */
@@ -499,11 +498,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, lastQueryString);
+        editor.putString(key, getLastQueryString());
         editor.commit();
 
         if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
+            Log.v(TAG, "Saving lastQueryString: (" + getLastQueryString() + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
         }
     }
 
@@ -901,6 +900,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     protected boolean isActivityPaused() {
         return activityPaused;
+    }
+
+    public void setLastQueryString(String lastQueryString){
+        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(lastQueryString);
+    }
+
+    public String getLastQueryString(){
+        return CommCareApplication._().getCurrentSessionWrapper().getLastQueryString();
     }
 
 }
