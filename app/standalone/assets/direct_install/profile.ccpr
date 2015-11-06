@@ -19,7 +19,7 @@
     <property key="jr_openrosa_api" value="1.0"/>
 
     <property key="last_password" value="123"/>
-    <property key="last_logged_in_user" value="joytest3"/>
+    <property key="last_logged_in_user" value="demo"/>
     <property key="cc-enable-auto-login" value="yes" force="true"/>
     <!-- Properties configured on CommCare HQ 1.0 -->
     
