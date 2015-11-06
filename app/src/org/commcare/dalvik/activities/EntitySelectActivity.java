@@ -102,7 +102,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String EXTRA_IS_MAP = "is_map";
-    public static final String EXTRA_CLEAR_SEARCH = "clear_search";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -283,7 +282,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
 
         if (!isUsingActionBar()) {
-            searchbox.setText(lastQueryString);
+            searchbox.setText(CommCareApplication._().getCurrentSessionWrapper().getLastQueryString());
         }
     }
 
@@ -677,7 +676,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             }
         }
         if (!isUsingActionBar()) {
-            lastQueryString = filterString;
+            CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(filterString);
         }
     }
 
@@ -714,6 +713,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
                 EntitySelectActivity.this.searchItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
+                String lastQueryString = CommCareApplication._().getCurrentSessionWrapper().getLastQueryString();
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -735,7 +735,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
                     @Override
                     public boolean onQueryTextChange(String newText) {
-                        lastQueryString = newText;
+                        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(newText);
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -1167,5 +1167,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 cancelled = true;
             }
         }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(null);
+        super.onBackPressed();
     }
 }

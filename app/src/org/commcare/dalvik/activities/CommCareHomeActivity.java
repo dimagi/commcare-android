@@ -207,7 +207,6 @@ public class CommCareHomeActivity
         if (record != null) {
             i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
         }
-        i.putExtra(EntitySelectActivity.EXTRA_CLEAR_SEARCH, true);
         startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
 
@@ -865,7 +864,6 @@ public class CommCareHomeActivity
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
-        i.putExtra(EntitySelectActivity.EXTRA_CLEAR_SEARCH, true);
         startActivityForResult(i, GET_CASE);
     }
 

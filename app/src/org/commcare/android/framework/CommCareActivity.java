@@ -86,7 +86,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private GestureDetector mGestureDetector;
 
     public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
-    protected String lastQueryString;
 
     /**
      * Activity has been put in the background. Flag prevents dialogs
@@ -140,12 +139,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString(String key) {
-        if(!this.getIntent().getExtras().getBoolean(EntitySelectActivity.EXTRA_CLEAR_SEARCH)) {
-            SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-            lastQueryString = settings.getString(key, null);
-        } else{
-            this.getIntent().removeExtra(EntitySelectActivity.EXTRA_CLEAR_SEARCH);
-        }
+        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
+        CommCareApplication._().getCurrentSessionWrapper().setLastQueryString(settings.getString(key, null));
     }
 
     @Override
@@ -426,11 +421,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void saveLastQueryString(String key) {
         SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, lastQueryString);
+        editor.putString(key, CommCareApplication._().getCurrentSessionWrapper().getLastQueryString());
         editor.commit();
 
         if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
+            Log.v(TAG, "Saving lastQueryString: (" + CommCareApplication._().getCurrentSessionWrapper().getLastQueryString() + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
         }
     }
 
