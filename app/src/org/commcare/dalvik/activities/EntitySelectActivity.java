@@ -610,8 +610,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     public void afterTextChanged(Editable s) {
-        final String incomingString = incomingEditable.toString();^M
-        final String currentSearchText = getSearchText().toString();^M
+        final String incomingString = incomingEditable.toString();
+        final String currentSearchText = getSearchText().toString();
         if (incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
