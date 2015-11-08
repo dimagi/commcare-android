@@ -208,6 +208,8 @@ android {
         def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]
 
+          versionCode 1
+
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
         // include this again so that the value get reloaded
         buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}.provider\""
