@@ -123,9 +123,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         //Build the where clause for the provided key names
         String whereClause = "";
-        for(int i = 0 ; i < names.length; ++ i) {
+        for (int i = 0; i < names.length; ++i) {
             whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
-            if(i + 1 < names.length) {
+            if (i + 1 < names.length) {
                 whereClause += " AND ";
             }
         }
