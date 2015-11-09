@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -21,6 +22,7 @@ import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -118,6 +120,16 @@ public class CommCareSessionService extends Service {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
         createCipherPool();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        try {
+            CommCareApplication._().getCurrentSessionWrapper().reset();
+        } catch (SessionStateUninitException e) {
+            Log.e(AndroidLogger.SOFT_ASSERT,
+                    "Trying to wipe uninitialized session in session service tear-down");
+        }
     }
 
     public void createCipherPool() {
