@@ -19,26 +19,23 @@ import java.util.List;
 
 /**
  * @author ctsims
- *
  */
-public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
+public class EntityLoaderTask
+        extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
 
     private final static Object lock = new Object();
     private static EntityLoaderTask pendingTask = null;
 
-    NodeEntityFactory factory;
-    EvaluationContext ec;
-    EntityLoaderListener listener;
-    Exception mException = null;
+    private final NodeEntityFactory factory;
+    private EntityLoaderListener listener;
+    private Exception mException = null;
     
-
     public EntityLoaderTask(Detail d, EvaluationContext ec) {
-        if(d.useAsyncStrategy()) {
+        if (d.useAsyncStrategy()) {
             this.factory = new AsyncNodeEntityFactory(d, ec);
         } else {
             this.factory = new NodeEntityFactory(d, ec);
         }
-        this.ec = ec;
     }
     
     public void attachListener(EntityLoaderListener listener){ 
@@ -47,19 +44,12 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
     }
 
     @Override
-    protected void onProgressUpdate(Integer... values) {
-        super.onProgressUpdate(values);
-    }
-    
-
-    @Override
     protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
         super.onPostExecute(result);
 
         long waitingTime = System.currentTimeMillis();
         //Ok. So. time to try to deliver the result
         while(true) {
-            //grab the lock
             synchronized(lock) {
                 //If our listener is still live, we can deliver our result
                 if(listener != null) {
@@ -78,14 +68,11 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
                     
                     return;
                 }
-                
-                //If our listener is _not_ alive 
             }
-            //Wait
+
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
@@ -95,28 +82,27 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
                 return;
             }
         }
-        
     }
 
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
-
         try{
             List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
 
-            List<Entity<TreeReference>> full = new ArrayList<Entity<TreeReference>>();
+            List<Entity<TreeReference>> full = new ArrayList<>();
             for(TreeReference ref : references) {
-
-                if(this.isCancelled()) { return null; }
+                if (this.isCancelled()) {
+                    return null;
+                }
 
                 Entity<TreeReference> e = factory.getEntity(ref);
-                if(e != null) {
+                if (e != null) {
                     full.add(e);
                 }
             }
 
             factory.prepareEntities();
-            return new Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references);
+            return new Pair<>(full, references);
         
         } catch (XPathException xe){
             XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
@@ -128,9 +114,6 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
         }
     }
 
-    /**
-     * detach the activity and 
-     */
     public void detachActivity() {
         synchronized(lock) {
             pendingTask = this;
