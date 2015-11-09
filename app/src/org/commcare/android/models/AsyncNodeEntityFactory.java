@@ -21,7 +21,6 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
 
 /**
@@ -68,7 +67,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
         }
 
-        AsyncEntity entity = new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations, mEntityCache, mCacheIndex, detail.getId());
+        AsyncEntity entity =
+                new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
+                        mEntityCache, mCacheIndex, detail.getId());
 
         if (mCacheIndex != null) {
             mEntitySet.put(mCacheIndex, entity);
@@ -159,13 +160,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
         }
-    }
-
-    @Override
-    public List<TreeReference> expandReferenceList(TreeReference parentRef) {
-        List<TreeReference> references = super.expandReferenceList(parentRef);
-
-        return references;
     }
 
     @Override

@@ -1,9 +1,9 @@
 package org.commcare.android.models;
 
-import org.javarosa.core.model.User;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
@@ -78,8 +78,7 @@ public class NodeEntityFactory {
 
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
-        List<TreeReference> references = ec.expandReference(treeReference);
-        return references;
+        return ec.expandReference(treeReference);
     }
 
     /**
