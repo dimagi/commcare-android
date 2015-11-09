@@ -10,7 +10,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -42,15 +41,12 @@ public class ODKView extends ScrollView
 
     // starter random number for view IDs
     private final static int VIEW_ID = 12345;  
-    
-    private static final String TAG = ODKView.class.getSimpleName();
 
     private final LinearLayout mView;
     private final LinearLayout.LayoutParams mLayout;
     private final ArrayList<QuestionWidget> widgets;
     private final ArrayList<View> dividers;
-    private ProgressBar mProgressBar;
-    
+
     private final int mQuestionFontsize;
 
     public final static String FIELD_LIST = "field-list";
@@ -61,62 +57,49 @@ public class ODKView extends ScrollView
     private int widgetIdCount = 0;
     private int mViewBannerCount = 0;
 
-    private boolean mProgressEnabled;
-
-    private final SpannableStringBuilder mGroupLabel;
+    private SpannableStringBuilder mGroupLabel;
 
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
-                   FormEntryCaption[] groups, WidgetFactory factory,
-                   WidgetChangedListener wcl) {
+    public ODKView(Context context) {
         super(context);
 
-        if(wcl !=null){
-            hasListener = true;
-            wcListener = wcl;
-        }
-        
-        SharedPreferences settings = 
-             PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
         String question_font =
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
 
         mQuestionFontsize = Integer.valueOf(question_font);
-        
-        widgets = new ArrayList<QuestionWidget>();
-        dividers = new ArrayList<View>();
+        widgets = new ArrayList<>();
+        dividers = new ArrayList<>();
 
         mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
 
         mLayout =
-            new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        //Figure out if we share hint text between questions
-        String hintText = null;
-        if(questionPrompts.length > 1) {
-            hintText = questionPrompts[0].getHintText();
-            for (FormEntryPrompt p : questionPrompts) {
-                //If something doesn't have hint text at all,
-                //bail
-                String curHintText = p.getHintText();
-                //Otherwise see if it matches
-                if(curHintText == null || !curHintText.equals(hintText)) {
-                    //If not, we can't do this trick
-                    hintText = null;
-                    break;
-                }
-            }
+        mGroupLabel = null;
+    }
+
+    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
+                   FormEntryCaption[] groups, WidgetFactory factory,
+                   WidgetChangedListener wcl) {
+        this(context);
+
+        if(wcl !=null){
+            hasListener = true;
+            wcListener = wcl;
         }
 
         // display which group you are in as well as the question
         mGroupLabel = deriveGroupText(groups);
-        
+
+        String hintText = getHintText(questionPrompts);
         addHintText(hintText);
         
         boolean first = true;
@@ -252,18 +235,6 @@ public class ODKView extends ScrollView
     }
 
     /**
-     * Update progress bar
-     * @param progress Current value
-     * @param max Progress bar will be given range 0..max
-     */
-    public void updateProgressBar(int progress, int max) {
-        if (mProgressBar != null) {
-            mProgressBar.setMax(max);
-            mProgressBar.setProgress(progress);
-        }
-    }
-
-    /**
      * Returns the hierarchy of groups to which the question belongs.
      */
     private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
@@ -307,7 +278,28 @@ public class ODKView extends ScrollView
     public SpannableStringBuilder getGroupLabel() {
         return mGroupLabel;
     }
-    
+
+    private String getHintText(FormEntryPrompt[] questionPrompts) {
+        //Figure out if we share hint text between questions
+        String hintText = null;
+        if (questionPrompts.length > 1) {
+            hintText = questionPrompts[0].getHintText();
+            for (FormEntryPrompt p : questionPrompts) {
+                //If something doesn't have hint text at all,
+                //bail
+                String curHintText = p.getHintText();
+                //Otherwise see if it matches
+                if (curHintText == null || !curHintText.equals(hintText)) {
+                    //If not, we can't do this trick
+                    hintText = null;
+                    break;
+                }
+            }
+        }
+
+        return hintText;
+    }
+
     private void addHintText(String hintText) {
         if (hintText != null && !hintText.equals("")) {
             TextView mHelpText = new TextView(getContext());
@@ -434,10 +426,6 @@ public class ODKView extends ScrollView
      * @return Index of question's view in mView.
      */
     private int getViewIndex(int questionIndex) {
-        // Account for progress bar
-        if (mProgressEnabled) {
-            return questionIndex + 1;
-        }
         return questionIndex;
     }
 
