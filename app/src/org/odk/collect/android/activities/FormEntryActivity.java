@@ -977,8 +977,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
         }
 
-        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(odkv);
+        FormNavigationUI.updateNavigationCues(this, mFormController, odkv);
 
         return odkv;
     }
@@ -1910,8 +1909,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
 
         refreshCurrentView();
-        FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(mCurrentView);
+        FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
 
     /**
@@ -2249,8 +2247,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             return;
         }
-        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(mCurrentView);
+
+        FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
 
     /**
