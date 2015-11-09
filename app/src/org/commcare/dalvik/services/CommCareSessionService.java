@@ -86,9 +86,9 @@ public class CommCareSessionService extends Service  {
     private SQLiteDatabase userDatabase;
 
     // unique id for logged in notification
-    private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+    private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
 
-    private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+    private final static int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out. Set
     // at 90 seconds to make sure huge forms on slow phones actually get saved
@@ -388,12 +388,7 @@ public class CommCareSessionService extends Service  {
 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
 
-            if (user != null) {
-                if (user.getUsername() != null) {
-                    msg = "Logging out user " + user.getUsername();
-                }
-                user = null;
-            }
+            user = null;
 
             if (userDatabase != null) {
                 if (userDatabase.isOpen()) {
