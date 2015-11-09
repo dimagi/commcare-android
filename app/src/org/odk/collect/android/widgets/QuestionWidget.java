@@ -613,6 +613,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         hasListener = (wcl != null);
     }
 
+    public void unsetListeners() {
+        setOnLongClickListener(null);
+        setChangedListener(null);
+    }
+
     public void widgetEntryChanged(){
         if(this.toastView != null) {
             this.toastView.setVisibility(View.GONE);
@@ -627,11 +632,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if(FileUtils.isFileOversized(file)){
             this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
-    }
-
-    public void unsetListeners() {
-        setOnLongClickListener(null);
-        setChangedListener(null);
     }
 
     /*
