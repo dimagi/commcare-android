@@ -37,9 +37,33 @@ public class EntityLoaderTask
         }
     }
 
-    public void attachListener(EntityLoaderListener listener) {
-        this.listener = listener;
-        listener.attach(this);
+    @Override
+    protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
+        try {
+            List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
+
+            List<Entity<TreeReference>> full = new ArrayList<>();
+            for (TreeReference ref : references) {
+                if (this.isCancelled()) {
+                    return null;
+                }
+
+                Entity<TreeReference> e = factory.getEntity(ref);
+                if (e != null) {
+                    full.add(e);
+                }
+            }
+
+            factory.prepareEntities();
+            return new Pair<>(full, references);
+        } catch (XPathException xe) {
+            XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
+            me.setSource(xe.getSource());
+            xe.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ExceptionReportTask.getStackTrace(me));
+            mException = me;
+            return null;
+        }
     }
 
     @Override
@@ -79,35 +103,6 @@ public class EntityLoaderTask
         }
     }
 
-    @Override
-    protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
-        try {
-            List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
-
-            List<Entity<TreeReference>> full = new ArrayList<>();
-            for (TreeReference ref : references) {
-                if (this.isCancelled()) {
-                    return null;
-                }
-
-                Entity<TreeReference> e = factory.getEntity(ref);
-                if (e != null) {
-                    full.add(e);
-                }
-            }
-
-            factory.prepareEntities();
-            return new Pair<>(full, references);
-        } catch (XPathException xe) {
-            XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
-            me.setSource(xe.getSource());
-            xe.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ExceptionReportTask.getStackTrace(me));
-            mException = me;
-            return null;
-        }
-    }
-
     public void detachActivity() {
         synchronized (lock) {
             pendingTask = this;
@@ -124,5 +119,10 @@ public class EntityLoaderTask
             pendingTask = null;
             return true;
         }
+    }
+
+    public void attachListener(EntityLoaderListener listener) {
+        this.listener = listener;
+        listener.attach(this);
     }
 }
