@@ -22,15 +22,15 @@ import java.util.List;
  *
  */
 public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
-    
-    private static EntityLoaderTask pending[] = {null};
-    
+
+    private final static Object lock = new Object();
+    private static EntityLoaderTask pendingTask = null;
+
     NodeEntityFactory factory;
     EvaluationContext ec;
     EntityLoaderListener listener;
     Exception mException = null;
     
-    private long waitingTime; 
 
     public EntityLoaderTask(Detail d, EvaluationContext ec) {
         if(d.useAsyncStrategy()) {
@@ -55,17 +55,17 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
     @Override
     protected void onPostExecute(Pair<List<Entity<TreeReference>>, List<TreeReference>> result) {
         super.onPostExecute(result);
-        
-        waitingTime = System.currentTimeMillis();
+
+        long waitingTime = System.currentTimeMillis();
         //Ok. So. time to try to deliver the result
         while(true) {
             //grab the lock
-            synchronized(pending) {
+            synchronized(lock) {
                 //If our listener is still live, we can deliver our result
                 if(listener != null) {
                     
                     //zero this out to free up reference. this is used as an indicator below to determine if work still needs to be done
-                    this.pending[0] = null;
+                    pendingTask = null;
                     
                     // if we have encountered an exception, deliver it and return
                     if(mException != null){
@@ -91,7 +91,7 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
             
             //If this is pending for more than about a second, drop it, we never know if it's going to get reattached
             if(System.currentTimeMillis() - waitingTime > 1000) {
-                pending[0] = null;
+                pendingTask = null;
                 return;
             }
         }
@@ -132,19 +132,19 @@ public class EntityLoaderTask extends ManagedAsyncTask<TreeReference, Integer, P
      * detach the activity and 
      */
     public void detachActivity() {
-        synchronized(pending) {
-            pending[0] = this;
+        synchronized(lock) {
+            pendingTask = this;
         }
     }
     
     public static boolean attachToActivity(EntityLoaderListener listener) {
-        synchronized(pending) {
-            if(pending[0] == null) {
+        synchronized(lock) {
+            if(pendingTask == null) {
                 return false;
             }
-            EntityLoaderTask task = pending[0];
+            EntityLoaderTask task = pendingTask;
             task.attachListener(listener);
-            pending[0] = null;
+            pendingTask = null;
             return true;
         }
     }
