@@ -45,7 +45,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -377,6 +376,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
         requestMajorLayoutUpdates();
+
+        if (mCurrentView != null) {
+            mCurrentView.teardownView();
+        }
 
         // re-set defaults in case the app got in a bad state.
         isAnimatingSwipe = false;
@@ -1149,6 +1152,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 mCurrentView.startAnimation(mOutAnimation);
             }
         	mViewPane.removeView(mCurrentView);
+            mCurrentView.teardownView();
         }
 
         mInAnimation.setAnimationListener(this);

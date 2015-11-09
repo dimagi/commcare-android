@@ -238,6 +238,16 @@ public class SignatureWidget extends QuestionWidget {
     }
 
     @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mSignButton.setOnLongClickListener(null);
+        if (mImageView != null) {
+            mImageView.setOnLongClickListener(null);
+        }
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mSignButton.cancelLongPress();

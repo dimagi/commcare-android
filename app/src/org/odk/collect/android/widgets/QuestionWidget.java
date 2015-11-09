@@ -610,7 +610,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public void setChangedListener(WidgetChangedListener wcl){
         widgetChangedListener = wcl;
-        hasListener = true;
+        hasListener = (wcl != null);
     }
 
     public void widgetEntryChanged(){
@@ -627,6 +627,11 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if(FileUtils.isFileOversized(file)){
             this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
         }
+    }
+
+    public void unsetListeners() {
+        setOnLongClickListener(null);
+        setChangedListener(null);
     }
 
     /*
