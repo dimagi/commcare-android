@@ -5,12 +5,11 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.EntityStorageCache;
-import org.javarosa.core.model.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
@@ -30,20 +29,15 @@ import java.util.Vector;
  */
 public class AsyncNodeEntityFactory extends NodeEntityFactory {
     private static final String TAG = AsyncNodeEntityFactory.class.getSimpleName();
+    private final OrderedHashtable<String, XPathExpression> mVariableDeclarations;
 
-    User current;
-
-    OrderedHashtable<String, XPathExpression> mVariableDeclarations;
-
-    Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<String, AsyncEntity>();
-    EntityStorageCache mEntityCache;
+    private final Hashtable<String, AsyncEntity> mEntitySet = new Hashtable<>();
+    private final EntityStorageCache mEntityCache;
 
     private CacheHost mCacheHost = null;
-
     private Boolean mTemplateIsCachable = null;
-
-    Object mAsyncLock = new Object();
-    Thread mAsyncPrimingThread;
+    private static final Object mAsyncLock = new Object();
+    private Thread mAsyncPrimingThread;
 
     public AsyncNodeEntityFactory(Detail d, EvaluationContext ec) {
         super(d, ec);
@@ -93,7 +87,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
 
         //Figure out sort keys
-        Vector<Integer> sortKeys = new Vector<Integer>();
+        Vector<Integer> sortKeys = new Vector<>();
         DetailField[] fields = getDetail().getFields();
 
         String validKeys = "(";
