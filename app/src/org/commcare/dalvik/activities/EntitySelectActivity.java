@@ -670,9 +670,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
 
     @Override
-    public void afterTextChanged(Editable s) {
-        if (getSearchText() == s) {
-            filterString = s.toString();
+    public void afterTextChanged(Editable incomingEditable) {
+        final String incomingString = incomingEditable.toString();
+        final String currentSearchText = getSearchText().toString();
+        if (incomingString.equals(currentSearchText)) {
+            filterString = currentSearchText;
             if (adapter != null) {
                 adapter.applyFilter(filterString);
             }
@@ -737,6 +739,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
+                        filterString = newText;
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -947,8 +950,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         if (inAwesomeMode) {
             updateSelectedItem(true);
         }
-
-        rebuildMenus();
 
         this.startTimer();
     }
