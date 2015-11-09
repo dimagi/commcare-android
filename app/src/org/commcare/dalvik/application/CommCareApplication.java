@@ -906,6 +906,7 @@ public class CommCareApplication extends Application {
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
         // supporting component replacement by other applications).
+        startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         mIsBinding = true;
     }
@@ -1050,6 +1051,7 @@ public class CommCareApplication extends Application {
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
+                stopService(new Intent(this, CommCareSessionService.class));
             }
         }
     }
