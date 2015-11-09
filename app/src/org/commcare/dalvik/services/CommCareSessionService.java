@@ -18,7 +18,6 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -27,6 +26,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -46,8 +46,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
- * a CommCare login session 
- * 
+ * a CommCare login session
+ *
  * @author ctsims
  *
  */
@@ -101,8 +101,8 @@ public class CommCareSessionService extends Service  {
     // Once key expiration process starts, we want to call this function to
     // save the current form if it exists.
     private FormSaveCallback formSaver;
-    
-    
+
+
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -164,7 +164,7 @@ public class CommCareSessionService extends Service  {
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new LocalBinder();
-    
+
     /**
      * Show a notification while this service is running.
      */
@@ -223,7 +223,7 @@ public class CommCareSessionService extends Service  {
         // Send the notification.
         mNM.notify(NOTIFICATION, notification);
     }
-    
+
     //Start CommCare Specific Functionality
 
     public SQLiteDatabase getUserDbHandle() {
@@ -256,27 +256,27 @@ public class CommCareSessionService extends Service  {
         synchronized(lock){
             if(user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
-                
+
                 //Let anyone who is listening know!
                 Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
                 this.sendBroadcast(i);
             }
-            
+
             this.user = user;
-            
+
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
-            
+
             // Display a notification about us starting.  We put an icon in the status bar.
             showLoggedInNotification(user);
-            
+
             maintenanceTimer = new Timer("CommCareService");
             maintenanceTimer.schedule(new TimerTask() {
-    
+
                 @Override
                 public void run() {
                     timeToExpireSession();
                 }
-                
+
             }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
         }
     }
@@ -422,84 +422,45 @@ public class CommCareSessionService extends Service  {
         }
     }
 
-    public Cipher getEncrypter() throws SessionUnavailableException {
-        synchronized(lock){
-            if(key == null) {
-                throw new SessionUnavailableException();
-            }
-            
-            synchronized(key) {
-    
-                SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                
-                try{
-                    Cipher encrypter = Cipher.getInstance("AES");
-                    encrypter.init(Cipher.ENCRYPT_MODE, spec);
-                    return encrypter;
-                } catch (InvalidKeyException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }
-    }
-    
-    public CipherPool getDecrypterPool() throws SessionUnavailableException{
-        synchronized(lock){
-            if(key == null) {
-                throw new SessionUnavailableException();
-            }
-            return pool;
-        }
-    }
-    
     public SecretKey createNewSymetricKey() {
         return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
     }
-    
+
     public User getLoggedInUser() throws SessionUnavailableException {
         if(user == null) {
             throw new SessionUnavailableException();
         }
         return user;
-    }    
-    
+    }
+
     public DataSubmissionListener startDataSubmissionListener() {
         return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
     }
-    
+
     public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
         return new DataSubmissionListener() {
             // START - Submission Listening Hooks
             int totalItems = -1;
             long currentSize = -1;
-            long totalSent = -1;
             Notification submissionNotification;
-            
+
             int lastUpdate = 0;
-            
+
             @Override
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
-                
+
                 String text = getSubmissionText(1, totalItems);
-                
+
                 // Set the icon, scrolling text and timestamp
-                submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
+                submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(totalItems), System.currentTimeMillis());
                 submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
 
                 //We always want this click to simply bring the live stack back to the top
                 Intent callable = new Intent(CommCareSessionService.this, CommCareHomeActivity.class);
                 callable.setAction("android.intent.action.MAIN");
                 callable.addCategory("android.intent.category.LAUNCHER");
-                
+
                 // The PendingIntent to launch our activity if the user selects this notification
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
@@ -510,10 +471,10 @@ public class CommCareSessionService extends Service  {
                 contentView.setTextViewText(R.id.progressText, text);
                 contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
 
-                
+
                 // Set the info for the views that show in the notification panel.
                 submissionNotification.setLatestEventInfo(CommCareSessionService.this, getString(notificationId), text, contentIntent);
-                
+
                 submissionNotification.contentView = contentView;
 
                 if(user != null) {
@@ -526,7 +487,7 @@ public class CommCareSessionService extends Service  {
             @Override
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
-                
+
                 submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
                 submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
                 mNM.notify(notificationId, submissionNotification);
@@ -535,23 +496,23 @@ public class CommCareSessionService extends Service  {
             @Override
             public void notifyProgress(int itemNumber, long progress) {
                 int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
-                
+
                 if(progressPercent - lastUpdate > 5) {
-                    
-                    String progressDetails = "";
+
+                    String progressDetails;
                     if(progress < 1024) {
                         progressDetails = progress + "b transmitted";
                     } else if (progress < 1024 * 1024) {
                         progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
                     } else {
-                        progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";    
+                        progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";
                     }
-                    
+
                     int pending = ProcessAndSendTask.pending();
                     if(pending > 1) {
                         submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
                     }
-                    
+
                     submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
                     submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
                     mNM.notify(notificationId, submissionNotification);
@@ -564,18 +525,17 @@ public class CommCareSessionService extends Service  {
                 submissionNotification = null;
                 totalItems = -1;
                 currentSize = -1;
-                totalSent = -1;
                 lastUpdate = 0;
             }
-            
+
             private String getSubmissionText(int current, int total) {
                 return current + "/" + total;
             }
-            
-            private String getTickerText(int current, int total) {
+
+            private String getTickerText(int total) {
                 return "CommCare submitting " + total +" forms";
             }
-            
+
             // END - Submission Listening Hooks
 
         };
