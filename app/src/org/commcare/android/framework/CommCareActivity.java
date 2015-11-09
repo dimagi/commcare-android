@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +35,6 @@ import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -136,14 +134,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         mGestureDetector = new GestureDetector(this, this);
-    }
-
-    protected void restoreLastQueryString(String key) {
-        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-        lastQueryString = settings.getString(key, null);
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Recovered lastQueryString: (" + lastQueryString + ")");
-        }
     }
 
     @Override
@@ -421,15 +411,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
     }
 
-    protected void saveLastQueryString(String key) {
-        SharedPreferences settings = getSharedPreferences(CommCarePreferences.ACTIONBAR_PREFS, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, lastQueryString);
-        editor.commit();
+    protected void restoreLastQueryString() {
+        lastQueryString = CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
+    }
 
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Saving lastQueryString: (" + lastQueryString + ") in file: " + CommCarePreferences.ACTIONBAR_PREFS);
-        }
+    protected void saveLastQueryString() {
+        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized
