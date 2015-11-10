@@ -17,6 +17,14 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
  */
 public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
+    /**
+     * For testing: allows for data instanced backed evaluation when an app
+     * isn't present.
+     */
+    public AndroidInstanceInitializer() {
+        super(null);
+    }
+
     public AndroidInstanceInitializer(CommCareSession session) {
         super(session, new AndroidSandbox(CommCareApplication._()), CommCareApplication._().getCommCarePlatform());
     }
