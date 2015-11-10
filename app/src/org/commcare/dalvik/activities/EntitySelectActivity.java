@@ -49,7 +49,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -780,12 +779,17 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        //only display the sort menu if we're going to be able to sort
-        //(IE: not until the items have loaded)
-        menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        menu.findItem(MENU_SORT).setEnabled(isSortEnabled());
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
+     * @return items are loaded and the async load strategy isn't being used
+     */
+    private boolean isSortEnabled() {
+        return adapter != null &&
+                !(shortSelect == null || shortSelect.useAsyncStrategy());
     }
 
     @Override
