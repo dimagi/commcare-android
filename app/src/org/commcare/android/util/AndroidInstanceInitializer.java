@@ -1,9 +1,11 @@
 package org.commcare.android.util;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.android.database.AndroidSandbox;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
@@ -17,6 +19,18 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     public AndroidInstanceInitializer(CommCareSession session) {
         super(session, new AndroidSandbox(CommCareApplication._()), CommCareApplication._().getCommCarePlatform());
+    }
+
+    @Override
+    protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
+        if(stockbase == null) {
+            SqlStorage<Ledger> storage = (SqlStorage<Ledger>)mSandbox.getLedgerStorage();
+            stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
+        } else {
+            //re-use the existing model if it exists.
+            stockbase.rebase(instance.getBase());
+        }
+        return stockbase;
     }
 
     @Override
