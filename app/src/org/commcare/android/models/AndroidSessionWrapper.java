@@ -48,13 +48,11 @@ public class AndroidSessionWrapper {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     protected CommCareSession session;
-    private CommCarePlatform platform;
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
-        this.platform = platform;
     }
 
     /**
