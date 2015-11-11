@@ -77,7 +77,7 @@
                             android:layout_height="wrap_content"
                             SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
                             SquareButtonWithText:img="@drawable/update_download"
-                            SquareButtonWithText:subtitle="Check"
+                            SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
@@ -94,7 +94,7 @@
                             android:layout_height="wrap_content"
                             SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
                             SquareButtonWithText:img="@drawable/install_stop"
-                            SquareButtonWithText:subtitle="Stop"
+                            SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
@@ -120,7 +120,7 @@
                             android:layout_height="wrap_content"
                             RectangleButtonWithText:backgroundColor="@color/cc_attention_positive_color"
                             RectangleButtonWithText:img="@drawable/install_start"
-                            RectangleButtonWithText:subtitle="Install"
+                            RectangleButtonWithText:subtitle=""
                             RectangleButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
