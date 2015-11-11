@@ -1,10 +1,14 @@
 package org.commcare.android.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
+import android.os.Build;
 import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.achartengine.ChartFactory;
@@ -21,6 +25,7 @@ import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
+import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -33,6 +38,7 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -95,7 +101,6 @@ public class GraphView {
     }
 
     private void render(GraphData data) throws InvalidStateException {
-        mData = data;
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
             renderSeries(s);
@@ -163,33 +168,29 @@ public class GraphView {
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData data) throws InvalidStateException {
-        render(data);
+        mData = data;
+        
+        WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
+        WebView webView = new WebView(mContext);
+        configureSettings(webView);
 
-        // Panning and zooming are allowed on in full-screen graphs (created by getIntent)
-        setPanAndZoom(false);
-
-        // Graph will not render correctly unless it has data, so
-        // add a dummy series if needed.
-        boolean hasPoints = false;
-        Vector<SeriesData> allSeries = data.getSeries();
-        for (int i = 0; i < allSeries.size() && !hasPoints; i++) {
-            hasPoints = hasPoints || allSeries.get(i).getPoints().size() > 0;
-        }
-        if (!hasPoints) {
-            SeriesData s = new SeriesData();
-            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-                s.addPoint(new BubblePointData("0", "0", "0"));
-            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
-                s.addPoint(new XYPointData(DateUtils.formatDate(new Date(), DateUtils.FORMAT_ISO8601), "0"));
-            } else {
-                s.addPoint(new XYPointData("0", "0"));
-            }
-            s.setConfiguration("line-color", "#00000000");
-            s.setConfiguration("point-style", "none");
-            renderSeries(s);
-        }
-
+        System.out.println("[jls] graphData = " + jsonifyGraph(data).toString());
+        String html =
+                "<html>" +
+                    "<head>" +
+                        "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/underscore.min.js'></script>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
+                        "<script type='text/javascript'>var graphData = " + jsonifyGraph(data).toString() + ";</script>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
+                    "</head>" +
+                    "<body><svg class='chart'></svg></body>" +
+                "</html>";
+        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+        return webView;
+        /*
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
         }
@@ -199,7 +200,63 @@ public class GraphView {
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
         }
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);
+        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
+    }
+
+    private void configureSettings(WebView view) {
+        WebSettings settings = view.getSettings();
+
+        settings.setJavaScriptEnabled(true);
+
+        // Improve performance
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
+        settings.setSupportZoom(false);
+    }
+
+    private JSONObject jsonifyGraph(GraphData data) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("type", data.getType());
+            JSONArray series = new JSONArray();
+            for (SeriesData s : data.getSeries()) {
+                series.put(jsonifySeries(s));
+            }
+            json.put("series", series);
+            json.put("configuration", jsonifyConfigurable(data));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    private JSONObject jsonifySeries(SeriesData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        JSONArray points = new JSONArray();
+        for (XYPointData p : data.getPoints()) {
+            points.put(jsonifyXYPoint(p));
+        }
+        json.put("points", points);
+        json.put("configuration", jsonifyConfigurable(data));
+        return json;
+    }
+
+    private JSONObject jsonifyXYPoint(XYPointData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("x", data.getX());
+        json.put("y", data.getY());
+        return json;
+    }
+
+    private JSONObject jsonifyConfigurable(ConfigurableData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        Enumeration e = data.getConfigurationKeys();
+        while (e.hasMoreElements()) {
+            String key = (String) e.nextElement();
+            json.put(key, data.getConfiguration(key));
+        }
+        return json;
     }
 
     /**

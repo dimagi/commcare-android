@@ -179,6 +179,7 @@ public class EntityView extends LinearLayout {
             } else if (FORM_IMAGE.equals(form)) {
                 setupImageLayout(view, (String) field);
             } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+                // TODO
                 int orientation = getResources().getConfiguration().orientation;
                 GraphView g = new GraphView(context, "");
                 View rendered = null;
