@@ -1032,9 +1032,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         }
                         break group_skip;
                     case FormEntryController.EVENT_END_OF_FORM:
-                        Logger.log(AndroidLogger.SOFT_ASSERT,
-                                "Trying to show an end of form event");
-                        saveFormToDisk(EXIT, null, false);
+                        // auto-advance questions might advance past the last form quesion
+                        triggerUserFormComplete();
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
