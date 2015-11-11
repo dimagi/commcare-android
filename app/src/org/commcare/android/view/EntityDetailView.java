@@ -271,6 +271,7 @@ public class EntityDetailView extends FrameLayout {
             }
 
             // Fetch full-screen graph intent from cache, or create it
+            // TODO: implement full-screen view
             /*Intent graphIntent = graphIntentsCache.get(index);
             if (graphIntent == null && !graphsWithErrors.contains(index)) {
                 GraphView g = new GraphView(context, labelText);
