@@ -55,6 +55,10 @@ public class AndroidSessionWrapper {
         session = new CommCareSession(platform);
     }
 
+    public AndroidSessionWrapper(CommCareSession session) {
+        this.session = session;
+    }
+
     /**
      * Serialize the state of this session so it can be restored
      * at a later time.
