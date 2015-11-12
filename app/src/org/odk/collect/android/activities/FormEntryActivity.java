@@ -10,13 +10,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -24,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -223,6 +227,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
+    private boolean mGroupForcedInvisible = false;
+    private boolean mGroupNativeVisibility = false;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -369,6 +375,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         });
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
+
+        requestMajorLayoutUpdates();
 
         // re-set defaults in case the app got in a bad state.
         isAnimatingSwipe = false;
@@ -1024,9 +1032,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         }
                         break group_skip;
                     case FormEntryController.EVENT_END_OF_FORM:
-                        Logger.log(AndroidLogger.SOFT_ASSERT,
-                                "Trying to show an end of form event");
-                        saveFormToDisk(EXIT, null, false);
+                        // auto-advance questions might advance past the last form quesion
+                        triggerUserFormComplete();
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
@@ -1173,8 +1180,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
-        header.setVisibility(View.GONE);
-        groupLabel.setVisibility(View.GONE);
+        this.mGroupNativeVisibility = false;
+        this.updateGroupViewVisibility();
 
         if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
@@ -1183,8 +1190,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
             if(groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
                 groupLabel.setText(groupLabelText);
-                header.setVisibility(View.VISIBLE);
-                groupLabel.setVisibility(View.VISIBLE);
+                this.mGroupNativeVisibility = true;
+                updateGroupViewVisibility();
             }
         } else {
             InputMethodManager inputManager =
@@ -2444,4 +2451,87 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private void setFormLoadFailure() {
         hasFormLoadFailed = true;
     }
+
+    @Override
+    protected void onMajorLayoutChange(Rect newRootViewDimensions) {
+        determineNumberOfValidGroupLines(newRootViewDimensions);
+    }
+
+
+    private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        int contentSize = newRootViewDimensions.height();
+
+        View navBar = this.findViewById(R.id.nav_pane);
+        int headerSize = navBar.getHeight();
+        if(headerSize == 0) {
+            headerSize = this.getResources().getDimensionPixelSize(R.dimen.new_progressbar_minheight);
+        }
+
+        int availableWindow = contentSize - headerSize - getActionBarSize();
+
+        int questionFontSize = getFontSizeInPx();
+
+        //Request a consistent amount of the screen before groups can cut down
+
+        int spaceRequested = questionFontSize * 6;
+
+        int spaceAvailable = availableWindow - spaceRequested;
+
+        int defaultHeaderSpace = this.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
+
+        float textSize = groupLabel.getTextSize();
+
+        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
+
+        if(numberOfGroupLinesAllowed < 0) {
+            numberOfGroupLinesAllowed = 0;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
+                return;
+            }
+        }
+
+        if(numberOfGroupLinesAllowed == 0) {
+            this.mGroupForcedInvisible = true;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(0);
+        } else {
+            this.mGroupForcedInvisible = false;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+        }
+    }
+
+    private void updateGroupViewVisibility() {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        if(mGroupNativeVisibility && !mGroupForcedInvisible) {
+            header.setVisibility(View.VISIBLE);
+            groupLabel.setVisibility(View.VISIBLE);
+        } else {
+            header.setVisibility(View.GONE);
+            groupLabel.setVisibility(View.GONE);
+
+        }
+    }
+
+    private int getFontSizeInPx() {
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String question_font =
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+
+        int sizeInPx = Integer.valueOf(question_font);
+
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+                getResources().getDisplayMetrics());
+
+    }
+
 }

@@ -24,6 +24,8 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.util.Calendar;
+
 import static org.junit.Assert.fail;
 
 /**
@@ -141,8 +143,13 @@ public class AutoUpdateTest {
 
         // shouldn't be ready for update if last check was 3 hours ago
         long checkedThreeHoursAgo = DateTime.now().minusHours(3).getMillis();
-        Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
-                CommCarePreferences.FREQUENCY_DAILY));
+        if (isSameDayAsNow(checkedThreeHoursAgo)) {
+            Assert.assertFalse(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
+                    CommCarePreferences.FREQUENCY_DAILY));
+        } else {
+            Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(checkedThreeHoursAgo,
+                    CommCarePreferences.FREQUENCY_DAILY));
+        }
 
         // test different calendar day less than 24 hours ago trigger when
         // checking every day
@@ -170,5 +177,15 @@ public class AutoUpdateTest {
         long weekLater = DateTime.now().plusWeeks(1).getMillis();
         Assert.assertTrue(CommCareApplication._().isTimeForAutoUpdateCheck(weekLater,
                 CommCarePreferences.FREQUENCY_DAILY));
+    }
+
+    private static boolean isSameDayAsNow(long checkTime) {
+        return getDayOfWeek(checkTime) == Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
+    }
+
+    private static int getDayOfWeek(long time) {
+        Calendar lastRestoreCalendar = Calendar.getInstance();
+        lastRestoreCalendar.setTimeInMillis(time);
+        return lastRestoreCalendar.get(Calendar.DAY_OF_WEEK);
     }
 }
