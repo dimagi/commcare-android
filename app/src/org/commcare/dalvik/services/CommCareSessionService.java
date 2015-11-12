@@ -589,8 +589,9 @@ public class CommCareSessionService extends Service  {
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
     }
 
-    public void setCurrentUser(User user){
+    public void setCurrentUser(User user, String password){
         this.user = user;
+        this.user.setCachedPwd(password);
         this.key = user.getWrappedKey();
     }
 }
