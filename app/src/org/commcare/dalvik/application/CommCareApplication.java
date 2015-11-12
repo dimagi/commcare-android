@@ -914,9 +914,7 @@ public class CommCareApplication extends Application {
 
     public User getCurrentUserFromDB(String username){
         for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
-            System.out.println("user: " + u);
             if (username.equals(u.getUsername())) {
-                System.out.println("User found: " + u);
                 return u;
             }
         }
