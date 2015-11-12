@@ -32,10 +32,12 @@ class UpdateUIState {
 
     private final UpdateActivity activity;
 
+    private final String startCheckingText =
+            Localization.get("updates.check.start");
     private final String stopCheckingText =
             Localization.get("updates.check.cancel");
-    private final String upgradeFinishedText =
-            Localization.get("updates.install.finished");
+    private final String installText =
+            Localization.get("updates.check.install");
     private final String cancellingMsg =
             Localization.get("updates.check.cancelling");
     private final String beginCheckingText =
@@ -49,7 +51,7 @@ class UpdateUIState {
 
     private enum UIState {
         Idle, UpToDate, FailedCheck, Downloading, UnappliedUpdateAvailable,
-        Cancelling, Error, NoConnectivity, UpdateInstalled
+        Cancelling, Error, NoConnectivity
     }
 
     private UIState currentUIState;
@@ -81,6 +83,7 @@ class UpdateUIState {
                 activity.startUpdateCheck();
             }
         });
+        checkUpdateButton.setText(startCheckingText);
 
         stopUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
@@ -100,6 +103,7 @@ class UpdateUIState {
                 activity.lauchUpdateInstallTask();
             }
         });
+        installUpdateButton.setText(installText);
     }
 
     protected void upToDateUiState() {
@@ -185,18 +189,6 @@ class UpdateUIState {
         updateProgressText(noConnectivityMsg);
     }
 
-    protected void updateInstalledUiState() {
-        currentUIState = UIState.UpdateInstalled;
-        checkUpdateButton.setEnabled(true);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
-        updateProgressBar(100, 100);
-        progressBar.setEnabled(false);
-        updateProgressText(upgradeFinishedText);
-
-        refreshStatusText();
-    }
-
     protected void updateProgressText(String msg) {
         progressText.setText(msg);
     }
@@ -262,9 +254,6 @@ class UpdateUIState {
                 break;
             case NoConnectivity:
                 noConnectivityUiState();
-                break;
-            case UpdateInstalled:
-                updateInstalledUiState();
                 break;
             default:
                 break;

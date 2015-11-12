@@ -82,6 +82,10 @@ ext {
             "HaAJkjpnc165Os+aYwIDAQAB";
 }
 
+def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
+def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
+def ccDomainSafe = ccDomain.replaceAll("-", "")
+
 /**
  * Get the version code from command line param
  * 
@@ -123,8 +127,18 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 22
+        applicationId "org.commcare.dalvik"
+        def odkProviderStr = "org.commcare.android.provider.odk"
+        manifestPlaceholders = [ odkProvider:odkProviderStr]
 
         versionCode getVersionCode()
+
+        // when set, app won't show install screen and try to install
+        // resources from assets folder
+        buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
+
+        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+        buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
         buildConfigField "String", "ACRA_URL", "\"${project.ext.ACRA_URL}\""
         buildConfigField "String", "ACRA_PASSWORD", "\"${project.ext.ACRA_PASSWORD}\""
@@ -161,8 +175,13 @@ android {
         renderscript.srcDirs = ['app/src']
         res.srcDirs = ['app/res']
         assets.srcDirs = ['app/assets']
-
       }
+
+      standalone {
+        res.srcDirs = ['app/standalone/res']
+        assets.srcDirs = ['app/standalone/assets']
+      }
+
       test {
         java.srcDirs = ['unit-tests/src/']
         resources.srcDirs = ['unit-tests/resources/']
@@ -179,6 +198,26 @@ android {
       // by a similar customization.
       debug.setRoot('build-types/debug')
       release.setRoot('build-types/release')
+    }
+    productFlavors {
+      commcare {
+        // builds normal commcare
+        // use the settings from defaultConfig
+      }
+      standalone {
+        // Builds commcare w/ ccz app packaged in the apk.
+        // Must be invoked from command-line w/ args pointing to app domain &
+        // id
+
+        applicationId "org.commcare.${ccDomainSafe}"
+        def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
+        manifestPlaceholders = [ odkProvider:odkProviderStr]
+
+        buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
+        // include this again so that the value get reloaded
+        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+        buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+      }
     }
 
     buildTypes {
@@ -202,5 +241,43 @@ android {
               systemProperty 'robolectric.logging', 'stdout'
         }
     }
+}
 
+/**
+ * Download and unpack commcare app associated with 'cc_app_id' into assets
+ * folder
+ */
+task downloadCCApp(type: Exec)
+
+// task configuration phase
+downloadCCApp {
+    workingDir '.'
+
+    commandLine 'bash', 'scripts/download_app_into_standalone_asset.sh', ccDomain, ccAppId, android.sourceSets.standalone.assets.srcDirs.first()
+
+    ignoreExitValue = true
+
+    doLast {
+         if (execResult.exitValue != 0) {
+             throw new GradleException("exec failed; see output above")
+         }
+    }
+}
+
+// dynamic check at task execution time
+downloadCCApp << {
+    if (ccAppId.equals("")) {
+        throw new InvalidUserDataException("Please provide cc_app_id property (CommCare App ID) to be packaged with apk")
+    }
+    if (ccDomain.equals("")) {
+        throw new InvalidUserDataException("Please provide cc_domain property (CommCare App Domain) to be packaged with apk")
+    }
+}
+
+// dynamically inject commcare app download into standalone build process
+tasks.whenTaskAdded { task ->
+    if (task.name == 'processStandaloneDebugResources' ||
+            task.name == 'processStandaloneReleaseResources') {
+        task.dependsOn downloadCCApp
+    }
 }

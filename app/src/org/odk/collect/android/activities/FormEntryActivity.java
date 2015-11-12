@@ -10,13 +10,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -24,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -203,7 +207,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
-    private boolean mBeenSwiped;
+    private boolean isAnimatingSwipe;
+    private boolean isDialogShowing;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
@@ -222,6 +227,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
+    private boolean mGroupForcedInvisible = false;
+    private boolean mGroupNativeVisibility = false;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -369,7 +376,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
-        mBeenSwiped = false;
+        requestMajorLayoutUpdates();
+
+        // re-set defaults in case the app got in a bad state.
+        isAnimatingSwipe = false;
+        isDialogShowing = false;
         mCurrentView = null;
         mInAnimation = null;
         mOutAnimation = null;
@@ -856,7 +867,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                                         (failOnRequired ||
                                                 saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
                             if (!headless) {
-                                createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
+                                showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
                             }
                             success = false;
                         }
@@ -1021,9 +1032,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         }
                         break group_skip;
                     case FormEntryController.EVENT_END_OF_FORM:
-                        Logger.log(AndroidLogger.SOFT_ASSERT,
-                                "Trying to show an end of form event");
-                        saveFormToDisk(EXIT, null, false);
+                        // auto-advance questions might advance past the last form quesion
+                        triggerUserFormComplete();
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
@@ -1064,8 +1074,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 Logger.exception(e);
                 CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             }
-        } else {
-            mBeenSwiped = false;
         }
     }
 
@@ -1106,7 +1114,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     //If not, don't even bother changing the view. 
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
-                    mBeenSwiped = false;
                     FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
@@ -1127,9 +1134,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
 
         } else {
-            //NOTE: this needs to match the exist condition above
-            //when there is no start screen
-            mBeenSwiped = false;
             FormEntryActivity.this.triggerUserQuitInput();
         }
     }
@@ -1176,8 +1180,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
-        header.setVisibility(View.GONE);
-        groupLabel.setVisibility(View.GONE);
+        this.mGroupNativeVisibility = false;
+        this.updateGroupViewVisibility();
 
         if (mCurrentView instanceof ODKView) {
             ((ODKView) mCurrentView).setFocus(this);
@@ -1186,8 +1190,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
             if(groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
                 groupLabel.setText(groupLabelText);
-                header.setVisibility(View.VISIBLE);
-                groupLabel.setVisibility(View.VISIBLE);
+                this.mGroupNativeVisibility = true;
+                updateGroupViewVisibility();
             }
         } else {
             InputMethodManager inputManager =
@@ -1199,7 +1203,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
-    private void createConstraintToast(FormIndex index, String constraintText, int saveStatus, boolean requestFocus) {
+    private void showConstraintWarning(FormIndex index, String constraintText,
+                                       int saveStatus, boolean requestFocus) {
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -1224,7 +1229,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(!displayed) {
             showCustomToast(constraintText, Toast.LENGTH_SHORT);
         }
-        mBeenSwiped = false;
+        isAnimatingSwipe = false;
     }
 
     private void showCustomToast(String message, int duration) {
@@ -1249,17 +1254,27 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * current group.
      */
     private void createRepeatDialog() {
+        isDialogShowing = true;
+
         ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        
+
         View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
 
         AlertDialog repeatDialog = new AlertDialog.Builder(wrapper).create();
-        
+
         final AlertDialog theDialog = repeatDialog;
-        
+
         repeatDialog.setView(view);
-        
+
         repeatDialog.setIcon(android.R.drawable.ic_dialog_info);
+        repeatDialog.setOnDismissListener(
+                new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface d) {
+                        isDialogShowing = false;
+                    }
+                }
+        );
         
         FormNavigationController.NavigationDetails details;
         try {
@@ -1274,7 +1289,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
-        
+
         back.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1300,12 +1315,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                                 CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
                                 return;
                             }
-                            showNextView();				
+                            showNextView();
 			}
         });
-        
+
         Button skip = (Button)view.findViewById(R.id.component_repeat_skip);
-        
+
         skip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1359,7 +1374,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(backExitsForm) {
         	back.setCompoundDrawables(null, exitIcon, null, null);
         }
-        mBeenSwiped = false;
     }
 
     private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
@@ -1960,21 +1974,25 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             	triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if (event.isAltPressed() && !mBeenSwiped) {
-                    mBeenSwiped = true;
+                if (event.isAltPressed() && !shouldIgnoreSwipeAction()) {
+                    isAnimatingSwipe = true;
                     showNextView();
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if (event.isAltPressed() && !mBeenSwiped) {
-                    mBeenSwiped = true;
+                if (event.isAltPressed() && !shouldIgnoreSwipeAction()) {
+                    isAnimatingSwipe = true;
                     showPreviousView(true);
                     return true;
                 }
                 break;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private boolean shouldIgnoreSwipeAction() {
+        return isAnimatingSwipe || isDialogShowing;
     }
 
     @Override
@@ -2001,7 +2019,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     @Override
     public void onAnimationEnd(Animation arg0) {
-        mBeenSwiped = false;
+        isAnimatingSwipe = false;
     }
 
     @Override
@@ -2128,8 +2146,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     }
 
     private void next() {
-        if (!mBeenSwiped) {
-            mBeenSwiped = true;
+        if (!shouldIgnoreSwipeAction()) {
+            isAnimatingSwipe = true;
             showNextView();
         }
     }
@@ -2202,7 +2220,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         //swipe forward.
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
-            showNextView();
+            next();
             return true;
         }
         return false;
@@ -2433,4 +2451,87 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private void setFormLoadFailure() {
         hasFormLoadFailed = true;
     }
+
+    @Override
+    protected void onMajorLayoutChange(Rect newRootViewDimensions) {
+        determineNumberOfValidGroupLines(newRootViewDimensions);
+    }
+
+
+    private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        int contentSize = newRootViewDimensions.height();
+
+        View navBar = this.findViewById(R.id.nav_pane);
+        int headerSize = navBar.getHeight();
+        if(headerSize == 0) {
+            headerSize = this.getResources().getDimensionPixelSize(R.dimen.new_progressbar_minheight);
+        }
+
+        int availableWindow = contentSize - headerSize - getActionBarSize();
+
+        int questionFontSize = getFontSizeInPx();
+
+        //Request a consistent amount of the screen before groups can cut down
+
+        int spaceRequested = questionFontSize * 6;
+
+        int spaceAvailable = availableWindow - spaceRequested;
+
+        int defaultHeaderSpace = this.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
+
+        float textSize = groupLabel.getTextSize();
+
+        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
+
+        if(numberOfGroupLinesAllowed < 0) {
+            numberOfGroupLinesAllowed = 0;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
+                return;
+            }
+        }
+
+        if(numberOfGroupLinesAllowed == 0) {
+            this.mGroupForcedInvisible = true;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(0);
+        } else {
+            this.mGroupForcedInvisible = false;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+        }
+    }
+
+    private void updateGroupViewVisibility() {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        if(mGroupNativeVisibility && !mGroupForcedInvisible) {
+            header.setVisibility(View.VISIBLE);
+            groupLabel.setVisibility(View.VISIBLE);
+        } else {
+            header.setVisibility(View.GONE);
+            groupLabel.setVisibility(View.GONE);
+
+        }
+    }
+
+    private int getFontSizeInPx() {
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String question_font =
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+
+        int sizeInPx = Integer.valueOf(question_font);
+
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+                getResources().getDisplayMetrics());
+
+    }
+
 }

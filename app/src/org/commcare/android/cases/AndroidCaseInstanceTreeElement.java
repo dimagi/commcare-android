@@ -3,7 +3,6 @@ package org.commcare.android.cases;
 import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.cases.instance.CaseChildElement;
@@ -24,7 +23,6 @@ import java.util.Vector;
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
-    SqlStorageIterator<ACase> iter;
     CaseIndexTable mCaseIndexTable;
 
     protected Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
@@ -38,7 +36,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         mCaseIndexTable = caseIndexTable;
     }
 
-
+    @Override
     protected synchronized void getCases() {
         if (cases != null) {
             return;
@@ -153,7 +151,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         return ids;
     }
 
-
     public String getCacheIndex(TreeReference ref) {
         //NOTE: there's no evaluation here as to whether the ref is suitable
         //we only follow one pattern for now and it's evaluated below. 
@@ -172,7 +169,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         }
         return null;
     }
-
 
     @Override
     public boolean isReferencePatternCachable(TreeReference ref) {
