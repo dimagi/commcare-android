@@ -253,7 +253,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             try {
                 updateInstanceDatabase(false, canEditAfterCompleted);
             } catch (SQLException e) {
-                Log.e(TAG, "Error creating database entries for form.");
+                Log.e(TAG, "Error creating database entries for form: " + e);
                 e.printStackTrace();
                 return false;
             }
