@@ -22,12 +22,14 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 
-public class DeveloperPreferences extends SessionAwarePreferenceActivity {
+public class DeveloperPreferences extends SessionAwarePreferenceActivity
+    implements SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
@@ -35,9 +37,19 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
-    // Does the user want to download the latest app version deployed (built),
-    // not just the latest app version released (starred)?
+
+    /**
+     * Stores last used password and performs auto-login when that password is
+     * present
+     */
+    public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
+
+    /**
+     * Does the user want to download the latest app version deployed (built),
+     * not just the latest app version released (starred)?
+     */
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
     public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
     private static final String KEY_TARGET_DENSITY = "cc-target-density";
@@ -54,6 +66,30 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
 
         addPreferencesFromResource(R.xml.preferences_developer);
         setTitle("Developer Preferences");
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(ENABLE_AUTO_LOGIN) &&
+                (sharedPreferences.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.NO))) {
+            DevSessionRestorer.clearPassword(sharedPreferences);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**
@@ -116,6 +152,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity {
     public static boolean isNewestAppVersionEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static boolean isAutoLoginEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isMarkdownEnabled(){
