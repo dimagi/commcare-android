@@ -122,7 +122,12 @@ import javax.crypto.SecretKey;
         reportType = org.acra.sender.HttpSender.Type.JSON,
         httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends MultiDexApplication {
+
     private static final String TAG = CommCareApplication.class.getSimpleName();
+
+    // Tracking ids for Google Analytics
+    private static final String LIVE_TRACKING_ID = "UA-69708208-1";
+    private static final String DEV_TRACKING_ID = "UA-69708208-2";
 
     private static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
@@ -329,8 +334,9 @@ public class CommCareApplication extends MultiDexApplication {
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
-            //mTracker = analytics.newTracker(R.xml.global_tracker);
+            // TODO: AMS Figure out how to set this conditionally
+            // TODO: AMS Likely want to enable auto- activity tracking
+            mTracker = analytics.newTracker(DEV_TRACKING_ID);
         }
         return mTracker;
     }

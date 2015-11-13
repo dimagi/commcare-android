@@ -11,16 +11,17 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -180,6 +181,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getViewOldFormsListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED);
                 activity.goToFormArchive(false);
             }
         };
@@ -188,6 +190,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getSyncButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC);
                 activity.attemptSync();
             }
         };
@@ -196,6 +199,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getStartButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_START);
                 activity.enterRootModule();
             }
         };
@@ -204,6 +208,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getIncompleteButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE);
                 activity.goToFormArchive(true);
             }
         };
@@ -212,10 +217,23 @@ public class HomeActivityUIController {
     private View.OnClickListener getLogoutButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT);
                 CommCareApplication._().closeUserSession();
                 activity.returnToLogin();
             }
         };
+    }
+
+    private void reportButtonClick(String label) {
+        getTracker().send(new HitBuilders.EventBuilder()
+                .setCategory(GoogleAnalyticsFields.CATEGORY_BASIC)
+                .setAction(GoogleAnalyticsFields.ACTION_BUTTON)
+                .setLabel(label)
+                .build());
+    }
+
+    private Tracker getTracker() {
+        return CommCareApplication._().getDefaultTracker();
     }
 
     private void setSyncButtonText(String syncTextKey) {

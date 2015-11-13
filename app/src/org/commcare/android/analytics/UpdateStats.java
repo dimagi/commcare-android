@@ -1,4 +1,4 @@
-package org.commcare.android.resource.analytics;
+package org.commcare.android.analytics;
 
 import android.content.SharedPreferences;
 import android.util.Base64;
