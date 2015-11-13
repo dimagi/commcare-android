@@ -25,7 +25,7 @@ public class XPathErrorStats implements Serializable {
      * @return Persistently-stored update stats or if no stats found then a new
      * update stats object.
      */
-    public static XPathErrorStats loadStats(CommCareApp app) {
+    private static XPathErrorStats loadStats(CommCareApp app) {
         Object stats = PrefStats.loadStats(app, XPATH_ERROR_STATS_KEY);
         if (stats != null) {
             return (XPathErrorStats)stats;
@@ -64,13 +64,21 @@ public class XPathErrorStats implements Serializable {
     /**
      * Wipe stats associated with upgrade table from app preferences.
      */
-    public static void clearStats(CommCareApp app) {
+    public static void clearStats() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
         PrefStats.clearPersistedStats(app, XPATH_ERROR_STATS_KEY);
     }
 
-    public void addError(String expression, String errorMessage) {
+    private void addError(String expression, String errorMessage) {
         XPathErrorEntry error = new XPathErrorEntry(expression, errorMessage);
         errors.add(error);
+    }
+
+    public static ArrayList<XPathErrorEntry> getErrors() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        XPathErrorStats stats = loadStats(app);
+
+        return stats.errors;
     }
 
     @Override

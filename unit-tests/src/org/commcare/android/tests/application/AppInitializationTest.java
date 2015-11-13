@@ -6,7 +6,6 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
@@ -28,6 +27,9 @@ public class AppInitializationTest {
 
     @Before
     public void setup() {
+        String appPath = "jr://resource/commcare-apps/archive_form_tests/profile.ccpr";
+        String username = "test";
+        String password = "123";
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -35,8 +37,8 @@ public class AppInitializationTest {
         TestAppInstaller.setupPrototypeFactory();
 
         TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
-                        "test", "123");
+                new TestAppInstaller(
+                        appPath, username, password);
         appTestInstaller.installAppAndLogin();
     }
 
