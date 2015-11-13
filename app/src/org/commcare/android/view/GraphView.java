@@ -164,6 +164,48 @@ public class GraphView {
         }
     }
 
+    private JSONObject getC3Config() {
+        JSONObject config = new JSONObject();
+        try {
+            // Actual data: array of arrays, where first element is a string id
+            // and later elements are data, either x values or y values.
+            JSONArray columns = new JSONArray();
+
+            // Hash that pairs up the arrays defined in columns,
+            // y-values-array-id => x-values-array-id
+            JSONObject xs = new JSONObject();
+
+            int seriesIndex = 0;
+            for (SeriesData s : mData.getSeries()) {
+                JSONArray xValues = new JSONArray();
+                JSONArray yValues = new JSONArray();
+
+                String xID = "x" + seriesIndex;
+                String yID = "y" + seriesIndex;
+                xs.put(yID, xID);
+
+                xValues.put(xID);
+                yValues.put(yID);
+                for (XYPointData p : s.getPoints()) {
+                    xValues.put(p.getX());
+                    yValues.put(p.getY());
+                }
+                columns.put(xValues);
+                columns.put(yValues);
+
+                seriesIndex++;
+            }
+
+            JSONObject data = new JSONObject();
+            data.put("xs", xs);
+            data.put("columns", columns);
+            config.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();    // TODO: don't fail silently
+        }
+        return config;
+    }
+
     /*
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
@@ -176,33 +218,6 @@ public class GraphView {
         WebView webView = new WebView(mContext);
         configureSettings(webView);
 
-        JSONObject c3config = new JSONObject();
-        try {
-            JSONArray x1 = new JSONArray();
-            x1.put("x1");
-            x1.put(2);
-            x1.put(4);
-            x1.put(5);
-            x1.put(7);
-            JSONArray y1 = new JSONArray();
-            y1.put("y1");
-            y1.put(2);
-            y1.put(3);
-            y1.put(7);
-            y1.put(8);
-            JSONArray c3columns = new JSONArray();
-            c3columns.put(x1);
-            c3columns.put(y1);
-            JSONObject c3xs = new JSONObject();
-            c3xs.put("y1", "x1");
-            JSONObject c3data = new JSONObject();
-            c3data.put("xs", c3xs);
-            c3data.put("columns", c3columns);
-            c3config.put("data", c3data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         String html =
                 "<html>" +
                     "<head>" +
@@ -210,7 +225,7 @@ public class GraphView {
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-                        "<script type='text/javascript'>var config = " + c3config.toString() + ";</script>" +
+                        "<script type='text/javascript'>var config = " + getC3Config().toString() + ";</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
                     "<body><div id='chart'></div></body>" +
@@ -240,50 +255,6 @@ public class GraphView {
 
         // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
         settings.setSupportZoom(false);
-    }
-
-    private JSONObject jsonifyGraph(GraphData data) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("type", data.getType());
-            JSONArray series = new JSONArray();
-            for (SeriesData s : data.getSeries()) {
-                series.put(jsonifySeries(s));
-            }
-            json.put("series", series);
-            json.put("configuration", jsonifyConfigurable(data));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
-
-    private JSONObject jsonifySeries(SeriesData data) throws JSONException {
-        JSONObject json = new JSONObject();
-        JSONArray points = new JSONArray();
-        for (XYPointData p : data.getPoints()) {
-            points.put(jsonifyXYPoint(p));
-        }
-        json.put("points", points);
-        json.put("configuration", jsonifyConfigurable(data));
-        return json;
-    }
-
-    private JSONObject jsonifyXYPoint(XYPointData data) throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("x", data.getX());
-        json.put("y", data.getY());
-        return json;
-    }
-
-    private JSONObject jsonifyConfigurable(ConfigurableData data) throws JSONException {
-        JSONObject json = new JSONObject();
-        Enumeration e = data.getConfigurationKeys();
-        while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
-            json.put(key, data.getConfiguration(key));
-        }
-        return json;
     }
 
     /**
