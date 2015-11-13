@@ -145,23 +145,6 @@ public class GraphView {
         mRenderer.setPanEnabled(allow, allow);
         mRenderer.setZoomEnabled(allow, allow);
         mRenderer.setZoomButtonsVisible(allow);
-        if (allow) {
-            DefaultRenderer.Location loc = stringToLocation(mData.getConfiguration("zoom-location", "bottom-right"));
-            mRenderer.setZoomLocation(loc);
-        }
-    }
-
-    private DefaultRenderer.Location stringToLocation(String str) {
-        switch (str) {
-            case "top-left":
-                return DefaultRenderer.Location.TOP_LEFT;
-            case "top-right":
-                return DefaultRenderer.Location.TOP_RIGHT;
-            case "bottom-left":
-                return DefaultRenderer.Location.BOTTOM_LEFT;
-            default:
-                return DefaultRenderer.Location.BOTTOM_RIGHT;
-        }
     }
 
     private JSONObject getC3DataConfig() throws JSONException {
