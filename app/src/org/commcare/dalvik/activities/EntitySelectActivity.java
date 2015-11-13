@@ -49,7 +49,6 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -281,7 +280,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
-        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+
+        restoreLastQueryString();
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
@@ -488,7 +488,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     protected void onStop() {
         super.onStop();
         stopTimer();
-        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString();
     }
 
     /**
@@ -670,9 +670,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
 
     @Override
-    public void afterTextChanged(Editable s) {
-        if (getSearchText() == s) {
-            filterString = s.toString();
+    public void afterTextChanged(Editable incomingEditable) {
+        final String incomingString = incomingEditable.toString();
+        final String currentSearchText = getSearchText().toString();
+        if (incomingString.equals(currentSearchText)) {
+            filterString = currentSearchText;
             if (adapter != null) {
                 adapter.applyFilter(filterString);
             }
@@ -737,6 +739,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
+                        filterString = newText;
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -946,8 +949,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         if (inAwesomeMode) {
             updateSelectedItem(true);
         }
-
-        rebuildMenus();
 
         this.startTimer();
     }

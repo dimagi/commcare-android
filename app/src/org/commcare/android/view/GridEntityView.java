@@ -255,26 +255,6 @@ public class GridEntityView extends GridLayout {
 
         this.setBackgroundDrawable(null);
 
-        // see if any entities have background data set
-        for (int i = 0; i < bgData.length; i++) {
-            if (!"".equals(bgData[i])) {
-                switch (bgData[i]) {
-                    case ("red-border"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-                        break;
-                    case ("yellow-border"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-                        break;
-                    case ("red-background"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
-                        break;
-                    case ("yellow-background"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
-                        break;
-                }
-            }
-        }
-
         this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
 
         // iterate through every entity to be inserted in this view

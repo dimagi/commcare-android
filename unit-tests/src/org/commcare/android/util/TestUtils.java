@@ -160,9 +160,9 @@ public class TestUtils {
     public static EvaluationContext getInstanceBackedEvaluationContext() {
         final SQLiteDatabase db = getTestDb();
         
-        CommCareInstanceInitializer iif = new CommCareInstanceInitializer(null) {
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer() {
             @Override
-            public AbstractTreeElement generateRoot(ExternalDataInstance instance) {
+            public AbstractTreeElement setupCaseData(ExternalDataInstance instance) {
                 SqlStorage<ACase> storage = getCaseStorage(db);
                 AndroidCaseInstanceTreeElement casebase = new AndroidCaseInstanceTreeElement(instance.getBase(), storage, false, new CaseIndexTable(db));
                 instance.setCacheHost(casebase);

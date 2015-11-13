@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:scrollbars="none">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+                    xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/screen_first_start_main"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

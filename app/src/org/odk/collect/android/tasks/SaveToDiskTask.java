@@ -16,6 +16,7 @@ import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
@@ -253,7 +254,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             try {
                 updateInstanceDatabase(false, canEditAfterCompleted);
             } catch (SQLException e) {
-                Log.e(TAG, "Error creating database entries for form.");
+                Logger.exception("Error creating database entries for form", e);
                 e.printStackTrace();
                 return false;
             }
