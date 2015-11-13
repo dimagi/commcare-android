@@ -148,19 +148,48 @@ public class GraphView {
     }
 
     private JSONObject getC3AxisConfig() throws JSONException {
-        JSONObject config = new JSONObject();
-
+        JSONObject x = new JSONObject();
+        JSONObject y = new JSONObject();
+        JSONObject y2 = new JSONObject();
         if (Boolean.valueOf(mData.getConfiguration("show-axes", "true")).equals(Boolean.FALSE)) {
-            JSONObject show = new JSONObject();
-            show.put("show", false);
-            config.put("x", show);
-            config.put("y", show);
-            config.put("y2", show);
+            JSONObject show = new JSONObject("{ show: false }");
+            x = show;
+            y = show;
+            y2 = show;
         } else {
+            // Undo C3's automatic axis padding
+            JSONObject padding = new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}");
+            x.put("padding", padding);
+            y.put("padding", padding);
+            y2.put("padding", padding);
 
+            // Axis titles
+            x = addC3AxisLabel(x, "x-title", "outer-center");
+            y = addC3AxisLabel(y, "y-title", "outer-middle");
+            y2 = addC3AxisLabel(y2, "secondary-y-title", "outer-middle");
+
+            // TODO: min/max for x and y
+            // TODO: secondary y axis: min, max, data.axes, show
         }
 
+        JSONObject config = new JSONObject();
+        config.put("x", x);
+        config.put("y", y);
+        config.put("y2", y2);
         return config;
+    }
+
+    private JSONObject addC3AxisLabel(JSONObject axis, String key, String position) throws JSONException {
+        String title = mData.getConfiguration(key, "");
+        title = title.replaceAll("^\\s*", "");
+        title = title.replaceAll("\\s*$", "");
+        if (!"".equals(title)) {
+            JSONObject label = new JSONObject();
+            label.put("text", title);
+            label.put("position", position);
+            axis.put("label", label);
+        }
+        return axis;
     }
 
     private JSONObject getC3DataConfig() throws JSONException {
@@ -212,8 +241,7 @@ public class GraphView {
     private JSONObject getC3GridConfig() throws JSONException {
         JSONObject config = new JSONObject();
         if (Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE)) {
-            JSONObject show = new JSONObject();
-            show.put("show", true);
+            JSONObject show = new JSONObject("{ show: true }");
             config.put("x", show);
             config.put("y", show);
         }
@@ -550,10 +578,6 @@ public class GraphView {
         }
 
         // User-configurable options
-        mRenderer.setXTitle(mData.getConfiguration("x-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("y-title", ""));
-        mRenderer.setYTitle(mData.getConfiguration("secondary-y-title", ""), 1);
-
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             XYMultipleSeriesRenderer.Orientation orientation = getOrientation();
             mRenderer.setOrientation(orientation);
