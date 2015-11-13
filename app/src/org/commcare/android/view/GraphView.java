@@ -147,7 +147,7 @@ public class GraphView {
         mRenderer.setZoomButtonsVisible(allow);
     }
 
-    private JSONObject getC3AxisConfig() throws JSONException {
+    private JSONObject getC3AxisConfig() throws InvalidStateException, JSONException {
         JSONObject x = new JSONObject();
         JSONObject y = new JSONObject();
         JSONObject y2 = new JSONObject();
@@ -164,12 +164,37 @@ public class GraphView {
             y2.put("padding", padding);
 
             // Axis titles
-            x = addC3AxisLabel(x, "x-title", "outer-center");
-            y = addC3AxisLabel(y, "y-title", "outer-middle");
-            y2 = addC3AxisLabel(y2, "secondary-y-title", "outer-middle");
+            addC3AxisLabel(x, "x-title", "outer-center");
+            addC3AxisLabel(y, "y-title", "outer-middle");
+            addC3AxisLabel(y2, "secondary-y-title", "outer-middle");
 
-            // TODO: min/max for x and y
-            // TODO: secondary y axis: min, max, data.axes, show
+            // Min and max boundaries
+            if (mData.getConfiguration("x-min") != null) {
+                x.put("min", parseXValue(mData.getConfiguration("x-min"), "x-min"));
+            }
+            if (mData.getConfiguration("x-max") != null) {
+                x.put("max", parseXValue(mData.getConfiguration("x-max"), "x-max"));
+            }
+            if (mData.getConfiguration("y-min") != null) {
+                y.put("min", parseYValue(mData.getConfiguration("y-min"), "y-min"));
+            }
+            if (mData.getConfiguration("y-max") != null) {
+                y.put("max", parseYValue(mData.getConfiguration("y-max"), "y-max"));
+            }
+            if (mData.getConfiguration("secondary-y-min") != null) {
+                y2.put("min", parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"));
+            }
+            if (mData.getConfiguration("secondary-y-max") != null) {
+                y2.put("max", parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"));
+            }
+
+            // Determine whether secondary y axis should display
+            for (SeriesData s : mData.getSeries()) {
+                if (Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE)) {
+                    y2.put("show", true);
+                    break;
+                }
+            }
         }
 
         JSONObject config = new JSONObject();
@@ -179,7 +204,7 @@ public class GraphView {
         return config;
     }
 
-    private JSONObject addC3AxisLabel(JSONObject axis, String key, String position) throws JSONException {
+    private void addC3AxisLabel(JSONObject axis, String key, String position) throws JSONException {
         String title = mData.getConfiguration(key, "");
         title = title.replaceAll("^\\s*", "");
         title = title.replaceAll("\\s*$", "");
@@ -189,10 +214,9 @@ public class GraphView {
             label.put("position", position);
             axis.put("label", label);
         }
-        return axis;
     }
 
-    private JSONObject getC3DataConfig() throws JSONException {
+    private JSONObject getC3DataConfig() throws InvalidStateException, JSONException {
         // Actual data: array of arrays, where first element is a string id
         // and later elements are data, either x values or y values.
         JSONArray columns = new JSONArray();
@@ -201,8 +225,12 @@ public class GraphView {
         // y-values-array-id => x-values-array-id
         JSONObject xs = new JSONObject();
 
-        // Hash of series id => name for legend
+        // Hash of y-values id => name for legend
         JSONObject names = new JSONObject();
+
+        // Hash of y-values id => 'y' or 'y2' depending on whether this data
+        // should be plotted against the primary or secondary y axis
+        JSONObject axes = new JSONObject();
 
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
@@ -216,8 +244,9 @@ public class GraphView {
             xValues.put(xID);
             yValues.put(yID);
             for (XYPointData p : s.getPoints()) {
-                xValues.put(p.getX());
-                yValues.put(p.getY());
+                String description = "point (" + p.getX() + ", " + p.getY() + ")";
+                xValues.put(parseXValue(p.getX(), description));
+                yValues.put(parseYValue(p.getY(), description));
             }
             columns.put(xValues);
             columns.put(yValues);
@@ -227,11 +256,14 @@ public class GraphView {
                 names.put(yID, name);
             }
 
+            axes.put(yID, Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? "y2" : "y");
+
             seriesIndex++;
         }
 
         JSONObject config = new JSONObject();
         config.put("xs", xs);
+        config.put("axes", axes);
         config.put("columns", columns);
         config.put("names", names);
         return config;
@@ -248,7 +280,7 @@ public class GraphView {
         return config;
     }
 
-    private JSONObject getC3Config() {
+    private JSONObject getC3Config() throws InvalidStateException {
         JSONObject config = new JSONObject();
         try {
             config.put("axis", getC3AxisConfig());
@@ -587,26 +619,6 @@ public class GraphView {
             }
         }
 
-        if (mData.getConfiguration("x-min") != null) {
-            mRenderer.setXAxisMin(parseXValue(mData.getConfiguration("x-min"), "x-min"));
-        }
-        if (mData.getConfiguration("y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("y-min"), "y-min"));
-        }
-        if (mData.getConfiguration("secondary-y-min") != null) {
-            mRenderer.setYAxisMin(parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"), 1);
-        }
-
-        if (mData.getConfiguration("x-max") != null) {
-            mRenderer.setXAxisMax(parseXValue(mData.getConfiguration("x-max"), "x-max"));
-        }
-        if (mData.getConfiguration("y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("y-max"), "y-max"));
-        }
-        if (mData.getConfiguration("secondary-y-max") != null) {
-            mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
-        }
-
         // Legend
         boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
         mRenderer.setShowLegend(showLegend);
@@ -628,7 +640,7 @@ public class GraphView {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    private Double parseXValue(String value, String description) throws InvalidStateException {
+    private double parseXValue(String value, String description) throws InvalidStateException {
         if (Graph.TYPE_TIME.equals(mData.getType())) {
             Date parsed = DateUtils.parseDateTime(value);
             if (parsed == null) {
@@ -645,7 +657,7 @@ public class GraphView {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    private Double parseYValue(String value, String description) throws InvalidStateException {
+    private double parseYValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
 
@@ -663,13 +675,13 @@ public class GraphView {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    private Double parseDouble(String value, String description) throws InvalidStateException {
+    private double parseDouble(String value, String description) throws InvalidStateException {
         try {
             Double numeric = Double.valueOf(value);
             if (numeric.isNaN()) {
                 throw new InvalidStateException("Could not understand '" + value + "' in " + description);
             }
-            return numeric;
+            return numeric.doubleValue();
         } catch (NumberFormatException nfe) {
             throw new InvalidStateException("Could not understand '" + value + "' in " + description);
         }
@@ -788,7 +800,7 @@ public class GraphView {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return parseXValue(lhs.getX(), "").compareTo(parseXValue(rhs.getX(), ""));
+                return Double.valueOf(parseXValue(lhs.getX(), "")).compareTo(Double.valueOf(parseXValue(rhs.getX(), "")));
             } catch (InvalidStateException e) {
                 return 0;
             }
@@ -818,7 +830,7 @@ public class GraphView {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return parseXValue(lhs.getY(), "").compareTo(parseXValue(rhs.getY(), ""));
+                return Double.valueOf(parseXValue(lhs.getY(), "")).compareTo(Double.valueOf(parseXValue(rhs.getY(), "")));
             } catch (InvalidStateException e) {
                 return 0;
             }
@@ -835,7 +847,7 @@ public class GraphView {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return parseXValue(rhs.getY(), "").compareTo(parseXValue(lhs.getY(), ""));
+                return Double.valueOf(parseXValue(rhs.getY(), "")).compareTo(Double.valueOf(parseXValue(lhs.getY(), "")));
             } catch (InvalidStateException e) {
                 return 0;
             }
