@@ -1,6 +1,7 @@
 package org.commcare.android.framework;
 
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -8,13 +9,9 @@ import com.google.android.gms.analytics.Tracker;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
- * Any CommCareActivity for which we want to collect data on user visits. Identical to
- * TrackedActivity, but needs to be its own class in order to work it into the CommCareActivity
- * hierarchy
- *
- * @author amstone
+ * Created by amstone326 on 11/13/15.
  */
-public abstract class TrackedCommCareActivity<R> extends CommCareActivity<R> {
+public class TrackedPreferenceActivity extends PreferenceActivity {
 
     private Tracker getTracker() {
         return CommCareApplication._().getDefaultTracker();
@@ -38,7 +35,6 @@ public abstract class TrackedCommCareActivity<R> extends CommCareActivity<R> {
      * Register a unique user visit to this activity
      */
     private void registerActivityVisit() {
-        //Log.i("11/6", "Registering visit to: " + getName());
         getTracker().setScreenName(getName());
         getTracker().send(new HitBuilders.ScreenViewBuilder().build());
     }
@@ -46,4 +42,5 @@ public abstract class TrackedCommCareActivity<R> extends CommCareActivity<R> {
     private String getName() {
         return this.getClass().getSimpleName();
     }
+
 }

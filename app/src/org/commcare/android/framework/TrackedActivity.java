@@ -2,8 +2,8 @@ package org.commcare.android.framework;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 
+import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.dalvik.application.CommCareApplication;
@@ -15,8 +15,6 @@ import org.commcare.dalvik.application.CommCareApplication;
  */
 public abstract class TrackedActivity extends Activity {
 
-    private static final String KEY_IS_RELOAD = "is-reload";
-
     private Tracker getTracker() {
         return CommCareApplication._().getDefaultTracker();
     }
@@ -24,23 +22,24 @@ public abstract class TrackedActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!savedInstanceState.getBoolean(KEY_IS_RELOAD)) {
+        if (savedInstanceState == null) {
             registerActivityVisit();
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(KEY_IS_RELOAD, true);
+    protected void onResume() {
+        super.onResume();
+        getTracker().setScreenName(getName());
     }
 
     /**
      * Register a unique user visit to this activity
      */
     private void registerActivityVisit() {
-        Log.i("11/6", "Registering visit to: " + getName());
-        //getTracker().setScreenName(getName());
-        //getTracker().send(new HitBuilders.ScreenViewBuilder().build());
+        //Log.i("11/6", "Registering visit to: " + getName());
+        getTracker().setScreenName(getName());
+        getTracker().send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     private String getName() {
