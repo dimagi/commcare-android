@@ -48,6 +48,7 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:23.1.0'
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.google.android.gms:play-services-analytics:8.1.0'
 }
 
@@ -70,7 +71,7 @@ project(':libraries:mapballoons') {
 }
 
 ext {
-  // Obtained from ~/.gradle/gradle.properites on build server or load default
+  // Obtained from ~/.gradle/gradle.properties on build server or load default
   // empty strings.
   ACRA_USER = project.properties['ACRA_USER'] ?: ""
   ACRA_PASSWORD = project.properties['ACRA_PASSWORD'] ?: ""
@@ -85,18 +86,6 @@ ext {
             "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
             "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
             "HaAJkjpnc165Os+aYwIDAQAB";
-}
-
-afterEvaluate {
-    tasks.matching {
-        it.name.startsWith('dex')
-    }.each { dx ->
-        if (dx.additionalParameters == null) {
-            dx.additionalParameters = ['--multi-dex']
-        } else {
-            dx.additionalParameters += '--multi-dex'
-        }
-    }
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -144,6 +133,9 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 22
+
+        multiDexEnabled true
+
         applicationId "org.commcare.dalvik"
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]

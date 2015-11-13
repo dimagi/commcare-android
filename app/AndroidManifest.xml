@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
-    <!-- Start COllect Permissions -->
+    <!-- Start Collect Permissions -->
 
     <uses-permission
         xmlns:android="http://schemas.android.com/apk/res/android"
