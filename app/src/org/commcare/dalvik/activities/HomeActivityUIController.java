@@ -11,11 +11,10 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
@@ -224,18 +223,8 @@ public class HomeActivityUIController {
         };
     }
 
-    private void reportButtonClick(String label) {
-        getTracker().send(new HitBuilders.EventBuilder()
-                .setCategory(GoogleAnalyticsFields.CATEGORY_BASIC)
-                .setAction(GoogleAnalyticsFields.ACTION_BUTTON)
-                .setLabel(label)
-                .build());
-    }
-
-    private Tracker getTracker() {
-        Tracker t = CommCareApplication._().getDefaultTracker();
-        t.setScreenName(GoogleAnalyticsFields.SCREEN_HOME);
-        return t;
+    public static void reportButtonClick(String buttonLabel) {
+        GoogleAnalyticsUtils.reportButtonClick(GoogleAnalyticsFields.SCREEN_HOME, buttonLabel);
     }
 
     private void setSyncButtonText(String syncTextKey) {

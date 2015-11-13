@@ -53,6 +53,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -758,6 +760,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        GoogleAnalyticsUtils.reportMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
+
         menu.removeItem(MENU_LANGUAGES);
         menu.removeItem(MENU_HIERARCHY_VIEW);
         menu.removeItem(MENU_SAVE);
@@ -786,12 +790,21 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
+                GoogleAnalyticsUtils.reportSettingsScreenEntry(
+                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                        GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
+                GoogleAnalyticsUtils.reportSettingsScreenEntry(
+                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                        GoogleAnalyticsFields.LABEL_SAVE_FORM);
                 saveFormToDisk(DO_NOT_EXIT, null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
+                GoogleAnalyticsUtils.reportSettingsScreenEntry(
+                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                        GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
                 if (currentPromptIsQuestion()) {
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 }
@@ -799,6 +812,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
+                GoogleAnalyticsUtils.reportSettingsScreenEntry(
+                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                        GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
                 Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
@@ -1917,6 +1933,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
+        GoogleAnalyticsUtils.reportAction(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT);
         if(!formHasLoaded()) {
             finish();
         } else if (mFormController.isFormReadOnly()) {

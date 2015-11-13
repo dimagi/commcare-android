@@ -7,18 +7,29 @@ package org.commcare.android.analytics;
  */
 public final class GoogleAnalyticsFields {
 
-    public static String CATEGORY_BASIC = "Basic Action";
+    public static String CATEGORY_HOME_SCREEN = "Home Screen";
+    public static String CATEGORY_FORM_ENTRY = "Form Entry";
 
+    // Actions for both categories
+    public static String ACTION_OPTIONS_MENU = "Enter Options Menu";
+    public static String ACTION_SETTINGS_SCREEN = "Enter a Settings Screen";
+
+    // Actions for CATEGORY_HOME_SCREEN only
     public static String ACTION_BUTTON = "Button Press";
-    // -------
+
+    // Actions for CATEGORY_FORM_ENTRY only
+    public static String ACTION_FORWARD = "Navigate Forward";
+    public static String ACTION_BACKWARD = "Navigate Backward";
+    public static String ACTION_QUIT_ATTEMPT = "Attempt Quit Form Entry";
+
+    // Labels for ACTION_BUTTON
     public static String LABEL_START = "Start Button";
     public static String LABEL_SAVED = "Saved Forms Button";
     public static String LABEL_INCOMPLETE = "Incomplete Forms Button";
     public static String LABEL_SYNC = "Sync Button";
     public static String LABEL_LOGOUT = "Logout Button";
 
-    public static String ACTION_SETTINGS = "Enter an Edit Settings Screen";
-    // --------
+    // Labels for ACTION_SETTINGS_SCREEN (in CATEGORY_HOME_SCREEN)
     public static String LABEL_APP_SERVER = "CC Application Server";
     public static String LABEL_DATA_SERVER = "Data Server";
     public static String LABEL_SUBMISSION_SERVER = "Submission Server";
@@ -28,13 +39,13 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static String LABEL_LOCALE = "Change Locale";
 
+    // Labels for ACTION_SETTINGS_SCREEN (in CATEGORY_FORM_ENTRY)
+    public static String LABEL_SAVE_FORM = "Save Form";
+    public static String LABEL_FORM_HIERARCHY = "Form Hierarchy";
+    public static String LABEL_CHANGE_LANGUAGE = "Change Language";
+    public static String LABEL_CHANGE_SETTINGS = "Change Settings";
 
-    public static String CATEGORY_FORM = "Form Navigation";
-    // --------
-    public static String ACTION_FORWARD = "Navigate Forward";
-    public static String ACTION_BACKWARD = "Navigate Backward";
-    public static String ACTION_QUIT_ATTEMPT = "Attempt Quit Form Entry";
-    // --------
+    // Labels for ACTION_FORWARD and ACTION_BACKWARD
     public static String LABEL_ARROW = "Press Arrow";
     public static String LABEL_SWIPE = "Swipe";
 

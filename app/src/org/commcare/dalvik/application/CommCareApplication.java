@@ -297,7 +297,6 @@ public class CommCareApplication extends MultiDexApplication {
     public void expireUserSession() {
         synchronized (serviceLock) {
             closeUserSession();
-
             SessionActivityRegistration.registerSessionExpiration();
             sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
         }
