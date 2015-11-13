@@ -116,6 +116,8 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         if(secret) {
             mAnswer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        } else{
+            mAnswer.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
         }
     }
 

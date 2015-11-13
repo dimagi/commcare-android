@@ -27,7 +27,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.util.CaseDBUtils;
@@ -182,7 +182,7 @@ public class HttpRequestGenerator {
         if (username == null) {
             return null;
         }
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
         Vector<Integer> users = storage.getIDsForValue(User.META_USERNAME, username);
         //should be exactly one user
         if (users.size() != 1) {
@@ -306,7 +306,7 @@ public class HttpRequestGenerator {
                 if (responseCode == 301) {
                     //only allow one level of redirection here for now.    
                     Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + con.getURL().toString());
-                    URL newUrl = con.getURL();
+                    URL newUrl = new URL(con.getHeaderField("Location"));
                     con.disconnect();
                     con = (HttpURLConnection) newUrl.openConnection();
                     setup(con);

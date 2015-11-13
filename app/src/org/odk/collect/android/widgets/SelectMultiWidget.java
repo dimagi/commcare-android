@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
@@ -42,39 +28,42 @@ import java.util.Vector;
  */
 public class SelectMultiWidget extends QuestionWidget {
     private boolean mCheckboxInit = true;
-    Vector<SelectChoice> mItems;
-    private int buttonIdBase;
+    private final Vector<SelectChoice> mItems;
+    private final int buttonIdBase;
     
-    private Vector<CheckBox> mCheckboxes;
-
+    private final Vector<CheckBox> mCheckboxes;
 
     @SuppressWarnings("unchecked")
     public SelectMultiWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        mPrompt = prompt;
-        mCheckboxes = new Vector<CheckBox>();
-        mItems = prompt.getSelectChoices();
+        mCheckboxes = new Vector<>();
+        mItems = mPrompt.getSelectChoices();
 
         setOrientation(LinearLayout.VERTICAL);
 
-        Vector<Selection> ve = new Vector<Selection>();
-        if (prompt.getAnswerValue() != null) {
+        Vector<Selection> ve = new Vector<>();
+        if (mPrompt.getAnswerValue() != null) {
             ve = (Vector<Selection>) getCurrentAnswer().getValue();
         }
         
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
 
-        if (prompt.getSelectChoices() != null) {
+        if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 // no checkbox group so id by answer + offset
                 final CheckBox c = new CheckBox(getContext());
 
                 c.setId(buttonIdBase + i);
-                c.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
+                String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
+                if(markdownText != null){
+                    c.setText(forceMarkdown(markdownText));
+                } else{
+                    c.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                }
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-                c.setFocusable(!prompt.isReadOnly());
-                c.setEnabled(!prompt.isReadOnly());
+                c.setFocusable(!mPrompt.isReadOnly());
+                c.setEnabled(!mPrompt.isReadOnly());
                 
                 int padding = (int)Math.floor(context.getResources().getDimension(R.dimen.select_padding));
                 
@@ -85,7 +74,6 @@ public class SelectMultiWidget extends QuestionWidget {
                         c.setChecked(true);
                         break;
                     }
-
                 }
                 
                 //Note: This gets fired during setup as well, so this listener should only
@@ -108,21 +96,17 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 mCheckboxes.add(c);
 
-                String audioURI = null;
-                audioURI =
-                    prompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_AUDIO);
+                String audioURI =
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_AUDIO);
 
-                String imageURI = null;
-                imageURI =
-                    prompt.getSpecialFormSelectChoiceText(mItems.get(i),
-                        FormEntryCaption.TEXT_FORM_IMAGE);
+                String imageURI =
+                        mPrompt.getSpecialFormSelectChoiceText(mItems.get(i),
+                                FormEntryCaption.TEXT_FORM_IMAGE);
 
-                String videoURI = null;
-                videoURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "video");
+                String videoURI = mPrompt.getSpecialFormSelectChoiceText(mItems.get(i), "video");
 
-                String bigImageURI = null;
-                bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
+                String bigImageURI = mPrompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
                 MediaLayout mediaLayout = new MediaLayout(getContext());
                 mediaLayout.setAVT(c, audioURI, imageURI, videoURI, bigImageURI);
@@ -131,7 +115,6 @@ public class SelectMultiWidget extends QuestionWidget {
                 mediaLayout.setPadding(0, padding, 0, padding);
                 
                 mediaLayout.setOnClickListener(new OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
                         c.performClick();
@@ -144,12 +127,10 @@ public class SelectMultiWidget extends QuestionWidget {
                 if (i != mItems.size() - 1) {
                     addView(divider);
                 }
-
             }
         }
 
         mCheckboxInit = false;
-
     }
 
     @Override
@@ -165,16 +146,14 @@ public class SelectMultiWidget extends QuestionWidget {
         }
     }
 
-
     @Override
     public IAnswerData getAnswer() {
-        Vector<Selection> vc = new Vector<Selection>();
+        Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
             CheckBox c = ((CheckBox) findViewById(buttonIdBase + i));
             if (c.isChecked()) {
                 vc.add(new Selection(mItems.get(i)));
             }
-
         }
 
         if (vc.size() == 0) {
@@ -182,9 +161,7 @@ public class SelectMultiWidget extends QuestionWidget {
         } else {
             return new SelectMultiData(vc);
         }
-
     }
-
 
     @Override
     public void setFocus(Context context) {
@@ -194,14 +171,12 @@ public class SelectMultiWidget extends QuestionWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         for (CheckBox c : mCheckboxes) {
             c.setOnLongClickListener(l);
         }
     }
-
 
     @Override
     public void cancelLongPress() {
@@ -210,5 +185,4 @@ public class SelectMultiWidget extends QuestionWidget {
             c.cancelLongPress();
         }
     }
-
 }
