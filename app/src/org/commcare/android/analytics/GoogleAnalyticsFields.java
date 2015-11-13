@@ -38,5 +38,8 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_ARROW = "Press Arrow";
     public static String LABEL_SWIPE = "Swipe";
 
+    // Screen Names
+    public static String SCREEN_HOME = "CommCareHomeActivity";
+
 
 }

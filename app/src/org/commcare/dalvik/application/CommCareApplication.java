@@ -337,6 +337,7 @@ public class CommCareApplication extends MultiDexApplication {
             // TODO: AMS Figure out how to set this conditionally
             // TODO: AMS Likely want to enable auto- activity tracking
             mTracker = analytics.newTracker(DEV_TRACKING_ID);
+            mTracker.enableAutoActivityTracking(true);
         }
         return mTracker;
     }

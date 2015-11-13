@@ -233,7 +233,9 @@ public class HomeActivityUIController {
     }
 
     private Tracker getTracker() {
-        return CommCareApplication._().getDefaultTracker();
+        Tracker t = CommCareApplication._().getDefaultTracker();
+        t.setScreenName(GoogleAnalyticsFields.SCREEN_HOME);
+        return t;
     }
 
     private void setSyncButtonText(String syncTextKey) {

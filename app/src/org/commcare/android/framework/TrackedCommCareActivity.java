@@ -24,7 +24,7 @@ public abstract class TrackedCommCareActivity<R> extends CommCareActivity<R> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
-            registerActivityVisit();
+            //registerActivityVisit();
         }
     }
 
