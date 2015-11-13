@@ -156,6 +156,9 @@ public class GraphView {
         // y-values-array-id => x-values-array-id
         JSONObject xs = new JSONObject();
 
+        // Hash of series id => name for legend
+        JSONObject names = new JSONObject();
+
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
             JSONArray xValues = new JSONArray();
@@ -174,12 +177,18 @@ public class GraphView {
             columns.put(xValues);
             columns.put(yValues);
 
+            String name = s.getConfiguration("name", "");
+            if (name != null) {
+                names.put(yID, name);
+            }
+
             seriesIndex++;
         }
 
         JSONObject config = new JSONObject();
         config.put("xs", xs);
         config.put("columns", columns);
+        config.put("names", names);
         return config;
     }
 
@@ -282,7 +291,6 @@ public class GraphView {
         configureSeries(s, currentRenderer);
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
-        series.setTitle(s.getConfiguration("name", ""));
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             if (s.getConfiguration("radius-max") != null) {
                 ((RangeXYValueSeries)series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
