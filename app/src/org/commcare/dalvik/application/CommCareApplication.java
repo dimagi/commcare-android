@@ -117,29 +117,28 @@ import javax.crypto.SecretKey;
  */
 @ReportsCrashes(
         formUri = "https://your/cloudant/report",
-        formUriBasicAuthLogin="your_username",
-        formUriBasicAuthPassword="your_password",
+        formUriBasicAuthLogin = "your_username",
+        formUriBasicAuthPassword = "your_password",
         reportType = org.acra.sender.HttpSender.Type.JSON,
         httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends MultiDexApplication {
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
-    public static final int STATE_UNINSTALLED = 0;
+    private static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
-    public static final int STATE_READY = 2;
+    private static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_DELETE_REQUESTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
-    public static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
+    private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
 
     private static CommCareApplication app;
 
     private CommCareApp currentApp;
-    private CommCareApp appBeingInstalled;
 
     // stores current state of application: the session, form
     private AndroidSessionWrapper sessionWrapper;
@@ -216,7 +215,7 @@ public class CommCareApplication extends MultiDexApplication {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch(SessionUnavailableException sfe) {
+        } catch (SessionUnavailableException sfe) {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
@@ -262,10 +261,10 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
-        synchronized(serviceLock) {
+        synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
-            if(this.mIsBound) {
+            if (this.mIsBound) {
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symetricKey, record);
@@ -277,7 +276,7 @@ public class CommCareApplication extends MultiDexApplication {
      * manual user log-outs.
      */
     public void closeUserSession() {
-        synchronized(serviceLock) {
+        synchronized (serviceLock) {
             // Cancel any running tasks before closing down the user databse.
             ManagedAsyncTask.cancelTasks();
 
@@ -291,7 +290,7 @@ public class CommCareApplication extends MultiDexApplication {
      * for session-expiration related user logouts.
      */
     public void expireUserSession() {
-        synchronized(serviceLock) {
+        synchronized (serviceLock) {
             closeUserSession();
 
             SessionActivityRegistration.registerSessionExpiration();
@@ -315,7 +314,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     private void attachCallListener() {
-        TelephonyManager tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+        TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
 
         listener = new CallInPhoneListener(this, this.getCommCarePlatform());
         listener.startCache();
@@ -377,7 +376,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public String getPhoneId() {
-        TelephonyManager manager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
+        TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
@@ -422,8 +421,7 @@ public class CommCareApplication extends MultiDexApplication {
             if (record.getStatus() == ApplicationRecord.STATUS_DELETE_REQUESTED) {
                 try {
                     uninstall(record);
-                }
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Unable to uninstall an app " +
                             "during startup that was previously left partially-deleted");
                 }
@@ -525,7 +523,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     /**
-     * @return  all ApplicationRecords that are installed AND are not archived AND have MM verified
+     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
      */
     public ArrayList<ApplicationRecord> getUsableAppRecords() {
         ArrayList<ApplicationRecord> ready = new ArrayList<>();
@@ -693,7 +691,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
-        return new SqlStorage<T>(table, c, new AndroidDbHelper(this.getApplicationContext()) {
+        return new SqlStorage<>(table, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
@@ -719,7 +717,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
-        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
+        return new SqlStorage<>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -732,7 +730,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
-        return new SqlStorage<T>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
+        return new SqlStorage<>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 return handle;
@@ -776,7 +774,7 @@ public class CommCareApplication extends MultiDexApplication {
             return;
         }
 
-        final Set<String> dbIdsToRemove = new HashSet<String>();
+        final Set<String> dbIdsToRemove = new HashSet<>();
 
         this.getAppStorage(UserKeyRecord.class).removeAll(new EntityFilter<UserKeyRecord>() {
 
@@ -870,7 +868,7 @@ public class CommCareApplication extends MultiDexApplication {
                 synchronized (serviceLock) {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-                    mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
+                    mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
                     //Don't let anyone touch this until it's logged in
                     // Open user database
@@ -928,6 +926,7 @@ public class CommCareApplication extends MultiDexApplication {
         // class name because we want a specific service implementation that
         // we know will be running in our own process (and thus won't be
         // supporting component replacement by other applications).
+        startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         mIsBinding = true;
     }
@@ -947,11 +946,11 @@ public class CommCareApplication extends MultiDexApplication {
             return;
         }
 
-        DataSubmissionListener dataListener = null;
+        DataSubmissionListener dataListener;
 
         try {
             dataListener =
-                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                    CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
         } catch (SessionUnavailableException sue) {
             // abort since it looks like the session expired
             return;
@@ -991,7 +990,7 @@ public class CommCareApplication extends MultiDexApplication {
             updateTask.startPinnedNotification(this);
             updateTask.setAsAutoUpdate();
             updateTask.execute(ref);
-        } catch(IllegalStateException e) {
+        } catch (IllegalStateException e) {
             Log.w(TAG, "Trying trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
         }
@@ -1034,14 +1033,10 @@ public class CommCareApplication extends MultiDexApplication {
             return true;
         }
 
-        Calendar lastRestoreCalendar = Calendar.getInstance();
-        lastRestoreCalendar.setTimeInMillis(last);
-
         //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
         //you still sync, so people can get into the cycle of doing it once in the morning, which
         //is more valuable than syncing mid-day.
-        if (period == DateUtils.DAY_IN_MILLIS &&
-                (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
+        if (isDifferentDayInPast(now, last, period)) {
             return true;
         }
 
@@ -1049,6 +1044,15 @@ public class CommCareApplication extends MultiDexApplication {
         //for now we'll simply say that if last was more than a day in the future (timezone blur)
         //we should also trigger
         return (now < (last - DateUtils.DAY_IN_MILLIS));
+    }
+
+    private boolean isDifferentDayInPast(long now, long last, long period) {
+        Calendar lastRestoreCalendar = Calendar.getInstance();
+        lastRestoreCalendar.setTimeInMillis(last);
+
+        return period == DateUtils.DAY_IN_MILLIS &&
+                lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK) &&
+                now > last;
     }
 
     /**
@@ -1072,6 +1076,7 @@ public class CommCareApplication extends MultiDexApplication {
                 mIsBound = false;
                 // Detach our existing connection.
                 unbindService(mConnection);
+                stopService(new Intent(this, CommCareSessionService.class));
             }
         }
     }
@@ -1122,7 +1127,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
 
-    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<NotificationMessage>();
+    private final ArrayList<NotificationMessage> pendingMessages = new ArrayList<>();
 
     public void reportNotificationMessage(NotificationMessage message) {
         reportNotificationMessage(message, false);
@@ -1152,7 +1157,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public void updateMessageNotification() {
-        NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0) {
                 mNM.cancel(MESSAGE_NOTIFICATION);
@@ -1185,7 +1190,7 @@ public class CommCareApplication extends MultiDexApplication {
     public ArrayList<NotificationMessage> purgeNotifications() {
         synchronized (pendingMessages) {
             this.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
-            ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>) pendingMessages.clone();
+            ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
             clearNotifications(null);
             return cloned;
         }
@@ -1193,8 +1198,8 @@ public class CommCareApplication extends MultiDexApplication {
 
     public void clearNotifications(String category) {
         synchronized (pendingMessages) {
-            NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            Vector<NotificationMessage> toRemove = new Vector<NotificationMessage>();
+            NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            Vector<NotificationMessage> toRemove = new Vector<>();
             for (NotificationMessage message : pendingMessages) {
                 if (category == null || category.equals(message.getCategory())) {
                     toRemove.add(message);
@@ -1316,7 +1321,7 @@ public class CommCareApplication extends MultiDexApplication {
          * @param activity Is the context used to pop-up the toast message.
          */
         public PopupHandler(CommCareApplication activity) {
-            mActivity = new WeakReference<CommCareApplication>(activity);
+            mActivity = new WeakReference<>(activity);
         }
 
         /**
@@ -1330,10 +1335,10 @@ public class CommCareApplication extends MultiDexApplication {
 
             CommCareApplication activity = mActivity.get();
 
-            if (activity != null) {
+            if (activity != null && message != null) {
                 Toast.makeText(activity,
                         Localization.get("notification.for.details.wrapper",
-                            new String[]{message.getTitle()}),
+                                new String[]{message.getTitle()}),
                         Toast.LENGTH_LONG).show();
             }
         }

@@ -176,7 +176,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="clear_answer_no" cc:translatable="true">CANCEL</string>
     <string name="completed_data" cc:translatable="true">Complete (%s)</string>
     <string name="data" cc:translatable="true">Saved Forms</string>
-    <string name="data_saved_error" cc:translatable="true">Sorry, form save failed!</string>
+    <string name="data_saved_error" cc:translatable="true">Sorry, form save failed. Please contact technical support to look into the issue.</string>
     <string name="data_saved_ok" cc:translatable="true">Form successfully saved!</string>
     <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>

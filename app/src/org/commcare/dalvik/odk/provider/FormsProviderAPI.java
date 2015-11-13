@@ -19,8 +19,10 @@ package org.commcare.dalvik.odk.provider;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import org.commcare.dalvik.BuildConfig;
+
 public final class FormsProviderAPI {
-    public static final String AUTHORITY = "org.commcare.android.provider.odk.forms";
+    public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".forms";
 
     // This class cannot be instantiated
     private FormsProviderAPI() {}
