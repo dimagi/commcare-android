@@ -102,6 +102,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Vector;
 
@@ -909,15 +910,6 @@ public class CommCareApplication extends Application {
         startService(new Intent(this, CommCareSessionService.class));
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         mIsBinding = true;
-    }
-
-    public User getCurrentUserFromDB(String username){
-        for (User u : getRawStorage("USER", User.class, mBoundService.getUserDbHandle())) {
-            if (username.equals(u.getUsername())) {
-                return u;
-            }
-        }
-        return null;
     }
 
     @SuppressLint("NewApi")

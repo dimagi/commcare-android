@@ -259,7 +259,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         this.context.sendBroadcast(i);
                         
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
-                        CommCareApplication._().getSession().setCurrentUser(CommCareApplication._().getCurrentUserFromDB(username), password);
+                        updateCurrentUser(password);
                         this.publishProgress(PROGRESS_DONE);
                         return DOWNLOAD_SUCCESS;
                     } catch (InvalidStructureException e) {
@@ -458,6 +458,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void updateCurrentUser(String password) throws SessionUnavailableException {
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
+        User u = storage.getRecordForValue(User.META_USERNAME, username);
+        CommCareApplication._().getSession().setCurrentUser(u, password);
     }
 
     private void updateUserSyncToken(String syncToken) throws StorageFullException {
