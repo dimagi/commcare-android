@@ -147,6 +147,22 @@ public class GraphView {
         mRenderer.setZoomButtonsVisible(allow);
     }
 
+    private JSONObject getC3AxisConfig() throws JSONException {
+        JSONObject config = new JSONObject();
+
+        if (Boolean.valueOf(mData.getConfiguration("show-axes", "true")).equals(Boolean.FALSE)) {
+            JSONObject show = new JSONObject();
+            show.put("show", false);
+            config.put("x", show);
+            config.put("y", show);
+            config.put("y2", show);
+        } else {
+
+        }
+
+        return config;
+    }
+
     private JSONObject getC3DataConfig() throws JSONException {
         // Actual data: array of arrays, where first element is a string id
         // and later elements are data, either x values or y values.
@@ -207,6 +223,7 @@ public class GraphView {
     private JSONObject getC3Config() {
         JSONObject config = new JSONObject();
         try {
+            config.put("axis", getC3AxisConfig());
             config.put("data", getC3DataConfig());
             config.put("grid", getC3GridConfig());
         } catch (JSONException e) {
@@ -564,11 +581,6 @@ public class GraphView {
         }
         if (mData.getConfiguration("secondary-y-max") != null) {
             mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
-        }
-
-        String showAxes = mData.getConfiguration("show-axes", "true");
-        if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
-            mRenderer.setShowAxes(false);
         }
 
         // Legend
