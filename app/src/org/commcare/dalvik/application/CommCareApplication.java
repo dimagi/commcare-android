@@ -23,6 +23,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
+import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -1155,11 +1156,17 @@ public class CommCareApplication extends Application {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-
-            // Set the info for the views that show in the notification panel.
-            messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[]{additional}), contentIntent);
-
-            messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+            
+            messageNotification = new NotificationCompat.Builder(this)
+                    .setContentTitle(title)
+                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
+                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setNumber(pendingMessages.size())
+                    .setContentIntent(contentIntent)
+                    .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
+                    .setOngoing(true)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
 
             //Send the notification.
             mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
