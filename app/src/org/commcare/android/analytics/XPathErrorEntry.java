@@ -1,8 +1,8 @@
 package org.commcare.android.analytics;
 
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 
 import java.io.Serializable;
 import java.util.Date;
