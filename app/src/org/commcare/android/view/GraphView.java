@@ -176,17 +176,44 @@ public class GraphView {
         WebView webView = new WebView(mContext);
         configureSettings(webView);
 
-        System.out.println("[jls] graphData = " + jsonifyGraph(data).toString());
+        JSONObject c3config = new JSONObject();
+        try {
+            JSONArray x1 = new JSONArray();
+            x1.put("x1");
+            x1.put(2);
+            x1.put(4);
+            x1.put(5);
+            x1.put(7);
+            JSONArray y1 = new JSONArray();
+            y1.put("y1");
+            y1.put(2);
+            y1.put(3);
+            y1.put(7);
+            y1.put(8);
+            JSONArray c3columns = new JSONArray();
+            c3columns.put(x1);
+            c3columns.put(y1);
+            JSONObject c3xs = new JSONObject();
+            c3xs.put("y1", "x1");
+            JSONObject c3data = new JSONObject();
+            c3data.put("xs", c3xs);
+            c3data.put("columns", c3columns);
+            c3config.put("data", c3data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         String html =
                 "<html>" +
                     "<head>" +
+                        "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
-                        "<script type='text/javascript' src='file:///android_asset/graphing/underscore.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                        "<script type='text/javascript'>var graphData = " + jsonifyGraph(data).toString() + ";</script>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
+                        "<script type='text/javascript'>var config = " + c3config.toString() + ";</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
-                    "<body><svg class='chart'></svg></body>" +
+                    "<body><div id='chart'></div></body>" +
                 "</html>";
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
