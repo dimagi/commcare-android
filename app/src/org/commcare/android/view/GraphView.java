@@ -164,44 +164,61 @@ public class GraphView {
         }
     }
 
+    private JSONObject getC3DataConfig() throws JSONException {
+        // Actual data: array of arrays, where first element is a string id
+        // and later elements are data, either x values or y values.
+        JSONArray columns = new JSONArray();
+
+        // Hash that pairs up the arrays defined in columns,
+        // y-values-array-id => x-values-array-id
+        JSONObject xs = new JSONObject();
+
+        int seriesIndex = 0;
+        for (SeriesData s : mData.getSeries()) {
+            JSONArray xValues = new JSONArray();
+            JSONArray yValues = new JSONArray();
+
+            String xID = "x" + seriesIndex;
+            String yID = "y" + seriesIndex;
+            xs.put(yID, xID);
+
+            xValues.put(xID);
+            yValues.put(yID);
+            for (XYPointData p : s.getPoints()) {
+                xValues.put(p.getX());
+                yValues.put(p.getY());
+            }
+            columns.put(xValues);
+            columns.put(yValues);
+
+            seriesIndex++;
+        }
+
+        JSONObject config = new JSONObject();
+        config.put("xs", xs);
+        config.put("columns", columns);
+        return config;
+    }
+
+    // TODO: lighten these lines? they default to on, and are heavier than AChartEngine's
+    private JSONObject getC3GridConfig() throws JSONException {
+        JSONObject config = new JSONObject();
+        if (Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE)) {
+            JSONObject show = new JSONObject();
+            show.put("show", true);
+            config.put("x", show);
+            config.put("y", show);
+        }
+        return config;
+    }
+
     private JSONObject getC3Config() {
         JSONObject config = new JSONObject();
         try {
-            // Actual data: array of arrays, where first element is a string id
-            // and later elements are data, either x values or y values.
-            JSONArray columns = new JSONArray();
-
-            // Hash that pairs up the arrays defined in columns,
-            // y-values-array-id => x-values-array-id
-            JSONObject xs = new JSONObject();
-
-            int seriesIndex = 0;
-            for (SeriesData s : mData.getSeries()) {
-                JSONArray xValues = new JSONArray();
-                JSONArray yValues = new JSONArray();
-
-                String xID = "x" + seriesIndex;
-                String yID = "y" + seriesIndex;
-                xs.put(yID, xID);
-
-                xValues.put(xID);
-                yValues.put(yID);
-                for (XYPointData p : s.getPoints()) {
-                    xValues.put(p.getX());
-                    yValues.put(p.getY());
-                }
-                columns.put(xValues);
-                columns.put(yValues);
-
-                seriesIndex++;
-            }
-
-            JSONObject data = new JSONObject();
-            data.put("xs", xs);
-            data.put("columns", columns);
-            config.put("data", data);
+            config.put("data", getC3DataConfig());
+            config.put("grid", getC3GridConfig());
         } catch (JSONException e) {
-            e.printStackTrace();    // TODO: don't fail silently
+            throw new RuntimeException("something broke");  // TODO: fix
         }
         return config;
     }
@@ -557,12 +574,6 @@ public class GraphView {
         if (mData.getConfiguration("secondary-y-max") != null) {
             mRenderer.setYAxisMax(parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"), 1);
         }
-
-        boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE);
-        mRenderer.setShowGridX(showGrid);
-        mRenderer.setShowGridY(showGrid);
-        mRenderer.setShowCustomTextGridX(showGrid);
-        mRenderer.setShowCustomTextGridY(showGrid);
 
         String showAxes = mData.getConfiguration("show-axes", "true");
         if (Boolean.valueOf(showAxes).equals(Boolean.FALSE)) {
