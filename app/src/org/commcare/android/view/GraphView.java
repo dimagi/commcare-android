@@ -63,43 +63,6 @@ public class GraphView {
         mRenderer.setChartTitleTextSize(mTextSize);
     }
 
-    /*
-     * Set margins.
-     */
-    private void setMargins() {
-        int textAllowance = (int)mContext.getResources().getDimension(R.dimen.graph_text_margin);
-        int topMargin = (int)mContext.getResources().getDimension(R.dimen.graph_y_margin);
-        if (!mRenderer.getChartTitle().equals("")) {
-            topMargin += textAllowance;
-        }
-        int rightMargin = (int)mContext.getResources().getDimension(R.dimen.graph_x_margin);
-        if (!mRenderer.getYTitle(1).equals("")) {
-            rightMargin += textAllowance;
-        }
-        int leftMargin = (int)mContext.getResources().getDimension(R.dimen.graph_x_margin);
-        if (!mRenderer.getYTitle().equals("")) {
-            leftMargin += textAllowance;
-        }
-        int bottomMargin = (int)mContext.getResources().getDimension(R.dimen.graph_y_margin);
-        if (!mRenderer.getXTitle().equals("")) {
-            bottomMargin += textAllowance;
-        }
-
-        // AChartEngine doesn't handle x label margins as desired, so do it here
-        if (mRenderer.isShowLabels()) {
-            bottomMargin += textAllowance;
-        }
-
-        // Bar charts have text labels that are likely to be long (names, etc.).
-        // At some point there'll need to be a more robust solution for setting
-        // margins that respond to data and screen size. For now, give them no margin
-        // and push the labels onto the graph area itself by manually padding the labels.
-        if (Graph.TYPE_BAR.equals(mData.getType()) && getOrientation().equals(XYMultipleSeriesRenderer.Orientation.VERTICAL)) {
-            bottomMargin = 0;
-        }
-        mRenderer.setMargins(new int[]{topMargin, leftMargin, bottomMargin, rightMargin});
-    }
-
     private void render(GraphData data) throws InvalidStateException {
         mRenderer.setInScroll(true);
         for (SeriesData s : data.getSeries()) {
@@ -109,7 +72,6 @@ public class GraphView {
         renderAnnotations();
 
         configure();
-        setMargins();
     }
 
     public Intent getIntent(GraphData data) throws InvalidStateException {
@@ -583,40 +545,10 @@ public class GraphView {
      * Configure graph's look and feel based on default assumptions and user-requested configuration.
      */
     private void configure() throws InvalidStateException {
-        // Default options
-        mRenderer.setBackgroundColor(mContext.getResources().getColor(R.color.white));
-        mRenderer.setMarginsColor(mContext.getResources().getColor(R.color.white));
-        mRenderer.setLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
-        mRenderer.setXLabelsColor(mContext.getResources().getColor(R.color.grey_darker));
-        mRenderer.setYLabelsColor(0, mContext.getResources().getColor(R.color.grey_darker));
-        mRenderer.setYLabelsColor(1, mContext.getResources().getColor(R.color.grey_darker));
-        mRenderer.setXLabelsAlign(Align.CENTER);
-        mRenderer.setYLabelsAlign(Align.RIGHT);
-        mRenderer.setYLabelsAlign(Align.LEFT, 1);
-        mRenderer.setYAxisAlign(Align.RIGHT, 1);
-        mRenderer.setAxesColor(mContext.getResources().getColor(R.color.grey_lighter));
-        mRenderer.setLabelsTextSize(mTextSize);
-        mRenderer.setAxisTitleTextSize(mTextSize);
-        mRenderer.setApplyBackgroundColor(true);
-        mRenderer.setShowGrid(true);
-
-        int padding = 10;
-        mRenderer.setXLabelsPadding(padding);
-        mRenderer.setYLabelsPadding(padding);
-        mRenderer.setYLabelsVerticalPadding(padding);
-
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
-            mRenderer.setBarSpacing(0.5);
-        }
-
         // User-configurable options
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             XYMultipleSeriesRenderer.Orientation orientation = getOrientation();
             mRenderer.setOrientation(orientation);
-            if (orientation.equals(XYMultipleSeriesRenderer.Orientation.VERTICAL)) {
-                mRenderer.setXLabelsAlign(Align.LEFT);
-                mRenderer.setXLabelsPadding(0);
-            }
         }
 
         // Legend
@@ -629,10 +561,6 @@ public class GraphView {
         boolean hasX = configureLabels("x-labels");
         boolean hasY = configureLabels("y-labels");
         configureLabels("secondary-y-labels");
-        boolean showLabels = hasX || hasY;
-        mRenderer.setShowLabels(showLabels);
-        // Tick marks are sometimes ugly, so let's be minimalist and always leave the off
-        mRenderer.setShowTickMarks(false);
     }
 
     /**
