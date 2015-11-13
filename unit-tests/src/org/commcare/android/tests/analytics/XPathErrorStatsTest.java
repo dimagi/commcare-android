@@ -36,7 +36,7 @@ public class XPathErrorStatsTest {
         typeError.setSource(sourceRef);
         XPathErrorStats.logErrorToCurrentApp(typeError);
         final String expectedMessage =
-                "The problem was located in " + sourceRef + "\n XPath evaluation: type mismatch";
+                "The problem was located in " + sourceRef + "\nXPath evaluation: type mismatch \n";
 
         ArrayList<XPathErrorEntry> errors = XPathErrorStats.getErrors();
         Assert.assertEquals(1, errors.size());
