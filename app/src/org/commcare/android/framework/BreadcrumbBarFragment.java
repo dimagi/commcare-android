@@ -364,8 +364,9 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    private boolean inLandscapeFormEntry(Activity a) {
-        return (a instanceof FormEntryActivity) && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    private static boolean inLandscapeFormEntry(Activity a) {
+        return (a instanceof FormEntryActivity) &&
+                a.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
     
     public static String getBestTitle(Activity activity) {
