@@ -78,9 +78,12 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         setText(text);
         setTextColor(colorButtonText);
     }
+
     public void setupUIFromButton(CustomButtonWithText copyButton) {
         setColor(copyButton.backgroundColor);
         setImage(copyButton.backgroundImg);
+        setText(copyButton.text);
+        setTextColor(copyButton.textColor);
     }
 
     public void setText(String text) {

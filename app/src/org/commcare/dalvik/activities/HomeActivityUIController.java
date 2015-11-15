@@ -119,19 +119,22 @@ public class HomeActivityUIController {
 
     private void setupButtons() {
         refreshDataFromSyncDetails();
+        /*
         setupStartButton();
         setupIncompleteFormsButton();
         setupLogoutButton();
         setupViewSavedFormsButton();
         setupSyncButton();
+        */
     }
+
 
     private void setupStartButton() {
         startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_start_button, getStartButtonListener());
+        //adapter.setOnClickListenerForButton(R.layout.home_start_button, getStartButtonListener());
     }
 
     private void setupIncompleteFormsButton() {
@@ -139,7 +142,7 @@ public class HomeActivityUIController {
         if (viewIncompleteFormsButton != null) {
             setIncompleteFormsText();
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, getIncompleteButtonListener());
+        //adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, getIncompleteButtonListener());
     }
 
     private void setupLogoutButton() {
@@ -149,7 +152,7 @@ public class HomeActivityUIController {
             logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
+        //adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
     }
 
     private void setupViewSavedFormsButton() {
@@ -157,7 +160,7 @@ public class HomeActivityUIController {
         if (viewSavedFormsButton != null) {
             viewSavedFormsButton.setText(Localization.get(savedFormsKey));
         }
-        adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
+        //adapter.setOnClickListenerForButton(R.layout.home_savedforms_button, getViewOldFormsListener());
     }
 
     private void setupSyncButton() {
@@ -165,48 +168,7 @@ public class HomeActivityUIController {
         if (syncButton != null) {
             setSyncButtonText(null);
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_sync_button, getSyncButtonListener());
-    }
-
-    private View.OnClickListener getViewOldFormsListener() {
-        return new View.OnClickListener() {
-            public void onClick(View v) {
-                activity.goToFormArchive(false);
-            }
-        };
-    }
-
-    private View.OnClickListener getSyncButtonListener() {
-        return new View.OnClickListener() {
-            public void onClick(View v) {
-                activity.attemptSync();
-            }
-        };
-    }
-
-    private View.OnClickListener getStartButtonListener() {
-        return new View.OnClickListener() {
-            public void onClick(View v) {
-                activity.enterRootModule();
-            }
-        };
-    }
-
-    private View.OnClickListener getIncompleteButtonListener() {
-        return new View.OnClickListener() {
-            public void onClick(View v) {
-                activity.goToFormArchive(true);
-            }
-        };
-    }
-
-    private View.OnClickListener getLogoutButtonListener() {
-        return new View.OnClickListener() {
-            public void onClick(View v) {
-                CommCareApplication._().closeUserSession();
-                activity.returnToLogin();
-            }
-        };
+        //adapter.setOnClickListenerForButton(R.layout.home_sync_button, getSyncButtonListener());
     }
 
     private void setSyncButtonText(String syncTextKey) {
@@ -294,7 +256,7 @@ public class HomeActivityUIController {
 
     private void refreshSyncButton() {
         if (syncButton != null) {
-            setSyncButtonText(syncKey);
+            //setSyncButtonText(syncKey);
         } 
     }
 

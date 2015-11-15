@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    android:id="@+id/home_card"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    card_view:cardElevation="2dp"
+    card_view:cardUseCompatPadding="true">
+
+    <org.commcare.android.view.SquareImageView
+        android:id="@+id/card_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <org.commcare.android.view.ResizingTextView
+        android:id="@+id/card_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_image"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingLeft="@dimen/standard_spacer"
+        android:paddingRight="@dimen/standard_spacer"
+        android:textSize="@dimen/font_size_large"/>
+
+    <TextView
+        android:id="@+id/card_subtext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/card_text"
+        android:layout_gravity="right"
+        android:padding="@dimen/help_text_padding"
+        android:textSize="@dimen/font_size_small"/>
+</android.support.v7.widget.CardView>
