@@ -37,11 +37,13 @@ dependencies {
     compile project(':commcare')
     compile project(':libraries:mapballoons')
     compile project(':libraries:achartengine')
-    compile project(':libraries:AndroidStaggeredGrid:library')
+    //compile project(':libraries:AndroidStaggeredGrid:library')
     compile fileTree(dir: 'app/libs', include: '*.jar')
-    compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
-    compile 'com.android.support:support-v4:23.1.0'
-    compile 'com.android.support:gridlayout-v7:23.1.0'
+    //compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
+    //compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:gridlayout-v7:23.1.1'
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
 }
@@ -50,12 +52,14 @@ project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:22"
     buildToolsVersion = "23.0.2"
 }
+/*j
 project(':libraries:AndroidStaggeredGrid:library') {
   android{
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
   }
 }
+*/
 
 project(':libraries:mapballoons') {
   android{

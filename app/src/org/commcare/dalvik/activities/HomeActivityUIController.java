@@ -3,6 +3,8 @@ package org.commcare.dalvik.activities;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.util.Pair;
@@ -10,23 +12,17 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
-import com.etsy.android.grid.StaggeredGridView;
-
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
 import java.util.Date;
-
-import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 /**
  * Created by amstone326 on 9/17/15.
@@ -44,8 +40,8 @@ public class HomeActivityUIController {
     private SquareButtonWithNotification viewSavedFormsButton;
 
     private HomeScreenAdapter adapter;
-    private GridViewWithHeaderAndFooter gridView;
-    private StaggeredGridView newGridView;
+    //private GridViewWithHeaderAndFooter gridView;
+    //private StaggeredGridView newGridView;
     private View mTopBanner;
 
     private String syncKey = "home.sync";
@@ -88,17 +84,12 @@ public class HomeActivityUIController {
     }
 
     private void setupGridView() {
-        final View grid = activity.findViewById(R.id.home_gridview_buttons);
+        final RecyclerView grid = (RecyclerView)activity.findViewById(R.id.home_gridview_buttons);
+        grid.setHasFixedSize(true);
 
-        if (usingNewLayout()) {
-            newGridView = (StaggeredGridView) grid;
-            newGridView.addHeaderView(mTopBanner);
-            newGridView.setAdapter(adapter);
-        } else {
-            gridView = (GridViewWithHeaderAndFooter)grid;
-            gridView.addHeaderView(mTopBanner);
-            gridView.setAdapter(adapter);
-        }
+        StaggeredGridLayoutManager gridView = new StaggeredGridLayoutManager(2, 1);
+        grid.setLayoutManager(gridView);
+        grid.setAdapter(adapter);
 
         grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")

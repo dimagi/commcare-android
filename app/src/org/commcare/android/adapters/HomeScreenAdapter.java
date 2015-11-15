@@ -2,13 +2,15 @@ package org.commcare.android.adapters;
 
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.TextView;
 
 import org.commcare.android.view.SquareButtonWithNotification;
+import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
@@ -18,7 +20,8 @@ import java.util.ArrayList;
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
  * Created by dancluna on 3/19/15.
  */
-public class HomeScreenAdapter extends BaseAdapter {
+
+public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.SquareButtonViewHolder> {
     private static final String TAG = HomeScreenAdapter.class.getSimpleName();
 
     private static final int[] buttonsResources = new int[]{
@@ -53,6 +56,28 @@ public class HomeScreenAdapter extends BaseAdapter {
         }
     }
 
+    @Override
+    public int getItemCount() {
+        return buttons.length;
+    }
+
+    @Override
+    public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i) {
+        SquareButtonWithNotification squareButton = buttons[i];
+
+        squareButtonViewHolder.button.setupUIFromButton(squareButton.getButtonWithText());
+        squareButtonViewHolder.subText.setText(squareButton.getSubText());
+    }
+
+    @Override
+    public SquareButtonViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View itemView = LayoutInflater.
+                from(viewGroup.getContext()).
+                inflate(R.layout.square_button_notification, viewGroup, false);
+
+        return new SquareButtonViewHolder(itemView);
+    }
+
     /**
      * Sets the onClickListener for the given button
      *
@@ -61,7 +86,7 @@ public class HomeScreenAdapter extends BaseAdapter {
      */
     public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
         int buttonIndex = getButtonIndex(resourceCode);
-        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
+        SquareButtonWithNotification button = buttons[buttonIndex];
         if (button != null) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "Preexisting button when calling setOnClickListenerForButton");
@@ -87,31 +112,8 @@ public class HomeScreenAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return visibleButtons.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return buttons[position];
-    }
-
-    @Override
     public long getItemId(int position) {
         return buttonsResources[position];
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position < 0 || position >= getCount()) {
-            return null;
-        }
-        SquareButtonWithNotification btn = visibleButtons.get(position);
-
-        if (btn == null) {
-            Log.i(TAG, "Unexpected null button");
-        }
-        return btn;
     }
 
     /**
@@ -145,5 +147,17 @@ public class HomeScreenAdapter extends BaseAdapter {
             }
         }
         throw new IllegalArgumentException("Layout code not found: " + resourceCode);
+    }
+
+    static class SquareButtonViewHolder extends RecyclerView.ViewHolder {
+        protected SquareButtonWithText button;
+        protected TextView subText;
+
+        public SquareButtonViewHolder(View view) {
+            super(view);
+
+            button = (SquareButtonWithText)view.findViewById(R.id.square_button_text);
+            subText = (TextView)view.findViewById(R.id.button_subtext);
+        }
     }
 }
