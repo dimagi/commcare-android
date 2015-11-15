@@ -21,13 +21,21 @@ import java.util.Map;
 @Implements(net.sqlcipher.database.SQLiteDatabase.class)
 public class SQLiteDatabaseNative {
     private android.database.sqlite.SQLiteDatabase db;
+    private static Locale dbLocale;
     
     public void __constructor__(String path, char[] password, CursorFactory factory, int flags) {
         db = android.database.sqlite.SQLiteDatabase.openDatabase(path, null, flags);
+
+        if (dbLocale != null) {
+            db.setLocale(dbLocale);
+        }
     }
     
     public void __constructor__(String path, char[] password, CursorFactory factory, int flags, SQLiteDatabaseHook hook) {
         db = android.database.sqlite.SQLiteDatabase.openDatabase(path, null, flags);
+        if (dbLocale != null) {
+            db.setLocale(dbLocale);
+        }
     }
 
     public SQLiteDatabaseNative() {
@@ -239,7 +247,11 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public void setLocale(Locale locale) {
-        db.setLocale(locale);
+        if (db == null) {
+            dbLocale = locale;
+        } else {
+            db.setLocale(locale);
+        }
     }
 
     @Implementation
