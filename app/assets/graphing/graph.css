@@ -1,3 +1,13 @@
+path {
+    stroke-linecap: round;
+}
+
+/* Thicken graph lines */
 .c3-lines path {
     stroke-width: 3;
+}
+
+/* C3 defaults area fills to translucent */
+.c3-areas path {
+    opacity: 1;
 }
