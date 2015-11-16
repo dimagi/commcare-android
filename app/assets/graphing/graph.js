@@ -9,9 +9,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Turn off various default hover/click behaviors
     config.interaction = { enabled: false };
 
-    // Turn off default points; we'll be using custom ones
+    // Set point size
     config.point = {
     	r: function(d) {
+    	    if (radii[d.id]) {
+    	        // Scale bubble, max size of 30
+    	        return 30 * radii[d.id][d.index] / maxRadii[d.id];
+    	    }
+    	    // Turn off default points; we'll be using custom ones
             return 0;
         },
     };

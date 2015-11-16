@@ -2,6 +2,7 @@ package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.suite.model.graph.AnnotationData;
+import org.commcare.suite.model.graph.BubblePointData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -41,6 +42,12 @@ public class DataConfiguration extends Configuration {
     public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);
 
+        // Bubble graph data:
+        //  y-values id => array of radius values
+        //  y-values id => max radius found in that data (or specified by max-radius param)
+        JSONObject radii = new JSONObject();
+        JSONObject maxRadii = new JSONObject();
+
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
             JSONArray xValues = new JSONArray();
@@ -54,20 +61,34 @@ public class DataConfiguration extends Configuration {
             // TODO: allow customizing fill's color
             // TODO: remove fill-above from docs, see if anone's using it
             // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
-            if (s.getConfiguration("fill-below") != null) {
+            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                type = "scatter";
+            } else if (s.getConfiguration("fill-below") != null) {
                 type = "area";
             }
             mTypes.put(yID, type);
 
             xValues.put(xID);
             yValues.put(yID);
+            JSONArray rValues = new JSONArray();
+            double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
             for (XYPointData p : s.getPoints()) {
                 String description = "point (" + p.getX() + ", " + p.getY() + ")";
                 xValues.put(parseXValue(p.getX(), description));
                 yValues.put(parseYValue(p.getY(), description));
+                if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                    BubblePointData b = (BubblePointData)p;
+                    double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
+                    rValues.put(r);
+                    maxRadius = Math.max(maxRadius, r);
+                }
             }
             mColumns.put(xValues);
             mColumns.put(yValues);
+            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                radii.put(yID, rValues);
+                maxRadii.put(yID, maxRadius);
+            }
 
             String name = s.getConfiguration("name", "");
             if (name != null) {
@@ -75,7 +96,7 @@ public class DataConfiguration extends Configuration {
             }
 
             String color = s.getConfiguration("line-color", "#ff000000");
-            // TODO: Handle transparency
+            // TODO: Handle transparency (and test on bubble graphs)
             if (color.length() == "#aarrggbb".length()) {
                 color = "#" + color.substring(3);
             }
@@ -96,6 +117,9 @@ public class DataConfiguration extends Configuration {
         mConfiguration.put("names", mNames);
         mConfiguration.put("types", mTypes);
         mConfiguration.put("xs", mXs);
+
+        mVariables.put("radii", radii.toString());
+        mVariables.put("maxRadii", maxRadii.toString());
     }
 
     private void addAnnotations() throws JSONException, InvalidStateException {

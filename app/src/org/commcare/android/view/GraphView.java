@@ -193,11 +193,6 @@ public class GraphView {
         mRenderer.addSeriesRenderer(currentRenderer);
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
-        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-            if (s.getConfiguration("radius-max") != null) {
-                ((RangeXYValueSeries)series).setMaxValue(parseYValue(s.getConfiguration("radius-max"), "radius-max"));
-            }
-        }
         mDataset.addSeries(series);
 
         // Bubble charts will throw an index out of bounds exception if given points out of order
@@ -228,11 +223,7 @@ public class GraphView {
         JSONObject barLabels = new JSONObject();
         for (XYPointData p : sortedPoints) {
             String description = "point (" + p.getX() + ", " + p.getY() + ")";
-            if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-                BubblePointData b = (BubblePointData)p;
-                description += " with radius " + b.getRadius();
-                ((RangeXYValueSeries)series).add(parseXValue(b.getX(), description), parseYValue(b.getY(), description), parseRadiusValue(b.getRadius(), description));
-            } else if (Graph.TYPE_TIME.equals(mData.getType())) {
+            if (Graph.TYPE_TIME.equals(mData.getType())) {
                 ((TimeSeries)series).add(parseXValue(p.getX(), description), parseYValue(p.getY(), description));
             } else if (Graph.TYPE_BAR.equals(mData.getType())) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
@@ -353,15 +344,6 @@ public class GraphView {
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     private double parseYValue(String value, String description) throws InvalidStateException {
-        return parseDouble(value, description);
-    }
-
-    /**
-     * Parse given string into double
-     *
-     * @param description Something to identify the kind of value, used to augment any error message.
-     */
-    private Double parseRadiusValue(String value, String description) throws InvalidStateException {
         return parseDouble(value, description);
     }
 

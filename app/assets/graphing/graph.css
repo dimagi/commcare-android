@@ -12,6 +12,10 @@ path {
     opacity: 1;
 }
 
+.c3-circles  circle {
+    opacity: 1 !important;
+}
+
 /* Annotations text color */
 g.c3-texts-annotationsY text {
     fill: #000 !important;
