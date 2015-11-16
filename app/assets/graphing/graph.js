@@ -10,25 +10,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
     config.interaction = { enabled: false };
 
     // Add functions for custom tick labels
-    var axisLabels = {
-        x: {},
-        y: {},
-        y2: {},
-    };
-    for (var axis in axisLabels) {
-            for (var key in config.axis[axis].tick.format) {
-                axisLabels[axis][String(key)] = config.axis[axis].tick.format[String(key)];
-            }
+    if (config.axis.x.tick) {
+        config.axis.x.tick.format = function(d) {
+            return xLabels[String(d)] || d;
+        };
     }
-    config.axis.x.tick.format = function(d) {
-        return axisLabels.x[String(d)] || d;
-    };
-    config.axis.y.tick.format = function(d) {
-        return axisLabels.y[String(d)] || d;
-    };
-    config.axis.y2.tick.format = function(d) {
-        return axisLabels.y2[String(d)] || d;
-    };
+    if (config.axis.y.tick) {
+        config.axis.y.tick.format = function(d) {
+            return yLabels[String(d)] || d;
+        };
+    }
+    if (config.axis.y2.tick) {
+        config.axis.y2.tick.format = function(d) {
+            return y2Labels[String(d)] || d;
+        };
+    }
 
     var chart = c3.generate(config);
 });

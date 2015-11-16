@@ -20,6 +20,10 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.android.view.c3.AxisConfiguration;
+import org.commcare.android.view.c3.DataConfiguration;
+import org.commcare.android.view.c3.GridConfiguration;
+import org.commcare.android.view.c3.LegendConfiguration;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -28,6 +32,7 @@ import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +40,7 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -93,217 +99,40 @@ public class GraphView {
         return BarChart.Type.DEFAULT;
     }
 
-    private JSONObject getC3AxisConfig() throws InvalidStateException, JSONException {
-        JSONObject x = new JSONObject();
-        JSONObject y = new JSONObject();
-        JSONObject y2 = new JSONObject();
-        if (Boolean.valueOf(mData.getConfiguration("show-axes", "true")).equals(Boolean.FALSE)) {
-            JSONObject show = new JSONObject("{ show: false }");
-            x = show;
-            y = show;
-            y2 = show;
-        } else {
-            // Undo C3's automatic axis padding
-            JSONObject padding = new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}");
-            x.put("padding", padding);
-            y.put("padding", padding);
-            y2.put("padding", padding);
-
-            // Axis titles
-            addC3AxisLabel(x, "x-title", "outer-center");
-            addC3AxisLabel(y, "y-title", "outer-middle");
-            addC3AxisLabel(y2, "secondary-y-title", "outer-middle");
-
-            // Min and max boundaries
-            // TODO: verify x-min and x-max work with time-based graphs
-            if (mData.getConfiguration("x-min") != null) {
-                x.put("min", parseXValue(mData.getConfiguration("x-min"), "x-min"));
-            }
-            if (mData.getConfiguration("x-max") != null) {
-                x.put("max", parseXValue(mData.getConfiguration("x-max"), "x-max"));
-            }
-            if (mData.getConfiguration("y-min") != null) {
-                y.put("min", parseYValue(mData.getConfiguration("y-min"), "y-min"));
-            }
-            if (mData.getConfiguration("y-max") != null) {
-                y.put("max", parseYValue(mData.getConfiguration("y-max"), "y-max"));
-            }
-            if (mData.getConfiguration("secondary-y-min") != null) {
-                y2.put("min", parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"));
-            }
-            if (mData.getConfiguration("secondary-y-max") != null) {
-                y2.put("max", parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"));
-            }
-
-            // Determine whether secondary y axis should display
-            for (SeriesData s : mData.getSeries()) {
-                if (Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE)) {
-                    y2.put("show", true);
-                    break;
-                }
-            }
-
-            // Axis tick labels
-            addC3AxisTickConfig(x, "x-labels");
-            addC3AxisTickConfig(y, "y-labels");
-            addC3AxisTickConfig(y2, "secondary-y-labels");
-        }
-
-        JSONObject config = new JSONObject();
-        config.put("x", x);
-        config.put("y", y);
-        config.put("y2", y2);
-        return config;
-    }
-
-    private void addC3AxisTickConfig(JSONObject axis, String key) throws InvalidStateException, JSONException {
-        // The labels configuration might be a JSON array of numbers,
-        // a JSON object of number => string, or a single number
-        String labelString = mData.getConfiguration(key);
-        JSONObject tick = new JSONObject();
-
-        if (labelString != null) {
-            try {
-                // Array: label each given value
-                JSONArray labels = new JSONArray(labelString);
-                JSONArray values = new JSONArray();
-                for (int i = 0; i < labels.length(); i++) {
-                    values.put(parseXValue(labels.getString(i), key));   // TODO: verify this works for time graphs
-                }
-                tick.put("values", values);
-            } catch (JSONException je) {
-                // Assume try block failed because labelString isn't an array.
-                // Try parsing it as an object.
-                try {
-                    // Object: each key is a location on the axis,
-                    // and the value is text with which to label it
-                    JSONObject labels = new JSONObject(labelString);
-                    JSONArray values = new JSONArray();
-                    Iterator i = labels.keys();
-                    while (i.hasNext()) {
-                        String location = (String)i.next();
-                        values.put(parseXValue(location, key));
-                    }
-                    tick.put("values", values);
-                    tick.put("format", labels);     // TODO: verify this works for time graphs
-                } catch (JSONException e) {
-                    // Assume labelString is just a scalar, which
-                    // represents the number of labels the user wants.
-                    tick.put("count", Integer.valueOf(labelString));
-                }
-            }
-        }
-
-        axis.put("tick", tick);
-    }
-
-    private void addC3AxisLabel(JSONObject axis, String key, String position) throws JSONException {
-        String title = mData.getConfiguration(key, "");
-        title = title.replaceAll("^\\s*", "");
-        title = title.replaceAll("\\s*$", "");
-        if (!"".equals(title)) {
-            JSONObject label = new JSONObject();
-            label.put("text", title);
-            label.put("position", position);
-            axis.put("label", label);
-        }
-    }
-
-    private JSONObject getC3DataConfig() throws InvalidStateException, JSONException {
-        // Actual data: array of arrays, where first element is a string id
-        // and later elements are data, either x values or y values.
-        JSONArray columns = new JSONArray();
-
-        // Hash that pairs up the arrays defined in columns,
-        // y-values-array-id => x-values-array-id
-        JSONObject xs = new JSONObject();
-
-        // Hash of y-values id => name for legend
-        JSONObject names = new JSONObject();
-
-        // Hash of y-values id => 'y' or 'y2' depending on whether this data
-        // should be plotted against the primary or secondary y axis
-        JSONObject axes = new JSONObject();
-
-        int seriesIndex = 0;
-        for (SeriesData s : mData.getSeries()) {
-            JSONArray xValues = new JSONArray();
-            JSONArray yValues = new JSONArray();
-
-            String xID = "x" + seriesIndex;
-            String yID = "y" + seriesIndex;
-            xs.put(yID, xID);
-
-            xValues.put(xID);
-            yValues.put(yID);
-            for (XYPointData p : s.getPoints()) {
-                String description = "point (" + p.getX() + ", " + p.getY() + ")";
-                xValues.put(parseXValue(p.getX(), description));
-                yValues.put(parseYValue(p.getY(), description));
-            }
-            columns.put(xValues);
-            columns.put(yValues);
-
-            String name = s.getConfiguration("name", "");
-            if (name != null) {
-                names.put(yID, name);
-            }
-
-            axes.put(yID, Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? "y2" : "y");
-
-            seriesIndex++;
-        }
-
-        JSONObject config = new JSONObject();
-        config.put("xs", xs);
-        config.put("axes", axes);
-        config.put("columns", columns);
-        config.put("names", names);
-        return config;
-    }
-
-    private JSONObject getC3GridConfig() throws JSONException {
-        JSONObject config = new JSONObject();
-        if (Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE)) {
-            JSONObject show = new JSONObject("{ show: true }");
-            config.put("x", show);
-            config.put("y", show);
-        }
-        return config;
-    }
-
-    private JSONObject getC3LegendConfig() throws JSONException {
-        JSONObject config = new JSONObject();
-        if (Boolean.valueOf(mData.getConfiguration("show-legend", "false")).equals(Boolean.FALSE)) {
-            config.put("show", false);
-        }
-        return config;
-    }
-
-    private JSONObject getC3Config() throws InvalidStateException {
-        JSONObject config = new JSONObject();
-        try {
-            config.put("axis", getC3AxisConfig());
-            config.put("data", getC3DataConfig());
-            config.put("grid", getC3GridConfig());
-            config.put("legend", getC3LegendConfig());
-        } catch (JSONException e) {
-            throw new RuntimeException("something broke");  // TODO: fix
-        }
-        return config;
-    }
-
     /*
      * Get a View object that will display this graph. This should be called after making
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(GraphData data) throws InvalidStateException {
-        mData = data;
+    public View getView(GraphData graphData) throws InvalidStateException {
+        mData = graphData;
         
         WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
         WebView webView = new WebView(mContext);
         configureSettings(webView);
+
+        OrderedHashtable<String, String> variables = new OrderedHashtable<>();
+        JSONObject config = new JSONObject();
+        try {
+            DataConfiguration data = new DataConfiguration(mData);
+            config.put("data", data.getConfiguration());
+            variables.putAll(data.getVariables());
+
+            AxisConfiguration axis = new AxisConfiguration(mData);
+            config.put("axis", axis.getConfiguration());
+            variables.putAll(axis.getVariables());
+
+            GridConfiguration grid = new GridConfiguration(mData);
+            config.put("grid", grid.getConfiguration());
+            variables.putAll(grid.getVariables());
+
+            LegendConfiguration legend = new LegendConfiguration(mData);
+            config.put("legend", legend.getConfiguration());
+            variables.putAll(legend.getVariables());
+        } catch (JSONException e) {
+            throw new RuntimeException("something broke");  // TODO: fix
+        }
+        variables.put("config", config.toString());
 
         String html =
                 "<html>" +
@@ -312,7 +141,16 @@ public class GraphView {
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-                        "<script type='text/javascript'>var config = " + getC3Config().toString() + ";</script>" +
+                        "<script type='text/javascript'>";
+
+        Enumeration<String> e = variables.keys();
+        while (e.hasMoreElements()) {
+            String name = e.nextElement();
+            html += "var " + name + " = " + variables.get(name) + ";\n";
+        }
+
+        html +=
+                        "</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
                     "<body><div id='chart'></div></body>" +
@@ -575,8 +413,9 @@ public class GraphView {
         }
     }
 
+    // TODO: delete the parseFoo functions below
     /**
-     * Parse given string into Double for AChartEngine.
+     * Parse given string into double
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
@@ -593,7 +432,7 @@ public class GraphView {
     }
 
     /**
-     * Parse given string into Double for AChartEngine.
+     * Parse given string into double
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
@@ -602,7 +441,7 @@ public class GraphView {
     }
 
     /**
-     * Parse given string into Double for AChartEngine.
+     * Parse given string into double
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
