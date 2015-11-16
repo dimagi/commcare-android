@@ -34,6 +34,9 @@ public class DataConfiguration extends Configuration {
         // should be plotted against the primary or secondary y axis
         JSONObject axes = new JSONObject();
 
+        // Hash of y-values id => series color
+        JSONObject colors = new JSONObject();
+
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
             JSONArray xValues = new JSONArray();
@@ -58,14 +61,22 @@ public class DataConfiguration extends Configuration {
                 names.put(yID, name);
             }
 
+            String color = s.getConfiguration("line-color", "#ff000000");
+            // TODO: Handle transparency
+            if (color.length() == "#aarrggbb".length()) {
+                color = "#" + color.substring(3);
+            }
+            colors.put(yID, color);
+
             axes.put(yID, Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? "y2" : "y");
 
             seriesIndex++;
         }
 
-        mConfiguration.put("xs", xs);
         mConfiguration.put("axes", axes);
+        mConfiguration.put("colors", colors);
         mConfiguration.put("columns", columns);
         mConfiguration.put("names", names);
+        mConfiguration.put("xs", xs);
     }
 }

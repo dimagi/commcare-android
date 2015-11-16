@@ -378,14 +378,6 @@ public class GraphView {
             mRenderer.setPointSize(6);
         }
 
-        String lineColor = s.getConfiguration("line-color");
-        if (lineColor == null) {
-            currentRenderer.setColor(Color.BLACK);
-        } else {
-            currentRenderer.setColor(Color.parseColor(lineColor));
-        }
-        currentRenderer.setLineWidth(2);
-
         fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
         fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
     }
