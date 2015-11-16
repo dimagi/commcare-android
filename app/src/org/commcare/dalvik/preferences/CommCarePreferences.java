@@ -14,6 +14,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
@@ -74,8 +76,6 @@ public class CommCarePreferences
 
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
-
-    public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
 
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
@@ -93,7 +93,16 @@ public class CommCarePreferences
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
-    private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
+
+    private final static String PREFS_APP_SERVER_KEY = "default_app_server";
+    private final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
+    private final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
+    private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
+    private final static String PREFS_FORM_RECORD_KEY = "form-record-url";
+    private final static String PREFS_UPDATE_FREQUENCY_KEY = "cc-autoup-freq";
+    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
+    private final static String PREFS_LOCALE_KEY = "cur_locale";
+    private final static String PREFS_PRINT_KEY = "print-doc-location";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,24 +118,53 @@ public class CommCarePreferences
         lp.setEntries(ChangeLocaleUtil.getLocaleNames());
         lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
         lp.setTitle("Change Locale");
-        lp.setKey("cur_locale");
+        lp.setKey(PREFS_LOCALE_KEY);
         lp.setDialogTitle("Choose your Locale");
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
 
-        //Set an OnPreferenceClickListener for Print doc location
-        Preference pref = prefMgr.findPreference(PREF_MANAGER_PRINT_KEY);
+        Preference pref = prefMgr.findPreference(PREFS_PRINT_KEY);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (preference.getKey().equals(PREF_MANAGER_PRINT_KEY)) {
-                    startFileBrowser();
-                    return true;
+                switch(preference.getKey()) {
+                    case PREFS_APP_SERVER_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_APP_SERVER);
+                        return true;
+                    case PREFS_DATA_SERVER_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_DATA_SERVER);
+                        return true;
+                    case PREFS_SUBMISSION_URL_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
+                        return true;
+                    case PREFS_KEY_SERVER_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_KEY_SERVER);
+                        return true;
+                    case PREFS_FORM_RECORD_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
+                        return true;
+                    case PREFS_UPDATE_FREQUENCY_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+                        return true;
+                    case PREFS_FUZZY_SEARCH_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
+                        return true;
+                    case PREFS_LOCALE_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_LOCALE);
+                        return true;
+                    case PREFS_PRINT_KEY:
+                        reportEditPreference(GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                        startFileBrowser();
+                        return true;
                 }
                 return false;
             }
         });
+    }
+
+    private static void reportEditPreference(String label) {
+        GoogleAnalyticsUtils.reportEditSetting(GoogleAnalyticsFields.CATEGORY_CC_PREFS, label);
     }
 
     @Override
@@ -225,8 +263,7 @@ public class CommCarePreferences
 
     public static boolean isFuzzySearchEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+        return properties.getString(PREFS_FUZZY_SEARCH_KEY, NO).equals(YES);
     }
 
     public static boolean isEntityDetailLoggingEnabled() {
@@ -271,7 +308,7 @@ public class CommCarePreferences
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("cur_locale")) {
+        if (key.equals(PREFS_LOCALE_KEY)) {
             Localization.setLocale(sharedPreferences.getString(key, "default"));
         }
     }

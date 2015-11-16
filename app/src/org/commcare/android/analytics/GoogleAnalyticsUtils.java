@@ -42,14 +42,18 @@ public class GoogleAnalyticsUtils {
         reportAction(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU);
     }
 
-    public static void reportSettingsScreenEntry(String category, String label) {
-        reportSettingsScreenEntry(category, label, -1);
+    public static void reportMenuItemEntry(String category, String label) {
+        reportAction(category, GoogleAnalyticsFields.ACTION_MENU_ITEM, label);
     }
 
-    public static void reportSettingsScreenEntry(String category, String label, int value) {
+    public static void reportEnterEditSetting(String category, String label) {
+        reportEnterEditSetting(category, label, -1);
+    }
+
+    public static void reportEnterEditSetting(String category, String label, int value) {
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category).
-                setAction(GoogleAnalyticsFields.ACTION_SETTINGS_SCREEN).
+                setAction(GoogleAnalyticsFields.ACTION_EDIT_SETTING).
                 setLabel(label);
         if (value != -1) {
             builder.setValue(value);

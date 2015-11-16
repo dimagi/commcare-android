@@ -7,14 +7,15 @@ package org.commcare.android.analytics;
  */
 public final class GoogleAnalyticsFields {
 
+    // Categories
     public static String CATEGORY_HOME_SCREEN = "Home Screen";
     public static String CATEGORY_FORM_ENTRY = "Form Entry";
+    public static String CATEGORY_CC_PREFS = "CommCare Preferences";
 
-    // Actions for both categories
-    public static String ACTION_OPTIONS_MENU = "Enter Options Menu";
-    public static String ACTION_SETTINGS_SCREEN = "Enter a Settings Screen";
-
-    // Actions for CATEGORY_HOME_SCREEN only
+    // Actions for multiple categories
+    public static String ACTION_OPTIONS_MENU = "Open Options Menu";
+    public static String ACTION_MENU_ITEM = "Enter a Menu Item";
+    public static String ACTION_EDIT_SETTING = "Enter A Settings Edit Screen";
     public static String ACTION_BUTTON = "Button Press";
 
     // Actions for CATEGORY_FORM_ENTRY only
@@ -29,17 +30,18 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_SYNC = "Sync Button";
     public static String LABEL_LOGOUT = "Logout Button";
 
-    // Labels for ACTION_SETTINGS_SCREEN (in CATEGORY_HOME_SCREEN)
+    // Labels for ACTION_EDIT_SETTING in CATEGORY_CC_PREFS
     public static String LABEL_APP_SERVER = "CC Application Server";
     public static String LABEL_DATA_SERVER = "Data Server";
     public static String LABEL_SUBMISSION_SERVER = "Submission Server";
     public static String LABEL_KEY_SERVER = "Key Server";
+    public static String LABEL_FORM_RECORD_SERVER = "Form Record Server";
     public static String LABEL_AUTO_UPDATE = "Auto Update Frequency";
     public static String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static String LABEL_LOCALE = "Change Locale";
 
-    // Labels for ACTION_SETTINGS_SCREEN (in CATEGORY_FORM_ENTRY)
+    // Labels for ACTION_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static String LABEL_SAVE_FORM = "Save Form";
     public static String LABEL_FORM_HIERARCHY = "Form Hierarchy";
     public static String LABEL_CHANGE_LANGUAGE = "Change Language";
@@ -54,6 +56,11 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_SAVE_AND_EXIT = "Save and Exit";
     public static String LABEL_EXIT_NO_SAVE = "Exit without Saving";
     public static String LABEL_BACK_TO_FORM = "Back to Form";
+
+    // Values for LABEL_AUTO_UPDATE
+    public static int VALUE_NEVER = 0;
+    public static int VALUE_DAILY = 1;
+    public static int VALUE_WEEKLY = 2;
 
     // Screen Names
     public static String SCREEN_HOME = "CommCareHomeActivity";
