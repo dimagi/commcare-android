@@ -86,6 +86,8 @@ public class DataConfiguration extends Configuration {
             seriesIndex++;
         }
 
+        addBoundaries();
+
         addAnnotations();
 
         mConfiguration.put("axes", mAxes);
@@ -119,5 +121,35 @@ public class DataConfiguration extends Configuration {
         mColumns.put(xValues);
         mColumns.put(yValues);
         mVariables.put("annotations", text.toString());
+    }
+
+    private void addBoundaries() throws JSONException, InvalidStateException {
+        String xMin = mData.getConfiguration("x-min");
+        String xMax = mData.getConfiguration("x-max");
+        String yMin = mData.getConfiguration("y-min");
+        String yMax = mData.getConfiguration("y-max");
+
+        if (xMin == null || xMax == null || yMin == null || yMax == null) {
+            return;
+        }
+
+        String xID = "boundsX";
+        String yID = "boundsY";
+
+        mXs.put(yID, xID);
+        mTypes.put(yID, "line");
+
+        JSONArray xValues = new JSONArray();
+        xValues.put(xID);
+        xValues.put(parseXValue(xMin, "x-min"));
+        xValues.put(parseXValue(xMax, "x-max"));
+
+        JSONArray yValues = new JSONArray();
+        yValues.put(yID);
+        yValues.put(parseYValue(yMin, "y-min"));
+        yValues.put(parseYValue(yMax, "y-max"));
+
+        mColumns.put(xValues);
+        mColumns.put(yValues);
     }
 }

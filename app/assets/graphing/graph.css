@@ -12,15 +12,18 @@ path {
     opacity: 1;
 }
 
-/* Annotations series: hide line, default text color, hide from legend */
-g.c3-chart-line.c3-target.c3-target-annotationsY {
-    display: none;
-}
-
+/* Annotations text color */
 g.c3-texts-annotationsY text {
     fill: #000 !important;
 }
 
-.c3-legend-item-annotationsY {
+/* Hide system-genereated series */
+g.c3-chart-line.c3-target.c3-target-annotationsY,
+g.c3-chart-line.c3-target.c3-target-boundsY {
+    display: none;
+}
+
+.c3-legend-item-annotationsY,
+.c3-legend-item-boundsY {
     display: none;
 }
