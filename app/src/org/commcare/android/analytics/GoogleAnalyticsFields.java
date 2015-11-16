@@ -24,8 +24,8 @@ public final class GoogleAnalyticsFields {
 
     // Labels for ACTION_BUTTON
     public static String LABEL_START = "Start Button";
-    public static String LABEL_SAVED = "Saved Forms Button";
-    public static String LABEL_INCOMPLETE = "Incomplete Forms Button";
+    public static String LABEL_SAVED_FORMS = "Saved Forms Button";
+    public static String LABEL_INCOMPLETE_FORMS = "Incomplete Forms Button";
     public static String LABEL_SYNC = "Sync Button";
     public static String LABEL_LOGOUT = "Logout Button";
 
@@ -45,9 +45,15 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_CHANGE_LANGUAGE = "Change Language";
     public static String LABEL_CHANGE_SETTINGS = "Change Settings";
 
-    // Labels for ACTION_FORWARD and ACTION_BACKWARD
+    // Labels for ACTION_FORWARD and ACTION_BACKWARD (in CATEGORY_FORM_ENTRY)
     public static String LABEL_ARROW = "Press Arrow";
     public static String LABEL_SWIPE = "Swipe";
+
+    // Labels for ACTION_QUIT_ATTEMPT (in CATEGORY_FORM_ENTRY)
+    public static String LABEL_NO_DIALOG = "No Dialog Shown";
+    public static String LABEL_SAVE_AND_EXIT = "Save and Exit";
+    public static String LABEL_EXIT_NO_SAVE = "Exit without Saving";
+    public static String LABEL_BACK_TO_FORM = "Back to Form";
 
     // Screen Names
     public static String SCREEN_HOME = "CommCareHomeActivity";

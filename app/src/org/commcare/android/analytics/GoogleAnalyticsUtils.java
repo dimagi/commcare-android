@@ -17,6 +17,19 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
+    public static void reportAction(String category, String action, String label) {
+        getTracker().send(new HitBuilders.EventBuilder()
+                .setCategory(category)
+                .setAction(action)
+                .setLabel(label)
+                .build());
+    }
+
+    public static void reportFormQuitAttempt(String label) {
+        reportAction(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT, label);
+    }
+
     public static void reportButtonClick(String screenName, String buttonLabel) {
         getTracker(screenName).send(new HitBuilders.EventBuilder()
                 .setCategory(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN)

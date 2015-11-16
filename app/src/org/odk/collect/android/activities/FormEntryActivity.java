@@ -1485,15 +1485,19 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         switch (which) {
                             case 0: // save and exit
                                 if(items.length == 1) {
+                                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                                     discardChangesAndExit();
                                 } else {
+                                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                                     saveFormToDisk(EXIT, null, false);
                                 }
                                 break;
                             case 1: // discard changes and exit
+                                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                                 discardChangesAndExit();
                                 break;
                             case 2:// do nothing
+                                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
                                 break;
                         }
                     }
@@ -1933,9 +1937,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
-        GoogleAnalyticsUtils.reportAction(
-                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT);
         if(!formHasLoaded()) {
             finish();
         } else if (mFormController.isFormReadOnly()) {
@@ -1946,7 +1947,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             finishReturnInstance(false);
         } else {
             createQuitDialog();
+            return;
         }
+        GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_NO_DIALOG);
     }
     
     /**

@@ -180,7 +180,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getViewOldFormsListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS);
                 activity.goToFormArchive(false);
             }
         };
@@ -207,7 +207,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getIncompleteButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS);
                 activity.goToFormArchive(true);
             }
         };
@@ -224,7 +224,8 @@ public class HomeActivityUIController {
     }
 
     public static void reportButtonClick(String buttonLabel) {
-        GoogleAnalyticsUtils.reportButtonClick(GoogleAnalyticsFields.SCREEN_HOME, buttonLabel);
+        GoogleAnalyticsUtils.reportButtonClick(GoogleAnalyticsFields.SCREEN_HOME,
+                buttonLabel);
     }
 
     private void setSyncButtonText(String syncTextKey) {
