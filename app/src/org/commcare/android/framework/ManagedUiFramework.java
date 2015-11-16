@@ -17,6 +17,11 @@ import java.lang.reflect.Field;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class ManagedUiFramework {
+
+    public static boolean isManagedUi(Class c) {
+        return c.isAnnotationPresent(ManagedUi.class);
+    }
+
     /**
      * Set text for activity's UiElement annotated fields
      */

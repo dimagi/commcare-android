@@ -116,7 +116,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
-        loadStateFromBundle(savedInstanceState);
+        loadUiElementState(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
@@ -134,8 +134,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         mGestureDetector = new GestureDetector(this, this);
     }
 
-    private void loadStateFromBundle(Bundle savedInstanceState) {
-        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
+    private void loadUiElementState(Bundle savedInstanceState) {
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
 
             if (savedInstanceState != null) {
@@ -150,7 +150,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
             ManagedUiFramework.saveUiStateToBundle(this, outState);
         }
     }
