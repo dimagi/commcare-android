@@ -109,6 +109,13 @@ public class CommCareVerificationActivity
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(MISSING_MEDIA_TEXT_KEY, missingMediaPrompt.getText().toString());
+        outState.putBoolean(NEW_MEDIA_KEY, newMediaToValidate);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -124,10 +131,16 @@ public class CommCareVerificationActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(MISSING_MEDIA_TEXT_KEY, missingMediaPrompt.getText().toString());
-        outState.putBoolean(NEW_MEDIA_KEY, newMediaToValidate);
+    protected void onPostResume() {
+        super.onPostResume();
+
+        if (isFirstLaunch) {
+            isFirstLaunch = false;
+            verifyResourceInstall();
+        } else if (newMediaToValidate) {
+            newMediaToValidate = false;
+            verifyResourceInstall();
+        }
     }
 
     private void verifyResourceInstall() {
@@ -205,18 +218,6 @@ public class CommCareVerificationActivity
         }
 
         missingMediaPrompt.setText(message);
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-
-        if (isFirstLaunch) {
-            verifyResourceInstall();
-        } else if (newMediaToValidate) {
-            newMediaToValidate = false;
-            verifyResourceInstall();
-        }
     }
 
     @Override
