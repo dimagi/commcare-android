@@ -34,6 +34,9 @@ public class DataConfiguration extends Configuration {
         // should be plotted against the primary or secondary y axis
         JSONObject axes = new JSONObject();
 
+        // Hash of y-values id => line, scatter, bar, area, etc.
+        JSONObject types = new JSONObject();
+
         // Hash of y-values id => series color
         JSONObject colors = new JSONObject();
 
@@ -45,6 +48,15 @@ public class DataConfiguration extends Configuration {
             String xID = "x" + seriesIndex;
             String yID = "y" + seriesIndex;
             xs.put(yID, xID);
+
+            String type = "line";
+            // TODO: allow customizing fill's color
+            // TODO: remove fill-above from docs, see if anone's using it
+            // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
+            if (s.getConfiguration("fill-below") != null) {
+                type = "area";
+            }
+            types.put(yID, type);
 
             xValues.put(xID);
             yValues.put(yID);
@@ -77,6 +89,7 @@ public class DataConfiguration extends Configuration {
         mConfiguration.put("colors", colors);
         mConfiguration.put("columns", columns);
         mConfiguration.put("names", names);
+        mConfiguration.put("types", types);
         mConfiguration.put("xs", xs);
     }
 }

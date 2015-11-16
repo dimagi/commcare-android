@@ -194,7 +194,6 @@ public class GraphView {
     private void renderSeries(SeriesData s) throws InvalidStateException {
         XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
         mRenderer.addSeriesRenderer(currentRenderer);
-        configureSeries(s, currentRenderer);
 
         XYSeries series = createSeries(Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? 1 : 0);
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
@@ -344,53 +343,6 @@ public class GraphView {
             currentRenderer.setAnnotationsTextSize(mTextSize);
             currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.color.black));
             mRenderer.addSeriesRenderer(currentRenderer);
-        }
-    }
-
-    /*
-     * Apply any user-requested look and feel changes to graph.
-     */
-    private void configureSeries(SeriesData s, XYSeriesRenderer currentRenderer) {
-        // Default to circular points, but allow other shapes or no points at all
-        String pointStyle = s.getConfiguration("point-style", "circle").toLowerCase();
-        if (!pointStyle.equals("none")) {
-            PointStyle style = null;
-            switch (pointStyle) {
-                case "circle":
-                    style = PointStyle.CIRCLE;
-                    break;
-                case "x":
-                    style = PointStyle.X;
-                    break;
-                case "square":
-                    style = PointStyle.SQUARE;
-                    break;
-                case "triangle":
-                    style = PointStyle.TRIANGLE;
-                    break;
-                case "diamond":
-                    style = PointStyle.DIAMOND;
-                    break;
-            }
-            currentRenderer.setPointStyle(style);
-            currentRenderer.setFillPoints(true);
-            currentRenderer.setPointStrokeWidth(2);
-            mRenderer.setPointSize(6);
-        }
-
-        fillOutsideLine(s, currentRenderer, "fill-above", XYSeriesRenderer.FillOutsideLine.Type.ABOVE);
-        fillOutsideLine(s, currentRenderer, "fill-below", XYSeriesRenderer.FillOutsideLine.Type.BELOW);
-    }
-
-    /*
-     * Helper function for setting up color fills above or below a series.
-     */
-    private void fillOutsideLine(SeriesData s, XYSeriesRenderer currentRenderer, String property, XYSeriesRenderer.FillOutsideLine.Type type) {
-        property = s.getConfiguration(property);
-        if (property != null) {
-            XYSeriesRenderer.FillOutsideLine fill = new XYSeriesRenderer.FillOutsideLine(type);
-            fill.setColor(Color.parseColor(property));
-            currentRenderer.addFillOutsideLine(fill);
         }
     }
 
