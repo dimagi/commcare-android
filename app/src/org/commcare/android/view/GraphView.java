@@ -131,6 +131,7 @@ public class GraphView {
             addC3AxisLabel(y2, "secondary-y-title", "outer-middle");
 
             // Min and max boundaries
+            // TODO: verify x-min and x-max work with time-based graphs
             if (mData.getConfiguration("x-min") != null) {
                 x.put("min", parseXValue(mData.getConfiguration("x-min"), "x-min"));
             }
@@ -157,6 +158,11 @@ public class GraphView {
                     break;
                 }
             }
+
+            // Axis tick labels
+            addC3AxisTickConfig(x, "x-labels");
+            addC3AxisTickConfig(y, "y-labels");
+            addC3AxisTickConfig(y2, "secondary-y-labels");
         }
 
         JSONObject config = new JSONObject();
@@ -164,6 +170,47 @@ public class GraphView {
         config.put("y", y);
         config.put("y2", y2);
         return config;
+    }
+
+    private void addC3AxisTickConfig(JSONObject axis, String key) throws InvalidStateException, JSONException {
+        // The labels configuration might be a JSON array of numbers,
+        // a JSON object of number => string, or a single number
+        String labelString = mData.getConfiguration(key);
+        JSONObject tick = new JSONObject();
+
+        if (labelString != null) {
+            try {
+                // Array: label each given value
+                JSONArray labels = new JSONArray(labelString);
+                JSONArray values = new JSONArray();
+                for (int i = 0; i < labels.length(); i++) {
+                    values.put(parseXValue(labels.getString(i), key));   // TODO: verify this works for time graphs
+                }
+                tick.put("values", values);
+            } catch (JSONException je) {
+                // Assume try block failed because labelString isn't an array.
+                // Try parsing it as an object.
+                try {
+                    // Object: each key is a location on the axis,
+                    // and the value is text with which to label it
+                    JSONObject labels = new JSONObject(labelString);
+                    JSONArray values = new JSONArray();
+                    Iterator i = labels.keys();
+                    while (i.hasNext()) {
+                        String location = (String)i.next();
+                        values.put(parseXValue(location, key));
+                    }
+                    tick.put("values", values);
+                    tick.put("format", labels);     // TODO: verify this works for time graphs
+                } catch (JSONException e) {
+                    // Assume labelString is just a scalar, which
+                    // represents the number of labels the user wants.
+                    tick.put("count", Integer.valueOf(labelString));
+                }
+            }
+        }
+
+        axis.put("tick", tick);
     }
 
     private void addC3AxisLabel(JSONObject axis, String key, String position) throws JSONException {
@@ -556,11 +603,6 @@ public class GraphView {
         mRenderer.setShowLegend(showLegend);
         mRenderer.setFitLegend(showLegend);
         mRenderer.setLegendTextSize(mTextSize);
-
-        // Labels
-        boolean hasX = configureLabels("x-labels");
-        boolean hasY = configureLabels("y-labels");
-        configureLabels("secondary-y-labels");
     }
 
     /**
@@ -613,110 +655,6 @@ public class GraphView {
         } catch (NumberFormatException nfe) {
             throw new InvalidStateException("Could not understand '" + value + "' in " + description);
         }
-    }
-
-    /**
-     * Customize labels.
-     *
-     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
-     * @return True iff axis has any labels at all
-     */
-    private boolean configureLabels(String key) throws InvalidStateException {
-        boolean hasLabels = true;
-
-        // The labels setting might be a JSON array of numbers, 
-        // a JSON object of number => string, or a single number
-        String labelString = mData.getConfiguration(key);
-        if (labelString != null) {
-            try {
-                // Array: label each given value
-                JSONArray labels = new JSONArray(labelString);
-                setLabelCount(key, 0);
-                for (int i = 0; i < labels.length(); i++) {
-                    String value = labels.getString(i);
-                    addTextLabel(key, parseXValue(value, "x label '" + key + "'"), value);
-                }
-                hasLabels = labels.length() > 0;
-            } catch (JSONException je) {
-                // Assume try block failed because labelString isn't an array.
-                // Try parsing it as an object.
-                try {
-                    // Object: each keys is a location on the axis, 
-                    // and the value is the text with which to label it
-                    JSONObject labels = new JSONObject(labelString);
-                    setLabelCount(key, 0);
-                    Iterator i = labels.keys();
-                    hasLabels = false;
-                    while (i.hasNext()) {
-                        String location = (String)i.next();
-                        addTextLabel(key, parseXValue(location, "x label at " + location), labels.getString(location));
-                        hasLabels = true;
-                    }
-                } catch (JSONException e) {
-                    // Assume labelString is just a scalar, which
-                    // represents the number of labels the user wants.
-                    Integer count = Integer.valueOf(labelString);
-                    setLabelCount(key, count);
-                    hasLabels = count != 0;
-                }
-            }
-        }
-
-        return hasLabels;
-    }
-
-    /**
-     * Helper for configureLabels. Adds a label to the appropriate axis.
-     *
-     * @param key      One of "x-labels", "y-labels", "secondary-y-labels"
-     * @param location Point on axis to add label
-     * @param text     String for label
-     */
-    private void addTextLabel(String key, Double location, String text) {
-        if (isXKey(key)) {
-            mRenderer.addXTextLabel(location, text);
-        } else {
-            int scaleIndex = getScaleIndex(key);
-            if (mRenderer.getYAxisAlign(scaleIndex) == Align.RIGHT) {
-                text = "   " + text;
-            }
-            mRenderer.addYTextLabel(location, text, scaleIndex);
-        }
-    }
-
-    /**
-     * Helper for configureLabels. Sets desired number of labels for the appropriate axis.
-     * AChartEngine will then determine how to space the labels.
-     *
-     * @param key   One of "x-labels", "y-labels", "secondary-y-labels"
-     * @param value Number of labels
-     */
-    private void setLabelCount(String key, int value) {
-        if (isXKey(key)) {
-            mRenderer.setXLabels(value);
-        } else {
-            mRenderer.setYLabels(value);
-        }
-    }
-
-    /**
-     * Helper for turning key into scale.
-     *
-     * @param key Something like "x-labels" or "y-secondary-labels"
-     * @return Index for passing to AChartEngine functions that accept a scale
-     */
-    private int getScaleIndex(String key) {
-        return key.contains("secondary") ? 1 : 0;
-    }
-
-    /**
-     * Helper for parsing axis from configuration key.
-     *
-     * @param key Something like "x-min" or "y-labels"
-     * @return True iff key is relevant to x axis
-     */
-    private boolean isXKey(String key) {
-        return key.startsWith("x-");
     }
 
     /**
