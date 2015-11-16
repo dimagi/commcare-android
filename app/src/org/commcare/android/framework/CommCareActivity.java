@@ -23,7 +23,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -54,7 +53,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioController;
 
-import java.lang.reflect.Field;
 
 /**
  * Base class for CommCareActivities to simplify
@@ -118,10 +116,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
-        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
-            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-            loadFields();
-        }
+        loadStateFromBundle(savedInstanceState);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
@@ -136,6 +132,27 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         mGestureDetector = new GestureDetector(this, this);
+    }
+
+    private void loadStateFromBundle(Bundle savedInstanceState) {
+        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
+            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+
+            if (savedInstanceState != null) {
+                ManagedUiFramework.restoreUiElements(this, savedInstanceState);
+            } else {
+                ManagedUiFramework.loadUiElements(this);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
+            ManagedUiFramework.saveUiStateToBundle(this, outState);
+        }
     }
 
     /**
@@ -213,41 +230,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    protected void loadFields() {
-        Class c = this.getClass();
-        for (Field f : c.getDeclaredFields()) {
-            if (f.isAnnotationPresent(UiElement.class)) {
-                UiElement element = f.getAnnotation(UiElement.class);
-                try {
-                    f.setAccessible(true);
-
-                    try {
-                        View v = this.findViewById(element.value());
-                        f.set(this, v);
-
-                        String localeString = element.locale();
-                        if (!"".equals(localeString)) {
-                            if (v instanceof EditText) {
-                                ((EditText) v).setHint(Localization.get(localeString));
-                            } else if (v instanceof TextView) {
-                                ((TextView) v).setText(Localization.get(localeString));
-                            } else {
-                                throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException("Bad Object type for field " + f.getName());
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Couldn't access the activity field for some reason");
-                    }
-                } finally {
-                    f.setAccessible(false);
-                }
-            }
         }
     }
 
