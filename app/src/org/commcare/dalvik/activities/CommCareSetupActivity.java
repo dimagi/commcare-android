@@ -180,7 +180,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             startAllowed = savedInstanceState.getBoolean("startAllowed");
         }
 
-        setupAppPersistance();
+        persistCommCareAppState();
 
         Log.v("UiState", "Current vars: " +
                         "UIState is: " + this.uiState + " " +
@@ -190,13 +190,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         performSMSInstall(false);
     }
-    private void setupAppPersistance() {
+
+    private void persistCommCareAppState() {
         FragmentManager fm = this.getSupportFragmentManager();
 
         containerFragment = (ContainerFragment) fm.findFragmentByTag(ContainerFragment.KEY);
 
-        // stateHolder and its previous state aren't null if the activity is
-        // being created due to an orientation change.
         if (containerFragment == null) {
             containerFragment = new ContainerFragment<>();
             fm.beginTransaction().add(containerFragment, ContainerFragment.KEY).commit();

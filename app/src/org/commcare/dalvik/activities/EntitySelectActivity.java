@@ -265,7 +265,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
-        setupPersistingAdapter(view);
+        persistAdapterState(view);
+
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
 
@@ -276,7 +277,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
     }
 
-    private void setupPersistingAdapter(ListView view) {
+    private void persistAdapterState(ListView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
         containerFragment = (ContainerFragment)fm.findFragmentByTag(ContainerFragment.KEY);
