@@ -617,7 +617,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         // Refresh UI for potential new language
-        loadFields(false);
+        loadFields();
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));

@@ -13,10 +13,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -25,7 +23,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -123,7 +120,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-            loadFields(true);
+            loadFields();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
@@ -219,14 +216,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /**
-     * @param restoreOldFields Use the fields already on screen? For refreshing
-     *                         fields when the default language changes due to
-     *                         the app being changed on the home screen
-     *                         multiple app drop-down menu.
-     */
-    protected void loadFields(boolean restoreOldFields) {
-        CommCareActivity oldActivity = stateHolder.getPreviousState();
+    protected void loadFields() {
         Class c = this.getClass();
         for (Field f : c.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -237,24 +227,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                     try {
                         View v = this.findViewById(element.value());
                         f.set(this, v);
-
-                        if (oldActivity != null && restoreOldFields) {
-                            View oldView = (View) f.get(oldActivity);
-                            if (oldView != null) {
-                                if (v instanceof TextView) {
-                                    ((TextView) v).setText(((TextView) oldView).getText());
-                                }
-                                if (v == null) {
-                                    Log.d("loadFields", "NullPointerException when trying to find view with id: " +
-                                            +element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
-                                            + " oldView is " + oldView + " for activity " + oldActivity +
-                                            ", element is: " + f + " (" + f.getName() + ")");
-                                }
-                                v.setVisibility(oldView.getVisibility());
-                                v.setEnabled(oldView.isEnabled());
-                                continue;
-                            }
-                        }
 
                         String localeString = element.locale();
                         if (!"".equals(localeString)) {
@@ -288,6 +260,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
 
+    @Override
     protected void onResume() {
         super.onResume();
 
