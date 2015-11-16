@@ -11,3 +11,16 @@ path {
 .c3-areas path {
     opacity: 1;
 }
+
+/* Annotations series: hide line, default text color, hide from legend */
+g.c3-chart-line.c3-target.c3-target-annotationsY {
+    display: none;
+}
+
+g.c3-texts-annotationsY text {
+    fill: #000 !important;
+}
+
+.c3-legend-item-annotationsY {
+    display: none;
+}

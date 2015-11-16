@@ -9,6 +9,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Turn off various default hover/click behaviors
     config.interaction = { enabled: false };
 
+    // Turn off default points; we'll be using custom ones
+    config.point = {
+    	r: function(d) {
+            return 0;
+        },
+    };
+
     // Add functions for custom tick labels
     if (config.axis.x.tick) {
         config.axis.x.tick.format = function(d) {
@@ -26,5 +33,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
         };
     }
 
+    // Configure data labels, which we use only to display annotations
+    config.data.labels = {
+        format: function(value, id, index) {
+            if (id === 'annotationsY') {
+                return annotations[index];
+            }
+            return '';
+        },
+    };
+
+    // Generate chart
     var chart = c3.generate(config);
+
+    // Post-processing: for annotations series, nudge text so it appears on top of data point
+    d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
 });

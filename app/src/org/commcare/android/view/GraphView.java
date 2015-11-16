@@ -25,7 +25,6 @@ import org.commcare.android.view.c3.DataConfiguration;
 import org.commcare.android.view.c3.GridConfiguration;
 import org.commcare.android.view.c3.LegendConfiguration;
 import org.commcare.dalvik.R;
-import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
@@ -70,8 +69,6 @@ public class GraphView {
         for (SeriesData s : data.getSeries()) {
             renderSeries(s);
         }
-
-        renderAnnotations();
 
         configure();
     }
@@ -319,31 +316,6 @@ public class GraphView {
             return new RangeXYValueSeries("");
         }
         return new XYSeries("", scaleIndex);
-    }
-
-    /*
-     * Set up any annotations.
-     */
-    private void renderAnnotations() throws InvalidStateException {
-        Vector<AnnotationData> annotations = mData.getAnnotations();
-        if (!annotations.isEmpty()) {
-            // Create a fake series for the annotations
-            XYSeries series = createSeries();
-            for (AnnotationData a : annotations) {
-                String text = a.getAnnotation();
-                String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
-                series.addAnnotation(text, parseXValue(a.getX(), description), parseYValue(a.getY(), description));
-            }
-
-            // Annotations won't display unless the series has some data in it
-            series.add(0.0, 0.0);
-
-            mDataset.addSeries(series);
-            XYSeriesRenderer currentRenderer = new XYSeriesRenderer();
-            currentRenderer.setAnnotationsTextSize(mTextSize);
-            currentRenderer.setAnnotationsColor(mContext.getResources().getColor(R.color.black));
-            mRenderer.addSeriesRenderer(currentRenderer);
-        }
     }
 
     /*
