@@ -17,6 +17,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -41,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
@@ -158,14 +160,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private Timer myTimer;
     private final Object timerLock = new Object();
     private boolean cancelled;
+    private ContainerFragment<EntityListAdapter> containerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
-
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
 
         if (savedInstanceState != null) {
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -200,7 +201,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
                 //need to go to the detail screen instead.
-                if (oldActivity != null) {
+                if (savedInstanceState != null) {
                     Intent intent = this.getIntent();
 
                     TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
@@ -264,20 +265,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
-        if (oldActivity != null) {
-            adapter = oldActivity.adapter;
-            // on orientation change
-            if (adapter != null) {
-                view.setAdapter(adapter);
-                setupDivider(view);
-                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-                //Disconnect the old adapter
-                adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
-                //connect the new one
-                adapter.registerDataSetObserver(this.mListStateObserver);
-            }
-        }
+        setupPersistingAdapter(view);
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
 
@@ -285,6 +273,32 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
+        }
+    }
+
+    private void setupPersistingAdapter(ListView view) {
+        FragmentManager fm = this.getSupportFragmentManager();
+
+        containerFragment = (ContainerFragment) fm.findFragmentByTag(ContainerFragment.KEY);
+
+        // stateHolder and its previous state aren't null if the activity is
+        // being created due to an orientation change.
+        if (containerFragment == null) {
+            containerFragment = new ContainerFragment<>();
+            fm.beginTransaction().add(containerFragment, ContainerFragment.KEY).commit();
+        } else {
+            adapter = containerFragment.getData();
+            // on orientation change
+            if (adapter != null) {
+                view.setAdapter(adapter);
+                setupDivider(view);
+                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+                //Disconnect the old adapter
+                //adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
+                //connect the new one
+                adapter.registerDataSetObserver(this.mListStateObserver);
+            }
         }
     }
 
@@ -939,6 +953,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
+        containerFragment.setData(adapter);
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 

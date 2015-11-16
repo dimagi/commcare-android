@@ -19,9 +19,6 @@ import org.commcare.android.tasks.templates.CommCareTask;
  * @author ctsims
  */
 public class StateFragment<R> extends Fragment {
-    private CommCareActivity<R> boundActivity;
-    private CommCareActivity<R> lastActivity;
-
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
@@ -38,11 +35,8 @@ public class StateFragment<R> extends Fragment {
         super.onAttach(context);
 
         if (context instanceof CommCareActivity) {
-            this.boundActivity = (CommCareActivity)context;
-            this.boundActivity.stateHolder = this;
-
             if (isCurrentTaskRunning()) {
-                this.currentTask.connect(boundActivity);
+                this.currentTask.connect((CommCareActivity)context);
             }
         }
     }
@@ -55,10 +49,6 @@ public class StateFragment<R> extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
-        if (this.boundActivity != null) {
-            lastActivity = boundActivity;
-        }
 
         if (currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
@@ -73,12 +63,12 @@ public class StateFragment<R> extends Fragment {
         }
     }
 
-    private synchronized void acquireWakeLock() {
-        int lockLevel = boundActivity.getWakeLockLevel();
+    private synchronized void acquireWakeLock(CommCareActivity activity) {
+        int lockLevel = activity.getWakeLockLevel();
         if (lockLevel != CommCareTask.DONT_WAKELOCK) {
             releaseWakeLock();
 
-            PowerManager pm = (PowerManager) boundActivity.getSystemService(Context.POWER_SERVICE);
+            PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
             wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
             wakelock.acquire();
         }
@@ -91,12 +81,8 @@ public class StateFragment<R> extends Fragment {
         wakelock = null;
     }
 
-    public CommCareActivity getPreviousState() {
-        return lastActivity;
-    }
-
-    public void connectTask(CommCareTask<?, ?, ?, R> task) {
-        acquireWakeLock();
+    public void connectTask(CommCareTask<?, ?, ?, R> task, CommCareActivity activity) {
+        acquireWakeLock(activity);
         this.currentTask = task;
     }
 }

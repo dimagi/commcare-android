@@ -251,14 +251,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    protected CommCareActivity getDestroyedActivityState() {
-        return stateHolder.getPreviousState();
-    }
-
     protected boolean isTopNavEnabled() {
         return false;
     }
-
 
     @Override
     protected void onResume() {
@@ -339,7 +334,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
-        stateHolder.connectTask(task);
+        stateHolder.connectTask(task, this);
 
         //If we've left an old dialog showing during the task transition and it was from the same task
         //as the one that is starting, don't dismiss it
