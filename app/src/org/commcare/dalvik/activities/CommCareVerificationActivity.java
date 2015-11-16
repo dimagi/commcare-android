@@ -37,10 +37,10 @@ public class CommCareVerificationActivity
 
     private TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
-    
+
     private static final String KEY_REQUIRE_REFRESH = "require_referesh";
     public static final String KEY_LAUNCH_FROM_SETTINGS = "from_settings";
-    
+
     private static final int DIALOG_VERIFY_PROGRESS = 0;
     private static final String MISSING_MEDIA_TEXT_KEY = "missing-media-text-key";
     private static final String NEW_MEDIA_KEY = "new-media-to-validate";
@@ -66,18 +66,17 @@ public class CommCareVerificationActivity
      * CommCareHomeActivity
      */
     private boolean fromSettings;
-
+    private boolean isFirstLaunch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.missing_multimedia_layout);
-        
+
         Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
-        retryButton.setText("Retry");
+        retryButton.setText(Localization.get("verify.retry"));
 
         this.fromSettings = this.getIntent().
                 getBooleanExtra(KEY_LAUNCH_FROM_SETTINGS, false);
@@ -88,15 +87,12 @@ public class CommCareVerificationActivity
             skipButton.setVisibility(View.VISIBLE);
             skipButton.setOnClickListener(this);
         }
-        
+
         missingMediaPrompt = (TextView)findViewById(R.id.MissingMediaPrompt);
 
         loadStateFromBundle(savedInstanceState);
 
-        if (savedInstanceState == null) {
-            // 1st launch, not orientation change
-            verifyResourceInstall();
-        }
+        isFirstLaunch = (savedInstanceState == null);
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
@@ -104,7 +100,7 @@ public class CommCareVerificationActivity
             if (savedInstanceState.containsKey(MISSING_MEDIA_TEXT_KEY)) {
                 missingMediaPrompt.setText(savedInstanceState.getString(MISSING_MEDIA_TEXT_KEY));
             } else {
-                missingMediaPrompt.setText("Verifying media...");
+                missingMediaPrompt.setText(Localization.get("verify.check.message"));
             }
             if (savedInstanceState.containsKey(NEW_MEDIA_KEY)) {
                 newMediaToValidate = savedInstanceState.getBoolean(NEW_MEDIA_KEY);
@@ -160,7 +156,8 @@ public class CommCareVerificationActivity
                         final int done = update[0][0];
                         final int pending = update[0][1];
 
-                        updateProgress(Localization.get("verification.progress", new String[]{"" + done, "" + pending}),
+                        receiver.updateProgress(
+                                Localization.get("verification.progress", new String[]{"" + done, "" + pending}),
                                 DIALOG_VERIFY_PROGRESS);
                         updateProgressBar(done, pending, DIALOG_VERIFY_PROGRESS);
                     }
@@ -168,7 +165,7 @@ public class CommCareVerificationActivity
                     @Override
                     protected void deliverError(CommCareVerificationActivity receiver,
                                                 Exception e) {
-                        receiver.missingMediaPrompt.setText("Validation failed for an unknown reason");
+                        receiver.missingMediaPrompt.setText(Localization.get("verify.check.failed"));
                     }
                 };
         task.connect(this);
@@ -213,7 +210,10 @@ public class CommCareVerificationActivity
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        if (newMediaToValidate) {
+
+        if (isFirstLaunch) {
+            verifyResourceInstall();
+        } else if (newMediaToValidate) {
             newMediaToValidate = false;
             verifyResourceInstall();
         }
@@ -269,12 +269,15 @@ public class CommCareVerificationActivity
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == DIALOG_VERIFY_PROGRESS) {
-            CustomProgressDialog dialog = CustomProgressDialog.newInstance
-                    (Localization.get("verification.title"), Localization.get("verification.checking"), taskId);
+            CustomProgressDialog dialog =
+                    CustomProgressDialog.newInstance(
+                            Localization.get("verification.title"),
+                            Localization.get("verification.checking"),
+                            taskId);
             dialog.addProgressBar();
             return dialog;
         }
@@ -294,7 +297,7 @@ public class CommCareVerificationActivity
             case R.id.screen_multimedia_retry:
                 verifyResourceInstall();
         }
-        
+
     }
 
     private String prettyString(String rawString){
