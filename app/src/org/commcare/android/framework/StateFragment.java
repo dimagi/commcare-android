@@ -36,7 +36,11 @@ public class StateFragment<R> extends Fragment {
 
         if (context instanceof CommCareActivity) {
             if (isCurrentTaskRunning()) {
-                this.currentTask.connect((CommCareActivity)context);
+                CommCareActivity activity = (CommCareActivity)context;
+                // connecting to a task requires the activity's state holder to
+                // be set; which we're in the middle of, so take a shortcut
+                activity.stateHolder = this;
+                this.currentTask.connect(activity);
             }
         }
     }
