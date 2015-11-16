@@ -760,7 +760,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        GoogleAnalyticsUtils.reportMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
 
         menu.removeItem(MENU_LANGUAGES);
         menu.removeItem(MENU_HIERARCHY_VIEW);
@@ -790,19 +790,19 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
-                GoogleAnalyticsUtils.reportMenuItemEntry(
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
                         GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                         GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                GoogleAnalyticsUtils.reportMenuItemEntry(
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
                         GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                         GoogleAnalyticsFields.LABEL_SAVE_FORM);
                 saveFormToDisk(DO_NOT_EXIT, null, false);
                 return true;
             case MENU_HIERARCHY_VIEW:
-                GoogleAnalyticsUtils.reportMenuItemEntry(
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
                         GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                         GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
                 if (currentPromptIsQuestion()) {
@@ -812,9 +812,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
-                GoogleAnalyticsUtils.reportMenuItemEntry(
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
                         GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                         GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
+                GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_FORM_PREFS);
                 Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;

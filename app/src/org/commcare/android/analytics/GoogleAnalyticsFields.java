@@ -11,11 +11,15 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_HOME_SCREEN = "Home Screen";
     public static String CATEGORY_FORM_ENTRY = "Form Entry";
     public static String CATEGORY_CC_PREFS = "CommCare Preferences";
+    public static String CATEGORY_FORM_PREFS = "Form Entry Preferences";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
-    public static String ACTION_MENU_ITEM = "Enter a Menu Item";
-    public static String ACTION_EDIT_SETTING = "Enter A Settings Edit Screen";
+    public static String ACTION_OPTIONS_MENU_ITEM = "Enter an Options Menu Item";
+
+    public static String ACTION_PREF_MENU = "Open Pref Menu";
+    public static String ACTION_VIEW_PREF = "Click on a Pref Item";
+    public static String ACTION_EDIT_PREF = "Edit a Preference";
     public static String ACTION_BUTTON = "Button Press";
 
     // Actions for CATEGORY_FORM_ENTRY only
@@ -30,7 +34,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_SYNC = "Sync Button";
     public static String LABEL_LOGOUT = "Logout Button";
 
-    // Labels for ACTION_EDIT_SETTING in CATEGORY_CC_PREFS
+    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_CC_PREFS
     public static String LABEL_APP_SERVER = "CC Application Server";
     public static String LABEL_DATA_SERVER = "Data Server";
     public static String LABEL_SUBMISSION_SERVER = "Submission Server";
@@ -40,6 +44,10 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static String LABEL_PRINT_TEMPLATE = "Set Print Template";
     public static String LABEL_LOCALE = "Change Locale";
+
+    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
+    public static String LABEL_FONT_SIZE = "Font Size";
+    public static String LABEL_INLINE_HELP = "Rich Help Inline";
 
     // Labels for ACTION_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static String LABEL_SAVE_FORM = "Save Form";
@@ -61,6 +69,10 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_NEVER = 0;
     public static int VALUE_DAILY = 1;
     public static int VALUE_WEEKLY = 2;
+
+    // Values for LABEL_FUZZY_SEARCH
+    public static int VALUE_DISABLED = 0;
+    public static int VALUE_ENABLED = 1;
 
     // Screen Names
     public static String SCREEN_HOME = "CommCareHomeActivity";

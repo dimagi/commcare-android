@@ -1310,7 +1310,7 @@ public class CommCareHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        GoogleAnalyticsUtils.reportMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
@@ -1368,6 +1368,7 @@ public class CommCareHomeActivity
     }
     
     public static void createPreferencesMenu(Activity activity) {
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }

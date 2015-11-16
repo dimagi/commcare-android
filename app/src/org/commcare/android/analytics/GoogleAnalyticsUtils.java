@@ -38,27 +38,36 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportMenuEntry(String category) {
+    public static void reportOptionsMenuEntry(String category) {
         reportAction(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU);
     }
 
-    public static void reportMenuItemEntry(String category, String label) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_MENU_ITEM, label);
+    public static void reportOptionsMenuItemEntry(String category, String label) {
+        reportAction(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU_ITEM, label);
     }
 
-    public static void reportEnterEditSetting(String category, String label) {
-        reportEnterEditSetting(category, label, -1);
+    // Report someone just opening up a preferences menu
+    public static void reportPrefActivityEntry(String category) {
+        reportAction(category, GoogleAnalyticsFields.ACTION_PREF_MENU);
     }
 
-    public static void reportEnterEditSetting(String category, String label, int value) {
+    public static void reportEditPref(String category, String label) {
+        reportEditPref(category, label, -1);
+    }
+
+    public static void reportEditPref(String category, String label, int value) {
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category).
-                setAction(GoogleAnalyticsFields.ACTION_EDIT_SETTING).
+                setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF).
                 setLabel(label);
         if (value != -1) {
             builder.setValue(value);
         }
         getTracker().send(builder.build());
+    }
+
+    public static void reportPrefItemClick(String category, String label) {
+        reportAction(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
     private static Tracker getTracker(String screenName) {
