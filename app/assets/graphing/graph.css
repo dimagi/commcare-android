@@ -19,11 +19,7 @@ g.c3-texts-annotationsY text {
 
 /* Hide system-genereated series */
 g.c3-chart-line.c3-target.c3-target-annotationsY,
-g.c3-chart-line.c3-target.c3-target-boundsY {
-    display: none;
-}
-
-.c3-legend-item-annotationsY,
-.c3-legend-item-boundsY {
+g.c3-chart-line.c3-target.c3-target-boundsY,
+g.c3-chart-line.c3-target.c3-target-boundsY2 {
     display: none;
 }

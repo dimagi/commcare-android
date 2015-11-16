@@ -104,6 +104,7 @@ public class DataConfiguration extends Configuration {
 
         mXs.put(yID, xID);
         mTypes.put(yID, "line");
+        mAxes.put(yID, "y");
 
         JSONArray xValues = new JSONArray();
         xValues.put(xID);
@@ -126,30 +127,53 @@ public class DataConfiguration extends Configuration {
     private void addBoundaries() throws JSONException, InvalidStateException {
         String xMin = mData.getConfiguration("x-min");
         String xMax = mData.getConfiguration("x-max");
-        String yMin = mData.getConfiguration("y-min");
-        String yMax = mData.getConfiguration("y-max");
 
-        if (xMin == null || xMax == null || yMin == null || yMax == null) {
+        if (xMin == null || xMax == null) {
             return;
         }
 
         String xID = "boundsX";
-        String yID = "boundsY";
-
-        mXs.put(yID, xID);
-        mTypes.put(yID, "line");
-
         JSONArray xValues = new JSONArray();
         xValues.put(xID);
         xValues.put(parseXValue(xMin, "x-min"));
         xValues.put(parseXValue(xMax, "x-max"));
+        boolean shouldAddX = false;
 
-        JSONArray yValues = new JSONArray();
-        yValues.put(yID);
-        yValues.put(parseYValue(yMin, "y-min"));
-        yValues.put(parseYValue(yMax, "y-max"));
+        String yMin = mData.getConfiguration("y-min");
+        String yMax = mData.getConfiguration("y-max");
+        if (yMin != null && yMax != null) {
+            shouldAddX = true;
+            String yID = "boundsY";
+            mXs.put(yID, xID);
+            mTypes.put(yID, "line");
+            mAxes.put(yID, "y");
 
-        mColumns.put(xValues);
-        mColumns.put(yValues);
+            JSONArray yValues = new JSONArray();
+            yValues.put(yID);
+            yValues.put(parseYValue(yMin, "y-min"));
+            yValues.put(parseYValue(yMax, "y-max"));
+            mColumns.put(yValues);
+        }
+
+        // Secondary y axis
+        String y2Min = mData.getConfiguration("secondary-y-min");
+        String y2Max = mData.getConfiguration("secondary-y-max");
+        if (y2Min != null && y2Max != null) {
+            shouldAddX = true;
+            String y2ID = "boundsY2";
+            mXs.put(y2ID, xID);
+            mTypes.put(y2ID, "line");
+            mAxes.put(y2ID, "y2");
+
+            JSONArray y2Values = new JSONArray();
+            y2Values.put(y2ID);
+            y2Values.put(y2Min);
+            y2Values.put(y2Max);
+            mColumns.put(y2Values);
+        }
+
+        if (shouldAddX) {
+            mColumns.put(xValues);
+        }
     }
 }

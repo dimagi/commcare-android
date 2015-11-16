@@ -1,6 +1,7 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.suite.model.graph.GraphData;
+import org.json.JSONArray;
 import org.json.JSONException;
 
 /**
@@ -12,5 +13,10 @@ public class LegendConfiguration extends Configuration {
         if (Boolean.valueOf(mData.getConfiguration("show-legend", "false")).equals(Boolean.FALSE)) {
             mConfiguration.put("show", false);
         }
+        JSONArray systemIDs = new JSONArray();
+        systemIDs.put("annotationsY");
+        systemIDs.put("boundsY");
+        systemIDs.put("boundsY2");
+        mConfiguration.put("hide", systemIDs);
     }
 }
