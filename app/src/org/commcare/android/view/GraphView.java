@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint.Align;
 import android.os.Build;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -17,7 +16,6 @@ import org.achartengine.chart.PointStyle;
 import org.achartengine.model.TimeSeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 import org.commcare.android.models.RangeXYValueSeries;
@@ -25,7 +23,6 @@ import org.commcare.android.util.InvalidStateException;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
-import org.commcare.suite.model.graph.ConfigurableData;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
@@ -38,7 +35,6 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -77,7 +73,6 @@ public class GraphView {
     public Intent getIntent(GraphData data) throws InvalidStateException {
         render(data);
 
-        setPanAndZoom(Boolean.valueOf(mData.getConfiguration("zoom", "false")));
         String title = mRenderer.getChartTitle();
         if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
             return ChartFactory.getBubbleChartIntent(mContext, mDataset, mRenderer, title);
@@ -96,17 +91,6 @@ public class GraphView {
             return BarChart.Type.STACKED;
         }
         return BarChart.Type.DEFAULT;
-    }
-
-    /**
-     * Enable or disable pan and zoom settings for this view.
-     *
-     * @param allow Whether or not to enabled pan and zoom.
-     */
-    private void setPanAndZoom(boolean allow) {
-        mRenderer.setPanEnabled(allow, allow);
-        mRenderer.setZoomEnabled(allow, allow);
-        mRenderer.setZoomButtonsVisible(allow);
     }
 
     private JSONObject getC3AxisConfig() throws InvalidStateException, JSONException {
@@ -278,7 +262,6 @@ public class GraphView {
         return config;
     }
 
-    // TODO: lighten these lines? they default to on, and are heavier than AChartEngine's
     private JSONObject getC3GridConfig() throws JSONException {
         JSONObject config = new JSONObject();
         if (Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE)) {
@@ -289,12 +272,21 @@ public class GraphView {
         return config;
     }
 
+    private JSONObject getC3LegendConfig() throws JSONException {
+        JSONObject config = new JSONObject();
+        if (Boolean.valueOf(mData.getConfiguration("show-legend", "false")).equals(Boolean.FALSE)) {
+            config.put("show", false);
+        }
+        return config;
+    }
+
     private JSONObject getC3Config() throws InvalidStateException {
         JSONObject config = new JSONObject();
         try {
             config.put("axis", getC3AxisConfig());
             config.put("data", getC3DataConfig());
             config.put("grid", getC3GridConfig());
+            config.put("legend", getC3LegendConfig());
         } catch (JSONException e) {
             throw new RuntimeException("something broke");  // TODO: fix
         }
@@ -327,17 +319,6 @@ public class GraphView {
                 "</html>";
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
-        /*
-        if (Graph.TYPE_BUBBLE.equals(mData.getType())) {
-            return ChartFactory.getBubbleChartView(mContext, mDataset, mRenderer);
-        }
-        if (Graph.TYPE_TIME.equals(mData.getType())) {
-            return ChartFactory.getTimeChartView(mContext, mDataset, mRenderer, getTimeFormat());
-        }
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return ChartFactory.getBarChartView(mContext, mDataset, mRenderer, getBarChartType());
-        }
-        return ChartFactory.getLineChartView(mContext, mDataset, mRenderer);*/
     }
 
     private void configureSettings(WebView view) {
@@ -349,6 +330,7 @@ public class GraphView {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
+        // TODO: Support if this is full-screen view
         settings.setSupportZoom(false);
     }
 
@@ -493,12 +475,6 @@ public class GraphView {
      * @return An XYSeries-derived object.
      */
     private XYSeries createSeries(int scaleIndex) {
-        // TODO: Bubble and time graphs ought to respect scaleIndex, but XYValueSeries
-        // and TimeSeries don't expose the (String title, int scaleNumber) constructor.
-        if (scaleIndex > 0 && !Graph.TYPE_XY.equals(mData.getType())) {
-            throw new IllegalArgumentException("This series does not support a secondary y axis");
-        }
-
         if (Graph.TYPE_TIME.equals(mData.getType())) {
             return new TimeSeries("");
         }
@@ -597,12 +573,6 @@ public class GraphView {
             XYMultipleSeriesRenderer.Orientation orientation = getOrientation();
             mRenderer.setOrientation(orientation);
         }
-
-        // Legend
-        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
-        mRenderer.setShowLegend(showLegend);
-        mRenderer.setFitLegend(showLegend);
-        mRenderer.setLegendTextSize(mTextSize);
     }
 
     /**
