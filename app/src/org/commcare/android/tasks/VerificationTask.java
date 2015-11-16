@@ -27,7 +27,7 @@ public abstract class VerificationTask<Reciever>
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
 
         try {
-            //This is replicated in the application in a few places.
+            // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
             SizeBoundUniqueVector<MissingMediaException> problems =
                     new SizeBoundUniqueVector<MissingMediaException>(10);
@@ -38,7 +38,7 @@ public abstract class VerificationTask<Reciever>
             }
             return null;
         } catch (Exception e) {
-            // to-do: make non-resource missing failures have a better exception
+            // TODO: make non-resource missing failures have a better exception
             return null;
         }
     }
@@ -50,7 +50,5 @@ public abstract class VerificationTask<Reciever>
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
-        // TODO Auto-generated method stub
-
     }
 }

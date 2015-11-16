@@ -279,7 +279,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private void setupPersistingAdapter(ListView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
-        containerFragment = (ContainerFragment) fm.findFragmentByTag(ContainerFragment.KEY);
+        containerFragment = (ContainerFragment)fm.findFragmentByTag(ContainerFragment.KEY);
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
@@ -293,11 +293,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 view.setAdapter(adapter);
                 setupDivider(view);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-                //Disconnect the old adapter
-                //adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
-                //connect the new one
-                adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
     }
@@ -422,6 +417,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             return;
         }
 
+        if (adapter != null) {
+            adapter.registerDataSetObserver(mListStateObserver);
+        }
+
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity =
                     selectDatum.getEntityFromID(asw.getEvaluationContext(),
@@ -495,7 +494,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     @Override
     protected void onPause() {
         super.onPause();
+
         stopTimer();
+
+        if (adapter != null) {
+            adapter.unregisterDataSetObserver(mListStateObserver);
+        }
     }
 
     @Override
