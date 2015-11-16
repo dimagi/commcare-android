@@ -69,7 +69,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    StateFragment<R> stateHolder;
+    TaskConnectorFragment<R> stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
@@ -106,12 +106,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (StateFragment) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment) fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
         if (stateHolder == null) {
-            stateHolder = new StateFragment<>();
+            stateHolder = new TaskConnectorFragment<>();
             fm.beginTransaction().add(stateHolder, "state").commit();
             // entering new activity, not just rotating one, so release old
             // media

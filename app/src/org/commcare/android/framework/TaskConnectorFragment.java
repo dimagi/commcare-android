@@ -11,14 +11,13 @@ import android.util.Log;
 import org.commcare.android.tasks.templates.CommCareTask;
 
 /**
- * Hold a reference to the parent Activity so we can report the
- * task's current progress and results. The Android framework
- * will pass us a reference to the newly created Activity after
- * each configuration change.
+ * Hold a reference to current task to report its progress and results The
+ * Android framework will pass us a reference to the newly created Activity
+ * after each configuration change.
  *
  * @author ctsims
  */
-public class StateFragment<R> extends Fragment {
+public class TaskConnectorFragment<R> extends Fragment {
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
@@ -72,7 +71,7 @@ public class StateFragment<R> extends Fragment {
         if (lockLevel != CommCareTask.DONT_WAKELOCK) {
             releaseWakeLock();
 
-            PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
+            PowerManager pm = (PowerManager)activity.getSystemService(Context.POWER_SERVICE);
             wakelock = pm.newWakeLock(lockLevel, "CommCareLock");
             wakelock.acquire();
         }
