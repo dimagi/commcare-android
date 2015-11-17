@@ -223,7 +223,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         this.registerForContextMenu(listView);
         refreshView();
 
-        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+        restoreLastQueryString();
 
         if (!isUsingActionBar()) {
             if (BuildConfig.DEBUG) {
@@ -271,7 +271,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     protected void onStop() {
         super.onStop();
 
-        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString();
     }
 
     public void onBarcodeFetch(int resultCode, Intent intent) {
