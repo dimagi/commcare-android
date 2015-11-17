@@ -16,15 +16,14 @@ import java.util.Hashtable;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateStats implements InstallStatsLogger, Serializable {
-    private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
-    private final long startInstallTime;
-    private int restartCount = 0;
-    private final static String TOP_LEVEL_STATS_KEY =
-            "top-level-update-exceptions";
+    private static final String TOP_LEVEL_STATS_KEY = "top-level-update-exceptions";
     private static final String UPGRADE_STATS_KEY = "upgrade_table_stats";
-
     private static final long TWO_WEEKS_IN_MS = 1000 * 60 * 60 * 24 * 24;
     private static final int ATTEMPTS_UNTIL_UPDATE_STALE = 5;
+
+    private final Hashtable<String, InstallAttempts<String>> resourceInstallStats;
+    private long startInstallTime;
+    private int restartCount = 0;
 
     private UpdateStats() {
         startInstallTime = new Date().getTime();
@@ -56,6 +55,13 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     public static void saveStatsPersistently(CommCareApp app,
                                              UpdateStats stats) {
         PrefStats.saveStatsPersistently(app, UPGRADE_STATS_KEY, stats);
+    }
+
+    public void resetStats(CommCareApp app) {
+        clearPersistedStats(app);
+        startInstallTime = new Date().getTime();
+        resourceInstallStats.clear();
+        restartCount = 0;
     }
 
     /**
