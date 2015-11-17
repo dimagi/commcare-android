@@ -117,6 +117,12 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         mTimePicker.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mTimePicker.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {
