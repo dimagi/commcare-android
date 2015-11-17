@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 /**
+ * Axis-related configuration for C3.
+ *
  * Created by jschweers on 11/16/2015.
  */
 public class AxisConfiguration extends Configuration {
@@ -40,26 +42,11 @@ public class AxisConfiguration extends Configuration {
 
             // Min and max boundaries
             // TODO: verify x-min and x-max work with time-based graphs
-            if (mData.getConfiguration("x-min") != null) {
-                x.put("min", parseXValue(mData.getConfiguration("x-min"), "x-min"));
-            }
-            if (mData.getConfiguration("x-max") != null) {
-                x.put("max", parseXValue(mData.getConfiguration("x-max"), "x-max"));
-            }
-            if (mData.getConfiguration("y-min") != null) {
-                y.put("min", parseYValue(mData.getConfiguration("y-min"), "y-min"));
-            }
-            if (mData.getConfiguration("y-max") != null) {
-                y.put("max", parseYValue(mData.getConfiguration("y-max"), "y-max"));
-            }
-            if (mData.getConfiguration("secondary-y-min") != null) {
-                y2.put("min", parseYValue(mData.getConfiguration("secondary-y-min"), "secondary-y-min"));
-            }
-            if (mData.getConfiguration("secondary-y-max") != null) {
-                y2.put("max", parseYValue(mData.getConfiguration("secondary-y-max"), "secondary-y-max"));
-            }
+            addBounds(x, "x");
+            addBounds(y, "y");
+            addBounds(y2, "secondary-y");
 
-            // Determine whether secondary y axis should display
+            // Display secondary y axis only if it has at least one associated series
             for (SeriesData s : mData.getSeries()) {
                 if (Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE)) {
                     y2.put("show", true);
@@ -77,11 +64,51 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y", y);
         mConfiguration.put("y2", y2);
 
-        if (mData.getType().equals(Graph.TYPE_BAR) && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
+        // Bar graphs may be rotated. C3 defaults to vertical bars.
+        if (mData.getType().equals(Graph.TYPE_BAR)
+                && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
             mConfiguration.put("rotated", true);
         }
     }
 
+    /**
+     * Add min and max bounds to given axis.
+     * @param axis Current axis configuration. Will be modified.
+     * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
+     * @throws InvalidStateException
+     * @throws JSONException
+     */
+    private void addBounds(JSONObject axis, String prefix) throws InvalidStateException, JSONException {
+        addBound(axis, prefix, "min");
+        addBound(axis, prefix, "max");
+    }
+
+    /**
+     * Add min or max bound to given axis.
+     * @param axis Current axis configuratoin. Will be modified.
+     * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
+     * @param suffix "min" or "max"
+     * @throws JSONException
+     * @throws InvalidStateException
+     */
+    private void addBound(JSONObject axis, String prefix, String suffix) throws JSONException, InvalidStateException {
+        String key = prefix + "-" + suffix;
+        String value = mData.getConfiguration(key);
+        if (value != null) {
+            double parsed = prefix.equals("x") ? parseXValue(value, key) : parseYValue(value, key);
+            axis.put(suffix, parsed);
+        }
+    }
+
+    /**
+     * Configure tick count, placement, and labels.
+     * @param axis Current axis configuration. Will be modified.
+     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     * @param varName If the axis uses a hash of labels (position => label), a variable
+     *                will be created with this name to store those labels.
+     * @throws InvalidStateException
+     * @throws JSONException
+     */
     private void addTickConfig(JSONObject axis, String key, String varName) throws InvalidStateException, JSONException {
         // The labels configuration might be a JSON array of numbers,
         // a JSON object of number => string, or a single number
@@ -124,10 +151,21 @@ public class AxisConfiguration extends Configuration {
         axis.put("tick", tick);
     }
 
+    /**
+     * Add title to axis.
+     * @param axis Current axis configuration. Will be modified.
+     * @param key One of "x-title", "y-title", "secondary-y-title"
+     * @param position For horizontal axis, (inner|outer)-(right|center|left)
+     *                 For vertical axis, (inner|outer)-(top|middle|bottom)
+     * @throws JSONException
+     */
     private void addTitle(JSONObject axis, String key, String position) throws JSONException {
         String title = mData.getConfiguration(key, "");
+
+        // String.trim doesn't cover characters like unicode's non-breaking space
         title = title.replaceAll("^\\s*", "");
         title = title.replaceAll("\\s*$", "");
+
         if (!"".equals(title)) {
             JSONObject label = new JSONObject();
             label.put("text", title);

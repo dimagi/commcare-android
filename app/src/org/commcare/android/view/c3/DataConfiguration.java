@@ -7,18 +7,19 @@ import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.commcare.suite.model.graph.XYPointData;
-import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Vector;
 
 /**
+ * Data-related configuration for C3. This configuration should be run before
+ * any others, as th data will sometimes affect other configuration.
+ *
  * Created by jschweers on 11/16/2015.
  */
 public class DataConfiguration extends Configuration {
@@ -52,26 +53,29 @@ public class DataConfiguration extends Configuration {
         JSONObject radii = new JSONObject();
         JSONObject maxRadii = new JSONObject();
 
-        // Bar graph data
+        // Bar graph data:
+        //  barCount: for the sake of setting x min and max
+        //  barLabels: the actual labels to display, which are supposed to be the same
+        //      for every series, hence the booleans so we only record them once
         int barCount = 0;
+        boolean addingBarLabels = false;
+        boolean addedBarLabels = false;
         JSONArray barLabels = new JSONArray();
         barLabels.put("");
 
         int seriesIndex = 0;
-        boolean addingBarLabels = false;
-        boolean addedBarLabels = false;
         for (SeriesData s : mData.getSeries()) {
-            JSONArray xValues = new JSONArray();
-            JSONArray yValues = new JSONArray();
-
+            // Initialize arrays to hold x and y values, and associate those columns
             String xID = "x" + seriesIndex;
             String yID = "y" + seriesIndex;
             mXs.put(yID, xID);
+            JSONArray xValues = new JSONArray();
+            JSONArray yValues = new JSONArray();
+            xValues.put(xID);
+            yValues.put(yID);
 
+            // Determine series type
             String type = "line";
-            // TODO: allow customizing fill's color
-            // TODO: remove fill-above from docs, see if anone's using it
-            // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 type = "scatter";
             } else if (mData.getType().equals(Graph.TYPE_BAR)) {
@@ -83,43 +87,42 @@ public class DataConfiguration extends Configuration {
                     addingBarLabels = false;
                 }
             } else if (s.getConfiguration("fill-below") != null) {
+                // TODO: allow customizing fill's color
                 type = "area";
             }
             mTypes.put(yID, type);
 
-            xValues.put(xID);
-            yValues.put(yID);
-
-            Vector<XYPointData> sortedPoints = new Vector<XYPointData>(s.size());
+            // Bar charts have their values sorted: default by label, or
+            // user may specify sort by value
+            Vector<XYPointData> sortedPoints = new Vector<>(s.size());
             sortedPoints.addAll(s.getPoints());
             if (Graph.TYPE_BAR.equals(mData.getType())) {
                 String barSort = s.getConfiguration("bar-sort");
+                Comparator<XYPointData> comparator = new StringPointComparator();
                 if (barSort != null) {
-                    Comparator<XYPointData> comparator;
                     if (barSort.equalsIgnoreCase("ascending")) {
                         comparator = new AscendingValuePointComparator();
                     } else if (barSort.equalsIgnoreCase("descending")) {
                         comparator = new DescendingValuePointComparator();
-                    } else {
-                        comparator = new StringPointComparator();
                     }
-                    Collections.sort(sortedPoints, comparator);
                 }
+                Collections.sort(sortedPoints, comparator);
             }
 
-            int pointIndex = 0;
+            // Add actual data points
+            int barIndex = 0;
             JSONArray rValues = new JSONArray();
             double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
             for (XYPointData p : sortedPoints) {
-                String description = "point (" + p.getX() + ", " + p.getY() + ")";
+                String description = "data (" + p.getX() + ", " + p.getY() + ")";
                 if (mData.getType().equals(Graph.TYPE_BAR)) {
                     // In CommCare, bar graphs are specified with x as a set of text labels
                     // and y as a set of values. In C3, bar graphs are still basically
                     // of XY graphs, with numeric x and y values. Deal with this by
                     // assigning an arbitrary, evenly-spaced x value to each bar and then
                     // using the user's x values as custom labels.
-                    xValues.put(pointIndex + 1);
-                    barCount = Math.max(barCount, pointIndex + 1);
+                    xValues.put(barIndex + 1);
+                    barCount = Math.max(barCount, barIndex + 1);
                     if (addingBarLabels) {
                         barLabels.put(p.getX());
                     }
@@ -127,13 +130,16 @@ public class DataConfiguration extends Configuration {
                     xValues.put(parseXValue(p.getX(), description));
                 }
                 yValues.put(parseYValue(p.getY(), description));
+
+                // Bubble charts also get a radius
                 if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                     BubblePointData b = (BubblePointData)p;
                     double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
                     rValues.put(r);
                     maxRadius = Math.max(maxRadius, r);
                 }
-                pointIndex++;
+
+                barIndex++;
             }
             mColumns.put(xValues);
             mColumns.put(yValues);
@@ -142,23 +148,28 @@ public class DataConfiguration extends Configuration {
                 maxRadii.put(yID, maxRadius);
             }
 
+            // Set series name for legend
             String name = s.getConfiguration("name", "");
             if (name != null) {
                 mNames.put(yID, name);
             }
 
-            String color = s.getConfiguration("line-color", "#ff000000");
+            // Set series color
             // TODO: Handle transparency (and test on bubble graphs)
+            String color = s.getConfiguration("line-color", "#ff000000");
             if (color.length() == "#aarrggbb".length()) {
                 color = "#" + color.substring(3);
             }
             mColors.put(yID, color);
 
+            // Associate values with either primary or secondary y axis
             mAxes.put(yID, Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? "y2" : "y");
 
             seriesIndex++;
         }
 
+        // For bar charts, force the x axis min and max so
+        // bars are spaced nicely and set up bar labels
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             mData.setConfiguration("x-min", "0.5");
             mData.setConfiguration("x-max", String.valueOf(barCount + 0.5));
@@ -166,10 +177,13 @@ public class DataConfiguration extends Configuration {
             mVariables.put("barLabels", barLabels.toString());
         }
 
+        // Add fake series to force ticks to be based on min and max
         addBoundaries();
 
+        // Add fake series for annotations
         addAnnotations();
 
+        // Finally, apply all data to main configuration
         mConfiguration.put("axes", mAxes);
         mConfiguration.put("colors", mColors);
         mConfiguration.put("columns", mColumns);
@@ -177,7 +191,9 @@ public class DataConfiguration extends Configuration {
         mConfiguration.put("types", mTypes);
         mConfiguration.put("xs", mXs);
 
-        if (mData.getType().equals(Graph.TYPE_BAR) && Boolean.valueOf(mData.getConfiguration("stack", "false")).equals(Boolean.TRUE)) {
+        // Set up stacked bar graph if needed
+        if (mData.getType().equals(Graph.TYPE_BAR)
+                && Boolean.valueOf(mData.getConfiguration("stack", "false")).equals(Boolean.TRUE)) {
             JSONArray inner = new JSONArray();
             for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
                 String key = i.next();
@@ -190,10 +206,17 @@ public class DataConfiguration extends Configuration {
             mConfiguration.put("groups", outer);
         }
 
+        // C3 doesn't support bubble charts well, so radius data gets set up
+        // in separate variables rather than as part of the configuration
         mVariables.put("radii", radii.toString());
         mVariables.put("maxRadii", maxRadii.toString());
     }
 
+    /**
+     * Add annotations, by creating a fake series with data labels turned on.
+     * @throws JSONException
+     * @throws InvalidStateException
+     */
     private void addAnnotations() throws JSONException, InvalidStateException {
         String xID = "annotationsX";
         String yID = "annotationsY";
@@ -221,57 +244,60 @@ public class DataConfiguration extends Configuration {
         mVariables.put("annotations", text.toString());
     }
 
+    /**
+     * Create fake series so there's data all the way to the edges of the user-specified
+     * min and max. C3 does tick placement in part based on data, so this will force
+     * it to place ticks based on the user's desired min/max range.
+     * @throws JSONException
+     * @throws InvalidStateException
+     */
     private void addBoundaries() throws JSONException, InvalidStateException {
         String xMin = mData.getConfiguration("x-min");
         String xMax = mData.getConfiguration("x-max");
 
+        // If we don't have user-specified bounds, don't bother.
         if (xMin == null || xMax == null) {
             return;
         }
 
         String xID = "boundsX";
-        JSONArray xValues = new JSONArray();
-        xValues.put(xID);
-        xValues.put(parseXValue(xMin, "x-min"));
-        xValues.put(parseXValue(xMax, "x-max"));
-        boolean shouldAddX = false;
+        if (addBoundary(xID, "boundsY", "y") || addBoundary(xID, "boundsY2", "secondary-y")) {
+            // If at least one y axis had boundaries and therefore a series was created,
+            // now create the matchin x values
+            JSONArray xValues = new JSONArray();
+            xValues.put(xID);
+            xValues.put(parseXValue(xMin, "x-min"));
+            xValues.put(parseXValue(xMax, "x-max"));
+            mColumns.put(xValues);
+        }
+    }
 
-        String yMin = mData.getConfiguration("y-min");
-        String yMax = mData.getConfiguration("y-max");
-        if (yMin != null && yMax != null) {
-            shouldAddX = true;
-            String yID = "boundsY";
+    /**
+     * Helper for addBoundaries: possibly add a series for either the primary or secondary y axis,
+     * depending on whether or not that axis has a min and max specified.
+     * @param xID ID of x column to associate with the new series
+     * @param yID ID of y column for new series
+     * @param prefix "y" or "secondary-y"
+     * @return True iff a series was actually created
+     * @throws JSONException
+     * @throws InvalidStateException
+     */
+    private boolean addBoundary(String xID, String yID, String prefix) throws JSONException, InvalidStateException {
+        String min = mData.getConfiguration(prefix + "-min");
+        String max = mData.getConfiguration(prefix + "-max");
+        if (min != null && max != null) {
             mXs.put(yID, xID);
             mTypes.put(yID, "line");
-            mAxes.put(yID, "y");
+            mAxes.put(yID, "y2");
 
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseYValue(yMin, "y-min"));
-            yValues.put(parseYValue(yMax, "y-max"));
+            yValues.put(parseYValue(min, "secondary-y-min"));
+            yValues.put(parseYValue(max, "secondary-y-max"));
             mColumns.put(yValues);
+            return true;
         }
-
-        // Secondary y axis
-        String y2Min = mData.getConfiguration("secondary-y-min");
-        String y2Max = mData.getConfiguration("secondary-y-max");
-        if (y2Min != null && y2Max != null) {
-            shouldAddX = true;
-            String y2ID = "boundsY2";
-            mXs.put(y2ID, xID);
-            mTypes.put(y2ID, "line");
-            mAxes.put(y2ID, "y2");
-
-            JSONArray y2Values = new JSONArray();
-            y2Values.put(y2ID);
-            y2Values.put(y2Min);
-            y2Values.put(y2Max);
-            mColumns.put(y2Values);
-        }
-
-        if (shouldAddX) {
-            mColumns.put(xValues);
-        }
+        return false;
     }
 
     /**
@@ -297,7 +323,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(lhs.getY(), "")).compareTo(Double.valueOf(parseXValue(rhs.getY(), "")));
+                return Double.valueOf(parseXValue(lhs.getY(), "")).compareTo(parseXValue(rhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }
@@ -314,7 +340,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(rhs.getY(), "")).compareTo(Double.valueOf(parseXValue(lhs.getY(), "")));
+                return Double.valueOf(parseXValue(rhs.getY(), "")).compareTo(parseXValue(lhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }

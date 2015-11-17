@@ -3,7 +3,6 @@ package org.commcare.android.view;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.view.View;
 import android.webkit.WebSettings;
@@ -15,6 +14,7 @@ import org.commcare.android.view.c3.AxisConfiguration;
 import org.commcare.android.view.c3.DataConfiguration;
 import org.commcare.android.view.c3.GridConfiguration;
 import org.commcare.android.view.c3.LegendConfiguration;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.util.OrderedHashtable;
@@ -33,7 +33,7 @@ public class GraphView {
 
     public GraphView(Context context, String title) {
         mContext = context;
-         // TODO: do something with title?
+         // TODO: display title on graph
     }
 
     // TODO
@@ -49,8 +49,10 @@ public class GraphView {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public View getView(GraphData graphData) throws InvalidStateException {
         mData = graphData;
-        
-        WebView.setWebContentsDebuggingEnabled(true);   // TODO: only if in dev
+
+        if (BuildConfig.DEBUG) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         WebView webView = new WebView(mContext);
         configureSettings(webView);
 
@@ -76,6 +78,7 @@ public class GraphView {
         } catch (JSONException e) {
             throw new RuntimeException("something broke");  // TODO: fix
         }
+        // TODO: namespace variables?
         variables.put("type", "'" + mData.getType() + "'");
         variables.put("config", config.toString());
 

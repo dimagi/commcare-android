@@ -1,4 +1,5 @@
-// This file expects the config variable to be defined globally.
+// This file expects a number of variables to be defined globally.
+// Use only in conjunction with GraphView.getView
 document.addEventListener("DOMContentLoaded", function(event) {
     // Match graph size to view size
     config.size = {
@@ -6,17 +7,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
         width: document.body.offsetWidth,
     };
 
-    // Turn off various default hover/click behaviors
+    // Turn off default hover/click behaviors
     config.interaction = { enabled: false };
 
-    // Set point size
+    // Set point size for bubble charts, and turn points off altogether
+    // for other charts (we'll be using custom point shapes)
     config.point = {
     	r: function(d) {
     	    if (radii[d.id]) {
-    	        // Scale bubble, max size of 30
+    	        // Arbitrary max size of 30
     	        return 30 * radii[d.id][d.index] / maxRadii[d.id];
     	    }
-    	    // Turn off default points; we'll be using custom ones
             return 0;
         },
     };
@@ -53,9 +54,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
         },
     };
 
-    // Generate chart
-    var chart = c3.generate(config);
+    // Post-processing
+    config.onrendered = function() {
+        // For annotations series, nudge text so it appears on top of data point
+        d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
 
-    // Post-processing: for annotations series, nudge text so it appears on top of data point
-    d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
+        // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
+    };
+
+    // Generate chart
+    c3.generate(config);
 });

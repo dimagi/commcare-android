@@ -10,6 +10,12 @@ import org.json.JSONObject;
 import java.util.Date;
 
 /**
+ * Base class for helper classes that build C3 graph configuration.
+ * This class itself is not meant to be instantiated. For subclasses,
+ * the bulk of the work is done in the constructor. The instantiator
+ * can then call getConfiguration and getVariables to get at the JSON
+ * configuration and any JavaScript variables that configuration depends on.
+ *
  * Created by jschweers on 11/16/2015.
  */
 public class Configuration {

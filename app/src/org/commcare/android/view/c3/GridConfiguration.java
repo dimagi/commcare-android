@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
+ * Grid-related configuration for C3.
+ *
  * Created by jschweers on 11/16/2015.
  */
 public class GridConfiguration extends Configuration {
