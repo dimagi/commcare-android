@@ -151,6 +151,7 @@ public class ODKView extends ScrollView
 
         if (i < widgets.size()) {
             mView.removeView(widgets.get(i));
+            widgets.get(i).unsetListeners();
             widgets.remove(i);
         }
     }
@@ -364,9 +365,14 @@ public class ODKView extends ScrollView
 
     @Override
     public void setOnFocusChangeListener(OnFocusChangeListener l) {
-        for (int i = 0; i < widgets.size(); i++) {
-            QuestionWidget qw = widgets.get(i);
+        for (QuestionWidget qw : widgets) {
             qw.setOnFocusChangeListener(l);
+        }
+    }
+
+    public void teardownView() {
+        for (QuestionWidget widget : widgets) {
+            widget.unsetListeners();
         }
     }
 
@@ -405,22 +411,6 @@ public class ODKView extends ScrollView
     }
     
     /**
-     * Remove question, based on position. 
-     * @param questionIndex Index in question list.
-     */
-    public void removeWidget(int questionIndex){
-        mView.removeViewAt(getViewIndex(questionIndex));
-    }
-    
-    /**
-     * Remove question, based on view object.
-     * @param v View to remove
-     */
-    public void removeWidget(View v){
-        mView.removeView(v);
-    }
-
-    /**
      * Translate question index to view index.
      * @param questionIndex Index in the list of questions.
      * @return Index of question's view in mView.
@@ -443,6 +433,4 @@ public class ODKView extends ScrollView
         }
         return prompt;
     }
-
-
 }
