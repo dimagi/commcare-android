@@ -55,7 +55,12 @@ public class SelectMultiWidget extends QuestionWidget {
                 final CheckBox c = new CheckBox(getContext());
 
                 c.setId(buttonIdBase + i);
-                c.setText(stylize(mPrompt.getSelectChoiceText(mItems.get(i))));
+                String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
+                if(markdownText != null){
+                    c.setText(forceMarkdown(markdownText));
+                } else{
+                    c.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                }
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 c.setFocusable(!mPrompt.isReadOnly());
                 c.setEnabled(!mPrompt.isReadOnly());
@@ -170,6 +175,15 @@ public class SelectMultiWidget extends QuestionWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
         for (CheckBox c : mCheckboxes) {
             c.setOnLongClickListener(l);
+        }
+    }
+
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        for (CheckBox c : mCheckboxes) {
+            c.setOnLongClickListener(null);
         }
     }
 

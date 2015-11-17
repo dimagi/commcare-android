@@ -302,6 +302,15 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
     }
 
     @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        for (RadioButton r : buttons) {
+            r.setOnLongClickListener(null);
+        }
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         for (RadioButton r : buttons) {

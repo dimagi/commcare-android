@@ -32,8 +32,12 @@ class UpdateUIState {
 
     private final UpdateActivity activity;
 
+    private final String startCheckingText =
+            Localization.get("updates.check.start");
     private final String stopCheckingText =
             Localization.get("updates.check.cancel");
+    private final String installText =
+            Localization.get("updates.check.install");
     private final String cancellingMsg =
             Localization.get("updates.check.cancelling");
     private final String beginCheckingText =
@@ -79,6 +83,7 @@ class UpdateUIState {
                 activity.startUpdateCheck();
             }
         });
+        checkUpdateButton.setText(startCheckingText);
 
         stopUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
@@ -98,6 +103,7 @@ class UpdateUIState {
                 activity.lauchUpdateInstallTask();
             }
         });
+        installUpdateButton.setText(installText);
     }
 
     protected void upToDateUiState() {
