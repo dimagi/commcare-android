@@ -65,8 +65,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
@@ -560,9 +558,12 @@ public class CommCareHomeActivity
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
-                    String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                    String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                    currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    SessionDatum sessionDatum  = currentSession.getNeededDatum();
+                    if (sessionDatum != null) {
+                        String sessionDatumId = sessionDatum.getDataId();
+                        String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                        currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    }
                 }
                 break;
             case MODEL_RESULT:
