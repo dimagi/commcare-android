@@ -1,11 +1,9 @@
 package org.commcare.android.models;
 
-import org.javarosa.core.model.User;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
@@ -16,24 +14,19 @@ import java.util.List;
  * @author ctsims
  */
 public class NodeEntityFactory {
-
-    protected EvaluationContext ec;
-
-    protected Detail detail;
-    protected FormInstance instance;
-    protected User current;
-
     private boolean mEntitySetInitialized = false;
-    private Object mPreparationLock = new Object();
+    private static final Object mPreparationLock = new Object();
 
-    public Detail getDetail() {
-        return detail;
-    }
-
+    protected final EvaluationContext ec;
+    protected final Detail detail;
 
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
+    }
+
+    public Detail getDetail() {
+        return detail;
     }
 
     public Entity<TreeReference> getEntity(TreeReference data) {
@@ -73,13 +66,11 @@ public class NodeEntityFactory {
             count++;
         }
 
-        return new Entity<TreeReference>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+        return new Entity<>(details, sortDetails, backgroundDetails, relevancyDetails, data);
     }
 
-
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
-        List<TreeReference> references = ec.expandReference(treeReference);
-        return references;
+        return ec.expandReference(treeReference);
     }
 
     /**

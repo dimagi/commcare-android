@@ -291,6 +291,17 @@ public class ImageWidget extends QuestionWidget {
     }
 
     @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        if (mImageView != null) {
+            mImageView.setOnLongClickListener(null);
+        }
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mCaptureButton.cancelLongPress();
