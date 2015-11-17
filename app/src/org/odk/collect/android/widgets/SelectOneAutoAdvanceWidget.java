@@ -218,6 +218,14 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         }
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        for (RadioButton r : buttons) {
+            r.setOnLongClickListener(null);
+        }
+    }
 
     @Override
     public void cancelLongPress() {
