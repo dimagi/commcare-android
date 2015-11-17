@@ -1711,11 +1711,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                         })
                     .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
                     .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        }).create();
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            }).create();
         dialog.show();
     }
 
@@ -1767,32 +1767,41 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
 
         registerFormEntryReceiver();
-
-        //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
-        //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
-        //on screen rotation. We need to re-do any setAnswers that we perform on them after
-        //onResume.
-        try {
-            if(mCurrentView instanceof ODKView) {
-                ODKView ov = ((ODKView) mCurrentView);
-                if(ov.getWidgets() != null) {
-                    for(QuestionWidget qw : ov.getWidgets()) {
-                        if(qw instanceof DateTimeWidget) {
-                            ((DateTimeWidget)qw).setAnswer();
-                        } else if(qw instanceof TimeWidget) {
-                            ((TimeWidget)qw).setAnswer();
-                        }
-                    }
-                }
-            }
-        } catch(Exception e) {
-            //if this fails, we _really_ don't want to mess anything up. this is a last minute
-            //fix
-        }
+        restoreTimePickerData();
 
         if (mFormController != null) {
             // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
+        }
+    }
+
+    private void restoreTimePickerData() {
+        // On honeycomb and above this is handled by calling:
+        //   TimePicker.setSaveFromParentEnabled(false);
+        //   TimePicker.setSaveEnabled(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
+            //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
+            //on screen rotation. We need to re-do any setAnswers that we perform on them after
+            //onResume.
+            try {
+                if (mCurrentView instanceof ODKView) {
+                    ODKView ov = ((ODKView)mCurrentView);
+                    if (ov.getWidgets() != null) {
+                        for (QuestionWidget qw : ov.getWidgets()) {
+                            if (qw instanceof DateTimeWidget) {
+                                ((DateTimeWidget)qw).setAnswer();
+                            } else if (qw instanceof TimeWidget) {
+                                ((TimeWidget)qw).setAnswer();
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                //if this fails, we _really_ don't want to mess anything up. this is a last minute
+                //fix
+            }
         }
     }
 
