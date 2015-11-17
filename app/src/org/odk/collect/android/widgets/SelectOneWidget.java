@@ -15,6 +15,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -66,7 +67,12 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         if (prompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 final RadioButton rb = new RadioButton(getContext());
-                rb.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
+                String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
+                if(markdownText != null){
+                    rb.setText(forceMarkdown(markdownText));
+                } else{
+                    rb.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                }
                 rb.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 rb.setId(i + buttonIdBase);
                 rb.setEnabled(!prompt.isReadOnly());
