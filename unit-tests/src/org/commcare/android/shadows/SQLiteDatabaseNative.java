@@ -3,6 +3,7 @@ package org.commcare.android.shadows;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import net.sqlcipher.DatabaseErrorHandler;
 import net.sqlcipher.SQLException;
 import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
 import net.sqlcipher.database.SQLiteDatabaseHook;
@@ -21,25 +22,21 @@ import java.util.Map;
 @Implements(net.sqlcipher.database.SQLiteDatabase.class)
 public class SQLiteDatabaseNative {
     private android.database.sqlite.SQLiteDatabase db;
-    private static Locale dbLocale;
-    
+
     public void __constructor__(String path, char[] password, CursorFactory factory, int flags) {
         db = android.database.sqlite.SQLiteDatabase.openDatabase(path, null, flags);
-
-        if (dbLocale != null) {
-            db.setLocale(dbLocale);
-        }
     }
-    
+
     public void __constructor__(String path, char[] password, CursorFactory factory, int flags, SQLiteDatabaseHook hook) {
         db = android.database.sqlite.SQLiteDatabase.openDatabase(path, null, flags);
-        if (dbLocale != null) {
-            db.setLocale(dbLocale);
-        }
+    }
+
+    public void __constructor__(String path, CursorFactory factory, int flags, DatabaseErrorHandler errorHandler) {
+        db = android.database.sqlite.SQLiteDatabase.openDatabase(path, null, flags);
     }
 
     public SQLiteDatabaseNative() {
-        
+
     }
 
     @Implementation
@@ -181,29 +178,29 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public Cursor query(boolean distinct, String table, String[] columns,
-            String selection, String[] selectionArgs, String groupBy,
-            String having, String orderBy, String limit) {
+                        String selection, String[] selectionArgs, String groupBy,
+                        String having, String orderBy, String limit) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(distinct, table, columns, selection, selectionArgs, groupBy, having, orderBy, limit));
     }
 
     @Implementation
     public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having,
-            String orderBy, String limit) {
+                        String orderBy, String limit) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limit));
     }
 
     @Implementation
     public Cursor query(String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having,
-            String orderBy) {
+                        String[] selectionArgs, String groupBy, String having,
+                        String orderBy) {
         return new SQLiteCursorNative((android.database.sqlite.SQLiteCursor)db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy));
     }
 
     @Implementation
     public Cursor queryWithFactory(CursorFactory cursorFactory,
-            boolean distinct, String table, String[] columns, String selection,
-            String[] selectionArgs, String groupBy, String having,
-            String orderBy, String limit) {
+                                   boolean distinct, String table, String[] columns, String selection,
+                                   String[] selectionArgs, String groupBy, String having,
+                                   String orderBy, String limit) {
         throw new UnsupportedOperationException("Can't perform queries with a factor in the mock db");
     }
 
@@ -215,7 +212,7 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public Cursor rawQuery(String sql, String[] selectionArgs, int initialRead,
-            int maxRead) {
+                           int maxRead) {
         throw new UnsupportedOperationException("Mock DB cannot support raw Query with this signature");
     }
 
@@ -226,7 +223,7 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public Cursor rawQueryWithFactory(CursorFactory arg0, String arg1,
-            String[] arg2, String arg3) {
+                                      String[] arg2, String arg3) {
         throw new UnsupportedOperationException("Can't perform queries with a factor in the mock db");
     }
 
@@ -247,11 +244,7 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public void setLocale(Locale locale) {
-        if (db == null) {
-            dbLocale = locale;
-        } else {
-            db.setLocale(locale);
-        }
+        db.setLocale(locale);
     }
 
     @Implementation
@@ -296,7 +289,7 @@ public class SQLiteDatabaseNative {
 
     @Implementation
     public int updateWithOnConflict(String arg0, ContentValues arg1,
-            String arg2, String[] arg3, int arg4) {
+                                    String arg2, String[] arg3, int arg4) {
         return db.updateWithOnConflict(arg0, arg1, arg2, arg3, arg4);
     }
 
