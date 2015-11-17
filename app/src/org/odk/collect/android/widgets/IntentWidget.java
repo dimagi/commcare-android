@@ -187,6 +187,13 @@ public class IntentWidget extends QuestionWidget {
         launchIntentButton.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mStringAnswer.setOnLongClickListener(null);
+        launchIntentButton.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

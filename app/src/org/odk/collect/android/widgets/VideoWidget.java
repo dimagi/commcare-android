@@ -243,6 +243,14 @@ public class VideoWidget extends QuestionWidget {
         mPlayButton.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        mPlayButton.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

@@ -280,7 +280,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
-        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+
+        restoreLastQueryString();
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
@@ -487,7 +488,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     protected void onStop() {
         super.onStop();
         stopTimer();
-        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString();
     }
 
     /**

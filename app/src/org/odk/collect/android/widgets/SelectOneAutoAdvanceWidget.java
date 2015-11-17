@@ -90,7 +90,12 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 RadioButton r = new RadioButton(getContext());
                 r.setOnCheckedChangeListener(this);
-                r.setText(stylize(prompt.getSelectChoiceText(mItems.get(i))));
+                String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
+                if(markdownText != null){
+                    r.setText(forceMarkdown(markdownText));
+                } else{
+                    r.setText(prompt.getSelectChoiceText(mItems.get(i)));
+                }
                 r.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
                 r.setId(i + buttonIdBase);
                 r.setEnabled(!prompt.isReadOnly());
@@ -213,6 +218,14 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         }
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        for (RadioButton r : buttons) {
+            r.setOnLongClickListener(null);
+        }
+    }
 
     @Override
     public void cancelLongPress() {
