@@ -1,6 +1,7 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
+import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.commcare.suite.model.graph.SeriesData;
 import org.json.JSONArray;
@@ -75,6 +76,10 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("x", x);
         mConfiguration.put("y", y);
         mConfiguration.put("y2", y2);
+
+        if (mData.getType().equals(Graph.TYPE_BAR) && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
+            mConfiguration.put("rotated", true);
+        }
     }
 
     private void addTickConfig(JSONObject axis, String key, String varName) throws InvalidStateException, JSONException {

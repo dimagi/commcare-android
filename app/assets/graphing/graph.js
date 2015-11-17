@@ -37,6 +37,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
             return y2Labels[String(d)] || d;
         };
     }
+    if (type === "bar") {
+        config.axis.x.tick.format = function(d) {
+            return barLabels[d];
+        };
+    }
 
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
