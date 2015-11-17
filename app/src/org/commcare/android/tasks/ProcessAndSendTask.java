@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.MessageTag;

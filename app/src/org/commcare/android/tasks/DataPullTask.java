@@ -11,11 +11,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.RecordTooLargeException;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.storage.FormSaveUtil;
@@ -35,7 +35,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.resources.model.CommCareOTARestoreListener;
-import org.commcare.xml.CommCareTransactionParserFactory;
+import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -163,8 +163,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
         
         HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
-        
-        CommCareTransactionParserFactory factory = new CommCareTransactionParserFactory(context, requestor) {
+
+        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
             boolean publishedAuth = false;
             @Override
             public void reportProgress(int progress) {
@@ -259,6 +259,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         this.context.sendBroadcast(i);
                         
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
+                        updateCurrentUser(password);
                         this.publishProgress(PROGRESS_DONE);
                         return DOWNLOAD_SUCCESS;
                     } catch (InvalidStructureException e) {
@@ -360,7 +361,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
     
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private int recover(HttpRequestGenerator requestor, CommCareTransactionParserFactory factory) {
+    private int recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
         
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
@@ -459,11 +460,17 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         }
     }
 
-    private void updateUserSyncToken(String syncToken) {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+    private void updateCurrentUser(String password) throws SessionUnavailableException {
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
+        User u = storage.getRecordForValue(User.META_USERNAME, username);
+        CommCareApplication._().getSession().setCurrentUser(u, password);
+    }
+
+    private void updateUserSyncToken(String syncToken) throws StorageFullException {
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         try {
             User u = storage.getRecordForValue(User.META_USERNAME, username);
-            u.setSyncToken(syncToken);
+            u.setLastSyncToken(syncToken);
             storage.write(u);
         } catch(NoSuchElementException nsee) {
             //TODO: Something here? Maybe figure out if we downloaded a user from the server and attach the data to it?
@@ -475,7 +482,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = new Vector<String>();
         Vector<String> users = new Vector<String>(); 
-        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.class).iterate(); userIterator.hasMore();) {
+        for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
             String id = userIterator.nextRecord().getUniqueId();
             owners.addElement(id);
             users.addElement(id);
@@ -508,8 +515,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
-    private String readInput(InputStream stream, CommCareTransactionParserFactory factory) throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
+    private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException,
+            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException{
         DataModelPullParser parser;
         
         factory.initCaseParser();

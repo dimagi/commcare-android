@@ -34,6 +34,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.activities.GeoPointActivity;
 import org.odk.collect.android.activities.GeoPointMapActivity;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.text.DecimalFormat;
 
@@ -43,21 +44,22 @@ import java.text.DecimalFormat;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
+public class GeoPointWidget extends QuestionWidget {
     private final Button mGetLocationButton;
     private final Button mViewButton;
 
     private final TextView mStringAnswer;
     private final TextView mAnswerDisplay;
-    private boolean mWaitingForData;
     private boolean mUseMaps;
     public static final String LOCATION = "gp";
 
+    private PendingCalloutInterface pendingCalloutInterface;
 
-    public GeoPointWidget(Context context, FormEntryPrompt prompt) {
+    public GeoPointWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
 
-        mWaitingForData = false;
+        this.pendingCalloutInterface = pic;
+
         mUseMaps = false;
         String appearance = prompt.getAppearanceHint();
         if ("maps".equalsIgnoreCase(appearance)) {
@@ -108,9 +110,8 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
                 } else {
                     i = new Intent(getContext(), GeoPointActivity.class);
                 }
-                ((Activity)getContext()).startActivityForResult(i,
-                        FormEntryActivity.LOCATION_CAPTURE);
-                mWaitingForData = true;
+                ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.LOCATION_CAPTURE);
+                pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
             }
         });
 
@@ -237,15 +238,7 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
                         ": " + truncateDouble(sa[2]) + "m\n" +
                         StringUtils.getStringSpannableRobust(getContext(), R.string.accuracy) +
                         ": " + truncateDouble(sa[3]) + "m");
-        mWaitingForData = false;
     }
-
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
@@ -255,6 +248,15 @@ public class GeoPointWidget extends QuestionWidget implements IBinaryWidget {
         mAnswerDisplay.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mViewButton.setOnLongClickListener(null);
+        mGetLocationButton.setOnLongClickListener(null);
+        mStringAnswer.setOnLongClickListener(null);
+        mAnswerDisplay.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

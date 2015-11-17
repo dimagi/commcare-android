@@ -33,7 +33,6 @@ import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
-import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -215,7 +214,7 @@ public class FileUtils {
      */
     public static boolean scaleAndSaveImage(File originalImage, String finalFilePath, int maxDimen) {
         String extension = getExtension(originalImage.getAbsolutePath());
-        ImageWidget.ImageType type = ImageWidget.ImageType.fromExtension(extension);
+        ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
             // The selected image is not of a type that can be decoded to or from a bitmap
             Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");

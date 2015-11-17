@@ -39,7 +39,7 @@ import java.io.File;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class ImageWidget extends QuestionWidget implements IBinaryWidget {
+public class ImageWidget extends QuestionWidget {
     private final static String t = "MediaWidget";
     public final static File TEMP_FILE_FOR_IMAGE_CAPTURE = new File(ODKStorage.TMPFILE_PATH);
 
@@ -50,23 +50,17 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     private String mBinaryName;
 
     private final String mInstanceFolder;
-    private boolean mWaitingForData;
 
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     public ImageWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
-        this(context, prompt);
-        this.pendingCalloutInterface = pic;
-    }
-
-    public ImageWidget(Context context, final FormEntryPrompt prompt) {
         super(context, prompt);
+        this.pendingCalloutInterface = pic;
 
         mMaxDimen = -1;
-        mWaitingForData = false;
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
                         FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
@@ -81,7 +75,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -101,8 +95,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CAPTURE);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-                    mWaitingForData = true;
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -117,7 +110,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -130,8 +123,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.IMAGE_CHOOSER);
-                    mWaitingForData = true;
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -146,7 +138,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         addView(mCaptureButton);
         addView(mChooseButton);
 
-        String acq = prompt.getAppearanceHint();
+        String acq = mPrompt.getAppearanceHint();
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
@@ -154,7 +146,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         mErrorTextView.setVisibility(View.GONE);
 
         // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
+        mBinaryName = mPrompt.getAnswerText();
 
         // Only add the imageView if the user has taken a picture
         if (mBinaryName != null) {
@@ -200,7 +192,7 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
                                 android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                                 projection, "_data='" + mInstanceFolder + mBinaryName + "'",
                                 null, null);
-                        if (c.getCount() > 0) {
+                        if (c != null && c.getCount() > 0) {
                             c.moveToFirst();
                             String id = c.getString(c.getColumnIndex("_id"));
 
@@ -279,8 +271,6 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
         File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
-
-        mWaitingForData = false;
     }
 
     @Override
@@ -292,16 +282,22 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
     }
 
     @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
-    @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mCaptureButton.setOnLongClickListener(l);
         mChooseButton.setOnLongClickListener(l);
         if (mImageView != null) {
             mImageView.setOnLongClickListener(l);
+        }
+    }
+
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        if (mImageView != null) {
+            mImageView.setOnLongClickListener(null);
         }
     }
 
@@ -324,33 +320,5 @@ public class ImageWidget extends QuestionWidget implements IBinaryWidget {
 
     public int getMaxDimen() {
         return this.mMaxDimen;
-    }
-
-    public enum ImageType {
-        JPEG(Bitmap.CompressFormat.JPEG),
-        PNG(Bitmap.CompressFormat.PNG);
-
-        private Bitmap.CompressFormat format;
-
-        ImageType(Bitmap.CompressFormat format) {
-            this.format = format;
-        }
-
-        public Bitmap.CompressFormat getCompressFormat() {
-            return this.format;
-        }
-
-        public static ImageType fromExtension(String extension) {
-            switch(extension.toLowerCase()) {
-                case "jpeg":
-                case "jpg":
-                    return JPEG;
-                case "png":
-                    return PNG;
-                default:
-                    return null;
-            }
-        }
-
     }
 }

@@ -47,9 +47,14 @@
 
     </RelativeLayout>
 
-    <include
-        android:id="@+id/dialog_cancel_button"
-        layout="@layout/progress_dialog_cancel_button" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
+        <include
+            android:id="@+id/dialog_cancel_button"
+            layout="@layout/progress_dialog_cancel_button" />
+
+    </RelativeLayout>
 
 </LinearLayout>

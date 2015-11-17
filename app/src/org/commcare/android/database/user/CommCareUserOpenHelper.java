@@ -9,8 +9,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.TableBuilder;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
@@ -18,7 +18,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -40,8 +40,10 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * Added Entity Cache Table
      * V.7 - Case index models now maintain relationship types. Migration object
      * used to update DB
+     * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
      */
-    private static final int USER_DB_VERSION = 7;
+
+    private static final int USER_DB_VERSION = 8;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -64,34 +66,34 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
         try {
             database.beginTransaction();
-
-            TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
+            
+            AndroidTableBuilder builder = new AndroidTableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder("USER");
+            
+            builder = new AndroidTableBuilder("USER");
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(FormRecord.class);
+            
+            builder = new AndroidTableBuilder(FormRecord.class);
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(SessionStateDescriptor.class);
+            
+            builder = new AndroidTableBuilder(SessionStateDescriptor.class);
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(GeocodeCacheModel.STORAGE_KEY);
+            
+            builder = new AndroidTableBuilder(GeocodeCacheModel.STORAGE_KEY);
             builder.addData(new GeocodeCacheModel());
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(DeviceReportRecord.class);
+            
+            builder = new AndroidTableBuilder(DeviceReportRecord.class);
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder("fixture");
+            
+            builder = new AndroidTableBuilder("fixture");
             builder.addData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(Ledger.STORAGE_KEY);
+            
+            builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
             database.execSQL(builder.getTableCreateString());
@@ -132,6 +134,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%

@@ -23,6 +23,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -33,7 +34,7 @@ import java.io.File;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class VideoWidget extends QuestionWidget implements IBinaryWidget {
+public class VideoWidget extends QuestionWidget {
     private final static String t = "MediaWidget";
 
     private final Button mCaptureButton;
@@ -43,13 +44,12 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
     private String mBinaryName;
 
     private final String mInstanceFolder;
+    private PendingCalloutInterface pendingCalloutInterface;
 
-    private boolean mWaitingForData;
-
-    public VideoWidget(Context context, FormEntryPrompt prompt) {
+    public VideoWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
+        this.pendingCalloutInterface = pic;
 
-        mWaitingForData = false;
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
                         FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
@@ -75,7 +75,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    mWaitingForData = true;
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -98,13 +98,10 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("video/*");
-                // Intent i =
-                // new Intent(Intent.ACTION_PICK,
-                // android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-                mWaitingForData = true;
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -229,9 +226,7 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         mBinaryName = newVideo.getName();
-        mWaitingForData = false;
     }
-
 
     @Override
     public void setFocus(Context context) {
@@ -241,13 +236,6 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mCaptureButton.setOnLongClickListener(l);
@@ -255,6 +243,14 @@ public class VideoWidget extends QuestionWidget implements IBinaryWidget {
         mPlayButton.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        mPlayButton.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

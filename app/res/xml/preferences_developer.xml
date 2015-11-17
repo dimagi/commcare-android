@@ -57,6 +57,12 @@ the License.
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enable-auto-login"
+        android:title="Enable auto-login during debugging" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
         android:key="cc-css-enabled"
         android:title="CSS Enabled" />
     <ListPreference

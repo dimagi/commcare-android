@@ -22,6 +22,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
@@ -34,22 +35,22 @@ import java.io.File;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
-public class AudioWidget extends QuestionWidget implements IBinaryWidget {
+public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
 
     private final Button mCaptureButton;
     private final Button mPlayButton;
     private final Button mChooseButton;
+    private PendingCalloutInterface pendingCalloutInterface;
 
     private String mBinaryName;
     private final String mInstanceFolder;
 
-    private boolean mWaitingForData;
-
-    public AudioWidget(Context context, FormEntryPrompt prompt) {
+    public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
 
-        mWaitingForData = false;
+        this.pendingCalloutInterface = pic;
+
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
                         FormEntryActivity.mInstancePath.lastIndexOf("/") + 1);
@@ -70,10 +71,9 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
                 Intent i = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                         android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString());
-                mWaitingForData = true;
                 try {
-                    ((Activity)getContext())
-                            .startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -97,10 +97,9 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
-                mWaitingForData = true;
                 try {
-                    ((Activity)getContext())
-                            .startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),
@@ -228,7 +227,6 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
         }
 
         mBinaryName = newAudio.getName();
-        mWaitingForData = false;
     }
 
     @Override
@@ -240,15 +238,19 @@ public class AudioWidget extends QuestionWidget implements IBinaryWidget {
     }
 
     @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
-    @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mCaptureButton.setOnLongClickListener(l);
         mChooseButton.setOnLongClickListener(l);
         mPlayButton.setOnLongClickListener(l);
+    }
+
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        mPlayButton.setOnLongClickListener(null);
     }
 
     @Override

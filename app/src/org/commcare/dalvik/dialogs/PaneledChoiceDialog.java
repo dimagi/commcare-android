@@ -101,6 +101,10 @@ public class PaneledChoiceDialog {
         dialog.setOnCancelListener(listener);
     }
 
+    public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
+        dialog.setOnDismissListener(listener);
+    }
+
     public void dismiss() {
         dialog.dismiss();
     }
