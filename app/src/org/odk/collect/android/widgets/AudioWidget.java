@@ -245,6 +245,15 @@ public class AudioWidget extends QuestionWidget {
     }
 
     @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mCaptureButton.setOnLongClickListener(null);
+        mChooseButton.setOnLongClickListener(null);
+        mPlayButton.setOnLongClickListener(null);
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         mCaptureButton.cancelLongPress();

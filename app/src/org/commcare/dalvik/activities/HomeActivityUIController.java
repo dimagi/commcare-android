@@ -218,7 +218,7 @@ public class HomeActivityUIController {
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT);
                 CommCareApplication._().closeUserSession();
-                activity.returnToLogin();
+                activity.userTriggeredLogout();
             }
         };
     }
@@ -306,7 +306,7 @@ public class HomeActivityUIController {
             this.numUnsentForms = syncDetails.second[0];
             this.numIncompleteForms = syncDetails.second[1];
         } catch (UserStorageClosedException e) {
-            activity.returnToLogin();
+            activity.launchLogin();
             return;
         }
     }

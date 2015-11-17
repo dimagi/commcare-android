@@ -33,13 +33,12 @@ import org.javarosa.xml.util.UnfullfilledRequirementsException;
 public class AndroidResourceManager extends ResourceManager {
     private final static String TAG = AndroidResourceManager.class.getSimpleName();
     public final static String TEMP_UPGRADE_TABLE_KEY = "TEMP_UPGRADE_RESOURCE_TABLE";
-    private final UpdateStats updateStats;
-    private final CommCareApp app;
-    private String profileRef;
-    private final ResourceTable tempUpgradeTable;
-
     // 60 minutes
     private final static long MAX_UPDATE_RETRY_DELAY_IN_MS = 1000 * 60 * 60;
+    private final CommCareApp app;
+    private final UpdateStats updateStats;
+    private final ResourceTable tempUpgradeTable;
+    private String profileRef;
 
     public AndroidResourceManager(AndroidCommCarePlatform platform) {
         super(platform, platform.getGlobalResourceTable(),
@@ -118,6 +117,7 @@ public class AndroidResourceManager extends ResourceManager {
             Log.i(TAG, "Clearing upgrade table because resource downloads " +
                     "failed too many times or started too long ago");
             upgradeTable.destroy();
+            updateStats.resetStats(app);
         }
 
         Resource upgradeProfile =

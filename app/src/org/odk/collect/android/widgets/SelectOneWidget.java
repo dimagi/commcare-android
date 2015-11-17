@@ -140,7 +140,6 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         }
     }
 
-
     @Override
     public IAnswerData getAnswer() {
         int i = getCheckedId();
@@ -197,6 +196,15 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         }
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        for (RadioButton button : this.buttons) {
+            button.setOnCheckedChangeListener(null);
+            button.setOnLongClickListener(null);
+        }
+    }
 
     @Override
     public void cancelLongPress() {
@@ -205,5 +213,4 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
             button.cancelLongPress();
         }
     }
-
 }
