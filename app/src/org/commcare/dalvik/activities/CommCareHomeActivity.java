@@ -833,11 +833,6 @@ public class CommCareHomeActivity
         }
     }
 
-    private void addPendingDatumIdExtra(Intent i, CommCareSession session) {
-        String pendingDatumId = session.getNeededDatum().getDataId();
-        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, pendingDatumId);
-    }
-
     @Override
     public CommCareSession getSessionForNavigator() {
         return CommCareApplication._().getCurrentSession();
@@ -913,6 +908,11 @@ public class CommCareHomeActivity
                 detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
         addPendingDatumIdExtra(detailIntent, asw.getSession());
         startActivityForResult(detailIntent, GET_CASE);
+    }
+
+    private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
+        String pendingDatumId = session.getNeededDatum().getDataId();
+        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, pendingDatumId);
     }
 
     /**
