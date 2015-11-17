@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
@@ -78,6 +80,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
+    public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
@@ -137,9 +140,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         setLoginBoxesColorNormal();
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+
         //Only on the initial creation
         if(savedInstanceState == null) {
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
@@ -151,15 +157,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-                errorBox.setVisibility(View.GONE);
-                ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-
-                if (ResourceInstallUtils.isUpdateReadyToInstall()) {
-                    // install update, which triggers login upon completion
-                    installPendingUpdate();
-                } else {
-                    localLoginOrPullAndLogin();
-                }
+                loginButtonPressed();
             }
         });
 
@@ -197,6 +195,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 }
             }
         });
+    }
+
+    private void loginButtonPressed() {
+        errorBox.setVisibility(View.GONE);
+        ViewUtil.hideVirtualKeyboard(LoginActivity.this);
+
+        DevSessionRestorer.tryAutoLoginPasswordSave(password.getText().toString());
+
+        if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+            // install update, which triggers login upon completion
+            installPendingUpdate();
+        } else {
+            localLoginOrPullAndLogin();
+        }
     }
 
     public String getActivityTitle() {
@@ -288,19 +300,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-            if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
-                Intent i = new Intent();
-                i.putExtra(ALREADY_LOGGED_IN, true);
-                setResult(RESULT_OK, i);
-                
-                CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-                finish();
-                return;
-            }
-        } catch (SessionUnavailableException sue) {
-            // Nothing, we're logging in here anyway
+
+        if (isAlreadyLoggedIn()) {
+            return;
         }
 
         // It is possible that we left off at the LoginActivity last time we were on the main CC
@@ -316,6 +318,44 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         // Otherwise, refresh the login screen for current conditions
         refreshView();
+    }
+
+    @Override
+    public void onResumeFragments() {
+        super.onResumeFragments();
+
+        tryAutoLogin();
+    }
+
+    private void tryAutoLogin() {
+        Pair<String, String> userAndPass =
+                DevSessionRestorer.getAutoLoginCreds();
+        if (userAndPass != null) {
+            username.setText(userAndPass.first);
+            password.setText(userAndPass.second);
+
+            if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
+                loginButtonPressed();
+            }
+        }
+    }
+
+    private boolean isAlreadyLoggedIn() {
+        try {
+            //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
+            if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
+                Intent i = new Intent();
+                i.putExtra(ALREADY_LOGGED_IN, true);
+                setResult(RESULT_OK, i);
+
+                CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
+                finish();
+                return true;
+            }
+        } catch (SessionUnavailableException sue) {
+            // Nothing, we're logging in here anyway
+        }
+        return false;
     }
 
     private String getUsername() {

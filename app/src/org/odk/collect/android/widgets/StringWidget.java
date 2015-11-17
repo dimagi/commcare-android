@@ -176,6 +176,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mAnswer.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

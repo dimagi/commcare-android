@@ -243,4 +243,20 @@ public class LabelWidget extends QuestionWidget {
             label.setOnLongClickListener(l);
         }
     }
+
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mQuestionText.setOnLongClickListener(null);
+        if (mMissingImage != null) {
+            mMissingImage.setOnLongClickListener(null);
+        }
+        if (mImageView != null) {
+            mImageView.setOnLongClickListener(null);
+        }
+        if (label != null) {
+            label.setOnLongClickListener(null);
+        }
+    }
 }
