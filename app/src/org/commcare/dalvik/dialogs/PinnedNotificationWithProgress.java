@@ -65,8 +65,14 @@ public class PinnedNotificationWithProgress
 
     @Override
     public void handleTaskUpdate(Integer... updateVals) {
-        int progress = updateVals[0];
-        int max = updateVals[1];
+        int progress = 0;
+        int max = 0;
+
+        if (updateVals != null && updateVals.length > 1) {
+            progress = updateVals[0];
+            max = updateVals[1];
+        }
+
         notificationBuilder.setProgress(max, progress, false);
         notificationBuilder.setContentText(getProgressText(progress, max));
         notificationManager.notify(notificationId, notificationBuilder.build());
