@@ -230,6 +230,13 @@ public class GridMultiWidget extends QuestionWidget {
     }
 
     @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        gridview.setOnLongClickListener(null);
+    }
+
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         gridview.cancelLongPress();
