@@ -1764,15 +1764,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             //on screen rotation. We need to re-do any setAnswers that we perform on them after
             //onResume.
             try {
-                if (mCurrentView instanceof ODKView) {
-                    ODKView ov = ((ODKView)mCurrentView);
-                    if (ov.getWidgets() != null) {
-                        for (QuestionWidget qw : ov.getWidgets()) {
-                            if (qw instanceof DateTimeWidget) {
-                                ((DateTimeWidget)qw).setAnswer();
-                            } else if (qw instanceof TimeWidget) {
-                                ((TimeWidget)qw).setAnswer();
-                            }
+                if (mCurrentView.getWidgets() != null) {
+                    for (QuestionWidget qw : mCurrentView.getWidgets()) {
+                        if (qw instanceof DateTimeWidget) {
+                            ((DateTimeWidget)qw).setAnswer();
+                        } else if (qw instanceof TimeWidget) {
+                            ((TimeWidget)qw).setAnswer();
                         }
                     }
                 }
