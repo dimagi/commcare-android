@@ -12,7 +12,7 @@
 
         <RelativeLayout
             android:id="@+id/screen_first_start_main"
-            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res/org.commcare.dalvik"
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
                             android:layout_height="wrap_content"
                             SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
                             SquareButtonWithText:img="@drawable/update_download"
-                            SquareButtonWithText:subtitle="Check"
+                            SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
@@ -92,7 +92,7 @@
                             android:layout_height="wrap_content"
                             SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
                             SquareButtonWithText:img="@drawable/install_stop"
-                            SquareButtonWithText:subtitle="Stop"
+                            SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
@@ -110,7 +110,7 @@
                             android:layout_height="wrap_content"
                             SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
                             SquareButtonWithText:img="@drawable/install_start"
-                            SquareButtonWithText:subtitle="Install"
+                            SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
