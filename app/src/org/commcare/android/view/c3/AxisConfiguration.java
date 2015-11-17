@@ -19,47 +19,17 @@ public class AxisConfiguration extends Configuration {
     public AxisConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);
 
-        JSONObject x = new JSONObject();
-        JSONObject y = new JSONObject();
-        JSONObject y2 = new JSONObject();
+        JSONObject x = getAxis("x");
+        JSONObject y = getAxis("y");
+        JSONObject y2 = getAxis("secondary-y");
 
-        final boolean showAxes = Boolean.valueOf(mData.getConfiguration("show-axes", "true"));
-        if (!showAxes) {
-            JSONObject show = new JSONObject("{ show: false }");
-            x = show;
-            y = show;
-            y2 = show;
-        } else {
-            // Undo C3's automatic axis padding
-            JSONObject padding = new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}");
-            x.put("padding", padding);
-            y.put("padding", padding);
-            y2.put("padding", padding);
-
-            // Axis titles
-            addTitle(x, "x-title", "outer-center");
-            addTitle(y, "y-title", "outer-middle");
-            addTitle(y2, "secondary-y-title", "outer-middle");
-
-            // Min and max boundaries
-            // TODO: verify x-min and x-max work with time-based graphs
-            addBounds(x, "x");
-            addBounds(y, "y");
-            addBounds(y2, "secondary-y");
-
-            // Display secondary y axis only if it has at least one associated series
-            for (SeriesData s : mData.getSeries()) {
-                boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
-                if (hasSecondaryAxis) {
-                    y2.put("show", true);
-                    break;
-                }
+        // Display secondary y axis only if it has at least one associated series
+        for (SeriesData s : mData.getSeries()) {
+            boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+            if (hasSecondaryAxis) {
+                y2.put("show", true);
+                break;
             }
-
-            // Axis tick labels
-            addTickConfig(x, "x-labels", "xLabels");
-            addTickConfig(y, "y-labels", "yLabels");
-            addTickConfig(y2, "secondary-y-labels", "y2Labels");
         }
 
         mConfiguration.put("x", x);
@@ -169,4 +139,31 @@ public class AxisConfiguration extends Configuration {
         }
     }
 
+    /**
+     * Generate axis configuration.
+     * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
+     * @return JSONObject representing the axis's configuration
+     */
+    private JSONObject getAxis(String prefix) throws JSONException, InvalidStateException {
+        final boolean showAxes = Boolean.valueOf(mData.getConfiguration("show-axes", "true"));
+        if (!showAxes) {
+            return new JSONObject("{ show: false }");
+        }
+
+        JSONObject config = new JSONObject();
+        boolean isX = prefix.equals("x");
+
+        // Undo C3's automatic axis padding
+        config.put("padding", new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}"));
+
+        addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
+
+        // TODO: verify x-min and x-max work with time-based graphs
+        addBounds(config, prefix);
+
+        String jsPrefix = prefix.equals("secondary-y") ? "y2" : prefix;
+        addTickConfig(config, prefix + "-labels", jsPrefix + "Labels");
+
+        return config;
+    }
 }
