@@ -1,6 +1,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
@@ -31,9 +32,13 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         mTimePicker = new TimePicker(getContext());
         mTimePicker.setFocusable(!prompt.isReadOnly());
         mTimePicker.setEnabled(!prompt.isReadOnly());
-
         mTimePicker.setOnTimeChangedListener(this);
-        
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mTimePicker.setSaveFromParentEnabled(false);
+            mTimePicker.setSaveEnabled(true);
+        }
+
         String clockType =
             android.provider.Settings.System.getString(context.getContentResolver(),
                 android.provider.Settings.System.TIME_12_24);

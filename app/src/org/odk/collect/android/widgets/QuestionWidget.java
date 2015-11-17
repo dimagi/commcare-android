@@ -379,13 +379,13 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         if (markdownText != null) {
             mQuestionText.setText(forceMarkdown(markdownText));
             mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
-            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
             // Wrap to the size of the parent view
             mQuestionText.setHorizontallyScrolling(false);
         } else {
             mQuestionText.setText(mPrompt.getLongText());
-            mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         }
+
+        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
 
         if(mPrompt.getLongText()!= null){
             if(mPrompt.getLongText().contains("\u260E")){
@@ -635,16 +635,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     /*
-     * Methods to make localization and styling easier for devs
+     * Method to make localization and styling easier for devs
      * copied from CommCareActivity
      */
 
-    private Spannable forceMarkdown(String text){
+    protected Spannable forceMarkdown(String text){
         return MarkupUtil.returnMarkdown(getContext(), text);
-    }
-
-    public Spannable stylize(String text){
-        return MarkupUtil.styleSpannable(getContext(), text);
     }
 
     /**

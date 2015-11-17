@@ -15,6 +15,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -56,6 +57,10 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mTimePicker.setEnabled(!prompt.isReadOnly());
         mTimePicker.setPadding(0, 20, 0, 0);
         mTimePicker.setOnTimeChangedListener(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mTimePicker.setSaveFromParentEnabled(false);
+            mTimePicker.setSaveEnabled(true);
+        }
 
         String clockType =
             android.provider.Settings.System.getString(context.getContentResolver(),
