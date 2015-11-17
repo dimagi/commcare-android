@@ -84,7 +84,7 @@ public class Configuration {
             if (numeric.isNaN()) {
                 throw new InvalidStateException("Could not understand '" + value + "' in " + description);
             }
-            return numeric.doubleValue();
+            return numeric;
         } catch (NumberFormatException nfe) {
             throw new InvalidStateException("Could not understand '" + value + "' in " + description);
         }

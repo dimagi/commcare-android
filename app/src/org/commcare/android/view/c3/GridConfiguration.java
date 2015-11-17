@@ -14,7 +14,8 @@ public class GridConfiguration extends Configuration {
     public GridConfiguration(GraphData data) throws JSONException {
         super(data);
 
-        if (Boolean.valueOf(mData.getConfiguration("show-grid", "true")).equals(Boolean.TRUE)) {
+        boolean showGrid = Boolean.valueOf(mData.getConfiguration("show-grid", "true"));
+        if (showGrid) {
             JSONObject show = new JSONObject("{ show: true }");
             mConfiguration.put("x", show);
             mConfiguration.put("y", show);

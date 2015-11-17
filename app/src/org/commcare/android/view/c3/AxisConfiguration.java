@@ -23,7 +23,8 @@ public class AxisConfiguration extends Configuration {
         JSONObject y = new JSONObject();
         JSONObject y2 = new JSONObject();
 
-        if (Boolean.valueOf(mData.getConfiguration("show-axes", "true")).equals(Boolean.FALSE)) {
+        final boolean showAxes = Boolean.valueOf(mData.getConfiguration("show-axes", "true"));
+        if (!showAxes) {
             JSONObject show = new JSONObject("{ show: false }");
             x = show;
             y = show;
@@ -48,7 +49,8 @@ public class AxisConfiguration extends Configuration {
 
             // Display secondary y axis only if it has at least one associated series
             for (SeriesData s : mData.getSeries()) {
-                if (Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE)) {
+                boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+                if (hasSecondaryAxis) {
                     y2.put("show", true);
                     break;
                 }
@@ -75,8 +77,6 @@ public class AxisConfiguration extends Configuration {
      * Add min and max bounds to given axis.
      * @param axis Current axis configuration. Will be modified.
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
-     * @throws InvalidStateException
-     * @throws JSONException
      */
     private void addBounds(JSONObject axis, String prefix) throws InvalidStateException, JSONException {
         addBound(axis, prefix, "min");
@@ -88,8 +88,6 @@ public class AxisConfiguration extends Configuration {
      * @param axis Current axis configuratoin. Will be modified.
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      * @param suffix "min" or "max"
-     * @throws JSONException
-     * @throws InvalidStateException
      */
     private void addBound(JSONObject axis, String prefix, String suffix) throws JSONException, InvalidStateException {
         String key = prefix + "-" + suffix;
@@ -106,8 +104,6 @@ public class AxisConfiguration extends Configuration {
      * @param key One of "x-labels", "y-labels", "secondary-y-labels"
      * @param varName If the axis uses a hash of labels (position => label), a variable
      *                will be created with this name to store those labels.
-     * @throws InvalidStateException
-     * @throws JSONException
      */
     private void addTickConfig(JSONObject axis, String key, String varName) throws InvalidStateException, JSONException {
         // The labels configuration might be a JSON array of numbers,
@@ -157,7 +153,6 @@ public class AxisConfiguration extends Configuration {
      * @param key One of "x-title", "y-title", "secondary-y-title"
      * @param position For horizontal axis, (inner|outer)-(right|center|left)
      *                 For vertical axis, (inner|outer)-(top|middle|bottom)
-     * @throws JSONException
      */
     private void addTitle(JSONObject axis, String key, String position) throws JSONException {
         String title = mData.getConfiguration(key, "");

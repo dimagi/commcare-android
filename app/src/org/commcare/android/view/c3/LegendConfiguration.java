@@ -14,7 +14,8 @@ public class LegendConfiguration extends Configuration {
         super(data);
 
         // Respect user's preference for showing legend
-        if (Boolean.valueOf(mData.getConfiguration("show-legend", "false")).equals(Boolean.FALSE)) {
+        boolean showLegend = Boolean.valueOf(mData.getConfiguration("show-legend", "false"));
+        if (!showLegend) {
             mConfiguration.put("show", false);
         }
 

@@ -25,24 +25,24 @@ import java.util.Vector;
 public class DataConfiguration extends Configuration {
     // Actual data: array of arrays, where first element is a string id
     // and later elements are data, either x values or y values.
-    private JSONArray mColumns = new JSONArray();
+    private final JSONArray mColumns = new JSONArray();
 
     // Hash that pairs up the arrays defined in columns,
     // y-values-array-id => x-values-array-id
-    private JSONObject mXs = new JSONObject();
+    private final JSONObject mXs = new JSONObject();
 
     // Hash of y-values id => name for legend
-    JSONObject mNames = new JSONObject();
+    private final JSONObject mNames = new JSONObject();
 
     // Hash of y-values id => 'y' or 'y2' depending on whether this data
     // should be plotted against the primary or secondary y axis
-    private JSONObject mAxes = new JSONObject();
+    private final JSONObject mAxes = new JSONObject();
 
     // Hash of y-values id => line, scatter, bar, area, etc.
-    JSONObject mTypes = new JSONObject();
+    private final JSONObject mTypes = new JSONObject();
 
     // Hash of y-values id => series color
-    JSONObject mColors = new JSONObject();
+    private final JSONObject mColors = new JSONObject();
 
     public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);
@@ -163,7 +163,8 @@ public class DataConfiguration extends Configuration {
             mColors.put(yID, color);
 
             // Associate values with either primary or secondary y axis
-            mAxes.put(yID, Boolean.valueOf(s.getConfiguration("secondary-y", "false")).equals(Boolean.TRUE) ? "y2" : "y");
+            boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+            mAxes.put(yID, isSecondaryY ? "y2" : "y");
 
             seriesIndex++;
         }
@@ -193,7 +194,7 @@ public class DataConfiguration extends Configuration {
 
         // Set up stacked bar graph if needed
         if (mData.getType().equals(Graph.TYPE_BAR)
-                && Boolean.valueOf(mData.getConfiguration("stack", "false")).equals(Boolean.TRUE)) {
+                && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
             JSONArray inner = new JSONArray();
             for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
                 String key = i.next();
@@ -214,8 +215,6 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Add annotations, by creating a fake series with data labels turned on.
-     * @throws JSONException
-     * @throws InvalidStateException
      */
     private void addAnnotations() throws JSONException, InvalidStateException {
         String xID = "annotationsX";
@@ -248,8 +247,6 @@ public class DataConfiguration extends Configuration {
      * Create fake series so there's data all the way to the edges of the user-specified
      * min and max. C3 does tick placement in part based on data, so this will force
      * it to place ticks based on the user's desired min/max range.
-     * @throws JSONException
-     * @throws InvalidStateException
      */
     private void addBoundaries() throws JSONException, InvalidStateException {
         String xMin = mData.getConfiguration("x-min");
@@ -279,8 +276,6 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of y column for new series
      * @param prefix "y" or "secondary-y"
      * @return True iff a series was actually created
-     * @throws JSONException
-     * @throws InvalidStateException
      */
     private boolean addBoundary(String xID, String yID, String prefix) throws JSONException, InvalidStateException {
         String min = mData.getConfiguration(prefix + "-min");
@@ -306,7 +301,7 @@ public class DataConfiguration extends Configuration {
      *
      * @author jschweers
      */
-    private class StringPointComparator implements Comparator<XYPointData> {
+    private static class StringPointComparator implements Comparator<XYPointData> {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             return lhs.getX().compareTo(rhs.getX());

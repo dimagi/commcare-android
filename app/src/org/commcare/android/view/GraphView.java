@@ -28,7 +28,7 @@ import java.util.Enumeration;
  * @author jschweers
  */
 public class GraphView {
-    private Context mContext;
+    private final Context mContext;
     private GraphData mData;
 
     public GraphView(Context context, String title) {
