@@ -1018,14 +1018,10 @@ public class CommCareApplication extends Application {
             return true;
         }
 
-        Calendar lastRestoreCalendar = Calendar.getInstance();
-        lastRestoreCalendar.setTimeInMillis(last);
-
         //2) For daily stuff, we want it to be the case that if the last time you synced was the day prior,
         //you still sync, so people can get into the cycle of doing it once in the morning, which
         //is more valuable than syncing mid-day.
-        if (period == DateUtils.DAY_IN_MILLIS &&
-                (lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK))) {
+        if (isDifferentDayInPast(now, last, period)) {
             return true;
         }
 
@@ -1033,6 +1029,15 @@ public class CommCareApplication extends Application {
         //for now we'll simply say that if last was more than a day in the future (timezone blur)
         //we should also trigger
         return (now < (last - DateUtils.DAY_IN_MILLIS));
+    }
+
+    private boolean isDifferentDayInPast(long now, long last, long period) {
+        Calendar lastRestoreCalendar = Calendar.getInstance();
+        lastRestoreCalendar.setTimeInMillis(last);
+
+        return period == DateUtils.DAY_IN_MILLIS &&
+                lastRestoreCalendar.get(Calendar.DAY_OF_WEEK) != Calendar.getInstance().get(Calendar.DAY_OF_WEEK) &&
+                now > last;
     }
 
     /**
