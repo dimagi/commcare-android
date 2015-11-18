@@ -45,6 +45,11 @@ public class DataConfiguration extends Configuration {
     // Hash of y-values id => series color
     private final JSONObject mColors = new JSONObject();
 
+    // Hash of y-values id => point-style string ("circle", "none", "cross", etc.)
+    // Doubles as a record of all user-defined series
+    // (as opposed to series for annotations, etc.)
+    private final JSONObject mPointStyles = new JSONObject();
+
     // Bar graph data:
     //  barCount: for the sake of setting x min and max
     //  barLabels: the actual labels to display, which are supposed to be the same
@@ -71,16 +76,17 @@ public class DataConfiguration extends Configuration {
             setColumns(xID, yID, s);
             setName(yID, s);
             setColor(yID, s);
+            setPointStyle(yID, s);
             setType(yID, s);
             setYAxis(yID, s);
 
             seriesIndex++;
         }
 
-        // C3 doesn't support bubble charts well, so radius data gets set up
-        // in separate variables rather than as part of the configuration
+        // Set up separate variables for features that C3 doesn't support well
         mVariables.put("radii", mRadii.toString());
         mVariables.put("maxRadii", mMaxRadii.toString());
+        mVariables.put("pointStyles", mPointStyles.toString());
 
         // Data-based tweaking of user's configuration and adding system series
         normalizeBoundaries();
@@ -312,6 +318,26 @@ public class DataConfiguration extends Configuration {
         if (name != null) {
             mNames.put(yID, name);
         }
+    }
+
+    /**
+     * Set shape of points to be drawn for series.
+     * @param yID ID of y-values that style applies to
+     * @param s SeriesData from which to pull style
+     */
+    private void setPointStyle(String yID, SeriesData s) throws JSONException {
+        String symbol;
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            // point-style doesn't apply to bar charts
+            symbol = "none";
+        } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            // point-style doesn't apply to bubble charts,
+            // but this'll make the legend symbol a circle
+            symbol = "circle";
+        } else {
+            symbol = s.getConfiguration("point-style", "circle").toLowerCase();
+        }
+        mPointStyles.put(yID, symbol);
     }
 
     /**

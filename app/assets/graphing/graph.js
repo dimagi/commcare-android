@@ -60,9 +60,74 @@ document.addEventListener("DOMContentLoaded", function(event) {
         // For annotations series, nudge text so it appears on top of data point
         d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
 
-        // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
+        // Support point-style
+        for (var yID in pointStyles) {
+            applyPointStyle(yID, pointStyles[yID]);
+        }
     };
 
     // Generate chart
     c3.generate(config);
 });
+
+/**
+ * Replace C3's default circle points with user-requested symbols.
+ * @param yID String ID of y-values to manipulate
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ */
+function applyPointStyle(yID, symbol) {
+    // Draw symbol for each point
+    var circleSet = d3.selectAll(".c3-circles-" + yID);
+    var circles = circleSet.selectAll("circle")[0];
+    for (var j = 0; j < circles.length; j++) {
+        circles[j].style.opacity = 0;    // hide default circle
+        appendSymbol(
+            circleSet,
+            circles[j].cx.baseVal.value,
+            circles[j].cy.baseVal.value,
+            symbol,
+            circles[j].style.fill
+        );
+    }
+
+    // Make legend shape match symbol
+    if (symbol !== "none") {
+        var legendItem = d3.selectAll(".c3-legend-item-" + yID);
+        var line = legendItem.selectAll("line")[0][0];    // there will only be one line
+        line.style.opacity = 0;    // hide default square
+        appendSymbol(
+            legendItem,
+            line.x1.baseVal.value + 5,
+            line.y1.baseVal.value,
+            symbol,
+            line.style.stroke
+        );
+    }
+}
+
+/**
+ * Add symbol to given element.
+ * @param parent Element to attach symbol to
+ * @param x x x-coordinate to draw at
+ * @param y y-coordinate to draw at
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ * @param color Color to draw symbol
+ */
+function appendSymbol(parent, x, y, symbol, color) {
+    if (symbol === 'none') {
+        return;
+    }
+
+    parent.append("path")
+        .attr("transform", function (d) {
+        return "translate(" + x + ", " + y + ")";
+    })
+        .attr("class", "symbol")
+        .attr("d", d3.svg.symbol()
+              .type(symbol)
+              .size(50))
+        .style("fill", color)
+        .style("stroke", color);
+}
