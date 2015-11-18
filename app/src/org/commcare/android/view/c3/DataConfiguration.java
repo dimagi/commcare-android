@@ -45,6 +45,13 @@ public class DataConfiguration extends Configuration {
     // Hash of y-values id => series color
     private final JSONObject mColors = new JSONObject();
 
+    // Bar graph data:
+    //  barCount: for the sake of setting x min and max
+    //  barLabels: the actual labels to display, which are supposed to be the same
+    //      for every series, hence the booleans so we only record them once
+    private int mBarCount = 0;
+    private final JSONArray mBarLabels = new JSONArray("['']");
+
     public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);
 
@@ -54,16 +61,8 @@ public class DataConfiguration extends Configuration {
         JSONObject radii = new JSONObject();
         JSONObject maxRadii = new JSONObject();
 
-        // Bar graph data:
-        //  barCount: for the sake of setting x min and max
-        //  barLabels: the actual labels to display, which are supposed to be the same
-        //      for every series, hence the booleans so we only record them once
-        int barCount = 0;
-        boolean addingBarLabels = false;
+        boolean addingBarLabels;
         boolean addedBarLabels = false;
-        JSONArray barLabels = new JSONArray();
-        barLabels.put("");
-
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
             // Initialize arrays to hold x and y values, and associate those columns
@@ -75,26 +74,14 @@ public class DataConfiguration extends Configuration {
             xValues.put(xID);
             yValues.put(yID);
 
-            // Determine series type
-            String type = "line";
-            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-                type = "scatter";
-            } else if (mData.getType().equals(Graph.TYPE_BAR)) {
-                type = "bar";
-                if (!addedBarLabels) {
-                    addingBarLabels = true;
-                    addedBarLabels = true;
-                } else {
-                    addingBarLabels = false;
-                }
-            } else if (s.getConfiguration("fill-below") != null) {
-                // TODO: allow customizing fill's color
-                type = "area";
-            }
-            mTypes.put(yID, type);
-
-            // Add actual data points
+            // Add data points
             int barIndex = 0;
+            if (mData.getType().equals(Graph.TYPE_BAR) && !addedBarLabels) {
+                addingBarLabels = true;
+                addedBarLabels = true;
+            } else {
+                addingBarLabels = false;
+            }
             JSONArray rValues = new JSONArray();
             double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
             for (XYPointData p : getPoints(s)) {
@@ -106,9 +93,9 @@ public class DataConfiguration extends Configuration {
                     // assigning an arbitrary, evenly-spaced x value to each bar and then
                     // using the user's x values as custom labels.
                     xValues.put(barIndex + 1);
-                    barCount = Math.max(barCount, barIndex + 1);
+                    mBarCount = Math.max(mBarCount, barIndex + 1);
                     if (addingBarLabels) {
-                        barLabels.put(p.getX());
+                        mBarLabels.put(p.getX());
                     }
                 } else {
                     xValues.put(parseXValue(p.getX(), description));
@@ -132,33 +119,23 @@ public class DataConfiguration extends Configuration {
                 maxRadii.put(yID, maxRadius);
             }
 
-            String name = s.getConfiguration("name", "");
-            if (name != null) {
-                mNames.put(yID, name);
-            }
-
+            setName(yID, s);
             setColor(yID, s);
-
-            boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
-            mAxes.put(yID, isSecondaryY ? "y2" : "y");
+            setType(yID, s);
+            setYAxis(yID, s);
 
             seriesIndex++;
         }
 
-        // For bar charts, force the x axis min and max so
-        // bars are spaced nicely and set up bar labels
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
-            mData.setConfiguration("x-min", "0.5");
-            mData.setConfiguration("x-max", String.valueOf(barCount + 0.5));
-            barLabels.put("");
-            mVariables.put("barLabels", barLabels.toString());
-        }
+        // C3 doesn't support bubble charts well, so radius data gets set up
+        // in separate variables rather than as part of the configuration
+        mVariables.put("radii", radii.toString());
+        mVariables.put("maxRadii", maxRadii.toString());
 
-        // Add fake series to force ticks to be based on min and max
-        addBoundaries();
-
-        // Add fake series for annotations
+        // Data-based tweaking of user's configuration and adding system series
+        normalizeBoundaries();
         addAnnotations();
+        addBoundaries();
 
         // Finally, apply all data to main configuration
         mConfiguration.put("axes", mAxes);
@@ -167,26 +144,7 @@ public class DataConfiguration extends Configuration {
         mConfiguration.put("names", mNames);
         mConfiguration.put("types", mTypes);
         mConfiguration.put("xs", mXs);
-
-        // Set up stacked bar graph if needed
-        if (mData.getType().equals(Graph.TYPE_BAR)
-                && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
-            JSONArray inner = new JSONArray();
-            for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
-                String key = i.next();
-                if (mTypes.get(key).equals("bar")) {
-                    inner.put(key);
-                }
-            }
-            JSONArray outer = new JSONArray();
-            outer.put(inner);
-            mConfiguration.put("groups", outer);
-        }
-
-        // C3 doesn't support bubble charts well, so radius data gets set up
-        // in separate variables rather than as part of the configuration
-        mVariables.put("radii", radii.toString());
-        mVariables.put("maxRadii", maxRadii.toString());
+        mConfiguration.put("groups", getGroups());
     }
 
     /**
@@ -272,6 +230,26 @@ public class DataConfiguration extends Configuration {
     }
 
     /**
+     * Set up stacked bar graph, if needed.
+     * @return JSONArray of configuration for groups, C3's version of stacking
+     */
+    private JSONArray getGroups() throws JSONException {
+        JSONArray outer = new JSONArray();
+        if (mData.getType().equals(Graph.TYPE_BAR)
+                && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
+            JSONArray inner = new JSONArray();
+            for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
+                String key = i.next();
+                if (mTypes.get(key).equals("bar")) {
+                    inner.put(key);
+                }
+            }
+            outer.put(inner);
+        }
+        return outer;
+    }
+
+    /**
      * Fetch all points associated with a given series. Bar charts will have their points sorted:
      * - By value if the user specified bar-sort (note this is nonsensical for multi-series bar charts)
      * - Otherwise, alphabetically by label
@@ -296,9 +274,21 @@ public class DataConfiguration extends Configuration {
         return points;
     }
 
+    //jls
+    private void normalizeBoundaries() {
+        // For bar charts, force the x axis min and max so
+        // bars are spaced nicely and set up bar labels
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
+            mData.setConfiguration("x-min", "0.5");
+            mData.setConfiguration("x-max", String.valueOf(mBarCount + 0.5));
+            mBarLabels.put("");
+            mVariables.put("barLabels", mBarLabels.toString());
+        }
+    }
+
     /**
      * Set color for a given series.
-     * @param yID ID of y-values array to get color
+     * @param yID ID of y-values array to set color
      * @param s SeriesData from which to pull color
      */
     private void setColor(String yID, SeriesData s) throws JSONException {
@@ -308,6 +298,42 @@ public class DataConfiguration extends Configuration {
             color = "#" + color.substring(3);
         }
         mColors.put(yID, color);
+    }
+
+    /**
+     * Set series name to display in legend.
+     * @param yID ID of y-values array that name applies to
+     * @param s SeriesData from which to pull name
+     */
+    private void setName(String yID, SeriesData s) throws JSONException {
+        String name = s.getConfiguration("name", "");
+        if (name != null) {
+            mNames.put(yID, name);
+        }
+    }
+
+    private void setType(String yID, SeriesData s) throws JSONException {
+        String type = "line";
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            type = "scatter";
+        } else if (mData.getType().equals(Graph.TYPE_BAR)) {
+            type = "bar";
+        } else if (s.getConfiguration("fill-below") != null) {
+            // TODO: allow customizing fill's color
+            type = "area";
+        }
+        mTypes.put(yID, type);
+    }
+
+    /**
+     * Set which y axis a series is associated with (primary or secondary).
+     * @param yID IS of y-values to associate with the axis
+     * @param s SeriesData to pull y axis from
+     * @throws JSONException
+     */
+    private void setYAxis(String yID, SeriesData s) throws JSONException {
+        boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+        mAxes.put(yID, isSecondaryY ? "y2" : "y");
     }
 
     /**
