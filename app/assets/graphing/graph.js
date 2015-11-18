@@ -45,8 +45,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
         };
     }
 
-    // Hide any system-generated series
-
+    // Hide any system-generated series from legend
+    var systemSeries = ['boundsY', 'boundsY2'];
+    for (var yID in config.data.xs) {
+        if (!pointStyles[yID]) {
+            systemSeries.push(yID);
+        }
+    }
+    config.legend.hide = systemSeries;
 
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
