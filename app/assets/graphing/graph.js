@@ -59,9 +59,64 @@ document.addEventListener("DOMContentLoaded", function(event) {
         // For annotations series, nudge text so it appears on top of data point
         d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
 
-        // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
+        // Replace C3's default circles with user-requested point-style
+        for (var yID in pointStyles) {
+            var symbol = pointStyles[yID];
+        	var circleSet = d3.selectAll(".c3-circles-" + yID);
+            var circles = circleSet.selectAll("circle")[0];
+            for (var j = 0; j < circles.length; j++) {
+                circles[j].style.opacity = 0;
+                appendSymbol(
+                	circleSet,
+                    circles[j].cx.baseVal.value,
+                    circles[j].cy.baseVal.value,
+                    symbol,
+                    circles[j].style.fill
+                );
+            }
+
+            // Make legend shape match point shape
+            if (symbol !== "none") {
+                var legendItem = d3.selectAll(".c3-legend-item-" + yID);
+                var line = legendItem.selectAll("line")[0][0];	// there will only be one line
+                line.style.opacity = 0;
+                appendSymbol(
+                    legendItem,
+                    line.x1.baseVal.value + 5,
+                    line.y1.baseVal.value,
+                    symbol,
+                    line.style.stroke
+                );
+            }
+        }
     };
 
     // Generate chart
     c3.generate(config);
 });
+
+/**
+ * Add symbol to given element.
+ * @param parent Element to attach symbol to
+ * @param x x x-coordinate to draw at
+ * @param y y-coordinate to draw at
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ * @param color Color to draw symbol
+ */
+function appendSymbol(parent, x, y, symbol, color) {
+    if (symbol === 'none') {
+        return;
+    }
+
+    parent.append("path")
+        .attr("transform", function (d) {
+        return "translate(" + x + ", " + y + ")";
+    })
+        .attr("class", "symbol")
+        .attr("d", d3.svg.symbol()
+              .type(symbol)
+              .size(50))
+        .style("fill", color)
+        .style("stroke", color);
+}
