@@ -274,10 +274,10 @@ public class DataConfiguration extends Configuration {
         return points;
     }
 
-    //jls
+    /**
+     * For bar charts, set up bar labels and force the x axis min and max so bars are spaced nicely
+     */
     private void normalizeBoundaries() {
-        // For bar charts, force the x axis min and max so
-        // bars are spaced nicely and set up bar labels
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             mData.setConfiguration("x-min", "0.5");
             mData.setConfiguration("x-max", String.valueOf(mBarCount + 0.5));
@@ -312,6 +312,11 @@ public class DataConfiguration extends Configuration {
         }
     }
 
+    /**
+     * Set series type: line, bar, area, etc.
+     * @param yID ID of y-values array corresponding with series
+     * @param s SeriesData determining what the type will be
+     */
     private void setType(String yID, SeriesData s) throws JSONException {
         String type = "line";
         if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
