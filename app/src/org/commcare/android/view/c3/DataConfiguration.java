@@ -52,73 +52,23 @@ public class DataConfiguration extends Configuration {
     private int mBarCount = 0;
     private final JSONArray mBarLabels = new JSONArray("['']");
 
+    // Bubble graph data:
+    //  y-values id => array of radius values
+    //  y-values id => max radius found in that data (or specified by max-radius param)
+    JSONObject mRadii = new JSONObject();
+    JSONObject mMaxRadii = new JSONObject();
+
     public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);
 
-        // Bubble graph data:
-        //  y-values id => array of radius values
-        //  y-values id => max radius found in that data (or specified by max-radius param)
-        JSONObject radii = new JSONObject();
-        JSONObject maxRadii = new JSONObject();
-
-        boolean addingBarLabels;
-        boolean addedBarLabels = false;
+        // Process data for each series
         int seriesIndex = 0;
         for (SeriesData s : mData.getSeries()) {
-            // Initialize arrays to hold x and y values, and associate those columns
             String xID = "x" + seriesIndex;
             String yID = "y" + seriesIndex;
             mXs.put(yID, xID);
-            JSONArray xValues = new JSONArray();
-            JSONArray yValues = new JSONArray();
-            xValues.put(xID);
-            yValues.put(yID);
 
-            // Add data points
-            int barIndex = 0;
-            if (mData.getType().equals(Graph.TYPE_BAR) && !addedBarLabels) {
-                addingBarLabels = true;
-                addedBarLabels = true;
-            } else {
-                addingBarLabels = false;
-            }
-            JSONArray rValues = new JSONArray();
-            double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
-            for (XYPointData p : getPoints(s)) {
-                String description = "data (" + p.getX() + ", " + p.getY() + ")";
-                if (mData.getType().equals(Graph.TYPE_BAR)) {
-                    // In CommCare, bar graphs are specified with x as a set of text labels
-                    // and y as a set of values. In C3, bar graphs are still basically
-                    // of XY graphs, with numeric x and y values. Deal with this by
-                    // assigning an arbitrary, evenly-spaced x value to each bar and then
-                    // using the user's x values as custom labels.
-                    xValues.put(barIndex + 1);
-                    mBarCount = Math.max(mBarCount, barIndex + 1);
-                    if (addingBarLabels) {
-                        mBarLabels.put(p.getX());
-                    }
-                } else {
-                    xValues.put(parseXValue(p.getX(), description));
-                }
-                yValues.put(parseYValue(p.getY(), description));
-
-                // Bubble charts also get a radius
-                if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-                    BubblePointData b = (BubblePointData)p;
-                    double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
-                    rValues.put(r);
-                    maxRadius = Math.max(maxRadius, r);
-                }
-
-                barIndex++;
-            }
-            mColumns.put(xValues);
-            mColumns.put(yValues);
-            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
-                radii.put(yID, rValues);
-                maxRadii.put(yID, maxRadius);
-            }
-
+            setColumns(xID, yID, s);
             setName(yID, s);
             setColor(yID, s);
             setType(yID, s);
@@ -129,8 +79,8 @@ public class DataConfiguration extends Configuration {
 
         // C3 doesn't support bubble charts well, so radius data gets set up
         // in separate variables rather than as part of the configuration
-        mVariables.put("radii", radii.toString());
-        mVariables.put("maxRadii", maxRadii.toString());
+        mVariables.put("radii", mRadii.toString());
+        mVariables.put("maxRadii", mMaxRadii.toString());
 
         // Data-based tweaking of user's configuration and adding system series
         normalizeBoundaries();
@@ -298,6 +248,58 @@ public class DataConfiguration extends Configuration {
             color = "#" + color.substring(3);
         }
         mColors.put(yID, color);
+    }
+
+    /**
+     * Set up data: x, y, and radius values
+     * @param xID ID of the x-values array
+     * @param yID ID of the y-values array
+     * @param s The SeriesData providing the data
+     */
+    private void setColumns(String xID, String yID, SeriesData s) throws InvalidStateException, JSONException {
+        JSONArray xValues = new JSONArray();
+        JSONArray yValues = new JSONArray();
+        xValues.put(xID);
+        yValues.put(yID);
+
+        int barIndex = 0;
+        boolean addBarLabels = mData.getType().equals(Graph.TYPE_BAR) && mBarLabels.length() == 1;
+        JSONArray rValues = new JSONArray();
+        double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
+        for (XYPointData p : getPoints(s)) {
+            String description = "data (" + p.getX() + ", " + p.getY() + ")";
+            if (mData.getType().equals(Graph.TYPE_BAR)) {
+                // In CommCare, bar graphs are specified with x as a set of text labels
+                // and y as a set of values. In C3, bar graphs are still basically
+                // of XY graphs, with numeric x and y values. Deal with this by
+                // assigning an arbitrary, evenly-spaced x value to each bar and then
+                // using the user's x values as custom labels.
+                xValues.put(barIndex + 1);
+                mBarCount = Math.max(mBarCount, barIndex + 1);
+                if (addBarLabels) {
+                    mBarLabels.put(p.getX());
+                }
+            } else {
+                xValues.put(parseXValue(p.getX(), description));
+            }
+            yValues.put(parseYValue(p.getY(), description));
+
+            // Bubble charts also get a radius
+            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+                BubblePointData b = (BubblePointData)p;
+                double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
+                rValues.put(r);
+                maxRadius = Math.max(maxRadius, r);
+            }
+
+            barIndex++;
+        }
+        mColumns.put(xValues);
+        mColumns.put(yValues);
+        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            mRadii.put(yID, rValues);
+            mMaxRadii.put(yID, maxRadius);
+        }
     }
 
     /**
