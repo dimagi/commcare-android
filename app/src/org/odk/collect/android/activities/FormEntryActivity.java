@@ -61,6 +61,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.HorizontalPaneledChoiceDialog;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -1275,8 +1276,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(wrapper, title,
-                PaneledChoiceDialog.HORIZONTAL_THREE_PANEL);
+        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
 
         // Panel 1: Back option
         View.OnClickListener backListener = new OnClickListener() {

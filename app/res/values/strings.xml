@@ -161,6 +161,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
 
     <!-- Start Collect Strings -->
 
+    <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>

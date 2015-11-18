@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -13,41 +14,28 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 
 /**
- * Created by amstone326 on 10/27/15.
+ * A dialog to use for any instance in which the user is being given a choice between multiple
+ * options; the N choice options will be displayed in a vertically-oriented list
+ *
+ * @author amstone
  */
 public class PaneledChoiceDialog {
 
-    private View view;
-    private Context context;
-    private AlertDialog dialog;
-    private boolean usingThreePanelView;
-
-    public static boolean HORIZONTAL_THREE_PANEL = true;
+    protected View view;
+    protected final Context context;
+    private final AlertDialog dialog;
 
     public PaneledChoiceDialog(Context context, String title) {
-        this(context, title, false);
-    }
-
-    public PaneledChoiceDialog(Context context, String title, boolean useSpecialThreePanelView) {
         this.context = context;
         this.dialog = new AlertDialog.Builder(context).create();
-        this.usingThreePanelView = useSpecialThreePanelView;
-        if (usingThreePanelView) {
-            this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_three_panel, null);
-        } else {
-            this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_view, null);
-        }
+        this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_view, null);
         setTitle(title);
         dialog.setCancelable(true); // cancelable by default
     }
 
     public void setChoiceItems(DialogChoiceItem[] choiceItems) {
-        if (usingThreePanelView) {
-             setupThreePanelView(choiceItems);
-        } else {
-            ListView lv = (ListView)view.findViewById(R.id.choices_list_view);
-            lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
-        }
+        ListView lv = (ListView)view.findViewById(R.id.choices_list_view);
+        lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
     }
 
     private void setTitle(String title) {
@@ -56,23 +44,12 @@ public class PaneledChoiceDialog {
         tv.setText(title);
     }
 
-    private void setupThreePanelView(DialogChoiceItem[] choiceItems) {
-        Button panel1 = (Button)view.findViewById(R.id.choice_dialog_panel_1);
-        Button panel2 = (Button)view.findViewById(R.id.choice_dialog_panel_2);
-        Button panel3 = (Button)view.findViewById(R.id.choice_dialog_panel_3);
-        Button[] panels = new Button[]{panel1, panel2, panel3};
-        for (int i = 0; i < 3; i++) {
-            populateChoicePanel(context, panels[i], choiceItems[i],
-                    DialogChoiceItem.ICON_ON_TOP);
-        }
-    }
-
     public static void populateChoicePanel(Context context, Button choicePanel,
                                                  DialogChoiceItem item, boolean iconToLeft) {
         choicePanel.setText(item.text);
         choicePanel.setOnClickListener(item.listener);
         if (item.iconResId != -1) {
-            Drawable icon = context.getResources().getDrawable(item.iconResId);
+            Drawable icon = ContextCompat.getDrawable(context, item.iconResId);
             if (iconToLeft) {
                 choicePanel.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
             } else {

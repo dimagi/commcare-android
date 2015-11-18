@@ -23,7 +23,7 @@ public class DialogCreationHelpers {
         View view = li.inflate(R.layout.about_commcare_dialog, null);
 
         TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
-        titleView.setText("About CommCare");
+        titleView.setText(activity.getString(R.string.about_cc));
 
         TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
         String msg = activity.getString(R.string.aboutdialog, commcareVersion);
