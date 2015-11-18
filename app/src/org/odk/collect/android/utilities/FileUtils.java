@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.utilities;
 
 import android.annotation.SuppressLint;
@@ -61,15 +47,11 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FileUtils {
-    private final static String t = "FileUtils";
+    private final static String TAG = FileUtils.class.getSimpleName();
 
-    // Used to validate and display valid form names.
-    public static final String VALID_FILENAME = "[ _\\-A-Za-z0-9]*.x[ht]*ml";
-    
     //highest allowable file size without warning
     public static int WARNING_SIZE = 3000;
 
-    
     public static boolean createFolder(String path) {
         boolean made = true;
         File dir = new File(path);
@@ -80,7 +62,7 @@ public class FileUtils {
     }
 
     public static byte[] getFileAsBytes(File file, SecretKeySpec symetricKey) {
-        byte[] bytes = null;
+        byte[] bytes;
         InputStream is = null;
         try {
             is = new FileInputStream(file);
@@ -100,7 +82,7 @@ public class FileUtils {
                 StreamsUtil.writeFromInputToOutput(is, baos);
                 bytes = baos.toByteArray();
             } catch (IOException e) {
-                Log.e(t, "Cannot read " + file.getName());
+                Log.e(TAG, "Cannot read " + file.getName());
                 e.printStackTrace();
                 return null;
             }
@@ -113,31 +95,24 @@ public class FileUtils {
             return bytes;
 
         } catch (FileNotFoundException e) {
-            Log.e(t, "Cannot find " + file.getName());
+            Log.e(TAG, "Cannot find " + file.getName());
             e.printStackTrace();
-            return null;
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
+        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
             // Close the input stream
             try {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
             } catch (IOException e) {
-                Log.e(t, "Cannot close input stream for " + file.getName());
+                Log.e(TAG, "Cannot close input stream for " + file.getName());
                 e.printStackTrace();
-                return null;
             }
         }
+        return null;
     }
-
 
     public static String getMd5Hash(File file) {
         try {
@@ -151,13 +126,13 @@ public class FileUtils {
             long lLength = file.length();
 
             if (lLength > Integer.MAX_VALUE) {
-                Log.e(t, "File " + file.getName() + "is too large");
+                Log.e(TAG, "File " + file.getName() + "is too large");
                 return null;
             }
 
             int length = (int) lLength;
 
-            InputStream is = null;
+            InputStream is;
             is = new FileInputStream(file);
 
             int l = 0;
@@ -191,7 +166,6 @@ public class FileUtils {
             Log.e("Problem reading file", e.getMessage());
             return null;
         }
-
     }
 
     public static String getExtension(String filePath) {
@@ -217,7 +191,7 @@ public class FileUtils {
         ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
             // The selected image is not of a type that can be decoded to or from a bitmap
-            Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
+            Log.i(TAG, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
             return false;
         }
 
@@ -303,14 +277,14 @@ public class FileUtils {
                 src.close();
                 dst.close();
             } catch (FileNotFoundException e) {
-                Log.e(t, "FileNotFoundExeception while copying audio");
+                Log.e(TAG, "FileNotFoundExeception while copying audio");
                 e.printStackTrace();
             } catch (IOException e) {
-                Log.e(t, "IOExeception while copying audio");
+                Log.e(TAG, "IOExeception while copying audio");
                 e.printStackTrace();
             }
         } else {
-            Log.e(t, "Source file does not exist: " + sourceFile.getAbsolutePath());
+            Log.e(TAG, "Source file does not exist: " + sourceFile.getAbsolutePath());
         }
 
     }
@@ -335,7 +309,7 @@ public class FileUtils {
         try {
             isr = new InputStreamReader(is, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
-            Log.w(t, "UTF 8 encoding unavailable, trying default encoding");
+            Log.w(TAG, "UTF 8 encoding unavailable, trying default encoding");
             isr = new InputStreamReader(is);
         }
 
@@ -351,7 +325,7 @@ public class FileUtils {
                 try {
                     isr.close();
                 } catch (IOException e) {
-                    Log.w(t, xmlFile.getAbsolutePath() + " Error closing form reader");
+                    Log.w(TAG, xmlFile.getAbsolutePath() + " Error closing form reader");
                     e.printStackTrace();
                 }
             }
@@ -400,7 +374,7 @@ public class FileUtils {
                   (base64RsaPublicKey == null || base64RsaPublicKey.trim().length() == 0) 
                   ? null : base64RsaPublicKey.trim());
             } catch (Exception e) {
-                Log.i(t, xmlFile.getAbsolutePath() + " does not have a submission element");
+                Log.i(TAG, xmlFile.getAbsolutePath() + " does not have a submission element");
                 // and that's totally fine.
             }
 
@@ -432,17 +406,11 @@ public class FileUtils {
         return mf.length()/(1024);
     }
 
-    /* 
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @author paulburke
-     * 
+    /**
      * Get's the correct path for different Android API levels
-     * 
      */
     @SuppressLint("NewApi")
     public static String getPath(final Context context, final Uri uri) {
-
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
@@ -540,7 +508,6 @@ public class FileUtils {
         }
         return null;
     }
-
 
     /**
      * @param uri The Uri to check.
