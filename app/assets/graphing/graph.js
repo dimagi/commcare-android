@@ -44,20 +44,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
         };
     }
 
+    // Hide any system-generated series
+
+
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
         format: function(value, id, index) {
-            if (id === 'annotationsY') {
-                return annotations[index];
-            }
-            return '';
+            return annotations[id] || '';
         },
     };
 
     // Post-processing
     config.onrendered = function() {
         // For annotations series, nudge text so it appears on top of data point
-        d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
+        d3.selectAll("g.c3-texts text").attr("dy", 10);
 
         // TODO: support point-style: s.getConfiguration("point-style", "circle").toLowerCase()
     };

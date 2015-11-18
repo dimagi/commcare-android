@@ -101,29 +101,35 @@ public class DataConfiguration extends Configuration {
      * Add annotations, by creating a fake series with data labels turned on.
      */
     private void addAnnotations() throws JSONException, InvalidStateException {
-        String xID = "annotationsX";
-        String yID = "annotationsY";
+        JSONObject text = new JSONObject();
 
-        mXs.put(yID, xID);
-        mTypes.put(yID, "line");
-        mAxes.put(yID, "y");
-
-        JSONArray xValues = new JSONArray();
-        xValues.put(xID);
-        JSONArray yValues = new JSONArray();
-        yValues.put(yID);
-        JSONArray text = new JSONArray();
-
-        // TODO: This is broken. Need to add one series per text, because C3 re-orders the data.
+        int index = 0;
         for (AnnotationData a : mData.getAnnotations()) {
-            String description = "annotation '" + text + "' at (" + a.getX() + ", " + a.getY() + ")";
+            String xID = "annotationsX" + index;
+            String yID = "annotationsY" + index;
+            String description = "annotation '" + a.getAnnotation() + "' at (" + a.getX() + ", " + a.getY() + ")";
+            text.put(yID, a.getAnnotation());
+
+            // Add x value
+            JSONArray xValues = new JSONArray();
+            xValues.put(xID);
             xValues.put(parseXValue(a.getX(), description));
+            mColumns.put(xValues);
+
+            // Add y value
+            JSONArray yValues = new JSONArray();
+            yValues.put(yID);
             yValues.put(parseYValue(a.getY(), description));
-            text.put(a.getAnnotation());
+            mColumns.put(yValues);
+
+            // Configure series
+            mXs.put(yID, xID);
+            mTypes.put(yID, "line");
+            mAxes.put(yID, "y");
+
+            index++;
         }
 
-        mColumns.put(xValues);
-        mColumns.put(yValues);
         mVariables.put("annotations", text.toString());
     }
 
