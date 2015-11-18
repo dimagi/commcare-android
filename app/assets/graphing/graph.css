@@ -1,9 +1,29 @@
-.chart {
-    background-color: #fff;
+path {
+    stroke-linecap: round;
 }
 
-.chart path {
-    stroke: #004ebc;
+/* Thicken graph lines */
+.c3-lines path {
     stroke-width: 3;
-    fill: none;
+}
+
+/* C3 defaults area fills to translucent */
+.c3-areas path {
+    opacity: 1;
+}
+
+.c3-circles  circle {
+    opacity: 1 !important;
+}
+
+/* Annotations text color */
+g.c3-texts-annotationsY text {
+    fill: #000 !important;
+}
+
+/* Hide system-genereated series */
+g.c3-chart-line.c3-target.c3-target-annotationsY,
+g.c3-chart-line.c3-target.c3-target-boundsY,
+g.c3-chart-line.c3-target.c3-target-boundsY2 {
+    display: none;
 }

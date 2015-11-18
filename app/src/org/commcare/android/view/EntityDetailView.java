@@ -256,7 +256,6 @@ public class EntityDetailView extends FrameLayout {
             }
             if (graphView == null) {
                 GraphView g = new GraphView(context, labelText);
-                g.setClickable(true);
                 try {
                     graphView = g.getView((GraphData)field);
                     graphLayout.setRatio((float)g.getRatio(), (float)1);

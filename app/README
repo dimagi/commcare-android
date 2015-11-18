@@ -29,7 +29,7 @@ key.properties.template contains the properties to point ANT to a keystore file 
 produced builds. You'll need to configure the "local.properties" (or wherever your properties are coming for) 
 to actually create that link as outlined
 
-To direct the library builds (AChartEngine and mapviewballoons) You may need to drop a "local.properties" file
+To direct the library builds (mapviewballoons) you may need to drop a "local.properties" file
 into their root directories which contains the 'sdk.dir' property. Alternatively the sdk directory can be included
 as an envvar.  
 
