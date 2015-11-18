@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -92,28 +93,11 @@ public class DataConfiguration extends Configuration {
             }
             mTypes.put(yID, type);
 
-            // Bar charts have their values sorted: default by label, or
-            // user may specify sort by value
-            Vector<XYPointData> sortedPoints = new Vector<>(s.size());
-            sortedPoints.addAll(s.getPoints());
-            if (Graph.TYPE_BAR.equals(mData.getType())) {
-                String barSort = s.getConfiguration("bar-sort");
-                Comparator<XYPointData> comparator = new StringPointComparator();
-                if (barSort != null) {
-                    if (barSort.equalsIgnoreCase("ascending")) {
-                        comparator = new AscendingValuePointComparator();
-                    } else if (barSort.equalsIgnoreCase("descending")) {
-                        comparator = new DescendingValuePointComparator();
-                    }
-                }
-                Collections.sort(sortedPoints, comparator);
-            }
-
             // Add actual data points
             int barIndex = 0;
             JSONArray rValues = new JSONArray();
             double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
-            for (XYPointData p : sortedPoints) {
+            for (XYPointData p : getPoints(s)) {
                 String description = "data (" + p.getX() + ", " + p.getY() + ")";
                 if (mData.getType().equals(Graph.TYPE_BAR)) {
                     // In CommCare, bar graphs are specified with x as a set of text labels
@@ -148,21 +132,13 @@ public class DataConfiguration extends Configuration {
                 maxRadii.put(yID, maxRadius);
             }
 
-            // Set series name for legend
             String name = s.getConfiguration("name", "");
             if (name != null) {
                 mNames.put(yID, name);
             }
 
-            // Set series color
-            // TODO: Handle transparency (and test on bubble graphs)
-            String color = s.getConfiguration("line-color", "#ff000000");
-            if (color.length() == "#aarrggbb".length()) {
-                color = "#" + color.substring(3);
-            }
-            mColors.put(yID, color);
+            setColor(yID, s);
 
-            // Associate values with either primary or secondary y axis
             boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
             mAxes.put(yID, isSecondaryY ? "y2" : "y");
 
@@ -293,6 +269,45 @@ public class DataConfiguration extends Configuration {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Fetch all points associated with a given series. Bar charts will have their points sorted:
+     * - By value if the user specified bar-sort (note this is nonsensical for multi-series bar charts)
+     * - Otherwise, alphabetically by label
+     * @param s
+     */
+    private List<XYPointData> getPoints(SeriesData s) {
+        Vector<XYPointData> points = new Vector<>(s.size());
+        points.addAll(s.getPoints());
+        if (Graph.TYPE_BAR.equals(mData.getType())) {
+            String barSort = s.getConfiguration("bar-sort");
+            Comparator<XYPointData> comparator = new StringPointComparator();
+            if (barSort != null) {
+                if (barSort.equalsIgnoreCase("ascending")) {
+                    comparator = new AscendingValuePointComparator();
+                } else if (barSort.equalsIgnoreCase("descending")) {
+                    comparator = new DescendingValuePointComparator();
+                }
+            }
+            Collections.sort(points, comparator);
+        }
+
+        return points;
+    }
+
+    /**
+     * Set color for a given series.
+     * @param yID ID of y-values array to get color
+     * @param s SeriesData from which to pull color
+     */
+    private void setColor(String yID, SeriesData s) throws JSONException {
+        // TODO: Handle transparency (and test on bubble graphs)
+        String color = s.getConfiguration("line-color", "#ff000000");
+        if (color.length() == "#aarrggbb".length()) {
+            color = "#" + color.substring(3);
+        }
+        mColors.put(yID, color);
     }
 
     /**
