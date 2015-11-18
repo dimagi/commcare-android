@@ -29,16 +29,17 @@ import java.util.Enumeration;
  */
 public class GraphView {
     private final Context mContext;
+    private final String mTitle;
     private GraphData mData;
 
     public GraphView(Context context, String title) {
         mContext = context;
-         // TODO: display title on graph
+        mTitle = title;
     }
 
     // TODO
+    // display mTitle as title, not on graph itself
     public Intent getIntent(GraphData data) throws InvalidStateException {
-        //String title = mRenderer.getChartTitle();
         return null;
     }
 
@@ -97,11 +98,12 @@ public class GraphView {
             html += "var " + name + " = " + variables.get(name) + ";\n";
         }
 
+        String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
         html +=
                         "</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                     "</head>" +
-                    "<body><div id='chart'></div></body>" +
+                    "<body>" + titleHTML + "<div id='chart'></div></body>" +
                 "</html>";
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
