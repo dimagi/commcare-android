@@ -320,11 +320,19 @@ public class DataConfiguration extends Configuration {
         }
     }
 
+    /**
+     * Set shape of points to be drawn for series.
+     * @param yID ID of y-values that style applies to
+     * @param s SeriesData from which to pull style
+     */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
         if (mData.getType().equals(Graph.TYPE_BAR)) {
+            // point-style doesn't apply to bar charts
             symbol = "none";
         } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            // point-style doesn't apply to bubble charts,
+            // but this'll make the legend symbol a circle
             symbol = "circle";
         } else {
             symbol = s.getConfiguration("point-style", "circle").toLowerCase();

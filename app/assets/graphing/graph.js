@@ -13,11 +13,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Set point size for bubble charts, and turn points off altogether
     // for other charts (we'll be using custom point shapes)
     config.point = {
-    	r: function(d) {
-    	    if (radii[d.id]) {
-    	        // Arbitrary max size of 30
-    	        return 30 * radii[d.id][d.index] / maxRadii[d.id];
-    	    }
+        r: function(d) {
+            if (radii[d.id]) {
+                // Arbitrary max size of 30
+                return 30 * radii[d.id][d.index] / maxRadii[d.id];
+            }
             return 0;
         },
     };
@@ -59,41 +59,51 @@ document.addEventListener("DOMContentLoaded", function(event) {
         // For annotations series, nudge text so it appears on top of data point
         d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
 
-        // Replace C3's default circles with user-requested point-style
+        // Support point-style
         for (var yID in pointStyles) {
-            var symbol = pointStyles[yID];
-        	var circleSet = d3.selectAll(".c3-circles-" + yID);
-            var circles = circleSet.selectAll("circle")[0];
-            for (var j = 0; j < circles.length; j++) {
-                circles[j].style.opacity = 0;
-                appendSymbol(
-                	circleSet,
-                    circles[j].cx.baseVal.value,
-                    circles[j].cy.baseVal.value,
-                    symbol,
-                    circles[j].style.fill
-                );
-            }
-
-            // Make legend shape match point shape
-            if (symbol !== "none") {
-                var legendItem = d3.selectAll(".c3-legend-item-" + yID);
-                var line = legendItem.selectAll("line")[0][0];	// there will only be one line
-                line.style.opacity = 0;
-                appendSymbol(
-                    legendItem,
-                    line.x1.baseVal.value + 5,
-                    line.y1.baseVal.value,
-                    symbol,
-                    line.style.stroke
-                );
-            }
+            applyPointStyle(yID, pointStyles[yID]);
         }
     };
 
     // Generate chart
     c3.generate(config);
 });
+
+/**
+ * Replace C3's default circle points with user-requested symbols.
+ * @param yID String ID of y-values to manipulate
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ */
+function applyPointStyle(yID, symbol) {
+    // Draw symbol for each point
+    var circleSet = d3.selectAll(".c3-circles-" + yID);
+    var circles = circleSet.selectAll("circle")[0];
+    for (var j = 0; j < circles.length; j++) {
+        circles[j].style.opacity = 0;    // hide default circle
+        appendSymbol(
+            circleSet,
+            circles[j].cx.baseVal.value,
+            circles[j].cy.baseVal.value,
+            symbol,
+            circles[j].style.fill
+        );
+    }
+
+    // Make legend shape match symbol
+    if (symbol !== "none") {
+        var legendItem = d3.selectAll(".c3-legend-item-" + yID);
+        var line = legendItem.selectAll("line")[0][0];    // there will only be one line
+        line.style.opacity = 0;    // hide default square
+        appendSymbol(
+            legendItem,
+            line.x1.baseVal.value + 5,
+            line.y1.baseVal.value,
+            symbol,
+            line.style.stroke
+        );
+    }
+}
 
 /**
  * Add symbol to given element.
