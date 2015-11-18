@@ -145,6 +145,8 @@ public class CommCareHomeActivity
     public static final int RESULT_RESTART = 3;
 
     private static final String SESSION_REQUEST = "ccodk_session_request";
+
+    private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
@@ -216,6 +218,7 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
+        addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -502,7 +505,6 @@ public class CommCareHomeActivity
                     return;
                 }
                 break;
-                
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
                 if(resultCode == RESULT_CANCELED) {
@@ -547,9 +549,15 @@ public class CommCareHomeActivity
                         currentState.getSession().stepBack();
                     }
                 } else if (resultCode == RESULT_OK) {
-                    //Get our command, set it, and continue forward
-                    String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                    currentState.getSession().setCommand(command);
+                    CommCareSession session = currentState.getSession();
+                    if (sessionStateUnchangedSinceCallout(session, intent)) {
+                        //Get our command, set it, and continue forward
+                        String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+                        session.setCommand(command);
+                    } else {
+                        clearSessionAndExit(currentState);
+                        return;
+                    }
                 }
                 break;
             case GET_CASE:
@@ -559,9 +567,8 @@ public class CommCareHomeActivity
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
-                    SessionDatum neededDatum = currentSession.getNeededDatum();
-                    if (sessionStateUnchangedSinceCallout(neededDatum, intent)) {
-                        String sessionDatumId = neededDatum.getDataId();
+                    if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+                        String sessionDatumId = currentSession.getNeededDatum().getDataId();
                         String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
                         currentSession.setDatum(sessionDatumId, chosenCaseId);
                     } else {
@@ -583,15 +590,16 @@ public class CommCareHomeActivity
     }
 
     /**
-     *
-     * @param neededDatum - The needed datum for the current session
-     * @param intent - The intent from the callout that we are returning from
-     * @return If the datum id that the session is waiting for has not changed since the callout
-     * that we are returning from was made
+     * @return If the nature of the data that the session is waiting for has not changed since the
+     * callout that we are returning from was made
      */
-    private boolean sessionStateUnchangedSinceCallout(SessionDatum neededDatum, Intent intent) {
-        return neededDatum != null &&
-                neededDatum.getDataId().equals(intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID));
+    private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
+        boolean dataIdsEqual = session.getNeededData().equals(
+                intent.getStringExtra(KEY_PENDING_SESSION_DATA));
+        String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
+        boolean datumIdsEqual = intentDatum  == null ? true :
+                intentDatum.equals(session.getNeededDatum().getDataId());
+        return dataIdsEqual && datumIdsEqual;
     }
 
     /**
@@ -884,7 +892,7 @@ public class CommCareHomeActivity
             i = new Intent(getApplicationContext(), MenuList.class);
         }
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
-        addPendingDatumIdExtra(i, asw.getSession());
+        addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -895,6 +903,7 @@ public class CommCareHomeActivity
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
+        addPendingDataExtra(i, session);
         addPendingDatumIdExtra(i, session);
         startActivityForResult(i, GET_CASE);
     }
@@ -906,13 +915,17 @@ public class CommCareHomeActivity
         Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         EntitySelectActivity.populateDetailIntent(
                 detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
-        addPendingDatumIdExtra(detailIntent, asw.getSession());
+        addPendingDataExtra(detailIntent, session);
+        addPendingDatumIdExtra(detailIntent, session);
         startActivityForResult(detailIntent, GET_CASE);
     }
 
+    private static void addPendingDataExtra(Intent i, CommCareSession session) {
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+    }
+
     private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
-        String pendingDatumId = session.getNeededDatum().getDataId();
-        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, pendingDatumId);
+        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, session.getNeededDatum().getDataId());
     }
 
     /**
