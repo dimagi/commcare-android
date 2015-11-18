@@ -2,8 +2,9 @@
 // Use only in conjunction with GraphView.getView
 document.addEventListener("DOMContentLoaded", function(event) {
     // Match graph size to view size
+    var titleHeight = (document.getElementById('chart-title') || { offsetHeight: 0 }).offsetHeight;
     config.size = {
-        height: document.body.offsetHeight,
+        height: document.body.offsetHeight - titleHeight,
         width: document.body.offsetWidth,
     };
 
@@ -13,11 +14,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Set point size for bubble charts, and turn points off altogether
     // for other charts (we'll be using custom point shapes)
     config.point = {
-    	r: function(d) {
-    	    if (radii[d.id]) {
-    	        // Arbitrary max size of 30
-    	        return 30 * radii[d.id][d.index] / maxRadii[d.id];
-    	    }
+        r: function(d) {
+            if (radii[d.id]) {
+                // Arbitrary max size of 30
+                return 30 * radii[d.id][d.index] / maxRadii[d.id];
+            }
             return 0;
         },
     };

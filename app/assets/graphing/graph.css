@@ -1,3 +1,7 @@
+#chart-title {
+    text-align: center;
+}
+
 path {
     stroke-linecap: round;
 }
