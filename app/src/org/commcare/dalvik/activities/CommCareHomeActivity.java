@@ -373,7 +373,7 @@ public class CommCareHomeActivity
                         //in a blocking fashion), trigger off a regular unsent
                         //task processor
                         if(!CommCareApplication._().isSyncPending(false)) {
-                            checkAndStartUnsentFormsTask(false);
+                            checkAndStartUnsentFormsTask(false, false);
                         }
                         
                         if(isDemoUser()) {
@@ -541,7 +541,7 @@ public class CommCareHomeActivity
             if (complete) {
                 // We're honoring in order submissions, now, so trigger a full
                 // submission cycle
-                checkAndStartUnsentFormsTask(false);
+                checkAndStartUnsentFormsTask(false, false);
 
                 uiController.refreshView();
 
@@ -873,7 +873,7 @@ public class CommCareHomeActivity
      * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
      */
     private void sendFormsOrSync(boolean userTriggeredSync) {
-        boolean formsSentToServer = checkAndStartUnsentFormsTask(true);
+        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
             syncData(false, userTriggeredSync);
         }
@@ -971,12 +971,13 @@ public class CommCareHomeActivity
     /**
      * @return Were forms sent to the server by this method invocation?
      */
-    private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards) {
+    private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
+                                                 boolean userTriggered) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            processAndSend(records, syncAfterwards);
+            processAndSend(records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -984,7 +985,8 @@ public class CommCareHomeActivity
     }
 
     @SuppressLint("NewApi")
-    private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
+    private void processAndSend(FormRecord[] records, final boolean syncAfterwards,
+                                final boolean userTriggered) {
 
         int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
 
@@ -1009,7 +1011,7 @@ public class CommCareHomeActivity
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(true);
+                        syncData(true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
