@@ -122,7 +122,7 @@
             android:authorities="${applicationId}.case"
             android:enabled="true"
             android:exported="true"
-            android:readPermission="{applicationId}.provider.cases.read" />
+            android:readPermission="${applicationId}.provider.cases.read" />
         <provider
             android:name=".provider.FixtureDataContentProvider"
             android:authorities="${applicationId}.fixture"
