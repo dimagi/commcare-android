@@ -6,6 +6,10 @@ path {
     stroke-linecap: round;
 }
 
+text {
+    fill: #000 !important;
+}
+
 /* Thicken graph lines */
 .c3-lines path {
     stroke-width: 3;
@@ -20,13 +24,7 @@ path {
     opacity: 1 !important;
 }
 
-/* Annotations text color */
-g.c3-texts-annotationsY text {
-    fill: #000 !important;
-}
-
-/* Hide system-genereated series */
-g.c3-chart-line.c3-target.c3-target-annotationsY,
+/* Hide system-generated series */
 g.c3-chart-line.c3-target.c3-target-boundsY,
 g.c3-chart-line.c3-target.c3-target-boundsY2 {
     display: none;

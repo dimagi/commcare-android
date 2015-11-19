@@ -45,20 +45,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
         };
     }
 
+    // Hide any system-generated series from legend
+    var systemSeries = ['boundsY', 'boundsY2'];
+    for (var yID in config.data.xs) {
+        if (!pointStyles[yID]) {
+            systemSeries.push(yID);
+        }
+    }
+    config.legend.hide = systemSeries;
+
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
         format: function(value, id, index) {
-            if (id === 'annotationsY') {
-                return annotations[index];
-            }
-            return '';
+            return annotations[id] || '';
         },
     };
 
     // Post-processing
     config.onrendered = function() {
         // For annotations series, nudge text so it appears on top of data point
-        d3.selectAll("g.c3-texts-annotationsY text").attr("dy", 10);
+        d3.selectAll("g.c3-texts text").attr("dy", 10);
 
         // Support point-style
         for (var yID in pointStyles) {

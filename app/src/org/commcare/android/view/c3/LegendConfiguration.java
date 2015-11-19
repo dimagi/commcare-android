@@ -18,12 +18,5 @@ public class LegendConfiguration extends Configuration {
         if (!showLegend) {
             mConfiguration.put("show", false);
         }
-
-        // Keep system-generated series out of the legend
-        JSONArray systemIDs = new JSONArray();
-        systemIDs.put("annotationsY");
-        systemIDs.put("boundsY");
-        systemIDs.put("boundsY2");
-        mConfiguration.put("hide", systemIDs);
     }
 }
