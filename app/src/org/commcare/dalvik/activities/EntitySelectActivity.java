@@ -651,7 +651,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     result = intent.getExtras().getString(key);
                     if (result != null) {
                         setSearchText(result);
-                        asw.getSession().putSessionDatum(key, result);
+                        asw.getSession().putCustomSessionValue(key, result);
                     }
                 }
             }
