@@ -1,7 +1,6 @@
 package org.commcare.dalvik.dialogs;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.widget.Button;
 
 import org.commcare.dalvik.R;
@@ -16,7 +15,11 @@ public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
 
     public HorizontalPaneledChoiceDialog(Context context, String title) {
         super(context, title);
-        view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_three_panel, null);
+    }
+
+    @Override
+    protected int getLayoutFile() {
+        return R.layout.choice_dialog_three_panel;
     }
 
     @Override

@@ -28,9 +28,13 @@ public class PaneledChoiceDialog {
     public PaneledChoiceDialog(Context context, String title) {
         this.context = context;
         this.dialog = new AlertDialog.Builder(context).create();
-        this.view = LayoutInflater.from(context).inflate(R.layout.choice_dialog_view, null);
+        this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
         setTitle(title);
         dialog.setCancelable(true); // cancelable by default
+    }
+
+    protected int getLayoutFile() {
+        return R.layout.choice_dialog_view;
     }
 
     public void setChoiceItems(DialogChoiceItem[] choiceItems) {
