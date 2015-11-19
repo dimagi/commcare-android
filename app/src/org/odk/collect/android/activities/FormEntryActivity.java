@@ -1420,7 +1420,8 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Create a dialog with options to save and exit, save, or quit without saving
      */
     private void createQuitDialog() {
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Exit Form?");
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
+                StringUtils.getStringRobust(this, R.string.quit_form_title));
 
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override

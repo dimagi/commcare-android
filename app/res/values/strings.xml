@@ -270,6 +270,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="please_wait_long" cc:translatable="true">Please wait. This could take a few minutes.</string>
     <string name="quit_application" cc:translatable="true">Exit %s</string>
     <string name="quit_entry" cc:translatable="true">Save Form and Exit</string>
+    <string name="quit_form_title" cc:translatable="true">Exit Form?</string>
     <string name="refresh" cc:translatable="true">Refresh</string>
     <string name="replace_audio" cc:translatable="true">Replace Sound</string>
     <string name="replace_barcode" cc:translatable="true">Replace Barcode</string>
