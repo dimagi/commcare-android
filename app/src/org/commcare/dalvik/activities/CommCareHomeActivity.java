@@ -853,7 +853,7 @@ public class CommCareHomeActivity
             return;
         }
         CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        sendFormsOrSync();
+        sendFormsOrSync(true);
     }
 
     /**
@@ -865,21 +865,21 @@ public class CommCareHomeActivity
         Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
 
         uiController.refreshView();
-        sendFormsOrSync();
+        sendFormsOrSync(false);
     }
 
     /**
      * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
      * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
      */
-    private void sendFormsOrSync() {
+    private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true);
         if(!formsSentToServer) {
-            syncData(false);
+            syncData(false, userTriggeredSync);
         }
     }
 
-    private void syncData(boolean formsToSend) {
+    private void syncData(boolean formsToSend, boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -888,17 +888,19 @@ public class CommCareHomeActivity
             return;
         }
 
-        if(User.TYPE_DEMO.equals(u.getUserType())) {
-            //Remind the user that there's no syncing in demo mode.
-            if (formsToSend) {
-                displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
-            } else {
-                displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+        if (User.TYPE_DEMO.equals(u.getUserType())) {
+            if (userTriggeredSync) {
+                // Remind the user that there's no syncing in demo mode.
+                if (formsToSend) {
+                    displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                } else {
+                    displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                }
             }
             return;
         }
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", this.getString(R.string.ota_restore_url)), this) {
 
             @Override
