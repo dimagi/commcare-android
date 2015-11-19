@@ -65,8 +65,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.Logger;
@@ -232,8 +230,19 @@ public class CommCareHomeActivity
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
-    protected void returnToLogin() {
+    protected void userTriggeredLogout() {
+        returnToLogin(true);
+    }
+
+    protected void launchLogin() {
+        returnToLogin(false);
+    }
+
+    private void returnToLogin(boolean userTriggered) {
         Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
+        if (userTriggered) {
+            i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+        }
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivityForResult(i, LOGIN_USER);
     }
@@ -383,17 +392,6 @@ public class CommCareHomeActivity
                     //CTS - Removed a call to initializing resources here. The engine takes care of that.
                     //We do, however, need to re-init this screen to include new translations
                     uiController.configUI();
-                    return;
-                }
-                break;
-            case UPGRADE_APP:
-                if (resultCode == RESULT_CANCELED) {
-                    return;
-                } else if(resultCode == RESULT_OK) {
-                    if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                        Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().closeUserSession();
-                    }
                     return;
                 }
                 break;
@@ -982,7 +980,7 @@ public class CommCareHomeActivity
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    returnToLogin();
+                    launchLogin();
                     return;
                 }
                 uiController.refreshView();
@@ -1087,7 +1085,7 @@ public class CommCareHomeActivity
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    returnToLogin();
+                    launchLogin();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -1102,7 +1100,7 @@ public class CommCareHomeActivity
                     uiController.refreshView();
                 }
             } catch (SessionUnavailableException sue) {
-                returnToLogin();
+                launchLogin();
             }
         }
 
@@ -1132,7 +1130,7 @@ public class CommCareHomeActivity
                 showDialog(DIALOG_CORRUPTED);
             } catch(SessionUnavailableException e) {
                 // Otherwise, log in first
-                returnToLogin();
+                launchLogin();
             }
         }
     }
@@ -1335,7 +1333,7 @@ public class CommCareHomeActivity
                 return true;
             case MENU_UPDATE:
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-                startActivityForResult(i, UPGRADE_APP);
+                startActivity(i);
                 return true;
             case MENU_CALL_LOG:
                 createCallLogActivity();

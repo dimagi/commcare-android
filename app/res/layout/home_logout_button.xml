@@ -11,4 +11,4 @@
     app:notificationBackgroundColor="@color/cc_neutral_text"
     app:notificationTextColor="@color/white"
     app:notificationText="Logged in as: "
-    app:img="@drawable/disconnect" />
+    app:img="@drawable/home_logout" />

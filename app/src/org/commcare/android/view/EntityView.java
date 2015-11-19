@@ -516,12 +516,12 @@ public class EntityView extends LinearLayout {
             }
         }
 
-        // Re-calculate the view's measurements based on the percentage adjustments above
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         onMeasureCalled = true;
         if (imageViewsToRedraw.size() > 0) {
             redrawImageLayoutsInQueue();
         }
+
+        // Re-calculate the view's measurements based on the percentage adjustments above
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

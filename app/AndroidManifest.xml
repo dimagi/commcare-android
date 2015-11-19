@@ -394,6 +394,13 @@
         <activity
             android:name=".activities.SeatAppActivity" >
         </activity>
+        <activity android:name=".activities.DeviceDensityActivity"
+            android:theme="@style/Theme.Dialog.NoTitle" >
+            <intent-filter>
+                <action android:name="${applicationId}.action.DENSITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <!-- Start Collect Manifest -->
 

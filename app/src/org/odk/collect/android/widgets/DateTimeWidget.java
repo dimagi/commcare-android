@@ -180,6 +180,13 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mTimePicker.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mDatePicker.setOnLongClickListener(null);
+        mTimePicker.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

@@ -610,7 +610,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public void setChangedListener(WidgetChangedListener wcl){
         widgetChangedListener = wcl;
-        hasListener = true;
+        hasListener = (wcl != null);
+    }
+
+    public void unsetListeners() {
+        setOnLongClickListener(null);
+        setChangedListener(null);
     }
 
     public void widgetEntryChanged(){
