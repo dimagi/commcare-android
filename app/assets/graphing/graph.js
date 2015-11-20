@@ -68,7 +68,58 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         // Support point-style
         for (var yID in pointStyles) {
-            applyPointStyle(yID, pointStyles[yID]);
+            var symbol = pointStyles[yID];
+            if (type === "bar") {
+                symbol = "none";
+            } else if (type=== "bubble") {
+                symbol = "circle";
+            } else {
+                applyPointShape(yID, symbol);
+            }
+            applyLegendShape(yID, symbol);
+        }
+
+        // Configure colors more specifically than C3 allows
+        for (var yID in config.data.colors) {
+            // Data itself
+            if (type === "bar") {
+                var bars = d3.selectAll(".c3-bars-" + yID + " path")[0];
+                for (var i = 0; i < bars.length; i++) {
+                    bars[i].style.opacity = lineOpacities[yID];
+                }
+            } else {
+                var line = d3.selectAll(".c3-lines-" + yID + " path")[0][0];
+                if (line) {
+                    line.style.opacity = lineOpacities[yID];
+                }
+            }
+
+            // Legend
+            var legend = d3.selectAll(".c3-legend-item-" + yID + " path")[0];
+            if (!legend.length) {
+                legend = d3.selectAll(".c3-legend-item-" + yID + " line")[0];
+            }
+            if (legend.length) {
+                legend = legend[0];
+                legend.style.opacity = lineOpacities[yID];
+            }
+
+            // Point shapes
+            console.log("type = " + type + ", yID = " + yID);
+            var points = d3.selectAll(".c3-circles-" + yID + " path")[0];
+            if (!points.length) {
+                console.log("looking at circles");
+                points = d3.selectAll(".c3-circles-" + yID + " circle")[0];
+            }
+            console.log("points.length = " + points.length);
+            for (var i = 0; i < points.length; i++) {
+                points[i].style.opacity = lineOpacities[yID];
+            }
+        }
+        for (var yID in areaColors) {
+            var area = d3.selectAll(".c3-areas-" + yID + " path")[0][0];
+            area.style.fill = areaColors[yID];
+            area.style.opacity = areaOpacities[yID];
         }
     };
 
@@ -82,8 +133,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
  * @param symbol string representing symbol: "none", "circle", "cross", etc.
  *  Unknown symbols will be drawn as circles.
  */
-function applyPointStyle(yID, symbol) {
-    // Draw symbol for each point
+function applyPointShape(yID, symbol) {
+    if (type === 'bar' || type === 'bubble') {
+        return;
+    }
+
     var circleSet = d3.selectAll(".c3-circles-" + yID);
     var circles = circleSet.selectAll("circle")[0];
     for (var j = 0; j < circles.length; j++) {
@@ -96,8 +150,15 @@ function applyPointStyle(yID, symbol) {
             circles[j].style.fill
         );
     }
+}
 
-    // Make legend shape match symbol
+/**
+ * Make shape displayed in legend match shape used on line.
+ * @param yID String ID of y-values to manipulate
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ */
+function applyLegendShape(yID, symbol) {
     if (symbol !== "none") {
         var legendItem = d3.selectAll(".c3-legend-item-" + yID);
         var line = legendItem.selectAll("line")[0][0];    // there will only be one line
