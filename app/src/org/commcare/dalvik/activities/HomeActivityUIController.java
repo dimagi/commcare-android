@@ -150,13 +150,13 @@ public class HomeActivityUIController {
     }
 
     private void setupLogoutButton() {
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
+        logoutButton = adapter.getButton(R.layout.home_logout_button);
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
             logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
+        adapter.setOnClickListenerForButton(R.layout.home_logout_button, getLogoutButtonListener());
     }
 
     private void setupViewSavedFormsButton() {
