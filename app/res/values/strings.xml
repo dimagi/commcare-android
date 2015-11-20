@@ -192,7 +192,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="download_complete" cc:translatable="true">Form Get Complete</string>
     <string name="download_failed_with_error" cc:translatable="true">Form \"%1$s\" failed. %2$s.</string>
     <string name="do_not_change" cc:translatable="true">Cancel</string>
-    <string name="do_not_exit" cc:translatable="true">BACK TO FORM</string>
+    <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
     <string name="do_not_save" cc:translatable="true">DELETE AND EXIT</string>
     <string name="enter" cc:translatable="true">start</string>
     <string name="entering_repeat" cc:translatable="true">Add Group</string>
