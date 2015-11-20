@@ -90,22 +90,4 @@ the License.
         android:key="cc-target-density"
         android:defaultValue="160"
         android:title="Target Screen Density for Inflation" />
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/back_to_form_labels"
-        android:entryValues="@array/back_to_form_labels"
-        android:key="cc-back-to-form-icon"
-        android:title="Icon for 'Back to Form' choice" />
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/exit_form_labels"
-        android:entryValues="@array/exit_form_labels"
-        android:key="cc-exit-form-icon"
-        android:title="Icon for 'Delete and Exit' choice" />
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/save_incomplete_labels"
-        android:entryValues="@array/save_incomplete_labels"
-        android:key="cc-save-incomplete-icon"
-        android:title="Icon for 'Save Incomplete' choice" />
 </PreferenceScreen>

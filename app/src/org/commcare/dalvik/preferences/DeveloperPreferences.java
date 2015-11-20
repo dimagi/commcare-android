@@ -181,42 +181,4 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
-    public static int getStayInFormIcon() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        switch(properties.getString(KEY_BACK_TO_FORM_ICON, "")) {
-            case "forward arrow, green":
-                return R.drawable.ic_green_forward;
-            case "forward arrow, blue":
-                return R.drawable.ic_blue_forward;
-            case "back arrow, green":
-                return R.drawable.ic_green_back;
-            case "back arrow, blue":
-            default:
-                return R.drawable.ic_blue_back;
-        }
-    }
-
-    public static int getSaveIncompleteIcon() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        switch(properties.getString(KEY_SAVE_INCOMPLETE_ICON, "")) {
-            case "incomplete form, blue":
-                return R.drawable.ic_incomplete_blue;
-            case "incomplete form, orange":
-            default:
-                return R.drawable.ic_incomplete_orange;
-
-        }
-    }
-
-    public static int getQuitFormIcon() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        switch(properties.getString(KEY_EXIT_FORM_ICON, "")) {
-            case "x, orange":
-                return R.drawable.ic_orange_x;
-            case "trash can, red":
-            default:
-                return R.drawable.ic_trashcan;
-        }
-    }
-
 }

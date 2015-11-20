@@ -133,21 +133,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>400</item>
         <item>480</item>
     </string-array>
-    <string-array name="back_to_form_labels">
-        <item>back arrow, green</item>
-        <item>back arrow, blue</item>
-        <item>forward arrow, green</item>
-        <item>forward arrow, blue</item>
-    </string-array>
-    <string-array name="exit_form_labels">
-        <item>trash can, red</item>
-        <item>x, orange</item>
-    </string-array>
-    <string-array name="save_incomplete_labels">
-        <item>incomplete form, orange</item>
-        <item>incomplete form, blue</item>
-    </string-array>
-
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 

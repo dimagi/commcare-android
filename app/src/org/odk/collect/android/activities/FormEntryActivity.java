@@ -66,7 +66,6 @@ import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -1431,7 +1430,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         };
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(this, R.string.do_not_exit),
-                DeveloperPreferences.getStayInFormIcon(),
+                R.drawable.ic_blue_forward,
                 stayInFormListener);
 
         View.OnClickListener exitFormListener = new View.OnClickListener() {
@@ -1442,7 +1441,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(this, R.string.do_not_save),
-                DeveloperPreferences.getQuitFormIcon(),
+                R.drawable.ic_trashcan,
                 exitFormListener);
 
         DialogChoiceItem[] items;
@@ -1455,7 +1454,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
                     StringUtils.getStringRobust(this, R.string.keep_changes),
-                    DeveloperPreferences.getSaveIncompleteIcon(),
+                    R.drawable.ic_incomplete_orange,
                     saveIncompleteListener);
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem, saveIncompleteItem};
         } else {
