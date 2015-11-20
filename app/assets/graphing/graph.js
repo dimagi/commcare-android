@@ -105,13 +105,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
             }
 
             // Point shapes
-            console.log("type = " + type + ", yID = " + yID);
             var points = d3.selectAll(".c3-circles-" + yID + " path")[0];
             if (!points.length) {
-                console.log("looking at circles");
                 points = d3.selectAll(".c3-circles-" + yID + " circle")[0];
             }
-            console.log("points.length = " + points.length);
             for (var i = 0; i < points.length; i++) {
                 points[i].style.opacity = lineOpacities[yID];
             }
