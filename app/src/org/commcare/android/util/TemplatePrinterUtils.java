@@ -2,9 +2,12 @@ package org.commcare.android.util;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 
 import java.io.BufferedReader;
@@ -152,6 +155,24 @@ public abstract class TemplatePrinterUtils {
                 }
             }
         }).showDialog();
+    }
+
+    public static void showPrintStatusDialog(final Activity activity, String title, String msg,
+                                             final boolean reportSuccess) {
+        AlertDialogFactory.getBasicAlertFactory(activity, title, msg,
+                new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                Intent intent = new Intent();
+                Bundle responses = new Bundle();
+                responses.putString("print_executed", "" + reportSuccess);
+                intent.putExtra("odk_intent_bundle", responses);
+                activity.setResult(activity.RESULT_OK, intent);
+                activity.finish();
+            }
+        }).showDialog();
+
     }
 
 }
