@@ -14,13 +14,11 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -152,13 +150,13 @@ public class HomeActivityUIController {
     }
 
     private void setupLogoutButton() {
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
+        logoutButton = adapter.getButton(R.layout.home_logout_button);
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
             logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
         } 
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
+        adapter.setOnClickListenerForButton(R.layout.home_logout_button, getLogoutButtonListener());
     }
 
     private void setupViewSavedFormsButton() {
