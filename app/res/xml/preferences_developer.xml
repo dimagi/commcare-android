@@ -77,17 +77,4 @@ the License.
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-alternate-question-text-format"
         android:title="Image Above Question Text Enabled" />
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-use-smart-inflation"
-        android:title="Smart Image Inflation Enabled" />
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/target_density_labels"
-        android:entryValues="@array/target_density_vals"
-        android:key="cc-target-density"
-        android:defaultValue="160"
-        android:title="Target Screen Density for Inflation" />
 </PreferenceScreen>

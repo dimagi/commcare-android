@@ -395,17 +395,6 @@ public class CommCareHomeActivity
                     return;
                 }
                 break;
-            case UPGRADE_APP:
-                if (resultCode == RESULT_CANCELED) {
-                    return;
-                } else if(resultCode == RESULT_OK) {
-                    if(intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                        Toast.makeText(this, Localization.get("update.success.refresh"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().closeUserSession();
-                    }
-                    return;
-                }
-                break;
             case PREFERENCES_ACTIVITY:
                 uiController.configUI();
                 return;
@@ -1344,7 +1333,7 @@ public class CommCareHomeActivity
                 return true;
             case MENU_UPDATE:
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-                startActivityForResult(i, UPGRADE_APP);
+                startActivity(i);
                 return true;
             case MENU_CALL_LOG:
                 createCallLogActivity();

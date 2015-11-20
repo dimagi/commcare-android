@@ -9,5 +9,5 @@
     app:subtitle="Start"
     app:backgroundColor="@color/cc_attention_positive_color"
     app:textColor="@color/white"
-    app:img="@drawable/start_icon">
+    app:img="@drawable/home_start">
 </org.commcare.android.view.SquareButtonWithNotification>
