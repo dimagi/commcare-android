@@ -92,7 +92,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     @Override
     protected Integer doTaskBackground(Void... nothing) {
         // validation failed, pass specific failure
-        int validateStatus = validateAnswers(mMarkCompleted);
+        int validateStatus = validateAnswersWithoutTriggerEval(mMarkCompleted);
         if (validateStatus != VALIDATED) {
             return validateStatus;
         }
@@ -376,13 +376,31 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         int event;
         while ((event =
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
-            if (event != FormEntryController.EVENT_QUESTION) {
-                continue;
-            } else {
+            if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus =
                     FormEntryActivity.mFormController
                             .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
                                     .getAnswerValue());
+                if (markCompleted && saveStatus != FormEntryController.ANSWER_OK) {
+                    return saveStatus;
+                }
+            }
+        }
+
+        FormEntryActivity.mFormController.jumpToIndex(i);
+        return VALIDATED;
+    }
+
+    private int validateAnswersWithoutTriggerEval(boolean markCompleted) {
+        FormIndex i = FormEntryActivity.mFormController.getFormIndex();
+        FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
+
+        int event;
+        while ((event =
+            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+            if (event == FormEntryController.EVENT_QUESTION) {
+                int saveStatus =
+                    FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 if (markCompleted && saveStatus != FormEntryController.ANSWER_OK) {
                     return saveStatus;
                 }
