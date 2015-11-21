@@ -23,6 +23,10 @@ public class AxisConfiguration extends Configuration {
         JSONObject y = getAxis("y");
         JSONObject y2 = getAxis("secondary-y");
 
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            x.put("type", "timeseries");
+        }
+
         // Display secondary y axis only if it has at least one associated series
         for (SeriesData s : mData.getSeries()) {
             boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));

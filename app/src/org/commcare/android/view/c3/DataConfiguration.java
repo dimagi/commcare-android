@@ -11,8 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -24,6 +26,8 @@ import java.util.Vector;
  * Created by jschweers on 11/16/2015.
  */
 public class DataConfiguration extends Configuration {
+    private final Calendar mCalendar = Calendar.getInstance();
+
     // Actual data: array of arrays, where first element is a string id
     // and later elements are data, either x values or y values.
     private final JSONArray mColumns = new JSONArray();
@@ -92,6 +96,11 @@ public class DataConfiguration extends Configuration {
         normalizeBoundaries();
         addAnnotations();
         addBoundaries();
+
+        // Type-specific logic
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            mConfiguration.put("xFormat", "%Y-%m-%d %H:%M:%S");
+        }
 
         // Finally, apply all data to main configuration
         mConfiguration.put("axes", mAxes);
@@ -292,7 +301,17 @@ public class DataConfiguration extends Configuration {
                     mBarLabels.put(p.getX());
                 }
             } else {
-                xValues.put(parseXValue(p.getX(), description));
+                double xValue = parseXValue(p.getX(), description);
+                if (mData.getType().equals(Graph.TYPE_TIME)) {
+                    mCalendar.setTimeInMillis((long) xValue * 24 * 60 * 60 * 1000);
+                    xValues.put(mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH)
+                            + "-" + mCalendar.get(Calendar.DAY_OF_MONTH) + " "
+                            + mCalendar.get(Calendar.HOUR_OF_DAY) + ":"
+                            + mCalendar.get(Calendar.MINUTE) + ":"
+                            + mCalendar.get(Calendar.SECOND));
+                } else {
+                    xValues.put(xValue);
+                }
             }
             yValues.put(parseYValue(p.getY(), description));
 

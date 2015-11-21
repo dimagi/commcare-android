@@ -44,13 +44,13 @@ public class Configuration {
      * @param description Something to identify the kind of value, used to augment any error message.
      */
     protected double parseXValue(String value, String description) throws InvalidStateException {
-        if (Graph.TYPE_TIME.equals(mData.getType())) {
+        /*if (Graph.TYPE_TIME.equals(mData.getType())) {
             Date parsed = DateUtils.parseDateTime(value);
             if (parsed == null) {
                 throw new InvalidStateException("Could not parse date '" + value + "' in " + description);
             }
             return parseDouble(String.valueOf(parsed.getTime()), description);
-        }
+        }*/
 
         return parseDouble(value, description);
     }
