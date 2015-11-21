@@ -67,7 +67,7 @@ public class AxisConfiguration extends Configuration {
         String key = prefix + "-" + suffix;
         String value = mData.getConfiguration(key);
         if (value != null) {
-            double parsed = prefix.equals("x") ? parseXValue(value, key) : parseYValue(value, key);
+            double parsed = prefix.equals("x") ? parseXValue(value, key) : parseDouble(value, key);
             axis.put(suffix, parsed);
         }
     }

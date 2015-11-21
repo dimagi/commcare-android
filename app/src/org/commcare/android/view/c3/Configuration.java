@@ -73,24 +73,6 @@ public class Configuration {
     }
 
     /**
-     * Parse given string into double
-     *
-     * @param description Something to identify the kind of value, used to augment any error message.
-     */
-    protected double parseYValue(String value, String description) throws InvalidStateException {
-        return parseDouble(value, description);
-    }
-
-    /**
-     * Parse given string into double
-     *
-     * @param description Something to identify the kind of value, used to augment any error message.
-     */
-    protected double parseRadiusValue(String value, String description) throws InvalidStateException {
-        return parseDouble(value, description);
-    }
-
-    /**
      * Attempt to parse a double, but fail on NumberFormatException.
      *
      * @param description Something to identify the kind of value, used to augment any error message.

@@ -132,7 +132,7 @@ public class DataConfiguration extends Configuration {
             // Add y value
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseYValue(a.getY(), description));
+            yValues.put(parseDouble(a.getY(), description));
             mColumns.put(yValues);
 
             // Configure series
@@ -190,8 +190,8 @@ public class DataConfiguration extends Configuration {
 
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseYValue(min, "secondary-y-min"));
-            yValues.put(parseYValue(max, "secondary-y-max"));
+            yValues.put(parseDouble(min, "secondary-y-min"));
+            yValues.put(parseDouble(max, "secondary-y-max"));
             mColumns.put(yValues);
             return true;
         }
@@ -306,12 +306,12 @@ public class DataConfiguration extends Configuration {
                     xValues.put(xValue);
                 }
             }
-            yValues.put(parseYValue(p.getY(), description));
+            yValues.put(parseDouble(p.getY(), description));
 
             // Bubble charts also get a radius
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData)p;
-                double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
+                double r = parseDouble(b.getRadius(), description + " with radius " + b.getRadius());
                 rValues.put(r);
                 maxRadius = Math.max(maxRadius, r);
             }
