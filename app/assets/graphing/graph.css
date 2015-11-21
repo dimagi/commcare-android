@@ -6,8 +6,23 @@ path {
     stroke-linecap: round;
 }
 
-text {
+text, #tooltip {
     fill: #000 !important;
+}
+
+/* Tooltip */
+#tooltip {
+    background-color: white;
+    border: 1px solid black;
+}
+
+#tooltip table td {
+    padding: 5px;
+}
+
+#tooltip table td:not(:first-child) {
+    text-align: right;
+    background-color: line;
 }
 
 /* Thicken graph lines */

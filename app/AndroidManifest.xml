@@ -264,6 +264,9 @@
             android:windowSoftInputMode="stateUnchanged|adjustResize" >
         </activity>
         <activity
+            android:name=".activities.GraphActivity">
+        </activity>
+        <activity
             android:name=".activities.EntityDetailActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>

@@ -9,7 +9,34 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     // Turn off default hover/click behaviors
-    config.interaction = { enabled: false };
+    config.interaction = { enabled: true };
+    config.tooltip = {
+        show: true,
+        grouped: type === "bar",
+        contents: function(data, defaultTitleFormat, defaultValueFormat, color) {
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                if (isData[data[i].id]) {
+                    var yName = config.data.names[data[i].id];
+            	    html += "<tr><td>" + yName + "</td><td>" + data[i].value + "</td></tr>";
+            	}
+            }
+            if (!html) {
+                return "";
+            }
+            if (type === "bar") {
+                html = "<tr><td colspan='2'>" + barLabels[data[0].x] + "</td></tr>" + html;
+            } else {
+                html = "<tr><td>" + xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;  // TODO: test with time charts
+            }
+        	if (type === "bubble") {
+        	    html += "<tr><td>Radius</td><td>" + radii[d.id][d.index] + "</td></tr>";
+        	}
+        	html = "<table>" + html + "</table>";
+        	html = "<div id='tooltip'>" + html + "</div>";
+        	return html;
+    	},
+    };
 
     // Set point size for bubble charts, and turn points off altogether
     // for other charts (we'll be using custom point shapes)
@@ -46,13 +73,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     // Hide any system-generated series from legend
-    var systemSeries = ['boundsY', 'boundsY2'];
+    var hideSeries = [];
     for (var yID in config.data.xs) {
-        if (!pointStyles[yID]) {
-            systemSeries.push(yID);
+        if (!isData[yID]) {
+            hideSeries.push(yID);
         }
     }
-    config.legend.hide = systemSeries;
+    config.legend.hide = hideSeries;
 
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
@@ -86,6 +113,10 @@ function applyPointStyle(yID, symbol) {
     // Draw symbol for each point
     var circleSet = d3.selectAll(".c3-circles-" + yID);
     var circles = circleSet.selectAll("circle")[0];
+    if (!circles) {
+        return;
+    }
+
     for (var j = 0; j < circles.length; j++) {
         circles[j].style.opacity = 0;    // hide default circle
         appendSymbol(
@@ -100,7 +131,11 @@ function applyPointStyle(yID, symbol) {
     // Make legend shape match symbol
     if (symbol !== "none") {
         var legendItem = d3.selectAll(".c3-legend-item-" + yID);
-        var line = legendItem.selectAll("line")[0][0];    // there will only be one line
+        var line = legendItem.selectAll("line");    // there will only be one line
+        if (!line || !line.length) {
+            return;
+        }
+        line = line[0][0]
         line.style.opacity = 0;    // hide default square
         appendSymbol(
             legendItem,
