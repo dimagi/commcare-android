@@ -15,6 +15,8 @@ import org.commcare.android.view.GraphView;
 import org.commcare.suite.model.graph.GraphData;
 
 /**
+ * Full-screen view of a graph.
+ *
  * Created by jschweers on 11/20/2015.
  */
 public class GraphActivity extends CommCareActivity {

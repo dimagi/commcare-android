@@ -126,12 +126,11 @@ public class GraphView {
 
         String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
         String chartHTML = "<div id='chart'></div>";
-        String spinnerHTML = "<div id='spinner'><img src='file:///android_asset/graphing/spinner.gif' /></div>";
         html +=
                 "</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                         "</head>" +
-                        "<body>" + titleHTML + spinnerHTML + chartHTML + "</body>" +
+                        "<body>" + titleHTML + chartHTML + "</body>" +
                         "</html>";
 
         return html;
