@@ -26,8 +26,6 @@ import java.util.Vector;
  * Created by jschweers on 11/16/2015.
  */
 public class DataConfiguration extends Configuration {
-    private final Calendar mCalendar = Calendar.getInstance();
-
     // Actual data: array of arrays, where first element is a string id
     // and later elements are data, either x values or y values.
     private final JSONArray mColumns = new JSONArray();
@@ -303,12 +301,7 @@ public class DataConfiguration extends Configuration {
             } else {
                 double xValue = parseXValue(p.getX(), description);
                 if (mData.getType().equals(Graph.TYPE_TIME)) {
-                    mCalendar.setTimeInMillis((long) xValue * 24 * 60 * 60 * 1000);
-                    xValues.put(mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH)
-                            + "-" + mCalendar.get(Calendar.DAY_OF_MONTH) + " "
-                            + mCalendar.get(Calendar.HOUR_OF_DAY) + ":"
-                            + mCalendar.get(Calendar.MINUTE) + ":"
-                            + mCalendar.get(Calendar.SECOND));
+                    xValues.put(convertTime(xValue));
                 } else {
                     xValues.put(xValue);
                 }

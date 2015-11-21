@@ -7,6 +7,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -19,6 +20,8 @@ import java.util.Date;
  * Created by jschweers on 11/16/2015.
  */
 public class Configuration {
+    private final Calendar mCalendar = Calendar.getInstance();
+
     protected GraphData mData;
     protected JSONObject mConfiguration;
     protected OrderedHashtable<String, String> mVariables;
@@ -37,6 +40,20 @@ public class Configuration {
         return mVariables;
     }
 
+    /**
+     * Parse given double time value into string acceptable to C3.
+     *
+     * @param days The time, measured in days since the epoch.
+     */
+    protected String convertTime(double days) {
+        mCalendar.setTimeInMillis((long)(days * 24 * 60 * 60 * 1000));
+        String time = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH)
+                + "-" + mCalendar.get(Calendar.DAY_OF_MONTH) + " "
+                + mCalendar.get(Calendar.HOUR_OF_DAY) + ":"
+                + mCalendar.get(Calendar.MINUTE) + ":"
+                + mCalendar.get(Calendar.SECOND);
+        return time;
+    }
 
     /**
      * Parse given string into double
