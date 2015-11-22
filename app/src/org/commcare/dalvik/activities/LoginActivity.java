@@ -208,8 +208,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void acquirePhoneCallPerms() {
-        if (checkExternalStoragePerms()) {
-            if (shouldShowExternalPermissionRational()) {
+        if (checkPhonePermissions()) {
+            if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 "External memory permission",
@@ -221,12 +221,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    private boolean checkExternalStoragePerms() {
+    private boolean checkPhonePermissions() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
                 PackageManager.PERMISSION_GRANTED;
     }
 
-    private boolean shouldShowExternalPermissionRational() {
+    private boolean shouldShowPhonePermissionRationale() {
         return ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.READ_PHONE_STATE);
     }

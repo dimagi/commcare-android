@@ -1,11 +1,14 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -34,8 +37,12 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
         setTitle(getString(R.string.application_name) + " > " + "Phone Logs");
         
         isMessages = getIntent().getBooleanExtra(EXTRA_MESSAGES, false);
-        
+
         refreshView();
+    }
+    private boolean checkPhonePermssions() {
+        return (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED);
     }
 
     @Override
@@ -56,12 +63,12 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
     private void refreshView() {
         ListAdapter adapter;
         if(isMessages) {
-            if(messages == null) {
+            if (messages == null && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
                 messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
             }
             adapter = messages;
         } else {
-            if (calls == null) {
+            if (calls == null && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                 Cursor callCursor = null;
                 try {
                     callCursor = getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI, null, null, null, Calls.DATE + " DESC");
