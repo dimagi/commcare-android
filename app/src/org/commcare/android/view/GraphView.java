@@ -139,21 +139,4 @@ public class GraphView {
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     }
-
-    /**
-     * Get graph's desired aspect ratio.
-     *
-     * @return Ratio, expressed as a double: width / height.
-     */
-    public double getRatio() {
-        // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
-        // and happened to look nice for partographs. Vertically-oriented graphs,
-        // however, get squished unless they're drawn as a square. Expect to revisit 
-        // this eventually (make all graphs square? user-configured aspect ratio?).
-        // TODO: did migrating to C3 fix the squishing issue?
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return 1;
-        }
-        return 2;
-    }
 }
