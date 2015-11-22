@@ -1,17 +1,23 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +29,7 @@ import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -32,6 +39,7 @@ import org.commcare.android.tasks.ResourceEngineListener;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.android.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.android.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -61,7 +69,8 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
+        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
+        RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
@@ -69,6 +78,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
+
+    private static final int SMS_PERMISSIONS_REQUEST = 1;
 
     /**
      * Should the user be logged out when this activity is done?
@@ -462,11 +473,37 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     /**
      * Scan SMS messages for texts with profile references.
+     *
      * @param installTriggeredManually if scan was triggered manually, then
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually){
-        this.scanSMSLinks(installTriggeredManually);
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_SMS)) {
+                AlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                "SMS reading permission",
+                                "CommCare would like to access your SMS messages to search for an app install code.");
+                dialog.show();
+            } else {
+                requestNeededPermissions();
+            }
+        } else {
+            scanSMSLinks(installTriggeredManually);
+        }
+    }
+
+    @Override
+    public void requestNeededPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_SMS},
+                SMS_PERMISSIONS_REQUEST);
     }
 
     /**
@@ -747,5 +784,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean isSingleAppBuild() {
         return BuildConfig.IS_SINGLE_APP_BUILD;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == SMS_PERMISSIONS_REQUEST) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
+                        grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    scanSMSLinks(false);
+                }
+            }
+        }
     }
 }
