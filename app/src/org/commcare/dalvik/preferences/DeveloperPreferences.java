@@ -19,7 +19,6 @@ package org.commcare.dalvik.preferences;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.session.DevSessionRestorer;
@@ -51,10 +50,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
-    public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
-    private static final String KEY_TARGET_DENSITY = "cc-target-density";
-
-    private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,16 +161,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean imageAboveTextEnabled() {
         return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
-    }
-
-    public static boolean isSmartInflationEnabled() {
-        return doesPropertyMatch(KEY_USE_SMART_INFLATION, CommCarePreferences.NO,
-                CommCarePreferences.YES);
-    }
-
-    public static int getTargetInflationDensity() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
 }
