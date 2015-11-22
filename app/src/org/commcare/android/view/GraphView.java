@@ -122,16 +122,6 @@ public class GraphView {
         settings.setSupportZoom(false);
     }
 
-    /**
-     * Fetch date format for displaying time-based x labels.
-     *
-     * @return String, a SimpleDateFormat pattern.
-     */
-    private String getTimeFormat() {
-        // TODO: fix for C3
-        return mData.getConfiguration("x-labels-time-format", "yyyy-MM-dd");
-    }
-
     /*
      * Get layout params for this graph, which assume that graph will fill parent
      * unless dimensions have been provided via setWidth and/or setHeight.

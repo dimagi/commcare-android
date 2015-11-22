@@ -23,8 +23,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
         },
     };
 
-    // Add functions for custom tick labels
-    if (config.axis.x.tick) {
+    // Add functions for custom tick label text (where foo-labels was an object).
+    // Don't do this if the tick format was already set by Java (which will
+    // only happen for time-based graphs that are NOT using custom tick text).
+    if (config.axis.x.tick && !config.axis.x.tick.format) {
         config.axis.x.tick.format = function(d) {
             var key = String(d);
             if (type === "time") {

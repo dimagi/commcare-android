@@ -88,6 +88,7 @@ public class AxisConfiguration extends Configuration {
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
         JSONObject tick = new JSONObject();
+        boolean usingCustomText = false;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -123,12 +124,17 @@ public class AxisConfiguration extends Configuration {
                     }
                     tick.put("values", values);
                     mVariables.put(varName, labels.toString());
+                    usingCustomText = true;
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
                     tick.put("count", Integer.valueOf(labelString));
                 }
             }
+        }
+
+        if (!usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
+            tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
         axis.put("tick", tick);
