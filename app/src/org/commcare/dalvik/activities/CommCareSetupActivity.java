@@ -478,12 +478,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually){
-        // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
                 AlertDialog dialog =

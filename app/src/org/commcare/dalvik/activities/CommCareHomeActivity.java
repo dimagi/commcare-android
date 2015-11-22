@@ -1,6 +1,8 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +15,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -27,6 +32,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
@@ -79,7 +85,7 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder {
+        implements SessionNavigationResponder, RuntimePermissionRequester {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -149,6 +155,8 @@ public class CommCareHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     public static final String MENU_STYLE_GRID = "grid";
 
+    private static final int STORAGE_PERMISSIONS_REQUEST = 1;
+
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
@@ -161,12 +169,17 @@ public class CommCareHomeActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (finishIfNotRoot()) {
             return;
         }
+
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
+
+        acquireStoragePermissions();
+
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
@@ -191,6 +204,55 @@ public class CommCareHomeActivity
             return false;
         }
         return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void acquireStoragePermissions() {
+        if (checkExternalStoragePerms()) {
+            if (shouldShowExternalPermissionRational()) {
+                AlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                "External memory permission",
+                                "CommCare would like to read & write to external memory.");
+                dialog.show();
+            } else {
+                requestNeededPermissions();
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private boolean checkExternalStoragePerms() {
+        return (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private boolean shouldShowExternalPermissionRational() {
+        return (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE));
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public void requestNeededPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                STORAGE_PERMISSIONS_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == STORAGE_PERMISSIONS_REQUEST) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
+                        grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    //scanSMSLinks(false);
+                }
+            }
+        }
     }
 
     protected void goToFormArchive(boolean incomplete) {
