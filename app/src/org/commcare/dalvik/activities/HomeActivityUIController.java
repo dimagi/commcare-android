@@ -186,7 +186,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getSyncButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                activity.attemptSync();
+                activity.syncButtonPressed();
             }
         };
     }
