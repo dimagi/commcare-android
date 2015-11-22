@@ -276,19 +276,42 @@ public class DataConfiguration extends Configuration {
      * @param s SeriesData from which to pull color
      */
     private void setColor(String yID, SeriesData s) throws JSONException {
-        // TODO: Handle transparency (and test on bubble graphs)
         String color = s.getConfiguration("line-color", "#ff000000");
-
-        double lineOpacity = Color.alpha(Color.parseColor(color)) / (double) 255;
-        mLineOpacities.put(yID, lineOpacity);
+        color = normalizeColor(color);
         mColors.put(yID, "#" + color.substring(3));
+        mLineOpacities.put(yID, getOpacity(color));
 
         String fillBelow = s.getConfiguration("fill-below");
         if (fillBelow != null) {
-            double areaOpacity = Color.alpha(Color.parseColor(fillBelow)) / (double) 255;
-            mAreaOpacities.put(yID, areaOpacity);
-            mAreaColors.put(yID, "#" + color.substring(3));
+            System.out.println("[jls] fill-below => " + fillBelow + " => " + normalizeColor(fillBelow));
+            fillBelow = normalizeColor(fillBelow);
+            mAreaColors.put(yID, "#" + fillBelow.substring(3));
+            mAreaOpacities.put(yID, getOpacity(fillBelow));
         }
+    }
+
+    /**
+     * Convert color string to expected format.
+     * @param color String of format #?(AA)?RRGGBB
+     * @return String of format "#AARRGGBB"
+     */
+    private String normalizeColor(String color) {
+        if (color.length() % 2 == 0) {
+            color = "#" + color;
+        }
+        if (color.length() == 7) {
+            color = "#ff" + color.substring(1);
+        }
+        return color;
+    }
+
+    /**
+     * Calculate opacity of given color.
+     * @param color Color in format "#AARRGGBB"
+     * @return Opacity, which will be between 0 and 1, inclusive
+     */
+    private double getOpacity(String color) {
+        return Color.alpha(Color.parseColor(color)) / (double) 255;
     }
 
     /**
