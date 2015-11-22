@@ -53,17 +53,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Add functions for custom tick labels
     if (config.axis.x.tick) {
         config.axis.x.tick.format = function(d) {
-            return xLabels[String(d)] || d;
+            return xLabels[String(d)] || Math.round(d);
         };
     }
     if (config.axis.y.tick) {
         config.axis.y.tick.format = function(d) {
-            return yLabels[String(d)] || d;
+            return yLabels[String(d)] || Math.round(d);
         };
     }
     if (config.axis.y2.tick) {
         config.axis.y2.tick.format = function(d) {
-            return y2Labels[String(d)] || d;
+            return y2Labels[String(d)] || Math.round(d);
         };
     }
     if (type === "bar") {
