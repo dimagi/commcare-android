@@ -36,6 +36,7 @@ public class DataConfiguration extends Configuration {
 
     // Hash of y-values id => name for legend
     private final JSONObject mNames = new JSONObject();
+    private final JSONObject mXNames = new JSONObject();
 
     // Hash of y-values id => 'y' or 'y2' depending on whether this data
     // should be plotted against the primary or secondary y axis
@@ -49,6 +50,9 @@ public class DataConfiguration extends Configuration {
     private final JSONObject mLineOpacities = new JSONObject();
     private final JSONObject mAreaColors = new JSONObject();
     private final JSONObject mAreaOpacities = new JSONObject();
+
+    // Array of series that should appear in legend & tooltip
+    private final JSONObject mIsData = new JSONObject();
 
     // Hash of y-values id => point-style string ("circle", "none", "cross", etc.)
     // Doubles as a record of all user-defined series
@@ -81,6 +85,7 @@ public class DataConfiguration extends Configuration {
             setColumns(xID, yID, s);
             setName(yID, s);
             setColor(yID, s);
+            setIsData(yID, s);
             setPointStyle(yID, s);
             setType(yID, s);
             setYAxis(yID, s);
@@ -89,12 +94,14 @@ public class DataConfiguration extends Configuration {
         }
 
         // Set up separate variables for features that C3 doesn't support well
-        mVariables.put("radii", mRadii.toString());
+        mVariables.put("areaColors", mAreaColors.toString());
+        mVariables.put("areaOpacities", mAreaOpacities.toString());
+        mVariables.put("isData", mIsData.toString());
+        mVariables.put("lineOpacities", mLineOpacities.toString());
         mVariables.put("maxRadii", mMaxRadii.toString());
         mVariables.put("pointStyles", mPointStyles.toString());
-        mVariables.put("areaOpacities", mAreaOpacities.toString());
-        mVariables.put("lineOpacities", mLineOpacities.toString());
-        mVariables.put("areaColors", mAreaColors.toString());
+        mVariables.put("radii", mRadii.toString());
+        mVariables.put("xNames", mXNames.toString());
 
         // Data-based tweaking of user's configuration and adding system series
         normalizeBoundaries();
@@ -330,6 +337,18 @@ public class DataConfiguration extends Configuration {
     }
 
     /**
+     * Set whether or not point should appear in legend and tooltip.
+     * @param yID ID of y-values array that is or isn't data
+     * @param s SeriesData from which to pull flag
+     */
+    private void setIsData(String yID, SeriesData s) throws JSONException {
+        boolean isData = Boolean.valueOf(s.getConfiguration("is-data", "true"));
+        if (isData) {
+            mIsData.put(yID, 1);
+        }
+    }
+
+    /**
      * Set series name to display in legend.
      * @param yID ID of y-values array that name applies to
      * @param s SeriesData from which to pull name
@@ -339,6 +358,7 @@ public class DataConfiguration extends Configuration {
         if (name != null) {
             mNames.put(yID, name);
         }
+        mXNames.put(yID, s.getConfiguration("x-name", mData.getConfiguration("x-title", "x")));
     }
 
     /**
@@ -373,7 +393,6 @@ public class DataConfiguration extends Configuration {
         } else if (mData.getType().equals(Graph.TYPE_BAR)) {
             type = "bar";
         } else if (s.getConfiguration("fill-below") != null) {
-            // TODO: allow customizing fill's color
             type = "area";
         }
         mTypes.put(yID, type);
