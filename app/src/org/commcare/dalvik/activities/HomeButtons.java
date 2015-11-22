@@ -51,7 +51,7 @@ public class HomeButtons {
     private static View.OnClickListener getSyncButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                activity.attemptSync();
+                activity.syncButtonPressed();
             }
         };
     }
@@ -76,7 +76,7 @@ public class HomeButtons {
         return new View.OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
-                activity.returnToLogin();
+                activity.userTriggeredLogout();
             }
         };
     }

@@ -248,6 +248,15 @@ public class GeoPointWidget extends QuestionWidget {
         mAnswerDisplay.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mViewButton.setOnLongClickListener(null);
+        mGetLocationButton.setOnLongClickListener(null);
+        mStringAnswer.setOnLongClickListener(null);
+        mAnswerDisplay.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

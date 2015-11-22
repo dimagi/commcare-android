@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.util.StateSet;
 import android.widget.ImageButton;
@@ -137,5 +138,18 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         super.setEnabled(enabled);
 
         button.setEnabled(enabled);
+
+        // NOTE PLM: ideally we would use a setTintList with a ColorStateList
+        // when setting up the image. Unfortunately I wasn't able to figure out
+        // how to only apply a tint when the button was disabled
+        if (!enabled) {
+            // add gray tint to button's image
+            Drawable wrapDrawable = DrawableCompat.wrap(button.getDrawable());
+            DrawableCompat.setTint(wrapDrawable, Color.GRAY);
+        } else {
+            // clear tint from button's image
+            Drawable wrapDrawable = DrawableCompat.wrap(button.getDrawable());
+            DrawableCompat.setTintList(wrapDrawable, null);
+        }
     }
 }

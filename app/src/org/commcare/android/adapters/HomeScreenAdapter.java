@@ -25,7 +25,6 @@ import org.commcare.dalvik.activities.HomeButtons;
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
  * Created by dancluna on 3/19/15.
  */
-
 public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.SquareButtonViewHolder> {
 
     private final Context context;
