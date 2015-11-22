@@ -1,5 +1,7 @@
 package org.commcare.android.view.c3;
 
+import android.graphics.Color;
+
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -44,6 +46,9 @@ public class DataConfiguration extends Configuration {
 
     // Hash of y-values id => series color
     private final JSONObject mColors = new JSONObject();
+    private final JSONObject mLineOpacities = new JSONObject();
+    private final JSONObject mAreaColors = new JSONObject();
+    private final JSONObject mAreaOpacities = new JSONObject();
 
     // Hash of y-values id => point-style string ("circle", "none", "cross", etc.)
     // Doubles as a record of all user-defined series
@@ -87,6 +92,9 @@ public class DataConfiguration extends Configuration {
         mVariables.put("radii", mRadii.toString());
         mVariables.put("maxRadii", mMaxRadii.toString());
         mVariables.put("pointStyles", mPointStyles.toString());
+        mVariables.put("areaOpacities", mAreaOpacities.toString());
+        mVariables.put("lineOpacities", mLineOpacities.toString());
+        mVariables.put("areaColors", mAreaColors.toString());
 
         // Data-based tweaking of user's configuration and adding system series
         normalizeBoundaries();
@@ -256,10 +264,17 @@ public class DataConfiguration extends Configuration {
     private void setColor(String yID, SeriesData s) throws JSONException {
         // TODO: Handle transparency (and test on bubble graphs)
         String color = s.getConfiguration("line-color", "#ff000000");
-        if (color.length() == "#aarrggbb".length()) {
-            color = "#" + color.substring(3);
+
+        double lineOpacity = Color.alpha(Color.parseColor(color)) / (double) 255;
+        mLineOpacities.put(yID, lineOpacity);
+        mColors.put(yID, "#" + color.substring(3));
+
+        String fillBelow = s.getConfiguration("fill-below");
+        if (fillBelow != null) {
+            double areaOpacity = Color.alpha(Color.parseColor(fillBelow)) / (double) 255;
+            mAreaOpacities.put(yID, areaOpacity);
+            mAreaColors.put(yID, "#" + color.substring(3));
         }
-        mColors.put(yID, color);
     }
 
     /**
@@ -333,7 +348,7 @@ public class DataConfiguration extends Configuration {
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
+        if (mData.getType().equals(Graph.TYPE_BAR) || mData.getType().equals(Graph.TYPE_BUBBLE)) {
             // point-style doesn't apply to bar charts
             symbol = "none";
         } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
