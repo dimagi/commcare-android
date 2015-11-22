@@ -14,7 +14,7 @@ public class HomeButtons {
         return new HomeCardDisplayData[]{
                 new HomeCardDisplayData(Localization.get("home.start"),
                         R.color.white,
-                        R.drawable.start_icon,
+                        R.drawable.home_start,
                         R.color.cc_attention_positive_color,
                         getStartButtonListener(activity)),
                 new HomeCardDisplayData(Localization.get("home.forms.saved"),
@@ -34,7 +34,7 @@ public class HomeButtons {
                         getSyncButtonListener(activity)),
                 new HomeCardDisplayData(Localization.get("home.logout"), R.color.white,
                         "Logged in as: ", R.color.white,
-                        R.drawable.disconnect, R.color.cc_neutral_color, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity)),
         };
     }
