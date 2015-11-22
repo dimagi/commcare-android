@@ -26,7 +26,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Add functions for custom tick labels
     if (config.axis.x.tick) {
         config.axis.x.tick.format = function(d) {
-            return xLabels[String(d)] || d;
+            var key = String(d);
+            if (type === "time") {
+                var time = key.match(/\d+:\d+:\d+/)[0];
+                key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
+
+            }
+            return xLabels[key] || d;
         };
     }
     if (config.axis.y.tick) {

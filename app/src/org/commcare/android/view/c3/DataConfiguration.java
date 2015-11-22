@@ -126,7 +126,12 @@ public class DataConfiguration extends Configuration {
             // Add x value
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            xValues.put(parseXValue(a.getX(), description));
+            double xValue = parseDouble(a.getX(), description);
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                xValues.put(convertTime(xValue));
+            } else {
+                xValues.put(xValue);
+            }
             mColumns.put(xValues);
 
             // Add y value
@@ -166,8 +171,13 @@ public class DataConfiguration extends Configuration {
             // now create the matchin x values
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            xValues.put(parseXValue(xMin, "x-min"));
-            xValues.put(parseXValue(xMax, "x-max"));
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                xValues.put(xMin);
+                xValues.put(xMax);
+            } else {
+                xValues.put(parseDouble(xMin, "x-min"));
+                xValues.put(parseDouble(xMax, "x-max"));
+            }
             mColumns.put(xValues);
         }
     }
@@ -299,7 +309,7 @@ public class DataConfiguration extends Configuration {
                     mBarLabels.put(p.getX());
                 }
             } else {
-                double xValue = parseXValue(p.getX(), description);
+                double xValue = parseDouble(p.getX(), description);
                 if (mData.getType().equals(Graph.TYPE_TIME)) {
                     xValues.put(convertTime(xValue));
                 } else {
@@ -410,7 +420,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(lhs.getY(), "")).compareTo(parseXValue(rhs.getY(), ""));
+                return Double.valueOf(parseDouble(lhs.getY(), "")).compareTo(parseDouble(rhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }
@@ -427,7 +437,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(rhs.getY(), "")).compareTo(parseXValue(lhs.getY(), ""));
+                return Double.valueOf(parseDouble(rhs.getY(), "")).compareTo(parseDouble(lhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }
