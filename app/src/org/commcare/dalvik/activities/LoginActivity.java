@@ -1,11 +1,17 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -32,6 +38,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -67,7 +74,8 @@ import java.util.ArrayList;
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
+public class LoginActivity extends CommCareActivity<LoginActivity>
+        implements OnItemSelectedListener, RuntimePermissionRequester {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     
@@ -80,6 +88,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    private final static int PHONE_CALL_PERMISSION_REQUEST = 1;
 
     @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
     private TextView errorBox;
@@ -194,6 +203,56 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 }
             }
         });
+
+        acquirePhoneCallPerms();
+    }
+
+    private void acquirePhoneCallPerms() {
+        if (checkExternalStoragePerms()) {
+            if (shouldShowExternalPermissionRational()) {
+                AlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                "External memory permission",
+                                "CommCare would like to read & write to external memory.");
+                dialog.show();
+            } else {
+                requestNeededPermissions();
+            }
+        }
+    }
+
+    private boolean checkExternalStoragePerms() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
+                PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean shouldShowExternalPermissionRational() {
+        return ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_PHONE_STATE);
+    }
+
+    @Override
+    public void requestNeededPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_PHONE_STATE},
+                PHONE_CALL_PERMISSION_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PHONE_CALL_PERMISSION_REQUEST) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_PHONE_STATE.equals(permissions[i]) &&
+                        grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, "Form entry doesn't work without storage permissions",
+                            Toast.LENGTH_LONG).show();
+                    // TODO PLM: disable 'start' button because form entry
+                    // doesn't work without storage perms
+                }
+            }
+        }
     }
 
     private void loginButtonPressed() {

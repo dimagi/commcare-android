@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.adapters;
 
 import android.content.Context;
@@ -99,7 +96,6 @@ public class CallRecordAdapter implements ListAdapter {
 
         ImageView icon = (ImageView) cre.findViewById(R.id.call_status_icon);
 
-
         String phoneNumber = cursor.getString(cursor.getColumnIndex(Calls.NUMBER));
         String callerName = CommCareApplication._().getCallListener().getCaller(phoneNumber);
 
@@ -123,11 +119,9 @@ public class CallRecordAdapter implements ListAdapter {
                 break;
         }
 
-
         icon.setImageResource(iconResource);
 
         return cre;
-
     }
 
     @Override

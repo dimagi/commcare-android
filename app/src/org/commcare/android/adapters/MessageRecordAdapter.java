@@ -1,8 +1,4 @@
-/**
- *
- */
 package org.commcare.android.adapters;
-
 
 import android.content.Context;
 import android.database.Cursor;
@@ -111,7 +107,6 @@ public class MessageRecordAdapter implements ListAdapter {
 
         ImageView icon = (ImageView) cre.findViewById(R.id.call_status_icon);
 
-
         String phoneNumber = cursor.getString(cursor.getColumnIndex("address"));
         String callerName = CommCareApplication._().getCallListener().getCaller(phoneNumber);
 
@@ -131,11 +126,9 @@ public class MessageRecordAdapter implements ListAdapter {
                 break;
         }
 
-
         icon.setImageResource(iconResource);
 
         return cre;
-
     }
 
     @Override
@@ -160,6 +153,4 @@ public class MessageRecordAdapter implements ListAdapter {
     @Override
     public void unregisterDataSetObserver(DataSetObserver observer) {
     }
-
-
 }

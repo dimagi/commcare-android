@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -21,8 +20,6 @@ import org.javarosa.core.services.storage.Persistable;
  * @author ctsims
  */
 public class CallLogActivity<T extends Persistable> extends ListActivity {
-    
-    LinearLayout header;
     CallRecordAdapter calls;
     MessageRecordAdapter messages;
     
@@ -53,12 +50,11 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
         inState.getBoolean(EXTRA_MESSAGES, false);
     }
 
-
     /**
      * Get form list from database and insert into view.
      */
     private void refreshView() {
-        ListAdapter adapter = null;
+        ListAdapter adapter;
         if(isMessages) {
             if(messages == null) {
                 messages = new MessageRecordAdapter(this, this.getContentResolver().query(Uri.parse("content://sms"),new String[] {"_id","address","date","type","read","thread_id"}, "type=?", new String[] {"1"}, "date" + " DESC"));
@@ -93,9 +89,7 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
             i.putExtra(CallOutActivity.PHONE_NUMBER, number);
             i.putExtra(CallOutActivity.INCOMING_ACTION, Intent.ACTION_SENDTO);
             startActivity(i);
-            return;
-        }
-        else {
+        } else {
             String number = (String)calls.getItem(position);
             Intent detail = CommCareApplication._().getCallListener().getDetailIntent(this,number);
             if(detail == null) {
@@ -108,33 +102,5 @@ public class CallLogActivity<T extends Persistable> extends ListActivity {
                 startActivity(detail);
             }
         }
-        
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-     */
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        switch(requestCode){
-//        case CONFIRM_SELECT:
-//            if(resultCode == RESULT_OK) {
-//                // create intent for return and store path
-//                Intent i = new Intent(this.getIntent());
-//                
-//                i.putExtras(intent.getExtras());
-//                setResult(RESULT_OK, i);
-//
-//                finish();
-//                return;
-//            } else {
-//                Intent i = new Intent(this.getIntent());
-//                setResult(RESULT_CANCELED, i);
-//                return;
-//            }
-//        default:
-//            super.onActivityResult(requestCode, resultCode, intent);
-//        }
-//    }
 }

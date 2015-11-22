@@ -247,9 +247,13 @@ public class CommCareHomeActivity
                                            @NonNull int[] grantResults) {
         if (requestCode == STORAGE_PERMISSIONS_REQUEST) {
             for (int i = 0; i < permissions.length; i++) {
-                if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
-                        grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    //scanSMSLinks(false);
+                if ((Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) &&
+                        grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, "Form entry doesn't work without storage permissions",
+                            Toast.LENGTH_LONG).show();
+                    // TODO PLM: disable 'start' button because form entry
+                    // doesn't work without storage perms
                 }
             }
         }

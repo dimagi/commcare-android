@@ -1,5 +1,6 @@
 package org.commcare.dalvik.application;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -24,6 +25,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
@@ -304,12 +306,14 @@ public class CommCareApplication extends Application {
     }
 
     private void attachCallListener() {
-        TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
 
-        listener = new CallInPhoneListener(this, this.getCommCarePlatform());
-        listener.startCache();
+            listener = new CallInPhoneListener(this, this.getCommCarePlatform());
+            listener.startCache();
 
-        tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+            tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
+        }
     }
 
     public CallInPhoneListener getCallListener() {
