@@ -42,6 +42,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
         SquareButtonWithText btnStartInstall = (SquareButtonWithText)view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
+        btnStartInstall.setEnabled(true);
         btnStartInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,6 +52,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
         SquareButtonWithText btnStopInstall = (SquareButtonWithText)view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(Localization.get("install.button.startover"));
+        btnStopInstall.setEnabled(true);
         btnStopInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
