@@ -1,13 +1,11 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;
 
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -20,7 +18,7 @@ import java.util.Date;
  * Created by jschweers on 11/16/2015.
  */
 public class Configuration {
-    private final Calendar mCalendar = Calendar.getInstance();
+    private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     protected GraphData mData;
     protected JSONObject mConfiguration;
@@ -46,13 +44,8 @@ public class Configuration {
      * @param days The time, measured in days since the epoch.
      */
     protected String convertTime(double days) {
-        mCalendar.setTimeInMillis((long)(days * 24 * 60 * 60 * 1000));
-        String time = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH)
-                + "-" + mCalendar.get(Calendar.DAY_OF_MONTH) + " "
-                + mCalendar.get(Calendar.HOUR_OF_DAY) + ":"
-                + mCalendar.get(Calendar.MINUTE) + ":"
-                + mCalendar.get(Calendar.SECOND);
-        return time;
+        Date d = new Date((long)(days * 24 * 60 * 60 * 1000));
+        return mDateFormat.format(d);
     }
 
     /**
