@@ -26,7 +26,7 @@ public class HomeScreenAdapter extends BaseAdapter {
             R.layout.home_savedforms_button,
             R.layout.home_incompleteforms_button,
             R.layout.home_sync_button,
-            R.layout.home_disconnect_button,
+            R.layout.home_logout_button,
     };
 
     private final SquareButtonWithNotification[] buttons =

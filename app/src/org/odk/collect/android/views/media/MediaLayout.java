@@ -21,6 +21,7 @@ import android.widget.VideoView;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -339,7 +340,7 @@ public class MediaLayout extends RelativeLayout {
 
     private boolean useResizingImageView() {
         // only allow ResizingImageView to be used if not also using smart inflation
-        return !DeveloperPreferences.isSmartInflationEnabled() &&
+        return !CommCarePreferences.isSmartInflationEnabled() &&
                 (ResizingImageView.resizeMethod.equals("full") ||
                         ResizingImageView.resizeMethod.equals("half") ||
                         ResizingImageView.resizeMethod.equals("width"));
