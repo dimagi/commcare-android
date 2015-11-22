@@ -343,7 +343,7 @@ public class DataConfiguration extends Configuration {
         if (name != null) {
             mNames.put(yID, name);
         }
-        mXNames.put(yID, s.getConfiguration("xName", mData.getConfiguration("x-title", "x")));
+        mXNames.put(yID, s.getConfiguration("x-name", mData.getConfiguration("x-title", "x")));
     }
 
     /**
