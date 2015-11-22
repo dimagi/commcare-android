@@ -48,7 +48,7 @@ dependencies {
 
 project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:22"
-    buildToolsVersion = "23.0.2"
+    buildToolsVersion = "22.0.1"
 }
 project(':libraries:AndroidStaggeredGrid:library') {
   android{
