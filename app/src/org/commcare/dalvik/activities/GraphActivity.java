@@ -42,6 +42,7 @@ public class GraphActivity extends CommCareActivity {
             setContentView(view);
         } catch (InvalidStateException e) {
             e.printStackTrace();
+            finish();
         }
     }
 }
