@@ -10,7 +10,7 @@ import android.view.WindowManager;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.references.JavaFileReference;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -75,12 +75,12 @@ public class MediaUtil {
                 boundingWidth = displayMetrics.widthPixels;
             }
 
-            if (DeveloperPreferences.isSmartInflationEnabled()) {
+            if (CommCarePreferences.isSmartInflationEnabled()) {
                 // scale based on native density AND bounding dimens
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
                         boundingHeight, boundingWidth,
-                        DeveloperPreferences.getTargetInflationDensity());
+                        CommCarePreferences.getTargetInflationDensity());
             } else {
                 // just scaling down if the original image is too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
