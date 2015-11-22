@@ -254,12 +254,19 @@ public class DataConfiguration extends Configuration {
     /**
      * For bar charts, set up bar labels and force the x axis min and max so bars are spaced nicely
      */
-    private void normalizeBoundaries() {
+    private void normalizeBoundaries() throws JSONException {
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             mData.setConfiguration("x-min", "0.5");
             mData.setConfiguration("x-max", String.valueOf(mBarCount + 0.5));
             mBarLabels.put("");
             mVariables.put("barLabels", mBarLabels.toString());
+
+            // Force all labels to show; C3 will hide some labels if it thinks there are too many.
+            JSONObject xLabels = new JSONObject();
+            for (int i = 0; i < mBarLabels.length(); i++) {
+                xLabels.put(String.valueOf(i), (String) mBarLabels.get(i));
+            }
+            mData.setConfiguration("x-labels", xLabels.toString());
         }
     }
 

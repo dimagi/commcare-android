@@ -66,11 +66,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
             return y2Labels[String(d)] || d;
         };
     }
-    if (type === "bar") {
-        config.axis.x.tick.format = function(d) {
-            return barLabels[d];
-        };
-    }
 
     // Hide any system-generated series from legend
     var hideSeries = [];
