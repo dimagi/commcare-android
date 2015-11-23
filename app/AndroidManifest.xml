@@ -70,6 +70,7 @@
         android:name=".application.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
+        android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme" >
         <activity
             android:name=".activities.CommCareHomeActivity"
@@ -263,6 +264,9 @@
             android:windowSoftInputMode="stateUnchanged|adjustResize" >
         </activity>
         <activity
+            android:name=".activities.GraphActivity">
+        </activity>
+        <activity
             android:name=".activities.EntityDetailActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
@@ -287,8 +291,6 @@
         <activity
             android:name=".activities.PhoneLogActivity"
             android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity android:name="org.achartengine.GraphicalActivity" >
         </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"

@@ -56,8 +56,15 @@ public class CaseDbQueryTest {
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
+
+        // TODO PLM: only tests how the case data instance is initialized using
+        // the test framework (TestUtils.getInstanceBackedEvaluationContext).
+        // We need to create robolectric tests that perform this evaluation
+        // during form entry
+        evaluate("instance('casedb')/casedb/case[@case_type = 'unit_test_child'][index/parent = 'test_case_id_2']/@case_id",
+                "test_case_id_child_2", ec);
     }
-    
+
     private void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
         try {
