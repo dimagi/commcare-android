@@ -114,18 +114,9 @@ public class GraphView {
                         "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-
-                        "<script type='text/javascript'>" +
-                        "function displayError(message) {\n" +
-                            "console.log(message);\n" +
-                            "var error = document.getElementById('error');\n" +
-                            "error.innerHTML = message;\n" +
-                            "error.style.display = 'block';\n" +
-                        "}\n" +
-                        "</script>" +
-
                         "<script type='text/javascript'>try {\n";
 
         Enumeration<String> e = variables.keys();

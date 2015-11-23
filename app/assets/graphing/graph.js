@@ -2,7 +2,6 @@
 // Use only in conjunction with GraphView.getView
 document.addEventListener("DOMContentLoaded", function(event) {
     try {
-        console.log(x.foo);
         // Match graph size to view size
         var titleHeight = (document.getElementById('chart-title') || { offsetHeight: 0 }).offsetHeight;
         config.size = {
