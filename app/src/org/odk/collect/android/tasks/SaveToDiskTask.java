@@ -12,6 +12,7 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -92,7 +93,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     @Override
     protected Integer doTaskBackground(Void... nothing) {
         // validation failed, pass specific failure
-        int validateStatus = validateAnswersWithoutTriggerEval(mMarkCompleted);
+        int validateStatus;
+        if (DeveloperPreferences.shouldFireTriggersOnSave()) {
+            validateStatus = validateAnswersAndRefireTriggers(mMarkCompleted);
+        } else{
+            validateStatus = validateAnswersWithoutFiringTriggers(mMarkCompleted);
+        }
         if (validateStatus != VALIDATED) {
             return validateStatus;
         }
@@ -365,11 +371,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     /**
-     * Goes through the entire form to make sure all entered answers comply with their constraints.
-     * Constraints are ignored on 'jump to', so answers can be outside of constraints. We don't
-     * allow saving to disk, though, until all answers conform to their constraints/requirements.
+     * Goes through the entire form to make sure all entered answers comply
+     * with their constraints.  Constraints are ignored on 'jump to', so
+     * answers can be outside of constraints. We don't allow saving to disk,
+     * though, until all answers conform to their constraints/requirements.
      */
-    private int validateAnswers(Boolean markCompleted) {
+    private int validateAnswersAndRefireTriggers(Boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
@@ -391,7 +398,13 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         return VALIDATED;
     }
 
-    private int validateAnswersWithoutTriggerEval(boolean markCompleted) {
+    /**
+     * Validate answers by simply checking the constraint and not re-firing
+     * triggerables.  Much faster than 'validateAnswersAndRefireTriggers' but
+     * not yet certain if they are operationally equivalent, so it is under a
+     * feature flag.
+     */
+    private int validateAnswersWithoutFiringTriggers(boolean markCompleted) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
