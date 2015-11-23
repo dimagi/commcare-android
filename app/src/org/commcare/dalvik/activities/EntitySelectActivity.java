@@ -780,10 +780,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        //only display the sort menu if we're going to be able to sort
-        //(IE: not until the items have loaded)
+        // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        // hide sorting menu when using async loading strategy
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
 
         return super.onPrepareOptionsMenu(menu);
     }
