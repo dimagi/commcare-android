@@ -9,7 +9,34 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     // Turn off default hover/click behaviors
-    config.interaction = { enabled: false };
+    config.interaction = { enabled: true };
+    config.tooltip = {
+        show: true,
+        grouped: type === "bar",
+        contents: function(data, defaultTitleFormat, defaultValueFormat, color) {
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                if (isData[data[i].id]) {
+                    var yName = config.data.names[data[i].id];
+            	    html += "<tr><td>" + yName + "</td><td>" + data[i].value + "</td></tr>";
+            	}
+            }
+            if (!html) {
+                return "";
+            }
+            if (type === "bar") {
+                html = "<tr><td colspan='2'>" + barLabels[data[0].x] + "</td></tr>" + html;
+            } else {
+                html = "<tr><td>" + xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;  // TODO: test with time charts
+            }
+        	if (type === "bubble") {
+        	    html += "<tr><td>Radius</td><td>" + radii[d.id][d.index] + "</td></tr>";
+        	}
+        	html = "<table>" + html + "</table>";
+        	html = "<div id='tooltip'>" + html + "</div>";
+        	return html;
+    	},
+    };
 
     // Set point size for bubble charts, and turn points off altogether
     // for other charts (we'll be using custom point shapes)
@@ -34,33 +61,29 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
 
             }
-            return xLabels[key] || d;
+            var label = xLabels[key] || d;
+            return type === "time" ? label : Math.round(label);
         };
     }
     if (config.axis.y.tick) {
         config.axis.y.tick.format = function(d) {
-            return yLabels[String(d)] || d;
+            return yLabels[String(d)] || Math.round(d);
         };
     }
     if (config.axis.y2.tick) {
         config.axis.y2.tick.format = function(d) {
-            return y2Labels[String(d)] || d;
-        };
-    }
-    if (type === "bar") {
-        config.axis.x.tick.format = function(d) {
-            return barLabels[d];
+            return y2Labels[String(d)] || Math.round(d);
         };
     }
 
     // Hide any system-generated series from legend
-    var systemSeries = ['boundsY', 'boundsY2'];
+    var hideSeries = [];
     for (var yID in config.data.xs) {
-        if (!pointStyles[yID]) {
-            systemSeries.push(yID);
+        if (!isData[yID]) {
+            hideSeries.push(yID);
         }
     }
-    config.legend.hide = systemSeries;
+    config.legend.hide = hideSeries;
 
     // Configure data labels, which we use only to display annotations
     config.data.labels = {
@@ -76,7 +99,55 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         // Support point-style
         for (var yID in pointStyles) {
-            applyPointStyle(yID, pointStyles[yID]);
+            var symbol = pointStyles[yID];
+            if (type === "bar") {
+                symbol = "none";
+            } else if (type=== "bubble") {
+                symbol = "circle";
+            } else {
+                applyPointShape(yID, symbol);
+            }
+            applyLegendShape(yID, symbol);
+        }
+
+        // Configure colors more specifically than C3 allows
+        for (var yID in config.data.colors) {
+            // Data itself
+            if (type === "bar") {
+                var bars = d3.selectAll(".c3-bars-" + yID + " path")[0];
+                for (var i = 0; i < bars.length; i++) {
+                    bars[i].style.opacity = lineOpacities[yID];
+                }
+            } else {
+                var line = d3.selectAll(".c3-lines-" + yID + " path")[0][0];
+                if (line) {
+                    line.style.opacity = lineOpacities[yID];
+                }
+            }
+
+            // Legend
+            var legend = d3.selectAll(".c3-legend-item-" + yID + " path")[0];
+            if (!legend.length) {
+                legend = d3.selectAll(".c3-legend-item-" + yID + " line")[0];
+            }
+            if (legend.length) {
+                legend = legend[0];
+                legend.style.opacity = lineOpacities[yID];
+            }
+
+            // Point shapes
+            var points = d3.selectAll(".c3-circles-" + yID + " path")[0];
+            if (!points.length) {
+                points = d3.selectAll(".c3-circles-" + yID + " circle")[0];
+            }
+            for (var i = 0; i < points.length; i++) {
+                points[i].style.opacity = lineOpacities[yID];
+            }
+        }
+        for (var yID in areaColors) {
+            var area = d3.selectAll(".c3-areas-" + yID + " path")[0][0];
+            area.style.fill = areaColors[yID];
+            area.style.opacity = areaOpacities[yID];
         }
     };
 
@@ -90,10 +161,17 @@ document.addEventListener("DOMContentLoaded", function(event) {
  * @param symbol string representing symbol: "none", "circle", "cross", etc.
  *  Unknown symbols will be drawn as circles.
  */
-function applyPointStyle(yID, symbol) {
-    // Draw symbol for each point
+function applyPointShape(yID, symbol) {
+    if (type === 'bar' || type === 'bubble') {
+        return;
+    }
+
     var circleSet = d3.selectAll(".c3-circles-" + yID);
     var circles = circleSet.selectAll("circle")[0];
+    if (!circles) {
+        return;
+    }
+
     for (var j = 0; j < circles.length; j++) {
         circles[j].style.opacity = 0;    // hide default circle
         appendSymbol(
@@ -104,11 +182,22 @@ function applyPointStyle(yID, symbol) {
             circles[j].style.fill
         );
     }
+}
 
-    // Make legend shape match symbol
+/**
+ * Make shape displayed in legend match shape used on line.
+ * @param yID String ID of y-values to manipulate
+ * @param symbol string representing symbol: "none", "circle", "cross", etc.
+ *  Unknown symbols will be drawn as circles.
+ */
+function applyLegendShape(yID, symbol) {
     if (symbol !== "none") {
         var legendItem = d3.selectAll(".c3-legend-item-" + yID);
-        var line = legendItem.selectAll("line")[0][0];    // there will only be one line
+        var line = legendItem.selectAll("line");    // there will only be one line
+        if (!line || !line.length) {
+            return;
+        }
+        line = line[0][0]
         line.style.opacity = 0;    // hide default square
         appendSymbol(
             legendItem,

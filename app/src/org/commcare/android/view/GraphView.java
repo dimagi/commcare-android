@@ -15,6 +15,7 @@ import org.commcare.android.view.c3.DataConfiguration;
 import org.commcare.android.view.c3.GridConfiguration;
 import org.commcare.android.view.c3.LegendConfiguration;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.activities.GraphActivity;
 import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.util.OrderedHashtable;
@@ -28,19 +29,25 @@ import java.util.Enumeration;
  * @author jschweers
  */
 public class GraphView {
+    public static final String HTML = "html";
+    public static final String TITLE = "title";
+
     private final Context mContext;
     private final String mTitle;
+    private final boolean mIsFullScreen;
     private GraphData mData;
 
-    public GraphView(Context context, String title) {
+    public GraphView(Context context, String title, boolean isFullScreen) {
         mContext = context;
         mTitle = title;
+        mIsFullScreen = isFullScreen;
     }
 
-    // TODO
-    // display mTitle as title, not on graph itself
-    public Intent getIntent(GraphData data) throws InvalidStateException {
-        return null;
+    public Intent getIntent(String html) throws InvalidStateException {
+        Intent intent = new Intent(mContext, GraphActivity.class);
+        intent.putExtra(HTML, html);
+        intent.putExtra(TITLE, mTitle);
+        return intent;
     }
 
     /*
@@ -48,15 +55,34 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(GraphData graphData) throws InvalidStateException {
-        mData = graphData;
-
+    public View getView(String html) throws InvalidStateException {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         WebView webView = new WebView(mContext);
-        configureSettings(webView);
 
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+
+        webView.setClickable(true);
+        settings.setBuiltInZoomControls(mIsFullScreen);
+        settings.setSupportZoom(mIsFullScreen);
+        settings.setDisplayZoomControls(mIsFullScreen);
+
+        // Improve performance
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+
+        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+        return webView;
+    }
+
+    /**
+     * Get the HTML that will comprise this graph.
+     * @param graphData The data to render.
+     * @return Full HTML page, including head, body, and all script and style tags
+     */
+    public String getHTML(GraphData graphData) throws InvalidStateException {
+        mData = graphData;
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
         JSONObject config = new JSONObject();
         try {
@@ -85,7 +111,7 @@ public class GraphView {
 
         String html =
                 "<html>" +
-                    "<head>" +
+                        "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
@@ -99,27 +125,15 @@ public class GraphView {
         }
 
         String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
+        String chartHTML = "<div id='chart'></div>";
         html +=
-                        "</script>" +
+                "</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
-                    "</head>" +
-                    "<body>" + titleHTML + "<div id='chart'></div></body>" +
-                "</html>";
-        webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
-        return webView;
-    }
+                        "</head>" +
+                        "<body>" + titleHTML + chartHTML + "</body>" +
+                        "</html>";
 
-    private void configureSettings(WebView view) {
-        WebSettings settings = view.getSettings();
-
-        settings.setJavaScriptEnabled(true);
-
-        // Improve performance
-        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-
-        // Panning and zooming are allowed only in full-screen graphs (created by getIntent)
-        // TODO: Support if this is full-screen view
-        settings.setSupportZoom(false);
+        return html;
     }
 
     /*
@@ -137,10 +151,10 @@ public class GraphView {
      */
     public double getRatio() {
         // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
-        // and happened to look nice for partographs. Vertically-oriented graphs,
-        // however, get squished unless they're drawn as a square. Expect to revisit 
+        // and happened to look nice for partographs. Bar charts, however, are drawn square.
+        // This decision was made for legacy reasons that are no longer relevant, but there's
+        // also no particular reason to cange it right now. Expect to revisit
         // this eventually (make all graphs square? user-configured aspect ratio?).
-        // TODO: did migrating to C3 fix the squishing issue?
         if (Graph.TYPE_BAR.equals(mData.getType())) {
             return 1;
         }
