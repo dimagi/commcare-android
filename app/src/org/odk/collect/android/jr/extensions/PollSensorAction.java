@@ -76,7 +76,7 @@ public class PollSensorAction extends Action implements LocationListener {
      * @param model The FormDef that triggered the action
      */
     @Override
-    public void processAction(FormDef model, TreeReference contextRef) {
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
         mModel = model;
         mContextRef = contextRef;
         
@@ -101,6 +101,8 @@ public class PollSensorAction extends Action implements LocationListener {
                 requestLocationUpdates(providers);
             }
         });
+
+        return null;
     }
     
     /**
