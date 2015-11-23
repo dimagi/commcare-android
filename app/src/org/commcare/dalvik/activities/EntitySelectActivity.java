@@ -174,6 +174,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
 
+        if (session.getCommand() == null) {
+            // session ended, avoid (session dependent) setup because session
+            // management will exit the activity in onResume
+            return;
+        }
+
         selectDatum = session.getNeededDatum();
 
         shortSelect = session.getDetail(selectDatum.getShortDetail());
@@ -704,10 +710,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
-        Action action = shortSelect.getCustomAction();
-        if (action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                    action.getDisplay().evaluate());
+        if (shortSelect != null) {
+            Action action = shortSelect.getCustomAction();
+            if (action != null) {
+                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                        action.getDisplay().evaluate());
+            }
         }
 
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
