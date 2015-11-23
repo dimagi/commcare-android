@@ -260,7 +260,10 @@ public class EntityDetailView extends FrameLayout {
                 try {
                     graphHTML = g.getHTML((GraphData) field);
                     graphView = g.getView(graphHTML);
-                    graphLayout.setRatio((float)g.getRatio(), (float)1);
+                    // Graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
+                    // and happened to look nice for partographs. Expect to revisit
+                    // this eventually (make all graphs square? user-configured aspect ratio?).
+                    graphLayout.setRatio(2, 1);
                 } catch (InvalidStateException ise) {
                     graphView = new TextView(context);
                     int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);

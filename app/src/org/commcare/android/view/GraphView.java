@@ -153,21 +153,4 @@ public class GraphView {
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     }
-
-    /**
-     * Get graph's desired aspect ratio.
-     *
-     * @return Ratio, expressed as a double: width / height.
-     */
-    public double getRatio() {
-        // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
-        // and happened to look nice for partographs. Bar charts, however, are drawn square.
-        // This decision was made for legacy reasons that are no longer relevant, but there's
-        // also no particular reason to cange it right now. Expect to revisit
-        // this eventually (make all graphs square? user-configured aspect ratio?).
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
-            return 1;
-        }
-        return 2;
-    }
 }
