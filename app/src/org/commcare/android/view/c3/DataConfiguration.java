@@ -207,20 +207,31 @@ public class DataConfiguration extends Configuration {
     }
 
     /**
-     * Set up stacked bar graph, if needed.
+     * Set up stacked bar graph, if needed. Expects series data to have
+     * already been processed (specifically, expects mTypes to be populated).
      * @return JSONArray of configuration for groups, C3's version of stacking
      */
     private JSONArray getGroups() throws JSONException {
         JSONArray outer = new JSONArray();
+        JSONArray inner = new JSONArray();
         if (mData.getType().equals(Graph.TYPE_BAR)
                 && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
-            JSONArray inner = new JSONArray();
             for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
                 String key = i.next();
                 if (mTypes.get(key).equals("bar")) {
                     inner.put(key);
                 }
             }
+        } else {
+            for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
+                String yID = i.next();
+                if (mTypes.getString(yID).equals("area")) {
+                    inner.put(yID);
+                }
+            }
+        }
+
+        if (inner.length() > 0) {
             outer.put(inner);
         }
         return outer;

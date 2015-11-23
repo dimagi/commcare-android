@@ -88,6 +88,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
         },
     };
 
+    // Don't use C3's default ordering for stacked series, use the order series are defined
+    config.data.order = false;
+
     // Post-processing
     config.onrendered = function() {
         // For annotations series, nudge text so it appears on top of data point
