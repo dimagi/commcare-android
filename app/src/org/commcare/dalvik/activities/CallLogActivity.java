@@ -53,7 +53,8 @@ public class CallLogActivity<T extends Persistable>
     private boolean acquirePhoneStatePermissions() {
         if (missingPhonePerms()) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS) ||
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CALL_LOG)) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 "Permissions for call & message logging",
@@ -69,13 +70,14 @@ public class CallLogActivity<T extends Persistable>
 
     private boolean missingPhonePerms() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED;
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
     public void requestNeededPermissions() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE},
+                new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CALL_LOG},
                 PHONE_STATE_PERMISSIONS_REQUEST);
     }
 
