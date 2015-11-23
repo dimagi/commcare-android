@@ -39,7 +39,18 @@ public class DialogCreationHelpers {
         return builder.create();
     }
 
-    public static AlertDialog buildPermissionRequestDialog(Activity activity, final RuntimePermissionRequester permRequester, String title, String body) {
+    /**
+     * Build dialog that tells user why they should authorize a given
+     * permission. Pressing positive button launches the system's permission
+     * request dialgo
+     *
+     * @param permRequester interface for launching system permission request
+     * dialog
+     */
+    public static AlertDialog buildPermissionRequestDialog(Activity activity,
+                                                           final RuntimePermissionRequester permRequester,
+                                                           String title,
+                                                           String body) {
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
         TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
@@ -56,6 +67,7 @@ public class DialogCreationHelpers {
                 dialog.dismiss();
             }
         });
+        builder.setCancelable(false);
 
         return builder.create();
     }
