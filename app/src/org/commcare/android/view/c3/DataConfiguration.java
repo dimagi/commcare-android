@@ -1,5 +1,7 @@
 package org.commcare.android.view.c3;
 
+import android.graphics.Color;
+
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.suite.model.graph.AnnotationData;
 import org.commcare.suite.model.graph.BubblePointData;
@@ -34,6 +36,7 @@ public class DataConfiguration extends Configuration {
 
     // Hash of y-values id => name for legend
     private final JSONObject mNames = new JSONObject();
+    private final JSONObject mXNames = new JSONObject();
 
     // Hash of y-values id => 'y' or 'y2' depending on whether this data
     // should be plotted against the primary or secondary y axis
@@ -44,6 +47,12 @@ public class DataConfiguration extends Configuration {
 
     // Hash of y-values id => series color
     private final JSONObject mColors = new JSONObject();
+    private final JSONObject mLineOpacities = new JSONObject();
+    private final JSONObject mAreaColors = new JSONObject();
+    private final JSONObject mAreaOpacities = new JSONObject();
+
+    // Array of series that should appear in legend & tooltip
+    private final JSONObject mIsData = new JSONObject();
 
     // Hash of y-values id => point-style string ("circle", "none", "cross", etc.)
     // Doubles as a record of all user-defined series
@@ -76,6 +85,7 @@ public class DataConfiguration extends Configuration {
             setColumns(xID, yID, s);
             setName(yID, s);
             setColor(yID, s);
+            setIsData(yID, s);
             setPointStyle(yID, s);
             setType(yID, s);
             setYAxis(yID, s);
@@ -84,9 +94,14 @@ public class DataConfiguration extends Configuration {
         }
 
         // Set up separate variables for features that C3 doesn't support well
-        mVariables.put("radii", mRadii.toString());
+        mVariables.put("areaColors", mAreaColors.toString());
+        mVariables.put("areaOpacities", mAreaOpacities.toString());
+        mVariables.put("isData", mIsData.toString());
+        mVariables.put("lineOpacities", mLineOpacities.toString());
         mVariables.put("maxRadii", mMaxRadii.toString());
         mVariables.put("pointStyles", mPointStyles.toString());
+        mVariables.put("radii", mRadii.toString());
+        mVariables.put("xNames", mXNames.toString());
 
         // Data-based tweaking of user's configuration and adding system series
         normalizeBoundaries();
@@ -239,12 +254,19 @@ public class DataConfiguration extends Configuration {
     /**
      * For bar charts, set up bar labels and force the x axis min and max so bars are spaced nicely
      */
-    private void normalizeBoundaries() {
+    private void normalizeBoundaries() throws JSONException {
         if (mData.getType().equals(Graph.TYPE_BAR)) {
             mData.setConfiguration("x-min", "0.5");
             mData.setConfiguration("x-max", String.valueOf(mBarCount + 0.5));
             mBarLabels.put("");
             mVariables.put("barLabels", mBarLabels.toString());
+
+            // Force all labels to show; C3 will hide some labels if it thinks there are too many.
+            JSONObject xLabels = new JSONObject();
+            for (int i = 0; i < mBarLabels.length(); i++) {
+                xLabels.put(String.valueOf(i), (String) mBarLabels.get(i));
+            }
+            mData.setConfiguration("x-labels", xLabels.toString());
         }
     }
 
@@ -254,12 +276,42 @@ public class DataConfiguration extends Configuration {
      * @param s SeriesData from which to pull color
      */
     private void setColor(String yID, SeriesData s) throws JSONException {
-        // TODO: Handle transparency (and test on bubble graphs)
         String color = s.getConfiguration("line-color", "#ff000000");
-        if (color.length() == "#aarrggbb".length()) {
-            color = "#" + color.substring(3);
+        color = normalizeColor(color);
+        mColors.put(yID, "#" + color.substring(3));
+        mLineOpacities.put(yID, getOpacity(color));
+
+        String fillBelow = s.getConfiguration("fill-below");
+        if (fillBelow != null) {
+            System.out.println("[jls] fill-below => " + fillBelow + " => " + normalizeColor(fillBelow));
+            fillBelow = normalizeColor(fillBelow);
+            mAreaColors.put(yID, "#" + fillBelow.substring(3));
+            mAreaOpacities.put(yID, getOpacity(fillBelow));
         }
-        mColors.put(yID, color);
+    }
+
+    /**
+     * Convert color string to expected format.
+     * @param color String of format #?(AA)?RRGGBB
+     * @return String of format "#AARRGGBB"
+     */
+    private String normalizeColor(String color) {
+        if (color.length() % 2 == 0) {
+            color = "#" + color;
+        }
+        if (color.length() == 7) {
+            color = "#ff" + color.substring(1);
+        }
+        return color;
+    }
+
+    /**
+     * Calculate opacity of given color.
+     * @param color Color in format "#AARRGGBB"
+     * @return Opacity, which will be between 0 and 1, inclusive
+     */
+    private double getOpacity(String color) {
+        return Color.alpha(Color.parseColor(color)) / (double) 255;
     }
 
     /**
@@ -315,6 +367,18 @@ public class DataConfiguration extends Configuration {
     }
 
     /**
+     * Set whether or not point should appear in legend and tooltip.
+     * @param yID ID of y-values array that is or isn't data
+     * @param s SeriesData from which to pull flag
+     */
+    private void setIsData(String yID, SeriesData s) throws JSONException {
+        boolean isData = Boolean.valueOf(s.getConfiguration("is-data", "true"));
+        if (isData) {
+            mIsData.put(yID, 1);
+        }
+    }
+
+    /**
      * Set series name to display in legend.
      * @param yID ID of y-values array that name applies to
      * @param s SeriesData from which to pull name
@@ -324,6 +388,7 @@ public class DataConfiguration extends Configuration {
         if (name != null) {
             mNames.put(yID, name);
         }
+        mXNames.put(yID, s.getConfiguration("x-name", mData.getConfiguration("x-title", "x")));
     }
 
     /**
@@ -333,7 +398,7 @@ public class DataConfiguration extends Configuration {
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
+        if (mData.getType().equals(Graph.TYPE_BAR) || mData.getType().equals(Graph.TYPE_BUBBLE)) {
             // point-style doesn't apply to bar charts
             symbol = "none";
         } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
@@ -358,7 +423,6 @@ public class DataConfiguration extends Configuration {
         } else if (mData.getType().equals(Graph.TYPE_BAR)) {
             type = "bar";
         } else if (s.getConfiguration("fill-below") != null) {
-            // TODO: allow customizing fill's color
             type = "area";
         }
         mTypes.put(yID, type);
