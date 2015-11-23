@@ -780,17 +780,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(MENU_SORT).setEnabled(isSortEnabled());
+        menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
 
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    /**
-     * @return items are loaded and the async load strategy isn't being used
-     */
-    private boolean isSortEnabled() {
-        return adapter != null &&
-                !(shortSelect == null || shortSelect.useAsyncStrategy());
     }
 
     @Override
