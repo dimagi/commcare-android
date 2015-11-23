@@ -1,11 +1,13 @@
 package org.commcare.dalvik.activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog.Calls;
 import android.support.annotation.NonNull;
@@ -54,6 +56,7 @@ public class CallLogActivity extends ListActivity implements RuntimePermissionRe
     }
 
     @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void requestNeededPermissions() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_CALL_LOG},

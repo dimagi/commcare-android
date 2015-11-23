@@ -212,8 +212,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "External memory permission",
-                                "CommCare would like to read & write to external memory.");
+                                "Access Phone state",
+                                "CommCare would like access phone state to log calls made from within CommCare.");
                 dialog.show();
             } else {
                 requestNeededPermissions();
