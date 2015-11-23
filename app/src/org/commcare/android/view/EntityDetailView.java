@@ -254,12 +254,16 @@ public class EntityDetailView extends FrameLayout {
             } else {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
+            String graphHTML = "";
             if (graphView == null) {
-                GraphView g = new GraphView(context, labelText);
-                g.setClickable(true);
+                GraphView g = new GraphView(context, labelText, false);
                 try {
-                    graphView = g.getView((GraphData)field);
-                    graphLayout.setRatio((float)g.getRatio(), (float)1);
+                    graphHTML = g.getHTML((GraphData) field);
+                    graphView = g.getView(graphHTML);
+                    // Graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
+                    // and happened to look nice for partographs. Expect to revisit
+                    // this eventually (make all graphs square? user-configured aspect ratio?).
+                    graphLayout.setRatio(2, 1);
                 } catch (InvalidStateException ise) {
                     graphView = new TextView(context);
                     int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
@@ -273,9 +277,12 @@ public class EntityDetailView extends FrameLayout {
             // Fetch full-screen graph intent from cache, or create it
             Intent graphIntent = graphIntentsCache.get(index);
             if (graphIntent == null && !graphsWithErrors.contains(index)) {
-                GraphView g = new GraphView(context, labelText);
+                GraphView g = new GraphView(context, labelText, true);
                 try {
-                    graphIntent = g.getIntent((GraphData)field);
+                    if (graphHTML.equals("")) {
+                        graphHTML = g.getHTML((GraphData) field);
+                    }
+                    graphIntent = g.getIntent(graphHTML);
                     graphIntentsCache.put(index, graphIntent);
                 } catch (InvalidStateException ise) {
                     // This shouldn't happen, since any error should have been caught during getView above
