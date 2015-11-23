@@ -30,18 +30,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- for call log -->
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- Needed to read the call log for API 15 and below -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" android:maxSdkVersion="15"/>
 
-    <!-- Start COllect Permissions -->
-
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.USE_CREDENTIALS" />
-
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
