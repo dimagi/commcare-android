@@ -2,6 +2,7 @@ package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.suite.model.graph.GraphData;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;
 
@@ -41,10 +42,10 @@ public class Configuration {
     /**
      * Parse given double time value into string acceptable to C3.
      *
-     * @param days The time, measured in days since the epoch.
+     * @param daysSinceEpoch The time, measured in days since the epoch.
      */
-    protected String convertTime(double days) {
-        Date d = new Date((long)(days * 24 * 60 * 60 * 1000));
+    protected String convertTime(double daysSinceEpoch) {
+        Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
         return mDateFormat.format(d);
     }
 
