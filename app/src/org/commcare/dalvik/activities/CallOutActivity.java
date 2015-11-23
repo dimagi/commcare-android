@@ -34,7 +34,6 @@ public class CallOutActivity extends Activity {
 
     private static String number;
 
-    
     TelephonyManager tManager;
     CallListener listener;
     
@@ -52,7 +51,8 @@ public class CallOutActivity extends Activity {
             this.showDialog(DIALOG_NUMBER_ACTION);
         }
     }
-    
+
+    @Override
     protected void onResume() {
         super.onResume();
         if(listener.isFinished()) {
@@ -63,7 +63,6 @@ public class CallOutActivity extends Activity {
                 
                 setResult(RESULT_OK, i);
                 finish();
-                return;
             } else {
                 //TODO: We could also pop up a thing here that said "Phone call in progress"
                 //or something
@@ -71,12 +70,11 @@ public class CallOutActivity extends Activity {
                 
                 setResult(RESULT_CANCELED, i);
                 finish();
-                return;
             }
         } 
     }
-    
-    
+
+    @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
         case DIALOG_NUMBER_ACTION:
@@ -90,18 +88,14 @@ public class CallOutActivity extends Activity {
                 }
             });
             builder.setOnCancelListener(new OnCancelListener() {
-
                 public void onCancel(DialogInterface dialog) {
                     Intent i = new Intent(getIntent());
                     
                     setResult(RESULT_CANCELED, i);
                     finish();
-                    return;
                 }
-                
             });
-            AlertDialog alert = builder.create();
-            return alert;
+            return builder.create();
         }
         return null;
     }
@@ -130,7 +124,8 @@ public class CallOutActivity extends Activity {
             }
         }
     }
-    
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if(requestCode == SMS_RESULT || requestCode == CALL_RESULT) {
