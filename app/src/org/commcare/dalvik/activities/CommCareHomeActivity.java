@@ -178,6 +178,7 @@ public class CommCareHomeActivity
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
 
+        // since form entry needs external storage r/w, ask for it now
         acquireStoragePermissions();
 
         ACRAUtil.registerAppData();
@@ -212,8 +213,8 @@ public class CommCareHomeActivity
             if (shouldShowExternalPermissionRational()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "External memory permission",
-                                "CommCare would like to read & write to external memory.");
+                                "CommCare needs external storage permission",
+                                "In order to load and save forms from disk CommCare needs permissions to read & write to external memory.");
                 dialog.show();
             } else {
                 requestNeededPermissions();

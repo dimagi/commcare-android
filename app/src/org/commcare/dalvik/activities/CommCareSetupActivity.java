@@ -78,6 +78,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
+    private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
 
     private static final int SMS_PERMISSIONS_REQUEST = 1;
 
@@ -138,6 +139,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean offlineInstall;
 
+    /**
+     * Remember how the sms install was triggered in case orientation changes while asking for permissions
+     */
+    private boolean manualSMSInstall;
+
     private final FragmentManager fm = getSupportFragmentManager();
     private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
@@ -177,17 +183,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
         } else {
-            String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
-            this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
-            Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
-                    ", so my uiState is: " + uiState);
-            incomingRef = savedInstanceState.getString("profileref");
-            fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
-            fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
-            offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
-            // Uggggh, this might not be 100% legit depending on timing, what
-            // if we've already reconnected and shut down the dialog?
-            startAllowed = savedInstanceState.getBoolean("startAllowed");
+            loadStateFromInstance(savedInstanceState);
         }
         // reclaim ccApp for resuming installation
         if (oldActivity != null) {
@@ -201,6 +197,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         performSMSInstall(false);
+    }
+
+    private void loadStateFromInstance(Bundle savedInstanceState) {
+        String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
+        this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
+        Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
+                ", so my uiState is: " + uiState);
+        incomingRef = savedInstanceState.getString("profileref");
+        fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
+        fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
+        manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
+        offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
+        // Uggggh, this might not be 100% legit depending on timing, what
+        // if we've already reconnected and shut down the dialog?
+        startAllowed = savedInstanceState.getBoolean("startAllowed");
     }
 
     @Override
@@ -321,6 +332,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_OFFLINE, offlineInstall);
         outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
+        outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -481,12 +493,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
+
+            manualSMSInstall = installTriggeredManually;
+
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "SMS reading permission",
-                                "CommCare would like to access your SMS messages to search for an app install code.");
+                                "CommCare needs SMS reading permission",
+                                "CommCare would like to scan recent SMS messages to for an app install code.");
                 dialog.show();
             } else {
                 requestNeededPermissions();
@@ -791,7 +806,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             for (int i = 0; i < permissions.length; i++) {
                 if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
                         grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    scanSMSLinks(false);
+                    scanSMSLinks(manualSMSInstall);
                 }
             }
         }
