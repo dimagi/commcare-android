@@ -1,12 +1,12 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -19,6 +19,8 @@ import java.util.Date;
  * Created by jschweers on 11/16/2015.
  */
 public class Configuration {
+    private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     protected GraphData mData;
     protected JSONObject mConfiguration;
     protected OrderedHashtable<String, String> mVariables;
@@ -37,40 +39,14 @@ public class Configuration {
         return mVariables;
     }
 
-
     /**
-     * Parse given string into double
+     * Parse given double time value into string acceptable to C3.
      *
-     * @param description Something to identify the kind of value, used to augment any error message.
+     * @param daysSinceEpoch The time, measured in days since the epoch.
      */
-    protected double parseXValue(String value, String description) throws InvalidStateException {
-        if (Graph.TYPE_TIME.equals(mData.getType())) {
-            Date parsed = DateUtils.parseDateTime(value);
-            if (parsed == null) {
-                throw new InvalidStateException("Could not parse date '" + value + "' in " + description);
-            }
-            return parseDouble(String.valueOf(parsed.getTime()), description);
-        }
-
-        return parseDouble(value, description);
-    }
-
-    /**
-     * Parse given string into double
-     *
-     * @param description Something to identify the kind of value, used to augment any error message.
-     */
-    protected double parseYValue(String value, String description) throws InvalidStateException {
-        return parseDouble(value, description);
-    }
-
-    /**
-     * Parse given string into double
-     *
-     * @param description Something to identify the kind of value, used to augment any error message.
-     */
-    protected double parseRadiusValue(String value, String description) throws InvalidStateException {
-        return parseDouble(value, description);
+    protected String convertTime(double daysSinceEpoch) {
+        Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
+        return mDateFormat.format(d);
     }
 
     /**

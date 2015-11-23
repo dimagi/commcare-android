@@ -50,10 +50,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
         },
     };
 
-    // Add functions for custom tick labels
-    if (config.axis.x.tick) {
+    // Add functions for custom tick label text (where foo-labels was an object).
+    // Don't do this if the tick format was already set by Java (which will
+    // only happen for time-based graphs that are NOT using custom tick text).
+    if (config.axis.x.tick && !config.axis.x.tick.format) {
         config.axis.x.tick.format = function(d) {
-            return xLabels[String(d)] || Math.round(d);
+            var key = String(d);
+            if (type === "time") {
+                var time = key.match(/\d+:\d+:\d+/)[0];
+                key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
+
+            }
+            var label = xLabels[key] || d;
+            return type === "time" ? label : Math.round(label);
         };
     }
     if (config.axis.y.tick) {

@@ -13,8 +13,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -108,6 +110,11 @@ public class DataConfiguration extends Configuration {
         addAnnotations();
         addBoundaries();
 
+        // Type-specific logic
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            mConfiguration.put("xFormat", "%Y-%m-%d %H:%M:%S");
+        }
+
         // Finally, apply all data to main configuration
         mConfiguration.put("axes", mAxes);
         mConfiguration.put("colors", mColors);
@@ -134,13 +141,18 @@ public class DataConfiguration extends Configuration {
             // Add x value
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            xValues.put(parseXValue(a.getX(), description));
+            double xValue = parseDouble(a.getX(), description);
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                xValues.put(convertTime(xValue));
+            } else {
+                xValues.put(xValue);
+            }
             mColumns.put(xValues);
 
             // Add y value
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseYValue(a.getY(), description));
+            yValues.put(parseDouble(a.getY(), description));
             mColumns.put(yValues);
 
             // Configure series
@@ -174,8 +186,13 @@ public class DataConfiguration extends Configuration {
             // now create the matchin x values
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            xValues.put(parseXValue(xMin, "x-min"));
-            xValues.put(parseXValue(xMax, "x-max"));
+            if (mData.getType().equals(Graph.TYPE_TIME)) {
+                xValues.put(xMin);
+                xValues.put(xMax);
+            } else {
+                xValues.put(parseDouble(xMin, "x-min"));
+                xValues.put(parseDouble(xMax, "x-max"));
+            }
             mColumns.put(xValues);
         }
     }
@@ -198,8 +215,8 @@ public class DataConfiguration extends Configuration {
 
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseYValue(min, "secondary-y-min"));
-            yValues.put(parseYValue(max, "secondary-y-max"));
+            yValues.put(parseDouble(min, "secondary-y-min"));
+            yValues.put(parseDouble(max, "secondary-y-max"));
             mColumns.put(yValues);
             return true;
         }
@@ -355,14 +372,19 @@ public class DataConfiguration extends Configuration {
                     mBarLabels.put(p.getX());
                 }
             } else {
-                xValues.put(parseXValue(p.getX(), description));
+                double xValue = parseDouble(p.getX(), description);
+                if (mData.getType().equals(Graph.TYPE_TIME)) {
+                    xValues.put(convertTime(xValue));
+                } else {
+                    xValues.put(xValue);
+                }
             }
-            yValues.put(parseYValue(p.getY(), description));
+            yValues.put(parseDouble(p.getY(), description));
 
             // Bubble charts also get a radius
             if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData)p;
-                double r = parseRadiusValue(b.getRadius(), description + " with radius " + b.getRadius());
+                double r = parseDouble(b.getRadius(), description + " with radius " + b.getRadius());
                 rValues.put(r);
                 maxRadius = Math.max(maxRadius, r);
             }
@@ -473,7 +495,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(lhs.getY(), "")).compareTo(parseXValue(rhs.getY(), ""));
+                return Double.valueOf(parseDouble(lhs.getY(), "")).compareTo(parseDouble(rhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }
@@ -490,7 +512,7 @@ public class DataConfiguration extends Configuration {
         @Override
         public int compare(XYPointData lhs, XYPointData rhs) {
             try {
-                return Double.valueOf(parseXValue(rhs.getY(), "")).compareTo(parseXValue(lhs.getY(), ""));
+                return Double.valueOf(parseDouble(rhs.getY(), "")).compareTo(parseDouble(lhs.getY(), ""));
             } catch (InvalidStateException e) {
                 return 0;
             }

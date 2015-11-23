@@ -23,6 +23,10 @@ public class AxisConfiguration extends Configuration {
         JSONObject y = getAxis("y");
         JSONObject y2 = getAxis("secondary-y");
 
+        if (mData.getType().equals(Graph.TYPE_TIME)) {
+            x.put("type", "timeseries");
+        }
+
         // Display secondary y axis only if it has at least one associated series
         for (SeriesData s : mData.getSeries()) {
             boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
@@ -63,8 +67,12 @@ public class AxisConfiguration extends Configuration {
         String key = prefix + "-" + suffix;
         String value = mData.getConfiguration(key);
         if (value != null) {
-            double parsed = prefix.equals("x") ? parseXValue(value, key) : parseYValue(value, key);
-            axis.put(suffix, parsed);
+            if (prefix.equals("x") && mData.getType().equals(Graph.TYPE_TIME)) {
+                axis.put(suffix, value);
+            } else {
+                axis.put(suffix, parseDouble(value, key));
+            }
+
         }
     }
 
@@ -80,6 +88,7 @@ public class AxisConfiguration extends Configuration {
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
         JSONObject tick = new JSONObject();
+        boolean usingCustomText = false;
 
         mVariables.put(varName, "{}");
         if (labelString != null) {
@@ -88,7 +97,12 @@ public class AxisConfiguration extends Configuration {
                 JSONArray labels = new JSONArray(labelString);
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
-                    values.put(parseXValue(labels.getString(i), key));   // TODO: verify this works for time graphs
+                    String xValue = labels.getString(i);
+                    if (mData.getType().equals(Graph.TYPE_TIME)) {
+                        values.put(xValue);
+                    } else {
+                        values.put(parseDouble(xValue, key));
+                    }
                 }
                 tick.put("values", values);
             } catch (JSONException je) {
@@ -102,16 +116,25 @@ public class AxisConfiguration extends Configuration {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
-                        values.put(parseXValue(location, key));
+                        if (mData.getType().equals(Graph.TYPE_TIME)) {
+                            values.put(location);
+                        } else {
+                            values.put(parseDouble(location, key));
+                        }
                     }
                     tick.put("values", values);
-                    mVariables.put(varName, labels.toString()); // TODO: verify this works for time graphs
+                    mVariables.put(varName, labels.toString());
+                    usingCustomText = true;
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
                     tick.put("count", Integer.valueOf(labelString));
                 }
             }
+        }
+
+        if (!usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
+            tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
         axis.put("tick", tick);
@@ -158,7 +181,6 @@ public class AxisConfiguration extends Configuration {
 
         addTitle(config, prefix + "-title", isX ? "outer-center" : "outer-middle");
 
-        // TODO: verify x-min and x-max work with time-based graphs
         addBounds(config, prefix);
 
         String jsPrefix = prefix.equals("secondary-y") ? "y2" : prefix;
