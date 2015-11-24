@@ -69,14 +69,6 @@ public class EntityMapActivity extends MapActivity {
         this.setContentView(map);
         
         mGeoCoder = new Geocoder(this);
-        
-        // Get the location manager
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // Define the criteria how to select the locatioin provider -> use
-        // default
-        Criteria criteria = new Criteria();
-        String provider = mLocationManager.getBestProvider(criteria, false);
-        Location location = mLocationManager.getLastKnownLocation(provider);
 
         session = CommCareApplication._().getCurrentSession();
         Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
@@ -101,31 +93,8 @@ public class EntityMapActivity extends MapActivity {
             map.getController().animateTo(mMyLocationOverlay.getMyLocation());
         }});
         
-        double[] boundHints = new double[4];
-        // Initialize the location fields
-        if (location != null) {
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
-            
-            //lLat
-            boundHints[0] = lat -1;
-            //lLng
-            boundHints[1] = lng -1;
-            
-            //uLat
-            boundHints[2] = lat + 1;
-            
-            //rLon
-            boundHints[3] = lng + 1;
-            
-            
-        } else {
-            //no location
-        }
-        
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
-
             @Override
             protected void selected(TreeReference ref) {
                 Intent i = new Intent(EntityMapActivity.this.getIntent());
@@ -144,12 +113,16 @@ public class EntityMapActivity extends MapActivity {
         EntityOverlayItemFactory overlayFactory = new EntityOverlayItemFactory(detail, defaultMarker);
         
         SqlStorage<GeocodeCacheModel> geoCache = CommCareApplication._().getUserStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class);
-        
+
+        double[] boundHints = new double[4];
+        Location location = getLocation();
+        setLocationBounds(location, boundHints);
+
         for(Entity<TreeReference> e : entities) {
             for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
                 if("address".equals(detail.getTemplateForms()[i])) {
                     String val = e.getFieldString(i).trim();
-                    if(val != null && val != "") {
+                    if(!val.equals("")) {
                         GeoPoint gp = null;
                         try {
                             GeoPointData data = new GeoPointData().cast(new UncastData(val));
@@ -174,7 +147,7 @@ public class EntityMapActivity extends MapActivity {
                         }
                         
                         //If we don't have a geopoint, let's try to find our address
-                        if(!cached && boundHints != null) {
+                        if (!cached) {
                             try {
                                 List<Address> addresses = mGeoCoder.getFromLocationName(val, 3, boundHints[0], boundHints[1], boundHints[2], boundHints[3]);
                                 for(Address a : addresses) {
@@ -214,7 +187,7 @@ public class EntityMapActivity extends MapActivity {
         
         Log.d(TAG, "Loaded. " + legit +" addresses discovered, " + bogus + " could not be located");
 
-        if(legit != 0 && mEntityOverlay.getCenter() != null) {
+        if (legit != 0 && mEntityOverlay.getCenter() != null) {
             map.getController().animateTo(mEntityOverlay.getCenter());
         } else if(location != null) {
             int lat = (int) (location.getLatitude() * 1E6);
@@ -273,5 +246,34 @@ public class EntityMapActivity extends MapActivity {
 
     protected boolean isRouteDisplayed() {
         return false;
+    }
+
+    private Location getLocation() {
+        // Get the location manager
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Define the criteria how to select the locatioin provider -> use
+        // default
+        Criteria criteria = new Criteria();
+        String provider = mLocationManager.getBestProvider(criteria, false);
+        return mLocationManager.getLastKnownLocation(provider);
+    }
+
+    private void setLocationBounds(Location location, double[] boundHints) {
+        // Initialize the location fields
+        if (location != null) {
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+
+            //lLat
+            boundHints[0] = lat -1;
+            //lLng
+            boundHints[1] = lng -1;
+
+            //uLat
+            boundHints[2] = lat + 1;
+
+            //rLon
+            boundHints[3] = lng + 1;
+        }
     }
 }
