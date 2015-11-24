@@ -2065,10 +2065,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     break;
                 case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                    // an answer constraint was violated, so do a 'swipe' to the next
-                    // question to display the proper toast(s)
-                    next();
-                    break;
+                    // an answer constraint was violated, so try to save the
+                    // current question to trigger the constraint violation message
+                    refreshCurrentView();
+                    saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
+                    return;
             }
             refreshCurrentView();
         }

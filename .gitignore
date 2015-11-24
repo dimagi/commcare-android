@@ -26,12 +26,9 @@ commcare-odk-test/gen/*
 /app/proguard_cache/
 .DS_Store
 .gitignore~
-*achartengine*.jar
 .idea/*
 app/.settings/*
 app/app.iml
-libraries/achartengine/achartengine/achartengine.iml
-libraries/achartengine/achartengine/gen/
 libraries/mapballoons/android-mapviewballoons/android-mapviewballoons.iml
 out/
 test-app/test-app.iml
@@ -41,7 +38,6 @@ app/libs/javarosa-libraries.jar
 **/local.properties
 .gradle/
 build/
-libraries/achartengine/build/
 libraries/mapballoons/build/
 **/*~
 gradle/

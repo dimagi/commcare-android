@@ -146,6 +146,9 @@ public class CommCareHomeActivity
 
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
+    private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
+    private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
+
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     public static final String MENU_STYLE_GRID = "grid";
 
@@ -215,6 +218,7 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
+        addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -245,113 +249,6 @@ public class CommCareHomeActivity
         }
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         this.startActivityForResult(i, LOGIN_USER);
-    }
-
-    protected void attemptSync() {
-        if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
-            if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
-            } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
-                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
-            }
-            return;
-        }
-        CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        boolean formsSentToServer = checkAndStartUnsentTask(true);
-        if(!formsSentToServer) {
-            // No forms needed to be sent to the server, so let's just
-            // trigger a data sync.
-            syncData(false);
-        }
-    }
-
-    private void syncData(boolean formsToSend) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
-        
-        if(User.TYPE_DEMO.equals(u.getUserType())) {
-            //Remind the user that there's no syncing in demo mode.
-            if (formsToSend) {
-                displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
-            } else {
-                displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
-            }
-            return;
-        }
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", this.getString(R.string.ota_restore_url)), this) {
-
-            @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                receiver.getUiController().refreshView();
-
-                //TODO: SHARES _A LOT_ with login activity. Unify into service
-                switch (result) {
-                    case DataPullTask.AUTH_FAILED:
-                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
-                        break;
-                    case DataPullTask.BAD_DATA:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
-                        break;
-                    case DataPullTask.DOWNLOAD_SUCCESS:
-                        receiver.displayMessage(Localization.get("sync.success.synced"));
-                        break;
-                    case DataPullTask.SERVER_ERROR:
-                        receiver.displayMessage(Localization.get("sync.fail.server.error"));
-                        break;
-                    case DataPullTask.UNREACHABLE_HOST:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
-                        break;
-                    case DataPullTask.CONNECTION_TIMEOUT:
-                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
-                        break;
-                    case DataPullTask.UNKNOWN_FAILURE:
-                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-                        break;
-                }
-                //TODO: What if the user info was updated?
-
-            }
-
-            @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
-                if (update[0] == DataPullTask.PROGRESS_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-                    receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-                    receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                    receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                    receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                    receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                    receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                }
-            }
-
-            @Override
-            protected void deliverError(CommCareHomeActivity receiver,
-                                        Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-            }
-
-        };
-
-        mDataPullTask.connect(this);
-
-        mDataPullTask.execute();
     }
 
     public HomeActivityUIController getUiController() {
@@ -480,7 +377,7 @@ public class CommCareHomeActivity
                         //in a blocking fashion), trigger off a regular unsent
                         //task processor
                         if(!CommCareApplication._().isSyncPending(false)) {
-                            checkAndStartUnsentTask(false);
+                            checkAndStartUnsentFormsTask(false, false);
                         }
                         
                         if(isDemoUser()) {
@@ -490,7 +387,6 @@ public class CommCareHomeActivity
                     return;
                 }
                 break;
-                
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
                 if(resultCode == RESULT_CANCELED) {
@@ -535,21 +431,32 @@ public class CommCareHomeActivity
                         currentState.getSession().stepBack();
                     }
                 } else if (resultCode == RESULT_OK) {
-                    //Get our command, set it, and continue forward
-                    String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                    currentState.getSession().setCommand(command);
+                    CommCareSession session = currentState.getSession();
+                    if (sessionStateUnchangedSinceCallout(session, intent)) {
+                        //Get our command, set it, and continue forward
+                        String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+                        session.setCommand(command);
+                    } else {
+                        clearSessionAndExit(currentState);
+                        return;
+                    }
                 }
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                CommCareSession currentSession =
-                        CommCareApplication._().getCurrentSessionWrapper().getSession();
+                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                CommCareSession currentSession = asw.getSession();
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
-                    String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                    String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                    currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+                        String sessionDatumId = currentSession.getNeededDatum().getDataId();
+                        String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                        currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    } else {
+                        clearSessionAndExit(asw);
+                        return;
+                    }
                 }
                 break;
             case MODEL_RESULT:
@@ -562,6 +469,19 @@ public class CommCareHomeActivity
             sessionNavigator.startNextSessionStep();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    /**
+     * @return If the nature of the data that the session is waiting for has not changed since the
+     * callout that we are returning from was made
+     */
+    private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
+        boolean neededDataUnchanged = session.getNeededData().equals(
+                intent.getStringExtra(KEY_PENDING_SESSION_DATA));
+        String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
+        boolean datumIdsUnchanged = intentDatum  == null ? true :
+                intentDatum.equals(session.getNeededDatum().getDataId());
+        return neededDataUnchanged && datumIdsUnchanged;
     }
 
     /**
@@ -648,7 +568,7 @@ public class CommCareHomeActivity
             if (complete) {
                 // We're honoring in order submissions, now, so trigger a full
                 // submission cycle
-                checkAndStartUnsentTask(false);
+                checkAndStartUnsentFormsTask(false, false);
 
                 uiController.refreshView();
 
@@ -711,18 +631,20 @@ public class CommCareHomeActivity
         return true;
     }
 
-    /**
-     * clear local state in session session, and finish if was external is set,
-     * otherwise refesh the view.
-     */
     private void clearSessionAndExit(AndroidSessionWrapper currentState) {
         currentState.reset();
         if (wasExternal) {
             this.finish();
         }
         uiController.refreshView();
+        showSessionRefreshWarning();
     }
 
+    private void showSessionRefreshWarning() {
+        AlertDialogFactory.getBasicAlertFactory(this,
+                Localization.get("session.refresh.error.title"),
+                Localization.get("session.refresh.error.message"), null).showDialog();
+    }
 
     private void showDemoModeWarning() {
         AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
@@ -851,7 +773,8 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
-        i.putExtra(SessionFrame.STATE_COMMAND_ID, asw.getSession().getCommand());
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
+        addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -862,6 +785,8 @@ public class CommCareHomeActivity
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
+        addPendingDataExtra(i, session);
+        addPendingDatumIdExtra(i, session);
         startActivityForResult(i, GET_CASE);
     }
 
@@ -872,7 +797,17 @@ public class CommCareHomeActivity
         Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         EntitySelectActivity.populateDetailIntent(
                 detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
+        addPendingDataExtra(detailIntent, session);
+        addPendingDatumIdExtra(detailIntent, session);
         startActivityForResult(detailIntent, GET_CASE);
+    }
+
+    private static void addPendingDataExtra(Intent i, CommCareSession session) {
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+    }
+
+    private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
+        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, session.getNeededDatum().getDataId());
     }
 
     /**
@@ -918,11 +853,10 @@ public class CommCareHomeActivity
         //TODO: This is... just terrible. Specify where external instance data should come from
         FormLoaderTask.iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
 
-        //Create our form entry activity callout
+        // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
         i.putExtra(FormEntryActivity.TITLE_FRAGMENT_TAG, BreadcrumbBarFragment.class.getName());
-
         i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
         // See if there's existing form data that we want to continue entering
@@ -935,11 +869,8 @@ public class CommCareHomeActivity
         }
 
         i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, CommCarePreferences.getResizeMethod());
-
         i.putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, CommCarePreferences.isIncompleteFormsEnabled());
-
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
-
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
         if (headerTitle != null) {
@@ -950,27 +881,154 @@ public class CommCareHomeActivity
     }
 
     /**
+     * Triggered by a user manually clicking the sync button
+     */
+    protected void syncButtonPressed() {
+        if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
+            if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
+                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
+            } else {
+                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
+            }
+            return;
+        }
+        CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
+        sendFormsOrSync(true);
+    }
+
+    /**
+     * Triggered when an automatic sync is pending
+     */
+    private void handlePendingSync() {
+        long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
+        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
+        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
+
+        uiController.refreshView();
+        sendFormsOrSync(false);
+    }
+
+    /**
+     * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
+     * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
+     */
+    private void sendFormsOrSync(boolean userTriggeredSync) {
+        boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
+        if(!formsSentToServer) {
+            syncData(false, userTriggeredSync);
+        }
+    }
+
+    private void syncData(boolean formsToSend, boolean userTriggeredSync) {
+        User u;
+        try {
+            u = CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException sue) {
+            // abort since it looks like the session expired
+            return;
+        }
+
+        if (User.TYPE_DEMO.equals(u.getUserType())) {
+            if (userTriggeredSync) {
+                // Remind the user that there's no syncing in demo mode.
+                if (formsToSend) {
+                    displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                } else {
+                    displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                }
+            }
+            return;
+        }
+
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", this.getString(R.string.ota_restore_url)), this) {
+
+            @Override
+            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+                receiver.getUiController().refreshView();
+
+                //TODO: SHARES _A LOT_ with login activity. Unify into service
+                switch (result) {
+                    case DataPullTask.AUTH_FAILED:
+                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+                        break;
+                    case DataPullTask.BAD_DATA:
+                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
+                        break;
+                    case DataPullTask.DOWNLOAD_SUCCESS:
+                        receiver.displayMessage(Localization.get("sync.success.synced"));
+                        break;
+                    case DataPullTask.SERVER_ERROR:
+                        receiver.displayMessage(Localization.get("sync.fail.server.error"));
+                        break;
+                    case DataPullTask.UNREACHABLE_HOST:
+                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
+                        break;
+                    case DataPullTask.CONNECTION_TIMEOUT:
+                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
+                        break;
+                    case DataPullTask.UNKNOWN_FAILURE:
+                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+                        break;
+                }
+                //TODO: What if the user info was updated?
+
+            }
+
+            @Override
+            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
+                if (update[0] == DataPullTask.PROGRESS_STARTED) {
+                    receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
+                    receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
+                    receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+                    receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
+                    receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+                    receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+                    receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+                    receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+                }
+            }
+
+            @Override
+            protected void deliverError(CommCareHomeActivity receiver,
+                                        Exception e) {
+                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+            }
+
+        };
+
+        mDataPullTask.connect(this);
+
+        mDataPullTask.execute();
+    }
+
+    /**
      * @return Were forms sent to the server by this method invocation?
      */
-    private boolean checkAndStartUnsentTask(final boolean syncAfterwards) {
+    private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
+                                                 boolean userTriggered) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            processAndSend(records, syncAfterwards);
+            processAndSend(records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
         }
     }
 
-    private String getFormPostURL() {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString("PostURL", this.getString(R.string.PostURL));
-    }
-
     @SuppressLint("NewApi")
-    private void processAndSend(FormRecord[] records, final boolean syncAfterwards) {
+    private void processAndSend(FormRecord[] records, final boolean syncAfterwards,
+                                final boolean userTriggered) {
 
         int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
 
@@ -995,7 +1053,7 @@ public class CommCareHomeActivity
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(true);
+                        syncData(true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
@@ -1031,6 +1089,11 @@ public class CommCareHomeActivity
         } else {
             mProcess.execute(records);
         }
+    }
+
+    private String getFormPostURL() {
+        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return settings.getString("PostURL", this.getString(R.string.PostURL));
     }
 
     @Override
@@ -1195,21 +1258,6 @@ public class CommCareHomeActivity
         sessionNavigator.startNextSessionStep();
         //Only launch shortcuts once per intent
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-    }
-
-    private void handlePendingSync() {
-        long lastSync = CommCareApplication._().getCurrentApp().getAppPreferences().getLong("last-ota-restore", 0);
-        String footer = lastSync == 0 ? "never" : SimpleDateFormat.getDateTimeInstance().format(lastSync);
-        Logger.log(AndroidLogger.TYPE_USER, "autosync triggered. Last Sync|" + footer);
-        uiController.refreshView();
-
-        //Send unsent forms first. If the process detects unsent forms
-        //it will sync after the are submitted
-        if(!this.checkAndStartUnsentTask(true)) {
-            //If there were no unsent forms to be sent, we should immediately
-            //trigger a sync
-            this.syncData(false);
-        }
     }
 
     private void createNoStorageDialog() {

@@ -32,6 +32,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -657,7 +658,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         // Refresh UI for potential new language
-        loadFields(false);
+        ManagedUiFramework.loadUiElements(this);
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));

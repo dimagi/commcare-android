@@ -117,7 +117,7 @@ public class MenuList extends SessionAwareCommCareActivity implements OnItemClic
         }
 
         // create intent for return and store path
-        Intent i = new Intent();
+        Intent i = new Intent(getIntent());
         i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
         setResult(RESULT_OK, i);
 

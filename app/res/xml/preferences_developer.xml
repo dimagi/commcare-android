@@ -77,4 +77,11 @@ the License.
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-alternate-question-text-format"
         android:title="Image Above Question Text Enabled" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:defaultValue="yes"
+        android:key="cc-fire-triggers-on-save"
+        android:title="Fire triggers on form save" />
 </PreferenceScreen>

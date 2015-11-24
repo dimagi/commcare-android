@@ -25,9 +25,9 @@ updates.pinned.progress=${0}/${1}
 
 install.current.version=Version currently installed: ${0}
 
-verify.title=CommCare Resource Verification
-verify.checking=Verifying Resources
-verify.progress=Verifying resources. ${0} resources verified of ${1} total
+verify.retry=Retry
+verify.checking=Verifying media...
+verify.check.failed=Validation failed for an unknown reason
 
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below
@@ -184,6 +184,9 @@ cchq.case=Case
 select.placeholder.message=Please select a ${0}
 notification.for.details.wrapper=${0} (See notification for details)
 notification.for.details.setup.wrapper=${0} (Press "See More" or see notification for details)
+
+session.refresh.error.title=Session Refresh Required
+session.refresh.error.message=Something happened that required us to refresh your session of CommCare. You should now be able to return to your prior place in the app as normal. If this happens again, contact a supervisor for assistance.
 
 app.handled.error.title=Unrecoverable Error
 app.menu.display.cond.bad.xpath=Invalid form display condition (${0}): ${1}
