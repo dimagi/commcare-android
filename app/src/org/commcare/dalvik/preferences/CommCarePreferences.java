@@ -10,6 +10,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.RecoveryActivity;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
@@ -41,6 +43,11 @@ public class CommCarePreferences
 
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
+    /**
+     * Stores boolean flag that tells of if an auto-update is in progress, that
+     * is, actively checking or with a retry check queued up.
+     */
+    public final static String AUTO_UPDATE_IN_PROGRESS = "cc-trying-to-auto-update";
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 
@@ -48,6 +55,9 @@ public class CommCarePreferences
     public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
 
     public final static String RESIZING_METHOD = "cc-resize-images";
+
+    private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
+    private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
     public final static String NEVER = "log_never";
     public final static String SHORT = "log_short";
@@ -59,16 +69,17 @@ public class CommCarePreferences
     public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
+    public final static String LAST_PASSWORD = "last_password";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";
     public final static String NO = "no";
+    public final static String NONE = "none";
 
     public final static String TRUE = "True";
     public final static String FALSE = "False";
 
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
-
 
     public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
@@ -265,6 +276,7 @@ public class CommCarePreferences
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("cur_locale")) {
             Localization.setLocale(sharedPreferences.getString(key, "default"));
@@ -275,11 +287,26 @@ public class CommCarePreferences
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(RESIZING_METHOD)) {
-            return properties.getString(RESIZING_METHOD, "none");
+            return properties.getString(RESIZING_METHOD, CommCarePreferences.NONE);
         }
 
         //otherwise, see if we're in sense mode
-        return "none";
+        return CommCarePreferences.NONE;
+    }
+
+    public static boolean isSmartInflationEnabled() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return false;
+        }
+        String targetDensitySetting = app.getAppPreferences().getString(KEY_TARGET_DENSITY,
+                CommCarePreferences.NONE);
+        return !targetDensitySetting.equals(CommCarePreferences.NONE);
+    }
+
+    public static int getTargetInflationDensity() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
     public void updatePreferencesText() {

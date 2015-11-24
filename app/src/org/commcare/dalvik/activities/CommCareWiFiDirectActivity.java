@@ -34,6 +34,7 @@ import org.commcare.android.framework.FileServerFragment.FileServerListener;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.tasks.UnzipTask;
@@ -256,12 +257,13 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                         beSender();
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
         factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     public void beSender(){
@@ -303,6 +305,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void beReceiver(){
 
+        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became receiver");
         myStatusText.setText("Entered Receive Mode");
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -342,10 +345,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void beSubmitter(){
 
+        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
-
-        Logger.log(TAG,"Device designated as submitter");
-
         myStatusText.setText("Entered Submit Mode");
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -412,6 +413,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         FileUtil.deleteFileOrDir(new File(sourceDirectory));
         FileUtil.deleteFileOrDir(new File(sourceZipDirectory));
 
+        Logger.log(TAG, "Deleting dirs " + sourceDirectory + " and " + sourceZipDirectory);
+
         this.cachedRecords = null;
 
     }
@@ -462,6 +465,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                     Intent i = new Intent(getIntent());
                     i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
+                    Logger.log(TAG, "Sucessfully dumped " + formsOnSD);
                     receiver.finish();
                 } else {
                     //assume that we've already set the error message, but make it look scary
@@ -477,7 +481,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
-                Logger.log(TAG, "Error submitting forms in wi-fi direct");
+                Logger.log(TAG, "Error submitting forms in wi-fi direct with exception" + e.getMessage());
                 receiver.myStatusText.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
                 receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
@@ -489,13 +493,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public boolean unzipFilesHelper(){
 
         File receiveZipDir = new File(receiveDirectory);
-
         if(!receiveZipDir.exists() || !(receiveZipDir.isDirectory())){
             return false;
         }
 
         File[] zipDirContents = receiveZipDir.listFiles();
-
         if(zipDirContents.length < 1){
             return false;
         }
@@ -737,7 +739,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void onUnzipSuccessful(Integer result){
-        Logger.log(TAG, "Successfully unzipped files");
+        Logger.log(TAG, "Successfully unzipped " + result.toString() +  " files.");
 
         Toast.makeText(CommCareWiFiDirectActivity.this, "Received " + result.toString() + " Files Successfully!",
                 Toast.LENGTH_SHORT).show();
@@ -753,7 +755,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void zipFiles(){
         Logger.log(TAG, "Zipping Files");
-        Log.d(CommCareWiFiDirectActivity.TAG, "Zipping Files2");
         ZipTask mZipTask = new ZipTask(this) {
             @Override
             protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {

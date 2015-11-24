@@ -25,6 +25,7 @@ import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.MarkupUtil;
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
@@ -87,7 +88,7 @@ public class GridEntityView extends GridLayout {
      * @param entity
      */
     public GridEntityView(Context context, Detail detail, Entity entity) {
-        this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context, 1), false);
+        this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
     }
 
     /**
@@ -254,26 +255,6 @@ public class GridEntityView extends GridLayout {
 
         this.setBackgroundDrawable(null);
 
-        // see if any entities have background data set
-        for (int i = 0; i < bgData.length; i++) {
-            if (!"".equals(bgData[i])) {
-                switch (bgData[i]) {
-                    case ("red-border"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_red));
-                        break;
-                    case ("yellow-border"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.border_yellow));
-                        break;
-                    case ("red-background"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_red));
-                        break;
-                    case ("yellow-background"):
-                        this.setBackgroundDrawable(getResources().getDrawable(R.drawable.background_yellow));
-                        break;
-                }
-            }
-        }
-
         this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
 
         // iterate through every entity to be inserted in this view
@@ -308,7 +289,7 @@ public class GridEntityView extends GridLayout {
             GridLayout.LayoutParams mGridParams = new GridLayout.LayoutParams(rowSpec, columnSpec);
             mGridParams.width = (int) cellWidth * currentCoordinate.getWidth();
             mGridParams.height = (int) cellHeight * currentCoordinate.getHeight()
-                    // we need to account for any padding that wouldn be in these rows if the entity didn't overwrite
+                    // we need to account for any padding that wouldn't be in these rows if the entity didn't overwrite
                     + (2 * CELL_PADDING_VERTICAL * (currentCoordinate.getHeight() - 1));
 
             // get style attributes
@@ -317,7 +298,9 @@ public class GridEntityView extends GridLayout {
             String textsize = mStyle.getFontSize();
             String CssID = mStyle.getCssID();
 
-            mView = getView(context, multimediaType, horzAlign, vertAlign, textsize, entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i));
+            mView = getView(context, multimediaType, horzAlign, vertAlign, textsize,
+                    entity.getFieldString(i), uniqueId, CssID, entity.getSortField(i),
+                    mGridParams.width, mGridParams.height);
             if (!(mView instanceof ImageView)) {
                 mGridParams.height = LayoutParams.WRAP_CONTENT;
             }
@@ -344,7 +327,9 @@ public class GridEntityView extends GridLayout {
      * @param searchField
      * @return
      */
-    private View getView(Context context, String multimediaType, String horzAlign, String vertAlign, String textsize, String rowData, ViewId uniqueId, String cssid, String searchField) {
+    private View getView(Context context, String multimediaType, String horzAlign,
+                         String vertAlign, String textsize, String rowData, ViewId uniqueId,
+                         String cssid, String searchField, int maxWidth, int maxHeight) {
         View retVal;
         switch (multimediaType) {
             case EntityView.FORM_IMAGE:
@@ -361,12 +346,13 @@ public class GridEntityView extends GridLayout {
                         break;
                 }
                 retVal.setPadding(CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL, CELL_PADDING_HORIZONTAL, CELL_PADDING_VERTICAL);
-                // image loading is handled asyncronously by the TCImageLoader class to allow smooth scrolling
                 if (rowData != null && !rowData.equals("")) {
                     if (mImageLoader != null) {
-                        mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble);
+                        mImageLoader.display(rowData, ((ImageView) retVal), R.drawable.info_bubble,
+                                maxWidth, maxHeight);
                     } else {
-                        Bitmap b = ViewUtil.inflateDisplayImage(getContext(), rowData);
+                        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), rowData,
+                                maxWidth, maxHeight);
                         ((ImageView) retVal).setImageBitmap(b);
                     }
                 }
@@ -399,29 +385,35 @@ public class GridEntityView extends GridLayout {
                     ((TextView) retVal).setText(mSpannable);
                 }
 
+                int gravity = 0;
+
                 // handle horizontal alignments
                 switch (horzAlign) {
                     case "center":
-                        ((TextView) retVal).setGravity(Gravity.CENTER_HORIZONTAL);
+                        gravity |= Gravity.CENTER_HORIZONTAL;
                         break;
                     case "left":
-                        ((TextView) retVal).setGravity(Gravity.TOP);
+                        gravity |= Gravity.LEFT;
                         break;
                     case "right":
-                        ((TextView) retVal).setGravity(Gravity.RIGHT);
+                        gravity |= Gravity.RIGHT;
                         break;
                 }
                 // handle vertical alignment
                 switch (vertAlign) {
                     case "center":
-                        ((TextView) retVal).setGravity(Gravity.CENTER_VERTICAL);
+                        gravity |= Gravity.CENTER_VERTICAL;
                         break;
                     case "top":
-                        ((TextView) retVal).setGravity(Gravity.TOP);
+                        gravity |= Gravity.TOP;
                         break;
                     case "bottom":
-                        ((TextView) retVal).setGravity(Gravity.BOTTOM);
+                        gravity |= Gravity.BOTTOM;
                         break;
+                }
+
+                if(gravity != 0) {
+                    ((TextView) retVal).setGravity(gravity);
                 }
 
                 // handle text resizing

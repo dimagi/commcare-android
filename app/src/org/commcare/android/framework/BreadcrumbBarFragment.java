@@ -31,7 +31,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -48,6 +48,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.Vector;
 
@@ -260,7 +261,7 @@ public class BreadcrumbBarFragment extends Fragment {
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
-                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
                         Detail detail = factory.getDetail();
                         mInternalDetailView.setDetail(detail);
 
@@ -361,30 +362,37 @@ public class BreadcrumbBarFragment extends Fragment {
     }
     
     public static String getBestTitle(Activity activity) {
-        String bestTitle = null;
         AndroidSessionWrapper asw;
 
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
-            return defaultTitle(bestTitle, activity);
+            return defaultTitle(null, activity);
         }
 
         CommCareSession session = asw.getSession();
 
-        String[] stepTitles = session.getHeaderTitles();
+        String[] stepTitles;
+        try {
+            stepTitles = session.getHeaderTitles();
+        } catch (NoLocalizedTextException e) {
+            // localization resources may not be installed while in the middle
+            // of an update, so default to a generic title
+            return defaultTitle(null, activity);
+        }
 
         Vector<StackFrameStep> v = session.getFrame().getSteps();
 
         //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
         //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
-        for(int i = v.size() -1 ; i >= 0; i--){
+        String bestTitle = null;
+        for (int i = v.size() - 1; i >= 0; i--) {
             if (bestTitle != null) {
                 break;
             }
             StackFrameStep step = v.elementAt(i);
 
-            if(!SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+            if (!SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 bestTitle = stepTitles[i];
             }
         }

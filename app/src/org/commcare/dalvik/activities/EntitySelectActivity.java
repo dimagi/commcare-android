@@ -1,7 +1,9 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -15,6 +17,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -36,17 +39,19 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.fragments.ContainerFragment;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.util.CommCareInstanceInitializer;
+import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
@@ -70,12 +75,13 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.listeners.BarcodeScanListener;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,12 +90,12 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity implements TextWatcher,
+public class EntitySelectActivity extends SessionAwareCommCareActivity
+        implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
         TextToSpeech.OnInitListener,
-        DetailCalloutListener,
-        BarcodeScanListener {
+        DetailCalloutListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
     private CommCareSession session;
@@ -100,6 +106,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
+    private static final int BARCODE_FETCH = 1;
+    private static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST;
     private static final int MENU_MAP = Menu.FIRST + 1;
@@ -143,13 +151,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     private DataSetObserver mListStateObserver;
     private OnClickListener barcodeScanOnClickListener;
 
+    private boolean resuming = false;
+    private boolean startOther = false;
+
+    private boolean rightFrameSetup = false;
+    private NodeEntityFactory factory;
+
+    private Timer myTimer;
+    private final Object timerLock = new Object();
+    private boolean cancelled;
+    private ContainerFragment<EntityListAdapter> containerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
-
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
 
         if (savedInstanceState != null) {
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -157,6 +174,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
+
+        if (session.getCommand() == null) {
+            // session ended, avoid (session dependent) setup because session
+            // management will exit the activity in onResume
+            return;
+        }
 
         selectDatum = session.getNeededDatum();
 
@@ -184,7 +207,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
                 //need to go to the detail screen instead.
-                if (oldActivity != null) {
+                if (savedInstanceState != null) {
                     Intent intent = this.getIntent();
 
                     TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
@@ -211,7 +234,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         view.setOnItemClickListener(this);
         setupDivider(view);
 
-
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -233,52 +255,106 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         searchResultStatus = (TextView)findViewById(R.id.no_search_results);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
-
         mViewMode = session.isViewCommand(session.getCommand());
 
-        final Callout callout = shortSelect.getCallout();
-
         barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
-        barcodeScanOnClickListener = BarcodeScanListenerDefaultImpl.makeCalloutOnClickListener(
-                EntitySelectActivity.this, callout,
-                new Callout.CalloutActionSetup() {
-                    @Override
-                    public void onImageFound(CalloutData calloutData) {
-                        setupImageLayout(barcodeButton, calloutData.getImage());
-                    }
-                });
+        Callout callout = shortSelect.getCallout();
+        if (callout ==  null) {
+            barcodeScanOnClickListener = makeBarcodeClickListener();
+        } else {
+            barcodeScanOnClickListener = makeCalloutClickListener(callout);
+        }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
 
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
-        if (oldActivity != null) {
-            adapter = oldActivity.adapter;
+        persistAdapterState(view);
+
+        //cts: disabling for non-demo purposes
+        //tts = new TextToSpeech(this, this);
+
+        restoreLastQueryString();
+
+        if (!isUsingActionBar()) {
+            searchbox.setText(lastQueryString);
+        }
+    }
+
+    private void persistAdapterState(ListView view) {
+        FragmentManager fm = this.getSupportFragmentManager();
+
+        containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
+
+        // stateHolder and its previous state aren't null if the activity is
+        // being created due to an orientation change.
+        if (containerFragment == null) {
+            containerFragment = new ContainerFragment<>();
+            fm.beginTransaction().add(containerFragment, "entity-adapter").commit();
+        } else {
+            adapter = containerFragment.getData();
             // on orientation change
             if (adapter != null) {
                 view.setAdapter(adapter);
                 setupDivider(view);
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-                //Disconnect the old adapter
-                adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
-                //connect the new one
-                adapter.registerDataSetObserver(this.mListStateObserver);
             }
         }
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
-        restoreLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+    }
 
-        if (!isUsingActionBar()) {
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Not using actionBar, setting lastQueryString in searchbox");
+    /**
+     * @return A click listener that launches QR code scanner
+     */
+    private View.OnClickListener makeBarcodeClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent("com.google.zxing.client.android.SCAN");
+                try {
+                    EntitySelectActivity.this.startActivityForResult(i, BARCODE_FETCH);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No barcode reader available! You can install one " +
+                                    "from the android market.",
+                            Toast.LENGTH_LONG).show();
+                }
             }
-            searchbox.setText(lastQueryString);
+        };
+    }
+
+    /**
+     * Build click listener from callout: set button's image, get intent action,
+     * and copy extras into intent.
+     *
+     * @param callout contains intent action and extras, and sometimes button image
+     * @return click listener that launches the callout's activity with the
+     * associated callout extras
+     */
+    private View.OnClickListener makeCalloutClickListener(Callout callout) {
+        final CalloutData calloutData = callout.getRawCalloutData();
+
+        if (calloutData.getImage() != null) {
+            setupImageLayout(barcodeButton, calloutData.getImage());
         }
+
+        final Intent i = new Intent(calloutData.getActionName());
+        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
+            i.putExtra(keyValue.getKey(), keyValue.getValue());
+        }
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
+                } catch (ActivityNotFoundException anfe) {
+                    Toast.makeText(EntitySelectActivity.this,
+                            "No application found for action: " + i.getAction(),
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        };
     }
 
     /**
@@ -337,23 +413,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     @Override
     public String getActivityTitle() {
-        //Skipping this until it's a more general pattern
-
-//        String title = Localization.get("select.list.title");
-//        
-//        try {
-//            Detail detail = session.getDetail(selectDatum.getShortDetail());
-//            title = detail.getTitle().evaluate();
-//        } catch(Exception e) {
-//            
-//        }
-//        
-//        return title;
         return null;
     }
-
-    private boolean resuming = false;
-    private boolean startOther = false;
 
     @Override
     protected void onResume() {
@@ -363,8 +424,14 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             return;
         }
 
+        if (adapter != null) {
+            adapter.registerDataSetObserver(mListStateObserver);
+        }
+
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity = selectDatum.getEntityFromID(asw.getEvaluationContext(), this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            TreeReference entity =
+                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
                 if (inAwesomeMode) {
@@ -380,7 +447,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     Intent i = getDetailIntent(entity, null);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID, selectDatum.getShortDetail());
+                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                                selectDatum.getShortDetail());
                     }
                     startActivityForResult(i, CONFIRM_SELECT);
                     return;
@@ -415,8 +483,11 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 header.addView(v);
             }
 
-            if (adapter == null && loader == null && !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            if (adapter == null &&
+                    loader == null &&
+                    !EntityLoaderTask.attachToActivity(this)) {
+                EntityLoaderTask theloader =
+                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
                 theloader.attachListener(this);
                 theloader.execute(selectDatum.getNodeset());
             } else {
@@ -427,20 +498,23 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
+
         stopTimer();
+
+        if (adapter != null) {
+            adapter.unregisterDataSetObserver(mListStateObserver);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         stopTimer();
-        saveLastQueryString(TAG + "-" + KEY_LAST_QUERY_STRING);
+        saveLastQueryString();
     }
-
 
     /**
      * Get an intent for displaying the confirm detail screen for an element (either just populates
@@ -462,8 +536,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
      * Attach all element selection information to the intent argument and return the resulting
      * intent
      */
-    protected static Intent populateDetailIntent(Intent detailIntent, TreeReference contextRef,
-                                                 SessionDatum selectDatum, AndroidSessionWrapper asw) {
+    protected static Intent populateDetailIntent(Intent detailIntent,
+                                                 TreeReference contextRef,
+                                                 SessionDatum selectDatum,
+                                                 AndroidSessionWrapper asw) {
 
         String caseId = SessionDatum.getCaseIdFromReference(
                 contextRef, selectDatum, asw.getEvaluationContext());
@@ -510,35 +586,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
     @Override
-    public void onBarcodeFetch(String result, Intent intent) {
-        setSearchText(result);
-    }
-
-    @Override
-    public void onCalloutResult(String result, Intent intent) {
-        boolean resultSet = false;
-        if (result != null) {
-            setSearchText(result);
-            resultSet = true;
-        }
-        for (String key : shortSelect.getCallout().getResponses()) {
-            result = intent.getExtras().getString(key);
-            if (result != null && !resultSet) {
-                resultSet = true;
-                setSearchText(result);
-                break;
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case BarcodeScanListenerDefaultImpl.BARCODE_FETCH:
-                BarcodeScanListenerDefaultImpl.onBarcodeResult(this, requestCode, resultCode, intent);
+            case BARCODE_FETCH:
+                processBarcodeFetch(resultCode, intent);
                 break;
-            case BarcodeScanListenerDefaultImpl.CALLOUT:
-                BarcodeScanListenerDefaultImpl.onCalloutResult(this, requestCode, resultCode, intent);
+            case CALLOUT:
+                processCalloutResult(resultCode, intent);
                 break;
             case CONFIRM_SELECT:
                 resuming = true;
@@ -557,7 +611,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
                     if (inAwesomeMode) {
                         // Retain original element selection
-                        TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                        TreeReference r =
+                                SerializationUtil.deserializeFromIntent(intent,
+                                        EntityDetailActivity.CONTEXT_REFERENCE,
+                                        TreeReference.class);
                         if (r != null && adapter != null) {
                             // TODO: added 'adapter != null' due to a
                             // NullPointerException, we need to figure out how to
@@ -571,7 +628,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                 }
             case MAP_SELECT:
                 if (resultCode == RESULT_OK) {
-                    TreeReference r = SerializationUtil.deserializeFromIntent(intent, EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+                    TreeReference r =
+                            SerializationUtil.deserializeFromIntent(intent,
+                                    EntityDetailActivity.CONTEXT_REFERENCE,
+                                    TreeReference.class);
 
                     if (inAwesomeMode) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
@@ -596,6 +656,33 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         }
     }
 
+    private void processBarcodeFetch(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("SCAN_RESULT");
+            if (result != null) {
+                result = result.trim();
+            }
+            setSearchText(result);
+        }
+    }
+
+    private void processCalloutResult(int resultCode, Intent intent) {
+        if (resultCode == Activity.RESULT_OK) {
+            String result = intent.getStringExtra("odk_intent_data");
+            if (result != null){
+                setSearchText(result.trim());
+            } else {
+                for (String key : shortSelect.getCallout().getResponses()) {
+                    result = intent.getExtras().getString(key);
+                    if (result != null) {
+                        setSearchText(result);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Finish this activity, including all extras from the given intent in the finishing intent
      */
@@ -607,32 +694,29 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     }
 
 
-    public void afterTextChanged(Editable s) {
-        if (getSearchText() == s) {
-            filterString = s.toString();
+    @Override
+    public void afterTextChanged(Editable incomingEditable) {
+        final String incomingString = incomingEditable.toString();
+        final String currentSearchText = getSearchText().toString();
+        if (incomingString.equals(currentSearchText)) {
+            filterString = currentSearchText;
             if (adapter != null) {
                 adapter.applyFilter(filterString);
             }
         }
         if (!isUsingActionBar()) {
             lastQueryString = filterString;
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") from searchbox afterTextChanged event");
-            }
         }
     }
 
 
+    @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
                                   int after) {
-        // TODO Auto-generated method stub
-
     }
 
-
+    @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -645,10 +729,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
-        Action action = shortSelect.getCustomAction();
-        if (action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                    action.getDisplay().evaluate());
+        if (shortSelect != null) {
+            Action action = shortSelect.getCustomAction();
+            if (action != null) {
+                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                        action.getDisplay().evaluate());
+            }
         }
 
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
@@ -680,11 +766,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
                     @Override
                     public boolean onQueryTextChange(String newText) {
                         lastQueryString = newText;
-                        if (BuildConfig.DEBUG) {
-                            Log.v(TAG, "Setting lastQueryString to (" + newText + ")");
-                        }
-                        if (newText != null && newText.length() > 0) {
-                        }
+                        filterString = newText;
                         if (adapter != null) {
                             adapter.applyFilter(newText);
                         }
@@ -725,10 +807,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        //only display the sort menu if we're going to be able to sort
-        //(IE: not until the items have loaded)
+        // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        // hide sorting menu when using async loading strategy
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -761,7 +843,15 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
     private void triggerDetailAction() {
         Action action = shortSelect.getCustomAction();
-        asw.executeStackActions(action.getStackOperations());
+
+        try {
+            asw.executeStackActions(action.getStackOperations());
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            return;
+        }
+
         this.setResult(CommCareHomeActivity.RESULT_RESTART);
         this.finish();
     }
@@ -817,7 +907,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         });
 
-
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -855,7 +944,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
+    public void deliverResult(List<Entity<TreeReference>> entities,
+                              List<TreeReference> references,
+                              NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -875,6 +966,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
+        containerFragment.setData(adapter);
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
@@ -886,8 +978,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         if (inAwesomeMode) {
             updateSelectedItem(true);
         }
-
-        rebuildMenus();
 
         this.startTimer();
     }
@@ -904,17 +994,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
 
             Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
 
-            //region ListView divider information
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
             }
-            //endregion
 
-            //region Asserting divider instanceof LayerDrawable
             if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
                 throw new AssertionError("Divider should be a LayerDrawable!");
             }
-            //endregion
 
             LayerDrawable layerDrawable = (LayerDrawable)divider;
 
@@ -959,9 +1045,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         this.loader = task;
     }
 
-    private boolean rightFrameSetup = false;
-    private NodeEntityFactory factory;
-
     private void select() {
         // create intent for return and store path
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
@@ -970,19 +1053,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
         finish();
     }
 
-    // CommCare-159503: implementing DetailCalloutListener so it will not crash the app when requesting call/sms
+    @Override
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
     }
 
+    @Override
     public void addressRequested(String address) {
         DetailCalloutListenerDefaultImpl.addressRequested(this, address);
     }
 
+    @Override
     public void playVideo(String videoRef) {
         DetailCalloutListenerDefaultImpl.playVideo(this, videoRef);
     }
 
+    @Override
     public void performCallout(CalloutData callout, int id) {
         DetailCalloutListenerDefaultImpl.performCallout(this, callout, id);
     }
@@ -1018,7 +1104,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             detailView = (TabbedDetailView)rightFrame.findViewById(R.id.entity_detail_tabs);
             detailView.setRoot(detailView);
 
-            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new CommCareInstanceInitializer(session)));
+            factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
             detailView.setDetail(detail);
 
@@ -1043,7 +1129,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
-            if (inAwesomeMode && detailView != null && detailView.getCurrentTab() < detailView.getTabCount() - 1) {
+            if (inAwesomeMode &&
+                    detailView != null &&
+                    detailView.getCurrentTab() < detailView.getTabCount() - 1) {
                 return false;
             }
 
@@ -1074,10 +1162,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             theloader.execute(selectDatum.getNodeset());
         }
     }
-
-    private Timer myTimer;
-    private final Object timerLock = new Object();
-    private boolean cancelled;
 
     private void startTimer() {
         if (!DeveloperPreferences.isListRefreshEnabled()) {
@@ -1114,5 +1198,4 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity implement
             }
         }
     }
-
 }

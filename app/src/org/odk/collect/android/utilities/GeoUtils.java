@@ -1,12 +1,16 @@
 package org.odk.collect.android.utilities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.location.LocationManager;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 
 import java.util.HashSet;
 import java.util.List;
@@ -51,32 +55,62 @@ public class GeoUtils {
                 
         return set;
     }
-    
+
     /**
      * Display a non-cancel-able dialog asking user if they want to turn on their GPS.
+     *
      * @param onChange Listener to call when dialog button is pressed.
      */
-    public static void showNoGpsDialog(Activity activity, DialogInterface.OnClickListener onChange) {
-        showNoGpsDialog(activity, onChange, null);
+    public static void showNoGpsDialog(CommCareActivity activity,
+                                       DialogInterface.OnClickListener onChange) {
+        AlertDialogFactory factory = setupAlertFactory(activity, onChange, null);
+        activity.showAlertDialog(factory);
     }
 
     /**
      * Display a (possibly cancelable) dialog asking user if they want to turn on their GPS.
+     *
      * @param onChange Listener to call when dialog button is pressed.
      * @param onCancel Listener to call when dialog is canceled.
      */
     public static void showNoGpsDialog(Activity activity,
                                        DialogInterface.OnClickListener onChange,
                                        DialogInterface.OnCancelListener onCancel) {
-        AlertDialogFactory factory = new AlertDialogFactory(activity,
-                activity.getString(R.string.no_gps_title),
-                activity.getString(R.string.no_gps_message));
-        factory.setPositiveButton(activity.getString(R.string.change_settings), onChange);
-        factory.setNegativeButton(activity.getString(R.string.cancel), onChange);
+        AlertDialogFactory factory = setupAlertFactory(activity, onChange, onCancel);
+
+        // NOTE PLM: this dialog will not persist through orientation changes.
+        factory.showDialog();
+    }
+
+    private static AlertDialogFactory setupAlertFactory(Context context,
+                                                        DialogInterface.OnClickListener onChange,
+                                                        DialogInterface.OnCancelListener onCancel) {
+        AlertDialogFactory factory =
+                new AlertDialogFactory(context,
+                        context.getString(R.string.no_gps_title),
+                        context.getString(R.string.no_gps_message));
+        factory.setPositiveButton(context.getString(R.string.change_settings), onChange);
+        factory.setNegativeButton(context.getString(R.string.cancel_location), onChange);
+
         if (onCancel != null) {
-            factory.makeCancelable();
             factory.setOnCancelListener(onCancel);
         }
-        factory.showDialog();
+        return factory;
+    }
+
+    /**
+     * Pass in a string representing either a GeoPoint or an address and get back a valid
+     * GeoURI that can be passed as an intent argument
+     */
+    public static String getGeoIntentURI(String rawInput){
+        try {
+            GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
+            String latitude = Double.toString(mGeoPointData.getValue()[0]);
+            String longitude= Double.toString(mGeoPointData.getValue()[1]);
+            return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
+
+        } catch(IllegalArgumentException iae){
+            return "geo:0,0?q=" + rawInput;
+        }
     }
 }

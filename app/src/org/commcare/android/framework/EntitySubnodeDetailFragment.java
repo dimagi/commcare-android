@@ -18,6 +18,7 @@ import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
@@ -43,14 +44,14 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         Detail childDetail = getChildDetail();
-        TreeReference childReference = SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
+        TreeReference childReference = this.getChildReference();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
-            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, asw.getEvaluationContext());
+            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
             theloader.attachListener(this);
             theloader.execute(childDetail.getNodeset().contextualize(childReference));
 

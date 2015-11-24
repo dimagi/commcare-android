@@ -19,21 +19,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.QRCodeEncoder;
 import org.odk.collect.android.views.ResizingImageView;
 
 import java.io.File;
 
 /**
- * This layout is used anywhere we can have image/audio/video/text. TODO: It
- * would probably be nice to put this in a layout.xml file of some sort at some
- * point.
+ * This layout is used anywhere we can have image/audio/video/text.
+ * TODO: Put this in a layout file!!!!
  *
  * @author carlhartung
  */
@@ -168,7 +168,7 @@ public class MediaLayout extends RelativeLayout {
         String errorMsg = null;
         View mediaPane = null;
 
-        if(inlineVideoURI != null) {
+        if (inlineVideoURI != null) {
             mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
 
         }
@@ -203,40 +203,19 @@ public class MediaLayout extends RelativeLayout {
         } else if (imageURI != null) {
             try {
                 int[] maxBounds = getMaxCenterViewBounds();
-
-                //If we didn't get an image yet, try for a norm
                 final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display =
-                                ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                        .getDefaultDisplay();
-
-
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b =
-                            FileUtils
-                                    .getBitmapScaledToDisplay(imageFile, screenHeight, screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
+                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                                maxBounds[1]);
                     if (b != null) {
-
                         ImageView mImageView = new ImageView(getContext());;
-
-                        //config specially if we need to do a custom resize
-                        if(ResizingImageView.resizeMethod.equals("full") || ResizingImageView.resizeMethod.equals("half")
-                                || ResizingImageView.resizeMethod.equals("width")){
+                        if (useResizingImageView()) {
                             mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
                         }
-
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
@@ -245,7 +224,6 @@ public class MediaLayout extends RelativeLayout {
                         // An error hasn't been logged and loading the image failed, so it's likely
                         // a bad file.
                         errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-
                     }
                 } else {
                     // An error hasn't been logged. We should have an image, but the file doesn't
@@ -360,6 +338,14 @@ public class MediaLayout extends RelativeLayout {
         }
     }
 
+    private boolean useResizingImageView() {
+        // only allow ResizingImageView to be used if not also using smart inflation
+        return !CommCarePreferences.isSmartInflationEnabled() &&
+                (ResizingImageView.resizeMethod.equals("full") ||
+                        ResizingImageView.resizeMethod.equals("half") ||
+                        ResizingImageView.resizeMethod.equals("width"));
+    }
+
     /**
      * @return The appropriate max size of an image view pane in this widget. returned as an int
      * array of [width, height]
@@ -369,7 +355,7 @@ public class MediaLayout extends RelativeLayout {
         int maxWidth = metrics.widthPixels;
         int maxHeight = metrics.heightPixels;
 
-        // subtract height for textviewa and buttons, if present
+        // subtract height for textview and buttons, if present
         if(mView_Text != null){
             maxHeight = maxHeight - mView_Text.getHeight();
         } if(mVideoButton != null){

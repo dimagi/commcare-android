@@ -53,10 +53,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        if(this.getDestroyedActivityState() != null) {
-            //We just rotated or whatever, don't re-initialize everything
-        } else {
-            //Fresh Start, statewise.
+        if (savedInstanceState == null) {
+            // launching activity, not just changing orientation
             updateSendFormsState();
             updateRecoverAppState();
         }

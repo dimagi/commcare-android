@@ -1,6 +1,5 @@
 package org.odk.collect.android.activities.components;
 
-import android.app.Activity;
 import android.graphics.Rect;
 import android.util.Log;
 import android.util.Pair;
@@ -25,28 +24,18 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import java.util.ArrayList;
 
 public class FormNavigationUI {
-    private final FormController mFormController;
-    private final View mCurrentView;
-    private final Activity activity;
-
-    public FormNavigationUI(Activity activity, View currentView, FormController formController) {
-        this.activity = activity;
-        this.mCurrentView = currentView;
-        this.mFormController = formController;
-    }
-
     /**
      * Update progress bar's max and value, and the various buttons and navigation cues
      * associated with navigation
      *
      * @param view ODKView to update
      */
-    public void updateNavigationCues(View view) {
-        updateFloatingLabels(view);
+    public static void updateNavigationCues(CommCareActivity activity, FormController formController, View view) {
+        updateFloatingLabels(activity, formController, view);
 
         FormNavigationController.NavigationDetails details;
         try {
-            details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
+            details = FormNavigationController.calculateNavigationStatus(formController, view);
         } catch (XPathTypeMismatchException e) {
             Logger.exception(e);
             CommCareActivity.createErrorDialog(activity, e.getMessage(), true);
@@ -120,7 +109,7 @@ public class FormNavigationUI {
         }
     }
 
-    private void updateFloatingLabels(View currentView) {
+    private static void updateFloatingLabels(CommCareActivity activity, FormController formController, View currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
         ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();

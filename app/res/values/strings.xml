@@ -21,7 +21,8 @@
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
-    <string name="update_canceled">Your update did not complete</string>
+    <string name="update_canceled">Your update was paused</string>
+    <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
@@ -47,7 +48,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>24</item>
+        <item>25</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -115,6 +116,24 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="target_density_labels">
+        <item>DENSITY_LOW</item>
+        <item>DENSITY_MEDIUM</item>
+        <item>DENSITY_HIGH</item>
+        <item>DENSITY_280</item>
+        <item>DENSITY_XHIGH</item>
+        <item>DENSITY_400</item>
+        <item>DENSITY_XXHIGH</item>
+    </string-array>
+    <string-array name="target_density_vals">
+        <item>120</item>
+        <item>160</item>
+        <item>240</item>
+        <item>280</item>
+        <item>320</item>
+        <item>400</item>
+        <item>480</item>
+    </string-array>
 
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
 
@@ -155,16 +174,16 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
-    <string name="clear_answer_no" cc:translatable="true">Cancel</string>
+    <string name="clear_answer_no" cc:translatable="true">CANCEL</string>
     <string name="completed_data" cc:translatable="true">Complete (%s)</string>
     <string name="data" cc:translatable="true">Saved Forms</string>
-    <string name="data_saved_error" cc:translatable="true">Sorry, form save failed!</string>
+    <string name="data_saved_error" cc:translatable="true">Sorry, form save failed. Please contact technical support to look into the issue.</string>
     <string name="data_saved_ok" cc:translatable="true">Form successfully saved!</string>
     <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
     <string name="delete_yes" cc:translatable="true">Delete Forms</string>
-    <string name="discard_answer" cc:translatable="true">Remove response</string>
+    <string name="discard_answer" cc:translatable="true">REMOVE RESPONSE</string>
     <string name="download" cc:translatable="true">Get Selected</string>
     <string name="download_forms_result" cc:translatable="true">Download Result</string>
     <string name="downloading_data" cc:translatable="true">Connecting to Server</string>

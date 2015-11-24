@@ -1,7 +1,7 @@
 package org.commcare.android.javarosa;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.User;
+import org.javarosa.core.model.User;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
@@ -89,7 +89,7 @@ public class DeviceReportWriter {
     }
 
     private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
-        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.class);
+        SqlStorage<User> storage = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class);
 
         serializer.startTag(XMLNS, "user_subreport");
 
@@ -108,7 +108,7 @@ public class DeviceReportWriter {
         try {
             writeText("username", user.getUsername());
             writeText("user_id", user.getUniqueId());
-            writeText("sync_token", user.getSyncToken());
+            writeText("sync_token", user.getLastSyncToken());
         } finally {
             serializer.endTag(XMLNS, "user");
         }

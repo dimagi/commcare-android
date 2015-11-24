@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -18,15 +19,16 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.commcare.android.database.user.models.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -46,12 +48,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
- * a CommCare login session 
- * 
- * @author ctsims
+ * a CommCare login session
  *
+ * @author ctsims
  */
-public class CommCareSessionService extends Service  {
+public class CommCareSessionService extends Service {
 
     private NotificationManager mNM;
 
@@ -86,9 +87,9 @@ public class CommCareSessionService extends Service  {
     private SQLiteDatabase userDatabase;
 
     // unique id for logged in notification
-    private final int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
+    private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
 
-    private final int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
+    private final static int SUBMISSION_NOTIFICATION = org.commcare.dalvik.R.string.submission_notification_title;
 
     // How long to wait until we force the session to finish logging out. Set
     // at 90 seconds to make sure huge forms on slow phones actually get saved
@@ -101,8 +102,8 @@ public class CommCareSessionService extends Service  {
     // Once key expiration process starts, we want to call this function to
     // save the current form if it exists.
     private FormSaveCallback formSaver;
-    
-    
+
+
     /**
      * Class for clients to access.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with
@@ -121,13 +122,23 @@ public class CommCareSessionService extends Service  {
         createCipherPool();
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        try {
+            CommCareApplication._().getCurrentSessionWrapper().reset();
+        } catch (SessionStateUninitException e) {
+            Log.e(AndroidLogger.SOFT_ASSERT,
+                    "Trying to wipe uninitialized session in session service tear-down");
+        }
+    }
+
     public void createCipherPool() {
         pool = new CipherPool() {
             @Override
             public Cipher generateNewCipher() {
-                synchronized(lock) {
+                synchronized (lock) {
                     try {
-                        synchronized(key) {
+                        synchronized (key) {
                             SecretKeySpec spec = new SecretKeySpec(key, "AES");
                             Cipher decrypter = Cipher.getInstance("AES");
                             decrypter.init(Cipher.DECRYPT_MODE, spec);
@@ -164,7 +175,7 @@ public class CommCareSessionService extends Service  {
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new LocalBinder();
-    
+
     /**
      * Show a notification while this service is running.
      */
@@ -197,7 +208,7 @@ public class CommCareSessionService extends Service  {
                 .setContentIntent(contentIntent)
                 .build();
 
-        if(user != null) {
+        if (user != null) {
             //Send the notification.
             this.startForeground(NOTIFICATION, notification);
         }
@@ -223,11 +234,11 @@ public class CommCareSessionService extends Service  {
         // Send the notification.
         mNM.notify(NOTIFICATION, notification);
     }
-    
+
     //Start CommCare Specific Functionality
 
     public SQLiteDatabase getUserDbHandle() {
-        synchronized(lock){
+        synchronized (lock) {
             return userDatabase;
         }
     }
@@ -236,10 +247,10 @@ public class CommCareSessionService extends Service  {
      * (Re-)open user database
      */
     public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
-        synchronized(lock){
+        synchronized (lock) {
             this.key = symetricKey;
             pool.init();
-            if(userDatabase != null && userDatabase.isOpen()) {
+            if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
             userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
@@ -253,30 +264,30 @@ public class CommCareSessionService extends Service  {
      * @param user attach this user to the session
      */
     public void startSession(User user) {
-        synchronized(lock){
-            if(user != null) {
+        synchronized (lock) {
+            if (user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
-                
+
                 //Let anyone who is listening know!
                 Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
                 this.sendBroadcast(i);
             }
-            
+
             this.user = user;
-            
+
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
-            
+
             // Display a notification about us starting.  We put an icon in the status bar.
             showLoggedInNotification(user);
-            
+
             maintenanceTimer = new Timer("CommCareService");
             maintenanceTimer.schedule(new TimerTask() {
-    
+
                 @Override
                 public void run() {
                     timeToExpireSession();
                 }
-                
+
             }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
         }
     }
@@ -305,7 +316,7 @@ public class CommCareSessionService extends Service  {
             }
         } else if (isActive() && logoutStartedAt == -1 &&
                 (currentTime > sessionExpireDate.getTime() ||
-                 (sessionExpireDate.getTime() - currentTime  > sessionLength))) {
+                        (sessionExpireDate.getTime() - currentTime > sessionLength))) {
             // If we haven't started closing the session and we're either past
             // the session expire time, or the session expires more than its
             // period in the future, we need to log the user out. The second
@@ -337,7 +348,7 @@ public class CommCareSessionService extends Service  {
         logoutStartedAt = new Date().getTime();
 
         // save form progress, if any
-        synchronized(lock) {
+        synchronized (lock) {
             if (formSaver != null) {
                 formSaver.formSaveCallback();
             } else {
@@ -351,7 +362,7 @@ public class CommCareSessionService extends Service  {
      * save any forms being editted when key expiration begins.
      *
      * @param callbackObj object with a method for saving the current form
-     * being edited
+     *                    being edited
      */
     public void registerFormSaveCallback(FormSaveCallback callbackObj) {
         this.formSaver = callbackObj;
@@ -362,7 +373,7 @@ public class CommCareSessionService extends Service  {
      * a form open that might need to be saved if the session expires.
      */
     public void unregisterFormSaveCallback() {
-        synchronized(lock) {
+        synchronized (lock) {
             this.formSaver = null;
         }
     }
@@ -371,7 +382,7 @@ public class CommCareSessionService extends Service  {
      * Closes the key pool and user database.
      */
     public void closeServiceResources() {
-        synchronized(lock){
+        synchronized (lock) {
             if (!isActive()) {
                 // Since both the FormSaveCallback callback and the maintenance
                 // timer might call this, only run if it hasn't been called
@@ -388,12 +399,7 @@ public class CommCareSessionService extends Service  {
 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, msg);
 
-            if (user != null) {
-                if (user.getUsername() != null) {
-                    msg = "Logging out user " + user.getUsername();
-                }
-                user = null;
-            }
+            user = null;
 
             if (userDatabase != null) {
                 if (userDatabase.isOpen()) {
@@ -417,89 +423,50 @@ public class CommCareSessionService extends Service  {
      * database.
      */
     public boolean isActive() {
-        synchronized(lock){
+        synchronized (lock) {
             return (key != null);
         }
     }
 
-    public Cipher getEncrypter() throws SessionUnavailableException {
-        synchronized(lock){
-            if(key == null) {
-                throw new SessionUnavailableException();
-            }
-            
-            synchronized(key) {
-    
-                SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                
-                try{
-                    Cipher encrypter = Cipher.getInstance("AES");
-                    encrypter.init(Cipher.ENCRYPT_MODE, spec);
-                    return encrypter;
-                } catch (InvalidKeyException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (NoSuchPaddingException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }
-    }
-    
-    public CipherPool getDecrypterPool() throws SessionUnavailableException{
-        synchronized(lock){
-            if(key == null) {
-                throw new SessionUnavailableException();
-            }
-            return pool;
-        }
-    }
-    
     public SecretKey createNewSymetricKey() {
         return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
     }
-    
+
     public User getLoggedInUser() throws SessionUnavailableException {
-        if(user == null) {
+        if (user == null) {
             throw new SessionUnavailableException();
         }
         return user;
-    }    
-    
+    }
+
     public DataSubmissionListener startDataSubmissionListener() {
         return this.startDataSubmissionListener(SUBMISSION_NOTIFICATION);
     }
-    
+
     public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
         return new DataSubmissionListener() {
             // START - Submission Listening Hooks
             int totalItems = -1;
             long currentSize = -1;
-            long totalSent = -1;
             Notification submissionNotification;
-            
+
             int lastUpdate = 0;
-            
+
             @Override
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
-                
+
                 String text = getSubmissionText(1, totalItems);
-                
+
                 // Set the icon, scrolling text and timestamp
-                submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(1, totalItems), System.currentTimeMillis());
+                submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(totalItems), System.currentTimeMillis());
                 submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
 
                 //We always want this click to simply bring the live stack back to the top
                 Intent callable = new Intent(CommCareSessionService.this, CommCareHomeActivity.class);
                 callable.setAction("android.intent.action.MAIN");
                 callable.addCategory("android.intent.category.LAUNCHER");
-                
+
                 // The PendingIntent to launch our activity if the user selects this notification
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
@@ -508,15 +475,15 @@ public class CommCareSessionService extends Service  {
                 contentView.setImageViewResource(R.id.image, R.drawable.notification);
                 contentView.setTextViewText(R.id.submitTitle, getString(notificationId));
                 contentView.setTextViewText(R.id.progressText, text);
-                contentView.setTextViewText(R.id.submissionDetails,"0b transmitted");
+                contentView.setTextViewText(R.id.submissionDetails, "0b transmitted");
 
-                
+
                 // Set the info for the views that show in the notification panel.
                 submissionNotification.setLatestEventInfo(CommCareSessionService.this, getString(notificationId), text, contentIntent);
-                
+
                 submissionNotification.contentView = contentView;
 
-                if(user != null) {
+                if (user != null) {
                     //Send the notification.
                     mNM.notify(notificationId, submissionNotification);
                 }
@@ -526,7 +493,7 @@ public class CommCareSessionService extends Service  {
             @Override
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
-                
+
                 submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
                 submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
                 mNM.notify(notificationId, submissionNotification);
@@ -535,47 +502,47 @@ public class CommCareSessionService extends Service  {
             @Override
             public void notifyProgress(int itemNumber, long progress) {
                 int progressPercent = (int)Math.floor((progress * 1.0 / currentSize) * 100);
-                
-                if(progressPercent - lastUpdate > 5) {
-                    
-                    String progressDetails = "";
-                    if(progress < 1024) {
+
+                if (progressPercent - lastUpdate > 5) {
+
+                    String progressDetails;
+                    if (progress < 1024) {
                         progressDetails = progress + "b transmitted";
                     } else if (progress < 1024 * 1024) {
-                        progressDetails =  String.format("%1$,.1f", (progress / 1024.0))+ "kb transmitted";
+                        progressDetails = String.format("%1$,.1f", (progress / 1024.0)) + "kb transmitted";
                     } else {
-                        progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0)))+ "mb transmitted";    
+                        progressDetails = String.format("%1$,.1f", (progress / (1024.0 * 1024.0))) + "mb transmitted";
                     }
-                    
+
                     int pending = ProcessAndSendTask.pending();
-                    if(pending > 1) {
-                        submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending -1 + " Pending");
+                    if (pending > 1) {
+                        submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending - 1 + " Pending");
                     }
-                    
-                    submissionNotification.contentView.setTextViewText(R.id.submissionDetails,progressDetails);
+
+                    submissionNotification.contentView.setTextViewText(R.id.submissionDetails, progressDetails);
                     submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
                     mNM.notify(notificationId, submissionNotification);
                     lastUpdate = progressPercent;
                 }
             }
+
             @Override
             public void endSubmissionProcess() {
                 mNM.cancel(notificationId);
                 submissionNotification = null;
                 totalItems = -1;
                 currentSize = -1;
-                totalSent = -1;
                 lastUpdate = 0;
             }
-            
+
             private String getSubmissionText(int current, int total) {
                 return current + "/" + total;
             }
-            
-            private String getTickerText(int current, int total) {
-                return "CommCare submitting " + total +" forms";
+
+            private String getTickerText(int total) {
+                return "CommCare submitting " + total + " forms";
             }
-            
+
             // END - Submission Listening Hooks
 
         };
@@ -585,7 +552,13 @@ public class CommCareSessionService extends Service  {
      * Read the login session duration from app preferences and set the session
      * length accordingly.
      */
-    private void setSessionLength(){
+    private void setSessionLength() {
         sessionLength = CommCarePreferences.getLoginDuration() * 1000;
+    }
+
+    public void setCurrentUser(User user, String password){
+        this.user = user;
+        this.user.setCachedPwd(password);
+        this.key = user.getWrappedKey();
     }
 }

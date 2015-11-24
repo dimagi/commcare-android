@@ -1,26 +1,36 @@
-/**
- * 
- */
 package org.commcare.android.util;
+
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.Hasher;
+import org.javarosa.core.util.externalizable.MD5Hasher;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.Hashtable;
 
-import org.commcare.util.externalizable.AndroidClassHasher;
-import org.javarosa.core.util.externalizable.ExtUtil;
-import org.javarosa.core.util.externalizable.Hasher;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
-
 /**
- * @author ctsims
+ * A prototype factory that is configured to keep track of all of the
+ * case->hash pairs that it creates in order to use them for deserializaiton in
+ * the future.
  *
+ * Will only work reliably if it is used synchronously to hash all values that
+ * are read, and should really only be expected to function for 'in memory'
+ * storage like mocks.
+ *
+ * TODO: unify with Android storage live factory mocker
+ *
+ * @author ctsims
  */
-public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
-    
-    Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
-    AndroidClassHasher hasher;
-    
+public class LivePrototypeFactory extends PrototypeFactory {
+    private final Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
+    private final LiveHasher mLiveHasher;
+
     public LivePrototypeFactory() {
-        hasher = new AndroidClassHasher();
+        this(new MD5Hasher());
+    }
+
+    public LivePrototypeFactory(Hasher hasher) {
+        this.mLiveHasher = new LiveHasher(this, hasher);
+        PrototypeFactory.setStaticHasher(this.mLiveHasher);
     }
 
     @Override
@@ -29,7 +39,7 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
 
     @Override
     public void addClass(Class c) {
-        byte[] hash = hasher.getClassHashValue(c);
+        byte[] hash = getLiveHasher().getHasher().getClassHashValue(c);
         factoryTable.put(ExtUtil.printBytes(hash), c);
     }
 
@@ -44,11 +54,8 @@ public class LivePrototypeFactory extends PrototypeFactory implements Hasher {
         return PrototypeFactory.getInstance(getClass(hash));
     }
 
-    @Override
-    public byte[] getClassHashValue(Class type) {
-        byte[] hash = hasher.getClassHashValue(type);
-        factoryTable.put(ExtUtil.printBytes(hash), type);
-        return hash;
+    public LiveHasher getLiveHasher(){
+        return this.mLiveHasher;
     }
 
 }

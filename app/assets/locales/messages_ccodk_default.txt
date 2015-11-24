@@ -5,17 +5,29 @@ option.no=NO
 option.cancel=CANCEL
 
 install.problem.unexpected=Unexpected install error!
-updates.check=Please wait while CommCare checks for upgrade
+install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
-updates.downloaded=Updates downloaded. Committing new resources....
 updates.success=CommCare is up to date
-updates.title=CommCare App Update
-updates.checking=Checking for updates...
-updates.keep.trying=Keep trying if connection is interrupted
+updates.check.begin=Checking for updates
+updates.check.failed=Failed to download updates
+updates.check.start=Check
+updates.check.cancel=Stop checking
+updates.check.install=Install
+updates.check.cancelling=Cancelling check for updates
+updates.install.finished=App update was successful
+updates.check.last=Last checked for updates: ${0}
+updates.check.network_unavailable=No network connectivity
+updates.staged.version=Update to version ${0}
+updates.error=Error encountered during update download
 
-verify.title=CommCare Resource Verification
-verify.checking=Verifying Resources
-verify.progress=Verifying resources. ${0} resources verified of ${1} total
+updates.pinned.download=Downloading updates
+updates.pinned.progress=${0}/${1}
+
+install.current.version=Version currently installed: ${0}
+
+verify.retry=Retry
+verify.checking=Verifying media...
+verify.check.failed=Validation failed for an unknown reason
 
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below
@@ -36,6 +48,9 @@ upgrade.button.startover=Restart Upgrade
 
 updates.resources.initialization=Initializing Resources
 updates.resources.profile=Locating application...
+
+updates.installing.title=Installing new app version
+updates.installing.message=Installing downloaded updates
 
 menu.basic=Basic Install
 menu.advanced=Advanced Install
@@ -125,6 +140,9 @@ login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.
 login.welcome.multiple=Welcome back! Please select an app and log in.
+
+login.update.install.success=App update successfully applied!
+login.update.install.failure=App update failed to apply!
 
 version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
 version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
@@ -420,6 +438,8 @@ notification.install.duplicate.action=Navigate to the drop-down menu on your log
 notification.install.uptodate.title=CommCare is Up to Date
 notification.install.uptodate.detail=A newer version of CommCare is not available
 
+notification.install.updatestaged.title=CommCare update ready to install
+notification.install.updatestaged.detail=A newer version of CommCare is ready to install on next login
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.

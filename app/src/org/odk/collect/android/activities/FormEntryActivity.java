@@ -10,13 +10,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -24,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -41,7 +45,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -50,8 +53,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.logic.BarcodeScanListenerDefaultImpl;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
@@ -66,6 +69,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -114,6 +118,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -123,7 +128,7 @@ import javax.crypto.spec.SecretKeySpec;
  * 
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
+public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryActivity>
         implements AnimationListener, FormSavedListener, FormSaveCallback,
         AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -141,6 +146,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public static final int LOCATION_CAPTURE = 5;
     private static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;
+    private static final int FORM_PREFERENCES_KEY = 8;
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
@@ -170,6 +176,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     // Identifies whether this is a new form, or reloading a form after a screen
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
+    private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
     private static final int MENU_LANGUAGES = Menu.FIRST;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
@@ -192,13 +199,15 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     private Animation mOutAnimation;
 
     private ViewGroup mViewPane;
-    private View mCurrentView;
+    private ODKView mCurrentView;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
+    private boolean hasFormLoadFailed = false;
 
     // used to limit forward/backward swipes to one per question
-    private boolean mBeenSwiped;
+    private boolean isAnimatingSwipe;
+    private boolean isDialogShowing;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
@@ -217,6 +226,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
+    private boolean mGroupForcedInvisible = false;
+    private boolean mGroupNativeVisibility = false;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -256,7 +267,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } else if (data instanceof SaveToDiskTask) {
             mSaveToDiskTask = (SaveToDiskTask) data;
             mSaveToDiskTask.setFormSavedListener(this);
-        } else if (hasFormLoadBeenTriggered) {
+        } else if (hasFormLoadBeenTriggered && !hasFormLoadFailed) {
             // Screen orientation change
             refreshCurrentView();
         }
@@ -321,6 +332,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
+                    dialog.dismiss();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
@@ -363,7 +375,15 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
-        mBeenSwiped = false;
+        requestMajorLayoutUpdates();
+
+        if (mCurrentView != null) {
+            mCurrentView.teardownView();
+        }
+
+        // re-set defaults in case the app got in a bad state.
+        isAnimatingSwipe = false;
+        isDialogShowing = false;
         mCurrentView = null;
         mInAnimation = null;
         mOutAnimation = null;
@@ -375,6 +395,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         super.onSaveInstanceState(outState);
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
+        outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -396,6 +417,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
+        if (requestCode == FORM_PREFERENCES_KEY) {
+            refreshCurrentView(false);
+            return;
+        }
+
         if (resultCode == RESULT_CANCELED) {
             if (requestCode == HIERARCHY_ACTIVITY_FIRST_START) {
                 // They pressed 'back' on the first hierarchy screen, so we should assume they want
@@ -410,8 +436,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         switch (requestCode) {
             case BARCODE_CAPTURE:
-                String sb = intent.getStringExtra(BarcodeScanListenerDefaultImpl.SCAN_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sb);
+                String sb = intent.getStringExtra("SCAN_RESULT");
+                mCurrentView.setBinaryData(sb, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
@@ -431,7 +457,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 break;
             case LOCATION_CAPTURE:
                 String sl = intent.getStringExtra(LOCATION_RESULT);
-                ((ODKView) mCurrentView).setBinaryData(sl);
+                mCurrentView.setBinaryData(sl, mFormController);
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case HIERARCHY_ACTIVITY:
@@ -511,7 +537,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
 
-        ((ODKView) mCurrentView).setBinaryData(imageURI);
+        mCurrentView.setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
     }
@@ -524,12 +550,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if (!FormUploadUtil.isSupportedMultimediaFile(binaryPath)) {
             // don't let the user select a file that won't be included in the
             // upload to the server
-            ((ODKView) mCurrentView).clearAnswer();
+            mCurrentView.clearAnswer();
             Toast.makeText(FormEntryActivity.this,
                     Localization.get("form.attachment.invalid"),
                     Toast.LENGTH_LONG).show();
         } else {
-            ((ODKView) mCurrentView).setBinaryData(media);
+            mCurrentView.setBinaryData(media, mFormController);
         }
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         refreshCurrentView();
@@ -542,13 +568,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     public QuestionWidget getPendingWidget() {
         FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
         if (pendingIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget called when pending callout form index was null");
             return null;
         }
-        for (QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+        for (QuestionWidget q : mCurrentView.getWidgets()) {
             if (q.getFormId().equals(pendingIndex)) {
                 return q;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
@@ -591,47 +621,96 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    private void updateFormRelevencies(){
+    private void updateFormRelevancies(){
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-        
-        if(!(mCurrentView instanceof ODKView)){
-            throw new RuntimeException("Tried to update form relevency not on compound view");
-        }
-        
-        ODKView oldODKV = (ODKView)mCurrentView;
-        
+
+        ArrayList<QuestionWidget> oldWidgets = mCurrentView.getWidgets();
+        // These 2 calls need to be made here, rather than in the for loop below, because at that
+        // point the widgets will have already started being updated to the values for the new view
+        ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
+        ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
+
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
-        Set<FormEntryPrompt> used = new HashSet<>();
-        
-        ArrayList<QuestionWidget> oldWidgets = oldODKV.getWidgets();
+        Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
-        ArrayList<Integer> removeList = new ArrayList<>();
+        ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
+        // Loop through all of the old widgets to determine which ones should stay in the new view
+        for (int i = 0; i < oldWidgets.size(); i++){
+            FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
+            String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
+            Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
 
-           for(int i=0;i<oldWidgets.size();i++){
-            QuestionWidget oldWidget = oldWidgets.get(i);
-            boolean stillRelevent = false;
-
-            for(FormEntryPrompt prompt : newValidPrompts) {
-            	if(prompt.getIndex().equals(oldWidget.getPrompt().getIndex())) {
-            		stillRelevent = true;
-            		used.add(prompt);
-            	}
-            }
-            if(!stillRelevent){
-                removeList.add(i);
+            FormEntryPrompt equivalentNewPrompt = getEquivalentPromptInNewList(newValidPrompts,
+                    oldPrompt, priorQuestionTextForThisWidget, priorSelectChoicesForThisWidget);
+            if (equivalentNewPrompt != null) {
+                promptsLeftInView.add(equivalentNewPrompt);
+            } else {
+                // If there is no equivalent prompt in the list of new prompts, then this prompt is
+                // no longer relevant in the new view, so it should get removed
+                shouldRemoveFromView.add(i);
             }
         }
-        // remove "atomically" to not mess up iterations
-        oldODKV.removeQuestionsFromIndex(removeList);
+        // Remove "atomically" to not mess up iterations
+        mCurrentView.removeQuestionsFromIndex(shouldRemoveFromView);
 
-        //Now go through add add any new prompts that we need
-        for(int i = 0 ; i < newValidPrompts.length; ++i) {
+        // Now go through add add any new prompts that we need
+        for (int i = 0; i < newValidPrompts.length; ++i) {
         	FormEntryPrompt prompt = newValidPrompts[i]; 
-        	if(used.contains(prompt)) {
-        		continue;
-        	} 
-        	oldODKV.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+        	if (!promptsLeftInView.contains(prompt)) {
+                // If the old version of this prompt was NOT left in the view, then add it
+                mCurrentView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
+            }
         }
+    }
+
+    /**
+     * @return A list of the select choices for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<Vector<SelectChoice>> getOldSelectChoicesForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<Vector<SelectChoice>> selectChoicesList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            Vector<SelectChoice> oldSelectChoices = qw.getPrompt().getOldSelectChoices();
+            selectChoicesList.add(oldSelectChoices);
+        }
+        return selectChoicesList;
+    }
+
+    /**
+     * @return A list of the question texts for each widget in the list of old widgets, with the
+     * original order preserved
+     */
+    private ArrayList<String> getOldQuestionTextsForEachWidget(ArrayList<QuestionWidget> oldWidgets) {
+        ArrayList<String> questionTextList = new ArrayList<>();
+        for (QuestionWidget qw : oldWidgets) {
+            questionTextList.add(qw.getPrompt().getQuestionText());
+        }
+        return questionTextList;
+    }
+
+    /**
+     *
+     * @param newValidPrompts - All of the prompts that should be in the new view
+     * @param oldPrompt - The prompt from the prior view for which we are seeking a match in the
+     *                  list of new prompts
+     * @param oldQuestionText - the question text of the old prompt
+     * @param oldSelectChoices - the select choices of the old prompt
+     * @return The form entry prompt from the new list that is equivalent to oldPrompt, or null
+     * if none exists
+     */
+    private FormEntryPrompt getEquivalentPromptInNewList(FormEntryPrompt[] newValidPrompts,
+                                                           FormEntryPrompt oldPrompt,
+                                                           String oldQuestionText,
+                                                           Vector<SelectChoice> oldSelectChoices) {
+        for (FormEntryPrompt newPrompt : newValidPrompts) {
+            if (newPrompt.getIndex().equals(oldPrompt.getIndex())
+                    && newPrompt.hasSameDisplayContent(oldQuestionText, oldSelectChoices)) {
+                // A new prompt is considered equivalent to the old prompt if both their  form
+                // indices and display content (question text and select choices) are the same
+                return newPrompt;
+            }
+        }
+        return null;
     }
 
 	/**
@@ -670,7 +749,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         } else if(event == FormEntryController.EVENT_END_OF_FORM) {
             showPreviousView(false);
         } else {
-            View current = createView();
+            ODKView current = createView();
             showView(current, AnimationType.FADE, animateLastView);
         }
     }
@@ -719,7 +798,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 return true;
             case MENU_PREFERENCES:
                 Intent pref = new Intent(this, FormEntryPreferences.class);
-                startActivity(pref);
+                startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
                 triggerUserQuitInput();
@@ -761,49 +840,39 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
                 || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
                 mFormController.indexIsInFieldList())) {
-            if (mCurrentView instanceof ODKView) {
-                HashMap<FormIndex, IAnswerData> answers =
-                        ((ODKView)mCurrentView).getAnswers();
+            HashMap<FormIndex, IAnswerData> answers =
+                    mCurrentView.getAnswers();
 
-                // Sort the answers so if there are multiple errors, we can
-                // bring focus to the first one
-                List<FormIndex> indexKeys = new ArrayList<>();
-                indexKeys.addAll(answers.keySet());
-                Collections.sort(indexKeys, new Comparator<FormIndex>() {
-                    @Override
-                    public int compare(FormIndex arg0, FormIndex arg1) {
-                        return arg0.compareTo(arg1);
-                    }
-                });
+            // Sort the answers so if there are multiple errors, we can
+            // bring focus to the first one
+            List<FormIndex> indexKeys = new ArrayList<>();
+            indexKeys.addAll(answers.keySet());
+            Collections.sort(indexKeys, new Comparator<FormIndex>() {
+                @Override
+                public int compare(FormIndex arg0, FormIndex arg1) {
+                    return arg0.compareTo(arg1);
+                }
+            });
 
-                for (FormIndex index : indexKeys) {
-                    // Within a group, you can only save for question events
-                    if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
-                        int saveStatus = saveAnswer(answers.get(index),
-                                index, evaluateConstraints);
-                        if (evaluateConstraints &&
-                                ((saveStatus != FormEntryController.ANSWER_OK) &&
-                                        (failOnRequired ||
-                                                saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
-                            if (!headless) {
-                                createConstraintToast(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
-                            }
-                            success = false;
+            for (FormIndex index : indexKeys) {
+                // Within a group, you can only save for question events
+                if (mFormController.getEvent(index) == FormEntryController.EVENT_QUESTION) {
+                    int saveStatus = saveAnswer(answers.get(index),
+                            index, evaluateConstraints);
+                    if (evaluateConstraints &&
+                            ((saveStatus != FormEntryController.ANSWER_OK) &&
+                                    (failOnRequired ||
+                                            saveStatus != FormEntryController.ANSWER_REQUIRED_BUT_EMPTY))) {
+                        if (!headless) {
+                            showConstraintWarning(index, mFormController.getQuestionPrompt(index).getConstraintText(), saveStatus, success);
                         }
-                    } else {
-                        Log.w(TAG,
-                                "Attempted to save an index referencing something other than a question: "
-                                        + index.getReference());
+                        success = false;
                     }
-                }
-            } else {
-                String viewType;
-                if (mCurrentView == null || mCurrentView.getClass() == null) {
-                   viewType = "null";
                 } else {
-                    viewType = mCurrentView.getClass().toString();
+                    Log.w(TAG,
+                            "Attempted to save an index referencing something other than a question: "
+                                    + index.getReference());
                 }
-                Log.w(TAG, "Unknown view type rendered while current event was question or group! View type: " + viewType);
             }
         }
         return success;
@@ -828,7 +897,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         // We don't have the right view here, so we store the View's ID as the
         // item ID and loop through the possible views to find the one the user
         // clicked on.
-        for (QuestionWidget qw : ((ODKView) mCurrentView).getWidgets()) {
+        for (QuestionWidget qw : mCurrentView.getWidgets()) {
             if (item.getItemId() == qw.getId()) {
                 createClearDialog(qw);
             }
@@ -866,7 +935,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    private View createView() {
+    private ODKView createView() {
         setTitle(getHeaderString());
         ODKView odkv;
         // should only be a group here if the event_group is a field-list
@@ -882,7 +951,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
-            return new View(this);
+            return new ODKView(this);
         }
 
         // Makes a "clear answer" menu pop up on long-click of
@@ -896,8 +965,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             }
         }
 
-        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(odkv);
+        FormNavigationUI.updateNavigationCues(this, mFormController, odkv);
 
         return odkv;
     }
@@ -943,7 +1011,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
-                        View next = createView();
+                        ODKView next = createView();
                         if (!resuming) {
                             showView(next, AnimationType.RIGHT);
                         } else {
@@ -951,9 +1019,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                         }
                         break group_skip;
                     case FormEntryController.EVENT_END_OF_FORM:
-                        Logger.log(AndroidLogger.SOFT_ASSERT,
-                                "Trying to show an end of form event");
-                        showPreviousView(false);
+                        // auto-advance questions might advance past the last form quesion
+                        triggerUserFormComplete();
                         break group_skip;
                     case FormEntryController.EVENT_PROMPT_NEW_REPEAT:
                         createRepeatDialog();
@@ -965,7 +1032,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     	//host.
                         if (mFormController.indexIsInFieldList()
                                 && mFormController.getQuestionPrompts().length != 0) {
-                            View nextGroupView = createView();
+                            ODKView nextGroupView = createView();
                             if(!resuming) {
                                 showView(nextGroupView, AnimationType.RIGHT);
                             } else {
@@ -994,8 +1061,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 Logger.exception(e);
                 CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             }
-        } else {
-            mBeenSwiped = false;
         }
     }
 
@@ -1036,7 +1101,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     //If not, don't even bother changing the view. 
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
-                    mBeenSwiped = false;
                     FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
@@ -1049,7 +1113,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     return;
                 }
             }
-            View next = createView();
+            ODKView next = createView();
             if (showSwipeAnimation) {
                 showView(next, AnimationType.LEFT);
             } else {
@@ -1057,9 +1121,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             }
 
         } else {
-            //NOTE: this needs to match the exist condition above
-            //when there is no start screen
-            mBeenSwiped = false;
             FormEntryActivity.this.triggerUserQuitInput();
         }
     }
@@ -1068,8 +1129,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * Displays the View specified by the parameter 'next', animating both the current view and next
      * appropriately given the AnimationType. Also updates the progress bar.
      */
-    private void showView(View next, AnimationType from) { showView(next, from, true); }
-    private void showView(View next, AnimationType from, boolean animateLastView) {
+    private void showView(ODKView next, AnimationType from) { showView(next, from, true); }
+    private void showView(ODKView next, AnimationType from, boolean animateLastView) {
         switch (from) {
             case RIGHT:
                 mInAnimation = AnimationUtils.loadAnimation(this, R.anim.push_left_in);
@@ -1090,6 +1151,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 mCurrentView.startAnimation(mOutAnimation);
             }
         	mViewPane.removeView(mCurrentView);
+            mCurrentView.teardownView();
         }
 
         mInAnimation.setAnimationListener(this);
@@ -1106,30 +1168,25 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
-        header.setVisibility(View.GONE);
-        groupLabel.setVisibility(View.GONE);
+        this.mGroupNativeVisibility = false;
+        this.updateGroupViewVisibility();
 
-        if (mCurrentView instanceof ODKView) {
-            ((ODKView) mCurrentView).setFocus(this);
+        mCurrentView.setFocus(this);
 
-            SpannableStringBuilder groupLabelText = ((ODKView) mCurrentView).getGroupLabel();
+        SpannableStringBuilder groupLabelText = mCurrentView.getGroupLabel();
 
-            if(groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
-                groupLabel.setText(groupLabelText);
-                header.setVisibility(View.VISIBLE);
-                groupLabel.setVisibility(View.VISIBLE);
-            }
-        } else {
-            InputMethodManager inputManager =
-                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(mCurrentView.getWindowToken(), 0);
+        if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
+            groupLabel.setText(groupLabelText);
+            this.mGroupNativeVisibility = true;
+            updateGroupViewVisibility();
         }
     }
 
     /**
      * Creates and displays a dialog displaying the violated constraint.
      */
-    private void createConstraintToast(FormIndex index, String constraintText, int saveStatus, boolean requestFocus) {
+    private void showConstraintWarning(FormIndex index, String constraintText,
+                                       int saveStatus, boolean requestFocus) {
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -1143,7 +1200,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         
         boolean displayed = false;
         //We need to see if question in violation is on the screen, so we can show this cleanly.
-        for(QuestionWidget q : ((ODKView)mCurrentView).getWidgets()) {
+        for(QuestionWidget q : mCurrentView.getWidgets()) {
             if(index.equals(q.getFormId())) {
                 q.notifyInvalid(constraintText, requestFocus);
                 displayed = true;
@@ -1154,7 +1211,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(!displayed) {
             showCustomToast(constraintText, Toast.LENGTH_SHORT);
         }
-        mBeenSwiped = false;
+        isAnimatingSwipe = false;
     }
 
     private void showCustomToast(String message, int duration) {
@@ -1179,17 +1236,27 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
      * current group.
      */
     private void createRepeatDialog() {
+        isDialogShowing = true;
+
         ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-        
+
         View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
 
         AlertDialog repeatDialog = new AlertDialog.Builder(wrapper).create();
-        
+
         final AlertDialog theDialog = repeatDialog;
-        
+
         repeatDialog.setView(view);
-        
+
         repeatDialog.setIcon(android.R.drawable.ic_dialog_info);
+        repeatDialog.setOnDismissListener(
+                new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface d) {
+                        isDialogShowing = false;
+                    }
+                }
+        );
         
         FormNavigationController.NavigationDetails details;
         try {
@@ -1204,7 +1271,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
         
         Button back = (Button)view.findViewById(R.id.component_repeat_back);
-        
+
         back.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1230,12 +1297,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                                 CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
                                 return;
                             }
-                            showNextView();				
+                            showNextView();
 			}
         });
-        
+
         Button skip = (Button)view.findViewById(R.id.component_repeat_skip);
-        
+
         skip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1289,7 +1356,6 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         if(backExitsForm) {
         	back.setCompoundDrawables(null, exitIcon, null, null);
         }
-        mBeenSwiped = false;
     }
 
     private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
@@ -1431,21 +1497,21 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             String where =
                 Images.Media.DATA + " like '" + instanceFolder + "%'";
 
-            String[] projection = {
-                Images.ImageColumns._ID
-            };
 
             // images
             Cursor imageCursor = null;
             try {
+                String[] projection = {
+                        Images.ImageColumns._ID
+                };
                 imageCursor = getContentResolver().query(
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                             projection, where, null, null);
-                if (imageCursor.getCount() > 0) {
+                if (imageCursor != null && imageCursor.getCount() > 0) {
                     imageCursor.moveToFirst();
-                    String id =
-                        imageCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            imageCursor.getColumnIndex(Images.ImageColumns._ID);
+                    String id = imageCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1469,14 +1535,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             // audio
             Cursor audioCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Audio.AudioColumns._ID
+                };
                 audioCursor = getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (audioCursor.getCount() > 0) {
+                if (audioCursor != null && audioCursor.getCount() > 0) {
                     audioCursor.moveToFirst();
-                    String id =
-                        audioCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            audioCursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID);
+                    String id = audioCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1500,14 +1569,17 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             // video
             Cursor videoCursor = null;
             try {
+                String[] projection = {
+                        MediaStore.Video.VideoColumns._ID
+                };
                 videoCursor = getContentResolver().query(
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     projection, where, null, null);
-                if (videoCursor.getCount() > 0) {
+                if (videoCursor != null && videoCursor.getCount() > 0) {
                     videoCursor.moveToFirst();
-                    String id =
-                        videoCursor.getString(imageCursor
-                                .getColumnIndex(Images.ImageColumns._ID));
+                    int columnIndex =
+                            videoCursor.getColumnIndex(MediaStore.Video.VideoColumns._ID);
+                    String id = videoCursor.getString(columnIndex);
 
                     Log.i(
                             TAG,
@@ -1569,11 +1641,12 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
+                dialog.dismiss();
             }
         };
         factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
         factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     /**
@@ -1620,11 +1693,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                         })
                     .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
                     .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                            }
-                        }).create();
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                }
+                            }).create();
         dialog.show();
     }
 
@@ -1676,30 +1749,38 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
 
         registerFormEntryReceiver();
+        restoreTimePickerData();
 
-        //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
-        //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
-        //on screen rotation. We need to re-do any setAnswers that we perform on them after
-        //onResume.
-        try {
-            if(mCurrentView instanceof ODKView) {
-                ODKView ov = ((ODKView) mCurrentView);
-                if(ov.getWidgets() != null) {
-                    for(QuestionWidget qw : ov.getWidgets()) {
-                        if(qw instanceof DateTimeWidget) {
+        if (mFormController != null) {
+            // clear pending callout post onActivityResult processing
+            mFormController.setPendingCalloutFormIndex(null);
+        }
+    }
+
+    private void restoreTimePickerData() {
+        // On honeycomb and above this is handled by calling:
+        //   TimePicker.setSaveFromParentEnabled(false);
+        //   TimePicker.setSaveEnabled(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
+            //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
+            //on screen rotation. We need to re-do any setAnswers that we perform on them after
+            //onResume.
+            try {
+                if (mCurrentView.getWidgets() != null) {
+                    for (QuestionWidget qw : mCurrentView.getWidgets()) {
+                        if (qw instanceof DateTimeWidget) {
                             ((DateTimeWidget)qw).setAnswer();
-                        } else if(qw instanceof TimeWidget) {
+                        } else if (qw instanceof TimeWidget) {
                             ((TimeWidget)qw).setAnswer();
                         }
                     }
                 }
+            } catch (Exception e) {
+                //if this fails, we _really_ don't want to mess anything up. this is a last minute
+                //fix
             }
-        } catch(Exception e) {
-            //if this fails, we _really_ don't want to mess anything up. this is a last minute
-            //fix
-        }
-        if (mFormController != null) {
-            mFormController.setPendingCalloutFormIndex(null);
         }
     }
 
@@ -1757,6 +1838,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
                 @Override
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
+                    receiver.setFormLoadFailure();
+                    receiver.dismissProgressDialog();
                     if (e != null) {
                         CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -1770,7 +1853,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
     }
 
-    public void handleFormLoadCompletion(FormController fc) {
+    private void handleFormLoadCompletion(FormController fc) {
         mFormController = fc;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             // Newer menus may have already built the menu, before all data was ready
@@ -1814,19 +1897,20 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         }
 
         refreshCurrentView();
-        FormNavigationUI formNavUi = new FormNavigationUI(FormEntryActivity.this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(mCurrentView);
+        FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
 
     /**
      * Call when the user provides input that they want to quit the form
      */
     private void triggerUserQuitInput() {
-        //If we're just reviewing a read only form, don't worry about saving
-        //or what not, just quit
-        if(mFormController.isFormReadOnly()) {
-            //It's possible we just want to "finish" here, but
-            //I don't really wanna break any c compatibility
+        if(!formHasLoaded()) {
+            finish();
+        } else if (mFormController.isFormReadOnly()) {
+            // If we're just reviewing a read only form, don't worry about saving
+            // or what not, just quit
+            // It's possible we just want to "finish" here, but
+            // I don't really wanna break any c compatibility
             finishReturnInstance(false);
         } else {
             createQuitDialog();
@@ -1877,21 +1961,25 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             	triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if (event.isAltPressed() && !mBeenSwiped) {
-                    mBeenSwiped = true;
+                if (event.isAltPressed() && !shouldIgnoreSwipeAction()) {
+                    isAnimatingSwipe = true;
                     showNextView();
                     return true;
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if (event.isAltPressed() && !mBeenSwiped) {
-                    mBeenSwiped = true;
+                if (event.isAltPressed() && !shouldIgnoreSwipeAction()) {
+                    isAnimatingSwipe = true;
                     showPreviousView(true);
                     return true;
                 }
                 break;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private boolean shouldIgnoreSwipeAction() {
+        return isAnimatingSwipe || isDialogShowing;
     }
 
     @Override
@@ -1918,7 +2006,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     @Override
     public void onAnimationEnd(Animation arg0) {
-        mBeenSwiped = false;
+        isAnimatingSwipe = false;
     }
 
     @Override
@@ -1979,10 +2067,11 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                     break;
                 case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                    // an answer constraint was violated, so do a 'swipe' to the next
-                    // question to display the proper toast(s)
-                    next();
-                    break;
+                    // an answer constraint was violated, so try to save the
+                    // current question to trigger the constraint violation message
+                    refreshCurrentView();
+                    saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
+                    return;
             }
             refreshCurrentView();
         }
@@ -2002,7 +2091,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
                 mFormController.saveAnswer(index, answer);
                 return FormEntryController.ANSWER_OK;
             }
-        } catch(XPathException e) {
+        } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
             CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
             //We're exiting anyway
@@ -2045,8 +2134,8 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
     }
 
     private void next() {
-        if (!mBeenSwiped) {
-            mBeenSwiped = true;
+        if (!shouldIgnoreSwipeAction()) {
+            isAnimatingSwipe = true;
             showNextView();
         }
     }
@@ -2119,7 +2208,7 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
         //swipe forward.
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
-            showNextView();
+            next();
             return true;
         }
         return false;
@@ -2140,9 +2229,15 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
 
     @Override
     public void widgetEntryChanged() {
-        updateFormRelevencies();
-        FormNavigationUI formNavUi = new FormNavigationUI(this, mCurrentView, mFormController);
-        formNavUi.updateNavigationCues(mCurrentView);
+        try {
+            updateFormRelevancies();
+        } catch (XPathTypeMismatchException e) {
+            Logger.exception(e);
+            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            return;
+        }
+
+        FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
 
     /**
@@ -2184,6 +2279,9 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             }
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
                 hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
             }
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
@@ -2337,4 +2435,91 @@ public class FormEntryActivity extends CommCareActivity<FormEntryActivity>
             super(msg);
         }
     }
+
+    private void setFormLoadFailure() {
+        hasFormLoadFailed = true;
+    }
+
+    @Override
+    protected void onMajorLayoutChange(Rect newRootViewDimensions) {
+        determineNumberOfValidGroupLines(newRootViewDimensions);
+    }
+
+
+    private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        int contentSize = newRootViewDimensions.height();
+
+        View navBar = this.findViewById(R.id.nav_pane);
+        int headerSize = navBar.getHeight();
+        if(headerSize == 0) {
+            headerSize = this.getResources().getDimensionPixelSize(R.dimen.new_progressbar_minheight);
+        }
+
+        int availableWindow = contentSize - headerSize - getActionBarSize();
+
+        int questionFontSize = getFontSizeInPx();
+
+        //Request a consistent amount of the screen before groups can cut down
+
+        int spaceRequested = questionFontSize * 6;
+
+        int spaceAvailable = availableWindow - spaceRequested;
+
+        int defaultHeaderSpace = this.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
+
+        float textSize = groupLabel.getTextSize();
+
+        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
+
+        if(numberOfGroupLinesAllowed < 0) {
+            numberOfGroupLinesAllowed = 0;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
+                return;
+            }
+        }
+
+        if(numberOfGroupLinesAllowed == 0) {
+            this.mGroupForcedInvisible = true;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(0);
+        } else {
+            this.mGroupForcedInvisible = false;
+            updateGroupViewVisibility();
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+        }
+    }
+
+    private void updateGroupViewVisibility() {
+        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+
+        if(mGroupNativeVisibility && !mGroupForcedInvisible) {
+            header.setVisibility(View.VISIBLE);
+            groupLabel.setVisibility(View.VISIBLE);
+        } else {
+            header.setVisibility(View.GONE);
+            groupLabel.setVisibility(View.GONE);
+
+        }
+    }
+
+    private int getFontSizeInPx() {
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String question_font =
+                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
+
+        int sizeInPx = Integer.valueOf(question_font);
+
+        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
+                getResources().getDisplayMetrics());
+
+    }
+
 }

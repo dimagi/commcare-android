@@ -15,14 +15,12 @@ import com.etsy.android.grid.StaggeredGridView;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -143,10 +141,7 @@ public class HomeActivityUIController {
         startButton = adapter.getButton(R.layout.home_start_button);
         if (startButton != null) {
             startButton.setText(Localization.get("home.start"));
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "startButton was null in setupStartButton()");
-        }
+        } 
         adapter.setOnClickListenerForButton(R.layout.home_start_button, getStartButtonListener());
     }
 
@@ -154,24 +149,18 @@ public class HomeActivityUIController {
         viewIncompleteFormsButton = adapter.getButton(R.layout.home_incompleteforms_button);
         if (viewIncompleteFormsButton != null) {
             setIncompleteFormsText();
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "incompleteFormsButton was null in setupIncompleteFormsButton()");
-        }
+        } 
         adapter.setOnClickListenerForButton(R.layout.home_incompleteforms_button, getIncompleteButtonListener());
     }
 
     private void setupLogoutButton() {
-        logoutButton = adapter.getButton(R.layout.home_disconnect_button);
+        logoutButton = adapter.getButton(R.layout.home_logout_button);
         if (logoutButton != null) {
             logoutButton.setText(Localization.get("home.logout"));
             logoutButton.setNotificationText(activity.getActivityTitle());
             adapter.notifyDataSetChanged();
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "logoutButton was null in setupLogoutButton()");
-        }
-        adapter.setOnClickListenerForButton(R.layout.home_disconnect_button, getLogoutButtonListener());
+        } 
+        adapter.setOnClickListenerForButton(R.layout.home_logout_button, getLogoutButtonListener());
     }
 
     private void setupViewSavedFormsButton() {
@@ -195,10 +184,7 @@ public class HomeActivityUIController {
         syncButton = adapter.getButton(R.layout.home_sync_button);
         if (syncButton != null) {
             setSyncButtonText(null);
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "syncButton was null in setupSyncButton()");
-        }
+        } 
         adapter.setOnClickListenerForButton(R.layout.home_sync_button, getSyncButtonListener());
     }
 
@@ -213,7 +199,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getSyncButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                activity.attemptSync();
+                activity.syncButtonPressed();
             }
         };
     }
@@ -238,7 +224,7 @@ public class HomeActivityUIController {
         return new View.OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
-                activity.returnToLogin();
+                activity.userTriggeredLogout();
             }
         };
     }
@@ -313,17 +299,11 @@ public class HomeActivityUIController {
     private void refreshHomeAndLogoutButtons() {
         if (startButton != null) {
             startButton.setText(Localization.get(homeMessageKey));
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "startButton was null in refreshHomeAndLogoutButtons()");
-        }
+        } 
         if (logoutButton != null) {
             logoutButton.setText(Localization.get(logoutMessageKey));
             logoutButton.setNotificationText(activity.getActivityTitle());
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "logoutButton was null in refreshHomeAndLogoutButtons()");
-        }
+        } 
     }
 
     /**
@@ -337,7 +317,7 @@ public class HomeActivityUIController {
             this.numUnsentForms = syncDetails.second[0];
             this.numIncompleteForms = syncDetails.second[1];
         } catch (UserStorageClosedException e) {
-            activity.returnToLogin();
+            activity.launchLogin();
             return;
         }
     }
@@ -345,10 +325,7 @@ public class HomeActivityUIController {
     private void refreshSyncButton() {
         if (syncButton != null) {
             setSyncButtonText(syncKey);
-        } else {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "syncButton was null in refreshSyncButton()");
-        }
+        } 
     }
 
     private void refreshSavedFormsButton() {

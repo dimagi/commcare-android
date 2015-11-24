@@ -4,13 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import org.commcare.android.database.EncryptedModel;
-import org.commcare.android.storage.framework.MetaField;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.modern.models.EncryptedModel;
+import org.commcare.modern.models.MetaField;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -102,7 +102,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         this.uuid = uuid;
         this.lastModified = lastModified;
         if (lastModified == null) {
-            lastModified = new Date();
+            this.lastModified = new Date();
         }
     }
 

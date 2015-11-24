@@ -32,15 +32,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.activities.DrawActivity;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.ODKStorage;
-import org.odk.collect.android.utilities.FileUtils;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.UrlUtils;
 
 import java.io.File;
@@ -51,19 +53,21 @@ import java.io.File;
  * @author BehrAtherton@gmail.com
  *
  */
-public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
+public class SignatureWidget extends QuestionWidget {
     private final static String t = "SignatureWidget";
 
     private final Button mSignButton;
     private String mBinaryName;
     private final String mInstanceFolder;
     private ImageView mImageView;
-    private boolean mWaitingForData;
+    private PendingCalloutInterface pendingCalloutInterface;
 
     private final TextView mErrorTextView;
 
-    public SignatureWidget(Context context, FormEntryPrompt prompt) {
+    public SignatureWidget(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
+
+        this.pendingCalloutInterface = pic;
 
         mInstanceFolder =
                 FormEntryActivity.mInstancePath.substring(0,
@@ -82,10 +86,11 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
                 !prompt.isReadOnly());
 
         // launch capture intent on click
+        final FormIndex questionIndex = prompt.getIndex();
         mSignButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchSignatureActivity();
+                launchSignatureActivity(questionIndex );
             }
         });
 
@@ -115,7 +120,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             File f = new File(mInstanceFolder + File.separator + mBinaryName);
 
             if (f.exists()) {
-                Bitmap bmp = FileUtils.getBitmapScaledToDisplay(f, screenHeight, screenWidth);
+                Bitmap bmp = MediaUtil.getBitmapScaledToContainer(f, screenHeight, screenWidth);
                 if (bmp == null) {
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
@@ -129,7 +134,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             mImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    launchSignatureActivity();
+                    launchSignatureActivity(questionIndex);
                 }
             });
 
@@ -137,7 +142,7 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
-    private void launchSignatureActivity() {
+    private void launchSignatureActivity(FormIndex questionIndex) {
         mErrorTextView.setVisibility(View.GONE);
         Intent i = new Intent(getContext(), DrawActivity.class);
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE);
@@ -155,13 +160,12 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
             //tells the form controller that when onActivityResult is called (when the DrawActivity)
             //finishes, the requestCode is SIGNATURE_CAPTURE
             ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.SIGNATURE_CAPTURE);
-            setWaitingForBinaryData();
+            pendingCalloutInterface.setPendingCalloutFormIndex(questionIndex);
         }
         catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     getContext().getString(R.string.activity_not_found, "signature capture"),
                     Toast.LENGTH_SHORT).show();
-            cancelWaitingForBinaryData();
         }
     }
 
@@ -215,8 +219,6 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
-
-        mWaitingForData = false;
     }
 
     @Override
@@ -227,20 +229,6 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
-
-    @Override
-    public boolean isWaitingForBinaryData() {
-        return mWaitingForData;
-    }
-
-    private void setWaitingForBinaryData() {
-        mWaitingForData = true;
-    }
-    
-    private void cancelWaitingForBinaryData() {
-        mWaitingForData = false;
-    }
-
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         mSignButton.setOnLongClickListener(l);
@@ -249,6 +237,15 @@ public class SignatureWidget extends QuestionWidget implements IBinaryWidget {
         }
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mSignButton.setOnLongClickListener(null);
+        if (mImageView != null) {
+            mImageView.setOnLongClickListener(null);
+        }
+    }
 
     @Override
     public void cancelLongPress() {

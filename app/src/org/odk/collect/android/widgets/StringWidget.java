@@ -116,6 +116,8 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         if(secret) {
             mAnswer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        } else{
+            mAnswer.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
         }
     }
 
@@ -174,6 +176,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         mAnswer.setOnLongClickListener(l);
     }
 
+    @Override
+    public void unsetListeners() {
+        super.unsetListeners();
+
+        mAnswer.setOnLongClickListener(null);
+    }
 
     @Override
     public void cancelLongPress() {

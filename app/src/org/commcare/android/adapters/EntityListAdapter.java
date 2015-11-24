@@ -83,7 +83,6 @@ public class EntityListAdapter implements ListAdapter {
     EntitySearcher mCurrentSortThread = null;
     Object mSyncLock = new Object();
 
-    public static int SCALE_FACTOR = 1;   // How much we want to degrade the image quality to enable faster laoding. TODO: get cleverer
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
@@ -122,7 +121,7 @@ public class EntityListAdapter implements ListAdapter {
 
         this.tts = tts;
         if (android.os.Build.VERSION.SDK_INT >= 14) {
-            mImageLoader = new CachingAsyncImageLoader(context, SCALE_FACTOR);
+            mImageLoader = new CachingAsyncImageLoader(context);
         } else {
             mImageLoader = null;
         }
@@ -578,7 +577,9 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
-        this.observers.add(observer);
+        if (!observers.contains(observer)) {
+            this.observers.add(observer);
+        }
     }
 
     @Override

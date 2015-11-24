@@ -6,25 +6,25 @@ import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
+import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.preferences.FormEntryPreferences;
-import org.odk.collect.android.widgets.IBinaryWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
@@ -41,15 +41,12 @@ public class ODKView extends ScrollView
 
     // starter random number for view IDs
     private final static int VIEW_ID = 12345;  
-    
-    private static final String TAG = ODKView.class.getSimpleName();
 
     private final LinearLayout mView;
     private final LinearLayout.LayoutParams mLayout;
     private final ArrayList<QuestionWidget> widgets;
     private final ArrayList<View> dividers;
-    private ProgressBar mProgressBar;
-    
+
     private final int mQuestionFontsize;
 
     public final static String FIELD_LIST = "field-list";
@@ -60,68 +57,54 @@ public class ODKView extends ScrollView
     private int widgetIdCount = 0;
     private int mViewBannerCount = 0;
 
-    private boolean mProgressEnabled;
-    
-    private final SpannableStringBuilder mGroupLabel;
+    private SpannableStringBuilder mGroupLabel;
 
     /**
      * If enabled, we use dividers between question prompts
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
-                   FormEntryCaption[] groups, WidgetFactory factory,
-                   WidgetChangedListener wcl) {
+    public ODKView(Context context) {
         super(context);
-        
-        if(wcl !=null){
-            hasListener = true;
-            wcListener = wcl;
-        }
-        
-        SharedPreferences settings = 
-             PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+
+        SharedPreferences settings =
+                PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
 
         String question_font =
                 settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
 
         mQuestionFontsize = Integer.valueOf(question_font);
-        
-        widgets = new ArrayList<QuestionWidget>();
-        dividers = new ArrayList<View>();
+        widgets = new ArrayList<>();
+        dividers = new ArrayList<>();
 
         mView = (LinearLayout) inflate(getContext(), R.layout.odkview_layout, null);
 
         mLayout =
-            new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        //Figure out if we share hint text between questions
-        String hintText = null;
-        if(questionPrompts.length > 1) {
-            hintText = questionPrompts[0].getHintText();
-            for (FormEntryPrompt p : questionPrompts) {
-                //If something doesn't have hint text at all,
-                //bail
-                String curHintText = p.getHintText();
-                //Otherwise see if it matches
-                if(curHintText == null || !curHintText.equals(hintText)) {
-                    //If not, we can't do this trick
-                    hintText = null;
-                    break;
-                }
-            }
+        mGroupLabel = null;
+    }
+
+    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
+                   FormEntryCaption[] groups, WidgetFactory factory,
+                   WidgetChangedListener wcl) {
+        this(context);
+
+        if(wcl !=null){
+            hasListener = true;
+            wcListener = wcl;
         }
 
         // display which group you are in as well as the question
         mGroupLabel = deriveGroupText(groups);
-        
+
+        String hintText = getHintText(questionPrompts);
         addHintText(hintText);
         
         boolean first = true;
         
         for (FormEntryPrompt p: questionPrompts) {
-            
             if (!first) {
                 View divider = new View(getContext());
                 if(SEPERATORS_ENABLED) {
@@ -157,7 +140,7 @@ public class ODKView extends ScrollView
 
         addView(mView);
     }
-    
+
     void removeQuestionFromIndex(int i){
         int dividerIndex = Math.max(i - 1, 0);
 
@@ -168,6 +151,7 @@ public class ODKView extends ScrollView
 
         if (i < widgets.size()) {
             mView.removeView(widgets.get(i));
+            widgets.get(i).unsetListeners();
             widgets.remove(i);
         }
     }
@@ -252,18 +236,6 @@ public class ODKView extends ScrollView
     }
 
     /**
-     * Update progress bar
-     * @param progress Current value
-     * @param max Progress bar will be given range 0..max
-     */
-    public void updateProgressBar(int progress, int max) {
-        if (mProgressBar != null) {
-            mProgressBar.setMax(max);
-            mProgressBar.setProgress(progress);
-        }
-    }
-
-    /**
      * Returns the hierarchy of groups to which the question belongs.
      */
     private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
@@ -307,7 +279,28 @@ public class ODKView extends ScrollView
     public SpannableStringBuilder getGroupLabel() {
         return mGroupLabel;
     }
-    
+
+    private String getHintText(FormEntryPrompt[] questionPrompts) {
+        //Figure out if we share hint text between questions
+        String hintText = null;
+        if (questionPrompts.length > 1) {
+            hintText = questionPrompts[0].getHintText();
+            for (FormEntryPrompt p : questionPrompts) {
+                //If something doesn't have hint text at all,
+                //bail
+                String curHintText = p.getHintText();
+                //Otherwise see if it matches
+                if (curHintText == null || !curHintText.equals(hintText)) {
+                    //If not, we can't do this trick
+                    hintText = null;
+                    break;
+                }
+            }
+        }
+
+        return hintText;
+    }
+
     private void addHintText(String hintText) {
         if (hintText != null && !hintText.equals("")) {
             TextView mHelpText = new TextView(getContext());
@@ -332,28 +325,23 @@ public class ODKView extends ScrollView
     /**
      * Called when another activity returns information to answer this question.
      */
-    public void setBinaryData(Object answer) {
-        boolean set = false;
-        for (QuestionWidget q : widgets) {
-            if (q instanceof IBinaryWidget) {
-                if (((IBinaryWidget) q).isWaitingForBinaryData()) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    set = true;
-                    break;
-                }
-            }
+    public void setBinaryData(Object answer, PendingCalloutInterface pendingCalloutInterface) {
+        FormIndex questionFormIndex = pendingCalloutInterface.getPendingCalloutFormIndex();
+        if (questionFormIndex == null) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to find question widget to attach pending data to.");
+            return;
         }
 
-        if (!set) {
-            Log.w(TAG, "Attempting to return data to a widget or set of widgets not looking for data");
-                     
-            for (QuestionWidget q : widgets) {
-                if (q instanceof IBinaryWidget) {
-                    ((IBinaryWidget) q).setBinaryData(answer);
-                    break;
-                }
+        for (QuestionWidget q : widgets) {
+            if (questionFormIndex.equals(q.getFormId())) {
+                q.setBinaryData(answer);
+                pendingCalloutInterface.setPendingCalloutFormIndex(null);
+                return;
             }
         }
+        Logger.log(AndroidLogger.SOFT_ASSERT,
+                "Unable to find question widget to attach pending data to.");
     }
 
 
@@ -377,9 +365,14 @@ public class ODKView extends ScrollView
 
     @Override
     public void setOnFocusChangeListener(OnFocusChangeListener l) {
-        for (int i = 0; i < widgets.size(); i++) {
-            QuestionWidget qw = widgets.get(i);
+        for (QuestionWidget qw : widgets) {
             qw.setOnFocusChangeListener(l);
+        }
+    }
+
+    public void teardownView() {
+        for (QuestionWidget widget : widgets) {
+            widget.unsetListeners();
         }
     }
 
@@ -418,31 +411,11 @@ public class ODKView extends ScrollView
     }
     
     /**
-     * Remove question, based on position. 
-     * @param questionIndex Index in question list.
-     */
-    public void removeWidget(int questionIndex){
-        mView.removeViewAt(getViewIndex(questionIndex));
-    }
-    
-    /**
-     * Remove question, based on view object.
-     * @param v View to remove
-     */
-    public void removeWidget(View v){
-        mView.removeView(v);
-    }
-
-    /**
      * Translate question index to view index.
      * @param questionIndex Index in the list of questions.
      * @return Index of question's view in mView.
      */
     private int getViewIndex(int questionIndex) {
-        // Account for progress bar
-        if (mProgressEnabled) {
-            return questionIndex + 1;
-        }
         return questionIndex;
     }
 
@@ -460,6 +433,4 @@ public class ODKView extends ScrollView
         }
         return prompt;
     }
-
-
 }

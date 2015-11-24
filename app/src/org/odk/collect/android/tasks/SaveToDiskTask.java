@@ -12,10 +12,12 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
@@ -91,7 +93,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     @Override
     protected Integer doTaskBackground(Void... nothing) {
         // validation failed, pass specific failure
-        int validateStatus = validateAnswers(mMarkCompleted);
+        int validateStatus =
+                validateAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave());
         if (validateStatus != VALIDATED) {
             return validateStatus;
         }
@@ -253,7 +256,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             try {
                 updateInstanceDatabase(false, canEditAfterCompleted);
             } catch (SQLException e) {
-                Log.e(TAG, "Error creating database entries for form.");
+                Logger.exception("Error creating database entries for form", e);
                 e.printStackTrace();
                 return false;
             }
@@ -364,24 +367,31 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     /**
-     * Goes through the entire form to make sure all entered answers comply with their constraints.
-     * Constraints are ignored on 'jump to', so answers can be outside of constraints. We don't
-     * allow saving to disk, though, until all answers conform to their constraints/requirements.
+     * Goes through the entire form to make sure all entered answers comply
+     * with their constraints.  Constraints are ignored on 'jump to', so
+     * answers can be outside of constraints. We don't allow saving to disk,
+     * though, until all answers conform to their constraints/requirements.
+     * @param fireTriggerables re-fire the triggers associated with the
+     *                         question when checking its constraints?
      */
-    private int validateAnswers(Boolean markCompleted) {
+    private int validateAnswers(boolean markCompleted, boolean fireTriggerables) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         int event;
         while ((event =
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
-            if (event != FormEntryController.EVENT_QUESTION) {
-                continue;
-            } else {
-                int saveStatus =
-                    FormEntryActivity.mFormController
-                            .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
-                                    .getAnswerValue());
+            if (event == FormEntryController.EVENT_QUESTION) {
+                int saveStatus;
+                if (fireTriggerables) {
+                    saveStatus =
+                            FormEntryActivity.mFormController
+                                    .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
+                                            .getAnswerValue());
+                } else {
+                    saveStatus =
+                            FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
+                }
                 if (markCompleted && saveStatus != FormEntryController.ANSWER_OK) {
                     return saveStatus;
                 }
