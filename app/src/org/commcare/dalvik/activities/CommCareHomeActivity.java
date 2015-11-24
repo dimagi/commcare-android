@@ -85,7 +85,7 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, RuntimePermissionRequester {
+        implements SessionNavigationResponder {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -154,8 +154,6 @@ public class CommCareHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     public static final String MENU_STYLE_GRID = "grid";
 
-    private static final int STORAGE_PERMISSIONS_REQUEST = 1;
-
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
@@ -176,9 +174,6 @@ public class CommCareHomeActivity
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         }
-
-        // since form entry needs external storage r/w, ask for it now
-        acquireStoragePermissions();
 
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
@@ -205,60 +200,6 @@ public class CommCareHomeActivity
         }
         return false;
     }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private void acquireStoragePermissions() {
-        if (checkExternalStoragePerms()) {
-            if (shouldShowExternalPermissionRational()) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "CommCare needs external storage permission",
-                                "In order to load and save forms from disk CommCare needs permissions to read & write to external memory.");
-                dialog.show();
-            } else {
-                requestNeededPermissions();
-            }
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean checkExternalStoragePerms() {
-        return (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED);
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean shouldShowExternalPermissionRational() {
-        return (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE));
-    }
-
-    @Override
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public void requestNeededPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                STORAGE_PERMISSIONS_REQUEST);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == STORAGE_PERMISSIONS_REQUEST) {
-            for (int i = 0; i < permissions.length; i++) {
-                if ((Manifest.permission.READ_EXTERNAL_STORAGE.equals(permissions[i]) ||
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) &&
-                        grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, "Form entry doesn't work without storage permissions",
-                            Toast.LENGTH_LONG).show();
-                    // TODO PLM: disable 'start' button because form entry
-                    // doesn't work without storage perms
-                }
-            }
-        }
-    }
-
     protected void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }

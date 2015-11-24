@@ -136,8 +136,8 @@ public class CallOutActivity extends Activity
             if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "Send sms or call phone",
-                                "CommCare would like to call a phone or send an sms...");
+                                Localization.get("permission.case.callout.title"),
+                                Localization.get("permission.case.callout.message"));
                 dialog.show();
             } else {
                 requestNeededPermissions();

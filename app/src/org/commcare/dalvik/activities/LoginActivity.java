@@ -106,7 +106,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
     private final static int ALL_PERMISSIONS_REQUEST = 1;
 
-    @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
+    @UiElement(value=R.id.screen_login_bad_password)
     private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
@@ -157,7 +157,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         setupLoginButton();
-        errorBox.setVisibility(View.GONE);
+        if (loginButton.isEnabled()) {
+            // don't hide error box when showing permission error
+            errorBox.setVisibility(View.GONE);
+        }
     }
 
     private void setupLoginButton() {
@@ -245,8 +248,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "Permissions for CommCare",
-                                "In order to function CommCare would like .");
+                                Localization.get("permission.all.title"),
+                                Localization.get("permission.all.message"));
                 dialog.show();
             } else {
                 requestNeededPermissions();
@@ -622,7 +625,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
             return true;
         case MENU_PERMISSIONS:
-            requestNeededPermissions();
+            acquirePhoneCallPerms();
             return true;
         default:
             return otherResult;

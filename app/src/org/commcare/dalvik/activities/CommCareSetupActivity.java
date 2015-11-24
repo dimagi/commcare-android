@@ -500,8 +500,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Manifest.permission.READ_SMS)) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                "CommCare needs SMS reading permission",
-                                "CommCare would like to scan recent SMS messages to for an app install code.");
+                                Localization.get("permission.sms.install.title"),
+                                Localization.get("permission.sms.install.message"));
                 dialog.show();
             } else {
                 requestNeededPermissions();
