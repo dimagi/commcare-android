@@ -132,7 +132,7 @@ public class CallOutActivity extends Activity
     }
 
     private void dispatchActionWithPermissions() {
-        if (checkPhonePermissions()) {
+        if (missingPhonePermission()) {
             if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
@@ -156,7 +156,7 @@ public class CallOutActivity extends Activity
         return "";
     }
 
-    private boolean checkPhonePermissions() {
+    private boolean missingPhonePermission() {
         return ContextCompat.checkSelfPermission(this, getPermissionForAction()) != PackageManager.PERMISSION_GRANTED;
     }
 

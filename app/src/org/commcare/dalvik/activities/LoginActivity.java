@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
@@ -241,12 +240,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             }
         });
 
-        acquirePhoneCallPerms();
+        acquireAllAppPerms();
     }
 
-    private void acquirePhoneCallPerms() {
-        if (checkPhonePermissions()) {
-            if (shouldShowPhonePermissionRationale()) {
+    private void acquireAllAppPerms() {
+        if (missingAppPermission()) {
+            if (shouldShowPermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 Localization.get("permission.all.title"),
@@ -258,7 +257,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    private boolean checkPhonePermissions() {
+    private boolean missingAppPermission() {
         for (String perm : appPermissions) {
             if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
                 return true;
@@ -267,7 +266,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return false;
     }
 
-    private boolean shouldShowPhonePermissionRationale() {
+    private boolean shouldShowPermissionRationale() {
         for (String perm : appPermissions) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
                 return true;
@@ -298,7 +297,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             grantResults[i] == PackageManager.PERMISSION_DENIED) {
                         loginButton.setEnabled(false);
                         errorBox.setVisibility(View.VISIBLE);
-                        errorBox.setText("CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'");
+                        errorBox.setText(Localization.get("permission.all.denial.message"));
                         return;
                     }
                 }
@@ -626,7 +625,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
             return true;
         case MENU_PERMISSIONS:
-            acquirePhoneCallPerms();
+            acquireAllAppPerms();
             return true;
         default:
             return otherResult;
