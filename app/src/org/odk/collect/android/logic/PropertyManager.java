@@ -1,21 +1,10 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.logic;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -32,38 +21,32 @@ import java.util.Vector;
  */
 
 public class PropertyManager implements IPropertyManager {
+    private final static String TAG = PropertyManager.class.getSimpleName();
 
-    private String t = "PropertyManager";
-
-    private Context mContext;
-
-    private TelephonyManager mTelephonyManager;
-    private HashMap<String, String> mProperties;
+    private final HashMap<String, String> mProperties;
 
     private final static String DEVICE_ID_PROPERTY = "deviceid"; // imei
     private final static String SUBSCRIBER_ID_PROPERTY = "subscriberid"; // imsi
     private final static String SIM_SERIAL_PROPERTY = "simserial";
     private final static String PHONE_NUMBER_PROPERTY = "phonenumber";
 
-
-    public String getName() {
-        return "Property Manager";
-    }
-
-
     public PropertyManager(Context context) {
-        Log.i(t, "calling constructor");
+        Log.i(TAG, "calling constructor");
 
-        mContext = context;
+        mProperties = new HashMap<>();
 
-        mProperties = new HashMap<String, String>();
-        mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            mProperties.put(DEVICE_ID_PROPERTY, "000000000000000");
+            return;
+        }
+
+        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         String deviceId = mTelephonyManager.getDeviceId();
         if (deviceId != null && (deviceId.contains("*") || deviceId.contains("000000000000000"))) {
             deviceId =
                 Settings.Secure
-                        .getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID);
+                        .getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         mProperties.put(DEVICE_ID_PROPERTY, deviceId);
         mProperties.put(SUBSCRIBER_ID_PROPERTY, mTelephonyManager.getSubscriberId());
@@ -71,39 +54,36 @@ public class PropertyManager implements IPropertyManager {
         mProperties.put(PHONE_NUMBER_PROPERTY, mTelephonyManager.getLine1Number());
     }
 
+    public String getName() {
+        return "Property Manager";
+    }
 
     @Override
     public Vector<String> getProperty(String propertyName) {
         return null;
     }
 
-
     @Override
     public String getSingularProperty(String propertyName) {
         return mProperties.get(propertyName.toLowerCase());
     }
 
-
     @Override
     public void setProperty(String propertyName, String propertyValue) {
     }
-
 
     @Override
     public void setProperty(String propertyName, @SuppressWarnings("rawtypes") Vector propertyValue) {
 
     }
 
-
     @Override
     public void addRules(IPropertyRules rules) {
 
     }
 
-
     @Override
     public Vector<IPropertyRules> getRules() {
         return null;
     }
-
 }

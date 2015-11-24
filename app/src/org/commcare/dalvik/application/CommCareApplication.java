@@ -26,7 +26,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -70,7 +69,6 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
@@ -164,8 +162,6 @@ public class CommCareApplication extends Application {
     private static final int MAX_BIND_TIMEOUT = 5000;
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
-
-    private CallInPhoneListener listener = null;
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -305,21 +301,6 @@ public class CommCareApplication extends Application {
         return getSession().createNewSymetricKey();
     }
 
-    private void attachCallListener() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-
-            listener = new CallInPhoneListener(this, this.getCommCarePlatform());
-            listener.startCache();
-
-            tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-        }
-    }
-
-    public CallInPhoneListener getCallListener() {
-        return listener;
-    }
-
     public int[] getCommCareVersion() {
         return this.getResources().getIntArray(R.array.commcare_version);
     }
@@ -362,6 +343,10 @@ public class CommCareApplication extends Application {
     }
 
     public String getPhoneId() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            return "000000000000000";
+        }
+
         TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
@@ -878,7 +863,6 @@ public class CommCareApplication extends Application {
 
                     if (user != null) {
                         mBoundService.startSession(user);
-                        attachCallListener();
                         CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
 
                         if (shouldAutoUpdate()) {

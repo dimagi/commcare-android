@@ -84,7 +84,6 @@ home.sync.message.last.never=never
 
 home.menu.settings=Settings
 home.menu.update=Update CommCare
-home.menu.call.log=Call Log
 home.menu.validate=Validate Media
 home.menu.change.locale=Change Language
 home.menu.formdump=Manage SD

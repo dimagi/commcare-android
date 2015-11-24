@@ -604,7 +604,7 @@ public class LegacyInstallUtils {
     }
 
     public interface CopyMapper<T extends Persistable> {
-        public T transform(T t);
+        T transform(T t);
     }
 
     private static SecretKeySpec generateOldTestKey(Context c) {
@@ -620,8 +620,8 @@ public class LegacyInstallUtils {
         return null;
     }
 
-    public static String getPhoneIdOld(Context c) {
-        TelephonyManager manager = (TelephonyManager) c.getSystemService(c.TELEPHONY_SERVICE);
+    private static String getPhoneIdOld(Context c) {
+        TelephonyManager manager = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.ANDROID_ID;

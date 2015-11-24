@@ -272,18 +272,6 @@
         </service>
 
         <activity
-            android:name=".activities.CallLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
-            android:name=".activities.MessageLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
-            android:name=".activities.PhoneLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" >

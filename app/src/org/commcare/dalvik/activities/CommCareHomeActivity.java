@@ -135,14 +135,13 @@ public class CommCareHomeActivity
 
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
-    private static final int MENU_CALL_LOG = Menu.FIRST + 2;
-    private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 3;
-    private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 4;
-    private static final int MENU_DUMP_FORMS = Menu.FIRST + 5;
-    private static final int MENU_WIFI_DIRECT = Menu.FIRST + 6;
-    private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 7;
-    private static final int MENU_SAVED_FORMS = Menu.FIRST + 8;
-    private static final int MENU_ABOUT = Menu.FIRST + 9;
+    private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 2;
+    private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 3;
+    private static final int MENU_DUMP_FORMS = Menu.FIRST + 4;
+    private static final int MENU_WIFI_DIRECT = Menu.FIRST + 5;
+    private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 6;
+    private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
+    private static final int MENU_ABOUT = Menu.FIRST + 8;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -1356,8 +1355,6 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
                 android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_CALL_LOG, 0, Localization.get("home.menu.call.log")).setIcon(
-                android.R.drawable.ic_menu_recent_history);
         menu.add(0, MENU_REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
                 android.R.drawable.ic_menu_report_image);
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
@@ -1408,9 +1405,6 @@ public class CommCareHomeActivity
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivity(i);
                 return true;
-            case MENU_CALL_LOG:
-                createCallLogActivity();
-                return true;
             case MENU_REPORT_PROBLEM:
                 startReportActivity();
                 return true;
@@ -1439,12 +1433,6 @@ public class CommCareHomeActivity
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    private void createCallLogActivity() {
-        Intent i = new Intent(this, PhoneLogActivity.class);
-        startActivity(i);
-
     }
 
     private void startReportActivity() {
