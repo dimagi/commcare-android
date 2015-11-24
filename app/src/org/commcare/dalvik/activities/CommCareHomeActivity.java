@@ -583,12 +583,12 @@ public class CommCareHomeActivity
      * callout that we are returning from was made
      */
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
-        boolean dataIdsEqual = session.getNeededData().equals(
+        boolean neededDataUnchanged = session.getNeededData().equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
-        boolean datumIdsEqual = intentDatum  == null ? true :
+        boolean datumIdsUnchanged = intentDatum  == null ? true :
                 intentDatum.equals(session.getNeededDatum().getDataId());
-        return dataIdsEqual && datumIdsEqual;
+        return neededDataUnchanged && datumIdsUnchanged;
     }
 
     /**
