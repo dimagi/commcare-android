@@ -28,6 +28,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
@@ -96,6 +97,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * on activity pause/resume.
      */
     private int dialogId = -1;
+    private ContainerFragment<Bundle> managedUiState;
 
     @Override
     @TargetApi(14)
@@ -116,7 +118,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
-        loadUiElementState(savedInstanceState);
+        persistManagedUiState(fm);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
@@ -134,6 +136,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         mGestureDetector = new GestureDetector(this, this);
     }
 
+    private void persistManagedUiState(FragmentManager fm) {
+        managedUiState = (ContainerFragment)fm.findFragmentByTag(ContainerFragment.KEY);
+
+        if (managedUiState == null) {
+            managedUiState = new ContainerFragment<>();
+            fm.beginTransaction().add(managedUiState, ContainerFragment.KEY).commit();
+        } else {
+            loadUiElementState(managedUiState.getData());
+        }
+    }
+
     private void loadUiElementState(Bundle savedInstanceState) {
         if (ManagedUiFramework.isManagedUi(this.getClass())) {
             this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
@@ -149,10 +162,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
-            ManagedUiFramework.saveUiStateToBundle(this, outState);
-        }
     }
 
     /**
@@ -309,6 +318,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
+
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+            managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
+        }
 
         activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();

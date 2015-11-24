@@ -121,8 +121,8 @@ public class ManagedUiFramework {
     /**
      * Store the state of the activity's UiElement annotated fields.
      */
-    public static void saveUiStateToBundle(CommCareActivity activity,
-                                           Bundle bundle) {
+    public static Bundle saveUiStateToBundle(CommCareActivity activity) {
+        Bundle bundle = new Bundle();
         Class c = activity.getClass();
         for (Field f : c.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -150,5 +150,6 @@ public class ManagedUiFramework {
                 }
             }
         }
+        return bundle;
     }
 }
