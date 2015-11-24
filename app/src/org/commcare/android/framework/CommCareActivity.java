@@ -162,11 +162,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     /**
      * Call this method from an implementing activity to request a new event trigger for any time
      * the available space for the core content view changes significantly, for instance when the
