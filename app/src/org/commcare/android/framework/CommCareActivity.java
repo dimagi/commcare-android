@@ -137,13 +137,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     private void persistManagedUiState(FragmentManager fm) {
-        managedUiState = (ContainerFragment)fm.findFragmentByTag(ContainerFragment.KEY);
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+            managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
 
-        if (managedUiState == null) {
-            managedUiState = new ContainerFragment<>();
-            fm.beginTransaction().add(managedUiState, ContainerFragment.KEY).commit();
-        } else {
-            loadUiElementState(managedUiState.getData());
+            if (managedUiState == null) {
+                managedUiState = new ContainerFragment<>();
+                fm.beginTransaction().add(managedUiState, "ui-state").commit();
+                loadUiElementState(null);
+            } else {
+                loadUiElementState(managedUiState.getData());
+            }
         }
     }
 

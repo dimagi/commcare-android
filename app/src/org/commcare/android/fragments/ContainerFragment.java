@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;
 public class ContainerFragment<Data> extends Fragment {
     private Data data;
 
-    public static String KEY = "container";
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

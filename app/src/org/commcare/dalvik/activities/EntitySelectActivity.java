@@ -286,13 +286,13 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private void persistAdapterState(ListView view) {
         FragmentManager fm = this.getSupportFragmentManager();
 
-        containerFragment = (ContainerFragment)fm.findFragmentByTag(ContainerFragment.KEY);
+        containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
         if (containerFragment == null) {
             containerFragment = new ContainerFragment<>();
-            fm.beginTransaction().add(containerFragment, ContainerFragment.KEY).commit();
+            fm.beginTransaction().add(containerFragment, "entity-adapter").commit();
         } else {
             adapter = containerFragment.getData();
             // on orientation change
