@@ -25,9 +25,9 @@ updates.pinned.progress=${0}/${1}
 
 install.current.version=Version currently installed: ${0}
 
-verify.title=CommCare Resource Verification
-verify.checking=Verifying Resources
-verify.progress=Verifying resources. ${0} resources verified of ${1} total
+verify.retry=Retry
+verify.checking=Verifying media...
+verify.check.failed=Validation failed for an unknown reason
 
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below

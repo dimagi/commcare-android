@@ -13,10 +13,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -25,13 +23,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
@@ -57,7 +54,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioController;
 
-import java.lang.reflect.Field;
 
 /**
  * Base class for CommCareActivities to simplify
@@ -72,7 +68,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    StateFragment<R> stateHolder;
+    TaskConnectorFragment<R> stateHolder;
 
     //fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
@@ -101,6 +97,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * on activity pause/resume.
      */
     private int dialogId = -1;
+    private ContainerFragment<Bundle> managedUiState;
 
     @Override
     @TargetApi(14)
@@ -109,22 +106,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (StateFragment) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment) fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
         if (stateHolder == null) {
-            stateHolder = new StateFragment<>();
+            stateHolder = new TaskConnectorFragment<>();
             fm.beginTransaction().add(stateHolder, "state").commit();
             // entering new activity, not just rotating one, so release old
             // media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
-        if (this.getClass().isAnnotationPresent(ManagedUi.class)) {
-            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
-            loadFields(true);
-        }
+        persistManagedUiState(fm);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             getActionBar().setDisplayShowCustomEnabled(true);
 
@@ -139,6 +134,32 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         mGestureDetector = new GestureDetector(this, this);
+    }
+
+    private void persistManagedUiState(FragmentManager fm) {
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+            managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
+
+            if (managedUiState == null) {
+                managedUiState = new ContainerFragment<>();
+                fm.beginTransaction().add(managedUiState, "ui-state").commit();
+                loadUiElementState(null);
+            } else {
+                loadUiElementState(managedUiState.getData());
+            }
+        }
+    }
+
+    private void loadUiElementState(Bundle savedInstanceState) {
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+
+            if (savedInstanceState != null) {
+                ManagedUiFramework.restoreUiElements(this, savedInstanceState);
+            } else {
+                ManagedUiFramework.loadUiElements(this);
+            }
+        }
     }
 
     /**
@@ -219,75 +240,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /**
-     * @param restoreOldFields Use the fields already on screen? For refreshing
-     *                         fields when the default language changes due to
-     *                         the app being changed on the home screen
-     *                         multiple app drop-down menu.
-     */
-    protected void loadFields(boolean restoreOldFields) {
-        CommCareActivity oldActivity = stateHolder.getPreviousState();
-        Class c = this.getClass();
-        for (Field f : c.getDeclaredFields()) {
-            if (f.isAnnotationPresent(UiElement.class)) {
-                UiElement element = f.getAnnotation(UiElement.class);
-                try {
-                    f.setAccessible(true);
-
-                    try {
-                        View v = this.findViewById(element.value());
-                        f.set(this, v);
-
-                        if (oldActivity != null && restoreOldFields) {
-                            View oldView = (View) f.get(oldActivity);
-                            if (oldView != null) {
-                                if (v instanceof TextView) {
-                                    ((TextView) v).setText(((TextView) oldView).getText());
-                                }
-                                if (v == null) {
-                                    Log.d("loadFields", "NullPointerException when trying to find view with id: " +
-                                            +element.value() + " (" + getResources().getResourceEntryName(element.value()) + ") "
-                                            + " oldView is " + oldView + " for activity " + oldActivity +
-                                            ", element is: " + f + " (" + f.getName() + ")");
-                                }
-                                v.setVisibility(oldView.getVisibility());
-                                v.setEnabled(oldView.isEnabled());
-                                continue;
-                            }
-                        }
-
-                        String localeString = element.locale();
-                        if (!"".equals(localeString)) {
-                            if (v instanceof EditText) {
-                                ((EditText) v).setHint(Localization.get(localeString));
-                            } else if (v instanceof TextView) {
-                                ((TextView) v).setText(Localization.get(localeString));
-                            } else {
-                                throw new RuntimeException("Can't set the text for a " + v.getClass().getName() + " View!");
-                            }
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException("Bad Object type for field " + f.getName());
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException("Couldn't access the activity field for some reason");
-                    }
-                } finally {
-                    f.setAccessible(false);
-                }
-            }
-        }
-    }
-
-    protected CommCareActivity getDestroyedActivityState() {
-        return stateHolder.getPreviousState();
-    }
-
     protected boolean isTopNavEnabled() {
         return false;
     }
 
-
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -360,13 +317,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
+        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+            managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
+        }
+
         activityPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
     @Override
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
-        stateHolder.connectTask(task);
+        stateHolder.connectTask(task, this);
 
         //If we've left an old dialog showing during the task transition and it was from the same task
         //as the one that is starting, don't dismiss it
