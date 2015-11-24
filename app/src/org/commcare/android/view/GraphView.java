@@ -114,9 +114,10 @@ public class GraphView {
                         "<head>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                         "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                        "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-                        "<script type='text/javascript'>";
+                        "<script type='text/javascript'>try {\n";
 
         Enumeration<String> e = variables.keys();
         while (e.hasMoreElements()) {
@@ -125,12 +126,13 @@ public class GraphView {
         }
 
         String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
+        String errorHTML = "<div id='error'></div>";
         String chartHTML = "<div id='chart'></div>";
         html +=
-                "</script>" +
+                "\n} catch (e) { displayError(e); }</script>" +
                         "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                         "</head>" +
-                        "<body>" + titleHTML + chartHTML + "</body>" +
+                        "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
                         "</html>";
 
         return html;

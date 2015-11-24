@@ -175,6 +175,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
 
+        if (session.getCommand() == null) {
+            // session ended, avoid (session dependent) setup because session
+            // management will exit the activity in onResume
+            return;
+        }
+
         selectDatum = session.getNeededDatum();
 
         shortSelect = session.getDetail(selectDatum.getShortDetail());
@@ -723,10 +729,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
-        Action action = shortSelect.getCustomAction();
-        if (action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                    action.getDisplay().evaluate());
+        if (shortSelect != null) {
+            Action action = shortSelect.getCustomAction();
+            if (action != null) {
+                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                        action.getDisplay().evaluate());
+            }
         }
 
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
@@ -799,10 +807,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        //only display the sort menu if we're going to be able to sort
-        //(IE: not until the items have loaded)
+        // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        // hide sorting menu when using async loading strategy
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
 
         return super.onPrepareOptionsMenu(menu);
     }

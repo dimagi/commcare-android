@@ -6,10 +6,21 @@ path {
     stroke-linecap: round;
 }
 
-text, #tooltip {
-    fill: #000 !important;
+text, #tooltip, #error {
     font-family: sans-serif;
     font-size: 12px;
+}
+
+text, #tooltip {
+    fill: #000 !important;
+}
+
+#error {
+    display: none;
+    background-color: #efcfcb;
+    border: 1px solid #e53e30;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 /* Tooltip */
