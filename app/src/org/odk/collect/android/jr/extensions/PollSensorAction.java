@@ -1,15 +1,18 @@
 package org.odk.collect.android.jr.extensions;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.Action;
@@ -58,7 +61,11 @@ public class PollSensorAction extends Action implements LocationListener {
     private class StopPollingTask extends TimerTask {
         @Override
         public void run() {
-            mLocationManager.removeUpdates(PollSensorAction.this);
+            Context context = CommCareApplication._().getApplicationContext();
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mLocationManager.removeUpdates(PollSensorAction.this);
+            }
         }
     }
     
@@ -85,14 +92,14 @@ public class PollSensorAction extends Action implements LocationListener {
             public void run() {
                 // Start requesting GPS updates
                 Context context = CommCareApplication._();
-                mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+                mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
                 Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
                 if (providers.isEmpty()) {
                     context.registerReceiver(
-                        new ProvidersChangedHandler(), 
-                        new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
+                            new ProvidersChangedHandler(),
+                            new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
                     );
-                    
+
                     // This thread can't take action on the UI, so instead send a message that actual activities
                     // notice and then display a dialog asking user to enable location access
                     Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
@@ -110,13 +117,19 @@ public class PollSensorAction extends Action implements LocationListener {
      * @param providers Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     private void requestLocationUpdates(Set<String> providers) {
-        if (providers.isEmpty()) {
+        Context context = CommCareApplication._().getApplicationContext();
+        if (providers.isEmpty() &&
+                (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             mLocationManager.removeUpdates(PollSensorAction.this);
             return;
         }
         
         for (String provider : providers) {
-            mLocationManager.requestLocationUpdates(provider, 0, 0, PollSensorAction.this);
+            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                mLocationManager.requestLocationUpdates(provider, 0, 0, PollSensorAction.this);
+            }
         }
 
         // Cancel polling after maximum time is exceeded
@@ -156,8 +169,11 @@ public class PollSensorAction extends Action implements LocationListener {
                     mModel.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
                 }
             }
-            
-            if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+
+            Context context = CommCareApplication._().getApplicationContext();
+            if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY
+                    && (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
                 mLocationManager.removeUpdates(this);
             }
         }

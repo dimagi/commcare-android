@@ -1,7 +1,9 @@
 package org.odk.collect.android.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -9,6 +11,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -151,7 +154,10 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     @Override
     protected void onPause() {
         super.onPause();
-        mLocationManager.removeUpdates(this);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.removeUpdates(this);
+        }
         ((MyLocationOverlay) mLocationOverlay).disableMyLocation();
 
     }
@@ -162,13 +168,13 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         super.onResume();
 
         ((MyLocationOverlay) mLocationOverlay).enableMyLocation();
-        if (mGPSOn) {
+        if (mGPSOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
-        if (mNetworkOn) {
+        if (mNetworkOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         }
-
+        // TODO PLM: warn user and ask for permissions if the user has disabled them
     }
 
 

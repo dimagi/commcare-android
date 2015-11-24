@@ -1,7 +1,9 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -9,6 +11,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -48,6 +51,7 @@ import java.util.Vector;
  */
 public class EntityMapActivity extends MapActivity {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
+    private final static int LOCATION_PERMISSIONS_REQUEST = 1;
 
     MapView map;
     MyLocationOverlay mMyLocationOverlay;
@@ -147,7 +151,7 @@ public class EntityMapActivity extends MapActivity {
                         }
                         
                         //If we don't have a geopoint, let's try to find our address
-                        if (!cached) {
+                        if (!cached && location != null) {
                             try {
                                 List<Address> addresses = mGeoCoder.getFromLocationName(val, 3, boundHints[0], boundHints[1], boundHints[2], boundHints[3]);
                                 for(Address a : addresses) {
@@ -249,6 +253,12 @@ public class EntityMapActivity extends MapActivity {
     }
 
     private Location getLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED) {
+            // TODO PLM: warn user and ask for permissions if the user has disabled them
+            return null;
+        }
+
         // Get the location manager
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // Define the criteria how to select the locatioin provider -> use

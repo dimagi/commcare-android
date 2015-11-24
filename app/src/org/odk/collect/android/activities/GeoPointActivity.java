@@ -1,14 +1,17 @@
 package org.odk.collect.android.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -62,7 +65,10 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         super.onPause();
 
         // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
-        mLocationManager.removeUpdates(this);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.removeUpdates(this);
+        }
 
         // We're not using managed dialogs, so we have to dismiss the dialog to prevent it from
         // leaking memory.
@@ -74,6 +80,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     @Override
     protected void onResume() {
         super.onResume();
+
         mProviders = GeoUtils.evaluateProviders(mLocationManager);
         if (mProviders.isEmpty()) {
             DialogInterface.OnCancelListener onCancelListener = new DialogInterface.OnCancelListener() {
@@ -103,8 +110,12 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             GeoUtils.showNoGpsDialog(this, onChangeListener, onCancelListener);
         } else {
             for (String provider : mProviders) {
-                mLocationManager.requestLocationUpdates(provider, 0, 0, this);            
+                if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                        (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                    mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+                }
             }
+            // TODO PLM: warn user and ask for permissions if the user has disabled them
             mLocationDialog.show();
         }
     }
