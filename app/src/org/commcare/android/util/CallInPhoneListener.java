@@ -220,21 +220,4 @@ public class CallInPhoneListener extends PhoneStateListener {
         }
         return null;
     }
-
-    public Intent getDetailIntent(Context context, String incomingNumber) {
-        //        synchronized(cachedNumbers) {
-        //            for(String number : cachedNumbers.keySet()) {
-        //                if(PhoneNumberUtils.compare(context, number, incomingNumber)) {
-        //                    String[] details = cachedNumbers.get(number);
-        //                    
-        //                    Intent i = new Intent(context, ReferenceDetailActivity.class);
-        //                    i.putExtra(CommCareSession.STATE_COMMAND_ID, details[2]);
-        //                    i.putExtra(CommCareSession.STATE_CASE_ID, details[1]);
-        //                    i.putExtra(ReferenceDetailActivity.IS_DEAD_END, true);
-        //                    return i;
-        //                }
-        //            }
-        //        }
-        return null;
-    }
 }

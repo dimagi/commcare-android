@@ -1,45 +1,52 @@
 package org.commcare.dalvik.activities;
 
-import android.app.TabActivity;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.widget.TabHost;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 
 import org.commcare.dalvik.R;
 
 /**
  * @author ctsims
- *
  */
-public class PhoneLogActivity extends TabActivity {
+public class PhoneLogActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.phone_logs);
-        
+
+        PhoneLogAdapter phoneLogAdapter =
+                new PhoneLogAdapter(getSupportFragmentManager());
+        ViewPager mViewPager = (ViewPager)findViewById(R.id.phone_log_pager);
+        mViewPager.setAdapter(phoneLogAdapter);
+
         this.setTitle("CommCare");
+    }
 
-        Resources res = getResources(); // Resource object to get Drawables
-        TabHost tabHost = getTabHost();  // The activity TabHost
-        TabHost.TabSpec spec;  // Resusable TabSpec for each tab
-        Intent intent;  // Reusable Intent for each tab
+    public static class PhoneLogAdapter extends FragmentPagerAdapter {
 
-        // Create an Intent to launch an Activity for the tab (to be reused)
-        intent = new Intent().setClass(this, CallLogActivity.class);
+        public PhoneLogAdapter(FragmentManager fm) {
+            super(fm);
+        }
 
-        // Initialize a TabSpec for each tab and add it to the TabHost
-        spec = tabHost.newTabSpec("calllogs").setIndicator("Calls",
-                          res.getDrawable(android.R.drawable.sym_action_call)).setContent(intent);
-        tabHost.addTab(spec);
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return new CallLogActivity();
+                case 1:
+                    return new MessageLogActivity();
+                default:
+                    return null;
+            }
+        }
 
-        // Do the same for the other tabs
-        intent = new Intent().setClass(this, MessageLogActivity.class);
-        spec = tabHost.newTabSpec("messages").setIndicator("Messages",
-                          res.getDrawable(android.R.drawable.ic_dialog_email))
-                      .setContent(intent);
-        tabHost.addTab(spec);
-
-        tabHost.setCurrentTab(0);
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 }

@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@android:drawable/gallery_thumb"
+              android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/hello_world"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    <!-- The frame layout is here since we will be showing either
+    the empty view or the list view.  -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1">
+        <!-- Here is the list. Since we are using a ListActivity, we
+             have to call it "@android:id/list" so ListActivity will
+             find it -->
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="false"/>
+
+        <!-- Here is the view to show if the list is emtpy -->
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="No items."
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    </FrameLayout>
+
+</LinearLayout>
