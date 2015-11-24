@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
                 }
                 var label = xLabels[key] || d;
-                return type === "time" ? label : Math.round(label);
+                return Math.round(label) || label;
             };
         }
         if (config.axis.y.tick) {
