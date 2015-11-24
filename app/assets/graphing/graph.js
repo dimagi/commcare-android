@@ -120,7 +120,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (type === "bar") {
                     var bars = d3.selectAll(".c3-bars-" + yID + " path")[0];
                     for (var i = 0; i < bars.length; i++) {
-                        bars[i].style.opacity = lineOpacities[yID];
+                        // If there's a bar-specific color, set it
+                        if (barColors[yID] && barColors[yID][i]) {
+                            bars[i].style.fill = barColors[yID][i];
+                        }
+                        // Get opacity: bar-specific if it's there, otherwise series-specific
+                        var opacity;
+                        var debug = "from lineOpacities";
+                        if (barOpacities[yID]) {
+                            opacity = barOpacities[yID][i];
+                            debug = "from barOpacities";
+                        }
+                        opacity = opacity || lineOpacities[yID];
+                        bars[i].style.opacity = opacity;
                     }
                 } else {
                     var line = d3.selectAll(".c3-lines-" + yID + " path")[0][0];

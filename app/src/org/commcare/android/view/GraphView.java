@@ -103,7 +103,8 @@ public class GraphView {
             config.put("legend", legend.getConfiguration());
             variables.putAll(legend.getVariables());
         } catch (JSONException e) {
-            throw new RuntimeException("something broke");  // TODO: fix
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         // TODO: namespace variables?
         variables.put("type", "'" + mData.getType() + "'");

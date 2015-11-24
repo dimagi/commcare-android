@@ -97,8 +97,6 @@ public class EntityDetailActivity
             this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
         }
 
-        Entity<TreeReference> entity = factory.getEntity(mTreeReference);
-
         super.onCreate(savedInstanceState);
         
         /* Caution: The detailIndex field comes from EntitySelectActivity, which is the 
