@@ -331,6 +331,4 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="call_log" cc:translatable="true">Phone Logs</string>
-    <string name="message_log" cc:translatable="true">Message Logs</string>
 </resources>
