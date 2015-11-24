@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.fragments.SetupInstallFragment;
 import org.commcare.android.fragments.SetupKeepInstallFragment;
@@ -147,11 +148,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final FragmentManager fm = getSupportFragmentManager();
     private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
     private final SetupInstallFragment installFragment = new SetupInstallFragment();
+    private ContainerFragment<CommCareApp> containerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CommCareSetupActivity oldActivity = (CommCareSetupActivity)this.getDestroyedActivityState();
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
@@ -185,10 +186,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         } else {
             loadStateFromInstance(savedInstanceState);
         }
-        // reclaim ccApp for resuming installation
-        if (oldActivity != null) {
-            this.ccApp = oldActivity.ccApp;
-        }
+
+        persistCommCareAppState();
 
         Log.v("UiState", "Current vars: " +
                         "UIState is: " + this.uiState + " " +
@@ -212,6 +211,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
+    }
+
+    private void persistCommCareAppState() {
+        FragmentManager fm = this.getSupportFragmentManager();
+
+        containerFragment = (ContainerFragment) fm.findFragmentByTag("cc-app");
+
+        if (containerFragment == null) {
+            containerFragment = new ContainerFragment<>();
+            fm.beginTransaction().add(containerFragment, "cc-app").commit();
+        } else {
+            ccApp = containerFragment.getData();
+        }
     }
 
     @Override
@@ -402,8 +414,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void startResourceInstall() {
         if (startAllowed) {
-            CommCareApp app = getCommCareApp();
-            ccApp = app;
+            ccApp = getCommCareApp();
+            containerFragment.setData(ccApp);
 
             CustomProgressDialog lastDialog = getCurrentProgressDialog();
             // used to tell the ResourceEngineTask whether or not it should
@@ -412,7 +424,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
             ResourceEngineTask<CommCareSetupActivity> task =
-                    new ResourceEngineTask<CommCareSetupActivity>(app,
+                    new ResourceEngineTask<CommCareSetupActivity>(ccApp,
                             DIALOG_INSTALL_PROGRESS, shouldSleep) {
 
                         @Override
