@@ -44,10 +44,7 @@ public class CallLogActivity extends ListFragment implements RuntimePermissionRe
         return v;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    public void loadData() {
         getPermsAndLoadCallLogAdapter();
     }
 

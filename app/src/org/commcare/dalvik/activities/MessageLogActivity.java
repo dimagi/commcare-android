@@ -39,10 +39,7 @@ public class MessageLogActivity extends ListFragment
         return v;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+    public void loadData() {
         getPermsAndLoadMessageAdapter();
     }
 
