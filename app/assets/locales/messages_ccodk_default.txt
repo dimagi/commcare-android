@@ -26,7 +26,7 @@ updates.pinned.progress=${0}/${1}
 install.current.version=Version currently installed: ${0}
 
 verify.retry=Retry
-verify.check.message=Verifying media...
+verify.checking=Verifying media...
 verify.check.failed=Validation failed for an unknown reason
 
 install.barcode.top=Welcome to CommCare!

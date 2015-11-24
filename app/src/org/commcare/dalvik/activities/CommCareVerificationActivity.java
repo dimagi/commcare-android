@@ -100,7 +100,7 @@ public class CommCareVerificationActivity
             if (savedInstanceState.containsKey(MISSING_MEDIA_TEXT_KEY)) {
                 missingMediaPrompt.setText(savedInstanceState.getString(MISSING_MEDIA_TEXT_KEY));
             } else {
-                missingMediaPrompt.setText(Localization.get("verify.check.message"));
+                missingMediaPrompt.setText(Localization.get("verify.checking"));
             }
             if (savedInstanceState.containsKey(NEW_MEDIA_KEY)) {
                 newMediaToValidate = savedInstanceState.getBoolean(NEW_MEDIA_KEY);
