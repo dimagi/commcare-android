@@ -20,7 +20,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
-
+    public final static String HOME_REPORT_ENABLED = "cc-home-report";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -158,6 +158,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean imageAboveTextEnabled() {
         return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+                
+    public static boolean isHomeReportEnabled() {
+        return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
 

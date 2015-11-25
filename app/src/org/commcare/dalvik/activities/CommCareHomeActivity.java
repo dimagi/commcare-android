@@ -104,7 +104,7 @@ public class CommCareHomeActivity
     public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
-    private static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
@@ -438,7 +438,7 @@ public class CommCareHomeActivity
                         String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
                         session.setCommand(command);
                     } else {
-                        clearSessionAndExit(currentState);
+                        clearSessionAndExit(currentState, true);
                         return;
                     }
                 }
@@ -455,7 +455,7 @@ public class CommCareHomeActivity
                         String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
                         currentSession.setDatum(sessionDatumId, chosenCaseId);
                     } else {
-                        clearSessionAndExit(asw);
+                        clearSessionAndExit(asw, true);
                         return;
                     }
                 }
@@ -512,7 +512,7 @@ public class CommCareHomeActivity
                     Toast.LENGTH_LONG).show();
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Form Entry couldn't save because of corrupt state.");
-            clearSessionAndExit(currentState);
+            clearSessionAndExit(currentState, true);
             return false;
         }
 
@@ -545,7 +545,7 @@ public class CommCareHomeActivity
                         Toast.LENGTH_LONG).show();
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
-                clearSessionAndExit(currentState);
+                clearSessionAndExit(currentState, true);
                 return false;
             }
 
@@ -596,9 +596,8 @@ public class CommCareHomeActivity
                 // to keep running the workflow
             } else {
                 // Form record is now stored.
-                // TODO: session state clearing might be something we want to
-                // do in InstanceProvider.bindToFormRecord.
-                clearSessionAndExit(currentState);
+                // TODO: session state clearing might be something we want to do in InstanceProvider.bindToFormRecord.
+                clearSessionAndExit(currentState, false);
                 return false;
             }
         } else if (resultCode == RESULT_CANCELED) {
@@ -632,13 +631,15 @@ public class CommCareHomeActivity
         return true;
     }
 
-    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+    private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
             this.finish();
         }
         uiController.refreshView();
-        showSessionRefreshWarning();
+        if (shouldWarnUser) {
+            showSessionRefreshWarning();
+        }
     }
 
     private void showSessionRefreshWarning() {
