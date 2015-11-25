@@ -92,24 +92,15 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         });
     }
     
-    public void fireOnceOnStart(){
-        if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE)) {
-            editFileLocation.setText(this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE));
-            InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
-        }
-    }
-
-    public void createArchive(String filepath){
+    private void createArchive(String filepath){
         currentRef = filepath;
 
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
-
             @Override
             protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
                 Log.d(TAG, "delivering unzip result");
                 if(result > 0){
                     receiver.onUnzipSuccessful(result);
-                    return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
                     receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);

@@ -244,34 +244,27 @@ public class FormController implements PendingCalloutInterface {
 
     /**
      * Attempts to save answer at the current FormIndex into the data model.
-     * 
-     * @param data
-     * @return
      */
     public int answerQuestion(IAnswerData data) {
         return mFormEntryController.answerQuestion(data);
     }
 
-
     /**
      * Attempts to save answer into the given FormIndex into the data model.
-     * 
-     * @param index
-     * @param data
-     * @return
      */
     public int answerQuestion(FormIndex index, IAnswerData data) {
         return mFormEntryController.answerQuestion(index, data);
     }
 
+    public int checkCurrentQuestionConstraint() {
+        return mFormEntryController.checkQuestionConstraint(getQuestionPrompt().getAnswerValue());
+    }
 
     /**
      * saveAnswer attempts to save the current answer into the data model without doing any
      * constraint checking. Only use this if you know what you're doing. For normal form filling you
      * should always use answerQuestion or answerCurrentQuestion.
-     * 
-     * @param index
-     * @param data
+     *
      * @return true if saved successfully, false otherwise.
      */
     public boolean saveAnswer(FormIndex index, IAnswerData data) {
