@@ -126,10 +126,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         }
                         // Get opacity: bar-specific if it's there, otherwise series-specific
                         var opacity;
-                        var debug = "from lineOpacities";
                         if (barOpacities[yID]) {
                             opacity = barOpacities[yID][i];
-                            debug = "from barOpacities";
                         }
                         opacity = opacity || lineOpacities[yID];
                         bars[i].style.opacity = opacity;
