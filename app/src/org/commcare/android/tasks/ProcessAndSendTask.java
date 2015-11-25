@@ -94,61 +94,61 @@ public abstract class ProcessAndSendTask<R>
         }
 
         try {
-        results = new Long[records.length];
-        for(int i = 0; i < records.length ; ++i ) {
-            //Assume failure
-            results[i] = FormUploadUtil.FAILURE;
-        }
-        //The first thing we need to do is make sure everything is processed,
-        //we can't actually proceed before that.
+            results = new Long[records.length];
+            for (int i = 0; i < records.length; ++i) {
+                //Assume failure
+                results[i] = FormUploadUtil.FAILURE;
+            }
+            //The first thing we need to do is make sure everything is processed,
+            //we can't actually proceed before that.
             try {
                 needToSendLogs = checkFormRecordStatus(records);
             } catch (FileNotFoundException e) {
                 return (int)PROGRESS_SDCARD_REMOVED;
             }
 
-        this.publishProgress(PROGRESS_ALL_PROCESSED);
+            this.publishProgress(PROGRESS_ALL_PROCESSED);
 
-        //Put us on the queue!
-        synchronized(processTasks) {
-            processTasks.add(this);
-        }
-
-        boolean needToRefresh = blockUntilTopOfQueue();
-        if(needToRefresh) {
-            //There was another activity before this one. Refresh our models in case
-            //they were updated
-            for(int i = 0; i < records.length; ++i ){
-                int dbId = records[i].getID();
-                records[i] = processor.getRecord(dbId);
+            //Put us on the queue!
+            synchronized (processTasks) {
+                processTasks.add(this);
             }
-        }
+
+            boolean needToRefresh = blockUntilTopOfQueue();
+            if (needToRefresh) {
+                //There was another activity before this one. Refresh our models in case
+                //they were updated
+                for (int i = 0; i < records.length; ++i) {
+                    int dbId = records[i].getID();
+                    records[i] = processor.getRecord(dbId);
+                }
+            }
 
 
-        //Ok, all forms are now processed. Time to focus on sending
-        if(formSubmissionListener != null) {
-            formSubmissionListener.beginSubmissionProcess(records.length);
-        }
+            //Ok, all forms are now processed. Time to focus on sending
+            if (formSubmissionListener != null) {
+                formSubmissionListener.beginSubmissionProcess(records.length);
+            }
 
             sendForms(records);
 
-        long result = 0;
-        for(int i = 0 ; i < records.length ; ++ i) {
-            if(results[i] > result) {
-                result = results[i];
+            long result = 0;
+            for (int i = 0; i < records.length; ++i) {
+                if (results[i] > result) {
+                    result = results[i];
+                }
             }
-        }
 
-        return (int)result;
-        } catch(SessionUnavailableException sue) {
+            return (int)result;
+        } catch (SessionUnavailableException sue) {
             this.cancel(false);
             return (int)PROGRESS_LOGGED_OUT;
         } finally {
-            synchronized(processTasks) {
+            synchronized (processTasks) {
                 processTasks.remove(this);
             }
 
-            if(needToSendLogs) {
+            if (needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
             CommCareSessionService.sessionAliveLock.unlock();
@@ -157,11 +157,11 @@ public abstract class ProcessAndSendTask<R>
 
     private boolean checkFormRecordStatus(FormRecord[] records) throws FileNotFoundException {
         boolean needToSendLogs = false;
-        for(int i = 0 ; i < records.length ; ++i) {
+        for (int i = 0; i < records.length; ++i) {
             FormRecord record = records[i];
 
             //If the form is complete, but unprocessed, process it.
-            if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+            if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
                 try {
                     records[i] = processor.process(record);
                 } catch (InvalidStructureException e) {
@@ -180,7 +180,7 @@ public abstract class ProcessAndSendTask<R>
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
                 } catch (FileNotFoundException e) {
-                    if(CommCareApplication._().isStorageAvailable()) {
+                    if (CommCareApplication._().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                         FormRecordCleanupTask.wipeRecord(c, record);
@@ -199,11 +199,11 @@ public abstract class ProcessAndSendTask<R>
 
     private boolean blockUntilTopOfQueue() {
         boolean needToRefresh = false;
-        while(true) {
+        while (true) {
             //TODO: Terrible?
 
             //See if it's our turn to go
-            synchronized(processTasks) {
+            synchronized (processTasks) {
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
                 if (head == this) {
@@ -212,7 +212,7 @@ public abstract class ProcessAndSendTask<R>
                 //Otherwise, is the head of the queue busted?
                 //*sigh*. Apparently Cancelled doesn't result in the task status being set
                 //to !Running for reasons which baffle me.
-                if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
+                if (head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
                     processTasks.poll();
                 }
             }
@@ -228,21 +228,21 @@ public abstract class ProcessAndSendTask<R>
     }
 
     private void sendForms(FormRecord[] records) throws SessionUnavailableException {
-        for(int i = 0 ; i < records.length ; ++i) {
+        for (int i = 0; i < records.length; ++i) {
             //See whether we are OK to proceed based on the last form. We're now guaranteeing
             //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
             //proceeding if there was a local problem with a record, since we'll just move on from that
             //processing.
-            if(i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
+            if (i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
                 //Something went wrong with the last form, so we need to cancel this whole shebang
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
                 break;
             }
 
             FormRecord record = records[i];
-            try{
+            try {
                 //If it's unsent, go ahead and send it
-                if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+                if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
                     File folder;
                     try {
                         folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
@@ -257,19 +257,19 @@ public abstract class ProcessAndSendTask<R>
                         User mUser = CommCareApplication._().getSession().getLoggedInUser();
 
                         int attemptsMade = 0;
-                        while(attemptsMade < SUBMISSION_ATTEMPTS) {
-                            if(attemptsMade > 0) {
+                        while (attemptsMade < SUBMISSION_ATTEMPTS) {
+                            if (attemptsMade > 0) {
                                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
                             }
                             results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
-                            if(results[i] == FormUploadUtil.FULL_SUCCESS) {
+                            if (results[i] == FormUploadUtil.FULL_SUCCESS) {
                                 break;
                             } else {
                                 attemptsMade++;
                             }
                         }
 
-                        if(results[i] == FormUploadUtil.RECORD_FAILURE) {
+                        if (results[i] == FormUploadUtil.RECORD_FAILURE) {
                             //We tried to submit multiple times and there was a local problem (not a remote problem).
                             //This implies that something is wrong with the current record, and we need to quarantine it.
                             processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
@@ -277,7 +277,7 @@ public abstract class ProcessAndSendTask<R>
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
                         }
                     } catch (FileNotFoundException e) {
-                        if(CommCareApplication._().isStorageAvailable()) {
+                        if (CommCareApplication._().isStorageAvailable()) {
                             //If storage is available generally, this is a bug in the app design
                             Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
                             FormRecordCleanupTask.wipeRecord(c, record);
@@ -291,9 +291,9 @@ public abstract class ProcessAndSendTask<R>
 
                     Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
                     //Check for success
-                    if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
+                    if (results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
                         //Only delete if this device isn't set up to review.
-                        if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+                        if (p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
                             FormRecordCleanupTask.wipeRecord(c, record);
                         } else {
                             //Otherwise save and move appropriately
@@ -303,7 +303,7 @@ public abstract class ProcessAndSendTask<R>
                 } else {
                     results[i] = FormUploadUtil.FULL_SUCCESS;
                 }
-            } catch(SessionUnavailableException sue) {
+            } catch (SessionUnavailableException sue) {
                 throw sue;
             } catch (Exception e) {
                 //Just try to skip for now. Hopefully this doesn't wreck the model :/
@@ -313,33 +313,33 @@ public abstract class ProcessAndSendTask<R>
     }
 
     public static int pending() {
-        synchronized(processTasks) {
+        synchronized (processTasks) {
             return processTasks.size();
         }
     }
 
     @Override
     protected void onProgressUpdate(Long... values) {
-        if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
+        if (values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
 
         super.onProgressUpdate(values);
 
-        if(values.length > 0 ) {
-            if(formSubmissionListener != null) {
+        if (values.length > 0) {
+            if (formSubmissionListener != null) {
                 //Parcel updates out
-                if(values[0] == SUBMISSION_BEGIN) {
+                if (values[0] == SUBMISSION_BEGIN) {
                     formSubmissionListener.beginSubmissionProcess(values[1].intValue());
-                } else if(values[0] == SUBMISSION_START) {
+                } else if (values[0] == SUBMISSION_START) {
                     int item = values[1].intValue();
                     long size = values[2];
                     formSubmissionListener.startSubmission(item, size);
-                } else if(values[0] == SUBMISSION_NOTIFY) {
+                } else if (values[0] == SUBMISSION_NOTIFY) {
                     int item = values[1].intValue();
                     long progress = values[2];
                     formSubmissionListener.notifyProgress(item, progress);
-                } else if(values[0] == SUBMISSION_DONE) {
+                } else if (values[0] == SUBMISSION_DONE) {
                     formSubmissionListener.endSubmissionProcess();
                 }
             }
@@ -368,9 +368,9 @@ public abstract class ProcessAndSendTask<R>
 
     protected int getSuccesfulSends() {
         int successes = 0;
-        for(Long formResult : results) {
-            if(formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {
-                successes ++;
+        for (Long formResult : results) {
+            if (formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {
+                successes++;
             }
         }
         return successes;
@@ -396,12 +396,12 @@ public abstract class ProcessAndSendTask<R>
         this.publishProgress(SUBMISSION_DONE);
     }
 
-    private String getExceptionText (Exception e) {
+    private String getExceptionText(Exception e) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(bos));
             return new String(bos.toByteArray());
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
     }
