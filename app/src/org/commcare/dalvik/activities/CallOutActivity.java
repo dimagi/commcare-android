@@ -2,6 +2,7 @@ package org.commcare.dalvik.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -16,13 +17,10 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Toast;
 
-<<<<<<< HEAD
 import org.commcare.android.framework.RuntimePermissionRequester;
-import org.commcare.android.util.DialogCreationHelpers;
-=======
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
->>>>>>> master
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
@@ -97,39 +95,6 @@ public class CallOutActivity extends Activity
             }
         } 
     }
-<<<<<<< HEAD
-
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-        case DIALOG_NUMBER_ACTION:
-            final CharSequence[] items = {"Call", "Send SMS"};
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Select Action");
-            builder.setItems(items, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
-                    if (item == 0) {
-                        calloutAction = Intent.ACTION_CALL;
-                    } else {
-                        calloutAction = Intent.ACTION_SENDTO;
-                    }
-                    dispatchActionWithPermissions();
-                }
-            });
-            builder.setOnCancelListener(new OnCancelListener() {
-                public void onCancel(DialogInterface dialog) {
-                    Intent i = new Intent(getIntent());
-                    
-                    setResult(RESULT_CANCELED, i);
-                    finish();
-                }
-            });
-            return builder.create();
-        }
-        return null;
-=======
-    
     
     private void showChoiceDialog() {
         PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select Action");
@@ -137,7 +102,8 @@ public class CallOutActivity extends Activity
         View.OnClickListener callListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dispatchAction(Intent.ACTION_CALL);
+                calloutAction = Intent.ACTION_CALL;
+                dispatchActionWithPermissions();
             }
         };
         DialogChoiceItem item1 = new DialogChoiceItem("Call", -1, callListener);
@@ -145,7 +111,8 @@ public class CallOutActivity extends Activity
         View.OnClickListener smsListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dispatchAction(Intent.ACTION_SENDTO);
+                calloutAction = Intent.ACTION_SENDTO;
+                dispatchActionWithPermissions();
             }
         };
         DialogChoiceItem item2 = new DialogChoiceItem("Send SMS", -1, smsListener);
@@ -156,11 +123,9 @@ public class CallOutActivity extends Activity
                 Intent i = new Intent(getIntent());
                 setResult(RESULT_CANCELED, i);
                 finish();
-                return;
             }
         });
         dialog.show();
->>>>>>> master
     }
 
     @Override

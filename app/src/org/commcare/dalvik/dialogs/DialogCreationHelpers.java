@@ -24,12 +24,12 @@ public class DialogCreationHelpers {
         LayoutInflater li = LayoutInflater.from(activity);
         // TODO PLM: remove scroll file
         //View view = li.inflate(R.layout.scrolling_info_dialog, null);
-        View view = li.inflate(R.layout.about_commcare_dialog, null);
+        View view = li.inflate(R.layout.scrolling_info_dialog, null);
 
         TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
 
-        TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
+        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
         String msg = activity.getString(R.string.aboutdialog, commcareVersion);
         Spannable markdownText = MarkupUtil.returnMarkdown(activity, msg);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -56,8 +56,8 @@ public class DialogCreationHelpers {
                                                            String title,
                                                            String body) {
         LayoutInflater li = LayoutInflater.from(activity);
-        View view = li.inflate(R.layout.about_commcare_dialog, null);
-        TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
+        View view = li.inflate(R.layout.scrolling_info_dialog, null);
+        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
 
         aboutText.setText(body);
 
