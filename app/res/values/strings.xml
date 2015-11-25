@@ -147,6 +147,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
 
     <!-- Start Collect Strings -->
 
+    <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
@@ -171,6 +172,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="capture_image" cc:translatable="true">Take Picture</string>
     <string name="capture_video" cc:translatable="true">Record Video</string>
     <string name="change_language" cc:translatable="true">Change Language</string>
+    <string name="choose_language" cc:translatable="true">Choose Language</string>
     <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
     <string name="clear_answer" cc:translatable="true">Remove response</string>
     <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
@@ -191,8 +193,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="download_complete" cc:translatable="true">Form Get Complete</string>
     <string name="download_failed_with_error" cc:translatable="true">Form \"%1$s\" failed. %2$s.</string>
     <string name="do_not_change" cc:translatable="true">Cancel</string>
-    <string name="do_not_exit" cc:translatable="true">Cancel</string>
-    <string name="do_not_save" cc:translatable="true">Ignore Changes</string>
+    <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
+    <string name="do_not_save" cc:translatable="true">DELETE AND EXIT</string>
     <string name="enter" cc:translatable="true">start</string>
     <string name="entering_repeat" cc:translatable="true">Add Group</string>
     <string name="entering_repeat_ask" cc:translatable="true">Add New Group?</string>
@@ -254,6 +256,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="please_wait_long" cc:translatable="true">Please wait. This could take a few minutes.</string>
     <string name="quit_application" cc:translatable="true">Exit %s</string>
     <string name="quit_entry" cc:translatable="true">Save Form and Exit</string>
+    <string name="quit_form_title" cc:translatable="true">Exit Form?</string>
     <string name="refresh" cc:translatable="true">Refresh</string>
     <string name="replace_audio" cc:translatable="true">Replace Sound</string>
     <string name="replace_barcode" cc:translatable="true">Replace Barcode</string>
@@ -291,7 +294,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="client" cc:translatable="true">Client</string>
     <string name="use_odk_default" cc:translatable="true">Use Default Image</string>
     <string name="show_location" cc:translatable="true">Show Location</string>
-    <string name="keep_changes" cc:translatable="true">Save Changes to Incomplete Form</string>
+    <string name="keep_changes" cc:translatable="true">SAVE INCOMPLETE</string>
     <string name="go_to_location" cc:translatable="true">Go to Location</string>
     <string name="font_size" cc:translatable="true">Text Font Size</string>
     <string name="change_font_size" cc:translatable="true">Text Font Size</string>

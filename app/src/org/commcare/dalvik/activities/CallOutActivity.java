@@ -2,8 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -15,10 +13,16 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.view.View;
 import android.widget.Toast;
 
+<<<<<<< HEAD
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.util.DialogCreationHelpers;
+=======
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+>>>>>>> master
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
@@ -62,7 +66,7 @@ public class CallOutActivity extends Activity
             calloutAction = getIntent().getStringExtra(INCOMING_ACTION);
             dispatchActionWithPermissions();
         } else {
-            this.showDialog(DIALOG_NUMBER_ACTION);
+            showChoiceDialog();
         }
     }
 
@@ -93,6 +97,7 @@ public class CallOutActivity extends Activity
             }
         } 
     }
+<<<<<<< HEAD
 
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -123,6 +128,39 @@ public class CallOutActivity extends Activity
             return builder.create();
         }
         return null;
+=======
+    
+    
+    private void showChoiceDialog() {
+        PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select Action");
+
+        View.OnClickListener callListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchAction(Intent.ACTION_CALL);
+            }
+        };
+        DialogChoiceItem item1 = new DialogChoiceItem("Call", -1, callListener);
+
+        View.OnClickListener smsListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchAction(Intent.ACTION_SENDTO);
+            }
+        };
+        DialogChoiceItem item2 = new DialogChoiceItem("Send SMS", -1, smsListener);
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{item1, item2});
+        dialog.setOnCancelListener(new OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                Intent i = new Intent(getIntent());
+                setResult(RESULT_CANCELED, i);
+                finish();
+                return;
+            }
+        });
+        dialog.show();
+>>>>>>> master
     }
 
     @Override

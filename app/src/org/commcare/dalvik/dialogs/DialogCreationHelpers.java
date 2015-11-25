@@ -1,4 +1,4 @@
-package org.commcare.android.util;
+package org.commcare.dalvik.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.commcare.android.framework.RuntimePermissionRequester;
+import org.commcare.android.util.MarkupUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 
@@ -21,9 +22,14 @@ public class DialogCreationHelpers {
         final String commcareVersion = CommCareApplication._().getCurrentVersionString();
 
         LayoutInflater li = LayoutInflater.from(activity);
-        View view = li.inflate(R.layout.scrolling_info_dialog, null);
-        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
+        // TODO PLM: remove scroll file
+        //View view = li.inflate(R.layout.scrolling_info_dialog, null);
+        View view = li.inflate(R.layout.about_commcare_dialog, null);
 
+        TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
+        titleView.setText(activity.getString(R.string.about_cc));
+
+        TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
         String msg = activity.getString(R.string.aboutdialog, commcareVersion);
         Spannable markdownText = MarkupUtil.returnMarkdown(activity, msg);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -33,9 +39,7 @@ public class DialogCreationHelpers {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("About CommCare");
         builder.setView(view);
-
         return builder.create();
     }
 
@@ -52,8 +56,8 @@ public class DialogCreationHelpers {
                                                            String title,
                                                            String body) {
         LayoutInflater li = LayoutInflater.from(activity);
-        View view = li.inflate(R.layout.scrolling_info_dialog, null);
-        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
+        View view = li.inflate(R.layout.about_commcare_dialog, null);
+        TextView aboutText = (TextView)view.findViewById(R.id.about_commcare_text);
 
         aboutText.setText(body);
 
