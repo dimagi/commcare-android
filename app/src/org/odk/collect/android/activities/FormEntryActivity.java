@@ -1666,31 +1666,31 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         AlertDialog dialog =
             new AlertDialog.Builder(this)
                     .setSingleChoiceItems(languages, selected,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // Update the language in the content provider when selecting a new
-                                // language
-                                ContentValues values = new ContentValues();
-                                values.put(FormsColumns.LANGUAGE, languages[whichButton]);
-                                String selection = FormsColumns.FORM_FILE_PATH + "=?";
-                                String selectArgs[] = {
-                                    mFormPath
-                                };
-                                int updated =
-                                    getContentResolver().update(formProviderContentURI, values,
-                                        selection, selectArgs);
-                                Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
-                                        + updated + " rows");
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    // Update the language in the content provider when selecting a new
+                                    // language
+                                    ContentValues values = new ContentValues();
+                                    values.put(FormsColumns.LANGUAGE, languages[whichButton]);
+                                    String selection = FormsColumns.FORM_FILE_PATH + "=?";
+                                    String selectArgs[] = {
+                                            mFormPath
+                                    };
+                                    int updated =
+                                            getContentResolver().update(formProviderContentURI, values,
+                                                    selection, selectArgs);
+                                    Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
+                                            + updated + " rows");
 
-                                mFormController.setLanguage(languages[whichButton]);
-                                dialog.dismiss();
-                                if (currentPromptIsQuestion()) {
-                                    saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                                    mFormController.setLanguage(languages[whichButton]);
+                                    dialog.dismiss();
+                                    if (currentPromptIsQuestion()) {
+                                        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                                    }
+                                    refreshCurrentView();
                                 }
-                                refreshCurrentView();
-                            }
-                        })
+                            })
                     .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
                     .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
                             new DialogInterface.OnClickListener() {
@@ -2195,14 +2195,30 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         finish();
     }
 
+    protected boolean isBlockingUserInput() {
+        View cover = this.findViewById(R.id.form_entry_cover);
+
+        if(cover != null && cover.getVisibility() == View.VISIBLE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     protected boolean onBackwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         showPreviousView(true);
         return true;
     }
 
     @Override
     protected boolean onForwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         //We've already computed the "is there more coming" stuff intensely in the the nav details
         //and set the forward button tag appropriately, so use that to determine whether we can
         //swipe forward.
@@ -2210,8 +2226,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
             next();
             return true;
+        } else {
+            FormNavigationUI.animateFinishArrow(this, mFormController, mCurrentView);
+            return true;
         }
-        return false;
     }
 
     @Override
