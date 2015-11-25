@@ -8,12 +8,10 @@ import org.commcare.android.models.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
@@ -103,44 +101,12 @@ public abstract class ProcessAndSendTask<R>
         }
         //The first thing we need to do is make sure everything is processed,
         //we can't actually proceed before that.
-        for(int i = 0 ; i < records.length ; ++i) {
-            FormRecord record = records[i];
-
-            //If the form is complete, but unprocessed, process it.
-            if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-                try {
-                    records[i] = processor.process(record);
-                } catch (InvalidStructureException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                } catch (XmlPullParserException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                } catch (UnfullfilledRequirementsException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                } catch (FileNotFoundException e) {
-                    if(CommCareApplication._().isStorageAvailable()) {
-                        //If storage is available generally, this is a bug in the app design
-                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                        FormRecordCleanupTask.wipeRecord(c, record);
-                    } else {
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
-                        //Otherwise, the SD card just got removed, and we need to bail anyway.
-                        return (int)PROGRESS_SDCARD_REMOVED;
-                    }
-                } catch (IOException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
-                }
+            try {
+                needToSendLogs = checkFormRecordStatus(records);
+            } catch (FileNotFoundException e) {
+                return (int)PROGRESS_SDCARD_REMOVED;
             }
-        }
-        
+
         this.publishProgress(PROGRESS_ALL_PROCESSED);
         
         //Put us on the queue!
@@ -148,35 +114,7 @@ public abstract class ProcessAndSendTask<R>
             processTasks.add(this);
         }
         
-        boolean needToRefresh = false;
-        while(true) {
-            //TODO: Terrible?
-            
-            //See if it's our turn to go
-            synchronized(processTasks) {
-                //Are we at the head of the queue?
-                ProcessAndSendTask head = processTasks.peek();
-                if (processTasks.peek() == this) {
-                    break;
-                }
-                //Otherwise, is the head of the queue busted?
-                //*sigh*. Apparently Cancelled doesn't result in the task status being set
-                //to !Running for reasons which baffle me.
-                if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
-                    //If so, get rid of it
-                    processTasks.remove(head);
-                }
-            }
-            //If it's not yet quite our turn, take a nap
-            try {
-                needToRefresh = true;
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
+        boolean needToRefresh = blockUntilTopOfQueue();
         if(needToRefresh) {
             //There was another activity before this one. Refresh our models in case
             //they were updated
@@ -287,8 +225,6 @@ public abstract class ProcessAndSendTask<R>
             this.cancel(false);
             return (int)PROGRESS_LOGGED_OUT;
         } finally {
-            this.endSubmissionProcess();
-
             synchronized(processTasks) {
                 processTasks.remove(this);
             }
@@ -298,6 +234,78 @@ public abstract class ProcessAndSendTask<R>
             }
             CommCareSessionService.sessionAliveLock.unlock();
         }
+    }
+
+    private boolean checkFormRecordStatus(FormRecord[] records) throws FileNotFoundException {
+        boolean needToSendLogs = false;
+        for(int i = 0 ; i < records.length ; ++i) {
+            FormRecord record = records[i];
+
+            //If the form is complete, but unprocessed, process it.
+            if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+                try {
+                    records[i] = processor.process(record);
+                } catch (InvalidStructureException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (XmlPullParserException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (UnfullfilledRequirementsException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (FileNotFoundException e) {
+                    if(CommCareApplication._().isStorageAvailable()) {
+                        //If storage is available generally, this is a bug in the app design
+                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                        FormRecordCleanupTask.wipeRecord(c, record);
+                    } else {
+                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                        //Otherwise, the SD card just got removed, and we need to bail anyway.
+                        throw e;
+                    }
+                } catch (IOException e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
+                }
+            }
+        }
+        return needToSendLogs;
+    }
+
+    private boolean blockUntilTopOfQueue() {
+        boolean needToRefresh = false;
+        while(true) {
+            //TODO: Terrible?
+
+            //See if it's our turn to go
+            synchronized(processTasks) {
+                //Are we at the head of the queue?
+                ProcessAndSendTask head = processTasks.peek();
+                if (head == this) {
+                    break;
+                }
+                //Otherwise, is the head of the queue busted?
+                //*sigh*. Apparently Cancelled doesn't result in the task status being set
+                //to !Running for reasons which baffle me.
+                if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
+                    processTasks.poll();
+                }
+            }
+            //If it's not yet quite our turn, take a nap
+            try {
+                needToRefresh = true;
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return needToRefresh;
     }
     
     public static int pending() {
@@ -311,9 +319,9 @@ public abstract class ProcessAndSendTask<R>
         if(values.length == 1 && values[0] == ProcessAndSendTask.PROGRESS_ALL_PROCESSED) {
             this.transitionPhase(sendTaskId);
         }
-        
+
         super.onProgressUpdate(values);
-        
+
         if(values.length > 0 ) {
             if(formSubmissionListener != null) {
                 //Parcel updates out
@@ -341,10 +349,17 @@ public abstract class ProcessAndSendTask<R>
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
-        //These will never get Zero'd otherwise
+
+        endSubmissionProcess();
+
+        clearState();
+    }
+
+    private void clearState() {
         c = null;
         url = null;
         results = null;
+        formSubmissionListener = null;
     }
     
     protected int getSuccesfulSends() {
@@ -390,9 +405,13 @@ public abstract class ProcessAndSendTask<R>
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if(this.formSubmissionListener != null) {
+
+        if (this.formSubmissionListener != null) {
             formSubmissionListener.endSubmissionProcess();
         }
+
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+
+        clearState();
     }
 }
