@@ -75,7 +75,8 @@ public class PollSensorAction extends Action implements LocationListener {
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
      * @param model The FormDef that triggered the action
      */
-    public void processAction(FormDef model, TreeReference contextRef) {
+    @Override
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
         mModel = model;
         mContextRef = contextRef;
         
@@ -100,6 +101,8 @@ public class PollSensorAction extends Action implements LocationListener {
                 requestLocationUpdates(providers);
             }
         });
+
+        return null;
     }
     
     /**

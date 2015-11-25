@@ -42,7 +42,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidInstanceInitializer;
-import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -53,6 +52,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -104,7 +104,7 @@ public class CommCareHomeActivity
     public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
-    private static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     /**
      * Request code for automatically validating media from home dispatch.
@@ -145,6 +145,9 @@ public class CommCareHomeActivity
     public static final int RESULT_RESTART = 3;
 
     private static final String SESSION_REQUEST = "ccodk_session_request";
+
+    private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
+    private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
     public static final String MENU_STYLE_GRID = "grid";
@@ -215,6 +218,7 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
+        addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -383,7 +387,6 @@ public class CommCareHomeActivity
                     return;
                 }
                 break;
-                
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
                 if(resultCode == RESULT_CANCELED) {
@@ -428,21 +431,32 @@ public class CommCareHomeActivity
                         currentState.getSession().stepBack();
                     }
                 } else if (resultCode == RESULT_OK) {
-                    //Get our command, set it, and continue forward
-                    String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                    currentState.getSession().setCommand(command);
+                    CommCareSession session = currentState.getSession();
+                    if (sessionStateUnchangedSinceCallout(session, intent)) {
+                        //Get our command, set it, and continue forward
+                        String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+                        session.setCommand(command);
+                    } else {
+                        clearSessionAndExit(currentState, true);
+                        return;
+                    }
                 }
                 break;
             case GET_CASE:
                 //TODO: We might need to load this from serialized state?
-                CommCareSession currentSession =
-                        CommCareApplication._().getCurrentSessionWrapper().getSession();
+                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                CommCareSession currentSession = asw.getSession();
                 if (resultCode == RESULT_CANCELED) {
                     currentSession.stepBack();
                 } else if (resultCode == RESULT_OK) {
-                    String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                    String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                    currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+                        String sessionDatumId = currentSession.getNeededDatum().getDataId();
+                        String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                        currentSession.setDatum(sessionDatumId, chosenCaseId);
+                    } else {
+                        clearSessionAndExit(asw, true);
+                        return;
+                    }
                 }
                 break;
             case MODEL_RESULT:
@@ -455,6 +469,19 @@ public class CommCareHomeActivity
             sessionNavigator.startNextSessionStep();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    /**
+     * @return If the nature of the data that the session is waiting for has not changed since the
+     * callout that we are returning from was made
+     */
+    private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
+        boolean neededDataUnchanged = session.getNeededData().equals(
+                intent.getStringExtra(KEY_PENDING_SESSION_DATA));
+        String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
+        boolean datumIdsUnchanged = intentDatum  == null ? true :
+                intentDatum.equals(session.getNeededDatum().getDataId());
+        return neededDataUnchanged && datumIdsUnchanged;
     }
 
     /**
@@ -484,7 +511,7 @@ public class CommCareHomeActivity
                     Toast.LENGTH_LONG).show();
             Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                     "Form Entry couldn't save because of corrupt state.");
-            clearSessionAndExit(currentState);
+            clearSessionAndExit(currentState, true);
             return false;
         }
 
@@ -517,7 +544,7 @@ public class CommCareHomeActivity
                         Toast.LENGTH_LONG).show();
                 Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
                         "Form Entry did not return a form");
-                clearSessionAndExit(currentState);
+                clearSessionAndExit(currentState, true);
                 return false;
             }
 
@@ -568,9 +595,8 @@ public class CommCareHomeActivity
                 // to keep running the workflow
             } else {
                 // Form record is now stored.
-                // TODO: session state clearing might be something we want to
-                // do in InstanceProvider.bindToFormRecord.
-                clearSessionAndExit(currentState);
+                // TODO: session state clearing might be something we want to do in InstanceProvider.bindToFormRecord.
+                clearSessionAndExit(currentState, false);
                 return false;
             }
         } else if (resultCode == RESULT_CANCELED) {
@@ -604,18 +630,22 @@ public class CommCareHomeActivity
         return true;
     }
 
-    /**
-     * clear local state in session session, and finish if was external is set,
-     * otherwise refesh the view.
-     */
-    private void clearSessionAndExit(AndroidSessionWrapper currentState) {
+    private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
             this.finish();
         }
         uiController.refreshView();
+        if (shouldWarnUser) {
+            showSessionRefreshWarning();
+        }
     }
 
+    private void showSessionRefreshWarning() {
+        AlertDialogFactory.getBasicAlertFactory(this,
+                Localization.get("session.refresh.error.title"),
+                Localization.get("session.refresh.error.message"), null).showDialog();
+    }
 
     private void showDemoModeWarning() {
         AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
@@ -744,7 +774,8 @@ public class CommCareHomeActivity
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
         }
-        i.putExtra(SessionFrame.STATE_COMMAND_ID, asw.getSession().getCommand());
+        i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
+        addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
     }
 
@@ -755,6 +786,8 @@ public class CommCareHomeActivity
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
         }
+        addPendingDataExtra(i, session);
+        addPendingDatumIdExtra(i, session);
         startActivityForResult(i, GET_CASE);
     }
 
@@ -765,7 +798,17 @@ public class CommCareHomeActivity
         Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
         EntitySelectActivity.populateDetailIntent(
                 detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
+        addPendingDataExtra(detailIntent, session);
+        addPendingDatumIdExtra(detailIntent, session);
         startActivityForResult(detailIntent, GET_CASE);
+    }
+
+    private static void addPendingDataExtra(Intent i, CommCareSession session) {
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+    }
+
+    private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
+        i.putExtra(KEY_PENDING_SESSION_DATUM_ID, session.getNeededDatum().getDataId());
     }
 
     /**
@@ -1368,7 +1411,7 @@ public class CommCareHomeActivity
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);

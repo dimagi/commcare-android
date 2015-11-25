@@ -44,15 +44,14 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         Detail childDetail = getChildDetail();
-        TreeReference childReference = SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
+        TreeReference childReference = this.getChildReference();
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
         this.listView = ((ListView)rootView.findViewById(R.id.screen_entity_detail_list));
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
-            EntityLoaderTask theloader = new EntityLoaderTask(childDetail,
-                    prepareEvaluationContext(childReference));
+            EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
             theloader.attachListener(this);
             theloader.execute(childDetail.getNodeset().contextualize(childReference));
 
@@ -69,25 +68,6 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
 
         return rootView;
-    }
-
-    /**
-     * Creates an evaluation context which is preloaded with all of the variables and context from
-     * the parent detail definition.
-     *
-     * @param childReference The qualified reference for the nodeset in the parent detail
-     * @return An evaluation context ready to be used as the base of the subnode detail, including
-     * any variable definitions included by the parent.
-     */
-    private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
-        EvaluationContext sessionContext = asw.getEvaluationContext();
-        EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
-        getParentDetail().populateEvaluationContextVariables(parentDetailContext);
-        return parentDetailContext;
-    }
-
-    public Detail getParentDetail() {
-        return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
     }
 
     @Override

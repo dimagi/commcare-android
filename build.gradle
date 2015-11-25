@@ -36,8 +36,6 @@ dependencies {
     compile project(':javarosa')
     compile project(':commcare')
     compile project(':libraries:mapballoons')
-    compile project(':libraries:achartengine')
-    //compile project(':libraries:AndroidStaggeredGrid:library')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'com.android.support:cardview-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'

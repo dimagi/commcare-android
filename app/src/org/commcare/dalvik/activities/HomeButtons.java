@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.content.Intent;
 import android.view.View;
 
 import org.commcare.dalvik.R;
@@ -36,6 +37,10 @@ public class HomeButtons {
                         "Logged in as: ", R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity)),
+                new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
+                        "", R.color.white,
+                        R.drawable.home_report, R.color.cc_neutral_color, R.color.cc_neutral_text,
+                        getReportButtonListener(activity)),
         };
     }
 
@@ -77,6 +82,15 @@ public class HomeButtons {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
                 activity.userTriggeredLogout();
+            }
+        };
+    }
+
+    private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
+        return new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(activity, ReportProblemActivity.class);
+                activity.startActivityForResult(i, CommCareHomeActivity.REPORT_PROBLEM_ACTIVITY);
             }
         };
     }

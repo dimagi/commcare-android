@@ -20,6 +20,7 @@ import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**
@@ -70,8 +71,8 @@ public class EntityDetailFragment extends Fragment {
 
         // Note that some of this setup could be moved into onAttach if it would help performance
         Detail childDetail = getChildDetail();
-        NodeEntityFactory factory = new NodeEntityFactory(childDetail, asw.getEvaluationContext());
         TreeReference childReference = getChildReference();
+        NodeEntityFactory factory = new NodeEntityFactory(childDetail, this.getFactoryContext(childReference));
 
         View rootView = inflater.inflate(R.layout.entity_detail_list, container, false);
         final Activity thisActivity = getActivity();
@@ -108,5 +109,34 @@ public class EntityDetailFragment extends Fragment {
      */
     protected TreeReference getChildReference() {
         return SerializationUtil.deserializeFromBundle(getArguments(), CHILD_REFERENCE, TreeReference.class);
+    }
+
+    protected EvaluationContext getFactoryContext(TreeReference childReference) {
+        if (getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1) {
+            return prepareEvaluationContext(childReference);
+        }
+        return asw.getEvaluationContext();
+    }
+
+    /**
+     * @return Reference to this fragment's parent detail, which may be the same as this fragment's detail.
+     */
+    public Detail getParentDetail() {
+        return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
+    }
+
+    /**
+     * Creates an evaluation context which is preloaded with all of the variables and context from
+     * the parent detail definition.
+     *
+     * @param childReference The qualified reference for the nodeset in the parent detail
+     * @return An evaluation context ready to be used as the base of the subnode detail, including
+     * any variable definitions included by the parent.
+     */
+    protected EvaluationContext prepareEvaluationContext(TreeReference childReference) {
+        EvaluationContext sessionContext = asw.getEvaluationContext();
+        EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
+        getParentDetail().populateEvaluationContextVariables(parentDetailContext);
+        return parentDetailContext;
     }
 }

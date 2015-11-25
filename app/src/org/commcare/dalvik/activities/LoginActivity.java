@@ -32,6 +32,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -47,7 +48,6 @@ import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -55,6 +55,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -657,7 +658,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         // Refresh UI for potential new language
-        loadFields(false);
+        ManagedUiFramework.loadUiElements(this);
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
