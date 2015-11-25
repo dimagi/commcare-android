@@ -2196,11 +2196,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     protected boolean isBlockingUserInput() {
         View cover = this.findViewById(R.id.form_entry_cover);
 
-        if(cover != null && cover.getVisibility() == View.VISIBLE) {
-            return true;
-        } else {
-            return false;
-        }
+        return cover != null && cover.getVisibility() == View.VISIBLE;
     }
 
     @Override
