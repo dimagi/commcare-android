@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.models.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
@@ -34,35 +35,15 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * @author ctsims
  */
-public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
+public abstract class ProcessAndSendTask<R>
+        extends CommCareTask<FormRecord, Long, Integer, R>
+        implements DataSubmissionListener {
 
     private Context c;
     private String url;
     private Long[] results;
     
     private final int sendTaskId;
-    
-    public enum ProcessIssues implements MessageTag {
-        
-        /** Logs successfully submitted **/
-        BadTransactions("notification.processing.badstructure"),
-        
-        /** Logs saved, but not actually submitted **/
-        StorageRemoved("notification.processing.nosdcard"),
-        
-        /** You were logged out while something was occurring **/
-        LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN),
-        
-        /** Logs saved, but not actually submitted **/
-        RecordQuarantined("notification.sending.quarantine");
-        
-        ProcessIssues(String root) {this(root, "processing");}
-        ProcessIssues(String root, String category) {this.root = root;this.category = category;}
-        private final String root, category;
-        public String getLocaleKeyBase() { return root;}
-        public String getCategory() { return category; }
-        
-    }
     
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
@@ -94,8 +75,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         this.processor = new FormRecordProcessor(c);
         if (inSyncMode) {
             this.taskId = PROCESSING_PHASE_ID;
-        }
-        else {
+        } else {
             this.taskId = -1;
         }
     }
@@ -377,20 +357,22 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return successes; 
     }
     
-    //Wrappers for the internal stuff
+    @Override
     public void beginSubmissionProcess(int totalItems) {
         this.publishProgress(SUBMISSION_BEGIN, (long)totalItems);
     }
 
+    @Override
     public void startSubmission(int itemNumber, long length) {
-        // TODO Auto-generated method stub
         this.publishProgress(SUBMISSION_START, (long)itemNumber, length);
     }
 
+    @Override
     public void notifyProgress(int itemNumber, long progress) {
         this.publishProgress(SUBMISSION_NOTIFY, (long)itemNumber, progress);
     }
 
+    @Override
     public void endSubmissionProcess() {
         this.publishProgress(SUBMISSION_DONE);
     }
@@ -413,5 +395,4 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
-
 }

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.models.notifications;
 
 /**
@@ -35,11 +32,11 @@ public interface MessageTag {
     /**
      * @return The suffix of the locale strings containing the notification message info
      */
-    public String getLocaleKeyBase();
+    String getLocaleKeyBase();
     
     /**
      * @return A key corresponding to the category of the message. Messages with the same
      * category keys can be cleared systematically.
      */
-    public String getCategory();
+    String getCategory();
 }
