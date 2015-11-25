@@ -36,11 +36,11 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
-    Context c;
-    String url;
-    Long[] results;
+    private Context c;
+    private String url;
+    private Long[] results;
     
-    int sendTaskId;
+    private final int sendTaskId;
     
     public enum ProcessIssues implements MessageTag {
         
@@ -66,22 +66,22 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
-    public static final long PROGRESS_ALL_PROCESSED = 8;
+    private static final long PROGRESS_ALL_PROCESSED = 8;
     
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
+    private static final long SUBMISSION_BEGIN = 16;
+    private static final long SUBMISSION_START = 32;
+    private static final long SUBMISSION_NOTIFY = 64;
+    private static final long SUBMISSION_DONE = 128;
     
     public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
+    private static final long PROGRESS_SDCARD_REMOVED = 512;
     
-    DataSubmissionListener formSubmissionListener;
-    private FormRecordProcessor processor;
+    private DataSubmissionListener formSubmissionListener;
+    private final FormRecordProcessor processor;
     
-    private static int SUBMISSION_ATTEMPTS = 2;
+    private static final int SUBMISSION_ATTEMPTS = 2;
     
-    static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
+    private final static Queue<ProcessAndSendTask> processTasks = new LinkedList<>();
     
     public ProcessAndSendTask(Context c, String url) {
         this(c, url, SEND_PHASE_ID, true);
@@ -135,19 +135,16 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
-                    continue;
                 } catch (XmlPullParserException e) {
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
-                    continue;
                 } catch (UnfullfilledRequirementsException e) {
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
                     FormRecordCleanupTask.wipeRecord(c, record);
                     needToSendLogs = true;
-                    continue;
                 } catch (FileNotFoundException e) {
                     if(CommCareApplication._().isStorageAvailable()) {
                         //If storage is available generally, this is a bug in the app design
@@ -158,11 +155,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                         //Otherwise, the SD card just got removed, and we need to bail anyway.
                         return (int)PROGRESS_SDCARD_REMOVED;
                     }
-                    continue;
-                }   catch (IOException e) {
+                } catch (IOException e) {
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
-                    continue;
-                } 
+                }
             }
         }
         
@@ -173,17 +168,15 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             processTasks.add(this);
         }
         
-        boolean proceed = false;
         boolean needToRefresh = false;
-        while(!proceed) {
+        while(true) {
             //TODO: Terrible?
             
             //See if it's our turn to go
             synchronized(processTasks) {
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
-                if(processTasks.peek() == this) {
-                    proceed = true;
+                if (processTasks.peek() == this) {
                     break;
                 }
                 //Otherwise, is the head of the queue busted?
@@ -299,8 +292,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             } catch (Exception e) {
                 //Just try to skip for now. Hopefully this doesn't wreck the model :/
                 Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
-                continue;
-            }  
+            }
         }
         
         long result = 0;
