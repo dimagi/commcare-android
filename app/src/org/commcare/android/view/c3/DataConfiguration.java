@@ -62,11 +62,15 @@ public class DataConfiguration extends Configuration {
     private final JSONObject mPointStyles = new JSONObject();
 
     // Bar graph data:
-    //  barCount: for the sake of setting x min and max
-    //  barLabels: the actual labels to display, which are supposed to be the same
+    //  mBarCount: for the sake of setting x min and max
+    //  mBarLabels: the actual labels to display, which are supposed to be the same
     //      for every series, hence the booleans so we only record them once
+    //  mBarColors: hash of y-values id => array of colors, with one color for each bar
+    //  mBarOpacities: analagous to mBarColors, but for bar opacitiy values
     private int mBarCount = 0;
     private final JSONArray mBarLabels = new JSONArray("['']");
+    private final JSONObject mBarColors = new JSONObject();
+    private final JSONObject mBarOpacities = new JSONObject();
 
     // Bubble graph data:
     //  y-values id => array of radius values
@@ -85,8 +89,8 @@ public class DataConfiguration extends Configuration {
             mXs.put(yID, xID);
 
             setColumns(xID, yID, s);
-            setName(yID, s);
             setColor(yID, s);
+            setName(yID, s);
             setIsData(yID, s);
             setPointStyle(yID, s);
             setType(yID, s);
@@ -98,6 +102,8 @@ public class DataConfiguration extends Configuration {
         // Set up separate variables for features that C3 doesn't support well
         mVariables.put("areaColors", mAreaColors.toString());
         mVariables.put("areaOpacities", mAreaOpacities.toString());
+        mVariables.put("barColors", mBarColors.toString());
+        mVariables.put("barOpacities", mBarOpacities.toString());
         mVariables.put("isData", mIsData.toString());
         mVariables.put("lineOpacities", mLineOpacities.toString());
         mVariables.put("maxRadii", mMaxRadii.toString());
@@ -304,6 +310,22 @@ public class DataConfiguration extends Configuration {
      * @param s SeriesData from which to pull color
      */
     private void setColor(String yID, SeriesData s) throws JSONException {
+        String barColorJSON = s.getConfiguration("bar-color");
+        if (barColorJSON != null) {
+            JSONArray requestedColors = new JSONArray(barColorJSON);
+            JSONArray colors = new JSONArray();
+            JSONArray opacities = new JSONArray();
+            for (int i = 0; i < requestedColors.length(); i++) {
+                String color = requestedColors.getString(i);
+                color = normalizeColor(color);
+                colors.put(i, "#" + color.substring(3));
+                opacities.put(getOpacity(color));
+            }
+            mBarColors.put(yID, colors);
+            mBarOpacities.put(yID, opacities);
+            return;
+        }
+
         String color = s.getConfiguration("line-color", "#ff000000");
         color = normalizeColor(color);
         mColors.put(yID, "#" + color.substring(3));
@@ -311,7 +333,6 @@ public class DataConfiguration extends Configuration {
 
         String fillBelow = s.getConfiguration("fill-below");
         if (fillBelow != null) {
-            System.out.println("[jls] fill-below => " + fillBelow + " => " + normalizeColor(fillBelow));
             fillBelow = normalizeColor(fillBelow);
             mAreaColors.put(yID, "#" + fillBelow.substring(3));
             mAreaOpacities.put(yID, getOpacity(fillBelow));
