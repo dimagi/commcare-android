@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <include
+        android:id="@+id/choice_dialog_title"
+        layout="@layout/dialog_title" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:divider="?android:attr/listDivider"
+        android:showDividers="middle"
+        android:layout_marginLeft="@dimen/standard_spacer_large"
+        android:layout_marginRight="@dimen/standard_spacer_large"
+        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:weightSum="3" >
+
+        <Button
+            android:id="@+id/choice_dialog_panel_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawablePadding="5dp"
+            android:layout_marginRight="@dimen/standard_spacer"
+            android:paddingTop="15dp" />
+
+        <Button
+            android:id="@+id/choice_dialog_panel_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawablePadding="5dp"
+            android:layout_marginLeft="@dimen/standard_spacer"
+            android:layout_marginRight="@dimen/standard_spacer"
+            android:paddingTop="15dp" />
+
+        <Button
+            android:id="@+id/choice_dialog_panel_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:drawablePadding="5dp"
+            android:layout_marginLeft="@dimen/standard_spacer"
+            android:paddingTop="15dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
