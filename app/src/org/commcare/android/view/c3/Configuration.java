@@ -40,13 +40,25 @@ public class Configuration {
     }
 
     /**
-     * Parse given double time value into string acceptable to C3.
-     *
-     * @param daysSinceEpoch The time, measured in days since the epoch.
+     * Parse given time value into string acceptable to C3.
+     * @param value The value, which may be a YYYY-MM-DD string, a YYYY-MM-DD HH:MM:SS,
+     *              or a double representing days since the epoch.
+     * @param description Something to identify the kind of value, used to augment any error message.
+     * @return String of format YYYY-MM-DD HH:MM:SS, which is what C3 expects.
+     *          This expected format is set in DataConfiguration as xFormat.
+     * @throws InvalidStateException
      */
-    protected String convertTime(double daysSinceEpoch) {
-        Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
-        return mDateFormat.format(d);
+    protected String parseTime(String value, String description) throws InvalidStateException {
+        if (value.matches(".*[^0-9.].*")) {
+            if (!value.matches(".*:.*")) {
+                value += " 00:00:00";
+            }
+        } else {
+            double daysSinceEpoch = parseDouble(value, description);
+            Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
+            value = mDateFormat.format(d);
+        }
+        return value;
     }
 
     /**

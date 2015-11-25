@@ -147,11 +147,10 @@ public class DataConfiguration extends Configuration {
             // Add x value
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            double xValue = parseDouble(a.getX(), description);
             if (mData.getType().equals(Graph.TYPE_TIME)) {
-                xValues.put(convertTime(xValue));
+                xValues.put(parseTime(a.getX(), description));
             } else {
-                xValues.put(xValue);
+                xValues.put(parseDouble(a.getX(), description));
             }
             mColumns.put(xValues);
 
@@ -193,8 +192,8 @@ public class DataConfiguration extends Configuration {
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
             if (mData.getType().equals(Graph.TYPE_TIME)) {
-                xValues.put(xMin);
-                xValues.put(xMax);
+                xValues.put(parseTime(xMin, "x-min"));
+                xValues.put(parseTime(xMax, "x-max"));
             } else {
                 xValues.put(parseDouble(xMin, "x-min"));
                 xValues.put(parseDouble(xMax, "x-max"));
@@ -393,11 +392,10 @@ public class DataConfiguration extends Configuration {
                     mBarLabels.put(p.getX());
                 }
             } else {
-                double xValue = parseDouble(p.getX(), description);
                 if (mData.getType().equals(Graph.TYPE_TIME)) {
-                    xValues.put(convertTime(xValue));
+                    xValues.put(parseTime(p.getX(), description));
                 } else {
-                    xValues.put(xValue);
+                    xValues.put(parseDouble(p.getX(), description));
                 }
             }
             yValues.put(parseDouble(p.getY(), description));
