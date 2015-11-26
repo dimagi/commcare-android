@@ -87,21 +87,21 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     private static final Queue<ProcessAndSendTask> processTasks = new LinkedList<>();
     
     public ProcessAndSendTask(Context c, String url) {
-        this(c, url, SEND_PHASE_ID, true);
+        this(c, url, true);
     }
 
     /**
      * @param inSyncMode blocks the user with a sync dialog
      */
-    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) {
+    public ProcessAndSendTask(Context c, String url, boolean inSyncMode) {
         this.c = c;
         this.url = url;
-        this.sendTaskId = sendTaskId;
         this.processor = new FormRecordProcessor(c);
         if (inSyncMode) {
+            this.sendTaskId = SEND_PHASE_ID;
             this.taskId = PROCESSING_PHASE_ID;
-        }
-        else {
+        } else {
+            this.sendTaskId = -1;
             this.taskId = -1;
         }
     }
@@ -110,23 +110,21 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
-        /*
+        try { Thread.sleep(20000); } catch (Exception e) {
+            Log.w(TAG, "!!!!!!!!!!!!!!!!");
+        }
+
         // Don't try to sync if logging out is occuring
         if (CommCareSessionService.sessionAliveLock.isLocked()) {
-
             // NOTE: DataPullTask also needs this lock to run, so they
             // cannot run in parallel.
             //
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
+            Log.w(TAG, "Logout pending________________________________");
             return (int)LOGOUT_PENDING;
         }
-        try { Thread.sleep(20000); } catch (Exception e) {
-            Log.w(TAG, "!!!!!!!!!!!!!!!!");
-        }
-        */
-
 
         try {
         results = new Long[records.length];
@@ -190,7 +188,12 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         boolean needToRefresh = false;
         while(!proceed) {
             //TODO: Terrible?
-            
+
+            if (CommCareSessionService.sessionAliveLock.isLocked()) {
+                // trying to expire session, abort
+                processTasks.remove(this);
+                return (int)LOGOUT_PENDING;
+            }
             //See if it's our turn to go
             synchronized(processTasks) {
                 //Are we at the head of the queue?
