@@ -1412,7 +1412,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             mSaveToDiskTask.connect(this);
         }
         mSaveToDiskTask.setFormSavedListener(this);
-        mSaveToDiskTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mSaveToDiskTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mSaveToDiskTask.execute();
+        }
     }
 
     /**
@@ -1846,7 +1850,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             };
             mFormLoaderTask.connect(this);
-            mFormLoaderTask.execute(formUri);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
+            } else {
+                mFormLoaderTask.execute(formUri);
+            }
             hasFormLoadBeenTriggered = true;
         }
     }
