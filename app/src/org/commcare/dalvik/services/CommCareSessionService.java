@@ -306,7 +306,8 @@ public class CommCareSessionService extends Service {
                 currentTime > (logoutStartedAt + LOGOUT_TIMEOUT)) {
             // Try and grab the logout lock, aborting if synchronization is in
             // progress.
-            if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            if (!CommCareSessionService.sessionAliveLock.tryLock() || ProcessAndSendTask.hasPendingSendTasks()) {
+
                 return;
             }
             try {
