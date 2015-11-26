@@ -214,8 +214,24 @@ public class MenuAdapter implements ListAdapter {
         TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
         rowText.setText(mQuestionText);
 
+        setupAudioButton(menuListItem, mObject);
+
+        ImageView mIconView = setupIcon(menuListItem, mObject);
+
+        String imageURI = mObject.getImageURI();
+
+        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
+        if (image != null && mIconView != null) {
+            mIconView.setImageBitmap(image);
+            mIconView.setAdjustViewBounds(true);
+        }
+
+        return menuListItem;
+    }
+
+    private void setupAudioButton(View menuListItem, MenuDisplayable menuDisplayable) {
         // set up audio
-        final String audioURI = mObject.getAudioURI();
+        final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
             try {
@@ -242,15 +258,17 @@ public class MenuAdapter implements ListAdapter {
                 ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
             }
         }
+    }
 
+    private ImageView setupIcon(View menuListItem, MenuDisplayable menuDisplayable) {
         // set up the image, if available
         ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
 
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
-        if (mObject instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry) mObject);
+        if (menuDisplayable instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
             if (datum == null || datum.getNodeset() == null) {
                 iconChoice = NavIconState.JUMP;
             }
@@ -276,16 +294,7 @@ public class MenuAdapter implements ListAdapter {
                 mIconView.setVisibility(View.GONE);
             }
         }
-
-        String imageURI = mObject.getImageURI();
-
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
-        if (image != null && mIconView != null) {
-            mIconView.setImageBitmap(image);
-            mIconView.setAdjustViewBounds(true);
-        }
-
-        return menuListItem;
+        return mIconView;
     }
 
     /*
