@@ -144,6 +144,8 @@ public abstract class ProcessAndSendTask<R>
             this.cancel(false);
             return (int)PROGRESS_LOGGED_OUT;
         } finally {
+            endSubmissionProcess();
+
             synchronized (processTasks) {
                 processTasks.remove(this);
             }
@@ -353,8 +355,6 @@ public abstract class ProcessAndSendTask<R>
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
-
-        endSubmissionProcess();
 
         clearState();
     }
