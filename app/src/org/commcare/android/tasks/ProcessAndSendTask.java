@@ -2,7 +2,6 @@ package org.commcare.android.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.models.notifications.ProcessIssues;
@@ -14,7 +13,6 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -87,22 +85,6 @@ public abstract class ProcessAndSendTask<R>
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
-        try { Thread.sleep(20000); } catch (Exception e) {
-            Log.w(TAG, "!!!!!!!!!!!!!!!!");
-        }
-
-        // Don't try to sync if logging out is occuring
-        if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            // NOTE: DataPullTask also needs this lock to run, so they
-            // cannot run in parallel.
-            //
-            // TODO PLM: once this task is refactored into manageable
-            // components, it should use the ManagedAsyncTask pattern of
-            // checking for isCancelled() and aborting at safe places.
-            Log.w(TAG, "Logout pending________________________________");
-            return (int)LOGOUT_PENDING;
-        }
-
         try {
             results = new Long[records.length];
             for (int i = 0; i < records.length; ++i) {
@@ -170,6 +152,13 @@ public abstract class ProcessAndSendTask<R>
     private boolean checkFormRecordStatus(FormRecord[] records) throws FileNotFoundException {
         boolean needToSendLogs = false;
         for (int i = 0; i < records.length; ++i) {
+            //The first thing we need to do is make sure everything is processed,
+            //we can't actually proceed before that.
+            for(int i = 0 ; i < records.length ; ++i) {
+                if (isCancelled()) {
+                    return (int)FormUploadUtil.FAILURE;
+                }
+            }
             FormRecord record = records[i];
 
             //If the form is complete, but unprocessed, process it.
@@ -214,13 +203,12 @@ public abstract class ProcessAndSendTask<R>
         while (true) {
             //TODO: Terrible?
 
-            if (CommCareSessionService.sessionAliveLock.isLocked()) {
-                // trying to expire session, abort
-                processTasks.remove(this);
-                return (int)LOGOUT_PENDING;
-            }
             //See if it's our turn to go
             synchronized (processTasks) {
+                if (isCancelled()) {
+                    processTasks.remove(this);
+                    return (int)FormUploadUtil.FAILURE;
+                }
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
                 if (head == this) {

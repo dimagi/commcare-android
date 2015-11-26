@@ -75,7 +75,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                     @Override
                     protected void deliverResult(RecoveryActivity receiver, Integer result) {
-                         if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT || result == ProcessAndSendTask.LOGOUT_PENDING) {
+                         if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
 
                             receiver.displayMessage("Log-in expired during send. Please press back and log in again");
                             return;
