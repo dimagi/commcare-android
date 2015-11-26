@@ -2,7 +2,6 @@ package org.commcare.android.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.commcare.android.database.user.models.FormRecord;
 import org.javarosa.core.model.User;
@@ -15,7 +14,6 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -76,9 +74,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     
     public static final long PROGRESS_LOGGED_OUT = 256;
     public static final long PROGRESS_SDCARD_REMOVED = 512;
-    public static final long LOGOUT_PENDING = 1024;
 
-    
     DataSubmissionListener formSubmissionListener;
     private FormRecordProcessor processor;
     
@@ -110,22 +106,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
 
-        try { Thread.sleep(20000); } catch (Exception e) {
-            Log.w(TAG, "!!!!!!!!!!!!!!!!");
-        }
-
-        // Don't try to sync if logging out is occuring
-        if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            // NOTE: DataPullTask also needs this lock to run, so they
-            // cannot run in parallel.
-            //
-            // TODO PLM: once this task is refactored into manageable
-            // components, it should use the ManagedAsyncTask pattern of
-            // checking for isCancelled() and aborting at safe places.
-            Log.w(TAG, "Logout pending________________________________");
-            return (int)LOGOUT_PENDING;
-        }
-
         try {
         results = new Long[records.length];
         for(int i = 0; i < records.length ; ++i ) {
@@ -135,6 +115,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         //The first thing we need to do is make sure everything is processed,
         //we can't actually proceed before that.
         for(int i = 0 ; i < records.length ; ++i) {
+            if (isCancelled()) {
+                return (int)FormUploadUtil.FAILURE;
+            }
             FormRecord record = records[i];
 
             //If the form is complete, but unprocessed, process it.
@@ -176,26 +159,24 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } 
             }
         }
-        
+
         this.publishProgress(PROGRESS_ALL_PROCESSED);
-        
+
         //Put us on the queue!
         synchronized(processTasks) {
             processTasks.add(this);
         }
-        
         boolean proceed = false;
         boolean needToRefresh = false;
         while(!proceed) {
             //TODO: Terrible?
 
-            if (CommCareSessionService.sessionAliveLock.isLocked()) {
-                // trying to expire session, abort
-                processTasks.remove(this);
-                return (int)LOGOUT_PENDING;
-            }
             //See if it's our turn to go
             synchronized(processTasks) {
+                if (isCancelled()) {
+                    processTasks.remove(this);
+                    return (int)FormUploadUtil.FAILURE;
+                }
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
                 if(processTasks.peek() == this) {
@@ -340,16 +321,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             if(needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
-            //CommCareSessionService.sessionAliveLock.unlock();
         }
     }
 
-    public static boolean hasPendingSendTasks() {
-        synchronized (processTasks) {
-            return !processTasks.isEmpty();
-        }
-    }
-    
     public static int pending() {
         synchronized(processTasks) {
             return processTasks.size();
@@ -438,6 +412,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
+
         if(this.formSubmissionListener != null) {
             formSubmissionListener.endSubmissionProcess();
         }
