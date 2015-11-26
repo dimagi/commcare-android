@@ -97,6 +97,8 @@ public abstract class ProcessAndSendTask<R>
                 needToSendLogs = checkFormRecordStatus(records);
             } catch (FileNotFoundException e) {
                 return (int)PROGRESS_SDCARD_REMOVED;
+            } catch (TaskCancelledException e) {
+                return (int)FormUploadUtil.FAILURE;
             }
 
             this.publishProgress(PROGRESS_ALL_PROCESSED);
@@ -106,7 +108,12 @@ public abstract class ProcessAndSendTask<R>
                 processTasks.add(this);
             }
 
-            boolean needToRefresh = blockUntilTopOfQueue();
+            boolean needToRefresh;
+            try {
+                needToRefresh = blockUntilTopOfQueue();
+            } catch (TaskCancelledException e) {
+                return (int)FormUploadUtil.FAILURE;
+            }
             if (needToRefresh) {
                 //There was another activity before this one. Refresh our models in case
                 //they were updated
@@ -145,19 +152,15 @@ public abstract class ProcessAndSendTask<R>
             if (needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
-            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
 
-    private boolean checkFormRecordStatus(FormRecord[] records) throws FileNotFoundException {
+    private boolean checkFormRecordStatus(FormRecord[] records)
+            throws FileNotFoundException, TaskCancelledException {
         boolean needToSendLogs = false;
         for (int i = 0; i < records.length; ++i) {
-            //The first thing we need to do is make sure everything is processed,
-            //we can't actually proceed before that.
-            for(int i = 0 ; i < records.length ; ++i) {
-                if (isCancelled()) {
-                    return (int)FormUploadUtil.FAILURE;
-                }
+            if (isCancelled()) {
+                throw new TaskCancelledException();
             }
             FormRecord record = records[i];
 
@@ -198,7 +201,7 @@ public abstract class ProcessAndSendTask<R>
         return needToSendLogs;
     }
 
-    private boolean blockUntilTopOfQueue() {
+    private boolean blockUntilTopOfQueue() throws TaskCancelledException {
         boolean needToRefresh = false;
         while (true) {
             //TODO: Terrible?
@@ -207,7 +210,7 @@ public abstract class ProcessAndSendTask<R>
             synchronized (processTasks) {
                 if (isCancelled()) {
                     processTasks.remove(this);
-                    return (int)FormUploadUtil.FAILURE;
+                    throw new TaskCancelledException();
                 }
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
@@ -420,5 +423,8 @@ public abstract class ProcessAndSendTask<R>
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
 
         clearState();
+    }
+
+    private static class TaskCancelledException extends Exception {
     }
 }
