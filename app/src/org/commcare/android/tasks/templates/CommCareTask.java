@@ -142,7 +142,11 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
                 return connector;
             }
 
-            if (this.getStatus() == AsyncTask.Status.RUNNING) {
+            if (this.getStatus() == AsyncTask.Status.RUNNING && taskId != -1) {
+                // If the connector is null and the task is associated with a
+                // dialog/activity (i.e. task id != -1) then cancel because the
+                // task isn't expected to live past the associated
+                // dialog/activity
                 this.cancel(false);
             }
 
@@ -160,11 +164,13 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
 
     protected void transitionPhase(int newTaskId) {
         synchronized (connectorLock) {
-            CommCareTaskConnector<R> connector = this.getConnector(true);
-            if (connector != null) {
-                connector.stopBlockingForTask(taskId);
-                connector.startBlockingForTask(newTaskId);
-                this.taskId = newTaskId;
+            if (newTaskId != taskId) {
+                CommCareTaskConnector<R> connector = this.getConnector(true);
+                if (connector != null) {
+                    connector.stopBlockingForTask(taskId);
+                    connector.startBlockingForTask(newTaskId);
+                    this.taskId = newTaskId;
+                }
             }
         }
     }
