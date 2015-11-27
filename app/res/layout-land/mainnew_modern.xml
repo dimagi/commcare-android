@@ -9,16 +9,16 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            style="@style/MainPane"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
             android:orientation="vertical"
             android:paddingLeft="@dimen/content_start"
-            android:paddingRight="@dimen/content_start"
-            style="@style/MainPane" >
+            android:paddingRight="@dimen/content_start">
 
             <!-- adding top banner as dependency -->
             <android.support.v7.widget.RecyclerView
@@ -26,11 +26,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="vertical"/>
-
         </LinearLayout>
-
-        <include layout="@layout/component_drop_shadow"/>
-
     </FrameLayout>
-
 </RelativeLayout>

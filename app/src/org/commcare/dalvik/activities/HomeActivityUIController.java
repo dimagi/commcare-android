@@ -55,7 +55,7 @@ public class HomeActivityUIController {
     }
 
     private void setupUI() {
-        setMainView();
+        activity.setContentView(R.layout.mainnew_modern);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
         mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
         setupGridView();
@@ -77,19 +77,6 @@ public class HomeActivityUIController {
         }
 
         return hiddenButtons;
-    }
-
-    private void setMainView() {
-        // TODO: discover why Android is not loading the correct layout from layout[-land]-v10 and remove this
-        if (usingNewLayout()) {
-            activity.setContentView(R.layout.mainnew_modern_v10);
-        } else {
-            activity.setContentView(R.layout.mainnew_modern);
-        }
-    }
-
-    private boolean usingNewLayout() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1;
     }
 
     private void setupGridView() {

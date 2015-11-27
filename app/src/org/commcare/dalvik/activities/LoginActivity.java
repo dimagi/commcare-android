@@ -93,9 +93,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
-    
-    @UiElement(R.id.str_version)
-    private TextView versionDisplay;
 
     @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
@@ -164,7 +161,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         username.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
 
-        versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         username.setHint(Localization.get("login.username"));
         password.setHint(Localization.get("login.password"));
 
@@ -177,7 +173,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 int height = activityRootView.getHeight();
 
                 if (height < hideAll) {
-                    versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
                 } else if (height < hideBanner) {
                     banner.setVisibility(View.GONE);
