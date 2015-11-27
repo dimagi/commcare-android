@@ -70,6 +70,7 @@ public class CommCarePreferences
 
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
+    public final static String CURRENT_SESSION = "current_user_session";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";

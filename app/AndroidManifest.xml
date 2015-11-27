@@ -372,6 +372,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="org.commcare.android.api.SessionCaptureReceiver" >
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.SessionCaptureAction" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
         <activity android:name=".activities.MultimediaInflaterActivity" >
         </activity>
         <activity android:name=".activities.CommCareFormDumpActivity"

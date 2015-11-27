@@ -173,6 +173,8 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
+
+        Log.w("foo", CommCareApplication._().getCurrentSession().toString());
     }
 
     /**
@@ -371,6 +373,12 @@ public class CommCareHomeActivity
                     return;
                 } else if(resultCode == RESULT_OK) {
                     if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
+                        CommCareSession session = CommCareApplication._().getCurrentSession();
+                        if (session.getCommand() != null) {
+                            sessionNavigator.startNextSessionStep();
+                            return;
+                        }
+
                         uiController.refreshView();
                         
                         //Unless we're about to sync (which will handle this

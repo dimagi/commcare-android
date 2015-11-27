@@ -2,18 +2,27 @@ package org.commcare.android.session;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Logic to save password and auto-login when dev option is enabled
@@ -55,7 +64,7 @@ public class DevSessionRestorer {
         }
     }
 
-    private static boolean autoLoginEnabled() {
+    public static boolean autoLoginEnabled() {
         return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
     }
 
@@ -63,20 +72,52 @@ public class DevSessionRestorer {
         prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
     }
 
-    public static AndroidSessionWrapper restoreSessionFromAsset(Context context,
-                                                                CommCarePlatform platform) {
-        final String sessionFilename = ".session";
-        try {
-            DataInputStream inputStream =
-                    new DataInputStream(context.getAssets().open(sessionFilename));
-            CommCareSession restoredSession =
-                    CommCareSession.restoreSessionFromStream(platform, inputStream);
+    public static AndroidSessionWrapper restoreSessionFromAsset(CommCarePlatform platform) {
+        SharedPreferences prefs =
+                CommCareApplication._().getCurrentApp().getAppPreferences();
+        String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
+        if (serializedSession != null) {
+            try {
+                byte[] data = Base64.decode(serializedSession, Base64.DEFAULT);
+                DataInputStream stream =
+                        new DataInputStream(new ByteArrayInputStream(data));
 
-            return new AndroidSessionWrapper(restoredSession);
-        } catch (Exception e) {
-            Log.w(TAG, "restoring session from serialized file failed");
+                CommCareSession restoredSession =
+                        CommCareSession.restoreSessionFromStream(platform, stream);
+
+                Log.i(TAG, "Restoring session from storage");
+                return new AndroidSessionWrapper(restoredSession);
+            } catch (Exception e) {
+                clearSession(prefs);
+                Log.w(TAG, "Restoring session from serialized file failed");
+            }
         }
 
         return new AndroidSessionWrapper(platform);
     }
+
+    public static void saveCurrentSession() {
+        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        if (ccApp == null) {
+            return;
+        }
+
+        SharedPreferences prefs = ccApp.getAppPreferences();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream serializedStream = new DataOutputStream(baos);
+        try {
+            CommCareApplication._().getCurrentSession().serializeSessionState(serializedStream);
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to serialize session");
+        } catch (SessionStateUninitException e) {
+            Log.w(TAG, "Attempting to save a non-existent session");
+        }
+        String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+    }
+
+    public static void clearSession(SharedPreferences prefs) {
+        prefs.edit().remove(CommCarePreferences.CURRENT_SESSION).commit();
+    }
+
 }
