@@ -54,14 +54,6 @@ project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:22"
     buildToolsVersion = "23.0.2"
 }
-/*j
-project(':libraries:AndroidStaggeredGrid:library') {
-  android{
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
-  }
-}
-*/
 
 project(':libraries:mapballoons') {
   android{

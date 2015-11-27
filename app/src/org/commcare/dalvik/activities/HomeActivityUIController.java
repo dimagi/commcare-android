@@ -85,6 +85,7 @@ public class HomeActivityUIController {
 
         StaggeredGridLayoutManager gridView = new StaggeredGridLayoutManager(2, 1);
         grid.setLayoutManager(gridView);
+        grid.setItemAnimator(null);
         grid.setAdapter(adapter);
 
         grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -113,11 +114,39 @@ public class HomeActivityUIController {
         activity.rebuildMenus();
     }
 
+    /**
+     * Call this method before a new isolated instance of using any of the 3 fields for which it
+     * obtains values
+     */
+    private void refreshDataFromSyncDetails() {
+        try {
+            Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
+            this.lastSyncTime = syncDetails.first;
+            this.numUnsentForms = syncDetails.second[0];
+            this.numIncompleteForms = syncDetails.second[1];
+        } catch (UserStorageClosedException e) {
+            activity.launchLogin();
+        }
+    }
+
     private void setupButtons() {
         refreshDataFromSyncDetails();
         setIncompleteFormsText(activity, null, numIncompleteForms); // TODO PLM: null -> the incomplete form button
         setSyncButtonText(activity, null, syncKey, numUnsentForms);
         setLogoutButtonText(activity, null);
+    }
+
+    protected void refreshView() {
+        // TODO PLM: refresh localization of start button text
+        refreshDataFromSyncDetails();
+        setIncompleteFormsText(activity, null, numIncompleteForms);
+        setSyncButtonText(activity, null, syncKey, numUnsentForms);
+        setLogoutButtonText(activity, null);
+        showSyncMessage();
+
+        activity.updateCommCareBanner();
+        adapter.notifyDataSetChanged();
+        //adapter.notifyItemChanged();
     }
 
     private static void setLogoutButtonText(CommCareHomeActivity activity, SquareButtonWithNotification button) {
@@ -148,34 +177,6 @@ public class HomeActivityUIController {
             } else {
                 button.setText(activity.localize("home.forms.incomplete"));
             }
-        }
-    }
-
-    protected void refreshView() {
-        // TODO PLM: refresh localization of start button text
-        setLogoutButtonText(activity, null);
-
-        refreshDataFromSyncDetails();
-        setIncompleteFormsText(activity, null, numIncompleteForms);
-        setSyncButtonText(activity, null, syncKey, numUnsentForms);
-        showSyncMessage();
-
-        activity.updateCommCareBanner();
-        adapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Call this method before a new isolated instance of using any of the 3 fields for which it
-     * obtains values
-     */
-    private void refreshDataFromSyncDetails() {
-        try {
-            Pair<Long, int[]> syncDetails = CommCareApplication._().getSyncDisplayParameters();
-            this.lastSyncTime = syncDetails.first;
-            this.numUnsentForms = syncDetails.second[0];
-            this.numIncompleteForms = syncDetails.second[1];
-        } catch (UserStorageClosedException e) {
-            activity.launchLogin();
         }
     }
 

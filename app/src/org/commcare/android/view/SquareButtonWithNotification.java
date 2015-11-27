@@ -90,10 +90,4 @@ public class SquareButtonWithNotification extends RelativeLayout {
     public void setText(Spannable text) {
         buttonWithText.setText(text.toString());
     }
-    public SquareButtonWithText getButtonWithText() {
-        return buttonWithText;
-    }
-    public String getSubText() {
-        return subText.getText().toString();
-    }
 }

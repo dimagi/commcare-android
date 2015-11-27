@@ -1,6 +1,5 @@
 package org.commcare.android.adapters;
 
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -8,6 +7,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +21,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.HomeButtons;
 
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -66,8 +67,6 @@ public class HomeScreenAdapter
 
         StateListDrawable bgDrawable = getSLD(context, cardDisplayData.bgColor);
 
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             squareButtonViewHolder.imageView.setBackground(bgDrawable);
         } else {
@@ -104,19 +103,6 @@ public class HomeScreenAdapter
         return buttonData.length;
     }
 
-    public SquareButtonWithNotification getButton(int resourceCode) {
-        return null;
-        // return buttons[getButtonIndex(resourceCode)];
-    }
-
-    public void setNotificationTextForButton(int resourceCode, String notificationText) {
-        SquareButtonWithNotification button = getButton(resourceCode);
-        if (button != null) {
-            button.setNotificationText(notificationText);
-            notifyDataSetChanged();
-        }
-    }
-
     static class SquareButtonViewHolder extends RecyclerView.ViewHolder {
         protected SquareImageView imageView;
         protected TextView textView;
@@ -130,5 +116,4 @@ public class HomeScreenAdapter
             subTextView = (TextView)view.findViewById(R.id.card_subtext);
         }
     }
-
 }
