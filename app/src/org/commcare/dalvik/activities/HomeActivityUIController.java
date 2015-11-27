@@ -55,7 +55,7 @@ public class HomeActivityUIController {
     }
 
     private void setupUI() {
-        activity.setContentView(R.layout.mainnew_modern);
+        activity.setContentView(R.layout.home_screen);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
         mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
         setupGridView();
