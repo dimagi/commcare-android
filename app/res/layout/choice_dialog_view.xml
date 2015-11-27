@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <include
+        android:id="@+id/choice_dialog_title"
+        layout="@layout/dialog_title" />
+
+    <ListView
+        android:id="@+id/choices_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="@dimen/standard_spacer_large"
+        android:layout_marginRight="@dimen/standard_spacer_large"
+        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:listSelector="@drawable/selector"
+        android:divider="?android:attr/listDivider"
+        android:showDividers="middle" >
+    </ListView>
+
+    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/optional_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/min_button_height"
+        android:padding="@dimen/standard_spacer"
+        android:layout_gravity="right"
+        android:layout_marginRight="@dimen/standard_spacer"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/font_size_dp_medium"
+        android:textColor="@color/dialog_button_color"
+        android:visibility="gone">
+    </Button>
+
+</LinearLayout>

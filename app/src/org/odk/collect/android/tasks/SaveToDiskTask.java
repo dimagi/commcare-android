@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
@@ -389,6 +390,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                                     .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
                                             .getAnswerValue());
                 } else {
+                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
                     saveStatus =
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 }
