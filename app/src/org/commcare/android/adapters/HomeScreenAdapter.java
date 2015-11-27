@@ -27,14 +27,17 @@ import java.util.Vector;
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
  * Created by dancluna on 3/19/15.
  */
-public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.SquareButtonViewHolder> {
+public class HomeScreenAdapter
+        extends RecyclerView.Adapter<HomeScreenAdapter.SquareButtonViewHolder> {
 
     private final Context context;
     private final HomeButtons.HomeCardDisplayData[] buttonData;
 
-    public HomeScreenAdapter(CommCareHomeActivity activity, Vector<String> buttonsToHide) {
+    public HomeScreenAdapter(CommCareHomeActivity activity,
+                             Vector<String> buttonsToHide,
+                             boolean isDemoUser) {
         this.context = activity;
-        buttonData = HomeButtons.buildButtonData(activity, buttonsToHide);
+        buttonData = HomeButtons.buildButtonData(activity, buttonsToHide, isDemoUser);
     }
 
     @Override

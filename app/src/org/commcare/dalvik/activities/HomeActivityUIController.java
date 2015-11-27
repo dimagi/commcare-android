@@ -40,9 +40,6 @@ public class HomeActivityUIController {
     private View mTopBanner;
 
     private static String syncKey = "home.sync";
-    private static String homeMessageKey = "home.start";
-    private static String logoutMessageKey = "home.logout";
-    private static String savedFormsKey = "home.forms.saved";
 
     private long lastSyncTime;
     private int numUnsentForms;
@@ -59,9 +56,27 @@ public class HomeActivityUIController {
 
     private void setupUI() {
         setMainView();
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
         mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
         setupGridView();
+    }
+
+    private static Vector<String> getHiddenButtons() {
+        Vector<String> hiddenButtons = new Vector<>();
+
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        if ((p != null && !p.isFeatureActive(Profile.FEATURE_REVIEW)) || !CommCarePreferences.isSavedFormsEnabled()) {
+            hiddenButtons.add("saved");
+        }
+
+        if (!CommCarePreferences.isIncompleteFormsEnabled()) {
+            hiddenButtons.add("incomplete");
+        }
+        if (!DeveloperPreferences.isHomeReportEnabled()) {
+            hiddenButtons.add("report");
+        }
+
+        return hiddenButtons;
     }
 
     private void setMainView() {
@@ -116,28 +131,17 @@ public class HomeActivityUIController {
         setIncompleteFormsText(activity, null, numIncompleteForms); // TODO PLM: null -> the incomplete form button
         setSyncButtonText(activity, null, syncKey, numUnsentForms);
         setLogoutButtonText(activity, null);
-        setSavedButtonText(null);
     }
 
     private static void setLogoutButtonText(CommCareHomeActivity activity, SquareButtonWithNotification button) {
         if (button != null) {
-            button.setText(Localization.get(logoutMessageKey));
             button.setNotificationText(activity.getActivityTitle());
-        }
-    }
-
-    private static void setSavedButtonText(SquareButtonWithNotification button) {
-        if (button != null) {
-            button.setText(Localization.get(savedFormsKey));
         }
     }
 
     private static void setSyncButtonText(CommCareHomeActivity activity, SquareButtonWithNotification button, String syncTextKey, int numUnsentForms) {
         if (button == null) {
             return;
-        }
-        if (syncTextKey == null) {
-            syncTextKey = activity.isDemoUser() ? "home.sync.demo" : "home.sync";
         }
         if (numUnsentForms > 0) {
             Spannable syncIndicator = (activity.localize("home.sync.indicator",
@@ -161,30 +165,16 @@ public class HomeActivityUIController {
     }
 
     protected void refreshView() {
-        refreshButtonTextSources();
         // TODO PLM: refresh localization of start button text
         setLogoutButtonText(activity, null);
 
         refreshDataFromSyncDetails();
         setIncompleteFormsText(activity, null, numIncompleteForms);
         setSyncButtonText(activity, null, syncKey, numUnsentForms);
-        setSavedButtonText(null);
         showSyncMessage();
 
         activity.updateCommCareBanner();
         adapter.notifyDataSetChanged();
-    }
-
-    private void refreshButtonTextSources() {
-        if (activity.isDemoUser()) {
-            syncKey = "home.sync.demo";
-            homeMessageKey = "home.start.demo";
-            logoutMessageKey = "home.logout.demo";
-        } else {
-            syncKey = "home.sync";
-            homeMessageKey = "home.start";
-            logoutMessageKey = "home.logout";
-        }
     }
 
     /**
@@ -250,23 +240,5 @@ public class HomeActivityUIController {
 
         return ((-days_ago) > unsentFormTimeLimit) &&
                 prefs.getString("server-tether", "push-only").equals("sync");
-    }
-
-    private static Vector<String> getHiddenButtons() {
-        Vector<String> hiddenButtons = new Vector<>();
-
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        if ((p != null && !p.isFeatureActive(Profile.FEATURE_REVIEW)) || !CommCarePreferences.isSavedFormsEnabled()) {
-            hiddenButtons.add("saved");
-        }
-
-        if (!CommCarePreferences.isIncompleteFormsEnabled()) {
-            hiddenButtons.add("incomplete");
-        }
-        if (!DeveloperPreferences.isHomeReportEnabled()) {
-            hiddenButtons.add("report");
-        }
-
-        return hiddenButtons;
     }
 }

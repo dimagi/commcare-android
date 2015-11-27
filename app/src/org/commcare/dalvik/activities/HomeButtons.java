@@ -16,9 +16,22 @@ public class HomeButtons {
     private static String[] buttonNames =
             new String[] { "start", "saved", "incomplete", "sync", "report", "logout" };
 
-    public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity, Vector<String> buttonsToHide) {
+    public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,
+                                                        Vector<String> buttonsToHide,
+                                                        boolean isDemoUser) {
+        String syncKey, homeMessageKey, logoutMessageKey;
+        if (!isDemoUser) {
+            homeMessageKey = "home.start";
+            syncKey = "home.sync";
+            logoutMessageKey = "home.logout";
+        } else {
+            syncKey = "home.sync.demo";
+            homeMessageKey = "home.start.demo";
+            logoutMessageKey = "home.logout.demo";
+        }
+
         HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
-                new HomeCardDisplayData(Localization.get("home.start"),
+                new HomeCardDisplayData(Localization.get(homeMessageKey),
                         R.color.white,
                         R.drawable.home_start,
                         R.color.cc_attention_positive_color,
@@ -32,7 +45,7 @@ public class HomeButtons {
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
                         getIncompleteButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.sync"), R.color.white,
+                new HomeCardDisplayData(Localization.get(syncKey), R.color.white,
                         "", R.color.white,
                         R.drawable.home_sync,
                         R.color.cc_brand_color,
@@ -41,12 +54,17 @@ public class HomeButtons {
                 new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.logout"), R.color.white,
+                new HomeCardDisplayData(Localization.get(logoutMessageKey), R.color.white,
                         "Logged in as: ", R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity)),
         };
 
+        return getVisibleButtons(allButtons, buttonsToHide);
+    }
+
+    private static HomeCardDisplayData[] getVisibleButtons(HomeCardDisplayData[] allButtons,
+                                                           Vector<String> buttonsToHide) {
         int visibleButtonCount = buttonNames.length - buttonsToHide.size();
         HomeCardDisplayData[] buttons = new HomeCardDisplayData[visibleButtonCount];
         int visibleIndex = 0;
