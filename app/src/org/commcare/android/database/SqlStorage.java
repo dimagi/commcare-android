@@ -45,11 +45,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public static final boolean STORAGE_OUTPUT_DEBUG = false;
 
     String table;
-    Class<? extends T> ctype;
-    EncryptedModel em;
-    T t;
+    private Class<? extends T> ctype;
+    private EncryptedModel em;
 
-    AndroidDbHelper helper;
+    private AndroidDbHelper helper;
     
     protected SqlStorage() {}
     
@@ -59,14 +58,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         this.helper = helper;
 
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
         } catch (InstantiationException ie) {
             ie.printStackTrace();
-        } catch (IllegalAccessException iae) {
-            iae.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 
@@ -83,7 +82,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DbUtil.ID_COL}, whereClause.first, null, null, null, null);
@@ -121,7 +120,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
 
         Cursor c;
         try {
@@ -181,7 +180,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
 
         Cursor c;
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, null);
         c = appDb.query(table, new String[]{DbUtil.ID_COL, DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         try {
             int queryCount = c.getCount();
@@ -209,7 +208,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(new String[] {rawFieldName}, new Object[] {value}, em, t);
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(new String[] {rawFieldName}, new Object[] {value}, em, null);
         
         if(STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DbUtil.ID_COL} , whereClause.first,null, null, null,null);
@@ -237,7 +236,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     public T newObject(byte[] data) {
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;
@@ -419,7 +418,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         String[] projection = includeData ? new String[]{DbUtil.ID_COL, DbUtil.DATA_COL} : new String[]{DbUtil.ID_COL};
         Cursor c = db.query(table, projection, null, null, null, null, null);
-        return new SqlStorageIterator<T>(c, this);
+        return new SqlStorageIterator<>(c, this);
     }
 
 
@@ -445,7 +444,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
-        return new SqlStorageIterator<T>(c, this, AndroidTableBuilder.scrubName(primaryId));
+        return new SqlStorageIterator<>(c, this, AndroidTableBuilder.scrubName(primaryId));
     }
 
     public Iterator<T> iterator() {
@@ -539,7 +538,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
-        Vector<Integer> removed = new Vector<Integer>();
+        Vector<Integer> removed = new Vector<>();
         for (IStorageIterator iterator = this.iterate(); iterator.hasMore(); ) {
             int id = iterator.nextID();
             switch (ef.preFilter(id, null)) {
@@ -655,7 +654,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try {
-            Hashtable<Integer, Integer> idMapping = new Hashtable<Integer, Integer>();
+            Hashtable<Integer, Integer> idMapping = new Hashtable<>();
             toDb.beginTransaction();
 
             for (T t : from) {
@@ -704,6 +703,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Cursor c = db.rawQuery(stmt, args);
 
         //Return a covering iterator 
-        return new IndexSpanningIterator<T>(c, this, (int) minValue, (int) maxValue, (int) countValue);
+        return new IndexSpanningIterator<>(c, this, minValue, maxValue, countValue);
     }
 }
