@@ -1,6 +1,5 @@
 package org.commcare.android.session;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
@@ -21,11 +20,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
- * Logic to save password and auto-login when dev option is enabled
+ * Logic to save password and user's session and restore them during auto-login
+ * when dev option is enabled
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -72,15 +70,20 @@ public class DevSessionRestorer {
         prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
     }
 
-    public static AndroidSessionWrapper restoreSessionFromAsset(CommCarePlatform platform) {
+    /**
+     * Builds a session object using serialized data stored in the app
+     * preferences. Currently doesn't support restoring the session stack, only
+     * the current frame.
+     */
+    public static AndroidSessionWrapper restoreSessionFromPrefs(CommCarePlatform platform) {
         SharedPreferences prefs =
                 CommCareApplication._().getCurrentApp().getAppPreferences();
         String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
         if (serializedSession != null) {
             try {
-                byte[] data = Base64.decode(serializedSession, Base64.DEFAULT);
+                byte[] sessionBytes = Base64.decode(serializedSession, Base64.DEFAULT);
                 DataInputStream stream =
-                        new DataInputStream(new ByteArrayInputStream(data));
+                        new DataInputStream(new ByteArrayInputStream(sessionBytes));
 
                 CommCareSession restoredSession =
                         CommCareSession.restoreSessionFromStream(platform, stream);
@@ -93,10 +96,14 @@ public class DevSessionRestorer {
             }
         }
 
+        // no saved session or failed to restore; return a blank session
         return new AndroidSessionWrapper(platform);
     }
 
-    public static void saveCurrentSession() {
+    /**
+     * Save the current session frame to app shared preferences.
+     */
+    public static void saveSessionToPrefs() {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         if (ccApp == null) {
             return;
@@ -109,15 +116,21 @@ public class DevSessionRestorer {
             CommCareApplication._().getCurrentSession().serializeSessionState(serializedStream);
         } catch (IOException e) {
             Log.w(TAG, "Failed to serialize session");
+            return;
         } catch (SessionStateUninitException e) {
             Log.w(TAG, "Attempting to save a non-existent session");
+            return;
         }
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
         prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+        try {
+            serializedStream.close();
+        } catch (IOException e) {
+            Log.d(TAG, "Failed to close session serialization stream.");
+        }
     }
 
     public static void clearSession(SharedPreferences prefs) {
         prefs.edit().remove(CommCarePreferences.CURRENT_SESSION).commit();
     }
-
 }

@@ -173,8 +173,6 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
-
-        Log.w("foo", CommCareApplication._().getCurrentSession().toString());
     }
 
     /**
@@ -375,6 +373,9 @@ public class CommCareHomeActivity
                     if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
                         CommCareSession session = CommCareApplication._().getCurrentSession();
                         if (session.getCommand() != null) {
+                            // restore the session state if there is a command.
+                            // For debugging and occurs when a serialized
+                            // session is stored upon login
                             sessionNavigator.startNextSessionStep();
                             return;
                         }

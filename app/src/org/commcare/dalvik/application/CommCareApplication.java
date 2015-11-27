@@ -875,7 +875,7 @@ public class CommCareApplication extends Application {
                         mBoundService.startSession(user);
                         attachCallListener();
                         if (DevSessionRestorer.autoLoginEnabled()) {
-                            CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromAsset(getCommCarePlatform());
+                            CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
                         }
