@@ -21,6 +21,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.HomeButtons;
 
+import java.util.Vector;
+
 /**
  * Sets up home screen buttons and gives accessors for setting their visibility and listeners
  * Created by dancluna on 3/19/15.
@@ -30,9 +32,9 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.Sq
     private final Context context;
     private final HomeButtons.HomeCardDisplayData[] buttonData;
 
-    public HomeScreenAdapter(CommCareHomeActivity activity) {
+    public HomeScreenAdapter(CommCareHomeActivity activity, Vector<String> buttonsToHide) {
         this.context = activity;
-        buttonData = HomeButtons.buildButtonData(activity);
+        buttonData = HomeButtons.buildButtonData(activity, buttonsToHide);
     }
 
     @Override
@@ -99,15 +101,6 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.Sq
         return buttonData.length;
     }
 
-    /**
-     * Sets the onClickListener for the given button
-     *
-     * @param resourceCode Android resource code (R.id.$button or R.layout.$button)
-     * @param listener     OnClickListener for the button
-     */
-    public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
-    }
-
     public SquareButtonWithNotification getButton(int resourceCode) {
         return null;
         // return buttons[getButtonIndex(resourceCode)];
@@ -119,15 +112,6 @@ public class HomeScreenAdapter extends RecyclerView.Adapter<HomeScreenAdapter.Sq
             button.setNotificationText(notificationText);
             notifyDataSetChanged();
         }
-    }
-
-    /**
-     * Sets visibility for the button with the given resource code
-     *
-     * @param resourceCode   Android resource code (R.id.$button or R.layout.$button)
-     * @param isButtonHidden Button visibility state (true for hidden, false for visible)
-     */
-    public void setButtonVisibility(int resourceCode, boolean isButtonHidden) {
     }
 
     static class SquareButtonViewHolder extends RecyclerView.ViewHolder {

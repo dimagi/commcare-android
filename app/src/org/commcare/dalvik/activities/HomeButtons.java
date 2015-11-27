@@ -7,12 +7,17 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.Vector;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
-    public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity) {
-        return new HomeCardDisplayData[]{
+    private static String[] buttonNames =
+            new String[] { "start", "saved", "incomplete", "sync", "report", "logout" };
+
+    public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity, Vector<String> buttonsToHide) {
+        HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
                 new HomeCardDisplayData(Localization.get("home.start"),
                         R.color.white,
                         R.drawable.home_start,
@@ -27,23 +32,32 @@ public class HomeButtons {
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
                         getIncompleteButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.forms.incomplete"), R.color.white,
+                new HomeCardDisplayData(Localization.get("home.sync"), R.color.white,
                         "", R.color.white,
                         R.drawable.home_sync,
                         R.color.cc_brand_color,
                         R.color.cc_brand_text,
                         getSyncButtonListener(activity)),
+                new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
+                        R.drawable.home_report, R.color.cc_attention_negative_color,
+                        getReportButtonListener(activity)),
                 new HomeCardDisplayData(Localization.get("home.logout"), R.color.white,
                         "Logged in as: ", R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
-                        "", R.color.white,
-                        R.drawable.home_report, R.color.cc_neutral_color, R.color.cc_neutral_text,
-                        getReportButtonListener(activity)),
         };
-    }
 
+        int visibleButtonCount = buttonNames.length - buttonsToHide.size();
+        HomeCardDisplayData[] buttons = new HomeCardDisplayData[visibleButtonCount];
+        int visibleIndex = 0;
+        for (int i = 0; i <= visibleButtonCount; i++) {
+            if (!buttonsToHide.contains(buttonNames[i])) {
+                buttons[visibleIndex] = allButtons[i];
+                visibleIndex++;
+            }
+        }
+        return buttons;
+    }
 
     private static View.OnClickListener getViewOldFormsListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
