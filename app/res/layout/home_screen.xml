@@ -11,7 +11,8 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="4dp">
             <!-- the top banner is going to be added as a header view to this element -->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_gridview_buttons"

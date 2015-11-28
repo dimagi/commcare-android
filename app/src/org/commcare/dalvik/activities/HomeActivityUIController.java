@@ -65,7 +65,8 @@ public class HomeActivityUIController {
         final RecyclerView grid = (RecyclerView)activity.findViewById(R.id.home_gridview_buttons);
         grid.setHasFixedSize(true);
 
-        StaggeredGridLayoutManager gridView = new StaggeredGridLayoutManager(2, 1);
+        StaggeredGridLayoutManager gridView =
+                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         grid.setLayoutManager(gridView);
         grid.setItemAnimator(null);
         grid.setAdapter(adapter);
