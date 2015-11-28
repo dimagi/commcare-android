@@ -52,15 +52,7 @@ public class HomeScreenAdapter
     public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i) {
         HomeButtons.HomeCardDisplayData cardDisplayData = buttonData[i];
 
-        squareButtonViewHolder.textView.setText(cardDisplayData.text);
-        squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
-
-        if ("".equals(cardDisplayData.subText)) {
-            squareButtonViewHolder.subTextView.setVisibility(View.GONE);
-        } else {
-            squareButtonViewHolder.subTextView.setText(cardDisplayData.subText);
-            squareButtonViewHolder.subTextView.setTextColor(context.getResources().getColor(cardDisplayData.subTextColor));
-        }
+        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context);
 
         squareButtonViewHolder.imageView.setImageDrawable(ContextCompat.getDrawable(context, cardDisplayData.imageResource));
         squareButtonViewHolder.imageView.setOnClickListener(cardDisplayData.listener);
@@ -103,10 +95,10 @@ public class HomeScreenAdapter
         return buttonData.length;
     }
 
-    static class SquareButtonViewHolder extends RecyclerView.ViewHolder {
-        protected SquareImageView imageView;
-        protected TextView textView;
-        protected TextView subTextView;
+    public static class SquareButtonViewHolder extends RecyclerView.ViewHolder {
+        public final SquareImageView imageView;
+        public final TextView textView;
+        public final TextView subTextView;
 
         public SquareButtonViewHolder(View view) {
             super(view);

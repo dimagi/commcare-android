@@ -1,10 +1,17 @@
 package org.commcare.dalvik.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.view.View;
 
+import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
@@ -44,20 +51,23 @@ public class HomeButtons {
                 new HomeCardDisplayData(Localization.get("home.forms.incomplete"), R.color.white,
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
-                        getIncompleteButtonListener(activity)),
+                        getIncompleteButtonListener(activity),
+                        getIncompleteButtonNotificationText(activity)),
                 new HomeCardDisplayData(Localization.get(syncKey), R.color.white,
-                        "", R.color.white,
+                        R.color.white,
                         R.drawable.home_sync,
                         R.color.cc_brand_color,
                         R.color.cc_brand_text,
-                        getSyncButtonListener(activity)),
+                        getSyncButtonListener(activity),
+                        getSyncButtonNotificationText(activity)),
                 new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
                 new HomeCardDisplayData(Localization.get(logoutMessageKey), R.color.white,
-                        "Logged in as: ", R.color.white,
+                        R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
-                        getLogoutButtonListener(activity)),
+                        getLogoutButtonListener(activity),
+                        getLogoutButtonNotificationText(activity)),
         };
 
         return getVisibleButtons(allButtons, buttonsToHide);
@@ -92,6 +102,18 @@ public class HomeButtons {
             }
         };
     }
+    private static TextSetter getSyncButtonNotificationText(final CommCareHomeActivity activity) {
+        return new TextSetter () {
+            @Override
+            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
+                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
+                               Context context) {
+                SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
+                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+                squareButtonViewHolder.textView.setText(cardDisplayData.text);
+            }
+        };
+    }
 
     private static View.OnClickListener getStartButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
@@ -109,11 +131,45 @@ public class HomeButtons {
         };
     }
 
+    private static TextSetter getIncompleteButtonNotificationText(final CommCareHomeActivity activity) {
+        return new TextSetter () {
+            @Override
+            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
+                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
+                               Context context) {
+                SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+                int numIncompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+                if (numIncompleteForms > 0) {
+                    Spannable incompleteIndicator = (activity.localize("home.forms.incomplete.indicator",
+                            new String[]{String.valueOf(numIncompleteForms), Localization.get("home.forms.incomplete")}));
+                    squareButtonViewHolder.textView.setText(incompleteIndicator);
+                } else {
+                    squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
+                }
+                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+            }
+        };
+    }
+
     private static View.OnClickListener getLogoutButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
                 CommCareApplication._().closeUserSession();
                 activity.userTriggeredLogout();
+            }
+        };
+    }
+
+    private static TextSetter getLogoutButtonNotificationText(final CommCareHomeActivity activity) {
+        return new TextSetter () {
+            @Override
+            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
+                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
+                               Context context) {
+                squareButtonViewHolder.textView.setText(cardDisplayData.text);
+                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+                squareButtonViewHolder.subTextView.setText(activity.getActivityTitle());
+                squareButtonViewHolder.subTextView.setTextColor(context.getResources().getColor(cardDisplayData.subTextColor));
             }
         };
     }
@@ -132,24 +188,57 @@ public class HomeButtons {
         public final int textColor;
         public final int imageResource;
         public final String text;
-        public final String subText;
         public final int subTextColor;
         public final int subTextBgColor;
         public final View.OnClickListener listener;
+        public final TextSetter textSetter;
 
-        HomeCardDisplayData(String text, int textColor, int imageResource, int bgColor, View.OnClickListener listener) {
-            this(text, textColor, "", R.color.white, imageResource, bgColor, R.color.cc_brand_color, listener);
+        HomeCardDisplayData(String text, int textColor,
+                            int imageResource, int bgColor,
+                            View.OnClickListener listener) {
+            this(text, textColor, R.color.white,
+                    imageResource, bgColor, R.color.cc_brand_color,
+                    listener, new DefaultTextSetter());
         }
 
-        HomeCardDisplayData(String text, int textColor, String subText, int subTextColor, int imageResource, int bgColor, int subTextBgColor, View.OnClickListener listener) {
+        HomeCardDisplayData(String text, int textColor,
+                            int imageResource, int bgColor,
+                            View.OnClickListener listener,
+                            TextSetter textSetter) {
+            this(text, textColor, R.color.white,
+                    imageResource, bgColor, R.color.cc_brand_color,
+                    listener, textSetter);
+        }
+
+        HomeCardDisplayData(String text, int textColor,
+                            int subTextColor, int imageResource,
+                            int bgColor, int subTextBgColor,
+                            View.OnClickListener listener,
+                            TextSetter textSetter) {
             this.bgColor = bgColor;
             this.textColor = textColor;
             this.imageResource = imageResource;
             this.text = text;
-            this.subText = subText;
             this.subTextColor = subTextColor;
             this.subTextBgColor = subTextBgColor;
             this.listener = listener;
+            this.textSetter = textSetter;
+        }
+    }
+
+    public interface TextSetter {
+        void update(HomeButtons.HomeCardDisplayData cardDisplayData,
+                    HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
+                    Context context);
+    }
+
+    static class DefaultTextSetter implements HomeButtons.TextSetter {
+        @Override
+        public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
+                           HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
+                           Context context) {
+            squareButtonViewHolder.textView.setText(cardDisplayData.text);
+            squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
         }
     }
 }
