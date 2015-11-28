@@ -5,12 +5,12 @@ import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
-import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.adapters.HomeCardDisplayData;
+import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.HomeButtons;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
@@ -25,8 +25,8 @@ public class SyncDetailCalculations {
     private final static String UNSENT_FORM_TIME_KEY = "unsent-time-limit";
 
     public static void updateSubText(final CommCareHomeActivity activity,
-                                     HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                                     HomeButtons.HomeCardDisplayData cardDisplayData) {
+                                     SquareButtonViewHolder squareButtonViewHolder,
+                                     HomeCardDisplayData cardDisplayData) {
         SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
         int numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
         if (numUnsentForms > 0) {

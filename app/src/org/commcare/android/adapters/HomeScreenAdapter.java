@@ -7,15 +7,11 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import org.commcare.android.view.SquareButtonWithNotification;
-import org.commcare.android.view.SquareImageView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -25,14 +21,15 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Sets up home screen buttons and gives accessors for setting their visibility and listeners
- * Created by dancluna on 3/19/15.
+ * Shows home screen buttons
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HomeScreenAdapter
-        extends RecyclerView.Adapter<HomeScreenAdapter.SquareButtonViewHolder> {
+        extends RecyclerView.Adapter<SquareButtonViewHolder> {
 
     private final Context context;
-    private final HomeButtons.HomeCardDisplayData[] buttonData;
+    private final HomeCardDisplayData[] buttonData;
 
     public HomeScreenAdapter(CommCareHomeActivity activity,
                              Vector<String> buttonsToHide,
@@ -50,10 +47,36 @@ public class HomeScreenAdapter
 
     @Override
     public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i) {
-        HomeButtons.HomeCardDisplayData cardDisplayData = buttonData[i];
+        HomeCardDisplayData cardDisplayData = buttonData[i];
 
-        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context);
+        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, null);
 
+        setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+    }
+
+    @Override
+    public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i, List<Object> payload) {
+        HomeCardDisplayData cardDisplayData = buttonData[i];
+
+        String notificationText = getLastPayloadString(payload);
+        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, notificationText);
+
+        setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+    }
+
+    private static String getLastPayloadString(List<Object> payload) {
+        String lastPayloadString = null;
+        for (Object entry : payload) {
+            if (entry instanceof String) {
+                lastPayloadString = (String)entry;
+            }
+        }
+        return lastPayloadString;
+    }
+
+    private static void setupViewHolder(Context context,
+                                        HomeCardDisplayData cardDisplayData,
+                                        SquareButtonViewHolder squareButtonViewHolder) {
         squareButtonViewHolder.imageView.setImageDrawable(ContextCompat.getDrawable(context, cardDisplayData.imageResource));
         squareButtonViewHolder.imageView.setOnClickListener(cardDisplayData.listener);
 
@@ -95,17 +118,8 @@ public class HomeScreenAdapter
         return buttonData.length;
     }
 
-    public static class SquareButtonViewHolder extends RecyclerView.ViewHolder {
-        public final SquareImageView imageView;
-        public final TextView textView;
-        public final TextView subTextView;
-
-        public SquareButtonViewHolder(View view) {
-            super(view);
-
-            imageView = (SquareImageView)view.findViewById(R.id.card_image);
-            textView = (TextView)view.findViewById(R.id.card_text);
-            subTextView = (TextView)view.findViewById(R.id.card_subtext);
-        }
+    public int getSyncButtonPosition() {
+        // NOTE PLM: assumes sync button is always the second to last button.
+        return getItemCount() - 2;
     }
 }

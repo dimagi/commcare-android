@@ -103,7 +103,7 @@ public class HomeActivityUIController {
         if (!suppressToast) {
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
         }
-        // TODO PLM: somehow wire things up to update the sync button text
-        //adapter.setNotificationTextForButton(R.layout.home_sync_button, message);
+
+        adapter.notifyItemChanged(adapter.getSyncButtonPosition(), message);
     }
 }

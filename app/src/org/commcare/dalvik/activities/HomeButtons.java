@@ -6,7 +6,9 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.View;
 
+import org.commcare.android.adapters.HomeCardDisplayData;
 import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
@@ -21,7 +23,7 @@ import java.util.Vector;
  */
 public class HomeButtons {
     private static String[] buttonNames =
-            new String[] { "start", "saved", "incomplete", "sync", "report", "logout" };
+            new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
     public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,
                                                         Vector<String> buttonsToHide,
@@ -102,13 +104,20 @@ public class HomeButtons {
             }
         };
     }
+
     private static TextSetter getSyncButtonNotificationText(final CommCareHomeActivity activity) {
-        return new TextSetter () {
+        return new TextSetter() {
             @Override
-            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
-                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                               Context context) {
-                SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
+            public void update(HomeCardDisplayData cardDisplayData,
+                               SquareButtonViewHolder squareButtonViewHolder,
+                               Context context,
+                               String notificationText) {
+                if (notificationText != null) {
+                    squareButtonViewHolder.subTextView.setText(notificationText);
+                    squareButtonViewHolder.subTextView.setTextColor(activity.getResources().getColor(cardDisplayData.subTextColor));
+                } else {
+                    SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
+                }
                 squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
                 squareButtonViewHolder.textView.setText(cardDisplayData.text);
             }
@@ -132,11 +141,12 @@ public class HomeButtons {
     }
 
     private static TextSetter getIncompleteButtonNotificationText(final CommCareHomeActivity activity) {
-        return new TextSetter () {
+        return new TextSetter() {
             @Override
-            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
-                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                               Context context) {
+            public void update(HomeCardDisplayData cardDisplayData,
+                               SquareButtonViewHolder squareButtonViewHolder,
+                               Context context,
+                               String notificationText) {
                 SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
                 int numIncompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
                 if (numIncompleteForms > 0) {
@@ -161,11 +171,12 @@ public class HomeButtons {
     }
 
     private static TextSetter getLogoutButtonNotificationText(final CommCareHomeActivity activity) {
-        return new TextSetter () {
+        return new TextSetter() {
             @Override
-            public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
-                               HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                               Context context) {
+            public void update(HomeCardDisplayData cardDisplayData,
+                               SquareButtonViewHolder squareButtonViewHolder,
+                               Context context,
+                               String notificationText) {
                 squareButtonViewHolder.textView.setText(cardDisplayData.text);
                 squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
                 squareButtonViewHolder.subTextView.setText(activity.getActivityTitle());
@@ -183,62 +194,11 @@ public class HomeButtons {
         };
     }
 
-    public static class HomeCardDisplayData {
-        public final int bgColor;
-        public final int textColor;
-        public final int imageResource;
-        public final String text;
-        public final int subTextColor;
-        public final int subTextBgColor;
-        public final View.OnClickListener listener;
-        public final TextSetter textSetter;
-
-        HomeCardDisplayData(String text, int textColor,
-                            int imageResource, int bgColor,
-                            View.OnClickListener listener) {
-            this(text, textColor, R.color.white,
-                    imageResource, bgColor, R.color.cc_brand_color,
-                    listener, new DefaultTextSetter());
-        }
-
-        HomeCardDisplayData(String text, int textColor,
-                            int imageResource, int bgColor,
-                            View.OnClickListener listener,
-                            TextSetter textSetter) {
-            this(text, textColor, R.color.white,
-                    imageResource, bgColor, R.color.cc_brand_color,
-                    listener, textSetter);
-        }
-
-        HomeCardDisplayData(String text, int textColor,
-                            int subTextColor, int imageResource,
-                            int bgColor, int subTextBgColor,
-                            View.OnClickListener listener,
-                            TextSetter textSetter) {
-            this.bgColor = bgColor;
-            this.textColor = textColor;
-            this.imageResource = imageResource;
-            this.text = text;
-            this.subTextColor = subTextColor;
-            this.subTextBgColor = subTextBgColor;
-            this.listener = listener;
-            this.textSetter = textSetter;
-        }
-    }
-
     public interface TextSetter {
-        void update(HomeButtons.HomeCardDisplayData cardDisplayData,
-                    HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                    Context context);
+        void update(HomeCardDisplayData cardDisplayData,
+                    SquareButtonViewHolder squareButtonViewHolder,
+                    Context context,
+                    String notificationText);
     }
 
-    static class DefaultTextSetter implements HomeButtons.TextSetter {
-        @Override
-        public void update(HomeButtons.HomeCardDisplayData cardDisplayData,
-                           HomeScreenAdapter.SquareButtonViewHolder squareButtonViewHolder,
-                           Context context) {
-            squareButtonViewHolder.textView.setText(cardDisplayData.text);
-            squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
-        }
-    }
 }
