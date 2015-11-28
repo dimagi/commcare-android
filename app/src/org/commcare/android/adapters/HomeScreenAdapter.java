@@ -84,8 +84,10 @@ public class HomeScreenAdapter
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             squareButtonViewHolder.imageView.setBackground(bgDrawable);
+            squareButtonViewHolder.textView.setBackground(bgDrawable);
         } else {
             squareButtonViewHolder.imageView.setBackgroundDrawable(bgDrawable);
+            squareButtonViewHolder.textView.setBackgroundDrawable(bgDrawable);
         }
     }
 
