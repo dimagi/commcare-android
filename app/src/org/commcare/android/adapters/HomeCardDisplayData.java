@@ -51,7 +51,7 @@ public class HomeCardDisplayData {
         this.textSetter = textSetter;
     }
 
-    static class DefaultTextSetter implements HomeButtons.TextSetter {
+    private static class DefaultTextSetter implements HomeButtons.TextSetter {
         @Override
         public void update(HomeCardDisplayData cardDisplayData,
                            SquareButtonViewHolder squareButtonViewHolder,

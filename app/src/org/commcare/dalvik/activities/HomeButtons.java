@@ -3,11 +3,9 @@ package org.commcare.dalvik.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.view.View;
 
 import org.commcare.android.adapters.HomeCardDisplayData;
-import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -22,7 +20,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
-    private static String[] buttonNames =
+    private final static String[] buttonNames =
             new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
     public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,
@@ -118,6 +116,7 @@ public class HomeButtons {
                 } else {
                     SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData);
                 }
+                squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
                 squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
                 squareButtonViewHolder.textView.setText(cardDisplayData.text);
             }
@@ -181,6 +180,7 @@ public class HomeButtons {
                 squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
                 squareButtonViewHolder.subTextView.setText(activity.getActivityTitle());
                 squareButtonViewHolder.subTextView.setTextColor(context.getResources().getColor(cardDisplayData.subTextColor));
+                squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
             }
         };
     }
