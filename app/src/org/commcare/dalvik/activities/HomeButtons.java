@@ -156,6 +156,7 @@ public class HomeButtons {
                     squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
                 }
                 squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+                squareButtonViewHolder.subTextView.setVisibility(View.GONE);
             }
         };
     }
@@ -200,5 +201,4 @@ public class HomeButtons {
                     Context context,
                     String notificationText);
     }
-
 }

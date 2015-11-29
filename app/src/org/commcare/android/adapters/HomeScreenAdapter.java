@@ -78,16 +78,14 @@ public class HomeScreenAdapter
                                         HomeCardDisplayData cardDisplayData,
                                         SquareButtonViewHolder squareButtonViewHolder) {
         squareButtonViewHolder.imageView.setImageDrawable(ContextCompat.getDrawable(context, cardDisplayData.imageResource));
-        squareButtonViewHolder.imageView.setOnClickListener(cardDisplayData.listener);
+        squareButtonViewHolder.cardView.setOnClickListener(cardDisplayData.listener);
 
         StateListDrawable bgDrawable = getSLD(context, cardDisplayData.bgColor);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            squareButtonViewHolder.imageView.setBackground(bgDrawable);
-            squareButtonViewHolder.textView.setBackground(bgDrawable);
+            squareButtonViewHolder.cardView.setBackground(bgDrawable);
         } else {
-            squareButtonViewHolder.imageView.setBackgroundDrawable(bgDrawable);
-            squareButtonViewHolder.textView.setBackgroundDrawable(bgDrawable);
+            squareButtonViewHolder.cardView.setBackgroundDrawable(bgDrawable);
         }
     }
 

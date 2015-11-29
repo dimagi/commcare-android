@@ -15,29 +15,36 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-        <org.commcare.android.view.SquareImageView
-            android:id="@+id/card_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <RelativeLayout android:id="@+id/card"
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:app="http://schemas.android.com/apk/res-auto"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-        <org.commcare.android.view.ResizingTextView
-            android:id="@+id/card_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/card_image"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:paddingBottom="@dimen/standard_spacer"
-            android:paddingLeft="@dimen/standard_spacer"
-            android:paddingRight="@dimen/standard_spacer"
-            android:textSize="@dimen/font_size_large"
-            app:text_size_small="@dimen/font_size_medium"/>
+            <org.commcare.android.view.SquareImageView
+                android:id="@+id/card_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <org.commcare.android.view.ResizingTextView
+                android:id="@+id/card_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/card_image"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:paddingBottom="@dimen/standard_spacer"
+                android:paddingLeft="@dimen/standard_spacer"
+                android:paddingRight="@dimen/standard_spacer"
+                android:textSize="@dimen/font_size_large"
+                app:text_size_small="@dimen/font_size_medium"/>
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/card_subtext"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/card_text"
+            android:layout_below="@+id/card"
             android:layout_gravity="right"
             android:padding="@dimen/help_text_padding"
             android:textSize="@dimen/font_size_small"/>

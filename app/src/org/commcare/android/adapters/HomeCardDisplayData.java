@@ -59,6 +59,7 @@ public class HomeCardDisplayData {
                            String notificationText) {
             squareButtonViewHolder.textView.setText(cardDisplayData.text);
             squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+            squareButtonViewHolder.subTextView.setVisibility(View.GONE);
         }
     }
 }
