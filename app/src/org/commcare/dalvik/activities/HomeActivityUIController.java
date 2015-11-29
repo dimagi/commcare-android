@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
@@ -76,7 +75,7 @@ public class HomeActivityUIController {
                 }
 
                 grid.requestLayout();
-                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                adapter.notifyDataSetChanged();
                 configUI();
             }
         });

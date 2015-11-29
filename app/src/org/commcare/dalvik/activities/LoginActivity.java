@@ -622,7 +622,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private void updateBanner() {
         ImageView topBannerImageView =
                 (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
-        if (!CustomBanner.useCustomBanner(this, topBannerImageView)) {
+        if (!CustomBanner.useCustomBannerFitToActivity(this, topBannerImageView)) {
             topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }

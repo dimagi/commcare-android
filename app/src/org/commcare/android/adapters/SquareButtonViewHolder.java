@@ -9,6 +9,8 @@ import org.commcare.android.view.SquareImageView;
 import org.commcare.dalvik.R;
 
 /**
+ * Holds views for a home screen button
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SquareButtonViewHolder extends RecyclerView.ViewHolder {

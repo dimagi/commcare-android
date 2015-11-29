@@ -18,6 +18,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /**
+ * Logic that populates the sync button's notification text
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SyncDetailCalculations {
@@ -83,9 +85,8 @@ public class SyncDetailCalculations {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         int unsentFormTimeLimit = Integer.parseInt(prefs.getString(UNSENT_FORM_TIME_KEY, "5"));
 
-        long then = lastSyncTime;
         long now = new Date().getTime();
-        int secs_ago = (int)((then - now) / 1000);
+        int secs_ago = (int)((lastSyncTime - now) / 1000);
         int days_ago = secs_ago / 86400;
 
         return ((-days_ago) > unsentFormTimeLimit) &&

@@ -27,10 +27,6 @@ public abstract class CustomButtonWithText extends RelativeLayout {
     private static final int DEFAULT_TEXT_COLOR = R.color.cc_core_bg;
     private ImageButton button;
     private TextView textView;
-    private int backgroundColor;
-    private Drawable backgroundImg;
-    private String text;
-    private int textColor;
 
     public CustomButtonWithText(Context context) {
         super(context);
@@ -73,35 +69,25 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
     abstract int getLayoutResourceId();
 
-    protected void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
+    private void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
         setColor(backgroundColor);
         setImage(backgroundImg);
         setText(text);
         setTextColor(colorButtonText);
     }
 
-    public void setupUIFromButton(CustomButtonWithText copyButton) {
-        setColor(copyButton.backgroundColor);
-        setImage(copyButton.backgroundImg);
-        setText(copyButton.text);
-        setTextColor(copyButton.textColor);
-    }
-
     public void setText(String text) {
-        this.text = text;
         if (textView != null) {
             textView.setText(text);
         }
     }
 
     private void setImage(Drawable backgroundImg) {
-        this.backgroundImg = backgroundImg;
         button.setImageDrawable(backgroundImg);
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setColor(int backgroundColor) {
-        this.backgroundColor = backgroundColor;
         ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
         ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
 
@@ -129,7 +115,6 @@ public abstract class CustomButtonWithText extends RelativeLayout {
     }
 
     private void setTextColor(int textColor) {
-        this.textColor = textColor;
         textView.setTextColor(getResources().getColor(textColor));
     }
 
