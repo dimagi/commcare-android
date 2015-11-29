@@ -269,52 +269,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         showPendingAlertDialog();
     }
 
-    protected View getBannerHost() {
-        return this.findViewById(android.R.id.content);
-    }
-
-    public void updateCommCareBanner() {
-        /*
-        View hostView = getBannerHost();
-        if (hostView == null) {
-            return;
-        }
-        ImageView topBannerImageView =
-                (ImageView)hostView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
-        if (topBannerImageView == null) {
-            return;
-        }
-
-        if (!CommCareActivity.useCustomBanner(this, topBannerImageView)) {
-            topBannerImageView.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
-        }
-        */
-    }
-
-    private static boolean useCustomBanner(Activity activity, @NonNull ImageView topBannerImageView) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        if (app == null) {
-            return false;
-        }
-
-        String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
-        if (!"".equals(customBannerURI)) {
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int screenHeight = displaymetrics.heightPixels;
-            int screenWidth = displaymetrics.widthPixels;
-            int maxBannerHeight = screenHeight / 4;
-
-            Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI, screenWidth, maxBannerHeight);
-            if (bitmap != null) {
-                topBannerImageView.setMaxHeight(maxBannerHeight);
-                topBannerImageView.setImageBitmap(bitmap);
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     protected void onPause() {
         super.onPause();

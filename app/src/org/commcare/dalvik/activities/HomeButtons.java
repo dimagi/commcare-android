@@ -78,7 +78,7 @@ public class HomeButtons {
         int visibleButtonCount = buttonNames.length - buttonsToHide.size();
         HomeCardDisplayData[] buttons = new HomeCardDisplayData[visibleButtonCount];
         int visibleIndex = 0;
-        for (int i = 0; i <= visibleButtonCount; i++) {
+        for (int i = 0; i < buttonNames.length; i++) {
             if (!buttonsToHide.contains(buttonNames[i])) {
                 buttons[visibleIndex] = allButtons[i];
                 visibleIndex++;

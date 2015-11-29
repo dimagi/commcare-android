@@ -31,11 +31,6 @@ public class HomeActivityUIController {
         setupUI();
     }
 
-    public View getTopBanner() {
-        return null;
-        //return adapter.getHeader();
-    }
-
     private void setupUI() {
         activity.setContentView(R.layout.home_screen);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
@@ -94,7 +89,6 @@ public class HomeActivityUIController {
     }
 
     protected void refreshView() {
-        activity.updateCommCareBanner();
         adapter.notifyDataSetChanged();
     }
 

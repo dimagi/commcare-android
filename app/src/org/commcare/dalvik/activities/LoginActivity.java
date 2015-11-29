@@ -47,6 +47,7 @@ import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -584,7 +585,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
 
-        updateCommCareBanner();
+        updateBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
@@ -615,6 +616,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             int position = appIdDropdownList.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateBanner() {
+        ImageView topBannerImageView =
+                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        if (!CustomBanner.useCustomBanner(this, topBannerImageView)) {
+            topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }
 

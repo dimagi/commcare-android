@@ -8,12 +8,15 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
@@ -35,12 +38,18 @@ public class HomeScreenAdapter
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
+    private final int screenHeight, screenWidth;
 
     public HomeScreenAdapter(CommCareHomeActivity activity,
                              Vector<String> buttonsToHide,
                              boolean isDemoUser) {
         this.context = activity;
         buttonData = HomeButtons.buildButtonData(activity, buttonsToHide, isDemoUser);
+
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        screenHeight = displaymetrics.heightPixels;
+        screenWidth = displaymetrics.widthPixels;
     }
 
     @Override
@@ -68,7 +77,11 @@ public class HomeScreenAdapter
         } else if (holder instanceof HeaderViewHolder) {
             StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams)holder.itemView.getLayoutParams();
             layoutParams.setFullSpan(true);
-            ((HeaderViewHolder)holder).headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+
+            HeaderViewHolder headerHolder = (HeaderViewHolder)holder;
+            if (!CustomBanner.useCustomBanner(context, screenHeight, screenWidth, headerHolder.headerImage)) {
+                headerHolder.headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+            }
         }
     }
 
@@ -85,7 +98,11 @@ public class HomeScreenAdapter
         } else if (holder instanceof HeaderViewHolder) {
             StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams)holder.itemView.getLayoutParams();
             layoutParams.setFullSpan(true);
-            ((HeaderViewHolder)holder).headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+
+            HeaderViewHolder headerHolder = (HeaderViewHolder)holder;
+            if (!CustomBanner.useCustomBanner(context, screenHeight, screenWidth, headerHolder.headerImage)) {
+                headerHolder.headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+            }
         }
     }
 
