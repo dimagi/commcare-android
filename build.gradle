@@ -21,7 +21,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-// we need mavenCentral to fetch eventual dependencies, such as GridViewWithHeaderAndFooter
 repositories {
   mavenCentral()
 }
