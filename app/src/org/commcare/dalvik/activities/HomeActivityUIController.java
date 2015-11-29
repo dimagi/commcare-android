@@ -25,7 +25,6 @@ public class HomeActivityUIController {
     private final CommCareHomeActivity activity;
 
     private HomeScreenAdapter adapter;
-    private View mTopBanner;
 
     public HomeActivityUIController(CommCareHomeActivity activity) {
         this.activity = activity;
@@ -33,13 +32,13 @@ public class HomeActivityUIController {
     }
 
     public View getTopBanner() {
-        return mTopBanner;
+        return null;
+        //return adapter.getHeader();
     }
 
     private void setupUI() {
         activity.setContentView(R.layout.home_screen);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
-        mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
         setupGridView();
     }
 

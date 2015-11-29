@@ -1313,7 +1313,8 @@ public class CommCareHomeActivity
 
     @Override
     protected View getBannerHost() {
-        return uiController.getTopBanner();
+        return null;
+        //return uiController.getTopBanner();
     }
 
     protected boolean isDemoUser() {

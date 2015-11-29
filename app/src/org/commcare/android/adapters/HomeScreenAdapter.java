@@ -7,10 +7,12 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -21,15 +23,18 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * Shows home screen buttons
+ * Shows home screen buttons and header banner
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HomeScreenAdapter
-        extends RecyclerView.Adapter<SquareButtonViewHolder> {
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final Context context;
     private final HomeCardDisplayData[] buttonData;
+
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
 
     public HomeScreenAdapter(CommCareHomeActivity activity,
                              Vector<String> buttonsToHide,
@@ -39,29 +44,53 @@ public class HomeScreenAdapter
     }
 
     @Override
-    public SquareButtonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_card, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == TYPE_ITEM) {
+            View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_card, parent, false);
+            return new SquareButtonViewHolder(layoutView);
+        } else if (viewType == TYPE_HEADER) {
+            View header = LayoutInflater.from(parent.getContext()).inflate(R.layout.grid_header_top_banner, parent, false);
+            return new HeaderViewHolder(header);
+        }
 
-        return new SquareButtonViewHolder(layoutView);
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
 
     @Override
-    public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i) {
-        HomeCardDisplayData cardDisplayData = buttonData[i];
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+        if (holder instanceof SquareButtonViewHolder) {
+            //cast holder to VHItem and set data
+            SquareButtonViewHolder squareButtonViewHolder = (SquareButtonViewHolder)holder;
+            HomeCardDisplayData cardDisplayData = getItem(i);
 
-        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, null);
-
-        setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+            cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, null);
+            setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+        } else if (holder instanceof HeaderViewHolder) {
+            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams)holder.itemView.getLayoutParams();
+            layoutParams.setFullSpan(true);
+            ((HeaderViewHolder)holder).headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+        }
     }
 
     @Override
-    public void onBindViewHolder(SquareButtonViewHolder squareButtonViewHolder, int i, List<Object> payload) {
-        HomeCardDisplayData cardDisplayData = buttonData[i];
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i, List<Object> payload) {
+        if (holder instanceof SquareButtonViewHolder) {
+            //cast holder to VHItem and set data
+            SquareButtonViewHolder squareButtonViewHolder = (SquareButtonViewHolder)holder;
+            HomeCardDisplayData cardDisplayData = getItem(i);
+            String notificationText = getLastPayloadString(payload);
 
-        String notificationText = getLastPayloadString(payload);
-        cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, notificationText);
+            cardDisplayData.textSetter.update(cardDisplayData, squareButtonViewHolder, context, notificationText);
+            setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+        } else if (holder instanceof HeaderViewHolder) {
+            StaggeredGridLayoutManager.LayoutParams layoutParams = (StaggeredGridLayoutManager.LayoutParams)holder.itemView.getLayoutParams();
+            layoutParams.setFullSpan(true);
+            ((HeaderViewHolder)holder).headerImage.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
+        }
+    }
 
-        setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+    private HomeCardDisplayData getItem(int position) {
+        return buttonData[position - 1];
     }
 
     private static String getLastPayloadString(List<Object> payload) {
@@ -115,11 +144,34 @@ public class HomeScreenAdapter
 
     @Override
     public int getItemCount() {
-        return buttonData.length;
+        // buttons and header
+        return buttonData.length + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPositionHeader(position)) {
+            return TYPE_HEADER;
+        } else {
+            return TYPE_ITEM;
+        }
+    }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
     }
 
     public int getSyncButtonPosition() {
         // NOTE PLM: assumes sync button is always the second to last button.
         return getItemCount() - 2;
+    }
+
+    private static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        public final ImageView headerImage;
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+
+            headerImage = (ImageView)itemView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        }
     }
 }
