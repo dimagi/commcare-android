@@ -17,6 +17,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.Vector;
 
 /**
+ * Build objects that contain all info needed to draw home screen buttons
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
@@ -38,32 +40,32 @@ public class HomeButtons {
         }
 
         HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
-                new HomeCardDisplayData(Localization.get(homeMessageKey),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get(homeMessageKey),
                         R.color.white,
                         R.drawable.home_start,
                         R.color.cc_attention_positive_color,
                         getStartButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.forms.saved"),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
                         R.color.white,
                         R.drawable.home_saved,
                         R.color.cc_light_cool_accent_color,
                         getViewOldFormsListener(activity)),
-                new HomeCardDisplayData(Localization.get("home.forms.incomplete"), R.color.white,
+                HomeCardDisplayData.homeCardDataWithDynamicText(Localization.get("home.forms.incomplete"), R.color.white,
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
                         getIncompleteButtonListener(activity),
                         getIncompleteButtonNotificationText(activity)),
-                new HomeCardDisplayData(Localization.get(syncKey), R.color.white,
+                HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
                         R.color.cc_brand_color,
                         R.color.cc_brand_text,
                         getSyncButtonListener(activity),
                         getSyncButtonNotificationText(activity)),
-                new HomeCardDisplayData(Localization.get("home.report"), R.color.white,
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
-                new HomeCardDisplayData(Localization.get(logoutMessageKey), R.color.white,
+                HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity),
@@ -196,6 +198,12 @@ public class HomeButtons {
     }
 
     public interface TextSetter {
+        /**
+         * Set view holder's text and subtext either from provided display
+         * data, notification text argument, or auxiliary computations
+         *
+         * @param notificationText Optional text which will always be used when provided
+         */
         void update(HomeCardDisplayData cardDisplayData,
                     SquareButtonViewHolder squareButtonViewHolder,
                     Context context,

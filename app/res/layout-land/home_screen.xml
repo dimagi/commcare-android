@@ -20,7 +20,6 @@
             android:paddingLeft="@dimen/content_start"
             android:paddingRight="@dimen/content_start">
 
-            <!-- adding top banner as dependency -->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_gridview_buttons"
                 android:layout_width="match_parent"

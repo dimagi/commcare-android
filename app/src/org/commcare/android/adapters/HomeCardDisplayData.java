@@ -7,6 +7,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.HomeButtons;
 
 /**
+ * Holds data for displaying home screen buttons
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeCardDisplayData {
@@ -19,28 +21,50 @@ public class HomeCardDisplayData {
     public final View.OnClickListener listener;
     public final HomeButtons.TextSetter textSetter;
 
-    public HomeCardDisplayData(String text, int textColor,
-                               int imageResource, int bgColor,
-                               View.OnClickListener listener) {
-        this(text, textColor, R.color.white,
+    public static HomeCardDisplayData homeCardDataWithStaticText(String text,
+                                                                 int textColor,
+                                                                 int imageResource,
+                                                                 int bgColor,
+                                                                 View.OnClickListener listener) {
+        return new HomeCardDisplayData(text, textColor, R.color.white,
                 imageResource, bgColor, R.color.cc_brand_color,
                 listener, new DefaultTextSetter());
     }
 
-    public HomeCardDisplayData(String text, int textColor,
-                               int imageResource, int bgColor,
-                               View.OnClickListener listener,
-                               HomeButtons.TextSetter textSetter) {
-        this(text, textColor, R.color.white,
+    /**
+     * @param textSetter logic for setting button text and subtext
+     */
+    public static HomeCardDisplayData homeCardDataWithDynamicText(String text,
+                                                                  int textColor,
+                                                                  int imageResource,
+                                                                  int bgColor,
+                                                                  View.OnClickListener listener,
+                                                                  HomeButtons.TextSetter textSetter) {
+        return new HomeCardDisplayData(text, textColor, R.color.white,
                 imageResource, bgColor, R.color.cc_brand_color,
                 listener, textSetter);
     }
 
-    public HomeCardDisplayData(String text, int textColor,
-                               int subTextColor, int imageResource,
-                               int bgColor, int subTextBgColor,
-                               View.OnClickListener listener,
-                               HomeButtons.TextSetter textSetter) {
+    /**
+     * @param textSetter logic for setting button text and subtext
+     */
+    public static HomeCardDisplayData homeCardDataWithNotification(String text,
+                                                                   int textColor,
+                                                                   int subTextColor,
+                                                                   int imageResource,
+                                                                   int bgColor,
+                                                                   int subTextBgColor,
+                                                                   View.OnClickListener listener,
+                                                                   HomeButtons.TextSetter textSetter) {
+        return new HomeCardDisplayData(text, textColor, subTextColor,
+                imageResource, bgColor, subTextBgColor, listener, textSetter);
+    }
+
+    private HomeCardDisplayData(String text, int textColor,
+                                int subTextColor, int imageResource,
+                                int bgColor, int subTextBgColor,
+                                View.OnClickListener listener,
+                                HomeButtons.TextSetter textSetter) {
         this.bgColor = bgColor;
         this.textColor = textColor;
         this.imageResource = imageResource;
@@ -51,6 +75,9 @@ public class HomeCardDisplayData {
         this.textSetter = textSetter;
     }
 
+    /**
+     * Default text setter implementation that shows button text and hides button subtext
+     */
     private static class DefaultTextSetter implements HomeButtons.TextSetter {
         @Override
         public void update(HomeCardDisplayData cardDisplayData,
@@ -58,7 +85,10 @@ public class HomeCardDisplayData {
                            Context context,
                            String notificationText) {
             squareButtonViewHolder.textView.setText(cardDisplayData.text);
-            squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+
+            int textColor = context.getResources().getColor(cardDisplayData.textColor);
+            squareButtonViewHolder.textView.setTextColor(textColor);
+
             squareButtonViewHolder.subTextView.setVisibility(View.GONE);
         }
     }
