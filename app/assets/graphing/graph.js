@@ -162,8 +162,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
             }
             for (var yID in areaColors) {
                 var area = d3.selectAll(".c3-areas-" + yID + " path")[0][0];
-                area.style.fill = areaColors[yID];
-                area.style.opacity = areaOpacities[yID];
+                if (area) {
+                    area.style.fill = areaColors[yID];
+                    area.style.opacity = areaOpacities[yID];
+                }
             }
         };
 
