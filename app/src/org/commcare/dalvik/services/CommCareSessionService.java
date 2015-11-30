@@ -138,13 +138,11 @@ public class CommCareSessionService extends Service {
             public Cipher generateNewCipher() {
                 synchronized (lock) {
                     try {
-                        synchronized (key) {
-                            SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                            Cipher decrypter = Cipher.getInstance("AES");
-                            decrypter.init(Cipher.DECRYPT_MODE, spec);
+                        SecretKeySpec spec = new SecretKeySpec(key, "AES");
+                        Cipher decrypter = Cipher.getInstance("AES");
+                        decrypter.init(Cipher.DECRYPT_MODE, spec);
 
-                            return decrypter;
-                        }
+                        return decrypter;
                     } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException e) {
                         e.printStackTrace();
                     }
@@ -428,8 +426,14 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public SecretKey createNewSymetricKey() {
-        return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
+    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
+        synchronized (lock) {
+            // Ensure we have a key to work with
+            if (!isActive()) {
+                throw new SessionUnavailableException("Can't generate new key when the user session key is empty.");
+            }
+            return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
+        }
     }
 
     public User getLoggedInUser() throws SessionUnavailableException {
