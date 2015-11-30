@@ -9,11 +9,13 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -37,9 +39,16 @@ public class HomeActivityUIController {
     }
 
     private static Vector<String> getHiddenButtons() {
+        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
+        if (ccApp == null) {
+            // TODO PLM: Needed since we sometimes try to show buttons before
+            // actually entering the home screen. We should eventually fix this.
+            hiddenButtons.addAll(Arrays.asList(HomeButtons.buttonNames));
+            return hiddenButtons;
+        }
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        Profile p = ccApp.getCommCarePlatform().getCurrentProfile();
         if ((p != null && !p.isFeatureActive(Profile.FEATURE_REVIEW)) || !CommCarePreferences.isSavedFormsEnabled()) {
             hiddenButtons.add("saved");
         }
