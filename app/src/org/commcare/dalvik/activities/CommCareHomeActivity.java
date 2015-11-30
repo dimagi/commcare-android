@@ -43,7 +43,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidInstanceInitializer;
-import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -54,6 +53,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -1030,10 +1030,8 @@ public class CommCareHomeActivity
     private void processAndSend(FormRecord[] records, final boolean syncAfterwards,
                                 final boolean userTriggered) {
 
-        int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
-
         ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(),
-                sendTaskId, syncAfterwards) {
+                syncAfterwards) {
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
@@ -1410,7 +1408,7 @@ public class CommCareHomeActivity
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);

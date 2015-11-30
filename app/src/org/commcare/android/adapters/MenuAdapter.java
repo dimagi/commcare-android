@@ -1,8 +1,4 @@
-/**
- *
- */
 package org.commcare.android.adapters;
-
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -54,22 +50,18 @@ import java.util.Vector;
 public class MenuAdapter implements ListAdapter {
 
     private AndroidSessionWrapper asw;
-    private CommCarePlatform mPlatform;
     protected Context context;
     protected MenuDisplayable[] displayableData;
 
-    private String menuTitle = null;
-
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
-
-        this.mPlatform = platform;
         this.context = context;
+        String menuTitle = null;
 
-        Vector<MenuDisplayable> items = new Vector<MenuDisplayable>();
+        Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
-        EvaluationContext ec = null;
+        EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 String xpathExpression = "";
@@ -184,7 +176,6 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int i) {
-
         Object tempItem = displayableData[i];
 
         if (tempItem instanceof Menu) {
@@ -193,7 +184,6 @@ public class MenuAdapter implements ListAdapter {
             return ((Entry) tempItem).getCommandId().hashCode();
         }
     }
-
 
     @Override
     public int getItemViewType(int i) {
@@ -206,7 +196,6 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public View getView(int i, View v, ViewGroup vg) {
-
         MenuDisplayable mObject = displayableData[i];
 
         // inflate view
@@ -229,8 +218,24 @@ public class MenuAdapter implements ListAdapter {
         TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
         rowText.setText(mQuestionText);
 
+        setupAudioButton(menuListItem, mObject);
+
+        ImageView mIconView = setupIcon(menuListItem, mObject);
+
+        String imageURI = mObject.getImageURI();
+
+        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
+        if (image != null && mIconView != null) {
+            mIconView.setImageBitmap(image);
+            mIconView.setAdjustViewBounds(true);
+        }
+
+        return menuListItem;
+    }
+
+    private void setupAudioButton(View menuListItem, MenuDisplayable menuDisplayable) {
         // set up audio
-        final String audioURI = mObject.getAudioURI();
+        final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
             try {
@@ -257,15 +262,17 @@ public class MenuAdapter implements ListAdapter {
                 ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
             }
         }
+    }
 
+    private ImageView setupIcon(View menuListItem, MenuDisplayable menuDisplayable) {
         // set up the image, if available
         ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
 
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
-        if (mObject instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry) mObject);
+        if (menuDisplayable instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
             if (datum == null || datum.getNodeset() == null) {
                 iconChoice = NavIconState.JUMP;
             }
@@ -291,16 +298,7 @@ public class MenuAdapter implements ListAdapter {
                 mIconView.setVisibility(View.GONE);
             }
         }
-
-        String imageURI = mObject.getImageURI();
-
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
-        if (image != null && mIconView != null) {
-            mIconView.setImageBitmap(image);
-            mIconView.setAdjustViewBounds(true);
-        }
-
-        return menuListItem;
+        return mIconView;
     }
 
     /*
@@ -309,7 +307,6 @@ public class MenuAdapter implements ListAdapter {
     public String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
-
 
     @Override
     public int getViewTypeCount() {

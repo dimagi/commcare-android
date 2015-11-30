@@ -7,6 +7,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -87,6 +89,30 @@ public class FormNavigationUI {
         }
 
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+    }
+
+    public static void animateFinishArrow(CommCareActivity activity, FormController formController, View view) {
+        ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
+        final View coverView = activity.findViewById(R.id.form_entry_cover);
+
+        Animation growShrinkAnimation = AnimationUtils.loadAnimation(activity, R.anim.grow_shrink);
+        growShrinkAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                coverView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                coverView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        nextButton.startAnimation(growShrinkAnimation);
     }
 
     enum FloatingLabel {

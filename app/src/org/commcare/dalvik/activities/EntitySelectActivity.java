@@ -2,11 +2,8 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
@@ -60,6 +57,8 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -856,18 +855,18 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     }
 
     private void createSortMenu() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //use the old method here because some Android versions don't like Spannables for titles
-        builder.setTitle(Localization.get("select.menu.sort"));
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
+        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.show();
+    }
+
+    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        List<String> namesList = new ArrayList<>();
 
-        List<String> namesList = new ArrayList<String>();
-
-        final int[] keyarray = new int[fields.length];
-
+        final int[] keyArray = new int[fields.length];
         int[] sorts = adapter.getCurrentSort();
-
         int currentSort = sorts.length == 1 ? sorts[0] : -1;
         boolean reversed = adapter.isCurrentSortReversed();
 
@@ -886,28 +885,25 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
                 }
                 namesList.add(prepend + result);
-                keyarray[added] = i;
+                keyArray[added] = i;
                 added++;
             }
         }
 
-        final String[] names = namesList.toArray(new String[namesList.size()]);
-
-        builder.setItems(names, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                adapter.sortEntities(new int[]{keyarray[item]});
-                adapter.applyFilter(getSearchText().toString());
-            }
-        });
-
-        builder.setOnCancelListener(new OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-                //
-            }
-        });
-
-        AlertDialog alert = builder.create();
-        alert.show();
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
+        for (int i = 0; i < namesList.size(); i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                public void onClick(View v) {
+                    adapter.sortEntities(new int[]{keyArray[index]});
+                    adapter.applyFilter(getSearchText().toString());
+                    dialog.dismiss();
+                }
+            };
+            DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
+            choiceItems[i] = item;
+        }
+        return choiceItems;
     }
 
     @Override
