@@ -3,10 +3,10 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Log;
 
+import org.commcare.android.models.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.tasks.ProcessAndSendTask.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
