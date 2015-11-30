@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.models.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
@@ -40,29 +41,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     Long[] results;
     
     int sendTaskId;
-    
-    public enum ProcessIssues implements MessageTag {
-        
-        /** Logs successfully submitted **/
-        BadTransactions("notification.processing.badstructure"),
-        
-        /** Logs saved, but not actually submitted **/
-        StorageRemoved("notification.processing.nosdcard"),
-        
-        /** You were logged out while something was occurring **/
-        LoggedOut("notification.sending.loggedout", LoginActivity.NOTIFICATION_MESSAGE_LOGIN),
-        
-        /** Logs saved, but not actually submitted **/
-        RecordQuarantined("notification.sending.quarantine");
-        
-        ProcessIssues(String root) {this(root, "processing");}
-        ProcessIssues(String root, String category) {this.root = root;this.category = category;}
-        private final String root, category;
-        public String getLocaleKeyBase() { return root;}
-        public String getCategory() { return category; }
-        
-    }
-    
+
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
     public static final long PROGRESS_ALL_PROCESSED = 8;
