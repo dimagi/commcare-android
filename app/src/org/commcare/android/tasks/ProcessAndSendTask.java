@@ -108,41 +108,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         synchronized(processTasks) {
             processTasks.add(this);
         }
-        boolean proceed = false;
-        boolean needToRefresh = false;
-        while(!proceed) {
-            //TODO: Terrible?
-
-            //See if it's our turn to go
-            synchronized(processTasks) {
-                if (isCancelled()) {
-                    processTasks.remove(this);
-                    return (int)FormUploadUtil.FAILURE;
-                }
-                //Are we at the head of the queue?
-                ProcessAndSendTask head = processTasks.peek();
-                if(processTasks.peek() == this) {
-                    proceed = true;
-                    break;
-                }
-                //Otherwise, is the head of the queue busted?
-                //*sigh*. Apparently Cancelled doesn't result in the task status being set
-                //to !Running for reasons which baffle me.
-                if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
-                    //If so, get rid of it
-                    processTasks.remove(head);
-                }
-            }
-            //If it's not yet quite our turn, take a nap
+            boolean needToRefresh;
             try {
-                needToRefresh = true;
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                needToRefresh = blockUntilTopOfQueue();
+            } catch (TaskCancelledException e) {
+                return (int)FormUploadUtil.FAILURE;
             }
-        }
-        
+
+
         if(needToRefresh) {
             //There was another activity before this one. Refresh our models in case
             //they were updated
@@ -310,6 +283,39 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             }
         }
         return needToSendLogs;
+    }
+
+    private boolean blockUntilTopOfQueue() throws TaskCancelledException {
+        boolean needToRefresh = false;
+        while(true) {
+            //See if it's our turn to go
+            synchronized(processTasks) {
+                if (isCancelled()) {
+                    processTasks.remove(this);
+                    throw new TaskCancelledException();
+                }
+                //Are we at the head of the queue?
+                ProcessAndSendTask head = processTasks.peek();
+                if(head == this) {
+                    break;
+                }
+                //Otherwise, is the head of the queue busted?
+                //*sigh*. Apparently Cancelled doesn't result in the task status being set
+                //to !Running for reasons which baffle me.
+                if(head.getStatus() != AsyncTask.Status.RUNNING || head.isCancelled()) {
+                    //If so, get rid of it
+                    processTasks.poll();
+                }
+            }
+            //If it's not yet quite our turn, take a nap
+            try {
+                needToRefresh = true;
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return needToRefresh;
     }
 
     public static int pending() {
