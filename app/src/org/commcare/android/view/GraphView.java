@@ -86,7 +86,7 @@ public class GraphView {
         mData = graphData;
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
         JSONObject config = new JSONObject();
-        String html = "";
+        StringBuilder html = new StringBuilder();
         try {
             // Configure data first, as it may affect the other configurations
             DataConfiguration data = new DataConfiguration(mData);
@@ -104,7 +104,7 @@ public class GraphView {
             variables.put("type", "'" + mData.getType() + "'");
             variables.put("config", config.toString());
 
-            html +=
+            html.append(
                     "<html>" +
                             "<head>" +
                             "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
@@ -112,29 +112,29 @@ public class GraphView {
                             "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-                            "<script type='text/javascript'>try {\n";
+                            "<script type='text/javascript'>try {\n");
 
-            html += getVariablesHTML(variables, null);
-            html += getVariablesHTML(data.getVariables(), "data");
-            html += getVariablesHTML(axis.getVariables(), "axis");
-            html += getVariablesHTML(grid.getVariables(), "grid");
-            html += getVariablesHTML(legend.getVariables(), "legend");
+            html.append(getVariablesHTML(variables, null));
+            html.append(getVariablesHTML(data.getVariables(), "data"));
+            html.append(getVariablesHTML(axis.getVariables(), "axis"));
+            html.append(getVariablesHTML(grid.getVariables(), "grid"));
+            html.append(getVariablesHTML(legend.getVariables(), "legend"));
 
             String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
             String errorHTML = "<div id='error'></div>";
             String chartHTML = "<div id='chart'></div>";
-            html +=
+            html.append(
                     "\n} catch (e) { displayError(e); }</script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
                             "</head>" +
                             "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
-                            "</html>";
+                            "</html>");
         } catch (JSONException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
 
-        return html;
+        return html.toString();
     }
 
     /**
@@ -147,21 +147,21 @@ public class GraphView {
      * @return HTML string
      */
     private String getVariablesHTML(OrderedHashtable<String, String> variables, String namespace) {
-        String html = "";
+        StringBuilder html = new StringBuilder();
         Enumeration<String> e = variables.keys();
         if (namespace != null && !namespace.equals("")) {
-            html += "var " + namespace + " = {};\n";
+            html.append("var " + namespace + " = {};\n");
         }
         while (e.hasMoreElements()) {
             String name = e.nextElement();
             if (namespace == null || namespace.equals("")) {
-                html += "var " + name;
+                html.append("var " + name);
             } else {
-                html += namespace + "." + name;
+                html.append(namespace + "." + name);
             }
-            html += " = " + variables.get(name) + ";\n";
+            html.append(" = " + variables.get(name) + ";\n");
         }
-        return html;
+        return html.toString();
     }
 
     /*
