@@ -66,6 +66,9 @@ public class GraphView {
         settings.setJavaScriptEnabled(true);
 
         webView.setClickable(true);
+        webView.setFocusable(false);
+        webView.setFocusableInTouchMode(false);
+
         settings.setBuiltInZoomControls(mIsFullScreen);
         settings.setSupportZoom(mIsFullScreen);
         settings.setDisplayZoomControls(mIsFullScreen);
