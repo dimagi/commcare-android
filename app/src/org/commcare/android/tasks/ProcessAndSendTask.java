@@ -359,7 +359,11 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onPostExecute(Integer result) {
         super.onPostExecute(result);
-        //These will never get Zero'd otherwise
+
+        clearState();
+    }
+
+    private void clearState() {
         c = null;
         url = null;
         results = null;
@@ -411,6 +415,8 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             formSubmissionListener.endSubmissionProcess();
         }
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
+
+        clearState();
     }
 
     private static class TaskCancelledException extends Exception {
