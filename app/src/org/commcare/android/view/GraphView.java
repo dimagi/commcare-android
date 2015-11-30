@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.view.c3.AxisConfiguration;
+import org.commcare.android.view.c3.Configuration;
 import org.commcare.android.view.c3.DataConfiguration;
 import org.commcare.android.view.c3.GridConfiguration;
 import org.commcare.android.view.c3.LegendConfiguration;
@@ -88,58 +89,82 @@ public class GraphView {
         mData = graphData;
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
         JSONObject config = new JSONObject();
+        StringBuilder html = new StringBuilder();
         try {
             // Configure data first, as it may affect the other configurations
             DataConfiguration data = new DataConfiguration(mData);
             config.put("data", data.getConfiguration());
-            variables.putAll(data.getVariables());
 
             AxisConfiguration axis = new AxisConfiguration(mData);
             config.put("axis", axis.getConfiguration());
-            variables.putAll(axis.getVariables());
 
             GridConfiguration grid = new GridConfiguration(mData);
             config.put("grid", grid.getConfiguration());
-            variables.putAll(grid.getVariables());
 
             LegendConfiguration legend = new LegendConfiguration(mData);
             config.put("legend", legend.getConfiguration());
-            variables.putAll(legend.getVariables());
+
+            variables.put("type", "'" + mData.getType() + "'");
+            variables.put("config", config.toString());
+
+            html.append(
+                    "<html>" +
+                            "<head>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
+                            "<script type='text/javascript'>try {\n");
+
+            html.append(getVariablesHTML(variables, null));
+            html.append(getVariablesHTML(data.getVariables(), "data"));
+            html.append(getVariablesHTML(axis.getVariables(), "axis"));
+            html.append(getVariablesHTML(grid.getVariables(), "grid"));
+            html.append(getVariablesHTML(legend.getVariables(), "legend"));
+
+            String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
+            String errorHTML = "<div id='error'></div>";
+            String chartHTML = "<div id='chart'></div>";
+            html.append(
+                    "\n} catch (e) { displayError(e); }</script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
+                            "</head>" +
+                            "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
+                            "</html>");
         } catch (JSONException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
-        // TODO: namespace variables?
-        variables.put("type", "'" + mData.getType() + "'");
-        variables.put("config", config.toString());
 
-        String html =
-                "<html>" +
-                        "<head>" +
-                        "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
-                        "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
-                        "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
-                        "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                        "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
-                        "<script type='text/javascript'>try {\n";
+        return html.toString();
+    }
 
+    /**
+     * Generate HTML to declare given variables in WebView.
+     * @param variables OrderedHashTable where keys are variable names and values are JSON
+     *                  representations of values.
+     * @param namespace Optional. If provided, instead of declaring a separate variable for each
+     *                  item in variables, one object will be declared with namespace for a name
+     *                  and a property corresponding to each item in variables.
+     * @return HTML string
+     */
+    private String getVariablesHTML(OrderedHashtable<String, String> variables, String namespace) {
+        StringBuilder html = new StringBuilder();
         Enumeration<String> e = variables.keys();
+        if (namespace != null && !namespace.equals("")) {
+            html.append("var " + namespace + " = {};\n");
+        }
         while (e.hasMoreElements()) {
             String name = e.nextElement();
-            html += "var " + name + " = " + variables.get(name) + ";\n";
+            if (namespace == null || namespace.equals("")) {
+                html.append("var " + name);
+            } else {
+                html.append(namespace + "." + name);
+            }
+            html.append(" = " + variables.get(name) + ";\n");
         }
-
-        String titleHTML = "<div id='chart-title'>" + mTitle + "</div>";
-        String errorHTML = "<div id='error'></div>";
-        String chartHTML = "<div id='chart'></div>";
-        html +=
-                "\n} catch (e) { displayError(e); }</script>" +
-                        "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
-                        "</head>" +
-                        "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
-                        "</html>";
-
-        return html;
+        return html.toString();
     }
 
     /*
