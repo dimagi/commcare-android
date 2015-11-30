@@ -28,7 +28,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 if (type === "bar") {
                     html = "<tr><td colspan='2'>" + barLabels[data[0].x] + "</td></tr>" + html;
                 } else {
-                    html = "<tr><td>" + xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;  // TODO: test with time charts
+                    // TODO: this displays an unecessarily long, English-only string for time charts
+                    // "Sat May 02 2015 00:00:00 GMT-0400 (Eastern Daylight Time)"
+                    html = "<tr><td>" + xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;
                 }
                 if (type === "bubble") {
                     html += "<tr><td>Radius</td><td>" + radii[d.id][d.index] + "</td></tr>";
@@ -229,7 +231,7 @@ function applyLegendShape(yID, symbol) {
 /**
  * Add symbol to given element.
  * @param parent Element to attach symbol to
- * @param x x x-coordinate to draw at
+ * @param x x-coordinate to draw at
  * @param y y-coordinate to draw at
  * @param symbol string representing symbol: "none", "circle", "cross", etc.
  *  Unknown symbols will be drawn as circles.

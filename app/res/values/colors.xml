@@ -64,6 +64,8 @@
 
     <color name="dark_brown">#5C4033</color>
 
+    <color name="transclucent_nearly_solid_grey">#AA888888</color>
+
     <!-- COMMCARE OFFICIAL COLOR PALETTE -->
     <!-- Best Practices and Usage Notes (more HQ-specific at the moment) can be found at commcarehq.org/styleguide/colors/ -->
     <!-- Text vs. Background are suggested labels. Invert if you want the darker background, but the two colors

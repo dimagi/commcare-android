@@ -1032,10 +1032,8 @@ public class CommCareHomeActivity
     private void processAndSend(FormRecord[] records, final boolean syncAfterwards,
                                 final boolean userTriggered) {
 
-        int sendTaskId = syncAfterwards ? ProcessAndSendTask.SEND_PHASE_ID : -1;
-
         ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(),
-                sendTaskId, syncAfterwards) {
+                syncAfterwards) {
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {

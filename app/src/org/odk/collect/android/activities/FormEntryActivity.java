@@ -1419,7 +1419,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             mSaveToDiskTask.connect(this);
         }
         mSaveToDiskTask.setFormSavedListener(this);
-        mSaveToDiskTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mSaveToDiskTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mSaveToDiskTask.execute();
+        }
     }
 
     /**
@@ -1853,7 +1857,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             };
             mFormLoaderTask.connect(this);
-            mFormLoaderTask.execute(formUri);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
+            } else {
+                mFormLoaderTask.execute(formUri);
+            }
             hasFormLoadBeenTriggered = true;
         }
     }
@@ -2200,14 +2208,26 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         finish();
     }
 
+    protected boolean isBlockingUserInput() {
+        View cover = this.findViewById(R.id.form_entry_cover);
+
+        return cover != null && cover.getVisibility() == View.VISIBLE;
+    }
+
     @Override
     protected boolean onBackwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         showPreviousView(true);
         return true;
     }
 
     @Override
     protected boolean onForwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         //We've already computed the "is there more coming" stuff intensely in the the nav details
         //and set the forward button tag appropriately, so use that to determine whether we can
         //swipe forward.
@@ -2215,8 +2235,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
             next();
             return true;
+        } else {
+            FormNavigationUI.animateFinishArrow(this, mFormController, mCurrentView);
+            return true;
         }
-        return false;
     }
 
     @Override

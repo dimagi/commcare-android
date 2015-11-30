@@ -5,7 +5,7 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DirectAndroidDbHelper;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.dalvik.application.CommCareApp;
@@ -98,7 +98,7 @@ public class DemoUserBuilder {
             User user = new User(username, passwordHash, username, userType);
 
             SqlStorage<User> userStorage =
-                    new SqlStorage<>(User.STORAGE_KEY, User.class, new DirectAndroidDbHelper(context, userDatabase));
+                    new SqlStorage<>(User.STORAGE_KEY, User.class, new ConcreteAndroidDbHelper(context, userDatabase));
             userStorage.write(user);
         } finally {
             if (userDatabase != null) {
