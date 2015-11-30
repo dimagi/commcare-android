@@ -133,11 +133,7 @@ public class AndroidLogger implements ILogger {
         ArrayList<LogEntry> logs = new ArrayList<>();
         for (AndroidLogEntry entry : storage) {
             logs.add(entry);
-            if (serializing) {
-                if (entry.getID() > lastEntry) {
-                    lastEntry = entry.getID();
-                }
-            }
+            storeLastEntry(entry);
         }
         return serializer.serializeLogs(logs.toArray(new LogEntry[logs.size()]));
     }
@@ -146,11 +142,7 @@ public class AndroidLogger implements ILogger {
     public void serializeLogs(StreamLogSerializer serializer) throws IOException {
         for (AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);
-            if (serializing) {
-                if (entry.getID() > lastEntry) {
-                    lastEntry = entry.getID();
-                }
-            }
+            storeLastEntry(entry);
         }
     }
 
@@ -159,14 +151,18 @@ public class AndroidLogger implements ILogger {
         int count = 0;
         for (AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);
-            if (serializing) {
-                if (entry.getID() > lastEntry) {
-                    lastEntry = entry.getID();
-                }
-            }
+            storeLastEntry(entry);
             count++;
             if (count > limit) {
                 break;
+            }
+        }
+    }
+
+    private void storeLastEntry(AndroidLogEntry entry) {
+        if (serializing) {
+            if (entry.getID() > lastEntry) {
+                lastEntry = entry.getID();
             }
         }
     }
