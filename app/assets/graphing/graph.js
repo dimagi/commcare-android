@@ -11,30 +11,42 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         // Turn off default hover/click behaviors
         config.interaction = { enabled: true };
+        var formatXTooltip = function(x) {
+            return x;
+        }
+        if (type === "time") {
+            formatXTooltip = d3.time.format(config.axis.x.tick.format);
+        }
         config.tooltip = {
             show: true,
             grouped: type === "bar",
-            contents: function(data, defaultTitleFormat, defaultValueFormat, color) {
+            contents: function(yData, defaultTitleFormat, defaultValueFormat, color) {
                 var html = "";
-                for (var i = 0; i < data.length; i++) {
-                    if (data.isData[data[i].id]) {
-                        var yName = config.data.names[data[i].id];
-                        html += "<tr><td>" + yName + "</td><td>" + data[i].value + "</td></tr>";
+
+                // Add rows for y values
+                for (var i = 0; i < yData.length; i++) {
+                    if (data.isData[yData[i].id]) {
+                        var yName = config.data.names[yData[i].id];
+                        html += "<tr><td>" + yName + "</td><td>" + yData[i].value + "</td></tr>";
                     }
                 }
                 if (!html) {
                     return "";
                 }
+
+                // Add a top row for x value
                 if (type === "bar") {
-                    html = "<tr><td colspan='2'>" + data.barLabels[data[0].x] + "</td></tr>" + html;
+                    html = "<tr><td colspan='2'>" + data.barLabels[yData[0].x] + "</td></tr>" + html;
                 } else {
-                    // TODO: this displays an unecessarily long, English-only string for time charts
-                    // "Sat May 02 2015 00:00:00 GMT-0400 (Eastern Daylight Time)"
-                    html = "<tr><td>" + data.xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;
+                    html = "<tr><td>" + data.xNames[yData[0].id] + "</td><td>"
+                            + formatXTooltip(yData[0].x) + "</td></tr>"
+                            + html;
                 }
+
                 if (type === "bubble") {
                     html += "<tr><td>Radius</td><td>" + data.radii[d.id][d.index] + "</td></tr>";
                 }
+
                 html = "<table>" + html + "</table>";
                 html = "<div id='tooltip'>" + html + "</div>";
                 return html;
