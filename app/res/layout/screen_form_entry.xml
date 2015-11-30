@@ -91,7 +91,7 @@
             />
 
         <ImageButton
-            android:id="@id/nav_btn_next"
+            android:id="@+id/nav_btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minWidth="@dimen/new_progressbar_button_minwidth"
@@ -133,10 +133,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     <include layout="@layout/component_drop_shadow"/>
+        <FrameLayout
+            android:id="@+id/form_entry_cover"
+            android:background="@color/transclucent_nearly_solid_grey"
+            android:visibility="gone"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </FrameLayout>
 
     <FrameLayout
-        android:id="@id/form_entry_labels"
+        android:id="@+id/form_entry_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/screen_form_entry_bottom_anchor"
@@ -152,7 +159,7 @@
     </FrameLayout>
 
     <View
-        android:id="@id/screen_form_entry_bottom_anchor"
+        android:id="@+id/screen_form_entry_bottom_anchor"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"/>

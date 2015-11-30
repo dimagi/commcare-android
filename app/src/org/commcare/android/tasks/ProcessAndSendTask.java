@@ -14,7 +14,6 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -75,27 +74,30 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     
     public static final long PROGRESS_LOGGED_OUT = 256;
     public static final long PROGRESS_SDCARD_REMOVED = 512;
-    
+
     DataSubmissionListener formSubmissionListener;
     private FormRecordProcessor processor;
     
     private static int SUBMISSION_ATTEMPTS = 2;
     
-    static Queue<ProcessAndSendTask> processTasks = new LinkedList<ProcessAndSendTask>();
+    private static final Queue<ProcessAndSendTask> processTasks = new LinkedList<>();
     
     public ProcessAndSendTask(Context c, String url) {
-        this(c, url, SEND_PHASE_ID, true);
+        this(c, url, true);
     }
-    
-    public ProcessAndSendTask(Context c, String url, int sendTaskId, boolean inSyncMode) {
+
+    /**
+     * @param inSyncMode blocks the user with a sync dialog
+     */
+    public ProcessAndSendTask(Context c, String url, boolean inSyncMode) {
         this.c = c;
         this.url = url;
-        this.sendTaskId = sendTaskId;
         this.processor = new FormRecordProcessor(c);
         if (inSyncMode) {
+            this.sendTaskId = SEND_PHASE_ID;
             this.taskId = PROCESSING_PHASE_ID;
-        }
-        else {
+        } else {
+            this.sendTaskId = -1;
             this.taskId = -1;
         }
     }
@@ -103,17 +105,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected Integer doTaskBackground(FormRecord... records) {
         boolean needToSendLogs = false;
-
-        // Don't try to sync if logging out is occuring
-        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
-            // NOTE: DataPullTask also needs this lock to run, so they
-            // cannot run in parallel.
-            //
-            // TODO PLM: once this task is refactored into manageable
-            // components, it should use the ManagedAsyncTask pattern of
-            // checking for isCancelled() and aborting at safe places.
-            return (int)PROGRESS_LOGGED_OUT;
-        }
 
         try {
         results = new Long[records.length];
@@ -124,6 +115,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         //The first thing we need to do is make sure everything is processed,
         //we can't actually proceed before that.
         for(int i = 0 ; i < records.length ; ++i) {
+            if (isCancelled()) {
+                return (int)FormUploadUtil.FAILURE;
+            }
             FormRecord record = records[i];
 
             //If the form is complete, but unprocessed, process it.
@@ -165,21 +159,24 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 } 
             }
         }
-        
+
         this.publishProgress(PROGRESS_ALL_PROCESSED);
-        
+
         //Put us on the queue!
         synchronized(processTasks) {
             processTasks.add(this);
         }
-        
         boolean proceed = false;
         boolean needToRefresh = false;
         while(!proceed) {
             //TODO: Terrible?
-            
+
             //See if it's our turn to go
             synchronized(processTasks) {
+                if (isCancelled()) {
+                    processTasks.remove(this);
+                    return (int)FormUploadUtil.FAILURE;
+                }
                 //Are we at the head of the queue?
                 ProcessAndSendTask head = processTasks.peek();
                 if(processTasks.peek() == this) {
@@ -324,10 +321,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             if(needToSendLogs) {
                 CommCareApplication._().notifyLogsPending();
             }
-            CommCareSessionService.sessionAliveLock.unlock();
         }
     }
-    
+
     public static int pending() {
         synchronized(processTasks) {
             return processTasks.size();
@@ -416,6 +412,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     @Override
     protected void onCancelled() {
         super.onCancelled();
+
         if(this.formSubmissionListener != null) {
             formSubmissionListener.endSubmissionProcess();
         }
