@@ -93,51 +93,14 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
         //The first thing we need to do is make sure everything is processed,
         //we can't actually proceed before that.
-        for(int i = 0 ; i < records.length ; ++i) {
-            if (isCancelled()) {
-                return (int)FormUploadUtil.FAILURE;
+            try {
+                needToSendLogs = checkFormRecordStatus(records);
+            } catch (FileNotFoundException e) {
+                return (int)PROGRESS_SDCARD_REMOVED;
+            } catch (TaskCancelledException e) {
+                  return (int)FormUploadUtil.FAILURE;
             }
-            FormRecord record = records[i];
 
-            //If the form is complete, but unprocessed, process it.
-            if(FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-                try {
-                    records[i] = processor.process(record);
-                } catch (InvalidStructureException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                    continue;
-                } catch (XmlPullParserException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                    continue;
-                } catch (UnfullfilledRequirementsException e) {
-                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
-                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
-                    FormRecordCleanupTask.wipeRecord(c, record);
-                    needToSendLogs = true;
-                    continue;
-                } catch (FileNotFoundException e) {
-                    if(CommCareApplication._().isStorageAvailable()) {
-                        //If storage is available generally, this is a bug in the app design
-                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                        FormRecordCleanupTask.wipeRecord(c, record);
-                    } else {
-                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
-                        //Otherwise, the SD card just got removed, and we need to bail anyway.
-                        return (int)PROGRESS_SDCARD_REMOVED;
-                    }
-                    continue;
-                }   catch (IOException e) {
-                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
-                    continue;
-                } 
-            }
-        }
 
         this.publishProgress(PROGRESS_ALL_PROCESSED);
 
@@ -303,6 +266,52 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         }
     }
 
+    private boolean checkFormRecordStatus(FormRecord[] records)
+            throws FileNotFoundException, TaskCancelledException {
+        boolean needToSendLogs = false;
+        for (int i = 0; i < records.length; ++i) {
+            if (isCancelled()) {
+                throw new TaskCancelledException();
+            }
+            FormRecord record = records[i];
+
+            //If the form is complete, but unprocessed, process it.
+            if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
+                try {
+                    records[i] = processor.process(record);
+                } catch (InvalidStructureException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to transaction data|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (XmlPullParserException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad xml|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (UnfullfilledRequirementsException e) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.BadTransactions), true);
+                    Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record due to bad requirements|" + getExceptionText(e));
+                    FormRecordCleanupTask.wipeRecord(c, record);
+                    needToSendLogs = true;
+                } catch (FileNotFoundException e) {
+                    if (CommCareApplication._().isStorageAvailable()) {
+                        //If storage is available generally, this is a bug in the app design
+                        Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                        FormRecordCleanupTask.wipeRecord(c, record);
+                    } else {
+                        CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                        //Otherwise, the SD card just got removed, and we need to bail anyway.
+                        throw e;
+                    }
+                } catch (IOException e) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "IO Issues processing a form. Tentatively not removing in case they are resolvable|" + getExceptionText(e));
+                }
+            }
+        }
+        return needToSendLogs;
+    }
+
     public static int pending() {
         synchronized(processTasks) {
             return processTasks.size();
@@ -398,4 +407,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
+    private static class TaskCancelledException extends Exception {
+    }
 }
