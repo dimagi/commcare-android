@@ -130,91 +130,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         if(formSubmissionListener != null) {
             formSubmissionListener.beginSubmissionProcess(records.length);
         }
-        
-        for(int i = 0 ; i < records.length ; ++i) {
-            //See whether we are OK to proceed based on the last form. We're now guaranteeing
-            //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
-            //proceeding if there was a local problem with a record, since we'll just move on from that
-            //processing.
-            if(i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
-                //Something went wrong with the last form, so we need to cancel this whole shebang
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
-                break;
-            }
-            
-            FormRecord record = records[i];
-            try{
-                //If it's unsent, go ahead and send it
-                if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
-                    File folder;
-                    try {
-                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
-                    } catch (IOException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
-                        continue;
-                    }
-                    
-                    //Good!
-                    //Time to Send!
-                    try {
-                        User mUser = CommCareApplication._().getSession().getLoggedInUser();
-                        
-                        int attemptsMade = 0;
-                        while(attemptsMade < SUBMISSION_ATTEMPTS) {
-                            if(attemptsMade > 0) { 
-                                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
-                            }
-                            results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
-                            if(results[i] == FormUploadUtil.FULL_SUCCESS) {
-                                break;
-                            } else {
-                                attemptsMade++;
-                            }
-                        }
-                        
-                        if(results[i] == FormUploadUtil.RECORD_FAILURE) {
-                            //We tried to submit multiple times and there was a local problem (not a remote problem).
-                            //This implies that something is wrong with the current record, and we need to quarantine it.
-                            processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
-                            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
-                        }
-                    } catch (FileNotFoundException e) {
-                        if(CommCareApplication._().isStorageAvailable()) {
-                            //If storage is available generally, this is a bug in the app design
-                            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                            FormRecordCleanupTask.wipeRecord(c, record);
-                        } else {
-                            //Otherwise, the SD card just got removed, and we need to bail anyway.
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
-                            break;
-                        }
-                        continue;
-                    }
-                    
-                    Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-                    //Check for success
-                    if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
-                        //Only delete if this device isn't set up to review.
-                        if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-                            FormRecordCleanupTask.wipeRecord(c, record);
-                        } else {
-                            //Otherwise save and move appropriately
-                            processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
-                        }
-                    }
-                } else {
-                    results[i] = FormUploadUtil.FULL_SUCCESS;
-                }
-            } catch(SessionUnavailableException sue) {
-                throw sue;
-            } catch (Exception e) {
-                //Just try to skip for now. Hopefully this doesn't wreck the model :/
-                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
-                continue;
-            }  
-        }
-        
+
+            sendForms(records);
+
         long result = 0;
         for(int i = 0 ; i < records.length ; ++ i) {
             if(results[i] > result) {
@@ -316,6 +234,91 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
             }
         }
         return needToRefresh;
+    }
+
+    private void sendForms(FormRecord[] records) throws SessionUnavailableException {
+        for(int i = 0 ; i < records.length ; ++i) {
+            //See whether we are OK to proceed based on the last form. We're now guaranteeing
+            //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit
+            //proceeding if there was a local problem with a record, since we'll just move on from that
+            //processing.
+            if(i > 0 && !(results[i - 1] == FormUploadUtil.FULL_SUCCESS || results[i - 1] == FormUploadUtil.RECORD_FAILURE)) {
+                //Something went wrong with the last form, so we need to cancel this whole shebang
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Cancelling submission due to network errors. " + (i - 1) + " forms succesfully sent.");
+                break;
+            }
+
+            FormRecord record = records[i];
+            try{
+                //If it's unsent, go ahead and send it
+                if(FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
+                    File folder;
+                    try {
+                        folder = new File(record.getPath(c)).getCanonicalFile().getParentFile();
+                    } catch (IOException e) {
+                        Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Bizarre. Exception just getting the file reference. Not removing." + getExceptionText(e));
+                        continue;
+                    }
+
+                    //Good!
+                    //Time to Send!
+                    try {
+                        User mUser = CommCareApplication._().getSession().getLoggedInUser();
+
+                        int attemptsMade = 0;
+                        while(attemptsMade < SUBMISSION_ATTEMPTS) {
+                            if(attemptsMade > 0) {
+                                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Retrying submission. " + (SUBMISSION_ATTEMPTS - attemptsMade) + " attempts remain");
+                            }
+                            results[i] = FormUploadUtil.sendInstance(i, folder, new SecretKeySpec(record.getAesKey(), "AES"), url, this, mUser);
+                            if(results[i] == FormUploadUtil.FULL_SUCCESS) {
+                                break;
+                            } else {
+                                attemptsMade++;
+                            }
+                        }
+
+                        if(results[i] == FormUploadUtil.RECORD_FAILURE) {
+                            //We tried to submit multiple times and there was a local problem (not a remote problem).
+                            //This implies that something is wrong with the current record, and we need to quarantine it.
+                            processor.updateRecordStatus(record, FormRecord.STATUS_LIMBO);
+                            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "Quarantined Form Record");
+                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.RecordQuarantined), true);
+                        }
+                    } catch (FileNotFoundException e) {
+                        if(CommCareApplication._().isStorageAvailable()) {
+                            //If storage is available generally, this is a bug in the app design
+                            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
+                            FormRecordCleanupTask.wipeRecord(c, record);
+                        } else {
+                            //Otherwise, the SD card just got removed, and we need to bail anyway.
+                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
+                            break;
+                        }
+                        continue;
+                    }
+
+                    Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+                    //Check for success
+                    if(results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
+                        //Only delete if this device isn't set up to review.
+                        if(p == null || !p.isFeatureActive(Profile.FEATURE_REVIEW)) {
+                            FormRecordCleanupTask.wipeRecord(c, record);
+                        } else {
+                            //Otherwise save and move appropriately
+                            processor.updateRecordStatus(record, FormRecord.STATUS_SAVED);
+                        }
+                    }
+                } else {
+                    results[i] = FormUploadUtil.FULL_SUCCESS;
+                }
+            } catch(SessionUnavailableException sue) {
+                throw sue;
+            } catch (Exception e) {
+                //Just try to skip for now. Hopefully this doesn't wreck the model :/
+                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
+            }
+        }
     }
 
     public static int pending() {
