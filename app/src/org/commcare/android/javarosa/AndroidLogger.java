@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-
 /**
  * Logging engine for CommCare ODK Environments.
  *
@@ -101,8 +100,6 @@ public class AndroidLogger implements ILogger {
     private int lastEntry = -1;
     private boolean serializing = false;
 
-    private final Object serializationLock = new Object();
-
     public AndroidLogger(SqlStorage<AndroidLogEntry> storage) {
         this.storage = storage;
     }
@@ -125,21 +122,15 @@ public class AndroidLogger implements ILogger {
             storage.removeAll(new EntityFilter<AndroidLogEntry>() {
                 @Override
                 public boolean matches(AndroidLogEntry e) {
-                    if (e.getID() <= lastEntry) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                    return (e.getID() <= lastEntry);
                 }
-
             });
-
         }
     }
 
     @Override
     public <T> T serializeLogs(IFullLogSerializer<T> serializer) {
-        ArrayList<LogEntry> logs = new ArrayList<LogEntry>();
+        ArrayList<LogEntry> logs = new ArrayList<>();
         for (AndroidLogEntry entry : storage) {
             logs.add(entry);
             if (serializing) {
@@ -194,31 +185,4 @@ public class AndroidLogger implements ILogger {
     public void halt() {
         //Meh.
     }
-
-    /**
-     * Call before serializing to limit what records will be purged during any
-     * calls to clear records.
-     * <p/>
-     * TODO: This is kind of weird.
-     */
-    public void beginSerializationSession() {
-        synchronized (serializationLock) {
-            serializing = true;
-            lastEntry = -1;
-        }
-    }
-
-    /**
-     * Call after done with a serialization/purging session to reset the internal
-     * state of the logger
-     * <p/>
-     * TODO: This is kind of weird.
-     */
-    public void endSerializatonSession() {
-        synchronized (serializationLock) {
-            serializing = false;
-            lastEntry = -1;
-        }
-    }
-
 }

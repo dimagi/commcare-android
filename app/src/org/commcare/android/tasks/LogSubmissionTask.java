@@ -49,7 +49,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private static final long SUBMISSION_NOTIFY = 64;
     private static final long SUBMISSION_DONE = 128;
 
-    public enum LogSubmitOutcomes implements MessageTag {
+    protected enum LogSubmitOutcomes implements MessageTag {
         /**
          * Logs successfully submitted
          **/
@@ -84,7 +84,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     private final DataSubmissionListener listener;
     private final String submissionUrl;
 
-    public LogSubmissionTask(boolean serializeCurrentLogs, DataSubmissionListener listener, String submissionUrl) {
+    public LogSubmissionTask(boolean serializeCurrentLogs,
+                             DataSubmissionListener listener,
+                             String submissionUrl) {
         this.serializeCurrentLogs = serializeCurrentLogs;
         this.listener = listener;
         this.submissionUrl = submissionUrl;
