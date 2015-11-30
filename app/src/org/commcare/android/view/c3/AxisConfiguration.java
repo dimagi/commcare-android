@@ -68,7 +68,7 @@ public class AxisConfiguration extends Configuration {
         String value = mData.getConfiguration(key);
         if (value != null) {
             if (prefix.equals("x") && mData.getType().equals(Graph.TYPE_TIME)) {
-                axis.put(suffix, value);
+                axis.put(suffix, parseTime(value, key));
             } else {
                 axis.put(suffix, parseDouble(value, key));
             }
@@ -99,7 +99,7 @@ public class AxisConfiguration extends Configuration {
                 for (int i = 0; i < labels.length(); i++) {
                     String xValue = labels.getString(i);
                     if (mData.getType().equals(Graph.TYPE_TIME)) {
-                        values.put(xValue);
+                        values.put(parseTime(xValue, key));
                     } else {
                         values.put(parseDouble(xValue, key));
                     }
@@ -117,7 +117,7 @@ public class AxisConfiguration extends Configuration {
                     while (i.hasNext()) {
                         String location = (String)i.next();
                         if (mData.getType().equals(Graph.TYPE_TIME)) {
-                            values.put(location);
+                            values.put(parseTime(location, key));
                         } else {
                             values.put(parseDouble(location, key));
                         }
