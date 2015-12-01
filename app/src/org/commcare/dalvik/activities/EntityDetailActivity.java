@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
@@ -35,7 +36,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity
-        extends SessionAwareCommCareActivity
+        extends SaveSessionCommCareActivity
         implements DetailCalloutListener {
 
     // reference id of selected element being detailed

@@ -134,7 +134,6 @@ public class DevSessionRestorer {
         SharedPreferences prefs =
                 CommCareApplication._().getCurrentApp().getAppPreferences();
         String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
-        Log.i("12/1", "Saved Session Present: " + (serializedSession != null));
         return serializedSession != null;
     }
 

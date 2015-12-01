@@ -41,6 +41,7 @@ import android.widget.Toast;
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -89,7 +90,7 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity
+public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
