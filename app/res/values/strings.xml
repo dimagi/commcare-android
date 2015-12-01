@@ -144,6 +144,8 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     <string name="panes">one</string>
+    <string name="restore_session_prompt">Restore saved session upon login</string>
+
 
     <!-- Start Collect Strings -->
 
