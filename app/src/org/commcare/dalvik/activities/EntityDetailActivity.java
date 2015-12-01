@@ -36,7 +36,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 @ManagedUi(R.layout.entity_detail)
 public class EntityDetailActivity
-        extends SaveSessionCommCareActivity
+        extends SessionAwareCommCareActivity
         implements DetailCalloutListener {
 
     // reference id of selected element being detailed
