@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.AppManagerAdapter;
-import org.commcare.android.framework.TrackedActivity;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -30,7 +30,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author amstone326
  */
 
-public class AppManagerActivity extends TrackedActivity implements OnItemClickListener {
+public class AppManagerActivity extends Activity implements OnItemClickListener {
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
     private static final int MENU_CONNECTION_DIAGNOSTIC = 0;

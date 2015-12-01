@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.TrackedCommCareActivity;
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -31,7 +31,7 @@ import java.util.Vector;
  * Performs media validation and allows for the installation of missing media
  */
 public class CommCareVerificationActivity
-        extends TrackedCommCareActivity<CommCareVerificationActivity>
+        extends CommCareActivity<CommCareVerificationActivity>
         implements OnClickListener {
     private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
